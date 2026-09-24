@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 export async function GET(context) {
   const posts = await getCollection('blog');
   return rss({
-    title: 'Voltra',
+    title: 'LK II',
     description:
       'Ehrliche Kaufberatung für Tech-Gadgets: Ladegeräte, Tastaturen, Smart Home und mehr.',
     site: context.site,

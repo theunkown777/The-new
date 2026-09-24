@@ -1,4 +1,4 @@
-# Voltra
+# LK II
 
 Eine kostenlos hostbare Content-/Affiliate-Website (Nische: Tech-Gadgets &
 Elektronik), gebaut mit [Astro](https://astro.build). Fünf fertige
