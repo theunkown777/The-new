@@ -1,7 +1,7 @@
-# Deskaro
+# Voltra
 
-Eine kostenlos hostbare Content-/Affiliate-Website (Nische: Home-Office- &
-Produktivitäts-Gear), gebaut mit [Astro](https://astro.build). Fünf fertige
+Eine kostenlos hostbare Content-/Affiliate-Website (Nische: Tech-Gadgets &
+Elektronik), gebaut mit [Astro](https://astro.build). Fünf fertige
 Ratgeberartikel, Rechtstexte für Deutschland (Impressum, Datenschutz,
 Affiliate-Hinweis), SEO-Grundausstattung (Sitemap, RSS, Meta-Tags) und ein
 automatischer Deploy nach GitHub Pages sind bereits eingerichtet.
@@ -109,6 +109,7 @@ title: "Artikel-Titel"
 description: "Kurze Meta-Beschreibung für Suchmaschinen."
 pubDate: 2026-03-01
 tags: ["tag1", "tag2"]
+icon: "charger"   # charger | keyboard | smart-plug | speaker | powerbank
 products:
   - name: "Produktname bei Amazon ansehen"
     href: "https://www.amazon.de/s?k=suchbegriff&tag=deintag-21"

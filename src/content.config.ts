@@ -9,7 +9,7 @@ const blog = defineCollection({
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
-    icon: z.enum(['chair', 'desk', 'monitor-arm', 'lamp', 'headphones']).default('desk'),
+    icon: z.enum(['charger', 'keyboard', 'smart-plug', 'speaker', 'powerbank']).default('charger'),
     products: z
       .array(
         z.object({

@@ -9,18 +9,19 @@ const posts = (await getCollection('blog')).sort(
 );
 ---
 <BaseLayout
-  title="Deskaro"
-  description="Handverlesene Home-Office-Empfehlungen: Bürostühle, Schreibtische, Beleuchtung und mehr, mit Direktlink zu Amazon."
+  title="Voltra"
+  description="Handverlesene Tech-Gadget-Empfehlungen: Ladegeräte, Tastaturen, Smart Home und mehr, mit Direktlink zu Amazon."
   wide
 >
   <section class="hero">
+    <div class="hero-glow"></div>
     <div class="wrap-narrow">
-      <span class="eyebrow">Home-Office-Empfehlungen</span>
-      <h1>Die richtige Ausstattung für deinen Arbeitsplatz</h1>
+      <span class="eyebrow">Tech-Gadget-Empfehlungen</span>
+      <h1>Die Gadgets, die deinen Alltag wirklich smarter machen</h1>
       <p class="lede">
-        Wir wählen für dich aus, testen Kriterien statt Marketing-Versprechen
-        und verlinken direkt zu den Produkten auf Amazon, die sich wirklich
-        lohnen.
+        Wir filtern den Gadget-Dschungel vor: klare Kaufkriterien statt
+        Marketing-Versprechen, mit Direktlink zu den Produkten auf Amazon,
+        die sich wirklich lohnen.
       </p>
     </div>
   </section>
@@ -32,7 +33,7 @@ const posts = (await getCollection('blog')).sort(
     </div>
     <div class="product-grid">
       {posts.map((post) => (
-        <a class="product-card" href={`${base}blog/${post.id}/`}>
+        <a class="product-card reveal" href={`${base}blog/${post.id}/`}>
           <span class="icon"><Icon name={post.data.icon} /></span>
           <h3>{post.data.title}</h3>
           <p>{post.data.description}</p>
@@ -41,4 +42,23 @@ const posts = (await getCollection('blog')).sort(
       ))}
     </div>
   </section>
+
+  <script>
+    const items = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.15 }
+    );
+    items.forEach((item, i) => {
+      (item as HTMLElement).style.transitionDelay = `${Math.min(i, 6) * 60}ms`;
+      observer.observe(item);
+    });
+  </script>
 </BaseLayout>

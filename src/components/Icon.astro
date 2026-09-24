@@ -1,50 +1,50 @@
 ---
 interface Props {
-  name: 'chair' | 'desk' | 'monitor-arm' | 'lamp' | 'headphones';
+  name: 'charger' | 'keyboard' | 'smart-plug' | 'speaker' | 'powerbank';
 }
 const { name } = Astro.props;
 ---
 
-{name === 'chair' && (
+{name === 'charger' && (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M7 4h10l-1 7H8L7 4Z" />
-    <path d="M6.5 11h11l1 4H5.5l1-4Z" />
-    <path d="M7 15l-1.5 5" />
-    <path d="M17 15l1.5 5" />
+    <rect x="3" y="6" width="13" height="13" rx="3" />
+    <circle cx="9.5" cy="12.5" r="3.3" />
+    <path d="M18 9l3-2v11l-3-2" />
   </svg>
 )}
 
-{name === 'desk' && (
+{name === 'keyboard' && (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M2 8h20" />
-    <path d="M2 8v2" />
-    <path d="M22 8v2" />
-    <path d="M5 10v9" />
-    <path d="M19 10v9" />
+    <rect x="2.5" y="6" width="19" height="12" rx="2" />
+    <path d="M6 10h.01" />
+    <path d="M10 10h.01" />
+    <path d="M14 10h.01" />
+    <path d="M18 10h.01" />
+    <path d="M6 14h12" />
   </svg>
 )}
 
-{name === 'monitor-arm' && (
+{name === 'smart-plug' && (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="9" y="3" width="12" height="8" rx="1.2" />
-    <path d="M5 21v-8" />
-    <path d="M5 13c0-3 2-5 4-5" />
-    <path d="M3 21h4" />
+    <rect x="6" y="3" width="12" height="9" rx="2.5" />
+    <path d="M9.5 6.5v2" />
+    <path d="M14.5 6.5v2" />
+    <path d="M9 12v3a3 3 0 0 0 6 0v-3" />
+    <path d="M12 18v3" />
   </svg>
 )}
 
-{name === 'lamp' && (
+{name === 'speaker' && (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M9 18h6" />
-    <path d="M10 21h4" />
-    <path d="M12 3a6 6 0 0 0-3 11.2c.6.4 1 1.1 1 1.8h4c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3Z" />
+    <rect x="5" y="2.5" width="14" height="19" rx="3.5" />
+    <circle cx="12" cy="8.2" r="2.1" />
+    <circle cx="12" cy="15.3" r="3.4" />
   </svg>
 )}
 
-{name === 'headphones' && (
+{name === 'powerbank' && (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
-    <rect x="3" y="14" width="4" height="6" rx="1.5" />
-    <rect x="17" y="14" width="4" height="6" rx="1.5" />
+    <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
+    <path d="M13 6.5l-3.2 5H13l-3.2 5" />
   </svg>
 )}
