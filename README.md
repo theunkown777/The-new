@@ -37,7 +37,7 @@ Ist bereits vorbereitet über `.github/workflows/deploy.yml`.
 2. Im GitHub-Repo unter **Settings → Pages** bei „Source" **GitHub Actions**
    auswählen.
 3. Bei jedem Push auf `main` baut und deployed die Action die Seite
-   automatisch nach `https://lucakolhoff1777.github.io/the-new/`.
+   automatisch nach `https://lucakolhoff1777.github.io/The-new/`.
 
 Falls du später eine eigene Domain nutzt: `site` und `base` in
 `astro.config.mjs` anpassen (`base: '/'` bei eigener Domain).
@@ -93,7 +93,7 @@ Ohne Besucher kein Umsatz. Das Wichtigste:
   [Google Search Console](https://search.google.com/search-console) und
   [Bing Webmaster Tools](https://www.bing.com/webmasters) anmelden (beide
   kostenlos) und die Sitemap
-  (`https://lucakolhoff1777.github.io/the-new/sitemap-index.xml`)
+  (`https://lucakolhoff1777.github.io/The-new/sitemap-index.xml`)
   einreichen.
 - Rechne realistisch: SEO-Traffic braucht meist **mehrere Monate**, bis er
   spürbar wird. Das ist normal, kein Zeichen, dass etwas falsch läuft.
