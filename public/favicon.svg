@@ -1,4 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#0c2317"/>
-  <text x="32" y="43" font-family="Georgia, serif" font-size="30" font-weight="bold" fill="#e3b64f" text-anchor="middle">D</text>
+  <defs>
+    <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="17" y1="16" x2="47" y2="46">
+      <stop offset="0%" stop-color="#7c6cff"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0a0b14"/>
+  <g stroke="url(#g)" stroke-width="6" stroke-linecap="round" fill="none">
+    <path d="M23 16v30" />
+    <path d="M17 46h12" />
+    <path d="M41 16v30" />
+    <path d="M35 46h12" />
+  </g>
 </svg>

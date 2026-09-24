@@ -1,4 +1,6 @@
 ---
+import Logo from './Logo.astro';
+
 const base = import.meta.env.BASE_URL;
 const nav = [
   { href: `${base}`, label: 'Start' },
@@ -8,7 +10,10 @@ const nav = [
 ---
 <header class="site-header">
   <div class="wrap">
-    <a class="site-title" href={base}>Voltra<span class="mark">.</span></a>
+    <a class="site-title" href={base}>
+      <Logo size={28} />
+      Voltra
+    </a>
     <nav class="site-nav">
       {nav.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>

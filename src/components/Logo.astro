@@ -1,0 +1,31 @@
+---
+// Abstract monogram mark: two serif-footed strokes reading as a roman "II" —
+// distilled from a mirrored L + K monogram, simplified into bold geometry so
+// it stays crisp at small sizes (header icon, favicon) instead of relying on
+// tiny letterforms.
+interface Props {
+  size?: number;
+}
+const { size = 30 } = Astro.props;
+---
+<svg
+  class="logo-mark"
+  width={size * 0.75}
+  height={size}
+  viewBox="0 0 48 64"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <linearGradient id="logoGrad" gradientUnits="userSpaceOnUse" x1="9" y1="9" x2="39" y2="47">
+      <stop offset="0%" stop-color="#7c6cff" />
+      <stop offset="100%" stop-color="#22d3ee" />
+    </linearGradient>
+  </defs>
+  <g stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" fill="none">
+    <path d="M15 9v38" />
+    <path d="M9 47h12" />
+    <path d="M33 9v38" />
+    <path d="M27 47h12" />
+  </g>
+</svg>
