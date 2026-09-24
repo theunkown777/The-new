@@ -9,6 +9,7 @@ const blog = defineCollection({
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).default([]),
+    icon: z.enum(['chair', 'desk', 'monitor-arm', 'lamp', 'headphones']).default('desk'),
     products: z
       .array(
         z.object({

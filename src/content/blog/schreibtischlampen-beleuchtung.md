@@ -3,6 +3,7 @@ title: "Die richtige Beleuchtung fürs Home Office: Schreibtischlampen im Überb
 description: "Schlechtes Licht macht müde und belastet die Augen. So findest du die passende Schreibtischlampe für konzentriertes Arbeiten."
 pubDate: 2026-02-02
 tags: ["beleuchtung", "schreibtischlampe", "kaufberatung"]
+icon: "lamp"
 products:
   - name: "Schreibtischlampen bei Amazon ansehen"
     href: "https://www.amazon.de/s?k=led+schreibtischlampe&tag=deintag-21"

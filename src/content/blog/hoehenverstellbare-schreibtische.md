@@ -3,6 +3,7 @@ title: "Höhenverstellbare Schreibtische im Vergleich: Lohnt sich ein Steh-Sitz-
 description: "Elektrisch oder manuell verstellbar? Wir erklären die Vor- und Nachteile höhenverstellbarer Schreibtische und für wen sich die Anschaffung lohnt."
 pubDate: 2026-01-19
 tags: ["schreibtisch", "ergonomie", "kaufberatung"]
+icon: "desk"
 products:
   - name: "Elektrisch höhenverstellbare Schreibtische bei Amazon ansehen"
     href: "https://www.amazon.de/s?k=elektrisch+h%C3%B6henverstellbarer+schreibtisch&tag=deintag-21"

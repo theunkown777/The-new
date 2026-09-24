@@ -3,6 +3,7 @@ title: "Ergonomische Bürostühle fürs Home Office: Worauf es 2026 wirklich ank
 description: "Rückenschmerzen im Home Office? Wir zeigen, welche Kriterien einen guten ergonomischen Bürostuhl ausmachen und worauf du beim Kauf achten solltest."
 pubDate: 2026-01-12
 tags: ["bürostuhl", "ergonomie", "kaufberatung"]
+icon: "chair"
 products:
   - name: "Ergonomische Bürostühle bei Amazon ansehen"
     href: "https://www.amazon.de/s?k=ergonomischer+b%C3%BCrostuhl&tag=deintag-21"

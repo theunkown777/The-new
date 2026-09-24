@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 export async function GET(context) {
   const posts = await getCollection('blog');
   return rss({
-    title: 'Schreibtisch & Fokus',
+    title: 'Deskaro',
     description:
       'Ehrliche Kaufberatung für ein besseres Home Office: Bürostühle, Schreibtische, Beleuchtung und mehr.',
     site: context.site,

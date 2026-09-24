@@ -1,4 +1,4 @@
-# Schreibtisch & Fokus
+# Deskaro
 
 Eine kostenlos hostbare Content-/Affiliate-Website (Nische: Home-Office- &
 Produktivitäts-Gear), gebaut mit [Astro](https://astro.build). Fünf fertige

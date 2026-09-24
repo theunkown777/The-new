@@ -3,6 +3,7 @@ title: "Noise-Cancelling-Kopfhörer fürs Home Office: Konzentriert arbeiten tro
 description: "Ob Mitbewohner, Straßenlärm oder Nachbars Rasenmäher: Gute ANC-Kopfhörer schaffen Ruhe für fokussiertes Arbeiten. Das solltest du beim Kauf beachten."
 pubDate: 2026-02-09
 tags: ["kopfhörer", "fokus", "kaufberatung"]
+icon: "headphones"
 products:
   - name: "Noise-Cancelling-Kopfhörer bei Amazon ansehen"
     href: "https://www.amazon.de/s?k=noise+cancelling+kopfh%C3%B6rer&tag=deintag-21"

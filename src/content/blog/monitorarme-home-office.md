@@ -3,6 +3,7 @@ title: "Monitorarme fürs Home Office: Mehr Platz auf dem Schreibtisch und besse
 description: "Ein Monitorarm schafft Platz, verbessert die Sitzhaltung und lässt sich meist einfach nachrüsten. So findest du das passende Modell."
 pubDate: 2026-01-26
 tags: ["monitorarm", "schreibtisch", "kaufberatung"]
+icon: "monitor-arm"
 products:
   - name: "Monitorarme bei Amazon ansehen"
     href: "https://www.amazon.de/s?k=monitorarm&tag=deintag-21"
