@@ -239,6 +239,17 @@ Das Formular „Pilotplatz anfragen“ speichert Anfragen über `POST /api/leads
 in der Tabelle `Lead` (Rate-Limit je IP, Honeypot gegen Bots) und schickt
 optional eine Benachrichtigung an `LEAD_NOTIFY_EMAIL`.
 
+## Gastzugang
+
+Unter `/demo` (verlinkt auf Website und Login als „Als Gast ansehen“)
+bekommt jeder Besucher per Klick eine eigene Demo-Praxis mit vier erfundenen
+Patienten, einem Beispielbericht und zwei Behandlungsvorschlägen und ist sofort
+angemeldet – er sieht Sorrida genau wie ein Kunde. `lib/demo.ts` legt die
+Daten an; Demo-Praxen laufen nach 24 Stunden ab und werden beim nächsten neuen
+Gastzugang vollständig gelöscht. Im Gastzugang sind Team-Einladungen gesperrt
+und KI-Berichte auf 15 begrenzt (`lib/demoGuard.ts`); ein Banner weist auf
+Beispieldaten und Löschung hin. Rate-Limit: 10 Gastzugänge je IP und Stunde.
+
 ## Behandlung abschließen: ein Schritt nach der Behandlung
 
 Unter **Behandlung abschließen** (Übersicht, Patient, und als Standard im

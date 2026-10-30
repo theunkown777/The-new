@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { demoGuard } from "@/lib/demoGuard";
 import { requireAdmin } from "@/lib/permissions";
 import { sendEmail } from "@/lib/email";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
@@ -38,6 +39,8 @@ const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export async function POST(req: Request) {
   const { session, error } = await requireAdmin();
   if (!session) return error;
+  const blocked = await demoGuard(session.user.practiceId, "invite");
+  if (blocked) return blocked;
 
   const rateLimitKey = `staff-invite:${session.user.practiceId}`;
   if (await isRateLimited(rateLimitKey, INVITE_LIMIT, INVITE_WINDOW_MS)) {

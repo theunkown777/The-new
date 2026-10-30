@@ -34,6 +34,12 @@ model Practice {
   // aus lib/proposals.ts PRICE_DEFS). Null bzw. fehlende Schlüssel = die
   // dort hinterlegten Beispielwerte.
   proposalPrices    Json?
+  // Gastzugang: Demo-Praxis mit Beispieldaten, die nach Ablauf automatisch
+  // gelöscht wird (lib/demo.ts).
+  isDemo            Boolean           @default(false)
+  demoExpiresAt     DateTime?
+
+  @@index([isDemo, demoExpiresAt])
 }
 
 // Partner-Zugang für Drittsysteme (andere Praxisverwaltungssysteme), die

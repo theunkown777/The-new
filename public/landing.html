@@ -182,6 +182,8 @@ header.top .wrap{display:flex;align-items:center;gap:1.5rem;padding-block:.7rem}
 :root[data-theme="dark"] .logo .logo-light{display:none}
 :root[data-theme="dark"] .logo .logo-dark{display:block}
 .login-link{color:var(--muted);font-weight:700;font-size:.95rem;text-decoration:none;white-space:nowrap}
+.login-link+.login-link{margin-left:-.6rem}
+@media (max-width:560px){.login-link[href="/demo"]{display:none}}
 .login-link:hover{color:var(--ink)}
 nav.main{display:flex;gap:1.1rem;margin-left:auto;flex-wrap:wrap}
 nav.main a{color:var(--muted);text-decoration:none;font-weight:700;font-size:.95rem}
@@ -524,6 +526,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
       <a href="#preise">Preise</a>
       <a href="#faq">Fragen</a>
     </nav>
+    <a class="login-link" href="/demo">Gastzugang</a>
     <a class="login-link" href="/login">Anmelden</a>
     <a class="btn small" href="#kontakt">Pilotplatz anfragen</a>
   </div>
@@ -540,7 +543,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
       <p class="lede" style="font-size:1rem">Festzuschuss, Bonusheft, Härtefall und Zusatzversicherung sind eingerechnet. Heil- und Kostenplan und Mehrkostenvereinbarung erstellen Sie weiter in Ihrer Praxissoftware.</p>
       <div class="ctas">
         <a class="btn" href="#kontakt">Demo mit eigenen Fällen anfragen</a>
-        <a class="btn ghost" href="#demo">Selbst ausprobieren</a>
+        <a class="btn ghost" href="/demo">Als Gast ansehen</a>
       </div>
       <div class="trust"><span>Ein Klick aus DS-Win, Z1, charly, EVIDENT</span><span>30 Tage kostenlos</span><span>monatlich kündbar</span></div>
     </div>
@@ -636,6 +639,7 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
   <div class="wrap">
     <div class="sec-head">
       <h2>Probieren Sie es an einem Fall aus</h2>
+      <p style="color:var(--muted)">Lieber die ganze App sehen, so wie eine Praxis sie nutzt? <a href="/demo">Gastzugang öffnen</a>, ohne Anmeldung, mit Beispielpatienten.</p>
       <p class="lede">Das ist Frau Weber, 46, gesetzlich versichert, Bonusheft seit zehn Jahren. Klicken Sie einen Zahn an und ändern Sie den Befund. Die Preise sind Beispielwerte. In Ihrer Praxis stehen dort Ihre eigenen.</p>
     </div>
     <div class="demo">

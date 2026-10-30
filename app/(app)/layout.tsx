@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { SignOutButton } from "@/components/SignOutButton";
 import { MobileNav } from "@/components/MobileNav";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
+import { DemoBanner } from "@/components/DemoBanner";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -13,8 +14,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const currentUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { emailVerifiedAt: true },
+    select: { emailVerifiedAt: true, practice: { select: { isDemo: true, demoExpiresAt: true } } },
   });
+  const demo = currentUser?.practice.isDemo ? currentUser.practice.demoExpiresAt : null;
 
   return (
     <div className="min-h-screen">
@@ -46,7 +48,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <MobileNav userName={session.user.name} />
         </div>
       </header>
-      {!currentUser?.emailVerifiedAt && <VerifyEmailBanner />}
+      {demo && <DemoBanner expiresAt={demo} />}
+      {!demo && !currentUser?.emailVerifiedAt && <VerifyEmailBanner />}
       <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8">{children}</main>
     </div>
   );

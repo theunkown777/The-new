@@ -131,6 +131,7 @@ export default function LoginPage() {
           </Link>
         </p>
         <p className="mt-6 text-center text-xs text-slate-400">
+          <Link href="/demo" className="hover:underline">Als Gast ansehen</Link> ·{" "}
           <Link href="/" className="hover:underline">Website</Link> ·{" "}
           <Link href="/impressum" className="hover:underline">Impressum</Link> ·{" "}
           <Link href="/datenschutz" className="hover:underline">Datenschutz</Link>

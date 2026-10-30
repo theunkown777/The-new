@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { demoGuard } from "@/lib/demoGuard";
 import { generateReportText } from "@/lib/anthropic";
 import { buildServiceSummary } from "@/lib/serviceSummary";
 import { computeEffectivePerformed, parseDependsOn } from "@/lib/serviceDependency";
@@ -31,6 +32,8 @@ const createSchema = z.object({
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  const blocked = await demoGuard(session.user.practiceId, "report");
+  if (blocked) return blocked;
 
   const body = await req.json();
   const parsed = createSchema.safeParse(body);
