@@ -115,6 +115,6 @@ export function vddsToPatientFields(p: VddsPatient) {
   };
 }
 
-export const EMBED_VIEWS = ["bericht", "vorschlag", "verlauf"] as const;
+export const EMBED_VIEWS = ["abschluss", "bericht", "vorschlag", "verlauf"] as const;
 export type EmbedView = (typeof EMBED_VIEWS)[number];
 export const LAUNCH_TOKEN_TTL_MS = 5 * 60 * 1000;

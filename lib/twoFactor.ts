@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 
-const ISSUER = "Zahnarzt Berichte";
+const ISSUER = "Sorrida";
 
 export function createTotpSecret(): string {
   return generateSecret();

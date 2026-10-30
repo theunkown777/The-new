@@ -181,6 +181,7 @@ model Report {
   generatedText     String?
   editedText        String?
   revisions         ReportRevision[]
+  proposals         TreatmentProposal[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
@@ -351,6 +352,10 @@ model TreatmentProposal {
   patient         Patient  @relation(fields: [patientId], references: [id])
   authorId        String
   author          User     @relation(fields: [authorId], references: [id])
+  // Gesetzt, wenn der Vorschlag im Abschluss-Schritt zusammen mit dem
+  // Bericht derselben Behandlung entstanden ist.
+  reportId        String?
+  report          Report?  @relation(fields: [reportId], references: [id], onDelete: SetNull)
   // "ENTWURF" | "BESPROCHEN" | "ANGENOMMEN" | "ABGELEHNT"
   status          String   @default("ENTWURF")
   input           Json
@@ -364,6 +369,7 @@ model TreatmentProposal {
 
   @@index([practiceId])
   @@index([patientId])
+  @@index([reportId])
 }
 
 // Schlüssel, mit dem der Sorrida-Connector auf einem Praxis-PC Patienten aus

@@ -8,7 +8,7 @@ export const PVS_GUIDES = [
     steps: [
       "In der Titelzeile von DS-Win auf die VDDS-Schaltfläche klicken. Es öffnet sich „VDDS-Schnittstellen-Einrichtung“.",
       "Häkchen setzen und in der linken Liste „Sorrida (Bericht & Vorschlag)“ wählen.",
-      "In der Patienteninformation erscheint eine Schaltfläche für Sorrida. Ein Klick öffnet das Fenster für den aktuellen Patienten.",
+      "In der Patienteninformation erscheint eine Schaltfläche für Sorrida. Ein Klick öffnet „Behandlung abschließen“ für den aktuellen Patienten.",
     ],
     source: "Dampsoft, Einbindung der VDDS-media-Schnittstelle in DS-WIN-PLUS",
   },

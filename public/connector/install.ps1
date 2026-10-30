@@ -16,7 +16,7 @@
 param(
   [Parameter(Mandatory = $true)][string]$Server,
   [Parameter(Mandatory = $true)][string]$Key,
-  [ValidateSet("bericht", "vorschlag", "verlauf")][string]$View = "bericht",
+  [ValidateSet("abschluss", "bericht", "vorschlag", "verlauf")][string]$View = "abschluss",
   [string]$Source = (Join-Path $PSScriptRoot "SorridaConnector.cs")
 )
 $ErrorActionPreference = "Stop"

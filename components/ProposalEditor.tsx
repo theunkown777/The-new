@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   FINDINGS,
@@ -64,6 +64,8 @@ export function ProposalEditor({
   practiceName,
   existing,
   savedHrefPrefix = "/proposals/",
+  compact = false,
+  onChange,
 }: {
   patients: PatientOption[];
   initialPatientId?: string;
@@ -72,6 +74,9 @@ export function ProposalEditor({
   existing?: ExistingProposal;
   /** Ziel nach dem ersten Speichern; im Praxissoftware-Fenster bleibt der Nutzer unter /embed. */
   savedHrefPrefix?: string;
+  /** Im Abschluss-Schritt: ohne eigene Speichern-Knöpfe und Schreiben-Reiter, gespeichert wird gemeinsam. */
+  compact?: boolean;
+  onChange?: (input: ProposalInput, choices: Record<string, string>) => void;
 }) {
   const router = useRouter();
   const [patientId, setPatientId] = useState(existing?.patientId ?? initialPatientId ?? "");
@@ -100,6 +105,10 @@ export function ProposalEditor({
   const zeigeVergleich = factors.insurance === "GKV" && !factors.haertefall;
   const tage = tageBisStichtag();
   const pct = (y: ZuschussJahr) => `${Math.round(FESTZUSCHUSS_SAETZE[y][factors.bonusYears] * 100)} %`;
+
+  useEffect(() => {
+    onChange?.({ teeth, globals, patient: factors }, choices);
+  }, [teeth, globals, factors, choices]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function changePatient(id: string) {
     setPatientId(id);
@@ -375,7 +384,7 @@ export function ProposalEditor({
             </div>
           )}
 
-          <div className="flex gap-1 border-b border-slate-200" role="tablist">
+          {!compact && <div className="flex gap-1 border-b border-slate-200" role="tablist">
             {(["praxis", "patient"] as const).map((t) => (
               <button
                 key={t}
@@ -388,7 +397,7 @@ export function ProposalEditor({
                 {t === "praxis" ? "Praxisansicht" : "Schreiben an Patient"}
               </button>
             ))}
-          </div>
+          </div>}
 
           {tab === "praxis" ? (
             items.length === 0 ? (
@@ -490,7 +499,7 @@ export function ProposalEditor({
             Praxissoftware.
           </p>
 
-          <div className="flex flex-wrap gap-2">
+          {!compact && <div className="flex flex-wrap gap-2">
             {!locked && (
               <button type="button" disabled={saving} onClick={() => save()} className="btn-primary">
                 {saving ? "Speichert…" : existing ? "Änderungen speichern" : "Vorschlag speichern"}
@@ -504,7 +513,7 @@ export function ProposalEditor({
                     Als „{PROPOSAL_STATUS_LABELS[s]}“ markieren
                   </button>
                 ))}
-          </div>
+          </div>}
         </div>
       </div>
     </div>

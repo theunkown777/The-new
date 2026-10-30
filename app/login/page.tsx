@@ -63,7 +63,9 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-semibold text-slate-900">Zahnarzt Berichte</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/sorrida-mark.svg" alt="" className="mx-auto mb-3 h-24 w-auto" />
+          <h1 className="text-2xl font-semibold tracking-[0.2em] text-slate-900">SORRIDA</h1>
           <p className="mt-1 text-sm text-slate-500">Anmeldung für Ihre Praxis</p>
         </div>
         <form onSubmit={handleSubmit} className="card space-y-4">

@@ -16,7 +16,7 @@ export async function sendVerificationEmail(user: { id: string; name: string; em
 
   await sendEmail({
     to: user.email,
-    subject: "E-Mail-Adresse bestätigen – Zahnarzt Berichte",
+    subject: "E-Mail-Adresse bestätigen – Sorrida",
     html: `
       <p>Hallo ${user.name},</p>
       <p>Bitte bestätigen Sie Ihre E-Mail-Adresse (Link ist 24 Stunden gültig):</p>

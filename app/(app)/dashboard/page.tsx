@@ -30,7 +30,7 @@ export default async function DashboardPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-slate-900">Übersicht</h1>
-        <Link href="/reports/new" className="btn-primary">Neuer Bericht</Link>
+        <Link href="/abschluss/new" className="btn-primary">Behandlung abschließen</Link>
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">

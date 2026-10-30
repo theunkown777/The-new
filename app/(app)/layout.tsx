@@ -20,12 +20,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen">
       <header className="relative border-b border-brand-800 bg-brand-600">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link href="/dashboard" className="flex items-baseline gap-2 truncate">
+          <Link href="/dashboard" className="flex items-center gap-2 truncate">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/sorrida-mark-hell.svg" alt="" className="h-8 w-auto shrink-0" />
             <span className="truncate font-semibold tracking-tight text-white">
               {session.user.practiceName}
             </span>
-            <span className="hidden shrink-0 text-xs font-light text-brand-200 sm:inline">
-              Zahnarzt Berichte
+            <span className="hidden shrink-0 text-xs font-light tracking-[0.2em] text-brand-200 sm:inline">
+              SORRIDA
             </span>
           </Link>
 

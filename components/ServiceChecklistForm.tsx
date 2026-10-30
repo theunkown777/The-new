@@ -89,12 +89,26 @@ export function ServiceChecklistForm({
   initialPatientId,
   practicePunktwerte,
   savedHrefPrefix = "/reports/",
+  beforeSubmit,
+  submitLabel = "Bericht generieren",
+  submittingLabel = "Bericht wird generiert…",
+  onCreated,
 }: {
   patients: PatientOption[];
   initialPatientId?: string;
   practicePunktwerte: { gozPunktwertCent: number | null; bemaPunktwertCent: number | null };
   /** Ziel nach dem Speichern; im Praxissoftware-Fenster bleibt der Nutzer unter /embed. */
   savedHrefPrefix?: string;
+  /** Zusätzlicher Inhalt vor der Prüf-Bestätigung (Abschluss-Schritt: Befunde). */
+  beforeSubmit?: React.ReactNode;
+  submitLabel?: string;
+  submittingLabel?: string;
+  /**
+   * Abschluss-Schritt: läuft nach dem Anlegen des Berichts (z. B. Vorschlag
+   * speichern) und liefert das Ziel der Weiterleitung. Ein Fehler bleibt
+   * im Formular stehen; der Bericht ist dann bereits gespeichert.
+   */
+  onCreated?: (reportId: string) => Promise<string>;
 }) {
   const router = useRouter();
   const [patientId, setPatientId] = useState(initialPatientId ?? patients[0]?.id ?? "");
@@ -301,13 +315,23 @@ export function ServiceChecklistForm({
       body: JSON.stringify(payload),
     });
     const data = await res.json();
-    setSubmitting(false);
 
     if (!res.ok) {
+      setSubmitting(false);
       setError(data.error ?? "Bericht konnte nicht erstellt werden.");
       return;
     }
 
+    if (onCreated) {
+      try {
+        router.push(await onCreated(data.report.id));
+      } catch (err) {
+        setSubmitting(false);
+        setError(err instanceof Error ? err.message : "Abschluss fehlgeschlagen.");
+      }
+      return;
+    }
+    setSubmitting(false);
     router.push(`${savedHrefPrefix}${data.report.id}`);
   }
 
@@ -634,6 +658,8 @@ export function ServiceChecklistForm({
         </p>
       </div>
 
+      {beforeSubmit}
+
       <div className="card">
         <label className="flex cursor-pointer items-start gap-3">
           <input
@@ -650,7 +676,7 @@ export function ServiceChecklistForm({
       </div>
 
       <button type="submit" disabled={submitting || !selectedTemplate} className="btn-primary w-full">
-        {submitting ? "Bericht wird generiert…" : "Bericht generieren"}
+        {submitting ? submittingLabel : submitLabel}
       </button>
     </form>
   );

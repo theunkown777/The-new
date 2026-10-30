@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Zahnarzt Berichte – Partner-API
+  title: Sorrida – Partner-API
   version: "1.0"
   description: >
     Zustandslose API für Praxisverwaltungssysteme (PVS) und andere

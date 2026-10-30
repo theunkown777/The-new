@@ -10,8 +10,8 @@ const openSans = Open_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Zahnarzt Berichte",
-  description: "Unterstützung für Zahnarztpraxen beim Schreiben von Berichten",
+  title: "Sorrida",
+  description: "Nach der Behandlung ein Klick: Leistungen, Bericht, Behandlungsvorschlag und Patientenschreiben für Zahnarztpraxen",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

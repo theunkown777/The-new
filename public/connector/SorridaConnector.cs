@@ -13,7 +13,7 @@
 // Konfiguration: %ProgramData%\Sorrida\connector.ini, Abschnitt [SORRIDA]
 //   SERVER=https://ihre-sorrida-adresse.de
 //   KEY=sor_conn_...
-//   VIEW=bericht | vorschlag | verlauf   (optional, Standard: bericht)
+//   VIEW=abschluss | bericht | vorschlag | verlauf   (optional, Standard: abschluss)
 //   WINDOW=1200,900                      (optional)
 //
 // Übersetzen (macht install.ps1 automatisch):

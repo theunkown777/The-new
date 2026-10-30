@@ -53,7 +53,7 @@ export async function POST(req: Request) {
 
     await sendEmail({
       to: user.email,
-      subject: "Passwort zurücksetzen – Zahnarzt Berichte",
+      subject: "Passwort zurücksetzen – Sorrida",
       html: `
         <p>Hallo ${user.name},</p>
         <p>Sie haben angefordert, Ihr Passwort zurückzusetzen. Der folgende Link ist eine Stunde gültig:</p>

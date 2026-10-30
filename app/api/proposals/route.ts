@@ -11,6 +11,8 @@ const createSchema = z.object({
   input: proposalInputSchema,
   choices: choicesSchema.default({}),
   status: proposalStatusSchema.default("ENTWURF"),
+  /** Abschluss-Schritt: Bericht derselben Behandlung. */
+  reportId: z.string().min(1).optional(),
 });
 
 export async function GET() {
@@ -45,7 +47,7 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const { patientId, input, choices, status } = parsed.data;
+  const { patientId, input, choices, status, reportId } = parsed.data;
 
   const [patient, practice] = await Promise.all([
     prisma.patient.findFirst({ where: { id: patientId, practiceId: session.user.practiceId } }),
@@ -55,6 +57,13 @@ export async function POST(req: Request) {
     }),
   ]);
   if (!patient) return NextResponse.json({ error: "Patient nicht gefunden" }, { status: 404 });
+  if (reportId) {
+    const report = await prisma.report.findFirst({
+      where: { id: reportId, practiceId: session.user.practiceId, patientId },
+      select: { id: true },
+    });
+    if (!report) return NextResponse.json({ error: "Bericht nicht gefunden" }, { status: 404 });
+  }
 
   const computed = computeProposal({
     input,
@@ -72,6 +81,7 @@ export async function POST(req: Request) {
       authorId: session.user.id,
       status,
       input,
+      reportId: reportId ?? null,
       ...computed,
     },
     select: { id: true },

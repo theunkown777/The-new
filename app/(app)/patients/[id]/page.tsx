@@ -39,10 +39,13 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href={`/proposals/new?patientId=${patient.id}`} className="btn-secondary">
-            Neuer Vorschlag
+            Nur Vorschlag
           </Link>
-          <Link href={`/reports/new?patientId=${patient.id}`} className="btn-primary">
-            Neuer Bericht
+          <Link href={`/reports/new?patientId=${patient.id}`} className="btn-secondary">
+            Nur Bericht
+          </Link>
+          <Link href={`/abschluss/new?patientId=${patient.id}`} className="btn-primary">
+            Behandlung abschließen
           </Link>
         </div>
       </div>

@@ -5,18 +5,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Abgeleitet vom Farbschema der Praxis-Website (zahnarzt-schenefeld.de):
-        // gedecktes Stahlblau #3d5d86 als Primärfarbe.
+        // Sorrida-Bordeaux aus dem Logo (das kalligrafische S, #5a1d1d).
         brand: {
-          50: "#f2f5f8",
-          100: "#e2e8f0",
-          200: "#c3d0e0",
-          300: "#9aacc6",
-          400: "#6a85a8",
-          500: "#4f6c92",
-          600: "#3d5d86",
-          700: "#314a6b",
-          800: "#263a54",
+          50: "#f8f1f0",
+          100: "#f0e2df",
+          200: "#dfc2bc",
+          300: "#c79a91",
+          400: "#a8695e",
+          500: "#86433a",
+          600: "#6b2a24",
+          700: "#5a1d1d",
+          800: "#431515",
         },
       },
       fontFamily: {

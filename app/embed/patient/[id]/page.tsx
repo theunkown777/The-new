@@ -9,9 +9,11 @@ import { PROPOSAL_STATUS_LABELS, formatEuro, resolvePrices } from "@/lib/proposa
 import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 import { ServiceChecklistForm } from "@/components/ServiceChecklistForm";
 import { ProposalEditor } from "@/components/ProposalEditor";
+import { TreatmentWrapUp } from "@/components/TreatmentWrapUp";
 
 const TAB_LABELS: Record<EmbedView, string> = {
-  bericht: "Neuer Bericht",
+  abschluss: "Behandlung abschließen",
+  bericht: "Nur Bericht",
   vorschlag: "Neuer Vorschlag",
   verlauf: "Verlauf",
 };
@@ -27,7 +29,7 @@ export default async function EmbedPatientPage({
   const practiceId = session!.user.practiceId;
   const view: EmbedView = (EMBED_VIEWS as readonly string[]).includes(searchParams.view ?? "")
     ? (searchParams.view as EmbedView)
-    : "bericht";
+    : "abschluss";
 
   const [patient, practice] = await Promise.all([
     prisma.patient.findFirst({
@@ -79,6 +81,19 @@ export default async function EmbedPatientPage({
           </Link>
         ))}
       </nav>
+
+      {view === "abschluss" && (
+        <TreatmentWrapUp
+          patient={patientOption}
+          practicePunktwerte={{
+            gozPunktwertCent: practice?.gozPunktwertCent ?? null,
+            bemaPunktwertCent: practice?.bemaPunktwertCent ?? null,
+          }}
+          prices={resolvePrices(practice?.proposalPrices)}
+          practiceName={practice?.name ?? "Ihre Zahnarztpraxis"}
+          basePath="/embed/abschluss"
+        />
+      )}
 
       {view === "bericht" && (
         <div className="max-w-3xl">

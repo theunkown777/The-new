@@ -85,10 +85,10 @@ export async function POST(req: Request) {
 
   await sendEmail({
     to: email,
-    subject: `Einladung zu ${session.user.practiceName} – Zahnarzt Berichte`,
+    subject: `Einladung zu ${session.user.practiceName} – Sorrida`,
     html: `
       <p>Hallo,</p>
-      <p>${session.user.name} hat Sie eingeladen, dem Team von ${session.user.practiceName} in Zahnarzt Berichte beizutreten.</p>
+      <p>${session.user.name} hat Sie eingeladen, dem Team von ${session.user.practiceName} in Sorrida beizutreten.</p>
       <p>Der folgende Link ist 7 Tage gültig:</p>
       <p><a href="${inviteUrl}">${inviteUrl}</a></p>
     `,

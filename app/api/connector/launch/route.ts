@@ -49,7 +49,7 @@ export async function POST(req: Request) {
   const requestedView = url.searchParams.get("view");
   const view: EmbedView = (EMBED_VIEWS as readonly string[]).includes(requestedView ?? "")
     ? (requestedView as EmbedView)
-    : "bericht";
+    : "abschluss";
 
   const fields = vddsToPatientFields(data);
   const patient = await prisma.patient.upsert({

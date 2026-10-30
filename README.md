@@ -1,4 +1,8 @@
-# Zahnarzt Berichte
+# Sorrida
+
+_Vormals „Zahnarzt Berichte“._ Software für Zahnarztpraxen: nach der Behandlung
+mit einem Klick Leistungserfassung, KI-Bericht, Behandlungsvorschlag,
+Patientenschreiben und To-dos – auch als Fenster direkt aus der Praxissoftware.
 
 Web-Anwendung für Zahnarztpraxen, um aus einer lückenlosen Leistungserfassung
 professionelle Berichte zu erstellen – z. B. Befund-/Behandlungsberichte für
@@ -222,6 +226,20 @@ Kauf-/Behandlungsempfehlung) und das Leistungslexikon (rein
 kategorienbezogenes Nachschlagewerk, siehe oben) – die eigentliche
 fachliche und kommunikative Arbeit im Beratungsgespräch bleibt in beiden
 Fällen vollständig beim Menschen.
+
+## Behandlung abschließen: ein Schritt nach der Behandlung
+
+Unter **Behandlung abschließen** (Übersicht, Patient, und als Standard im
+Fenster aus der Praxissoftware) bestätigt das Team die vorausgefüllte
+Leistungsliste, klickt optional Befunde im Zahnschema an und schließt einmal
+ab. Daraus entstehen automatisch:
+
+- der **KI-Bericht** (Entwurf zur Freigabe),
+- der **Behandlungsvorschlag** mit **Patientenschreiben** (§ 630c BGB), mit
+  dem Bericht verknüpft,
+- eine **To-do-Liste** für Rezeption und Behandler (`lib/nextSteps.ts`):
+  HKP anlegen, HKP-Frist vor der Festzuschuss-Kürzung 2027 mit Mehrbetrag,
+  Mehrkosten-/Privatvereinbarung, PAR-Antrag, Folgetermine.
 
 ## Fenster aus der Praxissoftware (VDDS-media)
 
