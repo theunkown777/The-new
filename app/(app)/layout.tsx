@@ -33,6 +33,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link href="/dashboard" className="hover:text-white">Übersicht</Link>
             <Link href="/patients" className="hover:text-white">Patienten</Link>
             <Link href="/reports" className="hover:text-white">Berichte</Link>
+            <Link href="/proposals" className="hover:text-white">Vorschläge</Link>
           </nav>
           <div className="hidden items-center gap-4 text-sm text-brand-100 sm:flex">
             <span className="max-w-[10rem] truncate">{session.user.name}</span>

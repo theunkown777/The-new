@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/dashboard", label: "Übersicht" },
   { href: "/patients", label: "Patienten" },
   { href: "/reports", label: "Berichte" },
+  { href: "/proposals", label: "Vorschläge" },
 ];
 
 export function MobileNav({ userName }: { userName?: string | null }) {

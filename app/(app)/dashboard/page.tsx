@@ -3,12 +3,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REPORT_TYPE_LABELS, REPORT_STATUS_LABELS } from "@/lib/reportLabels";
+import { formatEuro } from "@/lib/proposals";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
 
-  const [patientCount, draftCount, recentReports] = await Promise.all([
+  const [patientCount, draftCount, recentReports, openProposals, accepted] = await Promise.all([
     prisma.patient.count({ where: { practiceId } }),
     prisma.report.count({ where: { practiceId, status: "ENTWURF" } }),
     prisma.report.findMany({
@@ -17,7 +18,13 @@ export default async function DashboardPage() {
       take: 8,
       include: { patient: true },
     }),
+    prisma.treatmentProposal.count({ where: { practiceId, status: { in: ["ENTWURF", "BESPROCHEN"] } } }),
+    prisma.treatmentProposal.findMany({
+      where: { practiceId, status: "ANGENOMMEN" },
+      select: { baseTotalCent: true, planTotalCent: true },
+    }),
   ]);
+  const acceptedDeltaCent = accepted.reduce((sum, p) => sum + p.planTotalCent - p.baseTotalCent, 0);
 
   return (
     <div>
@@ -26,7 +33,7 @@ export default async function DashboardPage() {
         <Link href="/reports/new" className="btn-primary">Neuer Bericht</Link>
       </div>
 
-      <div className="mb-8 grid grid-cols-2 gap-4">
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="card">
           <p className="text-sm text-slate-500">Patienten</p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">{patientCount}</p>
@@ -35,6 +42,14 @@ export default async function DashboardPage() {
           <p className="text-sm text-slate-500">Offene Entwürfe</p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">{draftCount}</p>
         </div>
+        <Link href="/proposals" className="card hover:bg-slate-50">
+          <p className="text-sm text-slate-500">Offene Vorschläge</p>
+          <p className="mt-1 text-2xl font-semibold text-slate-900">{openProposals}</p>
+        </Link>
+        <Link href="/proposals" className="card hover:bg-slate-50">
+          <p className="text-sm text-slate-500">Mehrumsatz angenommen</p>
+          <p className="mt-1 text-2xl font-semibold text-amber-700">{formatEuro(acceptedDeltaCent / 100)}</p>
+        </Link>
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">

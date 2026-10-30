@@ -27,6 +27,11 @@ model Practice {
   gozPunktwertCent  Float?
   bemaPunktwertCent Float?
   invites           StaffInvite[]
+  proposals         TreatmentProposal[]
+  // Praxiseigene Preise für Behandlungsvorschläge (Euro je Preisschlüssel
+  // aus lib/proposals.ts PRICE_DEFS). Null bzw. fehlende Schlüssel = die
+  // dort hinterlegten Beispielwerte.
+  proposalPrices    Json?
 }
 
 // Partner-Zugang für Drittsysteme (andere Praxisverwaltungssysteme), die
@@ -53,6 +58,7 @@ model User {
   practiceId   String
   practice     Practice @relation(fields: [practiceId], references: [id])
   reports      Report[]
+  proposals    TreatmentProposal[]
   // TOTP-Zweitfaktor (RFC 6238). totpSecret wird beim Einrichten gesetzt,
   // aber erst nach erfolgreicher Verifikation ist totpEnabled=true und der
   // Login verlangt zusätzlich zum Passwort einen gültigen Code.
@@ -134,6 +140,7 @@ model Patient {
   notes           String?
   createdAt       DateTime @default(now())
   reports         Report[]
+  proposals       TreatmentProposal[]
 
   @@index([practiceId])
 }
@@ -317,4 +324,34 @@ model LexikonEntry {
   position             Int      @default(0)
 
   @@index([category])
+}
+
+// Behandlungsvorschlag für einen Patienten: Befunde (Zahnschema + allgemeine
+// Befunde + Patientenfaktoren) in `input`, gewählte Option je Befund in
+// `choices`. Die Optionen selbst werden nicht gespeichert, sondern bei jeder
+// Anzeige aus input + Preisliste neu berechnet (lib/proposals.ts). Die
+// Cent-Summen und der Patiententext sind Schnappschüsse zum Zeitpunkt des
+// Speicherns, damit Auswertung und Aufklärungsnachweis (§ 630c Abs. 3 BGB)
+// stabil bleiben, auch wenn sich Preise später ändern.
+model TreatmentProposal {
+  id              String   @id @default(cuid())
+  practiceId      String
+  practice        Practice @relation(fields: [practiceId], references: [id])
+  patientId       String
+  patient         Patient  @relation(fields: [patientId], references: [id])
+  authorId        String
+  author          User     @relation(fields: [authorId], references: [id])
+  // "ENTWURF" | "BESPROCHEN" | "ANGENOMMEN" | "ABGELEHNT"
+  status          String   @default("ENTWURF")
+  input           Json
+  choices         Json
+  baseTotalCent   Int
+  planTotalCent   Int
+  eigenanteilCent Int
+  letterText      String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([practiceId])
+  @@index([patientId])
 }

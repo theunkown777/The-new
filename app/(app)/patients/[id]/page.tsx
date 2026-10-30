@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REPORT_TYPE_LABELS, REPORT_STATUS_LABELS } from "@/lib/reportLabels";
+import { PROPOSAL_STATUS_LABELS, formatEuro } from "@/lib/proposals";
+import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -15,6 +17,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         orderBy: { createdAt: "desc" },
         include: { author: { select: { name: true } } },
       },
+      proposals: { orderBy: { createdAt: "desc" } },
     },
   });
 
@@ -34,9 +37,14 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             {patient.insuranceName ? ` · ${patient.insuranceName}` : ""}
           </p>
         </div>
-        <Link href={`/reports/new?patientId=${patient.id}`} className="btn-primary">
-          Neuer Bericht
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href={`/proposals/new?patientId=${patient.id}`} className="btn-secondary">
+            Neuer Vorschlag
+          </Link>
+          <Link href={`/reports/new?patientId=${patient.id}`} className="btn-primary">
+            Neuer Bericht
+          </Link>
+        </div>
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
@@ -68,6 +76,33 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
                 }
               >
                 {REPORT_STATUS_LABELS[r.status]}
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-slate-500">
+        Behandlungsvorschläge
+      </h2>
+      {patient.proposals.length === 0 ? (
+        <div className="card text-sm text-slate-500">
+          Für diesen Patienten gibt es noch keinen Behandlungsvorschlag.
+        </div>
+      ) : (
+        <div className="card divide-y divide-slate-100 p-0">
+          {patient.proposals.map((p) => (
+            <Link
+              key={p.id}
+              href={`/proposals/${p.id}`}
+              className="flex items-center justify-between px-6 py-4 hover:bg-slate-50"
+            >
+              <div>
+                <p className="font-medium text-slate-900">Eigenanteil {formatEuro(p.eigenanteilCent / 100)}</p>
+                <p className="text-sm text-slate-500">{p.createdAt.toLocaleDateString("de-DE")}</p>
+              </div>
+              <span className={`rounded-full px-3 py-1 text-xs font-medium ${PROPOSAL_STATUS_BADGE[p.status]}`}>
+                {PROPOSAL_STATUS_LABELS[p.status]}
               </span>
             </Link>
           ))}

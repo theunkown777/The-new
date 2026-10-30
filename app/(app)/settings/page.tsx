@@ -22,6 +22,11 @@ const CARDS = [
     description: "Sitzungstyp-Vorlagen anlegen und Positionen inkl. Abhängigkeiten verwalten.",
   },
   {
+    href: "/settings/proposals",
+    title: "Vorschlagspreise",
+    description: "Preise je Behandlungsoption für Eigenanteil und Mehrumsatz in Vorschlägen.",
+  },
+  {
     href: "/settings/lexikon",
     title: "Leistungslexikon",
     description: "Nachschlagewerk zu gängigen Selbstzahlerleistungen – nicht patientenbezogen.",

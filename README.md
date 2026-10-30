@@ -145,10 +145,47 @@ geprüft und freigegeben werden.
   Hintergrundwissen für das Beratungsgespräch; die fachliche Einschätzung im
   Einzelfall bleibt vollständig bei der behandelnden Person (§1 GOZ /
   Musterberufsordnung). Ein automatisiertes Vorschlagssystem für
-  Zusatzleistungen wurde bewusst **nicht** gebaut, siehe „Warum keine
-  automatisierten Zusatzverkaufs-/Empfehlungsfunktionen“ unten.
+  Zusatzleistungen aus Mustern wurde bewusst **nicht** gebaut; das
+  befundbezogene Vorschlagsmodul und seine Grenzen beschreibt
+  „Behandlungsvorschläge (Klarplan) und ihre Grenzen“ unten.
 
-## Warum keine automatisierten Zusatzverkaufs-/Empfehlungsfunktionen
+## Behandlungsvorschläge (Klarplan) und ihre Grenzen
+
+Ursprünglich wurde bewusst **kein** Vorschlagsmodul gebaut (Begründung
+siehe unten, sie gilt weiterhin als Leitplanke). Seit Oktober 2026 gibt es
+unter **Vorschläge** ein befundbezogenes Modul, das so eng gefasst ist,
+dass es Aufklärung strukturiert statt Umsatz zu steuern:
+
+- **Ausgangspunkt ist ein Befund**, den die behandelnde Person im
+  FDI-Zahnschema erfasst – keine Vorschläge aus Mustern, Diagnosecodes oder
+  Patientenhistorie.
+- **Kassen-/Regelleistung steht immer an erster Stelle** und ist die Basis
+  jeder Rechnung. Abgedeckt sind vor allem Alternativen, über die ohnehin
+  aufgeklärt werden muss: Mehrkostenfüllungen (§ 28 Abs. 2 SGB V),
+  gleich-/andersartiger Zahnersatz mit identischem Festzuschuss
+  (§§ 55, 56 SGB V).
+- **Unterdrückte Optionen werden begründet** („Nicht vorgeschlagen: …“),
+  z. B. kein Mehrkosten-Komposit im Frontzahnbereich, kein Inlay bei
+  kleinen Defekten, kein Laser-Zusatz zur PAR, kein Implantat-Vorschlag bei
+  Rauchern, Bleaching nur auf dokumentierten Wunsch (§ 2 Abs. 3 GOZ).
+- **Die Empfehlung ist änderbar** und wird von der behandelnden Person
+  bestätigt; die Wahl trifft der Patient.
+- **Patientenschreiben** mit Eigenanteil je Option als Textform-Information
+  nach § 630c Abs. 3 BGB; angenommene/abgelehnte Vorschläge werden
+  eingefroren (Nachweis).
+
+Regelwerk: `lib/proposals.ts` (reine Funktionen, Tests in
+`lib/proposals.test.ts`); Preise je Praxis unter Einstellungen →
+Vorschlagspreise (Beispielwerte, bitte ersetzen).
+
+**Offenes Risiko:** Die Kennzahl „Mehrumsatz angenommen“ auf Übersicht und
+Vorschlagsliste ist eine Umsatzkennzahl. Genau die Funktion eines Features
+(„steuert es Richtung Umsatz?“) ist der Maßstab der unten genannten
+Kritik. Vor dem Verkauf an Praxen sollten Regelwerk und Darstellung von
+einer Zahnärztin/einem Zahnarzt und standesrechtlich (Kammer bzw.
+Medizinrechtler:in) geprüft werden.
+
+### Ursprüngliche Abwägung gegen automatisierte Zusatzverkaufs-Empfehlungen
 
 Eine naheliegende Idee wäre, aus den erfassten Daten automatisch passende
 Selbstzahlerleistungen (IGEL) für den jeweiligen Patienten vorzuschlagen –
