@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { safeCallbackPath } from "@/lib/safeRedirect";
+import { AUTH_UNAVAILABLE_MESSAGE, authServiceAvailable } from "@/lib/authAvailable";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,14 +21,30 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      token: needsTotp ? token : undefined,
-      redirect: false,
-    });
+    if (!(await authServiceAvailable())) {
+      setLoading(false);
+      setError(AUTH_UNAVAILABLE_MESSAGE);
+      return;
+    }
+
+    let result: Awaited<ReturnType<typeof signIn>>;
+    try {
+      result = await signIn("credentials", {
+        email,
+        password,
+        token: needsTotp ? token : undefined,
+        redirect: false,
+      });
+    } catch {
+      result = undefined;
+    }
 
     setLoading(false);
+
+    if (!result) {
+      setError("Der Anmeldedienst antwortet nicht. Meist fehlt NEXTAUTH_SECRET in den Einstellungen. Details unter /api/status.");
+      return;
+    }
 
     if (result?.error) {
       if (result.error === "2FA_REQUIRED") {
@@ -43,7 +60,11 @@ export default function LoginPage() {
         setError(result.error);
         return;
       }
-      setError("E-Mail oder Passwort ist falsch.");
+      setError(
+        result.error === "CredentialsSignin"
+          ? "E-Mail oder Passwort ist falsch."
+          : `Anmeldung nicht möglich (${result.error}). Bitte die Einstellungen unter /api/status prüfen.`
+      );
       return;
     }
 

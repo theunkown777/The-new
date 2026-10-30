@@ -1,0 +1,58 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
+// Selbsttest für den Betrieb (z. B. nach einem Deploy): zeigt, ob die für
+// Anmeldung und Gastzugang nötigen Einstellungen vorhanden sind. Gibt nur
+// ja/nein und Hostnamen aus, niemals Schlüssel oder Passwörter.
+export async function GET(req: Request) {
+  const requestHost = new URL(req.url).host;
+  let nextauthHost: string | null = null;
+  try {
+    nextauthHost = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).host : null;
+  } catch {
+    nextauthHost = "ungültig";
+  }
+
+  const checks: Record<string, { ok: boolean; info: string }> = {
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET
+      ? { ok: true, info: "gesetzt" }
+      : { ok: false, info: "fehlt: in Vercel als Environment Variable setzen und neu deployen" },
+    NEXTAUTH_URL: !nextauthHost
+      ? { ok: !!process.env.VERCEL_URL, info: process.env.VERCEL_URL ? "nicht gesetzt (Vercel-Adresse wird automatisch genutzt)" : "fehlt" }
+      : nextauthHost === requestHost
+        ? { ok: true, info: nextauthHost }
+        : { ok: false, info: `zeigt auf ${nextauthHost}, geöffnet ist aber ${requestHost}: auf https://${requestHost} ändern oder die Seite unter ${nextauthHost} öffnen` },
+  };
+
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    checks.Datenbank = { ok: true, info: "erreichbar" };
+    const rows = await prisma.$queryRaw<{ name: string }[]>`SELECT migration_name AS name FROM "_prisma_migrations" WHERE finished_at IS NOT NULL ORDER BY finished_at DESC LIMIT 1`;
+    const last = rows[0]?.name ?? "keine";
+    const current = last >= "20261030210000_guest_demo";
+    checks.Migrationen = current
+      ? { ok: true, info: `aktuell (${last})` }
+      : { ok: false, info: `veraltet (${last}): Deploy mit "prisma migrate deploy" wiederholen` };
+    const templates = await prisma.serviceTemplate.count({ where: { practiceId: null } });
+    checks.Leistungsvorlagen = templates > 0
+      ? { ok: true, info: `${templates} vorhanden` }
+      : { ok: false, info: "keine: Seed (tsx prisma/seed.ts) ist beim Deploy nicht gelaufen" };
+  } catch (err) {
+    const code = (err as { code?: string }).code;
+    checks.Datenbank = { ok: false, info: `nicht erreichbar${code ? ` (${code})` : ""}: DATABASE_URL prüfen` };
+  }
+
+  checks["Missbrauchsschutz (Redis)"] =
+    (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL) &&
+    (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN)
+      ? { ok: true, info: "Upstash angebunden" }
+      : { ok: true, info: "nicht angebunden (Zähler nur im Speicher, für den Start in Ordnung)" };
+  checks["KI-Berichte"] = process.env.ANTHROPIC_API_KEY
+    ? { ok: true, info: "Schlüssel gesetzt" }
+    : { ok: true, info: "kein Schlüssel: Berichte im Testmodus" };
+
+  const ok = Object.values(checks).every((c) => c.ok);
+  return NextResponse.json({ ok, checks }, { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } });
+}

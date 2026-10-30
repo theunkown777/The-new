@@ -21,6 +21,15 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("Aufräumen abgelaufener Gastzugänge fehlgeschlagen:", err);
   }
-  const credentials = await createDemoPractice();
-  return NextResponse.json(credentials, { status: 201, headers: { "Cache-Control": "no-store" } });
+  try {
+    const credentials = await createDemoPractice();
+    return NextResponse.json(credentials, { status: 201, headers: { "Cache-Control": "no-store" } });
+  } catch (err) {
+    console.error("Gastzugang konnte nicht angelegt werden:", err);
+    const code = (err as { code?: string }).code;
+    return NextResponse.json(
+      { error: `Der Gastzugang konnte nicht angelegt werden${code ? ` (Datenbankfehler ${code})` : ""}. Details unter /api/status.` },
+      { status: 500 }
+    );
+  }
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { AUTH_UNAVAILABLE_MESSAGE, authServiceAvailable } from "@/lib/authAvailable";
 
 // Einstieg "Als Gast ansehen": legt per Klick eine eigene Demo-Praxis an und
 // meldet direkt an. Bewusst per Knopf statt automatisch, damit Suchmaschinen
@@ -14,17 +15,34 @@ export default function DemoPage() {
   async function start() {
     setBusy(true);
     setError(null);
+    if (!(await authServiceAvailable())) {
+      setBusy(false);
+      setError(AUTH_UNAVAILABLE_MESSAGE);
+      return;
+    }
     const res = await fetch("/api/demo", { method: "POST" });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setBusy(false);
-      setError(data.error ?? "Der Gastzugang konnte nicht angelegt werden.");
+      setError(data.error ?? `Der Gastzugang konnte nicht angelegt werden (Fehler ${res.status}). Details unter /api/status.`);
       return;
     }
-    const result = await signIn("credentials", { email: data.email, password: data.password, redirect: false });
-    if (result?.error) {
+    let result: Awaited<ReturnType<typeof signIn>>;
+    try {
+      result = await signIn("credentials", { email: data.email, password: data.password, redirect: false });
+    } catch {
+      result = undefined;
+    }
+    if (!result || result.error) {
       setBusy(false);
-      setError("Anmeldung im Gastzugang fehlgeschlagen. Bitte erneut versuchen.");
+      setError(`Anmeldung im Gastzugang fehlgeschlagen (${result?.error ?? "Anmeldedienst antwortet nicht"}). Meist fehlt NEXTAUTH_SECRET oder NEXTAUTH_URL passt nicht zur Adresse. Details unter /api/status.`);
+      return;
+    }
+    // Prüfen, ob die Sitzung wirklich steht; sonst landet man stumm wieder auf dem Login.
+    const session = await fetch("/api/auth/session").then((r) => r.json()).catch(() => null);
+    if (!session?.user) {
+      setBusy(false);
+      setError("Angemeldet, aber die Sitzung wird nicht gespeichert. Meist passt NEXTAUTH_URL nicht zur geöffneten Adresse oder NEXTAUTH_SECRET fehlt. Details unter /api/status.");
       return;
     }
     window.location.assign("/dashboard");
