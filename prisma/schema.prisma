@@ -28,6 +28,8 @@ model Practice {
   bemaPunktwertCent Float?
   invites           StaffInvite[]
   proposals         TreatmentProposal[]
+  connectorKeys     ConnectorKey[]
+  launchTokens      LaunchToken[]
   // Praxiseigene Preise für Behandlungsvorschläge (Euro je Preisschlüssel
   // aus lib/proposals.ts PRICE_DEFS). Null bzw. fehlende Schlüssel = die
   // dort hinterlegten Beispielwerte.
@@ -141,7 +143,15 @@ model Patient {
   createdAt       DateTime @default(now())
   reports         Report[]
   proposals       TreatmentProposal[]
+  launchTokens    LaunchToken[]
+  // Herkunft aus einer Praxissoftware (VDDS-media): Sektionsname der PVS
+  // (z. B. "DSWIN", "Z1") und deren Patientennummer (PATID). Gemeinsam
+  // eindeutig je Praxis, damit derselbe PVS-Patient beim nächsten Aufruf
+  // wiedergefunden statt doppelt angelegt wird.
+  externalSource  String?
+  externalId      String?
 
+  @@unique([practiceId, externalSource, externalId])
   @@index([practiceId])
 }
 
@@ -354,4 +364,40 @@ model TreatmentProposal {
 
   @@index([practiceId])
   @@index([patientId])
+}
+
+// Schlüssel, mit dem der Sorrida-Connector auf einem Praxis-PC Patienten aus
+// der Praxissoftware an diese App übergibt. Nur der Hash wird gespeichert.
+// Der Schlüssel darf ausschließlich Patienten anlegen/aktualisieren und
+// Start-Tokens erzeugen - lesen kann er nichts.
+model ConnectorKey {
+  id         String    @id @default(cuid())
+  practiceId String
+  practice   Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  name       String
+  keyHash    String    @unique
+  keyPrefix  String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+
+  @@index([practiceId])
+}
+
+// Einmal-Token, mit dem das vom Connector geöffnete Fenster den Patienten
+// lädt, ohne dass Patientendaten in der URL stehen. Kurzlebig und nur
+// einmal einlösbar, und nur von einem angemeldeten Nutzer derselben Praxis.
+model LaunchToken {
+  id         String    @id @default(cuid())
+  practiceId String
+  practice   Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  patientId  String
+  patient    Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  view       String    @default("bericht")
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([practiceId])
 }

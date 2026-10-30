@@ -63,12 +63,15 @@ export function ProposalEditor({
   prices,
   practiceName,
   existing,
+  savedHrefPrefix = "/proposals/",
 }: {
   patients: PatientOption[];
   initialPatientId?: string;
   prices: Prices;
   practiceName: string;
   existing?: ExistingProposal;
+  /** Ziel nach dem ersten Speichern; im Praxissoftware-Fenster bleibt der Nutzer unter /embed. */
+  savedHrefPrefix?: string;
 }) {
   const router = useRouter();
   const [patientId, setPatientId] = useState(existing?.patientId ?? initialPatientId ?? "");
@@ -131,7 +134,7 @@ export function ProposalEditor({
       return;
     }
     if (existing) router.refresh();
-    else router.push(`/proposals/${data.proposal.id}`);
+    else router.push(`${savedHrefPrefix}${data.proposal.id}`);
   }
 
   async function copyLetter() {

@@ -223,6 +223,17 @@ kategorienbezogenes Nachschlagewerk, siehe oben) – die eigentliche
 fachliche und kommunikative Arbeit im Beratungsgespräch bleibt in beiden
 Fällen vollständig beim Menschen.
 
+## Fenster aus der Praxissoftware (VDDS-media)
+
+Bericht und Behandlungsvorschlag lassen sich direkt aus DS-Win, CGM Z1,
+charly, EVIDENT und anderen VDDS-media-fähigen Praxisprogrammen als eigenes
+Fenster öffnen, mit dem dort gewählten Patienten. Ein kleiner
+Windows-Connector (`public/connector/`) nimmt die VDDS-Übergabedatei
+entgegen, meldet den Patienten mit einem Praxis-PC-Schlüssel an
+`/api/connector/launch` und öffnet `/embed/...` über ein Einmal-Token.
+Einrichtung unter Einstellungen → Praxissoftware; Details, Datenfluss und
+Teststand in [`docs/PVS-ANBINDUNG.md`](docs/PVS-ANBINDUNG.md).
+
 ## Für Software-Partner: API-Integration statt PVS-Ersatz
 
 Der deutsche Zahnarzt-PVS-Markt (Charly, Dampsoft, CGM Z1, evident,

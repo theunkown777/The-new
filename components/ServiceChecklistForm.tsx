@@ -88,10 +88,13 @@ export function ServiceChecklistForm({
   patients,
   initialPatientId,
   practicePunktwerte,
+  savedHrefPrefix = "/reports/",
 }: {
   patients: PatientOption[];
   initialPatientId?: string;
   practicePunktwerte: { gozPunktwertCent: number | null; bemaPunktwertCent: number | null };
+  /** Ziel nach dem Speichern; im Praxissoftware-Fenster bleibt der Nutzer unter /embed. */
+  savedHrefPrefix?: string;
 }) {
   const router = useRouter();
   const [patientId, setPatientId] = useState(initialPatientId ?? patients[0]?.id ?? "");
@@ -305,7 +308,7 @@ export function ServiceChecklistForm({
       return;
     }
 
-    router.push(`/reports/${data.report.id}`);
+    router.push(`${savedHrefPrefix}${data.report.id}`);
   }
 
   if (patients.length === 0) {

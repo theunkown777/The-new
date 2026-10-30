@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { safeCallbackPath } from "@/lib/safeRedirect";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -46,6 +47,14 @@ export default function LoginPage() {
       return;
     }
 
+    // Rücksprung z. B. in das aus der Praxissoftware geöffnete Fenster. Volle
+    // Navigation statt router.push + refresh: der Start-Link ist ein
+    // Einmal-Token und darf nur einmal gerendert werden.
+    const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
+    if (callbackUrl) {
+      window.location.assign(safeCallbackPath(callbackUrl, window.location.origin));
+      return;
+    }
     router.push("/dashboard");
     router.refresh();
   }

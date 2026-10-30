@@ -22,6 +22,11 @@ const CARDS = [
     description: "Sitzungstyp-Vorlagen anlegen und Positionen inkl. Abhängigkeiten verwalten.",
   },
   {
+    href: "/settings/connector",
+    title: "Praxissoftware",
+    description: "Sorrida als Fenster aus DS-Win, CGM Z1, charly oder EVIDENT öffnen (VDDS-media).",
+  },
+  {
     href: "/settings/proposals",
     title: "Vorschlagspreise",
     description: "Preise je Behandlungsoption für Eigenanteil und Mehrumsatz in Vorschlägen.",
