@@ -7,6 +7,9 @@ import {
   neighbors,
   buildLetter,
   ageFromBirthDate,
+  vergleicheJahre,
+  defaultZuschussJahr,
+  tageBisStichtag,
   DEFAULT_PRICES,
   type ProposalInput,
   type PatientFactors,
@@ -136,5 +139,44 @@ describe("ageFromBirthDate", () => {
   it("counts birthdays correctly", () => {
     expect(ageFromBirthDate(new Date(2010, 10, 1), new Date(2026, 9, 30))).toBe(15);
     expect(ageFromBirthDate(null)).toBeNull();
+  });
+});
+
+describe("Festzuschuss 2026 vs. 2027", () => {
+  const bridge = item(input({ teeth: { "36": "fehlt" } }), "t36");
+  const p2026 = { ...GKV10, zuschussJahr: 2026 as const };
+
+  it("lowers every bonus level by ten points for approvals from 2027", () => {
+    const p = { ...GKV10, bonusYears: 0 as const };
+    expect(money(bridge.options[0], p, 2026).kasse).toBeCloseTo(1050);
+    expect(money(bridge.options[0], p, 2027).kasse).toBeCloseTo(875);
+    expect(money(bridge.options[0], GKV10, 2027).kasse).toBeCloseTo(1137.5);
+  });
+  it("keeps Härtefälle at the full Regelversorgung in both years", () => {
+    const p = { ...GKV10, haertefall: true };
+    expect(money(bridge.options[0], p, 2027).eigen).toBe(0);
+  });
+  it("does not change GKV benefits without Festzuschuss", () => {
+    const f = item(input({ teeth: { "25": "karies_klein" } }), "t25").options[1];
+    expect(money(f, GKV10, 2026).eigen).toBe(money(f, GKV10, 2027).eigen);
+  });
+  it("compares the chosen plan across both years", () => {
+    const items = buildProposal(input({ teeth: { "36": "fehlt", "25": "karies_klein" } }), DEFAULT_PRICES);
+    const v = vergleicheJahre(items, {}, p2026);
+    expect(v.betroffen).toBe(true);
+    expect(v.netto2027 - v.netto2026).toBeCloseTo(1750 * 0.1);
+  });
+  it("switches the default year after the deadline", () => {
+    expect(defaultZuschussJahr(new Date(2026, 11, 31, 18))).toBe(2026);
+    expect(defaultZuschussJahr(new Date(2027, 0, 1, 8))).toBe(2027);
+    expect(tageBisStichtag(new Date(2026, 9, 30))).toBe(62);
+  });
+  it("adds the 2027 amounts and the deadline to the patient letter before the deadline", () => {
+    const items = buildProposal(input({ teeth: { "36": "fehlt" } }), DEFAULT_PRICES);
+    const text = buildLetter({ items, choices: {}, patient: p2026, patientName: "Frau Weber", practiceName: "Praxis Test", date: new Date(2026, 9, 30) });
+    expect(text).toMatch(/bei Bewilligung ab 1\.1\.2027/);
+    expect(text).toMatch(/31\.12\.2026/);
+    const after = buildLetter({ items, choices: {}, patient: { ...GKV10, zuschussJahr: 2027 }, patientName: "Frau Weber", practiceName: "Praxis Test", date: new Date(2027, 1, 1) });
+    expect(after).not.toMatch(/31\.12\.2026/);
   });
 });

@@ -31,6 +31,7 @@ export const proposalInputSchema = z.object({
     bonusYears: z.union([z.literal(0), z.literal(5), z.literal(10)]),
     haertefall: z.boolean(),
     erstattungProzent: z.number().min(0).max(100),
+    zuschussJahr: z.union([z.literal(2026), z.literal(2027)]).optional(),
   }),
 });
 

@@ -12,6 +12,12 @@ import {
   buildLetter,
   buildProposal,
   chosenOption,
+  defaultZuschussJahr,
+  FESTZUSCHUSS_SAETZE,
+  isZahnersatz,
+  showsJahresvergleich,
+  tageBisStichtag,
+  vergleicheJahre,
   formatEuro,
   money,
   optionTypeLabel,
@@ -21,6 +27,7 @@ import {
   type PatientFactors,
   type Prices,
   type ProposalInput,
+  type ZuschussJahr,
 } from "@/lib/proposals";
 
 type PatientOption = {
@@ -46,6 +53,7 @@ function defaultFactors(p: PatientOption | undefined): PatientFactors {
     bonusYears: 0,
     haertefall: false,
     erstattungProzent: p?.insuranceType === "PKV" ? 80 : 0,
+    zuschussJahr: defaultZuschussJahr(),
   };
 }
 
@@ -84,6 +92,11 @@ export function ProposalEditor({
   const patientName = patient ? `${patient.firstName} ${patient.lastName}` : "";
   const letter = buildLetter({ items, choices, patient: factors, patientName, practiceName, date: new Date() });
   const delta = summary.planTotal - summary.baseTotal;
+  const jv = vergleicheJahre(items, choices, factors);
+  const jahr: ZuschussJahr = factors.zuschussJahr ?? defaultZuschussJahr();
+  const zeigeVergleich = factors.insurance === "GKV" && !factors.haertefall;
+  const tage = tageBisStichtag();
+  const pct = (y: ZuschussJahr) => `${Math.round(FESTZUSCHUSS_SAETZE[y][factors.bonusYears] * 100)} %`;
 
   function changePatient(id: string) {
     setPatientId(id);
@@ -242,6 +255,20 @@ export function ProposalEditor({
                 </label>
               </div>
             )}
+            {factors.insurance === "GKV" && (
+              <div>
+                <label className="label" htmlFor="proposal-zuschussjahr">Bewilligung des HKP durch die Kasse</label>
+                <select
+                  id="proposal-zuschussjahr"
+                  className="input"
+                  value={jahr}
+                  onChange={(e) => setFactors({ ...factors, zuschussJahr: Number(e.target.value) as ZuschussJahr })}
+                >
+                  <option value={2026}>bis 31.12.2026 (60/70/75 %)</option>
+                  <option value={2027}>ab 1.1.2027 (50/60/65 %)</option>
+                </select>
+              </div>
+            )}
             <div>
               <label className="label" htmlFor="proposal-erstattung">
                 {factors.insurance === "GKV" ? "Zusatzversicherung erstattet" : "PKV-Tarif erstattet"}:{" "}
@@ -310,6 +337,41 @@ export function ProposalEditor({
             <Stat label="Eigenanteil Patient" value={formatEuro(summary.netto)} />
           </div>
 
+          {zeigeVergleich && jv.betroffen && (
+            <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="font-medium text-slate-900">Festzuschuss sinkt zum 1.1.2027</h2>
+                {showsJahresvergleich() && (
+                  <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
+                    {tage === 0 ? "Heute letzter Tag" : `Noch ${tage} Tage`} für Bewilligung zu den alten Sätzen
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                <div className={`rounded-lg bg-white p-3 ${jahr === 2026 ? "ring-2 ring-brand-600" : ""}`}>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Bewilligt bis 31.12.2026</p>
+                  <p className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">{formatEuro(jv.netto2026)}</p>
+                  <p className="text-xs text-slate-400">Festzuschuss {pct(2026)} der Regelversorgung</p>
+                </div>
+                <div className={`rounded-lg bg-white p-3 ${jahr === 2027 ? "ring-2 ring-brand-600" : ""}`}>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Bewilligt ab 1.1.2027</p>
+                  <p className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">{formatEuro(jv.netto2027)}</p>
+                  <p className="text-xs text-slate-400">Festzuschuss {pct(2027)} der Regelversorgung</p>
+                </div>
+                <div className="rounded-lg bg-white p-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Mehrkosten für den Patienten</p>
+                  <p className="mt-0.5 text-lg font-semibold tabular-nums text-red-700">+{formatEuro(jv.mehrkosten)}</p>
+                  <p className="text-xs text-slate-400">bei der gewählten Versorgung</p>
+                </div>
+              </div>
+              <p className="mt-3 text-xs text-slate-600">
+                Maßgeblich ist das Bewilligungsdatum der Krankenkasse, nicht der Behandlungstermin. Härtefälle
+                erhalten weiter die volle Regelversorgung. Grundlage: GKV-Beitragssatzstabilisierungsgesetz, bitte
+                aktuelle Festzuschussbeträge Ihrer KZV prüfen.
+              </p>
+            </div>
+          )}
+
           <div className="flex gap-1 border-b border-slate-200" role="tablist">
             {(["praxis", "patient"] as const).map((t) => (
               <button
@@ -371,6 +433,14 @@ export function ProposalEditor({
                                 Eigenanteil
                                 <b className="tabular-nums text-amber-700">{formatEuro(m.netto)}</b>
                               </span>
+                              {zeigeVergleich && isZahnersatz(o) && (
+                                <span className="flex justify-between text-xs text-red-700">
+                                  {jahr === 2026 ? "Ab 2027" : "Bis 31.12.2026"}
+                                  <span className="tabular-nums">
+                                    {formatEuro(money(o, factors, jahr === 2026 ? 2027 : 2026).netto)}
+                                  </span>
+                                </span>
+                              )}
                               <span className="flex justify-between text-xs text-slate-400">
                                 Volumen <span className="tabular-nums">{formatEuro(m.total)}</span>
                               </span>

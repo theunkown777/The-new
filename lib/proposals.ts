@@ -111,6 +111,12 @@ export interface PatientFactors {
   haertefall: boolean;
   /** GKV: Erstattung der Zahnzusatzversicherung auf den Eigenanteil; PKV: Tariferstattung auf den Gesamtbetrag. */
   erstattungProzent: number;
+  /**
+   * Nach welchen Festzuschuss-Sätzen gerechnet wird. Maßgeblich ist das
+   * Bewilligungsdatum des HKP durch die Kasse, nicht der Behandlungstermin.
+   * Fehlt der Wert, gilt das Jahr aus defaultZuschussJahr().
+   */
+  zuschussJahr?: ZuschussJahr;
 }
 
 export interface ProposalInput {
@@ -321,13 +327,50 @@ export interface Money {
   netto: number;
 }
 
-/** Festzuschuss-Quote nach § 55 SGB V: 60 %, mit Bonusheft 70/75 %, Härtefall 100 %. */
-export function festzuschussQuote(p: PatientFactors): number {
-  if (p.haertefall) return 1;
-  return p.bonusYears === 10 ? 0.75 : p.bonusYears === 5 ? 0.7 : 0.6;
+// Festzuschuss-Sätze nach § 55 SGB V in Prozent der Regelversorgung. Das
+// GKV-Beitragssatzstabilisierungsgesetz (2026) senkt sie für alle ab dem
+// 1.1.2027 bewilligten Heil- und Kostenpläne um zehn Prozentpunkte; bis
+// 31.12.2026 bewilligte Pläne behalten die alten Sätze. Härtefälle erhalten
+// weiterhin die volle Regelversorgung.
+export const FESTZUSCHUSS_SAETZE = {
+  2026: { 0: 0.6, 5: 0.7, 10: 0.75 },
+  2027: { 0: 0.5, 5: 0.6, 10: 0.65 },
+} as const;
+export type ZuschussJahr = keyof typeof FESTZUSCHUSS_SAETZE;
+/** Letzter Tag, an dem eine Bewilligung noch die Sätze von 2026 sichert. */
+export const STICHTAG_ALTE_SAETZE = new Date(2026, 11, 31);
+
+export function defaultZuschussJahr(today = new Date()): ZuschussJahr {
+  return today > endOfDay(STICHTAG_ALTE_SAETZE) ? 2027 : 2026;
 }
 
-export function money(o: ProposalOption, p: PatientFactors): Money {
+/** Ob der Vergleich 2026/2027 noch eine Entscheidung beeinflussen kann. */
+export function showsJahresvergleich(today = new Date()): boolean {
+  return today <= endOfDay(STICHTAG_ALTE_SAETZE);
+}
+
+/** Verbleibende Kalendertage bis einschließlich Stichtag (0 am Stichtag selbst, negativ danach). */
+export function tageBisStichtag(today = new Date()): number {
+  const a = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  const b = Date.UTC(STICHTAG_ALTE_SAETZE.getFullYear(), STICHTAG_ALTE_SAETZE.getMonth(), STICHTAG_ALTE_SAETZE.getDate());
+  return Math.round((b - a) / 86400000);
+}
+
+function endOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+}
+
+/** Festzuschuss-Quote: je nach Bewilligungsjahr und Bonusheft, Härtefall 100 %. */
+export function festzuschussQuote(p: PatientFactors, jahr: ZuschussJahr = p.zuschussJahr ?? defaultZuschussJahr()): number {
+  if (p.haertefall) return 1;
+  return FESTZUSCHUSS_SAETZE[jahr][p.bonusYears];
+}
+
+/** Option rechnet mit Festzuschuss, hängt also vom Bewilligungsjahr ab. */
+export const isZahnersatz = (o: ProposalOption) =>
+  o.type === "regel" || o.type === "gleichartig" || o.type === "andersartig";
+
+export function money(o: ProposalOption, p: PatientFactors, jahr?: ZuschussJahr): Money {
   const total = o.total;
   const pct = Math.min(100, Math.max(0, p.erstattungProzent)) / 100;
   if (p.insurance === "PKV") {
@@ -338,7 +381,7 @@ export function money(o: ProposalOption, p: PatientFactors): Money {
   if (o.type === "kasse") kasse = total;
   else if (o.type === "mehrkosten" || o.type === "privatzusatz") kasse = o.base ?? 0;
   else if (o.type === "privat") kasse = 0;
-  else kasse = Math.min((o.regel ?? 0) * festzuschussQuote(p), total);
+  else kasse = Math.min((o.regel ?? 0) * festzuschussQuote(p, jahr), total);
   const eigen = total - kasse;
   const erstattet = eigen * pct;
   return { total, kasse, eigen, erstattet, netto: eigen - erstattet };
@@ -359,6 +402,29 @@ export interface ProposalSummary {
   planTotal: number;
   eigen: number;
   netto: number;
+}
+
+export interface JahresVergleich {
+  /** Eigenanteil (nach Zusatzversicherung) der gewählten Optionen bei Bewilligung bis 31.12.2026. */
+  netto2026: number;
+  /** … bei Bewilligung ab 1.1.2027. */
+  netto2027: number;
+  mehrkosten: number;
+  /** Ob überhaupt eine gewählte Option vom Festzuschuss abhängt. */
+  betroffen: boolean;
+}
+
+/** Eigenanteil der gewählten Optionen nach den Sätzen 2026 und 2027 (nur GKV relevant). */
+export function vergleicheJahre(items: ProposalItem[], choices: Record<string, string>, p: PatientFactors): JahresVergleich {
+  let netto2026 = 0, netto2027 = 0, betroffen = false;
+  for (const item of items) {
+    const o = chosenOption(item, choices);
+    if (!o) continue;
+    if (p.insurance === "GKV" && isZahnersatz(o) && !p.haertefall) betroffen = true;
+    netto2026 += money(o, p, 2026).netto;
+    netto2027 += money(o, p, 2027).netto;
+  }
+  return { netto2026, netto2027, mehrkosten: netto2027 - netto2026, betroffen };
 }
 
 /** Basis = jeweils erste Option (Kasse/Regel), Plan = gewählte Optionen. */
@@ -407,6 +473,9 @@ export function buildLetter(args: {
   date: Date;
 }): string {
   const { items, choices, patient, patientName, practiceName, date } = args;
+  const jv = vergleicheJahre(items, choices, patient);
+  // Den Vergleich nur zeigen, solange eine Bewilligung zu den alten Sätzen noch möglich ist.
+  const vergleich = showsJahresvergleich(date) && jv.betroffen && (patient.zuschussJahr ?? defaultZuschussJahr(date)) === 2026;
   const L: string[] = [];
   L.push(`${practiceName} – Ihr persönlicher Behandlungsvorschlag`);
   L.push(`Datum: ${date.toLocaleDateString("de-DE")}`);
@@ -425,8 +494,12 @@ export function buildLetter(args: {
     L.push(`${i}. ${item.where}: ${item.title}`);
     item.options.forEach((o, j) => {
       const m = money(o, patient);
+      const later =
+        vergleich && isZahnersatz(o) && patient.insurance === "GKV" && !patient.haertefall
+          ? ` (bei Bewilligung ab 1.1.2027: ca. ${formatEuro(money(o, patient, 2027).netto)})`
+          : "";
       L.push(
-        `   ${String.fromCharCode(97 + j)}) ${o.name} (${optionTypeLabel(o.type, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${o.id === item.recommended ? "  ← unsere Empfehlung" : ""}`
+        `   ${String.fromCharCode(97 + j)}) ${o.name} (${optionTypeLabel(o.type, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${later}${o.id === item.recommended ? "  ← unsere Empfehlung" : ""}`
       );
     });
     const why = item.notes.filter((n) => n.kind === "info").map((n) => n.text);
@@ -440,6 +513,12 @@ export function buildLetter(args: {
   const s = summarize(items, choices, patient);
   L.push("");
   L.push(`Summe Ihres Eigenanteils bei der besprochenen Wahl: ca. ${formatEuro(s.netto)}`);
+  if (vergleich && jv.mehrkosten > 0.5) {
+    L.push("");
+    L.push(
+      `Bitte beachten: Zum 1. Januar 2027 senken die gesetzlichen Krankenkassen den Festzuschuss für Zahnersatz um zehn Prozentpunkte. Maßgeblich ist das Datum, an dem Ihre Krankenkasse den Heil- und Kostenplan bewilligt, nicht der Behandlungstermin. Wird Ihr Plan bis zum 31.12.2026 bewilligt, gilt der oben genannte Eigenanteil. Bei einer Bewilligung ab dem 1.1.2027 steigt er bei der besprochenen Wahl voraussichtlich auf ca. ${formatEuro(jv.netto2027)} (ca. ${formatEuro(jv.mehrkosten)} mehr).`
+    );
+  }
   L.push("");
   L.push(
     "Wichtig: Die Kassenleistung ist bei jedem Punkt möglich. Alle Beträge sind Schätzungen. Verbindlich sind der Heil- und Kostenplan bzw. die schriftliche Mehrkostenvereinbarung, die wir vor Behandlungsbeginn mit Ihnen abschließen. Diese Information erhalten Sie nach § 630c Abs. 3 BGB in Textform."

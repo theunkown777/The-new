@@ -170,6 +170,12 @@ dass es Aufklärung strukturiert statt Umsatz zu steuern:
   Rauchern, Bleaching nur auf dokumentierten Wunsch (§ 2 Abs. 3 GOZ).
 - **Die Empfehlung ist änderbar** und wird von der behandelnden Person
   bestätigt; die Wahl trifft der Patient.
+- **Festzuschuss 2026 vs. 2027:** Zum 1.1.2027 sinken die Festzuschüsse
+  (60/70/75 % → 50/60/65 %, GKV-Beitragssatzstabilisierungsgesetz);
+  maßgeblich ist das Bewilligungsdatum. Bis zum Stichtag zeigt der Editor
+  beide Eigenanteile nebeneinander samt Countdown, und das
+  Patientenschreiben nennt den Betrag bei Bewilligung ab 2027. Sätze in
+  `FESTZUSCHUSS_SAETZE` (lib/proposals.ts), bitte gegen KZV-Angaben prüfen.
 - **Patientenschreiben** mit Eigenanteil je Option als Textform-Information
   nach § 630c Abs. 3 BGB; angenommene/abgelehnte Vorschläge werden
   eingefroren (Nachweis).
