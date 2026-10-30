@@ -407,3 +407,14 @@ model LaunchToken {
 
   @@index([practiceId])
 }
+
+// Anfrage über die öffentliche Website (Pilotplatz/Demo). Gehört zu keiner
+// Praxis; nur der Betreiber sieht sie (E-Mail-Benachrichtigung, Datenbank).
+model Lead {
+  id           String   @id @default(cuid())
+  practiceName String
+  contactName  String
+  dentists     String
+  contact      String
+  createdAt    DateTime @default(now())
+}

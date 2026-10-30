@@ -227,6 +227,18 @@ kategorienbezogenes Nachschlagewerk, siehe oben) – die eigentliche
 fachliche und kommunikative Arbeit im Beratungsgespräch bleibt in beiden
 Fällen vollständig beim Menschen.
 
+## Website und App sind eins
+
+Die öffentliche Website liegt in derselben Anwendung: `public/landing.html`
+(Live-Demo des Vorschlags-Regelwerks, Festzuschuss-Vergleich 2026/2027,
+Mehrumsatz-Rechner, Preise, Anfrageformular). `middleware.ts` liefert sie
+unter `/` an Besucher ohne Anmeldung aus; angemeldete Nutzer landen von `/`
+direkt in der Übersicht. „Anmelden“ führt auf `/login` derselben App.
+
+Das Formular „Pilotplatz anfragen“ speichert Anfragen über `POST /api/leads`
+in der Tabelle `Lead` (Rate-Limit je IP, Honeypot gegen Bots) und schickt
+optional eine Benachrichtigung an `LEAD_NOTIFY_EMAIL`.
+
 ## Behandlung abschließen: ein Schritt nach der Behandlung
 
 Unter **Behandlung abschließen** (Übersicht, Patient, und als Standard im

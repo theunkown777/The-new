@@ -1,0 +1,1280 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sorrida – Nach der Behandlung ein Klick</title>
+<meta name="description" content="Sorrida für Zahnarztpraxen: Leistungen bestätigen, Befunde anklicken, abschließen. Bericht, Behandlungsvorschlag mit Eigenanteil, Patientenschreiben und To-dos entstehen automatisch. Auch direkt aus DS-Win, CGM Z1, charly und EVIDENT.">
+<link rel="icon" href="/brand/sorrida-S.svg" type="image/svg+xml">
+<!-- Öffentliche Website von Sorrida. Wird von der App unter "/" für nicht
+     angemeldete Besucher ausgeliefert (middleware.ts). Diese Datei ist die
+     Vorlage der Website; Live-Demo und Rechner laufen vollständig im Browser. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Caveat:wght@600&family=Cormorant+Garamond:wght@500&family=JetBrains+Mono:wght@500&family=Schibsted+Grotesk:wght@600;800&display=swap">
+<style>
+/* Layout: paper-white page, one wide working band (the live demo) between quiet editorial sections; brand bordeaux from the Sorrida logo (the calligraphic S), money always in gold. */
+:root{
+  --bg:#F5F2EE; --surface:#FFFFFF; --sunk:#ECE6DF; --ink:#24201F; --muted:#665E58; --line:#DDD5CC;
+  --accent:#6B2A24; --accent-ink:#FFFFFF; --accent-soft:#F3E6E3;
+  --gold:#9A600C; --gold-soft:#F5E8D2;
+  --good:#2B7A4B; --warn:#A9501A; --warn-soft:#F8E6DA; --bad:#A8261E;
+  --f-display:"Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#161312; --surface:#201B19; --sunk:#100D0C; --ink:#EFE9E4; --muted:#ABA19A; --line:#3A312E;
+  --accent:#E3ADA3; --accent-ink:#2A0F0C; --accent-soft:#3A1F1C;
+  --gold:#E2A94C; --gold-soft:#372A12;
+  --good:#6CC48F; --warn:#E59466; --warn-soft:#3A2416; --bad:#F08A80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161312; --surface:#201B19; --sunk:#100D0C; --ink:#EFE9E4; --muted:#ABA19A; --line:#3A312E;
+  --accent:#E3ADA3; --accent-ink:#2A0F0C; --accent-soft:#3A1F1C;
+  --gold:#E2A94C; --gold-soft:#372A12;
+  --good:#6CC48F; --warn:#E59466; --warn-soft:#3A2416; --bad:#F08A80; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(2.1rem,5vw,3.6rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lede{font-size:1.15rem;color:var(--muted);max-width:60ch}
+.mono{font-family:var(--f-mono)}
+.num{font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.2rem;border-radius:999px;border:1.5px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:700;text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.small{padding:.45rem .9rem;font-size:.9rem}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:1.5rem;padding-block:.7rem}
+.logo{display:flex;align-items:center;gap:.55rem;font-family:var(--f-display);font-weight:800;font-size:1.25rem;color:var(--ink);text-decoration:none}
+.logo img{height:48px;width:auto;display:block}
+.logo .wm{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;letter-spacing:.3em;font-size:1.25rem}
+.logo .logo-dark{display:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .logo .logo-light{display:none}:root:not([data-theme="light"]) .logo .logo-dark{display:block}}
+:root[data-theme="dark"] .logo .logo-light{display:none}
+:root[data-theme="dark"] .logo .logo-dark{display:block}
+.login-link{color:var(--muted);font-weight:700;font-size:.95rem;text-decoration:none;white-space:nowrap}
+.login-link:hover{color:var(--ink)}
+nav.main{display:flex;gap:1.1rem;margin-left:auto;flex-wrap:wrap}
+nav.main a{color:var(--muted);text-decoration:none;font-weight:700;font-size:.95rem}
+nav.main a:hover{color:var(--ink)}
+@media (max-width:760px){nav.main{display:none}.login-link{margin-left:auto}}
+@media (max-width:420px){.logo .wm{display:none}}
+
+section{padding-block:clamp(3rem,7vw,5.5rem)}
+.sec-head{display:grid;gap:.8rem;margin-bottom:2rem;max-width:760px}
+
+/* hero */
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:3rem;align-items:center}
+.hero-copy{display:grid;gap:1.3rem;min-width:0}
+.hero-copy .ctas{display:flex;gap:.8rem;flex-wrap:wrap}
+.hero-copy small{color:var(--muted)}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr}}
+.preview{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.2rem;box-shadow:0 18px 40px -24px rgba(10,60,55,.35);display:grid;gap:.9rem;min-width:0}
+.preview-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap}
+.preview-head b{font-family:var(--f-display);font-size:1.05rem}
+.prow{display:grid;grid-template-columns:1fr auto;gap:.2rem 1rem;padding:.75rem .9rem;border-radius:var(--r);border:1px solid var(--line)}
+.prow.rec{border-color:var(--accent);background:var(--accent-soft)}
+.prow .t{font-weight:700}
+.prow .s{color:var(--muted);font-size:.85rem;grid-column:1}
+.prow .e{grid-row:1 / span 2;grid-column:2;text-align:right;align-self:center}
+.prow .e b{display:block;font-family:var(--f-mono);color:var(--gold);font-size:1rem}
+.prow .e span{font-size:.75rem;color:var(--muted)}
+.preview-foot{font-size:.8rem;color:var(--muted)}
+
+/* principle strip */
+.principles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5rem}
+.principles div{display:grid;gap:.5rem;align-content:start;border-top:2px solid var(--ink);padding-top:1rem}
+.principles p{color:var(--muted)}
+@media (max-width:800px){.principles{grid-template-columns:1fr}}
+
+/* demo band */
+.band{background:var(--sunk);border-block:1px solid var(--line)}
+.demo{display:grid;grid-template-columns:380px minmax(0,1fr);gap:1.5rem;align-items:start}
+@media (max-width:980px){.demo{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.1rem;display:grid;gap:1rem;min-width:0}
+.panel h3{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+.field{display:grid;gap:.3rem}
+.field label,.lbl{font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:.03em;text-transform:uppercase}
+.field input[type=text],.field input[type=number],.field select{width:100%;padding:.55rem .65rem;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--bg);flex-wrap:wrap}
+.seg button{flex:1;border:0;background:transparent;padding:.4rem .6rem;border-radius:999px;cursor:pointer;font-weight:700;font-size:.88rem;color:var(--muted);white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.check{display:flex;gap:.55rem;align-items:flex-start;font-size:.93rem;cursor:pointer}
+.check input{margin-top:.25rem;accent-color:var(--accent);width:1rem;height:1rem;flex:none}
+.range{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:center}
+.range input{accent-color:var(--accent);width:100%}
+
+/* tooth chart */
+.chart{display:grid;gap:6px}
+.jaw{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:3px}
+.jaw .mid{border-left:2px solid var(--ink)}
+.tooth{aspect-ratio:3/4;border:1.5px solid var(--line);background:var(--bg);border-radius:9px 9px 5px 5px;cursor:pointer;padding:0;font-family:var(--f-mono);font-size:.62rem;color:var(--muted);display:grid;place-items:end center;padding-bottom:3px;position:relative;max-width:100%}
+.jaw.lower .tooth{border-radius:5px 5px 9px 9px;place-items:start center;padding:3px 0 0}
+.tooth[data-f]{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);font-weight:700}
+.tooth[data-f=fehlt]{background:repeating-linear-gradient(135deg,transparent 0 4px,var(--line) 4px 6px);border-style:dashed;color:var(--muted)}
+.tooth[data-f=fissur]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.tooth[aria-pressed=true]{outline:2.5px solid var(--ink);outline-offset:1px}
+.chart-legend{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);font-family:var(--f-mono)}
+.tooth-edit{display:grid;gap:.5rem;padding:.8rem;border-radius:var(--r);background:var(--sunk)}
+.tooth-edit .lbl b{color:var(--ink);font-family:var(--f-mono)}
+
+/* proposals */
+.results{display:grid;gap:1rem;min-width:0}
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.summary div{background:var(--surface);padding:.9rem 1rem;display:grid;gap:.15rem;min-width:0}
+.summary .k{font-size:.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.summary .v{font-family:var(--f-mono);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.summary .v.gold{color:var(--gold)}
+.summary .h{font-size:.78rem;color:var(--muted)}
+@media (max-width:700px){.summary{grid-template-columns:1fr 1fr}}
+.tabs{display:flex;gap:.4rem;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{border:0;background:transparent;padding:.6rem .9rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--ink);border-color:var(--accent)}
+.finding{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem;display:grid;gap:.8rem;min-width:0}
+.finding-head{display:flex;gap:.8rem;align-items:baseline;flex-wrap:wrap}
+.finding-head .where{font-family:var(--f-mono);font-size:.8rem;background:var(--ink);color:var(--bg);padding:.15rem .45rem;border-radius:5px}
+.finding-head h3{font-size:1.05rem}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.6rem}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:var(--r);padding:.8rem;cursor:pointer;display:grid;gap:.45rem;align-content:start;position:relative;min-width:0}
+.opt:hover{border-color:var(--muted)}
+.opt[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft)}
+.opt .chip{justify-self:start;font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.15rem .45rem;border-radius:4px;background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+.opt .chip.kasse,.opt .chip.regel{color:var(--good);border-color:currentColor}
+.opt .name{font-weight:700;line-height:1.25}
+.opt ul{margin:0;padding-left:1.05rem;font-size:.85rem;color:var(--muted)}
+.opt .money{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:.45rem;gap:.5rem}
+.opt .money span{font-size:.75rem;color:var(--muted)}
+.opt .money b{font-family:var(--f-mono);color:var(--gold);font-variant-numeric:tabular-nums}
+.opt .rec{position:absolute;top:.6rem;right:.6rem;font-size:.68rem;font-weight:700;color:var(--accent)}
+.notes{display:grid;gap:.35rem;font-size:.86rem}
+.note{display:flex;gap:.5rem;align-items:flex-start}
+.note::before{content:"";flex:none;width:.5rem;height:.5rem;border-radius:50%;margin-top:.45rem;background:var(--accent)}
+.note.x::before{background:transparent;border:1.5px solid var(--muted)}
+.note.x{color:var(--muted)}
+.note.w::before{background:var(--warn)}
+.empty{padding:2rem;text-align:center;color:var(--muted);border:1.5px dashed var(--line);border-radius:14px}
+.letter{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:clamp(1rem,3vw,2rem);display:grid;gap:1rem;min-width:0}
+.letter pre{white-space:pre-wrap;font-family:var(--f-body);font-size:.95rem;margin:0;line-height:1.6;overflow-wrap:anywhere}
+.letter-bar{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.letter-bar small{color:var(--muted)}
+details.prices{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem 1rem}
+details.prices summary{cursor:pointer;font-weight:700}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.6rem 1rem;margin-top:.9rem}
+.price-grid label{display:grid;grid-template-columns:1fr 92px;gap:.5rem;align-items:center;font-size:.85rem}
+.price-grid input{padding:.35rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);text-align:right;font-family:var(--f-mono);width:100%}
+.disclaimer{font-size:.8rem;color:var(--muted)}
+
+/* bars */
+.bars{display:grid;gap:.6rem}
+.bar{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:.8rem;align-items:center;font-size:.88rem}
+.bar .track{height:14px;background:var(--sunk);border-radius:4px;overflow:hidden}
+.bar .fill{height:100%;background:var(--muted);border-radius:4px;transition:width .3s}
+.bar .fill.gold{background:var(--gold)}
+.bar b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+@media (max-width:520px){.bar{grid-template-columns:1fr auto}.bar .track{grid-column:1 / -1;grid-row:2}}
+
+/* how it works */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.2rem;counter-reset:s}
+.steps li{list-style:none;display:grid;gap:.5rem;align-content:start}
+.steps li::before{counter-increment:s;content:"Schritt " counter(s);font-family:var(--f-mono);font-size:.75rem;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.steps p{color:var(--muted);font-size:.95rem}
+.steps{padding:0;margin:0}
+@media (max-width:900px){.steps{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+
+/* roi */
+.roi{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem;align-items:start}
+@media (max-width:860px){.roi{grid-template-columns:1fr}}
+.roi-out{display:grid;gap:1.2rem}
+.big{font-family:var(--f-display);font-weight:800;font-size:clamp(2.2rem,5vw,3.4rem);color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
+
+/* rules table */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.92rem}
+th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.law{font-family:var(--f-mono);font-size:.82rem;white-space:nowrap;color:var(--accent)}
+
+/* pricing */
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+@media (max-width:900px){.plans{grid-template-columns:1fr}}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.4rem;display:grid;gap:1rem;align-content:start}
+.plan.feat{border:2px solid var(--accent)}
+.plan .price{font-family:var(--f-display);font-weight:800;font-size:2.2rem}
+.plan .price small{font-family:var(--f-body);font-size:.9rem;font-weight:400;color:var(--muted)}
+.plan ul{margin:0;padding-left:1.1rem;display:grid;gap:.35rem;color:var(--muted);font-size:.95rem}
+.plan .tag{justify-self:start;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent-ink);background:var(--accent);padding:.2rem .55rem;border-radius:4px}
+
+/* faq */
+.faq{display:grid;gap:.6rem;max-width:820px}
+.faq details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem}
+.faq summary{cursor:pointer;font-weight:700}
+.faq p{margin-top:.6rem;color:var(--muted)}
+
+/* contact */
+.contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem;align-items:start}
+@media (max-width:860px){.contact{grid-template-columns:1fr}}
+.contact form{display:grid;gap:.8rem}
+.done{background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:1rem;display:grid;gap:.6rem}
+.done pre{white-space:pre-wrap;margin:0;font-family:var(--f-mono);font-size:.8rem;overflow-wrap:anywhere}
+footer{border-top:1px solid var(--line);padding-block:2rem;color:var(--muted);font-size:.85rem}
+footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.6rem 1rem;border-radius:999px;font-weight:700;font-size:.9rem;z-index:30}
+
+/* ---- Sorrida: menschlichere Oberfläche ---- */
+:root{--paper:#FFFEFA;--paper-line:#E7E2D6;--ink-pen:#1F4FA8;--f-hand:"Caveat","Segoe Print","Bradley Hand",cursive}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#F4F1E8;--paper-line:#D9D3C4;--ink-pen:#2350A6}}
+:root[data-theme="dark"]{--paper:#F4F1E8;--paper-line:#D9D3C4;--ink-pen:#2350A6}
+.hero{padding-block:clamp(2.5rem,6vw,4.5rem) clamp(3rem,7vw,5rem)}
+.hero .wrap{grid-template-columns:1.1fr .9fr;gap:clamp(2rem,5vw,4rem)}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr}.stamp{right:.2rem}}
+.kicker{font-weight:700;color:var(--accent);font-size:.95rem}
+.hero h1{font-size:clamp(2.2rem,5.2vw,3.7rem)}
+.hero h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--accent-soft) 62%)}
+.trust{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;color:var(--muted);font-size:.9rem}
+.trust span{display:inline-flex;align-items:center;gap:.4rem}
+.trust span::before{content:"";width:.45rem;height:.45rem;border-radius:50%;background:var(--good)}
+/* Patientenschreiben als Papier */
+.paper-stage{position:relative;padding:1rem .5rem 2rem;min-width:0}
+.paper{position:relative;background:var(--paper);color:#1d2524;border:1px solid var(--paper-line);border-radius:3px;padding:1.4rem 1.4rem 1.6rem;transform:rotate(-1.4deg);box-shadow:0 1px 0 var(--paper-line),0 22px 40px -22px rgba(20,40,38,.45),0 2px 6px -2px rgba(20,40,38,.15);display:grid;gap:.75rem;font-size:.92rem}
+.paper::after{content:"";position:absolute;inset:auto 8% -10px 8%;height:10px;background:var(--paper);border:1px solid var(--paper-line);border-top:0;border-radius:0 0 3px 3px;transform:rotate(1.2deg);z-index:-1}
+.paper .lh{display:flex;justify-content:space-between;gap:1rem;border-bottom:2px solid #1d2524;padding-bottom:.5rem;font-size:.78rem;flex-wrap:wrap}
+.paper .lh b{font-family:var(--f-display);font-size:.95rem}
+.paper .meta{font-size:.8rem;color:#5a6463}
+.paper h3{font-size:1rem;color:#1d2524}
+.paper ol{margin:0;padding-left:1.2rem;display:grid;gap:.45rem}
+.paper li{padding-left:.2rem}
+.paper li span{display:flex;justify-content:space-between;gap:1rem}
+.paper li b{font-family:var(--f-mono);font-size:.85rem;white-space:nowrap}
+.paper li small{color:#5a6463;display:block}
+.paper li.circled{position:relative}
+.paper li.circled::before{content:"";position:absolute;inset:-.35rem -.5rem -.3rem -1.7rem;border:2px solid var(--ink-pen);border-radius:46% 54% 50% 48%/55% 45% 52% 48%;transform:rotate(-1.5deg);opacity:.85;pointer-events:none}
+.hand{font-family:var(--f-hand);color:var(--ink-pen);font-size:1.35rem;line-height:1.05;transform:rotate(-2deg)}
+.paper .hand{justify-self:end;max-width:17rem;text-align:right}
+.stamp{position:absolute;right:-.4rem;bottom:-1.2rem;transform:rotate(6deg);border:2px solid var(--good);color:var(--good);background:var(--surface);font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;padding:.35rem .55rem;border-radius:4px;line-height:1.3;text-align:center}
+.paper .fine{font-size:.72rem;color:#6b7473;border-top:1px dashed var(--paper-line);padding-top:.5rem}
+@media (max-width:900px){.paper{transform:rotate(-.8deg)}}
+/* Vorher / Nachher */
+.compare{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface)}
+.compare > div{padding:clamp(1.1rem,3vw,1.8rem);display:grid;gap:1rem;align-content:start;min-width:0}
+.compare .before{background:var(--sunk);border-right:1px solid var(--line)}
+.compare .tag{font-weight:700;font-size:.85rem;color:var(--muted)}
+.compare .after .tag{color:var(--accent)}
+.hkp{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:.8rem;overflow-x:auto;line-height:1.7;white-space:pre}
+.clear-list{display:grid;gap:.5rem}
+.clear-list div{display:flex;justify-content:space-between;gap:1rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.clear-list b{font-family:var(--f-mono);color:var(--gold);white-space:nowrap}
+.compare p{color:var(--muted);font-size:.95rem}
+@media (max-width:760px){.compare{grid-template-columns:1fr}.compare .before{border-right:0;border-bottom:1px solid var(--line)}}
+.points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5rem 2.5rem;margin-top:2.5rem}
+.points p{color:var(--muted)}
+.points p b{color:var(--ink)}
+@media (max-width:820px){.points{grid-template-columns:1fr}}
+.sec-head .note-hand{font-family:var(--f-hand);color:var(--accent);font-size:1.4rem;transform:rotate(-1.5deg);justify-self:start}
+/* Pilot */
+.pilot{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(1.5rem,4vw,3rem);align-items:start}
+@media (max-width:860px){.pilot{grid-template-columns:1fr}}
+.pilot ul{margin:0;padding-left:1.1rem;display:grid;gap:.45rem;color:var(--muted)}
+.pilot ul b{color:var(--ink)}
+.seats{display:flex;gap:6px;flex-wrap:wrap;margin-top:.4rem}
+.seats i{width:22px;height:22px;border-radius:50%;border:2px solid var(--accent)}
+.seats i.taken{background:var(--accent)}
+.plan .note{font-size:.85rem;color:var(--muted)}
+/* Festzuschuss 2026/2027 */
+.ribbon{display:inline-block;line-height:1.45;align-self:start;justify-self:start;background:var(--warn-soft);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);border-radius:999px;padding:.3rem .8rem;font-size:.85rem;font-weight:700;text-decoration:none}
+.ribbon b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.stichtag{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1.2rem,4vw,2.5rem);align-items:start}
+@media (max-width:860px){.stichtag{grid-template-columns:1fr}}
+.stichtag table{min-width:0}
+.stichtag td.num,.stichtag th.num{text-align:right;font-family:var(--f-mono)}
+.stichtag td.down{color:var(--bad)}
+.example{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.2rem;display:grid;gap:.9rem}
+.example .rows{display:grid;gap:.5rem}
+.example .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.2rem 1rem;align-items:center}
+.example .row .ebar{grid-column:1 / -1;height:10px;background:var(--sunk);border-radius:4px;overflow:hidden}
+.example .row .ebar i{display:block;height:100%;background:var(--gold);border-radius:4px}
+.example .row.later .bar i{background:var(--bad)}
+.example .row b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.example .delta{font-family:var(--f-display);font-weight:800;font-size:1.6rem;color:var(--bad)}
+.countdown{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+.countdown .n{font-family:var(--f-display);font-weight:800;font-size:2.6rem;line-height:1;color:var(--warn);font-variant-numeric:tabular-nums}
+.yearcmp{border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));background:var(--warn-soft);border-radius:14px;padding:.9rem 1rem;display:grid;gap:.7rem}
+.yearcmp-head{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+.yearcmp-head b{font-family:var(--f-display)}
+.yearcmp-head span{font-size:.8rem;font-weight:700;color:var(--warn)}
+.yearcmp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+@media (max-width:560px){.yearcmp-grid{grid-template-columns:1fr}}
+.yearcmp-grid div{background:var(--surface);border-radius:10px;padding:.6rem .75rem;display:grid;gap:.1rem;border:2px solid transparent}
+.yearcmp-grid div.active{border-color:var(--accent)}
+.yearcmp-grid .k{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.yearcmp-grid .v{font-family:var(--f-mono);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.yearcmp-grid .v.up{color:var(--bad)}
+.yearcmp-grid .h{font-size:.75rem;color:var(--muted)}
+.yearcmp p{font-size:.8rem;color:var(--muted)}
+.opt .later{display:flex;justify-content:space-between;font-size:.75rem;color:var(--bad)}
+.opt .later span:last-child{font-family:var(--f-mono)}
+/* Nach der Behandlung */
+.wrapup{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(1.5rem,4vw,3rem);align-items:center}
+@media (max-width:900px){.wrapup{grid-template-columns:1fr}}
+.wrapup-copy{display:grid;gap:1rem;min-width:0}
+.outputs{margin:0;padding:0;list-style:none;display:grid;gap:.7rem}
+.outputs li{padding-left:1.4rem;position:relative;color:var(--muted)}
+.outputs li::before{content:"";position:absolute;left:0;top:.5rem;width:.6rem;height:.6rem;border-radius:2px;background:var(--accent)}
+.outputs b{color:var(--ink)}
+.result-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.2rem;box-shadow:0 18px 36px -26px rgba(40,20,18,.45);display:grid;gap:.5rem;min-width:0}
+.result-card .ok{color:var(--good);font-weight:700;font-size:.85rem}
+.result-card .who{font-family:var(--f-display);font-weight:600;font-size:1.1rem}
+.result-card .who span{font-family:var(--f-body);font-weight:400;font-size:.8rem;color:var(--muted)}
+.result-card ul{list-style:none;margin:.3rem 0 0;padding:0;display:grid}
+.result-card li{display:flex;justify-content:space-between;gap:.8rem;padding:.55rem 0;border-top:1px solid var(--line);font-size:.9rem;align-items:flex-start}
+.result-card li small{display:block;color:var(--muted);font-size:.75rem}
+.result-card li.hot>span{color:var(--bad)}
+.result-card em{font-style:normal;font-size:.72rem;font-weight:700;color:var(--muted);background:var(--sunk);border-radius:999px;padding:.12rem .55rem;white-space:nowrap}
+
+/* Ein Klick aus der Praxissoftware */
+.pvs{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(1.5rem,4vw,3rem);align-items:center}
+@media (max-width:900px){.pvs{grid-template-columns:1fr}}
+.pvs-copy{display:grid;gap:1rem;min-width:0}
+.pvs-list{display:grid;gap:.5rem;margin:0;padding:0;list-style:none}
+.pvs-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:center;padding:.55rem .8rem;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.pvs-list li span:last-child{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);white-space:nowrap}
+.pvs-list .share{display:block;height:4px;border-radius:2px;background:var(--accent);margin-top:.35rem}
+.stage{position:relative;min-height:440px;min-width:0}
+.win{position:absolute;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 20px 40px -24px rgba(10,40,38,.45);overflow:hidden;font-size:.82rem}
+.win .bar{display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;background:var(--sunk);border-bottom:1px solid var(--line);font-weight:700;font-size:.75rem;color:var(--muted)}
+.win .bar i{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block}
+.win .bar b{margin-left:.3rem;color:var(--ink);font-weight:700}
+.win-pvs{left:0;top:0;width:78%}
+.win-pvs .body{padding:.8rem;display:grid;gap:.6rem}
+.kartei{display:grid;grid-template-columns:auto minmax(0,1fr);gap:.2rem .9rem;padding:.6rem .7rem;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.kartei dt{color:var(--muted)}
+.kartei dd{margin:0;font-weight:700}
+.toolbar{display:flex;flex-wrap:wrap;gap:.35rem}
+.toolbar span,.toolbar button{border:1px solid var(--line);background:var(--bg);border-radius:5px;padding:.3rem .55rem;font-size:.75rem;color:var(--muted)}
+.toolbar button{cursor:pointer;color:var(--accent-ink);background:var(--accent);border-color:var(--accent);font-weight:700;display:inline-flex;align-items:center;gap:.35rem}
+.toolbar button svg{width:13px;height:13px}
+.rows{display:grid;gap:.25rem;color:var(--muted);font-family:var(--f-mono);font-size:.72rem}
+.win-sor{right:0;bottom:0;width:72%;transform-origin:20% 20%;transition:opacity .45s ease,transform .45s cubic-bezier(.2,.8,.2,1)}
+.win-sor .bar{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.win-sor .bar b{color:var(--accent-ink)}
+.win-sor .bar i{background:color-mix(in srgb,var(--accent-ink) 45%,transparent)}
+.win-sor .body{padding:.75rem;display:grid;gap:.55rem}
+.win-sor .who b{font-size:.95rem;font-family:var(--f-display)}
+.win-sor .who span{display:block;color:var(--muted);font-size:.72rem}
+.mtabs{display:flex;gap:.2rem;border-bottom:1px solid var(--line)}
+.mtabs span{padding:.3rem .5rem;font-size:.75rem;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.mtabs span.on{color:var(--ink);border-color:var(--accent)}
+.mopt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.6rem;padding:.4rem .55rem;border:1px solid var(--line);border-radius:6px}
+.mopt.rec{border-color:var(--accent);background:var(--accent-soft)}
+.mopt b{font-family:var(--f-mono);color:var(--gold)}
+.stage.closed .win-sor{opacity:0;transform:translate(-8%,-6%) scale(.92);pointer-events:none}
+.cursor{position:absolute;width:22px;height:22px;pointer-events:none;transition:left .7s ease,top .7s ease,opacity .3s;opacity:0}
+.cursor svg{width:100%;height:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+.stage-caption{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;margin-top:1rem;font-size:.85rem;color:var(--muted)}
+@media (max-width:520px){.stage{min-height:520px}.win-pvs{width:100%}.win-sor{width:92%}}
+@media (prefers-reduced-motion: reduce){.win-sor,.cursor{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Sorrida Startseite">
+      <img class="logo-light" src="/brand/sorrida-mark.svg" alt="">
+      <img class="logo-dark" src="/brand/sorrida-mark-hell.svg" alt="">
+      <span class="wm">SORRIDA</span>
+    </a>
+    <nav class="main" aria-label="Hauptnavigation">
+      <a href="#demo">Live-Demo</a>
+      <a href="#abschluss">Nach der Behandlung</a>
+      <a href="#rechner">Rechner</a>
+      <a href="#praxissoftware">Praxissoftware</a>
+      <a href="#regeln">Rechtliches</a>
+      <a href="#preise">Preise</a>
+      <a href="#faq">Fragen</a>
+    </nav>
+    <a class="login-link" href="/login">Anmelden</a>
+    <a class="btn small" href="#kontakt">Pilotplatz anfragen</a>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <a class="ribbon" href="#stichtag" id="heroRibbon">Festzuschuss sinkt zum 1.1.2027 · <span id="ribbonDays">noch <b>62</b> Tage</span> →</a>
+      <span class="kicker">Nach der Behandlung ein Klick: Bericht, Vorschlag, To-dos</span>
+      <h1>Patienten sagen öfter Ja, wenn sie <em>ihren Eigenanteil</em> verstehen.</h1>
+      <p class="lede">Sorrida macht aus Ihrem Befund in zwei Minuten ein Schreiben, das Patienten mit nach Hause nehmen. Oben steht die Kassenleistung. Darunter stehen die Alternativen, die medizinisch Sinn ergeben, jeweils mit dem Betrag, den der Patient selbst zahlt.</p>
+      <p class="lede" style="font-size:1rem">Festzuschuss, Bonusheft, Härtefall und Zusatzversicherung sind eingerechnet. Heil- und Kostenplan und Mehrkostenvereinbarung erstellen Sie weiter in Ihrer Praxissoftware.</p>
+      <div class="ctas">
+        <a class="btn" href="#kontakt">Demo mit eigenen Fällen anfragen</a>
+        <a class="btn ghost" href="#demo">Selbst ausprobieren</a>
+      </div>
+      <div class="trust"><span>Ein Klick aus DS-Win, Z1, charly, EVIDENT</span><span>30 Tage kostenlos</span><span>monatlich kündbar</span></div>
+    </div>
+    <div class="paper-stage" aria-label="Beispiel eines Patientenschreibens">
+      <div class="paper">
+        <div class="lh"><b>Zahnarztpraxis am Markt</b><span>Beispielschreiben</span></div>
+        <div class="meta">Behandlungsvorschlag für Frau M. Weber · gesetzlich versichert · Bonusheft 10 Jahre</div>
+        <h3>Zahn 36 fehlt. Ihre Möglichkeiten:</h3>
+        <ol type="a">
+          <li><span>Brücke, Regelversorgung <b class="num">ca. 438 €</b></span><small>Nachbarzähne werden beschliffen</small></li>
+          <li><span>Vollkeramik-Brücke <b class="num">ca. 1.138 €</b></span><small>zahnfarben, gleicher Festzuschuss</small></li>
+          <li class="circled"><span>Implantat mit Krone <b class="num">ca. 2.088 €</b></span><small>Nachbarzähne bleiben unberührt</small></li>
+        </ol>
+        <p class="hand">35 und 37 sind gesund. Die würde ich nicht beschleifen.</p>
+        <p class="fine">Beträge = Ihr Eigenanteil nach Festzuschuss (75 %). Verbindlich ist der Heil- und Kostenplan.</p>
+      </div>
+      <div class="stamp">Kassenleistung<br>immer möglich</div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Was Patienten heute mitnehmen</h2>
+      <p class="lede">Der Heil- und Kostenplan ist für die Krankenkasse geschrieben. Viele Patienten finden darauf ihren Eigenanteil nicht, sagen „Ich überlege es mir“ und melden sich nie wieder.</p>
+    </div>
+    <div class="compare">
+      <div class="before">
+        <span class="tag">Heute: Auszug aus einem HKP</span>
+<pre class="hkp">Befund  Regelvers.  Therapie   Zahn
+  f        B          B,BM      35-37
+Festzuschuss-Befund 2.1 · 2.7
+BEMA 91b · 91d · 92 · 19 · 20b
+Gesamtkosten lt. Anlage   1.750,00
+Festzuschüsse (75 %)     -1.312,50
+Eigenanteil voraussichtl. siehe Anlage 2</pre>
+        <p>Dazu ein mündlicher Satz am Stuhl, während das Wartezimmer voll ist.</p>
+      </div>
+      <div class="after">
+        <span class="tag">Mit Sorrida</span>
+        <div class="clear-list">
+          <div><span>a) Brücke, Kassenversorgung</span><b>438 €</b></div>
+          <div><span>b) Vollkeramik-Brücke</span><b>1.138 €</b></div>
+          <div><span>c) Implantat, unsere Empfehlung</span><b>2.088 €</b></div>
+        </div>
+        <p>Drei Möglichkeiten, ein Satz zum Nutzen, ein Betrag. Der Patient liest es abends in Ruhe und kommt mit einer Entscheidung wieder.</p>
+      </div>
+    </div>
+    <div class="points">
+      <p><b>Vorschläge nur aus dem Befund.</b> Sorrida schlägt vor, was der eingetragene Befund rechtfertigt. Bei jeder weggelassenen Option steht der Grund, zum Beispiel: kein Inlay bei einem kleinen Defekt.</p>
+      <p><b>Die Kasse steht oben.</b> Jede Liste beginnt mit der Leistung, die ohne Eigenanteil oder mit vollem Festzuschuss möglich ist. Wer nur die Kassenvariante will, sieht sofort, dass das geht.</p>
+      <p><b>Sie entscheiden.</b> Die Empfehlung kommt aus einem Regelwerk, das Sie mit einem Klick überstimmen. Rauchen, Knirschen oder eine unbehandelte Parodontitis fließen als Hinweis ein.</p>
+    </div>
+  </div>
+</section>
+
+<section id="stichtag" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Ab 1. Januar 2027 zahlt die Kasse weniger</h2>
+      <p class="lede">Mit dem GKV-Beitragssatzstabilisierungsgesetz sinken die Festzuschüsse für Zahnersatz um zehn Prozentpunkte. Es zählt das Datum, an dem die Krankenkasse den Heil- und Kostenplan bewilligt, nicht der Behandlungstermin. Wer seinen Plan bis 31.12.2026 bewilligt bekommt, zahlt weniger.</p>
+    </div>
+    <div class="stichtag">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Festzuschuss in % der Regelversorgung</th><th class="num">bis 31.12.2026</th><th class="num">ab 1.1.2027</th></tr></thead>
+          <tbody>
+            <tr><td>ohne Bonusheft</td><td class="num">60 %</td><td class="num down">50 %</td></tr>
+            <tr><td>Bonusheft 5 Jahre</td><td class="num">70 %</td><td class="num down">60 %</td></tr>
+            <tr><td>Bonusheft 10 Jahre</td><td class="num">75 %</td><td class="num down">65 %</td></tr>
+            <tr><td>Härtefall</td><td class="num">100 %</td><td class="num">100 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="example">
+        <div class="countdown" id="countdown"><span class="n" id="cdDays">62</span><span>Tage bleiben Ihren Patienten, um sich die alten Sätze zu sichern.</span></div>
+        <div class="rows">
+          <p style="font-weight:700">Beispiel: Brücke, Regelversorgung, 1.750 €, Bonusheft 10 Jahre</p>
+          <div class="row"><span>Eigenanteil bei Bewilligung bis 31.12.2026</span><b>438 €</b><span class="ebar"><i style="width:71.4%"></i></span></div>
+          <div class="row later"><span>Eigenanteil bei Bewilligung ab 1.1.2027</span><b>613 €</b><span class="ebar"><i style="width:100%"></i></span></div>
+        </div>
+        <div><span class="delta">+175 €</span> <span style="color:var(--muted)">für dieselbe Brücke, nur weil der Plan später bewilligt wird.</span></div>
+        <p style="color:var(--muted);font-size:.95rem">Sorrida zeigt Patienten beide Beträge nebeneinander und schreibt den Stichtag ins Patientenschreiben. In der Demo unten sehen Sie es am Fall von Frau Weber.</p>
+        <a class="btn ghost small" href="#demo" style="justify-self:start">Vergleich in der Demo ansehen</a>
+      </div>
+    </div>
+    <p class="disclaimer" style="margin-top:1rem">Quelle: Berichte zum GKV-Beitragssatzstabilisierungsgesetz (2026). Die Euro-Festzuschüsse für 2027 legt der G-BA fest. Bitte die aktuellen Beträge Ihrer KZV prüfen.</p>
+  </div>
+</section>
+
+<section class="band" id="demo">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Probieren Sie es an einem Fall aus</h2>
+      <p class="lede">Das ist Frau Weber, 46, gesetzlich versichert, Bonusheft seit zehn Jahren. Klicken Sie einen Zahn an und ändern Sie den Befund. Die Preise sind Beispielwerte. In Ihrer Praxis stehen dort Ihre eigenen.</p>
+    </div>
+    <div class="demo">
+      <div class="panel" id="cfg">
+        <h3>Patient</h3>
+        <div class="grid2">
+          <div class="field"><label for="pName">Name</label><input id="pName" type="text"></div>
+          <div class="field"><label for="pAge">Alter</label><input id="pAge" type="number" min="1" max="110"></div>
+        </div>
+        <div class="field"><span class="lbl">Versicherung</span>
+          <div class="seg" id="segKasse" role="group" aria-label="Versicherung">
+            <button type="button" data-v="gkv">Gesetzlich</button><button type="button" data-v="pkv">Privat</button>
+          </div>
+        </div>
+        <div class="field" id="bonusField"><span class="lbl">Bonusheft lückenlos</span>
+          <div class="seg" id="segBonus" role="group" aria-label="Bonusheft">
+            <button type="button" data-v="0">nein</button><button type="button" data-v="5">5 Jahre</button><button type="button" data-v="10">10 Jahre</button>
+          </div>
+          <label class="check"><input type="checkbox" id="pHaerte"> Härtefall (volle Regelversorgung)</label>
+          <span class="lbl" style="margin-top:.4rem">HKP bewilligt</span>
+          <div class="seg" id="segJahr" role="group" aria-label="Bewilligung des Heil- und Kostenplans">
+            <button type="button" data-v="2026">bis 31.12.2026</button><button type="button" data-v="2027">ab 1.1.2027</button>
+          </div>
+        </div>
+        <div class="field"><label for="pZusatz" id="zusatzLbl">Zahnzusatzversicherung erstattet</label>
+          <div class="range"><input type="range" id="pZusatz" min="0" max="100" step="10"><b class="mono num" id="pZusatzOut"></b></div>
+        </div>
+
+        <h3>Zahnschema <span class="mono" style="font-size:.75rem;color:var(--muted);font-weight:500">FDI</span></h3>
+        <div class="chart" id="chart"></div>
+        <div class="tooth-edit">
+          <label class="lbl" for="toothFinding">Befund an Zahn <b id="selTooth"></b></label>
+          <select id="toothFinding"></select>
+        </div>
+
+        <h3>Allgemeiner Befund</h3>
+        <div class="notes" id="globals"></div>
+      </div>
+
+      <div class="results">
+        <div class="summary" aria-live="polite">
+          <div><span class="k">Nur Kasse</span><span class="v num" id="sBase"></span><span class="h">Behandlungsvolumen</span></div>
+          <div><span class="k">Gewählter Plan</span><span class="v num" id="sPlan"></span><span class="h">Behandlungsvolumen</span></div>
+          <div><span class="k">Mehrumsatz</span><span class="v num gold" id="sDelta"></span><span class="h" id="sDeltaPct"></span></div>
+          <div><span class="k">Eigenanteil Patient</span><span class="v num" id="sEigen"></span><span class="h" id="sEigenH"></span></div>
+        </div>
+        <div class="yearcmp" id="yearCmp" aria-live="polite" hidden></div>
+        <div class="tabs" role="tablist">
+          <button role="tab" id="tabPraxis" aria-selected="true" aria-controls="viewPraxis">Praxisansicht</button>
+          <button role="tab" id="tabPatient" aria-selected="false" aria-controls="viewPatient">Schreiben an Patient</button>
+        </div>
+        <div id="viewPraxis" role="tabpanel" aria-labelledby="tabPraxis" class="results"></div>
+        <div id="viewPatient" role="tabpanel" aria-labelledby="tabPatient" hidden>
+          <div class="letter">
+            <div class="letter-bar"><button class="btn small" type="button" id="copyLetter">Text kopieren</button><small>Für E-Mail, Patientenportal oder Ausdruck aus Ihrer Praxissoftware.</small></div>
+            <pre id="letterText"></pre>
+          </div>
+        </div>
+        <details class="prices">
+          <summary>Preise Ihrer Praxis eintragen</summary>
+          <p class="disclaimer" style="margin-top:.5rem">Beispielwerte in Euro, inklusive Material und Labor. Im echten Sorrida hinterlegt jede Praxis einmal ihre Sätze aus GOZ, BEMA und Laborpreisliste.</p>
+          <div class="price-grid" id="priceGrid"></div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="praxissoftware">
+  <div class="wrap pvs">
+    <div class="pvs-copy">
+      <h2>Ein Klick aus Ihrer Praxissoftware</h2>
+      <p class="lede">Sie öffnen den Patienten wie immer in Ihrer Praxissoftware und klicken auf „Sorrida“. Daneben öffnet sich ein eigenes Fenster mit diesem Patienten: Bericht schreiben, Vorschlag erstellen, Verlauf ansehen. Niemand tippt Namen oder Geburtsdatum ein zweites Mal ab.</p>
+      <p style="color:var(--muted)">Möglich macht das VDDS-media, der Standard, über den Ihre Praxissoftware heute schon Röntgen- und Scannerprogramme startet. Diese Systeme decken zusammen rund drei Viertel der Praxen ab:</p>
+      <ul class="pvs-list" aria-label="Unterstützte Praxissoftware">
+        <li><span>DS-Win<span class="share" style="width:100%"></span></span><span>ca. 35 %</span></li>
+        <li><span>CGM Z1 / Z1.PRO<span class="share" style="width:69%"></span></span><span>ca. 24 %</span></li>
+        <li><span>charly<span class="share" style="width:29%"></span></span><span>ca. 10 %</span></li>
+        <li><span>EVIDENT<span class="share" style="width:20%"></span></span><span>ca. 7 %</span></li>
+      </ul>
+      <p class="disclaimer">Marktanteile: KZBV-Abrechnungsstatistik 2024 (konservierend-chirurgisch), laut Branchenauswertungen. Weitere Systeme mit VDDS-media, z. B. LinuDent, funktionieren genauso.</p>
+      <p style="color:var(--muted)"><b style="color:var(--ink)">Einrichtung pro PC: etwa zehn Minuten.</b> Schlüssel in Sorrida erzeugen, ein Installationsbefehl, dann „Sorrida“ in den VDDS-Einstellungen Ihrer Praxissoftware aktivieren. Übertragen werden nur Name, Patientennummer, Geburtsdatum und Versicherung. Adresse und Telefonnummer bleiben auf dem Praxis-PC.</p>
+    </div>
+    <div>
+      <div class="stage" id="pvsStage" aria-label="Vorführung: Sorrida aus der Praxissoftware öffnen">
+        <div class="win win-pvs">
+          <div class="bar"><i></i><i></i><i></i><b>Ihre Praxissoftware · Patientenkartei</b></div>
+          <div class="body">
+            <div class="toolbar">
+              <span>Befund</span><span>Röntgen</span><span>Termine</span><span>HKP</span>
+              <button type="button" id="pvsBtn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5c1.4 2 3 3 5 3s3.6-1 5-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Sorrida</button>
+            </div>
+            <dl class="kartei">
+              <dt>Patient</dt><dd>Krüger, Anna</dd>
+              <dt>Nr.</dt><dd>4711</dd>
+              <dt>geb.</dt><dd>02.04.1975</dd>
+              <dt>Kasse</dt><dd>TK · gesetzlich</dd>
+            </dl>
+            <div class="rows">
+              <span>30.10. 01 Untersuchung · PSI 3</span>
+              <span>30.10. 36 fehlt · 46 zerstört</span>
+              <span>12.06. Ä1 Beratung</span>
+            </div>
+          </div>
+        </div>
+        <div class="win win-sor" aria-live="polite">
+          <div class="bar"><i></i><i></i><i></i><b>Sorrida · Bericht &amp; Vorschlag</b></div>
+          <div class="body">
+            <div class="who"><b>Krüger, Anna</b><span>geb. 02.04.1975 · gesetzlich · aus der Praxissoftware, Nr. 4711</span></div>
+            <div class="mtabs"><span>Neuer Bericht</span><span class="on">Neuer Vorschlag</span><span>Verlauf</span></div>
+            <div class="mopt"><span>a) Brücke, Kassenversorgung</span><b>438 €</b></div>
+            <div class="mopt"><span>b) Vollkeramik-Brücke</span><b>1.138 €</b></div>
+            <div class="mopt rec"><span>c) Implantat · Empfehlung</span><b>2.088 €</b></div>
+          </div>
+        </div>
+        <div class="cursor" id="pvsCursor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 2l15 11-6.5 1.2L16 21l-3 1.3-3.4-6.9L4 20z" fill="#fff" stroke="#122321" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="stage-caption"><button type="button" class="btn ghost small" id="pvsReplay">Noch einmal abspielen</button><span>Beispielpatientin. Die Oberfläche Ihrer Praxissoftware sieht anders aus, der Ablauf ist derselbe.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="abschluss">
+  <div class="wrap wrapup">
+    <div class="wrapup-copy">
+      <h2>Nach der Behandlung: ein Klick, der Rest ist erledigt</h2>
+      <p class="lede">Die Assistenz bestätigt die vorausgefüllte Leistungsliste, klickt die Befunde an und schließt ab. Sorrida schreibt daraus den Bericht, den Behandlungsvorschlag mit Patientenschreiben und die Liste dessen, was die Rezeption noch erledigen muss.</p>
+      <ul class="outputs">
+        <li><b>Lückenlose Leistungserfassung.</b> Alle Positionen des Sitzungstyps sind vorausgewählt. Gestrichen wird nur, was nicht gemacht wurde. So geht keine Leistung verloren.</li>
+        <li><b>KI-Bericht</b> für Akte oder Krankenkasse, als Entwurf zur Freigabe durch die Zahnärztin oder den Zahnarzt.</li>
+        <li><b>Behandlungsvorschlag und Patientenschreiben</b> mit Eigenanteil je Option, als Aufklärung in Textform nach § 630c BGB.</li>
+        <li><b>To-dos für die Rezeption</b>: Heil- und Kostenplan anlegen, Frist vor der Festzuschuss-Kürzung, Mehrkostenvereinbarung, PAR-Antrag, Folgetermine.</li>
+      </ul>
+    </div>
+    <div class="result-card" aria-label="Beispiel: Ergebnis nach dem Abschluss">
+      <p class="ok">Behandlung abgeschlossen</p>
+      <p class="who">Martina Weber <span>· automatisch erstellt: Bericht, Vorschlag, Patientenschreiben, 7 To-dos</span></p>
+      <ul>
+        <li><span>KI-Bericht lesen und freigeben</span><em>Behandler</em></li>
+        <li><span>Patientenschreiben mitgeben</span><em>Rezeption</em></li>
+        <li class="hot"><span>HKP für Zahn 36 anlegen und einreichen</span><em>Rezeption</em></li>
+        <li class="hot"><span>HKP bis 31.12.2026 bewilligen lassen<small>Sonst zahlt die Patientin ca. 175 € mehr.</small></span><em>Rezeption</em></li>
+        <li><span>Mehrkostenvereinbarung Zahn 25<small>falls die Patientin diese Option wählt</small></span><em>Rezeption</em></li>
+        <li><span>Folgetermine: Zahn 25, PZR</span><em>Rezeption</em></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="ablauf">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>So läuft ein Termin mit Sorrida</h2>
+    </div>
+    <ol class="steps">
+      <li><h3>Aus der Praxissoftware öffnen</h3><p>Im Patienten auf „Sorrida“ klicken. Der Patient ist schon da, „Behandlung abschließen“ ist offen.</p></li>
+      <li><h3>Leistungen bestätigen</h3><p>Die Liste des Sitzungstyps ist vorausgefüllt. Nur streichen, was nicht gemacht wurde.</p></li>
+      <li><h3>Befunde anklicken</h3><p>Zähne im Schema anklicken, wenn ein Vorschlag nötig ist. Sorrida empfiehlt, Sie bestätigen oder ändern.</p></li>
+      <li><h3>Abschließen</h3><p>Ein Klick: Bericht, Vorschlag, Patientenschreiben und To-dos sind fertig. Die Rezeption arbeitet die Liste ab.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="band" id="rechner">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Rechnen Sie mit Ihren eigenen Zahlen</h2>
+      <p class="lede">Die Regler stehen auf vorsichtigen Annahmen für eine Praxis mit zwei Behandlern. Gemessen ist davon nichts. Echte Werte liefern Ihnen die 30 Testtage.</p>
+    </div>
+    <div class="roi">
+      <div class="panel">
+        <div class="field"><label for="rPat">Patienten mit Behandlungsbedarf pro Monat</label><div class="range"><input type="range" id="rPat" min="20" max="600" step="10" value="160"><b class="mono num" id="rPatO"></b></div></div>
+        <div class="field"><label for="rShare">davon mit sinnvoller Alternative zur Kassenleistung</label><div class="range"><input type="range" id="rShare" min="5" max="80" step="5" value="35"><b class="mono num" id="rShareO"></b></div></div>
+        <div class="field"><label for="rNow">Zustimmung zur Alternative heute</label><div class="range"><input type="range" id="rNow" min="0" max="80" step="1" value="18"><b class="mono num" id="rNowO"></b></div></div>
+        <div class="field"><label for="rNew">Zustimmung mit Sorrida (Ihre Annahme)</label><div class="range"><input type="range" id="rNew" min="0" max="90" step="1" value="26"><b class="mono num" id="rNewO"></b></div></div>
+        <div class="field"><label for="rVal">Ø Mehrumsatz je angenommener Alternative</label><div class="range"><input type="range" id="rVal" min="50" max="2000" step="10" value="320"><b class="mono num" id="rValO"></b></div></div>
+      </div>
+      <div class="roi-out">
+        <div><p style="color:var(--muted);font-weight:700">Zusätzlicher Umsatz pro Jahr</p><div class="big" id="rYear"></div></div>
+        <div class="bars" id="rBars"></div>
+        <p id="rText" class="lede" style="font-size:1rem"></p>
+        <p class="disclaimer">Umsatz ist kein Gewinn. Labor und Material gehen ab. Der Effekt entsteht, weil passende Alternativen bei jedem Befund angesprochen werden. Wie groß er in Ihrer Praxis ist, sehen Sie erst im Test.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="regeln">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Die Regeln, an die sich Sorrida hält</h2>
+      <p class="lede">Sorrida ist für das Gespräch mit Patienten gedacht, die schon bei Ihnen in Behandlung sind. Es wirbt nicht und spricht niemanden von außen an.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Grundlage</th><th>Was sie verlangt</th><th>Was Sorrida dafür tut</th></tr></thead>
+        <tbody>
+          <tr><td class="law">§ 630c Abs. 3 BGB</td><td>Information über voraussichtliche Kosten in Textform, wenn die Kasse nicht alles übernimmt.</td><td>Patientenschreiben mit Eigenanteil je Option, Datum und Hinweis, dass die Beträge geschätzt sind.</td></tr>
+          <tr><td class="law">§ 28 Abs. 2 SGB V</td><td>Mehrkosten bei Füllungen nur mit schriftlicher Vereinbarung vor der Behandlung.</td><td>Mehrkosten-Optionen sind gekennzeichnet. Die Kasse rechnet weiter die vergleichbare Kassenfüllung ab.</td></tr>
+          <tr><td class="law">§§ 55, 56 SGB V</td><td>Befundbezogene Festzuschüsse beim Zahnersatz, Bonus 70 % oder 75 %, Härtefall.</td><td>Regel-, gleich- und andersartige Versorgung stehen mit gleichem Festzuschuss nebeneinander.</td></tr>
+          <tr><td class="law">§ 2 Abs. 3 GOZ</td><td>Verlangensleistungen nur auf ausdrücklichen Wunsch des Patienten.</td><td>Bleaching erscheint erst, wenn der Wunsch des Patienten angekreuzt ist.</td></tr>
+          <tr><td class="law">Berufsordnung</td><td>Kein Druck, Therapiefreiheit der Zahnärztin oder des Zahnarztes.</td><td>Die Kassenleistung steht immer oben. Die Empfehlung bestätigen Sie selbst.</td></tr>
+          <tr><td class="law">DSGVO</td><td>Gesundheitsdaten nur mit Rechtsgrundlage und Vertrag zur Auftragsverarbeitung.</td><td>Server in Deutschland, AVV inklusive. Diese Demo speichert nichts.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="preise">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Ein angenommenes Inlay im Monat deckt die Kosten</h2>
+      <p class="lede">30 Tage kostenlos testen, danach monatlich kündbar. Alle Preise zzgl. MwSt.</p>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <h3>Einzelpraxis</h3>
+        <div class="price">149 € <small>/ Monat</small></div>
+        <ul><li>1 Behandler, beliebig viele Abschlüsse</li><li>Leistungserfassung, KI-Bericht, Vorschlag, To-dos</li><li>Regelwerk für Füllung, Endo, Zahnersatz, Prophylaxe, PAR</li><li>Patientenschreiben nach § 630c BGB</li><li>Eigene Preisliste</li></ul>
+        <a class="btn ghost" href="#kontakt">30 Tage testen</a>
+      </div>
+      <div class="plan feat">
+        <span class="tag">Für 2 bis 5 Behandler</span>
+        <h3>Praxis</h3>
+        <div class="price">249 € <small>/ Monat</small></div>
+        <ul><li>Bis 5 Behandler und Zugänge fürs Team</li><li>Praxislogo und eigene Texte im Schreiben</li><li>Auswertung: Vorschläge, Zustimmung, Umsatz</li><li>Leistungserfassung und KI-Berichte inklusive</li></ul>
+        <a class="btn" href="#kontakt">30 Tage testen</a>
+      </div>
+      <div class="plan">
+        <h3>Praxisgruppe / MVZ</h3>
+        <div class="price">auf Anfrage</div>
+        <ul><li>Mehrere Standorte, zentrale Preislisten</li><li>Anbindung an Ihre Praxissoftware</li><li>Einrichtung und Schulung vor Ort</li><li>Fester Ansprechpartner</li></ul>
+        <a class="btn ghost" href="#kontakt">Gespräch vereinbaren</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head"><h2>Was Praxen vor dem Start fragen</h2></div>
+    <div class="faq">
+      <details><summary>Ist das nicht einfach Upselling?</summary><p>Sorrida schlägt nur vor, was der Befund rechtfertigt, und zeigt bei jeder weggelassenen Option den Grund. Im Frontzahnbereich gibt es zum Beispiel keinen Mehrkosten-Vorschlag für Komposit, weil das dort schon Kassenleistung ist. Der zusätzliche Umsatz kommt daher, dass sinnvolle Alternativen im vollen Praxisalltag nicht mehr unter den Tisch fallen.</p></details>
+      <details><summary>Ersetzt Sorrida den Heil- und Kostenplan?</summary><p>Nein. HKP und Mehrkostenvereinbarung kommen weiter aus Ihrer Praxissoftware. Sorrida ist die verständliche Fassung davor, die Patienten zu Hause lesen.</p></details>
+      <details><summary>Woher kommen die Preise?</summary><p>Aus Ihrer Praxis. Sie tragen einmal Ihre Sätze nach GOZ und BEMA und Ihre Laborpreise ein. Die Festzuschüsse aktualisieren wir jedes Jahr. In der Demo oben sind alle Beträge Beispielwerte.</p></details>
+      <details><summary>Wer trifft die medizinische Entscheidung?</summary><p>Immer Sie. Das Regelwerk liefert eine begründete Empfehlung, die Sie mit einem Klick ändern.</p></details>
+      <details><summary>Funktioniert das mit unserer Praxissoftware?</summary><p>Wenn Ihre Praxissoftware VDDS-media unterstützt, ja. Das gilt für DS-Win, CGM Z1, charly, EVIDENT und weitere Systeme, die so heute schon Röntgen- oder Scannerprogramme starten. Ohne VDDS-media öffnen Sie Sorrida im Browser und wählen den Patienten dort aus. In der Demo prüfen wir das gemeinsam an Ihrem System.</p></details>
+      <details><summary>Wie lange dauert die Einrichtung?</summary><p>Etwa eine Stunde: Preisliste eintragen, Logo hochladen, kurze Einweisung für Behandler und Rezeption.</p></details>
+      <details><summary>Was passiert mit Patientendaten?</summary><p>Sorrida braucht Name, Alter und Versicherungsart. Versichertennummern speichert es nicht. Die Server stehen in Deutschland, ein Vertrag zur Auftragsverarbeitung gehört dazu.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="kontakt">
+  <div class="wrap pilot">
+    <div class="sec-head" style="margin:0">
+      <h2>Wir suchen zehn Pilotpraxen</h2>
+      <p class="lede">Sorrida ist neu. Bevor wir es breit anbieten, wollen wir es mit zehn Praxen im echten Alltag prüfen und verbessern.</p>
+      <ul>
+        <li><b>Drei Monate kostenlos</b> im Praxis-Paket, danach dauerhaft 30 % günstiger</li>
+        <li><b>Persönliche Einrichtung</b> mit Ihren Preisen und Ihrem Logo</li>
+        <li><b>Ihr Teil:</b> ein 30-Minuten-Gespräch pro Monat, in dem Sie sagen, was stört</li>
+      </ul>
+      <div><span class="lbl">Pilotplätze</span><div class="seats" aria-label="10 Pilotplätze, alle frei"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="panel">
+      <form id="leadForm">
+        <div class="field"><label for="lPraxis">Praxis</label><input id="lPraxis" type="text" required placeholder="z. B. Zahnarztpraxis am Markt"></div>
+        <div class="grid2">
+          <div class="field"><label for="lName">Ihr Name</label><input id="lName" type="text" required></div>
+          <div class="field"><label for="lBeh">Behandler</label><select id="lBeh"><option>1</option><option selected>2–3</option><option>4–5</option><option>mehr als 5</option></select></div>
+        </div>
+        <div class="field"><label for="lTel">Telefon oder E-Mail</label><input id="lTel" type="text" required></div>
+        <div aria-hidden="true" style="position:absolute;left:-9999px"><label for="lWebsite">Website</label><input id="lWebsite" type="text" tabindex="-1" autocomplete="off"></div>
+        <label class="check" style="font-size:.85rem"><input type="checkbox" id="lConsent" required> Ich bin einverstanden, dass Sorrida meine Angaben speichert, um mich wegen der Demo zu kontaktieren.</label>
+        <button class="btn" type="submit">Pilotplatz anfragen</button>
+        <small style="color:var(--muted)">Wir melden uns innerhalb von zwei Werktagen und zeigen Sorrida 20 Minuten lang an Fällen aus Ihrer Praxis.</small>
+      </form>
+      <div class="done" id="leadDone" hidden>
+        <b>Danke, Ihre Anfrage ist angekommen.</b>
+        <p style="font-size:.9rem">Wir melden uns innerhalb von zwei Werktagen unter den angegebenen Kontaktdaten.</p>
+      </div>
+      <div class="done" id="leadFail" hidden>
+        <b>Senden hat nicht geklappt.</b>
+        <p style="font-size:.9rem" id="leadFailMsg">Bitte kopieren Sie den Text und schicken Sie ihn per E-Mail an das Sorrida-Team.</p>
+        <pre id="leadText"></pre>
+        <button class="btn small" type="button" id="copyLead">Text kopieren</button>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><span>Sorrida · Bericht, Vorschlag und To-dos nach der Behandlung · <a href="/login">Anmelden</a> · <a href="/register">Praxis registrieren</a></span><span>Demo mit Beispielwerten. Keine Abrechnungs- oder Rechtsberatung.</span></div></footer>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const eur=n=>Math.round(n).toLocaleString("de-DE")+" €";
+
+/* ---------- Beispielpreise (Behandlungsvolumen inkl. Material/Labor) ---------- */
+const PRICE_DEF=[
+  ["fk_klein","Kassenfüllung, 1–2 Flächen",55],
+  ["fk_gross","Kassenfüllung, ab 3 Flächen",85],
+  ["komp_klein","Mehrschicht-Komposit, 1–2 Flächen",160],
+  ["komp_gross","Mehrschicht-Komposit, ab 3 Flächen",240],
+  ["inlay","Keramik-Inlay (CAD/CAM)",890],
+  ["krone_regel","Krone, Regelversorgung",680],
+  ["krone_vk","Vollkeramik-Krone",1050],
+  ["bruecke_regel","Brücke 3-gliedrig, Regelversorgung",1750],
+  ["bruecke_vk","Vollkeramik-Brücke 3-gliedrig",2450],
+  ["teilprothese","Teilprothese Modellguss, Regelversorgung",1300],
+  ["implantat","Implantat inkl. Krone",3400],
+  ["wk_kasse","Wurzelbehandlung, Kassenleistung",240],
+  ["wk_plus","Endo-Zusatz (maschinell, Mikroskop, Längenmessung)",390],
+  ["zst","Zahnsteinentfernung (Kasse)",18],
+  ["pzr","Professionelle Zahnreinigung",110],
+  ["par","PAR-Behandlung inkl. Nachsorge (Kasse)",950],
+  ["schiene","Aufbissschiene (Kasse)",260],
+  ["fv_kasse","Fissurenversiegelung je Zahn (Kasse)",22],
+  ["fv_privat","Fissurenversiegelung je Zahn (privat)",32],
+  ["bleaching","Bleaching Praxis + Schienen",390]
+];
+const P={}; PRICE_DEF.forEach(([k,,v])=>P[k]=v);
+
+const FINDINGS=[
+  ["","Kein Befund"],
+  ["karies_klein","Karies, 1–2 Flächen"],
+  ["karies_gross","Karies, ab 3 Flächen"],
+  ["fuellung_defekt","Alte Füllung defekt"],
+  ["wurzel","Entzündeter Nerv"],
+  ["zerstoert","Stark zerstört, Krone nötig"],
+  ["fehlt","Zahn fehlt"],
+  ["fissur","Tiefe Fissuren, kariesfrei"]
+];
+const FLABEL=Object.fromEntries(FINDINGS);
+const GLOBALS=[
+  ["zahnstein","Zahnstein und Beläge"],
+  ["psi","Parodontitis (PSI-Code 3 oder 4)"],
+  ["bruxismus","Knirschen oder Pressen"],
+  ["raucher","Raucher"],
+  ["bleaching","Patient wünscht hellere Zähne"]
+];
+
+const S={
+  name:"Martina Weber", age:46, kasse:"gkv", bonus:"10", haerte:false, zusatz:0,
+  teeth:{16:"karies_gross",25:"karies_klein",36:"fehlt",46:"zerstoert",12:"karies_klein"},
+  global:{zahnstein:true,psi:false,bruxismus:false,raucher:false,bleaching:false},
+  sel:36, choice:{}, tab:"praxis", jahr:null
+};
+/* Festzuschuss nach § 55 SGB V; ab 1.1.2027 bewilligte HKP: zehn Prozentpunkte weniger. */
+const RATES={2026:{"0":.6,"5":.7,"10":.75},2027:{"0":.5,"5":.6,"10":.65}};
+const STICHTAG=new Date(2026,11,31,23,59,59);
+const today=new Date();
+const daysLeft=Math.round((Date.UTC(2026,11,31)-Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()))/86400000);
+S.jahr=today>STICHTAG?"2027":"2026";
+const isZE=o=>o.typ==="regel"||o.typ==="gleichartig"||o.typ==="andersartig";
+
+/* ---------- Zahn-Helfer ---------- */
+const UPPER=[18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28];
+const LOWER=[48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
+const pos=n=>n%10;
+const kind=n=>pos(n)<=3?"front":pos(n)<=5?"pre":"molar";
+function neighbors(n){
+  const q=Math.floor(n/10), d=pos(n), out=[];
+  if(d>1) out.push(q*10+d-1); else out.push(({1:2,2:1,3:4,4:3})[q]*10+1);
+  if(d<8) out.push(q*10+d+1);
+  return out;
+}
+const needsWork=f=>["zerstoert","karies_gross","wurzel"].includes(f);
+
+/* ---------- Regelwerk ---------- */
+function opt(id,typ,name,total,nutzen,extra){return Object.assign({id,typ,name,total,nutzen},extra||{})}
+
+function rulesTooth(n,f){
+  const k=kind(n), r={options:[],notes:[],excluded:[],rec:null};
+  const g=S.global;
+  if(f==="karies_klein"||f==="fuellung_defekt"){
+    if(k==="front"){
+      r.options.push(opt("fk","kasse","Komposit-Füllung",P.fk_klein,["zahnfarben","im Frontzahnbereich Kassenleistung"]));
+      r.excluded.push("Mehrschicht-Komposit gegen Aufpreis: im Frontzahnbereich ist Komposit bereits Kassenleistung.");
+      r.rec="fk";
+    }else{
+      r.options.push(opt("fk","kasse","Kassenfüllung (selbstadhäsiv)",P.fk_klein,["zahnfarben, schnell gelegt","kürzere Haltbarkeit"]));
+      r.options.push(opt("komp","mehrkosten","Mehrschicht-Komposit, adhäsiv",P.komp_klein,["hochwertige Schichttechnik","dicht und langlebig","Kasse zahlt Kassenfüllung anteilig"],{base:P.fk_klein}));
+      r.excluded.push("Keramik-Inlay: bei kleinen Defekten müsste unnötig gesunde Zahnsubstanz abgetragen werden.");
+      r.rec="komp";
+    }
+    if(f==="fuellung_defekt") r.notes.push(["i","Alte Amalgamfüllungen nur ersetzen, wenn sie defekt sind. Intakte Füllungen bleiben."]);
+  }
+  else if(f==="karies_gross"){
+    if(k==="front"){
+      r.options.push(opt("fk","kasse","Komposit-Füllung",P.fk_gross,["zahnfarben","Kassenleistung"]));
+      r.excluded.push("Keramik-Inlay: im Frontzahnbereich nicht üblich.");
+      r.notes.push(["w","Bei sehr großem Defekt am Frontzahn prüfen, ob eine Krone langfristig sinnvoller ist."]);
+      r.rec="fk";
+    }else{
+      r.options.push(opt("fk","kasse","Kassenfüllung (selbstadhäsiv)",P.fk_gross,["schnelle Lösung","bei großen Flächen begrenzt haltbar"]));
+      r.options.push(opt("komp","mehrkosten","Mehrschicht-Komposit, adhäsiv",P.komp_gross,["zahnfarben, gute Randdichte","Kasse zahlt Kassenfüllung anteilig"],{base:P.fk_gross}));
+      r.options.push(opt("inlay","privat","Keramik-Inlay",P.inlay,["sehr langlebig, oft über 15 Jahre","stabilisiert den geschwächten Zahn"]));
+      r.rec=k==="molar"?"inlay":"komp";
+      if(g.bruxismus) r.notes.push(["w","Knirschen erhöht die Bruchgefahr. Zusätzlich eine Aufbissschiene einplanen."]);
+    }
+  }
+  else if(f==="wurzel"){
+    r.options.push(opt("wk","kasse","Wurzelbehandlung, Kassenleistung",P.wk_kasse,["erhält den Zahn","Standardinstrumente"]));
+    r.options.push(opt("wkplus","privatzusatz","Wurzelbehandlung mit Endo-Zusatz",P.wk_kasse+P.wk_plus,["maschinelle Aufbereitung und Mikroskop","höhere Erfolgsquote bei gekrümmten Kanälen","Kasse zahlt Grundleistung"],{base:P.wk_kasse}));
+    r.rec=k==="molar"?"wkplus":"wk";
+    if(k==="molar") r.notes.push(["i","Seitenzähne werden nach einer Wurzelbehandlung meist überkront. Das gleich im Gespräch ankündigen."]);
+    else r.notes.push(["i","Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus."]);
+  }
+  else if(f==="zerstoert"){
+    r.options.push(opt("kr","regel","Krone, Regelversorgung",P.krone_regel,[k==="molar"?"Metall, im Seitenzahnbereich unverblendet":"Metall mit Keramikverblendung","bewährt und haltbar"],{R:P.krone_regel}));
+    r.options.push(opt("krvk","gleichartig","Vollkeramik-Krone",P.krone_vk,["metallfrei, natürliche Optik","sehr gut verträglich","gleicher Festzuschuss"],{R:P.krone_regel}));
+    if(k==="molar"){
+      r.rec="kr";
+      r.notes.push(["i","Im Seitenzahnbereich ist die Kassenkrone funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik."]);
+    }else r.rec="krvk";
+    if(g.bruxismus) r.notes.push(["w","Bei Knirschen monolithisches Zirkon wählen, keine verblendete Keramik."]);
+  }
+  else if(f==="fehlt"){
+    if(pos(n)===8){
+      r.excluded.push("Ersatz eines fehlenden Weisheitszahns ist nicht nötig.");
+      return r;
+    }
+    const nb=neighbors(n), nf=nb.map(x=>S.teeth[x]||"");
+    const gapNext=nf.some(x=>x==="fehlt");
+    const nbWork=nf.some(needsWork);
+    const nbHealthy=nf.every(x=>x===""||x==="fissur");
+    if(gapNext){
+      r.options.push(opt("tp","regel","Teilprothese (Modellguss)",P.teilprothese,["herausnehmbar","ersetzt mehrere Zähne"],{R:P.teilprothese}));
+      r.options.push(opt("impl","andersartig","Implantat mit Krone",P.implantat,["festsitzend","Kieferknochen bleibt belastet","Festzuschuss wie Regelversorgung"],{R:P.teilprothese}));
+      r.excluded.push("Brücke: Nachbarlücke vorhanden, keine ausreichenden Pfeilerzähne.");
+      r.rec="impl";
+    }else{
+      r.options.push(opt("br","regel","Brücke, Regelversorgung",P.bruecke_regel,["festsitzend","Nachbarzähne werden beschliffen"],{R:P.bruecke_regel}));
+      r.options.push(opt("brvk","gleichartig","Vollkeramik-Brücke",P.bruecke_vk,["zahnfarben, metallfrei","gleicher Festzuschuss"],{R:P.bruecke_regel}));
+      r.options.push(opt("impl","andersartig","Implantat mit Krone",P.implantat,["Nachbarzähne bleiben unberührt","Kieferknochen bleibt belastet","gleicher Festzuschuss"],{R:P.bruecke_regel}));
+      if(nbWork){ r.rec="br"; r.notes.push(["i","Die Nachbarzähne "+nb.join(" und ")+" brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich."]); }
+      else if(nbHealthy){ r.rec="impl"; r.notes.push(["i","Die Nachbarzähne "+nb.join(" und ")+" sind gesund. Ein Implantat erspart das Beschleifen."]); }
+      else r.rec="br";
+    }
+    if(g.raucher){
+      r.notes.push(["w","Rauchen erhöht das Risiko eines Implantatverlusts deutlich. Vorher Rauchstopp besprechen."]);
+      if(r.rec==="impl") r.rec=gapNext?"tp":"br";
+    }
+    if(g.psi) r.notes.push(["w","Vor Implantat oder Brücke zuerst die Parodontitis behandeln."]);
+  }
+  else if(f==="fissur"){
+    const kid=S.age<18;
+    if(kid && (pos(n)===6||pos(n)===7)){
+      r.options.push(opt("fv","kasse","Fissurenversiegelung",P.fv_kasse,["schützt tiefe Fissuren vor Karies","Kassenleistung bis 17 Jahre"]));
+      r.rec="fv";
+    }else if(kid || S.kasse==="pkv"){
+      r.options.push(opt("fv","privat","Fissurenversiegelung",P.fv_privat,["schützt tiefe Fissuren vor Karies"]));
+      r.rec="fv";
+    }else{
+      r.excluded.push("Fissurenversiegelung bei Erwachsenen: nur bei erhöhtem Kariesrisiko sinnvoll. Im Befund nicht angegeben.");
+    }
+  }
+  return r;
+}
+
+function rulesGlobal(key){
+  const r={options:[],notes:[],excluded:[],rec:null}, g=S.global;
+  if(key==="zahnstein"){
+    r.options.push(opt("zst","kasse","Zahnsteinentfernung",P.zst,["einmal im Kalenderjahr Kassenleistung","entfernt harte Beläge"]));
+    if(g.psi){
+      r.rec="zst";
+      r.excluded.push("PZR vor der PAR-Behandlung: die Kasse übernimmt die Vorbehandlung. PZR erst danach als Nachsorge anbieten.");
+    }else{
+      r.options.push(opt("pzr","privat","Professionelle Zahnreinigung",P.pzr,["auch weiche Beläge und Verfärbungen","Zahnzwischenräume, Politur, Fluorid","viele Zusatzversicherungen erstatten"]));
+      r.rec="pzr";
+    }
+  }
+  else if(key==="psi"){
+    r.options.push(opt("par","kasse","Parodontitis-Behandlung mit Nachsorge",P.par,["Kassenleistung inklusive Nachsorge (UPT)","stoppt Knochenabbau"]));
+    r.excluded.push("Laser-Zusatzbehandlung: kein belegter Zusatznutzen gegenüber der Kassen-PAR, daher kein Vorschlag.");
+    r.rec="par";
+  }
+  else if(key==="bruxismus"){
+    r.options.push(opt("schiene","kasse","Aufbissschiene",P.schiene,["schützt Zähne und Versorgungen","bei Indikation Kassenleistung"]));
+    r.rec="schiene";
+  }
+  else if(key==="bleaching"){
+    r.options.push(opt("bl","privat","Bleaching",P.bleaching,["auf ausdrücklichen Wunsch","Ergebnis hält 1–3 Jahre"]));
+    r.rec="bl";
+    const hasKaries=Object.values(S.teeth).some(f=>/karies|fuellung/.test(f));
+    if(hasKaries) r.notes.push(["w","Erst kariöse Zähne versorgen, dann aufhellen. Füllungen hellen nicht mit auf und werden danach farblich angepasst."]);
+  }
+  else if(key==="raucher"){ return null; }
+  return r;
+}
+
+function collect(){
+  const list=[];
+  [...UPPER,...LOWER].forEach(n=>{
+    const f=S.teeth[n]; if(!f) return;
+    list.push({key:"t"+n, where:"Zahn "+n, title:FLABEL[f], r:rulesTooth(n,f)});
+  });
+  GLOBALS.forEach(([k,label])=>{
+    if(!S.global[k]) return;
+    const r=rulesGlobal(k); if(!r) return;
+    list.push({key:"g"+k, where:"Allgemein", title:label, r});
+  });
+  return list;
+}
+
+/* ---------- Geld ---------- */
+function money(o,jahr){
+  const total=o.total; let kasse=0;
+  if(S.kasse==="pkv"){
+    kasse=total*S.zusatz/100;
+    return {total,kasse,eigen:total-kasse,erstattet:0,netto:total-kasse};
+  }
+  if(o.typ==="kasse") kasse=total;
+  else if(o.typ==="mehrkosten"||o.typ==="privatzusatz") kasse=o.base;
+  else if(o.typ==="privat") kasse=0;
+  else { const q=S.haerte?1:RATES[jahr||S.jahr][S.bonus]; kasse=Math.min(o.R*q,total); }
+  const eigen=total-kasse, erstattet=eigen*S.zusatz/100;
+  return {total,kasse,eigen,erstattet,netto:eigen-erstattet};
+}
+const TYP={kasse:"Kassenleistung",mehrkosten:"Mehrkosten­vereinbarung",privat:"Privatleistung",privatzusatz:"Kasse + Privatzusatz",regel:"Regelversorgung",gleichartig:"Gleichartig",andersartig:"Andersartig"};
+const typLabel=t=>S.kasse==="pkv"?({kasse:"Basisleistung",regel:"Basisversorgung",privatzusatz:"Basis + Zusatz"}[t]||(t==="mehrkosten"||t==="privat"?"Wahlleistung":TYP[t])):TYP[t];
+
+/* ---------- Rendering ---------- */
+function renderChart(){
+  const mk=(row,cls)=>'<div class="jaw '+cls+'">'+row.map((n,i)=>{
+    const f=S.teeth[n]||"";
+    return '<button type="button" class="tooth'+(i===8?' mid':'')+'" data-n="'+n+'"'+(f?' data-f="'+f+'"':'')+' aria-pressed="'+(S.sel===n)+'" aria-label="Zahn '+n+(f?', '+FLABEL[f]:'')+'">'+n+'</button>';
+  }).join("")+'</div>';
+  $("#chart").innerHTML='<div class="chart-legend"><span>rechts</span><span>Oberkiefer</span><span>links</span></div>'+mk(UPPER,"upper")+mk(LOWER,"lower")+'<div class="chart-legend"><span>rechts</span><span>Unterkiefer</span><span>links</span></div>';
+  $("#selTooth").textContent=S.sel;
+  $("#toothFinding").value=S.teeth[S.sel]||"";
+}
+function renderGlobals(){
+  $("#globals").innerHTML=GLOBALS.map(([k,l])=>'<label class="check"><input type="checkbox" data-g="'+k+'"'+(S.global[k]?" checked":"")+'> '+l+'</label>').join("");
+}
+function chosen(item){
+  const ids=item.r.options.map(o=>o.id);
+  const c=S.choice[item.key];
+  return ids.includes(c)?c:(item.r.rec||ids[0]);
+}
+function renderResults(){
+  const items=collect();
+  let base=0,plan=0,eigen=0,netto=0,n26=0,n27=0,ze=false;
+  const cmp=S.kasse==="gkv"&&!S.haerte, other=S.jahr==="2026"?"2027":"2026";
+  const html=items.map(it=>{
+    const r=it.r, ch=chosen(it);
+    if(r.options.length){
+      base+=r.options[0].total;
+      const o=r.options.find(x=>x.id===ch); const m=money(o);
+      plan+=o.total; eigen+=m.eigen; netto+=m.netto;
+      n26+=money(o,"2026").netto; n27+=money(o,"2027").netto; if(isZE(o)) ze=true;
+    }
+    const opts=r.options.map(o=>{
+      const m=money(o);
+      return '<button type="button" class="opt" data-k="'+it.key+'" data-o="'+o.id+'" aria-pressed="'+(o.id===ch)+'">'+
+        (o.id===r.rec?'<span class="rec">Empfehlung</span>':'')+
+        '<span class="chip '+o.typ+'">'+typLabel(o.typ)+'</span>'+
+        '<span class="name">'+o.name+'</span>'+
+        '<ul>'+o.nutzen.map(x=>'<li>'+x+'</li>').join("")+'</ul>'+
+        '<span class="money"><span>Eigenanteil</span><b>'+eur(m.netto)+'</b></span>'+
+        (cmp&&isZE(o)?'<span class="later"><span>'+(other==="2027"?"Ab 1.1.2027":"Bis 31.12.2026")+'</span><span>'+eur(money(o,other).netto)+'</span></span>':'')+
+        '<span class="money" style="border:0;padding:0"><span>Volumen</span><span class="mono num">'+eur(m.total)+'</span></span>'+
+      '</button>';
+    }).join("");
+    const notes=r.notes.map(([t,x])=>'<div class="note'+(t==="w"?" w":"")+'">'+x+'</div>').join("")+
+      r.excluded.map(x=>'<div class="note x">Nicht vorgeschlagen: '+x+'</div>').join("");
+    return '<article class="finding"><div class="finding-head"><span class="where">'+it.where+'</span><h3>'+it.title+'</h3></div>'+
+      (opts?'<div class="opts">'+opts+'</div>':'')+(notes?'<div class="notes">'+notes+'</div>':'')+'</article>';
+  }).join("");
+  $("#viewPraxis").innerHTML=html||'<div class="empty">Noch kein Befund. Wählen Sie im Zahnschema einen Zahn und setzen Sie einen Befund.</div>';
+  $("#sBase").textContent=eur(base);
+  $("#sPlan").textContent=eur(plan);
+  $("#sDelta").textContent=(plan-base>=0?"+":"")+eur(plan-base);
+  $("#sDeltaPct").textContent=base?("+"+Math.round((plan-base)/base*100)+" % gegenüber Kasse"):"";
+  $("#sEigen").textContent=eur(netto);
+  $("#sEigenH").textContent=S.zusatz&&S.kasse==="gkv"?("vor Zusatzversicherung "+eur(eigen)):(S.kasse==="pkv"?"nach Tariferstattung":"ohne Zusatzversicherung");
+  const yc=$("#yearCmp");
+  yc.hidden=!(cmp&&ze);
+  if(cmp&&ze){
+    const pct=y=>Math.round(RATES[y][S.bonus]*100)+" %";
+    yc.innerHTML='<div class="yearcmp-head"><b>Festzuschuss sinkt zum 1.1.2027</b><span>'+(daysLeft>0?"Noch "+daysLeft+" Tage für die alten Sätze":daysLeft===0?"Heute letzter Tag für die alten Sätze":"Neue Sätze gelten")+'</span></div>'+
+      '<div class="yearcmp-grid">'+
+        '<div class="'+(S.jahr==="2026"?"active":"")+'"><span class="k">Bewilligt bis 31.12.2026</span><span class="v">'+eur(n26)+'</span><span class="h">Festzuschuss '+pct("2026")+'</span></div>'+
+        '<div class="'+(S.jahr==="2027"?"active":"")+'"><span class="k">Bewilligt ab 1.1.2027</span><span class="v">'+eur(n27)+'</span><span class="h">Festzuschuss '+pct("2027")+'</span></div>'+
+        '<div><span class="k">Mehrkosten Patient</span><span class="v up">+'+eur(n27-n26)+'</span><span class="h">bei der gewählten Versorgung</span></div>'+
+      '</div><p>Eigenanteil der gewählten Optionen. Maßgeblich ist das Bewilligungsdatum der Krankenkasse.</p>';
+  }
+  S.cmp={on:cmp&&ze&&S.jahr==="2026"&&daysLeft>=0,n27,diff:n27-n26};
+  renderLetter(items);
+}
+function renderLetter(items){
+  const d=new Date().toLocaleDateString("de-DE");
+  const L=[];
+  L.push("Ihr persönlicher Behandlungsvorschlag");
+  L.push("Datum: "+d);
+  L.push("");
+  L.push("Guten Tag "+(S.name||"")+",");
+  L.push("");
+  L.push("vielen Dank für Ihren Besuch. Hier finden Sie unsere Befunde und die Behandlungsmöglichkeiten, die wir mit Ihnen besprochen haben. Bei jedem Punkt steht zuerst die Leistung, die Ihre "+(S.kasse==="gkv"?"Krankenkasse":"Versicherung")+" übernimmt oder bezuschusst.");
+  let i=0;
+  items.forEach(it=>{
+    if(!it.r.options.length) return;
+    i++;
+    L.push("");
+    L.push(i+". "+it.where+": "+it.title);
+    it.r.options.forEach((o,j)=>{
+      const m=money(o);
+      const later=S.cmp.on&&isZE(o)?" (bei Bewilligung ab 1.1.2027: ca. "+eur(money(o,"2027").netto)+")":"";
+      L.push("   "+String.fromCharCode(97+j)+") "+o.name+" ("+typLabel(o.typ).replace("­","")+"): Ihr Eigenanteil ca. "+eur(m.netto)+later+(o.id===it.r.rec?"  ← unsere Empfehlung":""));
+    });
+    const why=it.r.notes.filter(n=>n[0]==="i").map(n=>n[1]);
+    if(why.length) L.push("   Warum: "+why.join(" "));
+    const ch=it.r.options.find(o=>o.id===chosen(it));
+    L.push("   Besprochene Wahl: "+ch.name);
+  });
+  if(!i){ L.push(""); L.push("Aktuell besteht kein Behandlungsbedarf."); }
+  L.push("");
+  L.push("Summe Ihres Eigenanteils bei der besprochenen Wahl: ca. "+$("#sEigen").textContent);
+  if(S.cmp.on&&S.cmp.diff>0.5){
+    L.push("");
+    L.push("Bitte beachten: Zum 1. Januar 2027 senken die gesetzlichen Krankenkassen den Festzuschuss für Zahnersatz um zehn Prozentpunkte. Maßgeblich ist das Datum, an dem Ihre Krankenkasse den Heil- und Kostenplan bewilligt, nicht der Behandlungstermin. Wird Ihr Plan bis zum 31.12.2026 bewilligt, gilt der oben genannte Eigenanteil. Bei einer Bewilligung ab dem 1.1.2027 steigt er bei der besprochenen Wahl voraussichtlich auf ca. "+eur(S.cmp.n27)+" (ca. "+eur(S.cmp.diff)+" mehr).");
+  }
+  L.push("");
+  L.push("Wichtig: Die Kassenleistung ist bei jedem Punkt möglich. Alle Beträge sind Schätzungen. Verbindlich sind der Heil- und Kostenplan bzw. die schriftliche Mehrkostenvereinbarung, die wir vor Behandlungsbeginn mit Ihnen abschließen. Diese Information erhalten Sie nach § 630c Abs. 3 BGB in Textform.");
+  L.push("");
+  L.push("Bei Fragen rufen Sie uns gern an.");
+  L.push("Ihr Praxisteam");
+  $("#letterText").textContent=L.join("\n");
+}
+function renderPatient(){
+  $("#pName").value=S.name; $("#pAge").value=S.age;
+  document.querySelectorAll("#segKasse button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===S.kasse));
+  document.querySelectorAll("#segBonus button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===S.bonus));
+  $("#pHaerte").checked=S.haerte;
+  document.querySelectorAll("#segJahr button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===S.jahr));
+  $("#bonusField").hidden=S.kasse!=="gkv";
+  $("#zusatzLbl").textContent=S.kasse==="gkv"?"Zahnzusatzversicherung erstattet":"PKV-Tarif erstattet";
+  $("#pZusatz").value=S.zusatz; $("#pZusatzOut").textContent=S.zusatz+" %";
+}
+function renderPrices(){
+  $("#priceGrid").innerHTML=PRICE_DEF.map(([k,l])=>'<label for="pr_'+k+'"><span>'+l+'</span><input id="pr_'+k+'" type="number" min="0" step="5" data-p="'+k+'" value="'+P[k]+'"></label>').join("");
+}
+function all(){renderPatient();renderChart();renderGlobals();renderResults();}
+
+/* ---------- Events Demo ---------- */
+$("#toothFinding").innerHTML=FINDINGS.map(([v,l])=>'<option value="'+v+'">'+l+'</option>').join("");
+$("#chart").addEventListener("click",e=>{const b=e.target.closest(".tooth"); if(!b) return; S.sel=+b.dataset.n; renderChart(); $("#toothFinding").focus();});
+$("#toothFinding").addEventListener("change",e=>{const v=e.target.value; if(v) S.teeth[S.sel]=v; else delete S.teeth[S.sel]; renderChart(); renderResults();});
+$("#globals").addEventListener("change",e=>{const k=e.target.dataset.g; if(!k) return; S.global[k]=e.target.checked; renderResults();});
+$("#viewPraxis").addEventListener("click",e=>{const b=e.target.closest(".opt"); if(!b) return; S.choice[b.dataset.k]=b.dataset.o; renderResults();});
+$("#pName").addEventListener("input",e=>{S.name=e.target.value; renderResults();});
+$("#pAge").addEventListener("input",e=>{S.age=+e.target.value||0; renderResults();});
+$("#segKasse").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b) return; S.kasse=b.dataset.v; if(S.kasse==="pkv"&&S.zusatz===0) S.zusatz=80; if(S.kasse==="gkv"&&S.zusatz===80) S.zusatz=0; renderPatient(); renderResults();});
+$("#segBonus").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b) return; S.bonus=b.dataset.v; renderPatient(); renderResults();});
+$("#pHaerte").addEventListener("change",e=>{S.haerte=e.target.checked; renderResults();});
+$("#segJahr").addEventListener("click",e=>{const b=e.target.closest("button"); if(!b) return; S.jahr=b.dataset.v; renderPatient(); renderResults();});
+/* Vorführung: Sorrida aus der Praxissoftware öffnen. Ruhezustand = geöffnet. */
+(function(){
+  const stage=$("#pvsStage"), cur=$("#pvsCursor"), btn=$("#pvsBtn");
+  const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let timers=[];
+  function at(ms,fn){timers.push(setTimeout(fn,ms));}
+  function play(){
+    timers.forEach(clearTimeout); timers=[];
+    stage.classList.add("closed");
+    if(reduce){ at(300,()=>stage.classList.remove("closed")); return; }
+    const s=stage.getBoundingClientRect(), b=btn.getBoundingClientRect();
+    cur.style.transition="none"; cur.style.left=(s.width*.55)+"px"; cur.style.top=(s.height*.7)+"px"; cur.style.opacity="1";
+    void cur.offsetWidth; cur.style.transition="";
+    at(80,()=>{cur.style.left=(b.left-s.left+b.width*.55)+"px"; cur.style.top=(b.top-s.top+b.height*.45)+"px";});
+    at(900,()=>{btn.style.transform="scale(.94)";});
+    at(1050,()=>{btn.style.transform=""; stage.classList.remove("closed");});
+    at(1700,()=>{cur.style.opacity="0";});
+  }
+  btn.addEventListener("click",play);
+  $("#pvsReplay").addEventListener("click",play);
+  if("IntersectionObserver" in window){
+    const io=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)){ io.disconnect(); play(); } },{threshold:.6});
+    io.observe(stage);
+  }
+})();
+/* Countdown in Hero und Stichtag-Abschnitt */
+(function(){
+  if(daysLeft>=0){
+    $("#cdDays").textContent=daysLeft;
+    $("#ribbonDays").innerHTML=daysLeft===0?"<b>heute</b> letzter Tag":"noch <b>"+daysLeft+"</b> Tage";
+  }else{
+    $("#countdown").innerHTML="<span>Seit dem 1.1.2027 gelten die neuen Sätze. Für noch 2026 bewilligte Pläne rechnet Sorrida weiter mit den alten.</span>";
+    $("#heroRibbon").innerHTML="Festzuschuss seit 1.1.2027 gesenkt →";
+  }
+})();
+$("#pZusatz").addEventListener("input",e=>{S.zusatz=+e.target.value; $("#pZusatzOut").textContent=S.zusatz+" %"; renderResults();});
+$("#priceGrid").addEventListener("input",e=>{const k=e.target.dataset.p; if(!k) return; P[k]=Math.max(0,+e.target.value||0); renderResults();});
+function setTab(t){S.tab=t; $("#tabPraxis").setAttribute("aria-selected",t==="praxis"); $("#tabPatient").setAttribute("aria-selected",t==="patient"); $("#viewPraxis").hidden=t!=="praxis"; $("#viewPatient").hidden=t!=="patient";}
+$("#tabPraxis").addEventListener("click",()=>setTab("praxis"));
+$("#tabPatient").addEventListener("click",()=>setTab("patient"));
+
+function toast(msg){const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>t.hidden=true,2200);}
+function copyFrom(el){
+  const text=el.textContent;
+  const sel=()=>{const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast("Text markiert. Jetzt kopieren.");};
+  try{ navigator.clipboard.writeText(text).then(()=>toast("Kopiert"),sel); }catch(_){ sel(); }
+}
+$("#copyLetter").addEventListener("click",()=>copyFrom($("#letterText")));
+
+/* ---------- ROI ---------- */
+const R={pat:"#rPat",share:"#rShare",now:"#rNow",nw:"#rNew",val:"#rVal"};
+function roi(){
+  const pat=+$(R.pat).value, share=+$(R.share).value/100, now=+$(R.now).value/100, nw=+$(R.nw).value/100, val=+$(R.val).value;
+  $("#rPatO").textContent=pat; $("#rShareO").textContent=Math.round(share*100)+" %";
+  $("#rNowO").textContent=Math.round(now*100)+" %"; $("#rNewO").textContent=Math.round(nw*100)+" %"; $("#rValO").textContent=eur(val);
+  const cases=pat*share, extraMonth=Math.max(0,cases*(nw-now)*val), year=extraMonth*12, cost=249*12;
+  const today=cases*now*val*12, withK=cases*nw*val*12, max=Math.max(withK,today,1);
+  $("#rYear").textContent=(year>0?"+":"")+eur(year);
+  $("#rBars").innerHTML=[["Heute",today,""],["Mit Sorrida",withK,"gold"],["Sorrida-Kosten",cost,""]].map(([l,v,c])=>
+    '<div class="bar"><span>'+l+'</span><span class="track"><span class="fill '+c+'" style="width:'+(v/Math.max(max,cost)*100).toFixed(1)+'%"></span></span><b>'+eur(v)+'</b></div>').join("");
+  const mult=year/cost;
+  $("#rText").textContent=year>0
+    ?"Das sind etwa "+Math.round(cases*(nw-now))+" zusätzlich angenommene Alternativen im Monat. Bei 249 € im Monat entspricht das dem "+mult.toLocaleString("de-DE",{maximumFractionDigits:1})+"-fachen der Kosten."
+    :"Mit diesen Annahmen entsteht kein zusätzlicher Umsatz. Erhöhen Sie die erwartete Zustimmung, um den Effekt zu sehen.";
+}
+Object.values(R).forEach(s=>$(s).addEventListener("input",roi));
+
+/* ---------- Kontakt ---------- */
+$("#leadForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const btn=e.target.querySelector("button[type=submit]");
+  const data={practiceName:$("#lPraxis").value,contactName:$("#lName").value,dentists:$("#lBeh").value,contact:$("#lTel").value,website:$("#lWebsite").value};
+  btn.disabled=true; btn.textContent="Wird gesendet…";
+  try{
+    const res=await fetch("/api/leads",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+    if(!res.ok){ const j=await res.json().catch(()=>({})); throw new Error(j.error||"Fehler "+res.status); }
+    $("#leadForm").hidden=true; $("#leadDone").hidden=false;
+  }catch(err){
+    $("#leadText").textContent="Betreff: Pilotplatz Sorrida\n\nPraxis: "+data.practiceName+"\nAnsprechpartner: "+data.contactName+"\nBehandler: "+data.dentists+"\nErreichbar unter: "+data.contact+"\n\nWir interessieren uns für einen Pilotplatz und eine 20-minütige Demo mit unseren eigenen Fällen.";
+    $("#leadFailMsg").textContent=(err&&err.message?err.message+". ":"")+"Bitte kopieren Sie den Text und schicken Sie ihn per E-Mail an das Sorrida-Team.";
+    $("#leadFail").hidden=false;
+  }finally{ btn.disabled=false; btn.textContent="Pilotplatz anfragen"; }
+});
+$("#copyLead").addEventListener("click",()=>copyFrom($("#leadText")));
+
+renderPrices(); all(); roi();
+})();
+</script>
+</body>
+</html>
