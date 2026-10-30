@@ -9,6 +9,20 @@ const WINDOW_MS = 60 * 60 * 1000;
 // die Wegwerf-Zugangsdaten zurück, mit denen sich die Seite /demo sofort
 // anmeldet. Abgelaufene Demo-Praxen werden dabei aufgeräumt.
 export async function POST(req: Request) {
+  try {
+    return await handle(req);
+  } catch (err) {
+    // Letzte Sicherung: immer eine lesbare Antwort statt einer leeren 500.
+    console.error("Gastzugang fehlgeschlagen:", err);
+    const message = err instanceof Error ? err.message.split("\n").filter(Boolean).pop()?.slice(0, 200) : undefined;
+    return NextResponse.json(
+      { error: `Der Gastzugang konnte nicht angelegt werden${message ? `: ${message}` : ""}. Details unter /api/status.` },
+      { status: 500 }
+    );
+  }
+}
+
+async function handle(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const key = `demo:${ip}`;
   if (await isRateLimited(key, LIMIT, WINDOW_MS)) {

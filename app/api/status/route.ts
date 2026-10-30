@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { redisStatus } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -44,11 +45,13 @@ export async function GET(req: Request) {
     checks.Datenbank = { ok: false, info: `nicht erreichbar${code ? ` (${code})` : ""}: DATABASE_URL prüfen` };
   }
 
+  const redis = await redisStatus();
   checks["Missbrauchsschutz (Redis)"] =
-    (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL) &&
-    (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN)
-      ? { ok: true, info: "Upstash angebunden" }
-      : { ok: true, info: "nicht angebunden (Zähler nur im Speicher, für den Start in Ordnung)" };
+    redis === "erreichbar"
+      ? { ok: true, info: "Upstash erreichbar" }
+      : redis === "nicht angebunden"
+        ? { ok: true, info: "nicht angebunden (Zähler nur im Speicher, für den Start in Ordnung)" }
+        : { ok: true, info: "Zugangsdaten gesetzt, aber Upstash antwortet nicht: läuft ersatzweise im Speicher. KV_/UPSTASH_-Variablen in Vercel löschen oder Datenbank neu anlegen." };
   checks["KI-Berichte"] = process.env.ANTHROPIC_API_KEY
     ? { ok: true, info: "Schlüssel gesetzt" }
     : { ok: true, info: "kein Schlüssel: Berichte im Testmodus" };
