@@ -74,6 +74,7 @@ export function PatientLinkPanel({ proposalId, state, firstName }: { proposalId:
               ))}
             </ul>
           )}
+          {state.wantsInstallments && <p className="mt-1 font-medium">Interesse an Ratenzahlung</p>}
           {state.note && <p className="mt-1 italic">„{state.note}“</p>}
         </div>
       )}

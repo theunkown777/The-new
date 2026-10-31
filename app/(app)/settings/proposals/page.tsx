@@ -3,12 +3,14 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolvePrices } from "@/lib/proposals";
 import { ProposalPriceSettings } from "@/components/ProposalPriceSettings";
+import { InstallmentSettings } from "@/components/InstallmentSettings";
+import { resolveInstallments } from "@/lib/installments";
 
 export default async function ProposalPricesPage() {
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({
     where: { id: session!.user.practiceId },
-    select: { proposalPrices: true },
+    select: { proposalPrices: true, installments: true },
   });
 
   return (
@@ -25,6 +27,9 @@ export default async function ProposalPricesPage() {
         isCustom={practice?.proposalPrices != null}
         readOnly={session!.user.role !== "admin"}
       />
+      <div className="mt-6">
+        <InstallmentSettings initial={resolveInstallments(practice?.installments)} readOnly={session!.user.role !== "admin"} />
+      </div>
     </div>
   );
 }

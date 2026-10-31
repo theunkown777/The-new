@@ -9,7 +9,8 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
 
-  const [patientCount, draftCount, recentReports, openProposals, accepted, responses] = await Promise.all([
+  const unopenedSince = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  const [patientCount, draftCount, recentReports, openProposals, accepted, responses, unopened] = await Promise.all([
     prisma.patient.count({ where: { practiceId } }),
     prisma.report.count({ where: { practiceId, status: "ENTWURF" } }),
     prisma.report.findMany({
@@ -27,7 +28,20 @@ export default async function DashboardPage() {
       where: { practiceId, patientResponse: { not: null }, status: { in: ["ENTWURF", "BESPROCHEN"] } },
       orderBy: { patientRespondedAt: "desc" },
       take: 10,
-      select: { id: true, patientResponse: true, patientRespondedAt: true, patientNote: true, patient: { select: { firstName: true, lastName: true } } },
+      select: { id: true, patientResponse: true, patientRespondedAt: true, patientNote: true, patientWantsInstallments: true, patient: { select: { firstName: true, lastName: true } } },
+    }),
+    prisma.treatmentProposal.findMany({
+      where: {
+        practiceId,
+        status: { in: ["ENTWURF", "BESPROCHEN"] },
+        shareTokenHash: { not: null },
+        shareExpiresAt: { gt: new Date() },
+        shareCreatedAt: { lt: unopenedSince },
+        patientViewedAt: null,
+      },
+      orderBy: { shareCreatedAt: "asc" },
+      take: 10,
+      select: { id: true, shareCreatedAt: true, patient: { select: { firstName: true, lastName: true } } },
     }),
   ]);
   const acceptedDeltaCent = accepted.reduce((sum, p) => sum + p.planTotalCent - p.baseTotalCent, 0);
@@ -72,7 +86,26 @@ export default async function DashboardPage() {
                 </div>
                 <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
                   {r.patientResponse === "RUECKRUF" ? "Rückruf gewünscht" : "möchte besprechen"}
+                  {r.patientWantsInstallments && " · Ratenzahlung"}
                   {r.patientRespondedAt && ` · ${r.patientRespondedAt.toLocaleDateString("de-DE")}`}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {unopened.length > 0 && (
+        <section className="mb-8" data-testid="unopened-links">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Seit 3 Tagen nicht geöffnet</h2>
+          <div className="card divide-y divide-slate-100 p-0">
+            {unopened.map((u) => (
+              <Link key={u.id} href={`/proposals/${u.id}`} className="flex flex-wrap items-center justify-between gap-2 px-6 py-3 hover:bg-slate-50">
+                <span className="font-medium text-slate-900">
+                  {u.patient.firstName} {u.patient.lastName}
+                </span>
+                <span className="text-sm text-slate-500">
+                  Link vom {u.shareCreatedAt?.toLocaleDateString("de-DE")} · kurz anrufen oder neuen Link schicken
                 </span>
               </Link>
             ))}

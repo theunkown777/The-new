@@ -4,6 +4,7 @@ import { hashToken } from "@/lib/tokens";
 import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
+import { resolveInstallments } from "@/lib/installments";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default async function PatientLinkPage({ params }: { params: { token: str
     where: { shareTokenHash: hashToken(params.token) },
     include: {
       patient: { select: { firstName: true } },
-      practice: { select: { name: true, proposalPrices: true } },
+      practice: { select: { name: true, proposalPrices: true, installments: true } },
     },
   });
   if (!proposal || !proposal.shareExpiresAt || proposal.shareExpiresAt < new Date()) return <Expired />;
@@ -60,6 +61,7 @@ export default async function PatientLinkPage({ params }: { params: { token: str
       showJahresvergleich={showsJahresvergleich(now)}
       tageBisStichtag={tageBisStichtag(now)}
       expiresAt={proposal.shareExpiresAt.toISOString()}
+      installments={resolveInstallments(proposal.practice.installments)}
     />
   );
 }

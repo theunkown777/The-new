@@ -34,6 +34,8 @@ model Practice {
   // aus lib/proposals.ts PRICE_DEFS). Null bzw. fehlende Schlüssel = die
   // dort hinterlegten Beispielwerte.
   proposalPrices    Json?
+  /// Ratenzahlung im Patienten-Link (lib/installments.ts)
+  installments      Json?
   // Gastzugang: Demo-Praxis mit Beispieldaten, die nach Ablauf automatisch
   // gelöscht wird (lib/demo.ts).
   isDemo            Boolean           @default(false)
@@ -382,6 +384,9 @@ model TreatmentProposal {
   patientChoices     Json?
   patientNote        String?
   patientRespondedAt DateTime?
+  /// Erster Versand eines Patienten-Links (bleibt beim Sperren erhalten, für die Auswertung)
+  shareCreatedAt     DateTime?
+  patientWantsInstallments Boolean @default(false)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

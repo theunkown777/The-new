@@ -16,6 +16,7 @@ export const patientResponseSchema = z.object({
   response: z.enum(["INTERESSE", "RUECKRUF"]),
   choices: z.record(z.string().max(40), z.string().max(40)).default({}),
   note: z.string().trim().max(500).optional(),
+  wantsInstallments: z.boolean().default(false),
 });
 
 /** Auswahl des Patienten lesbar machen, z. B. "Zahn 36: Implantat mit Krone". */
@@ -38,6 +39,7 @@ export type PatientLinkState = {
   response: string | null;
   respondedAt: string | null;
   note: string | null;
+  wantsInstallments: boolean;
   choiceLabels: string[];
 };
 
@@ -50,6 +52,7 @@ export function patientLinkState(
     patientRespondedAt: Date | null;
     patientNote: string | null;
     patientChoices: unknown;
+    patientWantsInstallments?: boolean;
   },
   items: Parameters<typeof describePatientChoices>[0],
   now = new Date(),
@@ -61,6 +64,7 @@ export function patientLinkState(
     response: p.patientResponse,
     respondedAt: p.patientRespondedAt?.toISOString() ?? null,
     note: p.patientNote,
+    wantsInstallments: !!p.patientWantsInstallments,
     choiceLabels: describePatientChoices(items, p.patientChoices),
   };
 }

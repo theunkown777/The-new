@@ -91,7 +91,7 @@ const PATIENTS: DemoPatient[] = [
       bonusYears: 5,
       status: "BESPROCHEN",
       choices: { t24: "impl" },
-      patientResponse: { response: "RUECKRUF", note: "Ist eine Ratenzahlung möglich? Am besten nachmittags erreichbar." },
+      patientResponse: { response: "RUECKRUF", note: "Am besten nachmittags erreichbar." },
     },
   },
   { firstName: "Lena", lastName: "Hoffmann", birthDate: "2014-06-30", insuranceType: "GKV", insuranceName: "Barmer" },
@@ -137,6 +137,7 @@ export async function createDemoPractice(now = new Date()): Promise<{ email: str
       isDemo: true,
       demoExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
       gozPunktwertCent: STANDARD_GOZ_PUNKTWERT_CENT,
+      installments: { enabled: true, months: 12, zinsfrei: true, minEur: 300 },
       users: {
         create: {
           name: "Gast (Dr. Demo)",
@@ -233,7 +234,9 @@ export async function createDemoPractice(now = new Date()): Promise<{ email: str
           ...(p.proposal.patientResponse && {
             shareTokenHash: crypto.randomBytes(32).toString("hex"),
             shareExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
+            shareCreatedAt: new Date(now.getTime() - 26 * 60 * 60 * 1000),
             patientViewedAt: new Date(now.getTime() - 3 * 60 * 60 * 1000),
+            patientWantsInstallments: true,
             patientResponse: p.proposal.patientResponse.response,
             patientChoices: p.proposal.choices ?? {},
             patientNote: p.proposal.patientResponse.note,

@@ -14,7 +14,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
   const proposal = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, practiceId: session.user.practiceId },
-    select: { id: true },
+    select: { id: true, shareCreatedAt: true },
   });
   if (!proposal) return NextResponse.json({ error: "Vorschlag nicht gefunden" }, { status: 404 });
 
@@ -22,7 +22,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const expiresAt = new Date(Date.now() + PATIENT_LINK_TTL_MS);
   await prisma.treatmentProposal.update({
     where: { id: proposal.id },
-    data: { shareTokenHash: hash, shareExpiresAt: expiresAt, patientViewedAt: null },
+    data: { shareTokenHash: hash, shareExpiresAt: expiresAt, patientViewedAt: null, shareCreatedAt: proposal.shareCreatedAt ?? new Date() },
   });
 
   const base = process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;

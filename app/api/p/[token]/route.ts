@@ -31,6 +31,7 @@ export async function POST(req: Request, { params }: { params: { token: string }
       patientChoices: parsed.data.choices,
       patientNote: parsed.data.note || null,
       patientRespondedAt: new Date(),
+      patientWantsInstallments: parsed.data.wantsInstallments,
     },
   });
   return NextResponse.json({ ok: true });

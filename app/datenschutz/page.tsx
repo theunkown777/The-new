@@ -36,7 +36,8 @@ export default function DatenschutzPage() {
         <h2>3. Anfrageformular „Pilotplatz anfragen“</h2>
         <p>
           Wenn Sie das Formular absenden, speichern wir Praxisname, Ihren Namen, die Anzahl der Behandler
-          und Ihre Telefonnummer oder E-Mail-Adresse, um Sie wegen einer Demo zu kontaktieren
+          Ihre Telefonnummer oder E-Mail-Adresse sowie, falls angegeben, Ihre Praxissoftware und die
+          gewünschte Rückrufzeit, um Sie wegen einer Demo zu kontaktieren
           (Art. 6 Abs. 1 lit. b und lit. a DSGVO). Die Angaben werden gelöscht, wenn kein Vertrag
           zustande kommt, spätestens 12 Monate nach der Anfrage. Ihre Einwilligung können Sie jederzeit
           per E-Mail widerrufen. Zur Benachrichtigung über neue Anfragen nutzen wir den E-Mail-Dienst
@@ -61,7 +62,22 @@ export default function DatenschutzPage() {
       </section>
 
       <section>
-        <h2>5. Ihre Rechte</h2>
+        <h2>5. Patienten-Link</h2>
+        <p>
+          Praxen können Patienten einen Behandlungsvorschlag als Link oder QR-Code mitgeben. Auch diese
+          Verarbeitung erfolgt im Auftrag der Praxis. Der Link enthält keine Patientendaten, sondern ein
+          zufälliges Kennzeichen, von dem wir nur einen Hashwert speichern. Angezeigt werden Vorname,
+          Praxisname und die Behandlungsoptionen. Gespeichert werden der Zeitpunkt des ersten Aufrufs
+          und, wenn der Patient antwortet, seine Auswahl, die Art der Rückmeldung, ein etwaiges Interesse
+          an Ratenzahlung und seine Nachricht. Zum Schutz vor Missbrauch wird die IP-Adresse kurzzeitig
+          für die Begrenzung von Anfragen verwendet. Der Link läuft nach 30 Tagen ab und kann von der
+          Praxis jederzeit gesperrt werden. Die Seite setzt keine Cookies und ist für Suchmaschinen
+          gesperrt.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. Ihre Rechte</h2>
         <p>
           Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung,
           Datenübertragbarkeit und Widerspruch (Art. 15–21 DSGVO) sowie das Recht, sich bei einer

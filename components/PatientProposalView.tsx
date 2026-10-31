@@ -12,6 +12,7 @@ import {
   type PatientFactors,
   type ProposalItem,
 } from "@/lib/proposals";
+import { installmentOffer, type Installments } from "@/lib/installments";
 
 type Props = {
   token: string;
@@ -24,18 +25,21 @@ type Props = {
   showJahresvergleich: boolean;
   tageBisStichtag: number;
   expiresAt: string;
+  installments: Installments;
 };
 
 export function PatientProposalView(props: Props) {
   const { items, patient } = props;
   const [choices, setChoices] = useState<Record<string, string>>(props.initialChoices);
   const [note, setNote] = useState("");
+  const [wantsInstallments, setWantsInstallments] = useState(false);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">(props.alreadyResponded ? "sent" : "idle");
   const [error, setError] = useState("");
 
   const sum = useMemo(() => summarize(items, choices, patient), [items, choices, patient]);
   const jahre = useMemo(() => vergleicheJahre(items, choices, patient), [items, choices, patient]);
   const gkv = patient.insurance === "GKV";
+  const offer = installmentOffer(sum.netto, props.installments);
 
   async function send(response: "INTERESSE" | "RUECKRUF") {
     setState("sending");
@@ -44,7 +48,7 @@ export function PatientProposalView(props: Props) {
     const res = await fetch(`/api/p/${props.token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ response, choices: chosen, note: note || undefined }),
+      body: JSON.stringify({ response, choices: chosen, note: note || undefined, wantsInstallments }),
     }).catch(() => null);
     if (res?.ok) {
       setState("sent");
@@ -172,6 +176,12 @@ export function PatientProposalView(props: Props) {
               onChange={(e) => setNote(e.target.value)}
               placeholder="z. B. Ist eine Ratenzahlung möglich? Am besten erreichbar nachmittags."
             />
+            {offer.kind !== "none" && (
+              <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
+                <input type="checkbox" checked={wantsInstallments} onChange={(e) => setWantsInstallments(e.target.checked)} />
+                Ich interessiere mich für Ratenzahlung
+              </label>
+            )}
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <button type="button" className="btn btn-primary py-3" disabled={state === "sending"} onClick={() => send("INTERESSE")}>
                 Diese Auswahl besprechen
@@ -192,7 +202,9 @@ export function PatientProposalView(props: Props) {
       <p className="mt-6 text-xs leading-relaxed text-slate-500">
         Unverbindliche Kostenschätzung. Verbindlich sind der Heil- und Kostenplan bzw. die Vereinbarung mit Ihrer Praxis.
         {gkv && " Der Kassenanteil bei Zahnersatz richtet sich nach dem Datum der Bewilligung durch Ihre Krankenkasse."} Erstattungen
-        Ihrer Zusatzversicherung sind geschätzt. Dieser Link ist gültig bis{" "}
+        Ihrer Zusatzversicherung sind geschätzt.
+        {offer.kind === "rate" &&
+          ` Ratenzahlung zinsfrei${props.installments.provider ? ` über ${props.installments.provider}` : ""}, Beispielrate aufgerundet; Einzelheiten regelt die Vereinbarung mit Ihrer Praxis.`} Dieser Link ist gültig bis{" "}
         {new Date(props.expiresAt).toLocaleDateString("de-DE")}.
       </p>
 
@@ -203,6 +215,12 @@ export function PatientProposalView(props: Props) {
             <div className="text-xl font-semibold tabular-nums text-slate-900" aria-live="polite">
               {formatEuro(sum.netto)}
             </div>
+            {offer.kind === "rate" && (
+              <div className="text-xs text-emerald-700" data-testid="installment-rate">
+                oder {offer.months} × {formatEuro(offer.monthly)} zinsfrei
+              </div>
+            )}
+            {offer.kind === "ask" && <div className="text-xs text-emerald-700">Ratenzahlung möglich, sprechen Sie uns an</div>}
           </div>
           {props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
             <div className="text-right text-xs text-amber-800">
