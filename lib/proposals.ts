@@ -196,7 +196,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices): 
       r.options.push({ id: "wk", type: "kasse", name: "Wurzelbehandlung, Kassenleistung", total: P.wk_kasse, benefits: ["erhält den Zahn", "Standardinstrumente"] });
       r.options.push({ id: "wkplus", type: "privatzusatz", name: "Wurzelbehandlung mit Endo-Zusatz", total: P.wk_kasse + P.wk_plus, base: P.wk_kasse, benefits: ["maschinelle Aufbereitung und Mikroskop", "höhere Erfolgsquote bei gekrümmten Kanälen", "Kasse zahlt Grundleistung"] });
       r.recommended = k === "molar" ? "wkplus" : "wk";
-      if (k === "molar") info("Seitenzähne werden nach einer Wurzelbehandlung meist überkront. Das gleich im Gespräch ankündigen.");
+      if (k === "molar") info("Seitenzähne brauchen nach einer Wurzelbehandlung meist eine Krone, damit sie nicht brechen.");
       else info("Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus.");
       break;
 

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
+import { pickLang } from "@/lib/patientI18n";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -28,7 +30,13 @@ function Expired() {
 
 // Öffentliche Ansicht für den Patienten. Gezeigt werden nur Vorname,
 // Praxisname und die Optionen, keine Geburtsdaten oder Kassendaten.
-export default async function PatientLinkPage({ params }: { params: { token: string } }) {
+export default async function PatientLinkPage({
+  params,
+  searchParams,
+}: {
+  params: { token: string };
+  searchParams: { lang?: string };
+}) {
   if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <Expired />;
   const proposal = await prisma.treatmentProposal.findUnique({
     where: { shareTokenHash: hashToken(params.token) },
@@ -64,6 +72,7 @@ export default async function PatientLinkPage({ params }: { params: { token: str
       tageBisStichtag={tageBisStichtag(now)}
       expiresAt={proposal.shareExpiresAt.toISOString()}
       installments={resolveInstallments(proposal.practice.installments)}
+      lang={pickLang(searchParams.lang, headers().get("accept-language"))}
     />
   );
 }

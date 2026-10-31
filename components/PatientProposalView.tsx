@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import {
   chosenOption,
-  formatEuro,
   isZahnersatz,
   money,
   optionTypeLabel,
@@ -13,6 +12,7 @@ import {
   type ProposalItem,
 } from "@/lib/proposals";
 import { installmentOffer, type Installments } from "@/lib/installments";
+import { UI, euro, tr, type PatientLang } from "@/lib/patientI18n";
 
 type Props = {
   token: string;
@@ -26,10 +26,13 @@ type Props = {
   tageBisStichtag: number;
   expiresAt: string;
   installments: Installments;
+  lang: PatientLang;
 };
 
 export function PatientProposalView(props: Props) {
-  const { items, patient } = props;
+  const { items, patient, lang } = props;
+  const t = UI[lang];
+  const fmt = (n: number) => euro(n, lang);
   const [choices, setChoices] = useState<Record<string, string>>(props.initialChoices);
   const [note, setNote] = useState("");
   const [wantsInstallments, setWantsInstallments] = useState(false);
@@ -40,6 +43,7 @@ export function PatientProposalView(props: Props) {
   const jahre = useMemo(() => vergleicheJahre(items, choices, patient), [items, choices, patient]);
   const gkv = patient.insurance === "GKV";
   const offer = installmentOffer(sum.netto, props.installments);
+  const until = new Date(props.expiresAt).toLocaleDateString(lang === "en" ? "en-GB" : "de-DE");
 
   async function send(response: "INTERESSE" | "RUECKRUF") {
     setState("sending");
@@ -55,38 +59,51 @@ export function PatientProposalView(props: Props) {
       return;
     }
     const data = await res?.json().catch(() => null);
-    setError(data?.error ?? "Senden fehlgeschlagen. Bitte versuchen Sie es erneut oder rufen Sie die Praxis an.");
+    setError(lang === "de" && data?.error ? data.error : t.sendFailed);
     setState("error");
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-40 pt-8 sm:pt-12">
+    <main className="mx-auto max-w-2xl px-4 pb-40 pt-8 sm:pt-12" lang={lang}>
       <header className="space-y-2">
-        <p className="text-sm font-medium text-brand-700">{props.practiceName}</p>
-        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Hallo {props.firstName}, hier ist Ihr Behandlungsvorschlag</h1>
-        <p className="text-slate-600">
-          Sie können sich in Ruhe ansehen, welche Möglichkeiten es gibt und was sie für Sie kosten. Tippen Sie eine Option an, um Ihren
-          Eigenanteil zu sehen. Entschieden wird erst im Gespräch mit Ihrer Zahnärztin oder Ihrem Zahnarzt.
-        </p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-medium text-brand-700">{props.practiceName}</p>
+          <nav aria-label="Sprache / Language" className="flex gap-1 text-xs">
+            {(["de", "en"] as const).map((l) => (
+              <a
+                key={l}
+                href={`?lang=${l}`}
+                hrefLang={l}
+                aria-current={l === lang ? "true" : undefined}
+                className={`rounded-full border px-2.5 py-1 ${l === lang ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 text-slate-600"}`}
+              >
+                {l === "de" ? "Deutsch" : "English"}
+              </a>
+            ))}
+          </nav>
+        </div>
+        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{t.hello(props.firstName)}</h1>
+        <p className="text-slate-600">{t.intro}</p>
+        {t.langNote && <p className="text-xs text-slate-500">{t.langNote}</p>}
       </header>
 
       {props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
         <div className="mt-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900" role="note">
-          <strong>Wichtig für Zahnersatz:</strong> Ab 2027 zahlen die Krankenkassen weniger zu. Wird der Heil- und Kostenplan noch bis
-          31.12.2026 bewilligt (in {props.tageBisStichtag} Tagen), sparen Sie bei Ihrer Auswahl etwa{" "}
-          <strong>{formatEuro(jahre.mehrkosten)}</strong>.
+          <strong>{t.deadlineTitle}</strong> {t.deadline(props.tageBisStichtag)} <strong>{fmt(jahre.mehrkosten)}</strong>.
         </div>
       )}
 
       <div className="mt-8 space-y-6">
         {items.map((item) => {
           const current = chosenOption(item, choices);
+          const title = tr(item.title, lang);
+          const infos = item.notes.filter((n) => n.kind === "info");
           return (
             <section key={item.key} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-              <h2 className="font-semibold text-slate-900">{item.title}</h2>
-              <p className="text-sm text-slate-500">{item.where}</p>
+              <h2 className="font-semibold text-slate-900">{title}</h2>
+              <p className="text-sm text-slate-500">{tr(item.where, lang)}</p>
               <fieldset className="mt-4 space-y-3">
-                <legend className="sr-only">Optionen für {item.title}</legend>
+                <legend className="sr-only">{t.optionsFor(title)}</legend>
                 {item.options.map((o) => {
                   const m = money(o, patient);
                   const selected = current?.id === o.id;
@@ -108,41 +125,55 @@ export function PatientProposalView(props: Props) {
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-medium text-slate-900">{o.name}</span>
+                            <span className="font-medium text-slate-900">{tr(o.name, lang)}</span>
                             {item.recommended === o.id && (
-                              <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-medium text-white">Empfehlung</span>
+                              <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-medium text-white">{t.recommended}</span>
                             )}
                           </div>
-                          <span className="text-xs text-slate-500">{optionTypeLabel(o.type, patient.insurance)}</span>
+                          <span className="text-xs text-slate-500">{tr(optionTypeLabel(o.type, patient.insurance), lang)}</span>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-semibold tabular-nums text-slate-900">{formatEuro(m.netto)}</div>
-                          <div className="text-xs text-slate-500">Ihr Anteil</div>
+                          <div className="text-lg font-semibold tabular-nums text-slate-900">{fmt(m.netto)}</div>
+                          <div className="text-xs text-slate-500">{t.yourShare}</div>
                         </div>
                       </div>
                       {o.benefits.length > 0 && (
                         <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-slate-700">
                           {o.benefits.map((b) => (
-                            <li key={b}>{b}</li>
+                            <li key={b}>{tr(b, lang)}</li>
                           ))}
                         </ul>
                       )}
                       <p className="mt-2 text-xs text-slate-500">
-                        Gesamt {formatEuro(m.total)}
-                        {m.kasse > 0 && <> · {gkv ? "Kasse" : "Versicherung"} {formatEuro(m.kasse)}</>}
-                        {m.erstattet > 0 && <> · Zusatzversicherung ca. {formatEuro(m.erstattet)}</>}
+                        {t.total} {fmt(m.total)}
+                        {m.kasse > 0 && (
+                          <>
+                            {" "}
+                            · {gkv ? t.insurerGkv : t.insurerPkv} {fmt(m.kasse)}
+                          </>
+                        )}
+                        {m.erstattet > 0 && (
+                          <>
+                            {" "}
+                            · {t.supplementary} {fmt(m.erstattet)}
+                          </>
+                        )}
                         {props.showJahresvergleich && gkv && isZahnersatz(o) && !patient.haertefall && (
-                          <> · bei Bewilligung ab 2027: {formatEuro(money(o, patient, 2027).netto)}</>
+                          <>
+                            {" "}
+                            · {t.from2027} {fmt(money(o, patient, 2027).netto)}
+                          </>
                         )}
                       </p>
                     </label>
                   );
                 })}
               </fieldset>
-              {item.notes.length > 0 && (
+              {/* Wie im Patientenschreiben nur "info"-Hinweise; "warn" richtet sich an die Praxis. */}
+              {infos.length > 0 && (
                 <ul className="mt-3 space-y-1 text-sm text-slate-600">
-                  {item.notes.map((n) => (
-                    <li key={n.text}>{n.text}</li>
+                  {infos.map((n) => (
+                    <li key={n.text}>{tr(n.text, lang)}</li>
                   ))}
                 </ul>
               )}
@@ -153,20 +184,19 @@ export function PatientProposalView(props: Props) {
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" aria-labelledby="antwort">
         <h2 id="antwort" className="font-semibold text-slate-900">
-          Wie möchten Sie weitermachen?
+          {t.nextTitle}
         </h2>
         {state === "sent" ? (
           <p className="mt-2 text-slate-700" role="status">
-            Danke, Ihre Praxis hat Ihre Rückmeldung erhalten und meldet sich bei Ihnen. Sie können Ihre Auswahl hier jederzeit erneut
-            senden.
+            {t.thanks}
             <button type="button" className="ml-1 text-brand-700 underline" onClick={() => setState("idle")}>
-              Auswahl ändern
+              {t.change}
             </button>
           </p>
         ) : (
           <>
             <label className="label mt-3" htmlFor="note">
-              Frage oder Wunschtermin (optional)
+              {t.noteLabel}
             </label>
             <textarea
               id="note"
@@ -174,20 +204,20 @@ export function PatientProposalView(props: Props) {
               maxLength={500}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="z. B. Ist eine Ratenzahlung möglich? Am besten erreichbar nachmittags."
+              placeholder={t.notePlaceholder}
             />
             {offer.kind !== "none" && (
               <label className="mt-3 flex items-center gap-2 text-sm text-slate-700">
                 <input type="checkbox" checked={wantsInstallments} onChange={(e) => setWantsInstallments(e.target.checked)} />
-                Ich interessiere mich für Ratenzahlung
+                {t.installmentsInterest}
               </label>
             )}
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <button type="button" className="btn btn-primary py-3" disabled={state === "sending"} onClick={() => send("INTERESSE")}>
-                Diese Auswahl besprechen
+                {t.discuss}
               </button>
               <button type="button" className="btn btn-secondary py-3" disabled={state === "sending"} onClick={() => send("RUECKRUF")}>
-                Bitte rufen Sie mich an
+                {t.callMe}
               </button>
             </div>
             {error && (
@@ -200,33 +230,29 @@ export function PatientProposalView(props: Props) {
       </section>
 
       <p className="mt-6 text-xs leading-relaxed text-slate-500">
-        Unverbindliche Kostenschätzung. Verbindlich sind der Heil- und Kostenplan bzw. die Vereinbarung mit Ihrer Praxis.
-        {gkv && " Der Kassenanteil bei Zahnersatz richtet sich nach dem Datum der Bewilligung durch Ihre Krankenkasse."} Erstattungen
-        Ihrer Zusatzversicherung sind geschätzt.
-        {offer.kind === "rate" &&
-          ` Ratenzahlung zinsfrei${props.installments.provider ? ` über ${props.installments.provider}` : ""}, Beispielrate aufgerundet; Einzelheiten regelt die Vereinbarung mit Ihrer Praxis.`} Dieser Link ist gültig bis{" "}
-        {new Date(props.expiresAt).toLocaleDateString("de-DE")}.
+        {t.fine(gkv, until)}
+        {offer.kind === "rate" && t.installmentsFine(props.installments.provider)}
       </p>
 
       <div className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
           <div>
-            <div className="text-xs text-slate-500">Ihr Eigenanteil für diese Auswahl</div>
+            <div className="text-xs text-slate-500">{t.barLabel}</div>
             <div className="text-xl font-semibold tabular-nums text-slate-900" aria-live="polite">
-              {formatEuro(sum.netto)}
+              {fmt(sum.netto)}
             </div>
             {offer.kind === "rate" && (
               <div className="text-xs text-emerald-700" data-testid="installment-rate">
-                oder {offer.months} × {formatEuro(offer.monthly)} zinsfrei
+                {t.rate(offer.months, fmt(offer.monthly))}
               </div>
             )}
-            {offer.kind === "ask" && <div className="text-xs text-emerald-700">Ratenzahlung möglich, sprechen Sie uns an</div>}
+            {offer.kind === "ask" && <div className="text-xs text-emerald-700">{t.ask}</div>}
           </div>
           {props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
             <div className="text-right text-xs text-amber-800">
-              ab 2027 bewilligt:
+              {t.bar2027}
               <br />
-              <span className="font-semibold tabular-nums">{formatEuro(jahre.netto2027)}</span>
+              <span className="font-semibold tabular-nums">{fmt(jahre.netto2027)}</span>
             </div>
           )}
         </div>
