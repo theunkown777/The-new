@@ -3,16 +3,28 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PortalLinkButton } from "@/components/PortalLinkButton";
+import { REMINDER_LABELS, nextReminderLevel, reminderText } from "@/lib/invoices";
 
-export function InvoiceActions({ id, status, patientId, firstName, practiceName }: { id: string; status: string; patientId: string; firstName: string; practiceName: string }) {
+export function InvoiceActions({ id, status, patientId, firstName, practiceName, level = 0, number = "", amountCent = 0, dueDate }: {
+  id: string;
+  status: string;
+  patientId: string;
+  firstName: string;
+  practiceName: string;
+  level?: number;
+  number?: string;
+  amountCent?: number;
+  dueDate?: string;
+}) {
+  const next = nextReminderLevel(level);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [remind, setRemind] = useState(false);
 
-  async function act(action: "bezahlt" | "storniert" | "offen" | "erinnert") {
+  async function act(action: "bezahlt" | "storniert" | "offen" | "erinnert", level?: number) {
     if (action === "storniert" && !confirm("Rechnung stornieren?")) return;
     setBusy(true);
-    await fetch(`/api/invoices/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) });
+    await fetch(`/api/invoices/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, level }) });
     setBusy(false);
     router.refresh();
   }
@@ -27,7 +39,7 @@ export function InvoiceActions({ id, status, patientId, firstName, practiceName 
           </button>
           {status === "OFFEN" && (
             <button type="button" className={btn} disabled={busy} onClick={() => setRemind((r) => !r)}>
-              Erinnern
+              {level >= 3 ? "Erneut: Letzte Mahnung" : REMINDER_LABELS[next]}
             </button>
           )}
           <button type="button" className={btn} disabled={busy} onClick={() => act("storniert")}>
@@ -42,7 +54,16 @@ export function InvoiceActions({ id, status, patientId, firstName, practiceName 
       )}
       {remind && (
         <div className="mt-2 w-full text-left">
-          <PortalLinkButton patientId={patientId} firstName={firstName} practiceName={practiceName} label="Portal-Link für die Erinnerung erstellen" className="btn-primary" onCreated={() => act("erinnert")} />
+          <PortalLinkButton
+            patientId={patientId}
+            firstName={firstName}
+            practiceName={practiceName}
+            label={`${REMINDER_LABELS[next]}: Link und Text erstellen`}
+            className="btn-primary"
+            copyLabel="Text kopieren"
+            message={(url) => reminderText({ level: next, firstName, practiceName, number, amountCent, dueDate: dueDate ? new Date(dueDate) : new Date(), url })}
+            onCreated={() => act("erinnert", next)}
+          />
         </div>
       )}
     </div>

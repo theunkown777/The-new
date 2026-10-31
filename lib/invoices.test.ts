@@ -52,3 +52,16 @@ describe("epcPayload", () => {
     expect(() => epcPayload({ name: "X", iban: "DE89370400440532013000", amountCent: 0, reference: "r" })).toThrow();
   });
 });
+
+describe("Mahnstufen", () => {
+  it("steigen bis zur letzten Mahnung und haben passende Texte", async () => {
+    const { nextReminderLevel, reminderText, REMINDER_LABELS } = await import("@/lib/invoices");
+    expect([0, 1, 2, 3].map(nextReminderLevel)).toEqual([1, 2, 3, 3]);
+    expect(REMINDER_LABELS[3]).toBe("Letzte Mahnung");
+    const base = { firstName: "Martina", practiceName: "Praxis", number: "2026-0007", amountCent: 18640, dueDate: new Date(2026, 9, 1), url: "https://x/portal/t" };
+    expect(reminderText({ ...base, level: 1 })).toContain("freundliche Erinnerung");
+    expect(reminderText({ ...base, level: 2 })).toContain("Raten");
+    expect(reminderText({ ...base, level: 3 })).toContain("weitere Schritte");
+    expect(reminderText({ ...base, level: 3 })).toContain("186,40 €");
+  });
+});

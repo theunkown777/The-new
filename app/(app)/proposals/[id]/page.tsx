@@ -85,6 +85,9 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
           <p className="mt-3 text-xs text-slate-600">
             Ersetzt nicht die schriftliche Mehrkosten- bzw. IGeL-Vereinbarung: Diese vor der Behandlung in der Praxis unterschreiben lassen.
           </p>
+          <a href={`/api/proposals/${proposal.id}/einverstaendnis`} className="btn-secondary mt-3 inline-block" data-testid="einverstaendnis-pdf">
+            Als PDF für die Akte (mit Gegenzeichnung)
+          </a>
         </section>
       )}
 

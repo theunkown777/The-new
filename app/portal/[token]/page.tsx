@@ -3,9 +3,8 @@ import { headers } from "next/headers";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
-import { pickLang } from "@/lib/patientI18n";
 import { epcPayload, formatIban, invoiceView, isOutstanding, paymentReference } from "@/lib/invoices";
-import { PORTAL_UI, portalStatus } from "@/lib/portalI18n";
+import { PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, PORTAL_UI, pickPortalLang, portalStatus, reminderLabel } from "@/lib/portalI18n";
 import { PortalInvoice, type PortalInvoiceData, type PortalText } from "@/components/PortalInvoice";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { KassenSockel } from "@/components/KassenSockel";
@@ -62,9 +61,9 @@ export default async function PortalPage({ params, searchParams }: { params: { t
   if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < now) return <Expired />;
   if (!patient.portalViewedAt) await prisma.patient.update({ where: { id: patient.id }, data: { portalViewedAt: now } });
 
-  const lang = pickLang(searchParams.lang, headers().get("accept-language"));
+  const lang = pickPortalLang(searchParams.lang, headers().get("accept-language"));
   const t = PORTAL_UI[lang];
-  const locale = lang === "en" ? "en-GB" : "de-DE";
+  const locale = PORTAL_LOCALE[lang];
   const date = (d: Date) => d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
   const money = (c: number) => (c / 100).toLocaleString(locale, { style: "currency", currency: "EUR" });
   const { practice } = patient;
@@ -85,7 +84,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
         number: i.number,
         amount: money(i.amountCent),
         amountPlain: (i.amountCent / 100).toFixed(2).replace(".", ","),
-        status: portalStatus(v.key, v.days, lang),
+        status: (i.reminderLevel > 0 && i.status === "OFFEN" ? `${reminderLabel(i.reminderLevel, lang)} · ` : "") + portalStatus(v.key, v.days, lang),
         tone: v.tone,
         reported: i.status === "GEMELDET",
         wantsInstallments: i.wantsInstallments,
@@ -229,10 +228,10 @@ export default async function PortalPage({ params, searchParams }: { params: { t
         )}
 
         <footer className="mt-10 space-y-1 text-center text-xs text-slate-500">
-          <nav className="mb-3 flex justify-center gap-3 text-sm" aria-label="Sprache">
-            {(["de", "en"] as const).map((l) => (
-              <a key={l} href={`?lang=${l}`} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-brand-700 underline" : "text-slate-600 hover:text-brand-700"}>
-                {l === "de" ? "Deutsch" : "English"}
+          <nav className="mb-3 flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm" aria-label="Sprache" data-testid="portal-sprachen">
+            {PORTAL_LANGS.map((l) => (
+              <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-brand-700 underline" : "text-slate-600 hover:text-brand-700"}>
+                {PORTAL_LANG_NAMES[l]}
               </a>
             ))}
           </nav>

@@ -140,4 +140,26 @@ export const invoiceCreateSchema = z.object({
 
 export const invoiceActionSchema = z.object({
   action: z.enum(["bezahlt", "storniert", "offen", "erinnert"]),
+  /** Bei "erinnert": die Stufe, die gerade verschickt wurde (1–3). */
+  level: z.number().int().min(1).max(3).optional(),
 });
+
+// ------------------------------------------------------------ Mahnstufen --
+
+export const REMINDER_LABELS = ["", "Zahlungserinnerung", "2. Erinnerung", "Letzte Mahnung"] as const;
+
+/** Nächste Stufe beim Klick auf "Erinnern" (höchstens 3). */
+export const nextReminderLevel = (level: number) => Math.min(3, Math.max(0, level) + 1);
+
+/** SMS-/Nachrichtentext je Stufe. Freundlich bei Stufe 1, klar bei 3. */
+export function reminderText(a: { level: number; firstName: string; practiceName: string; number: string; amountCent: number; dueDate: Date; url: string }): string {
+  const betrag = formatCent(a.amountCent);
+  const bis = a.dueDate.toLocaleDateString("de-DE");
+  if (a.level <= 1) {
+    return `Hallo ${a.firstName}, eine freundliche Erinnerung von ${a.practiceName}: Die Rechnung ${a.number} über ${betrag} ist am ${bis} fällig. Sie können bequem per GiroCode zahlen: ${a.url}`;
+  }
+  if (a.level === 2) {
+    return `Hallo ${a.firstName}, die Rechnung ${a.number} über ${betrag} von ${a.practiceName} ist noch offen (fällig seit ${bis}). Bitte zahlen Sie in den nächsten 7 Tagen. Falls Sie Raten brauchen, sagen Sie es uns im Portal: ${a.url}`;
+  }
+  return `Guten Tag ${a.firstName}, trotz Erinnerungen ist die Rechnung ${a.number} über ${betrag} von ${a.practiceName} noch offen. Bitte begleichen Sie den Betrag innerhalb von 7 Tagen, sonst müssen wir weitere Schritte einleiten. Zahlung und Ratenanfrage: ${a.url}`;
+}

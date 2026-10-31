@@ -6,6 +6,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 
 const LINKS = [
   { href: "/dashboard", label: "Übersicht" },
+  { href: "/vorsorge", label: "Vorsorge fällig" },
   { href: "/patients", label: "Patienten" },
   { href: "/reports", label: "Berichte" },
   { href: "/proposals", label: "Vorschläge" },

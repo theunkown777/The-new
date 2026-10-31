@@ -3,19 +3,22 @@
 import { useState } from "react";
 
 // Portal-Link für einen Patienten erzeugen: Link, QR-Code und SMS-Text zum Kopieren.
-export function PortalLinkButton({ patientId, firstName, practiceName, label = "Portal-Link senden", className = "btn-secondary", onCreated }: {
+export function PortalLinkButton({ patientId, firstName, practiceName, label = "Portal-Link senden", className = "btn-secondary", onCreated, message, copyLabel = "SMS-Text kopieren" }: {
   patientId: string;
   firstName: string;
   practiceName: string;
   label?: string;
   className?: string;
   onCreated?: () => void;
+  /** Eigener Nachrichtentext, z. B. für eine Mahnstufe. */
+  message?: (url: string) => string;
+  copyLabel?: string;
 }) {
   const [state, setState] = useState<{ url: string; qr: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const text = state ? `Hallo ${firstName}, in Ihrem Patientenportal der ${practiceName} sehen Sie Ihre offenen Rechnungen und Dokumente: ${state.url}` : "";
+  const text = state ? (message ? message(state.url) : `Hallo ${firstName}, in Ihrem Patientenportal der ${practiceName} sehen Sie Ihren Behandlungsweg, Unterlagen und Rechnungen: ${state.url}`) : "";
 
   async function create() {
     setBusy(true);
@@ -60,10 +63,11 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
                 }
               }}
             >
-              {copied ? "Kopiert" : "SMS-Text kopieren"}
+              {copied ? "Kopiert" : copyLabel}
             </button>
             <a className="btn-secondary" href={state.url} target="_blank" rel="noreferrer">Ansehen</a>
           </div>
+          <p className="whitespace-pre-wrap rounded-lg bg-white p-2 text-xs text-slate-600" data-testid="nachricht-text">{text}</p>
           <p className="text-xs text-slate-500">Der Link ersetzt einen früheren Portal-Link dieses Patienten.</p>
         </div>
       </div>

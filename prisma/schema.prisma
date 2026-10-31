@@ -172,6 +172,8 @@ model Patient {
   portalTokenHash String?   @unique
   portalExpiresAt DateTime?
   portalViewedAt  DateTime?
+  /// Zuletzt an Vorsorge erinnert (Seite /vorsorge)
+  recallSentAt    DateTime?
   // Herkunft aus einer Praxissoftware (VDDS-media): Sektionsname der PVS
   // (z. B. "DSWIN", "Z1") und deren Patientennummer (PATID). Gemeinsam
   // eindeutig je Praxis, damit derselbe PVS-Patient beim nächsten Aufruf
@@ -412,6 +414,8 @@ model TreatmentProposal {
   agreedName      String?
   agreedSignature String?
   agreedChoices   Json?
+  /// Erklärungstext, wie er beim Unterschreiben angezeigt wurde
+  agreedText      String?
   invoices        Invoice[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -519,6 +523,8 @@ model Invoice {
   reportedPaidAt DateTime?
   paidAt         DateTime?
   remindedAt     DateTime?
+  /// Mahnstufe: 0 = noch nicht erinnert, 1 = Erinnerung, 2 = 2. Erinnerung, 3 = letzte Mahnung
+  reminderLevel  Int                @default(0)
   createdAt      DateTime           @default(now())
 
   @@unique([practiceId, number])

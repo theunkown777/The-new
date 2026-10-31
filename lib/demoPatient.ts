@@ -11,7 +11,8 @@ const DAY = 24 * 60 * 60 * 1000;
 // Portal-Link. Wer so einsteigt, bekommt keinen Zugang zur Praxis.
 export async function preparePatientDemo(practiceId: string, now = new Date()): Promise<string> {
   // Schon vorbereitet? Dann nur einen neuen Link ausgeben, nichts doppelt anlegen.
-  const ready = await prisma.patient.findFirst({ where: { practiceId, portalTokenHash: { not: null } }, select: { id: true } });
+  // Erkennbar an der vorbereiteten Beispielrechnung "(frühere Behandlung)".
+  const ready = await prisma.patient.findFirst({ where: { practiceId, invoices: { some: { title: { contains: "(frühere Behandlung)" } } } }, select: { id: true } });
   if (ready) {
     const { raw, hash } = generateToken();
     await prisma.patient.update({ where: { id: ready.id }, data: { portalTokenHash: hash, portalExpiresAt: new Date(now.getTime() + DAY) } });

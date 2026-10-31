@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import type { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { TONE_CLASSES, formatCent, formatIban, invoiceTotals, invoiceView } from "@/lib/invoices";
+import { REMINDER_LABELS, TONE_CLASSES, formatCent, formatIban, invoiceTotals, invoiceView } from "@/lib/invoices";
 import { InvoiceActions } from "@/components/InvoiceActions";
 import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { BankSettings } from "@/components/BankSettings";
@@ -123,13 +123,13 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <Link href={`/patients?sel=${i.patient.id}`} className="font-medium text-slate-900">{i.patient.lastName}, {i.patient.firstName}</Link>
-                        <p className="text-xs text-slate-500">{i.title} · Nr. {i.number} · fällig {fmtDate(i.dueDate)}{i.wantsInstallments ? " · Raten angefragt" : ""}</p>
+                        <p className="text-xs text-slate-500">{i.title} · Nr. {i.number} · fällig {fmtDate(i.dueDate)}{i.wantsInstallments ? " · Raten angefragt" : ""}{i.reminderLevel > 0 ? ` · ${REMINDER_LABELS[i.reminderLevel]}` : ""}</p>
                       </div>
                       <b className="shrink-0 tabular-nums text-slate-900">{formatCent(i.amountCent)}</b>
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TONE_CLASSES[v.tone]}`}>{v.label}</span>
-                      <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} />
+                      <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} />
                     </div>
                   </li>
                 );
@@ -161,7 +161,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                         </td>
                         <td className="px-4 py-3">
                           <p className="text-slate-800">{i.title}</p>
-                          <p className="text-xs text-slate-500">Nr. {i.number}{i.wantsInstallments ? " · Raten angefragt" : ""}</p>
+                          <p className="text-xs text-slate-500">Nr. {i.number}{i.wantsInstallments ? " · Raten angefragt" : ""}{i.reminderLevel > 0 ? ` · ${REMINDER_LABELS[i.reminderLevel]}${i.remindedAt ? ` am ${fmtDate(i.remindedAt)}` : ""}` : ""}</p>
                         </td>
                         <td className="px-4 py-3 tabular-nums text-slate-600">{fmtDate(i.dueDate)}</td>
                         <td className="px-4 py-3 text-right font-medium tabular-nums text-slate-900">{formatCent(i.amountCent)}</td>
@@ -169,7 +169,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                           <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${TONE_CLASSES[v.tone]}`}>{v.label}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} />
+                          <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} />
                         </td>
                       </tr>
                     );

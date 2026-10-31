@@ -1,4 +1,3 @@
-import type { PatientLang } from "@/lib/patientI18n";
 
 // Texte des Patientenportals. Rechnungstitel und Dokumente bleiben in der
 // Sprache der Praxis; übersetzt wird die Oberfläche.
@@ -125,21 +124,295 @@ const EN: typeof DE = {
   invoiceNo: "Invoice",
 };
 
-export const PORTAL_UI: Record<PatientLang, typeof DE> = { de: DE, en: EN };
 export type PortalUi = typeof DE;
 
-/** Status-Text für den Patienten. */
-export function portalStatus(key: string, days: number, lang: PatientLang): string {
-  if (lang === "en") {
-    if (key === "gemeldet") return "Payment reported";
-    if (key === "bezahlt") return "Paid";
-    if (key === "ueberfaellig") return `Overdue by ${-days} ${-days === 1 ? "day" : "days"}`;
-    if (key === "heute") return "Due today";
-    return `Due in ${days} ${days === 1 ? "day" : "days"}`;
+// ---------------------------------------------------- weitere Sprachen ----
+// Häufige Herkunftssprachen von Patienten in Deutschland. Formelle Anrede.
+
+const step = (m: Record<string, string>) => (s: string) => m[s] ?? s;
+
+const TR: PortalUi = {
+  ...DE,
+  hello: (n) => `İyi günler, ${n}`,
+  next: "Sıradaki adım",
+  step: step({
+    "Ihr Gespräch in der Praxis steht an.": "Muayenehanedeki görüşmeniz yaklaşıyor.",
+    "Sie haben sich gegen die Behandlung entschieden.": "Tedaviyi yaptırmamaya karar verdiniz.",
+    "Alles erledigt. Vielen Dank!": "Her şey tamam. Teşekkür ederiz!",
+    "Die Rechnung für Ihren Eigenanteil folgt.": "Payınızın faturası gönderilecek.",
+    "Danke, Ihre Zahlung wird geprüft.": "Teşekkürler, ödemeniz kontrol ediliyor.",
+    "Bitte begleichen Sie Ihren Eigenanteil.": "Lütfen payınızı ödeyin.",
+    "Ihren Eigenanteil überweisen.": "Payınızı havale edin.",
+    "Danke für Ihre Rückmeldung. Die Praxis meldet sich bei Ihnen.": "Yanıtınız için teşekkürler. Muayenehane sizinle iletişime geçecek.",
+    "Ihren Vorschlag ansehen und wählen.": "Önerinizi görüntüleyin ve seçin.",
+    "Ihre Praxis bereitet Ihren Vorschlag vor.": "Muayenehaneniz önerinizi hazırlıyor.",
+    "Danke für Ihr Einverständnis. Die Praxis plant Ihren Termin.": "Onayınız için teşekkürler. Muayenehane randevunuzu planlıyor.",
+  }),
+  wayTitle: "Tedavi yolunuz",
+  stations: "Görüşme|Öneri|Karar|Anlaşma|Ödendi",
+  kassePays: "Sigorta öder",
+  yourShare: "Sizin payınız",
+  summary: (inv, docs) => `${inv} açık fatura, ${docs} belge.`,
+  openTotal: "Açık tutar",
+  nextDue: (d) => `Sonraki vade: ${d}`,
+  allPaid: "Her şey tamam. Teşekkür ederiz!",
+  invoices: "Ödenecekler",
+  pay: "Şimdi öde",
+  hide: "Kapat",
+  howTo: "Telefonda: Bilgileri bankacılık uygulamanıza kopyalayın. Bilgisayarda: Kodu bankacılık uygulamasıyla tarayın (GiroCode).",
+  recipient: "Alıcı",
+  amount: "Tutar",
+  reference: "Açıklama",
+  copy: "Kopyala",
+  copied: "Kopyalandı",
+  reported: "Havale yaptım",
+  reportedDone: "Teşekkürler! Muayenehane ödemeyi kontrol ediyor.",
+  reportedLabel: "Ödeme bildirildi",
+  installments: "Taksit talep et",
+  installmentsDone: "Talebiniz muayenehaneye iletildi. Sizinle iletişime geçecekler.",
+  noBank: "Muayenehane henüz banka bilgisi girmedi. Lütfen muayenehaneyle konuştuğunuz şekilde ödeyin.",
+  documents: "Belgeleriniz",
+  proposalDoc: (d) => `${d} tarihli tedavi önerisi`,
+  eigen: "Sizin payınız",
+  show: "Görüntüle",
+  paid: "Ödendi",
+  history: "Tamamlandı",
+  anamnesis: "Randevunuzdan önce üç dakika; muayenehanede dolduracak bir şey kalmaz.",
+  anamnesisTitle: "Sağlık anketi",
+  fillIn: "Doldur",
+  choose: "Görüntüle ve seç",
+  sign: "Onayı imzala",
+  homescreen: "İpucu: “Paylaş” → “Ana Ekrana Ekle” ile portalınız bir uygulama gibi hep yanınızda.",
+  signed: "Onay verildi",
+  accepted: "kabul edildi",
+  answered: "yanıt gönderildi",
+  waiting: "yanıtınızı bekliyor",
+  valid: (d) => `Bu bağlantı ${d} tarihine kadar geçerlidir ve yalnızca size özeldir.`,
+  privacy: "Uygulama ve hesap gerekmez. Ödeme doğrudan muayenehanenize gider.",
+  failed: "Bu işlem olmadı. Lütfen tekrar deneyin.",
+  invoiceNo: "Fatura",
+};
+
+const PL: PortalUi = {
+  ...DE,
+  hello: (n) => `Dzień dobry, ${n}`,
+  next: "Następny krok",
+  step: step({
+    "Ihr Gespräch in der Praxis steht an.": "Wkrótce rozmowa w gabinecie.",
+    "Sie haben sich gegen die Behandlung entschieden.": "Podjęto decyzję o rezygnacji z leczenia.",
+    "Alles erledigt. Vielen Dank!": "Wszystko załatwione. Dziękujemy!",
+    "Die Rechnung für Ihren Eigenanteil folgt.": "Rachunek za udział własny zostanie przesłany.",
+    "Danke, Ihre Zahlung wird geprüft.": "Dziękujemy, płatność jest sprawdzana.",
+    "Bitte begleichen Sie Ihren Eigenanteil.": "Prosimy o zapłatę udziału własnego.",
+    "Ihren Eigenanteil überweisen.": "Przelać udział własny.",
+    "Danke für Ihre Rückmeldung. Die Praxis meldet sich bei Ihnen.": "Dziękujemy za odpowiedź. Gabinet się skontaktuje.",
+    "Ihren Vorschlag ansehen und wählen.": "Zobaczyć propozycję i wybrać.",
+    "Ihre Praxis bereitet Ihren Vorschlag vor.": "Gabinet przygotowuje propozycję.",
+    "Danke für Ihr Einverständnis. Die Praxis plant Ihren Termin.": "Dziękujemy za zgodę. Gabinet zaplanuje wizytę.",
+  }),
+  wayTitle: "Ścieżka leczenia",
+  stations: "Rozmowa|Propozycja|Decyzja|Uzgodnione|Zapłacone",
+  kassePays: "Kasa chorych płaci",
+  yourShare: "Udział własny",
+  summary: (inv, docs) => `Otwarte rachunki: ${inv}, dokumenty: ${docs}.`,
+  openTotal: "Kwota do zapłaty",
+  nextDue: (d) => `Najbliższy termin: ${d}`,
+  allPaid: "Wszystko załatwione. Dziękujemy!",
+  invoices: "Do zapłaty",
+  pay: "Zapłać teraz",
+  hide: "Zamknij",
+  howTo: "Na telefonie: skopiuj dane do aplikacji bankowej. Na komputerze: zeskanuj kod aplikacją bankową (GiroCode).",
+  recipient: "Odbiorca",
+  amount: "Kwota",
+  reference: "Tytuł przelewu",
+  copy: "Kopiuj",
+  copied: "Skopiowano",
+  reported: "Przelew wykonany",
+  reportedDone: "Dziękujemy! Gabinet sprawdza wpłatę.",
+  reportedLabel: "Płatność zgłoszona",
+  installments: "Zapytaj o raty",
+  installmentsDone: "Zapytanie trafiło do gabinetu. Gabinet się skontaktuje.",
+  noBank: "Gabinet nie podał jeszcze danych bankowych. Prosimy zapłacić zgodnie z ustaleniami z gabinetem.",
+  documents: "Dokumenty",
+  proposalDoc: (d) => `Propozycja leczenia z dnia ${d}`,
+  eigen: "Udział własny",
+  show: "Pokaż",
+  paid: "Zapłacone",
+  history: "Załatwione",
+  anamnesis: "Trzy minuty przed wizytą, a w gabinecie nie trzeba już niczego wypełniać.",
+  anamnesisTitle: "Ankieta zdrowotna",
+  fillIn: "Wypełnij",
+  choose: "Zobacz i wybierz",
+  sign: "Podpisz zgodę",
+  homescreen: "Wskazówka: „Udostępnij” → „Do ekranu początkowego”, a portal będzie zawsze pod ręką jak aplikacja.",
+  signed: "Zgoda potwierdzona",
+  accepted: "przyjęte",
+  answered: "odpowiedź wysłana",
+  waiting: "czeka na odpowiedź",
+  valid: (d) => `Ten link jest ważny do ${d} i jest przeznaczony wyłącznie dla adresata.`,
+  privacy: "Bez aplikacji i bez konta. Płatność trafia bezpośrednio do gabinetu.",
+  failed: "Nie udało się. Prosimy spróbować ponownie.",
+  invoiceNo: "Rachunek",
+};
+
+const RU: PortalUi = {
+  ...DE,
+  hello: (n) => `Добрый день, ${n}`,
+  next: "Следующий шаг",
+  step: step({
+    "Ihr Gespräch in der Praxis steht an.": "Скоро беседа в практике.",
+    "Sie haben sich gegen die Behandlung entschieden.": "Вы решили отказаться от лечения.",
+    "Alles erledigt. Vielen Dank!": "Всё сделано. Спасибо!",
+    "Die Rechnung für Ihren Eigenanteil folgt.": "Счёт на Вашу долю будет выслан.",
+    "Danke, Ihre Zahlung wird geprüft.": "Спасибо, оплата проверяется.",
+    "Bitte begleichen Sie Ihren Eigenanteil.": "Пожалуйста, оплатите Вашу долю.",
+    "Ihren Eigenanteil überweisen.": "Перевести Вашу долю.",
+    "Danke für Ihre Rückmeldung. Die Praxis meldet sich bei Ihnen.": "Спасибо за ответ. Практика свяжется с Вами.",
+    "Ihren Vorschlag ansehen und wählen.": "Открыть предложение и выбрать.",
+    "Ihre Praxis bereitet Ihren Vorschlag vor.": "Практика готовит Ваше предложение.",
+    "Danke für Ihr Einverständnis. Die Praxis plant Ihren Termin.": "Спасибо за согласие. Практика планирует Ваш приём.",
+  }),
+  wayTitle: "Ваш путь лечения",
+  stations: "Беседа|Предложение|Решение|Согласовано|Оплачено",
+  kassePays: "Больничная касса платит",
+  yourShare: "Ваша доля",
+  summary: (inv, docs) => `Открытые счета: ${inv}, документы: ${docs}.`,
+  openTotal: "Сумма к оплате",
+  nextDue: (d) => `Ближайший срок: ${d}`,
+  allPaid: "Всё сделано. Спасибо!",
+  invoices: "К оплате",
+  pay: "Оплатить",
+  hide: "Закрыть",
+  howTo: "На телефоне: скопируйте данные в банковское приложение. На компьютере: отсканируйте код банковским приложением (GiroCode).",
+  recipient: "Получатель",
+  amount: "Сумма",
+  reference: "Назначение платежа",
+  copy: "Копировать",
+  copied: "Скопировано",
+  reported: "Я перевёл(а) деньги",
+  reportedDone: "Спасибо! Практика проверяет поступление.",
+  reportedLabel: "Оплата отмечена",
+  installments: "Запросить рассрочку",
+  installmentsDone: "Запрос передан в практику. С Вами свяжутся.",
+  noBank: "Практика ещё не указала банковские реквизиты. Пожалуйста, оплатите так, как договорились с практикой.",
+  documents: "Ваши документы",
+  proposalDoc: (d) => `Предложение лечения от ${d}`,
+  eigen: "Ваша доля",
+  show: "Открыть",
+  paid: "Оплачено",
+  history: "Выполнено",
+  anamnesis: "Три минуты до приёма, и в практике ничего заполнять не нужно.",
+  anamnesisTitle: "Анкета о здоровье",
+  fillIn: "Заполнить",
+  choose: "Открыть и выбрать",
+  sign: "Подписать согласие",
+  homescreen: "Совет: «Поделиться» → «На экран „Домой“», и портал всегда под рукой, как приложение.",
+  signed: "Согласие подтверждено",
+  accepted: "принято",
+  answered: "ответ отправлен",
+  waiting: "ждёт Вашего ответа",
+  valid: (d) => `Ссылка действительна до ${d} и предназначена только для Вас.`,
+  privacy: "Без приложения и без аккаунта. Оплата поступает напрямую в Вашу практику.",
+  failed: "Не получилось. Пожалуйста, попробуйте ещё раз.",
+  invoiceNo: "Счёт",
+};
+
+const UK: PortalUi = {
+  ...DE,
+  hello: (n) => `Добрий день, ${n}`,
+  next: "Наступний крок",
+  step: step({
+    "Ihr Gespräch in der Praxis steht an.": "Незабаром розмова в практиці.",
+    "Sie haben sich gegen die Behandlung entschieden.": "Ви вирішили відмовитися від лікування.",
+    "Alles erledigt. Vielen Dank!": "Усе виконано. Дякуємо!",
+    "Die Rechnung für Ihren Eigenanteil folgt.": "Рахунок на Вашу частку буде надіслано.",
+    "Danke, Ihre Zahlung wird geprüft.": "Дякуємо, оплата перевіряється.",
+    "Bitte begleichen Sie Ihren Eigenanteil.": "Будь ласка, сплатіть Вашу частку.",
+    "Ihren Eigenanteil überweisen.": "Переказати Вашу частку.",
+    "Danke für Ihre Rückmeldung. Die Praxis meldet sich bei Ihnen.": "Дякуємо за відповідь. Практика зв'яжеться з Вами.",
+    "Ihren Vorschlag ansehen und wählen.": "Відкрити пропозицію і вибрати.",
+    "Ihre Praxis bereitet Ihren Vorschlag vor.": "Практика готує Вашу пропозицію.",
+    "Danke für Ihr Einverständnis. Die Praxis plant Ihren Termin.": "Дякуємо за згоду. Практика планує Ваш прийом.",
+  }),
+  wayTitle: "Ваш шлях лікування",
+  stations: "Розмова|Пропозиція|Рішення|Погоджено|Оплачено",
+  kassePays: "Лікарняна каса платить",
+  yourShare: "Ваша частка",
+  summary: (inv, docs) => `Відкриті рахунки: ${inv}, документи: ${docs}.`,
+  openTotal: "Сума до сплати",
+  nextDue: (d) => `Найближчий термін: ${d}`,
+  allPaid: "Усе виконано. Дякуємо!",
+  invoices: "До сплати",
+  pay: "Сплатити",
+  hide: "Закрити",
+  howTo: "На телефоні: скопіюйте дані в банківський застосунок. На комп'ютері: відскануйте код банківським застосунком (GiroCode).",
+  recipient: "Отримувач",
+  amount: "Сума",
+  reference: "Призначення платежу",
+  copy: "Копіювати",
+  copied: "Скопійовано",
+  reported: "Я переказав(ла) кошти",
+  reportedDone: "Дякуємо! Практика перевіряє надходження.",
+  reportedLabel: "Оплату позначено",
+  installments: "Запитати про розстрочку",
+  installmentsDone: "Запит передано до практики. З Вами зв'яжуться.",
+  noBank: "Практика ще не вказала банківські реквізити. Будь ласка, сплатіть так, як домовилися з практикою.",
+  documents: "Ваші документи",
+  proposalDoc: (d) => `Пропозиція лікування від ${d}`,
+  eigen: "Ваша частка",
+  show: "Відкрити",
+  paid: "Оплачено",
+  history: "Виконано",
+  anamnesis: "Три хвилини до прийому, і в практиці нічого не потрібно заповнювати.",
+  anamnesisTitle: "Анкета про здоров'я",
+  fillIn: "Заповнити",
+  choose: "Відкрити і вибрати",
+  sign: "Підписати згоду",
+  homescreen: "Порада: «Поширити» → «На початковий екран», і портал завжди під рукою, як застосунок.",
+  signed: "Згоду підтверджено",
+  accepted: "прийнято",
+  answered: "відповідь надіслано",
+  waiting: "чекає на Вашу відповідь",
+  valid: (d) => `Посилання дійсне до ${d} і призначене лише для Вас.`,
+  privacy: "Без застосунку і без облікового запису. Оплата надходить безпосередньо до Вашої практики.",
+  failed: "Не вдалося. Будь ласка, спробуйте ще раз.",
+  invoiceNo: "Рахунок",
+};
+
+export const PORTAL_LANGS = ["de", "en", "tr", "pl", "ru", "uk"] as const;
+export type PortalLang = (typeof PORTAL_LANGS)[number];
+export const PORTAL_LANG_NAMES: Record<PortalLang, string> = { de: "Deutsch", en: "English", tr: "Türkçe", pl: "Polski", ru: "Русский", uk: "Українська" };
+export const PORTAL_LOCALE: Record<PortalLang, string> = { de: "de-DE", en: "en-GB", tr: "tr-TR", pl: "pl-PL", ru: "ru-RU", uk: "uk-UA" };
+export const PORTAL_UI: Record<PortalLang, PortalUi> = { de: DE, en: EN, tr: TR, pl: PL, ru: RU, uk: UK };
+
+/** Sprache aus ?lang= oder dem Browser, sonst Deutsch. */
+export function pickPortalLang(param: string | undefined, acceptLanguage: string | null): PortalLang {
+  if (param && (PORTAL_LANGS as readonly string[]).includes(param)) return param as PortalLang;
+  for (const part of (acceptLanguage ?? "").split(",")) {
+    const code = part.trim().slice(0, 2).toLowerCase();
+    if ((PORTAL_LANGS as readonly string[]).includes(code)) return code as PortalLang;
   }
-  if (key === "gemeldet") return "Zahlung gemeldet";
-  if (key === "bezahlt") return "Bezahlt";
-  if (key === "ueberfaellig") return `Überfällig seit ${-days} ${-days === 1 ? "Tag" : "Tagen"}`;
-  if (key === "heute") return "Heute fällig";
-  return `Fällig in ${days} ${days === 1 ? "Tag" : "Tagen"}`;
+  return "de";
 }
+
+const STATUS: Record<PortalLang, { gemeldet: string; bezahlt: string; ueber: (n: number) => string; heute: string; faellig: (n: number) => string; mahn: string[] }> = {
+  de: { gemeldet: "Zahlung gemeldet", bezahlt: "Bezahlt", ueber: (n) => `Überfällig seit ${n} ${n === 1 ? "Tag" : "Tagen"}`, heute: "Heute fällig", faellig: (n) => `Fällig in ${n} ${n === 1 ? "Tag" : "Tagen"}`, mahn: ["", "Zahlungserinnerung", "2. Erinnerung", "Letzte Mahnung"] },
+  en: { gemeldet: "Payment reported", bezahlt: "Paid", ueber: (n) => `Overdue by ${n} ${n === 1 ? "day" : "days"}`, heute: "Due today", faellig: (n) => `Due in ${n} ${n === 1 ? "day" : "days"}`, mahn: ["", "Payment reminder", "2nd reminder", "Final notice"] },
+  tr: { gemeldet: "Ödeme bildirildi", bezahlt: "Ödendi", ueber: (n) => `${n} gündür gecikmede`, heute: "Son ödeme günü bugün", faellig: (n) => `${n} gün içinde ödenmeli`, mahn: ["", "Ödeme hatırlatması", "2. hatırlatma", "Son ihtar"] },
+  pl: { gemeldet: "Płatność zgłoszona", bezahlt: "Zapłacone", ueber: (n) => `Po terminie: ${n} dni`, heute: "Termin płatności: dziś", faellig: (n) => `Termin płatności za ${n} dni`, mahn: ["", "Przypomnienie o płatności", "2. przypomnienie", "Ostateczne wezwanie"] },
+  ru: { gemeldet: "Оплата отмечена", bezahlt: "Оплачено", ueber: (n) => `Просрочено на ${n} дн.`, heute: "Срок оплаты сегодня", faellig: (n) => `Срок оплаты через ${n} дн.`, mahn: ["", "Напоминание об оплате", "2-е напоминание", "Последнее требование"] },
+  uk: { gemeldet: "Оплату позначено", bezahlt: "Оплачено", ueber: (n) => `Прострочено на ${n} дн.`, heute: "Термін оплати сьогодні", faellig: (n) => `Термін оплати через ${n} дн.`, mahn: ["", "Нагадування про оплату", "2-ге нагадування", "Остання вимога"] },
+};
+
+/** Status-Text für den Patienten. */
+export function portalStatus(key: string, days: number, lang: PortalLang): string {
+  const t = STATUS[lang];
+  if (key === "gemeldet") return t.gemeldet;
+  if (key === "bezahlt") return t.bezahlt;
+  if (key === "ueberfaellig") return t.ueber(-days);
+  if (key === "heute") return t.heute;
+  return t.faellig(days);
+}
+
+/** Bezeichnung der Mahnstufe in der Sprache des Patienten. */
+export const reminderLabel = (level: number, lang: PortalLang) => STATUS[lang].mahn[level] ?? "";

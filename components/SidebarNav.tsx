@@ -14,6 +14,7 @@ const ICONS: Record<string, string> = {
   reports: "M5 4h14v16H5zM8 8h8M8 12h8M8 16h5",
   settings: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z",
   start: "M4 6h16M4 12h16M4 18h10",
+  vorsorge: "M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10ZM9 12h6M12 9v6",
   anfragen: "M4 4h16v12H8l-4 4zM8 9h8M8 12h5",
   zahlungen: "M3 6h18v12H3zM3 10h18M7 15h3",
   analyse: "M4 20V10M10 20V4M16 20v-7M22 20H2",
@@ -31,7 +32,7 @@ export function SidebarNav({ dental, team = false, analyse = false }: { dental: 
   const path = usePathname();
   type L = [string, string, string];
   const gruppen: [string, L[]][] = [
-    ["Heute", [["/dashboard", "Übersicht", "dashboard"]]],
+    ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/vorsorge", "Vorsorge fällig", "vorsorge"]]],
     [
       "Patienten",
       [

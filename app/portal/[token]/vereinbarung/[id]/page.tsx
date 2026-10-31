@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
-import { buildProposal, chosenOption, resolvePrices } from "@/lib/proposals";
-import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
-import { rowsOf } from "@/lib/analytics";
-import { agreementText } from "@/lib/agreement";
+import { agreementContext } from "@/lib/agreementContext";
 import { SignAgreement } from "@/components/SignAgreement";
 import { KassenSockel } from "@/components/KassenSockel";
 
@@ -20,8 +17,7 @@ export default async function Vereinbarung({ params }: { params: { token: string
         include: { practice: { select: { name: true, proposalPrices: true } } },
       })
     : null;
-  const input = proposal ? proposalInputSchema.safeParse(proposal.input) : null;
-  if (!patient || !proposal || !input?.success) {
+  if (!patient || !proposal || !agreementContext(proposal)) {
     return (
       <main className="mx-auto max-w-xl px-4 py-16 text-center">
         <h1 className="font-display text-3xl text-slate-900">Nicht verfügbar</h1>
@@ -29,23 +25,9 @@ export default async function Vereinbarung({ params }: { params: { token: string
       </main>
     );
   }
-  const items = buildProposal(input.data, resolvePrices(proposal.practice.proposalPrices)).filter((i) => i.options.length);
-  const chosen = choicesSchema.safeParse(proposal.patientChoices ?? proposal.choices);
-  const choices = chosen.success ? chosen.data : {};
-  const rows = rowsOf({ id: proposal.id, status: proposal.status, createdAt: proposal.createdAt, patient: input.data.patient }, items, choices);
-  const kasse = rows.reduce((s, r) => s + r.kasse, 0);
-  const eigen = rows.reduce((s, r) => s + r.privat, 0);
-  const text = agreementText({
-    practiceName: proposal.practice.name,
-    date: proposal.createdAt.toLocaleDateString("de-DE"),
-    // Gewählte (oder empfohlene) Option je Befund bzw. Anlass.
-    choices: items.flatMap((i) => {
-      const o = chosenOption(i, choices);
-      return o ? [`${i.where}: ${o.name}`] : [];
-    }),
-    kasse,
-    eigen,
-  });
+  const ctx = agreementContext(proposal);
+  if (!ctx) return null;
+  const { text, kasse, eigen } = ctx;
 
   return (
     <main className="min-h-screen bg-[#F5F2EE]" data-testid="vereinbarung">

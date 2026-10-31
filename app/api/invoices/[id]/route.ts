@@ -11,6 +11,14 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const parsed = invoiceActionSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Ungültige Aktion" }, { status: 400 });
   const now = new Date();
+  if (parsed.data.action === "erinnert") {
+    const inv = await prisma.invoice.findFirst({ where: { id: params.id, practiceId: session.user.practiceId }, select: { reminderLevel: true } });
+    if (!inv) return NextResponse.json({ error: "Rechnung nicht gefunden" }, { status: 404 });
+    // Gewünschte Stufe setzen (nie zurück), damit doppelte Klicks nicht zwei Stufen überspringen.
+    const level = Math.max(inv.reminderLevel, parsed.data.level ?? Math.min(3, inv.reminderLevel + 1));
+    await prisma.invoice.update({ where: { id: params.id }, data: { remindedAt: now, reminderLevel: level } });
+    return NextResponse.json({ ok: true });
+  }
   const data =
     parsed.data.action === "bezahlt"
       ? { status: "BEZAHLT", paidAt: now }
