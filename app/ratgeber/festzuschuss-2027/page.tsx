@@ -99,6 +99,23 @@ export default function Page() {
         Wichtig ist, keinen Druck aufzubauen. Die Information gehört zur wirtschaftlichen Aufklärung, die Entscheidung trifft der
         Patient.
       </p>
+
+      <h2>Quellen</h2>
+      <ul className="text-sm">
+        <li>
+          <a href="https://www.zm-online.de/news/detail/krankenkassenreform-verteuert-zahnersatz" rel="noopener">
+            zm-online: Festzuschüsse sinken – Krankenkassenreform verteuert Zahnersatz
+          </a>{" "}
+          (Sätze 2026 und 2027, Härtefallregelung unverändert)
+        </li>
+        <li>
+          <a href="https://improdent-gt.de/blog/zahnersatz-festzuschuss-2027/" rel="noopener">
+            improdent: Zahnersatz 2027 – Festzuschuss sinkt
+          </a>{" "}
+          (vor dem 1.1.2027 bewilligte Festzuschüsse behalten die bisherigen Sätze)
+        </li>
+        <li>Verbindlich: § 55 SGB V in der ab 1.1.2027 geltenden Fassung und die Festzuschuss-Beträge des G-BA bzw. Ihrer KZV.</li>
+      </ul>
     </ArticlePage>
   );
 }
