@@ -262,7 +262,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
             <li><Link href={`/patients/${selected.id}`} className="flex justify-between py-2 text-slate-700 hover:text-brand-700">Akte öffnen <span aria-hidden="true">→</span></Link></li>
           </ul>
           <div className="mt-3 flex flex-wrap gap-2">
-            <PortalLinkButton patientId={selected.id} firstName={selected.firstName} practiceName={session!.user.practiceName ?? ""} label="Portal-Link" />
+            <PortalLinkButton patientId={selected.id} firstName={selected.firstName} practiceName={session!.user.practiceName ?? ""} label="Behandlungsweg senden" />
             <CreateInvoiceButton patientId={selected.id} title="Selbstzahlerleistung" label="Rechnung" free />
           </div>
 

@@ -76,7 +76,7 @@ export function PatientProposalView(props: Props) {
     <main className="mx-auto max-w-2xl px-4 pb-40 pt-8 sm:pt-12" lang={lang}>
       {props.backHref && (
         <a href={props.backHref} className="mb-4 inline-block text-sm text-brand-700 underline" data-testid="zurueck-portal">
-          {lang === "en" ? "← Back to your portal" : "← Zurück zu Ihrem Portal"}
+          {lang === "en" ? "← Back to your treatment path" : "← Zurück zu Ihrem Behandlungsweg"}
         </a>
       )}
       <header className="space-y-2">

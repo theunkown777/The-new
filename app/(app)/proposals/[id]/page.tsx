@@ -76,7 +76,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
         <section className="card mt-6 border-salbei-200 bg-salbei-50" data-testid="einverstaendnis">
           <h2 className="font-display text-2xl text-slate-900">Digitales Einverständnis</h2>
           <p className="mt-1 text-sm text-slate-700">
-            Unterschrieben am {proposal.agreedAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })} von <b>{proposal.agreedName}</b> im Patientenportal.
+            Unterschrieben am {proposal.agreedAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })} von <b>{proposal.agreedName}</b> auf dem Behandlungsweg (Patientenseite).
           </p>
           {proposal.agreedSignature && (
             // eslint-disable-next-line @next/next/no-img-element

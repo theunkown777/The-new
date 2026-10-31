@@ -17,7 +17,7 @@ function Gone({ back }: { back?: string }) {
     <main className="mx-auto max-w-xl px-4 py-16 text-center">
       <h1 className="text-xl font-semibold text-slate-900">Dieser Vorschlag ist nicht verfügbar</h1>
       <p className="mt-3 text-slate-600">Bitte fragen Sie in Ihrer Praxis nach.</p>
-      {back && <a href={back} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Portal</a>}
+      {back && <a href={back} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Behandlungsweg</a>}
     </main>
   );
 }

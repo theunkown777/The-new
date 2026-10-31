@@ -16,10 +16,10 @@ import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 export const dynamic = "force-dynamic";
 export function generateMetadata({ params }: { params: { token: string } }): Metadata {
   return {
-    title: "Ihr Patientenportal",
+    title: "Ihr Behandlungsweg",
     robots: { index: false, follow: false },
     referrer: "no-referrer",
-    openGraph: { title: "Ihr Patientenportal", description: "Ihr Behandlungsweg, Unterlagen und Zahlungen Ihrer Praxis." },
+    openGraph: { title: "Ihr Behandlungsweg", description: "Ihr Behandlungsweg, Unterlagen und Zahlungen Ihrer Praxis." },
     manifest: /^[A-Za-z0-9_-]{20,128}$/.test(params.token) ? `/portal/${params.token}/manifest.webmanifest` : undefined,
     appleWebApp: { capable: true, title: "Mein Portal", statusBarStyle: "default" },
   };
@@ -29,7 +29,7 @@ function Expired() {
   return (
     <main className="mx-auto max-w-xl px-4 py-16 text-center">
       <h1 className="text-xl font-semibold text-slate-900">Dieser Link ist nicht mehr gültig</h1>
-      <p className="mt-3 text-slate-600">Aus Datenschutzgründen sind Portal-Links nur begrenzt gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen Link.</p>
+      <p className="mt-3 text-slate-600">Aus Datenschutzgründen sind diese Links nur begrenzt gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen Link.</p>
     </main>
   );
 }
@@ -229,7 +229,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
                   </span>
                   <span className="text-right">
                     <span className="block tabular-nums text-slate-900">{money(i.amountCent)}</span>
-                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-800">{t.paid}</span>
+                    <span className="text-xs font-medium text-salbei-700">✓ {t.paid}</span>
                   </span>
                 </li>
               ))}

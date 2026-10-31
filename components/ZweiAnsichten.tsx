@@ -60,33 +60,40 @@ export function ZweiAnsichten() {
         </p>
         {/* Echte Handygröße: Bildschirm 375 × 812 CSS-Pixel (logische Größe eines iPhone 13 mini / X), Schrift wie im echten Patienten-Link. */}
         <div
-          className="mx-auto mt-8 w-full max-w-[399px] rounded-[3.2rem] border-[12px] border-slate-900 bg-slate-900 shadow-2xl"
+          className="mx-auto mt-8 w-full max-w-[399px] rounded-[2.6rem] border-[12px] border-brand-800 bg-brand-800 shadow-[0_30px_60px_-30px_rgba(67,21,21,.8)]"
           data-testid="handy-mockup"
           aria-hidden="true"
         >
-          <div className="relative flex aspect-[375/812] w-full flex-col overflow-hidden rounded-[2.5rem] bg-[#F5F2EE]">
-            {/* Statusleiste mit Kameraaussparung */}
-            <div className="relative flex h-11 shrink-0 items-center justify-between px-7 text-[15px] font-semibold text-slate-900">
-              <span>9:41</span>
-              <span className="absolute left-1/2 top-2.5 h-7 w-28 -translate-x-1/2 rounded-full bg-slate-900" />
-              <span className="flex items-center gap-1.5">
-                <svg viewBox="0 0 18 12" className="h-3 w-[18px]" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5" width="3" height="7" rx="1" /><rect x="10" y="2" width="3" height="10" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></svg>
-                <span className="inline-block h-3 w-6 rounded-[4px] border border-slate-900 p-[1.5px]"><span className="block h-full w-4/5 rounded-[2px] bg-slate-900" /></span>
-              </span>
+          <div className="relative flex aspect-[375/812] w-full flex-col overflow-hidden rounded-[1.9rem] bg-[#F5F2EE]">
+            {/* Eigene Statuszeile: Uhrzeit links, runde Kamera mittig, Akku rechts */}
+            <div className="relative flex h-10 shrink-0 items-center justify-between px-6 text-[13px] font-medium text-slate-700">
+              <span>Mo 8:30</span>
+              <span className="absolute left-1/2 top-3 h-3.5 w-3.5 -translate-x-1/2 rounded-full bg-brand-800" />
+              <span className="inline-block h-2.5 w-5 rounded-[3px] border border-slate-600 p-[1.5px]"><span className="block h-full w-3/4 rounded-[1px] bg-salbei-600" /></span>
             </div>
-            <div className="min-h-0 flex-1 space-y-4 overflow-hidden px-4 pt-3">
-              <p className="text-sm font-medium text-brand-700">Hautarztpraxis am Markt</p>
-              <div>
-                <p className="font-display text-[2rem] leading-tight text-slate-900">Guten Tag, Martina</p>
-                <p className="mt-1 text-base text-slate-700"><b className="text-brand-700">Als Nächstes:</b> Ihren Vorschlag ansehen und wählen.</p>
+            <div className="min-h-0 flex-1 space-y-3 overflow-hidden px-4 pt-1">
+              <div className="flex flex-col items-center gap-0.5 text-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/brand/sorrida-mark.svg" alt="" className="h-8 w-8" />
+                <p className="text-xs text-slate-600">Hautarztpraxis am Markt</p>
               </div>
-              <Behandlungsweg erreicht={2} aktuell={2} size="gross" />
+              <div className="rounded-[1.6rem] bg-salbei-50 px-4 pb-4 pt-4 text-center">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-salbei-700">Ihr Behandlungsweg</p>
+                <div className="mt-3"><Behandlungsweg erreicht={2} aktuell={2} size="gross" /></div>
+                <p className="font-display mt-1 text-[1.9rem] leading-tight text-slate-900">Guten Tag, Martina</p>
+                <div className="mt-3 flex items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-[0_10px_30px_-22px_rgba(52,72,50,.9)]">
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[10px] font-semibold uppercase tracking-wide text-salbei-700">Als Nächstes</span>
+                    <span className="block text-base leading-snug text-slate-900">Ihren Vorschlag ansehen und wählen.</span>
+                  </span>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-salbei-600 text-white">→</span>
+                </div>
+              </div>
               {[
                 ["Hautkrebs-Screening", "Kassenleistung", "0 €", true, "Alle zwei Jahre ab 35 Jahren"],
                 ["Auflichtmikroskopie", "Selbstzahlerleistung", "35 €", false, "Bei verdächtigen Malen zahlt die Kasse"],
-                ["Videodermatoskopie", "Selbstzahlerleistung", "90 €", false, "Ohne Verdacht ist ein Zusatznutzen nicht belegt"],
               ].map(([n, art, v, sel, hint]) => (
-                <div key={n as string} className={`rounded-2xl border bg-white p-4 ${sel ? "border-brand-600 ring-2 ring-brand-600" : "border-slate-200"}`}>
+                <div key={n as string} className={`rounded-2xl border bg-white p-3.5 ${sel ? "border-salbei-500 ring-2 ring-salbei-500" : "border-slate-200"}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-base font-medium text-slate-900">{n}</p>
@@ -94,17 +101,16 @@ export function ZweiAnsichten() {
                     </div>
                     <b className="text-lg tabular-nums text-slate-900">{v}</b>
                   </div>
-                  <p className={`mt-2 text-sm ${sel ? "text-emerald-800" : "text-slate-600"}`}>{hint}</p>
+                  <p className={`mt-1.5 text-sm ${sel ? "text-salbei-700" : "text-slate-600"}`}>{hint}</p>
                 </div>
               ))}
             </div>
-            {/* Fester Bereich unten wie im echten Patienten-Link */}
             <div className="shrink-0 border-t border-slate-200 bg-white px-4 pb-2 pt-3">
               <div className="flex items-baseline justify-between text-sm text-slate-600">
                 Ihr Eigenanteil <b className="text-2xl tabular-nums text-slate-900">0 €</b>
               </div>
               <div className="mt-3 rounded-xl bg-brand-600 py-3.5 text-center text-base font-semibold text-white">Diese Auswahl besprechen</div>
-              <div className="mx-auto mt-3 h-[5px] w-[134px] rounded-full bg-slate-900" />
+              <svg viewBox="0 0 40 8" className="mx-auto mt-2 h-2 w-24 text-brand-300" aria-hidden="true"><path d="M2 2 Q20 10 38 2" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" /></svg>
             </div>
           </div>
         </div>

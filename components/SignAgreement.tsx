@@ -84,7 +84,7 @@ export function SignAgreement({ postUrl, backHref, text, defaultName }: { postUr
       <div className="rounded-3xl bg-white p-6 text-center" role="status" data-testid="vereinbarung-fertig">
         <p className="font-display text-3xl text-slate-900">Vielen Dank</p>
         <p className="mt-2 text-slate-600">Ihr Einverständnis ist bei Ihrer Praxis angekommen. Die schriftliche Vereinbarung unterschreiben Sie vor der Behandlung in der Praxis.</p>
-        <a href={backHref} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Portal</a>
+        <a href={backHref} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Behandlungsweg</a>
       </div>
     );
 

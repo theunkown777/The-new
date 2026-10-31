@@ -185,7 +185,7 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
                   To-do:{" "}
                   {dental ? "Mehrkostenvereinbarung bzw. Heil- und Kostenplan vor der Behandlung" : therapie ? "Privatvereinbarung vor der Behandlung" : "schriftliche IGeL-Vereinbarung vor der Leistung"}
                 </li>
-                <li>Rechnung für den Eigenanteil im Patientenportal, Zahlung per GiroCode</li>
+                <li>Rechnung für den Eigenanteil auf dem Behandlungsweg des Patienten, Zahlung per GiroCode</li>
                 {zuzahlungText && <li>To-do: gesetzliche Zuzahlung kassieren oder Befreiung prüfen</li>}
                 <li>Digitaler Anamnesebogen, Warnhinweise beim Gespräch</li>
                 <li>Gemessene Annahmequote statt Bauchgefühl</li>
@@ -238,7 +238,7 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
             <div className="flex flex-col rounded-2xl bg-brand-700 p-5 text-white">
               <h2 className="font-display text-2xl">Ein Preis, alles enthalten</h2>
               <p className="mt-2 text-sm text-white/85">
-                {PRICE_SHORT}. Mit Patientenportal, Zahlungen und Analyse. Ohne Zähler, 30 Tage kostenlos, monatlich kündbar. Endpreise ohne späteren Steueraufschlag.
+                {PRICE_SHORT}. Mit Behandlungsweg für Patienten, Zahlungen und Analyse. Ohne Zähler, 30 Tage kostenlos, monatlich kündbar. Endpreise ohne späteren Steueraufschlag.
               </p>
               <Link href={`/demo?fach=${s.id}`} className="mt-auto inline-block rounded-full bg-white px-4 py-2 text-center text-sm font-medium text-brand-700 hover:bg-brand-50">
                 Jetzt ausprobieren

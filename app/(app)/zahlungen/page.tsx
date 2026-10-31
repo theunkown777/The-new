@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import type { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { REMINDER_LABELS, TONE_CLASSES, formatCent, formatIban, invoiceTotals, invoiceView } from "@/lib/invoices";
+import { REMINDER_LABELS, formatCent, formatIban, invoiceTotals, invoiceView } from "@/lib/invoices";
 import { InvoiceActions } from "@/components/InvoiceActions";
 import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { BankSettings } from "@/components/BankSettings";
@@ -20,6 +20,18 @@ const FILTER = [
 ] as const;
 
 const DAY = 24 * 60 * 60 * 1000;
+
+// Sorrida-Stil: Status als Punkt und Satz statt farbiger Pille.
+const DOT: Record<string, string> = { emerald: "bg-salbei-600", sky: "bg-sky-600", red: "bg-red-600", amber: "bg-amber-500", slate: "bg-slate-400" };
+const TXT: Record<string, string> = { emerald: "text-salbei-700", sky: "text-sky-800", red: "font-medium text-red-700", amber: "text-slate-700", slate: "text-slate-500" };
+function Status({ tone, label }: { tone: string; label: string }) {
+  return (
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-sm ${TXT[tone]}`}>
+      <span className={`h-2 w-2 rounded-full ${DOT[tone]}`} aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
 
 export default async function ZahlungenPage({ searchParams }: { searchParams: { f?: string } }) {
   const session = await getServerSession(authOptions);
@@ -65,7 +77,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
         <div>
           <h1 className="text-xl font-semibold text-slate-900">Zahlungen</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-600">
-            Rechnungen für Eigenanteile und Selbstzahlerleistungen. Patienten sehen sie im Portal auf dem Handy und überweisen per GiroCode direkt auf Ihr Konto.
+            Rechnungen für Eigenanteile und Selbstzahlerleistungen. Patienten sehen sie auf ihrem Behandlungsweg am Handy und überweisen per GiroCode direkt auf Ihr Konto.
           </p>
         </div>
       </div>
@@ -128,7 +140,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                       <b className="shrink-0 tabular-nums text-slate-900">{formatCent(i.amountCent)}</b>
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TONE_CLASSES[v.tone]}`}>{v.label}</span>
+                      <Status tone={v.tone} label={v.label} />
                       <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} />
                     </div>
                   </li>
@@ -157,7 +169,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                           <Link href={`/patients?sel=${i.patient.id}`} className="font-medium text-slate-900 hover:text-brand-700">
                             {i.patient.lastName}, {i.patient.firstName}
                           </Link>
-                          <p className="text-xs text-slate-500">{portal ? (i.patient.portalViewedAt ? "Portal geöffnet" : "Portal-Link gesendet") : "kein Portal-Link"}</p>
+                          <p className="text-xs text-slate-500">{portal ? (i.patient.portalViewedAt ? "Weg geöffnet" : "Link gesendet") : "noch kein Link"}</p>
                         </td>
                         <td className="px-4 py-3">
                           <p className="text-slate-800">{i.title}</p>
@@ -166,7 +178,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                         <td className="px-4 py-3 tabular-nums text-slate-600">{fmtDate(i.dueDate)}</td>
                         <td className="px-4 py-3 text-right font-medium tabular-nums text-slate-900">{formatCent(i.amountCent)}</td>
                         <td className="px-4 py-3">
-                          <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${TONE_CLASSES[v.tone]}`}>{v.label}</span>
+                          <Status tone={v.tone} label={v.label} />
                         </td>
                         <td className="px-4 py-3">
                           <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} />
@@ -216,7 +228,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
           <section className="rounded-2xl bg-[#F5F2EE] p-5 text-sm text-slate-600">
             <p className="font-semibold text-slate-800">So läuft es für den Patienten</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
-              <li>Er bekommt den Portal-Link per SMS oder QR-Code.</li>
+              <li>Er bekommt den Link zu seinem Behandlungsweg per SMS oder QR-Code.</li>
               <li>Er sieht offene Rechnungen mit Fälligkeit, ohne App und Konto.</li>
               <li>Er zahlt per GiroCode oder kopiert IBAN und Verwendungszweck.</li>
               <li>Er tippt „Ich habe überwiesen“; Sie bestätigen den Eingang hier.</li>

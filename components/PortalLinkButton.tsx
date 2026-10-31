@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 // Portal-Link für einen Patienten erzeugen: Link, QR-Code und SMS-Text zum Kopieren.
-export function PortalLinkButton({ patientId, firstName, practiceName, label = "Portal-Link senden", className = "btn-secondary", onCreated, message, copyLabel = "SMS-Text kopieren" }: {
+export function PortalLinkButton({ patientId, firstName, practiceName, label = "Behandlungsweg senden", className = "btn-secondary", onCreated, message, copyLabel = "SMS-Text kopieren" }: {
   patientId: string;
   firstName: string;
   practiceName: string;
@@ -18,7 +18,7 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const text = state ? (message ? message(state.url) : `Hallo ${firstName}, in Ihrem Patientenportal der ${practiceName} sehen Sie Ihren Behandlungsweg, Unterlagen und Rechnungen: ${state.url}`) : "";
+  const text = state ? (message ? message(state.url) : `Hallo ${firstName}, unter diesem Link sehen Sie Ihren Behandlungsweg bei ${practiceName}: den nächsten Schritt, Unterlagen und Rechnungen. ${state.url}`) : "";
 
   async function create() {
     setBusy(true);
@@ -45,9 +45,9 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
     <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm" data-testid="portal-link">
       <div className="flex flex-col gap-4 sm:flex-row">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={state.qr} alt="QR-Code zum Patientenportal" className="h-32 w-32 shrink-0 rounded-lg bg-white p-1" />
+        <img src={state.qr} alt="QR-Code zum Behandlungsweg" className="h-32 w-32 shrink-0 rounded-lg bg-white p-1" />
         <div className="min-w-0 space-y-2">
-          <p className="font-medium text-slate-900">Portal-Link für {firstName} (60 Tage gültig)</p>
+          <p className="font-medium text-slate-900">Link zum Behandlungsweg für {firstName} (60 Tage gültig)</p>
           <p className="break-all text-xs text-slate-600">{state.url}</p>
           <div className="flex flex-wrap gap-2">
             <button
@@ -68,7 +68,7 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
             <a className="btn-secondary" href={state.url} target="_blank" rel="noreferrer">Ansehen</a>
           </div>
           <p className="whitespace-pre-wrap rounded-lg bg-white p-2 text-xs text-slate-600" data-testid="nachricht-text">{text}</p>
-          <p className="text-xs text-slate-500">Der Link ersetzt einen früheren Portal-Link dieses Patienten.</p>
+          <p className="text-xs text-slate-500">Der Link ersetzt einen früheren Link dieses Patienten.</p>
         </div>
       </div>
     </div>

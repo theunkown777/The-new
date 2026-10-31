@@ -8,7 +8,7 @@ export function PricingPlans({ cta = "#fach" }: { cta?: string }) {
         <p className="text-sm font-semibold text-brand-700">Preise</p>
         <h2 id="preise-titel" className="font-display mt-1 text-3xl text-slate-900">Ein Werkzeug statt fünf. Ein Preis, alles drin.</h2>
         <p className="mt-3 text-slate-600">
-          Vorschläge, Patienten-Link, Patientenportal mit Zahlung, Anamnese, Diktat und Analyse. Wofür Praxen sonst mehrere Abos bezahlen und
+          Vorschläge, Patienten-Link, Behandlungsweg mit Zahlung, Anamnese, Diktat und Analyse. Wofür Praxen sonst mehrere Abos bezahlen und
           Daten zwischen Programmen abtippen, läuft hier an einem Ort.
         </p>
       </div>

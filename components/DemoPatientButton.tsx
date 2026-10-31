@@ -24,7 +24,7 @@ export function DemoPatientButton() {
         } else tab?.close();
       }}
     >
-      {busy ? "Link wird erzeugt …" : "Patientenansicht öffnen (Portal-Link eines Beispielpatienten)"}
+      {busy ? "Link wird erzeugt …" : "Patientenansicht öffnen (Link eines Beispielpatienten)"}
     </button>
   );
 }

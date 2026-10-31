@@ -67,7 +67,7 @@ export default function DemoPage() {
 
         <div className="card mt-6 space-y-4 text-left">
           <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-900" data-testid="demo-zugang">
-            Sie sehen Sorrida als <b>Geschäftsführung der Praxis</b>. Die Patientenansicht öffnen Sie von dort aus über den Portal-Link eines
+            Sie sehen Sorrida als <b>Geschäftsführung der Praxis</b>. Die Patientenansicht öffnen Sie von dort aus über den Link zum Behandlungsweg eines
             Patienten, so wie Ihre Patienten es später auch bekommen.
           </p>
           <div>

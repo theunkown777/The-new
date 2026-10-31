@@ -538,7 +538,7 @@ export function ProposalEditor({
                   {copied ? "Kopiert" : "Text kopieren"}
                 </button>
                 <span className="text-xs text-slate-400">
-                  Für E-Mail, Patientenportal oder Ausdruck. Gespeichert wird der Text beim Sichern des Vorschlags.
+                  Für E-Mail, Patienten-Link oder Ausdruck. Gespeichert wird der Text beim Sichern des Vorschlags.
                 </span>
               </div>
               <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-slate-800">{letter}</pre>

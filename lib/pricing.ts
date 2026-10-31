@@ -11,7 +11,7 @@ export const PLANS = [
     preis: 249,
     ab: false,
     fuer: "1 Behandelnde/r",
-    punkte: ["Vorschläge mit Kassenleistung zuerst", "Patienten-Link und Patientenportal", "Rechnungen mit GiroCode, Zahlungsübersicht", "Digitale Anamnese, Befund-Diktat", "Analyse: Umsatz, Gründe, Risiken"],
+    punkte: ["Vorschläge mit Kassenleistung zuerst", "Patienten-Link und Behandlungsweg für Patienten", "Rechnungen mit GiroCode, Zahlungsübersicht", "Digitale Anamnese, Befund-Diktat", "Analyse: Umsatz, Gründe, Risiken"],
   },
   {
     id: "praxis",

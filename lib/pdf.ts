@@ -69,7 +69,7 @@ export async function buildAgreementPdf(input: AgreementPdfInput): Promise<Buffe
 
   doc.fontSize(16).font("Helvetica-Bold").fillColor("#6b2a24").text(input.practiceName);
   doc.moveDown(0.3);
-  doc.fontSize(12).font("Helvetica").fillColor("#333333").text("Einverständnis zum Behandlungsvorschlag (aus dem Patientenportal)");
+  doc.fontSize(12).font("Helvetica").fillColor("#333333").text("Einverständnis zum Behandlungsvorschlag (digital auf dem Behandlungsweg)");
   doc.moveDown(1);
   doc.fillColor("#000000").fontSize(10);
   doc.text(`Patient/in: ${input.patientName}${input.patientBirthDate ? `, geb. ${input.patientBirthDate}` : ""}`);

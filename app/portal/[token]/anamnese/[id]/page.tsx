@@ -22,7 +22,7 @@ export default async function PortalAnamnesis({ params }: { params: { token: str
       <main className="mx-auto max-w-xl px-4 py-16 text-center">
         <h1 className="text-xl font-semibold text-slate-900">Dieser Bogen ist nicht mehr offen</h1>
         <p className="mt-3 text-slate-600">Er wurde schon abgeschickt oder ist abgelaufen.</p>
-        {patient && <a href={back} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Portal</a>}
+        {patient && <a href={back} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Behandlungsweg</a>}
       </main>
     );
   }

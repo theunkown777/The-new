@@ -8,10 +8,10 @@ export async function GET(_req: Request, { params }: { params: { token: string }
   const patient = await portalPatient(params.token);
   if (!patient) return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 });
   const practice = await prisma.practice.findUnique({ where: { id: patient.practiceId }, select: { name: true } });
-  const name = practice?.name ?? "Patientenportal";
+  const name = practice?.name ?? "Behandlungsweg";
   return NextResponse.json(
     {
-      name: `${name} · Patientenportal`,
+      name: `${name} · Behandlungsweg`,
       short_name: name.length > 18 ? "Mein Portal" : name,
       start_url: `/portal/${params.token}`,
       scope: `/portal/${params.token}`,

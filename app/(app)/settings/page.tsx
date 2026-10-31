@@ -9,7 +9,7 @@ const CARDS = [
   {
     href: "/zahlungen#konto",
     title: "Bankverbindung",
-    description: "IBAN für den GiroCode im Patientenportal. Zahlungen gehen direkt auf Ihr Praxiskonto.",
+    description: "IBAN für den GiroCode auf dem Behandlungsweg Ihrer Patienten. Zahlungen gehen direkt auf Ihr Praxiskonto.",
   },
   {
     href: "/settings/security",
