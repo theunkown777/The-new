@@ -6,8 +6,15 @@ import { prisma } from "@/lib/prisma";
 // sein, damit sich niemand mit einer fremden Adresse registriert und so
 // Zugriff bekommt.
 
+/** Wert von SUPPORT_TEAM_EMAILS, auch wenn der Name in Vercel anders geschrieben wurde (z. B. Support_Team_Emails). */
+export function teamEmailsRaw(env: Record<string, string | undefined> = process.env): string | undefined {
+  if (env.SUPPORT_TEAM_EMAILS !== undefined) return env.SUPPORT_TEAM_EMAILS;
+  const key = Object.keys(env).find((k) => k.toUpperCase().replace(/[^A-Z]/g, "") === "SUPPORTTEAMEMAILS");
+  return key ? env[key] : undefined;
+}
+
 export function teamEmails(env: Record<string, string | undefined> = process.env): string[] {
-  return (env.SUPPORT_TEAM_EMAILS ?? "")
+  return (teamEmailsRaw(env) ?? "")
     .split(/[,;\s]+/)
     .map((e) => e.trim().toLowerCase())
     .filter((e) => e.includes("@"));

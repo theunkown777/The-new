@@ -1,3 +1,4 @@
+import { teamEmailsRaw } from "@/lib/supportTeam";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { redisStatus } from "@/lib/rateLimit";
@@ -67,9 +68,9 @@ export async function GET(req: Request) {
       ? { ok: true, info: "Hilfe-Anfragen gehen an die Adresse für Pilot-Anfragen" }
       : { ok: true, info: "keine Empfängeradresse: Hilfe-Anfragen nur in der Datenbank und im Postfach /anfragen" };
   // Nur Anzahl und Form prüfen, nie Adressen ausgeben.
-  const rawTeam = process.env.SUPPORT_TEAM_EMAILS;
+  const rawTeam = teamEmailsRaw();
   const team = (rawTeam ?? "").split(/[,;\s]+/).filter((e) => e.includes("@")).length;
-  const similar = Object.keys(process.env).filter((k) => /SUPPORT|TEAM/i.test(k) && k !== "SUPPORT_TEAM_EMAILS" && k !== "SUPPORT_NOTIFY_EMAIL");
+  const similar = Object.keys(process.env).filter((k) => /SUPPORT|TEAM/i.test(k) && k.toUpperCase().replace(/[^A-Z]/g, "") !== "SUPPORTTEAMEMAILS" && k !== "SUPPORT_NOTIFY_EMAIL");
   checks["Postfach Anfragen"] = team
     ? { ok: true, info: `${team} Team-${team === 1 ? "Konto" : "Konten"} freigeschaltet (/anfragen)` }
     : rawTeam !== undefined
