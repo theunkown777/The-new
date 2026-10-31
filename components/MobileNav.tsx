@@ -13,7 +13,7 @@ const LINKS = [
   { href: "/analyse", label: "Analyse" },
 ];
 
-export function MobileNav({ userName, dental = true }: { userName?: string | null; dental?: boolean }) {
+export function MobileNav({ userName, dental = true, team = false }: { userName?: string | null; dental?: boolean; team?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -56,6 +56,11 @@ export function MobileNav({ userName, dental = true }: { userName?: string | nul
             >
               Einstellungen
             </Link>
+            {team && (
+              <Link href="/anfragen" onClick={() => setOpen(false)} className="rounded-md px-2 py-2 text-brand-100 hover:bg-brand-700 hover:text-white">
+                Anfragen (Team)
+              </Link>
+            )}
           </nav>
           <div className="mt-2 flex items-center justify-between border-t border-brand-700 px-2 pt-3 text-sm text-brand-100">
             <span>{userName}</span>

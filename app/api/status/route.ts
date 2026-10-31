@@ -65,7 +65,11 @@ export async function GET(req: Request) {
     ? { ok: true, info: "eigene Support-Adresse gesetzt" }
     : process.env.LEAD_NOTIFY_EMAIL
       ? { ok: true, info: "Hilfe-Anfragen gehen an die Adresse für Pilot-Anfragen" }
-      : { ok: true, info: "keine Empfängeradresse: Hilfe-Anfragen nur in der Datenbank" };
+      : { ok: true, info: "keine Empfängeradresse: Hilfe-Anfragen nur in der Datenbank und im Postfach /anfragen" };
+  const team = (process.env.SUPPORT_TEAM_EMAILS ?? "").split(/[,;\s]+/).filter((e) => e.includes("@")).length;
+  checks["Postfach Anfragen"] = team
+    ? { ok: true, info: `${team} Team-${team === 1 ? "Konto" : "Konten"} freigeschaltet (/anfragen)` }
+    : { ok: true, info: "SUPPORT_TEAM_EMAILS fehlt: niemand sieht das Postfach /anfragen" };
 
   // Nur Information, kein Fehler: der Betrieb funktioniert auch außerhalb Frankfurts.
   const db = databaseLocation(resolveDatabaseUrls(process.env)?.runtime);

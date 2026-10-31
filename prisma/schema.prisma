@@ -464,7 +464,11 @@ model Lead {
   /// "pilot" (Pilotplatz) | "hilfe" (Fachrichtung nicht gefunden, Support)
   kind         String   @default("pilot")
   message      String?
+  /// Vom Sorrida-Team im Postfach (/anfragen) als erledigt markiert
+  handledAt    DateTime?
   createdAt    DateTime @default(now())
+
+  @@index([kind, createdAt])
 }
 
 /// Digitale Anamnese: Die Praxis schickt einen Link/QR-Code, der Patient

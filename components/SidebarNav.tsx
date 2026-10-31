@@ -13,6 +13,7 @@ const ICONS: Record<string, string> = {
   reports: "M5 4h14v16H5zM8 8h8M8 12h8M8 16h5",
   settings: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z",
   start: "M4 6h16M4 12h16M4 18h10",
+  anfragen: "M4 4h16v12H8l-4 4zM8 9h8M8 12h5",
   zahlungen: "M3 6h18v12H3zM3 10h18M7 15h3",
   analyse: "M4 20V10M10 20V4M16 20v-7M22 20H2",
 };
@@ -25,7 +26,7 @@ function Icon({ name }: { name: string }) {
   );
 }
 
-export function SidebarNav({ dental }: { dental: boolean }) {
+export function SidebarNav({ dental, team = false }: { dental: boolean; team?: boolean }) {
   const path = usePathname();
   const links: [string, string, string][] = [
     ["/dashboard", "Übersicht", "dashboard"],
@@ -56,6 +57,7 @@ export function SidebarNav({ dental }: { dental: boolean }) {
       {links.map(([h, l, i]) => item(h, l, i))}
       <div className="my-3 border-t border-slate-100" />
       {item("/settings", "Einstellungen", "settings")}
+      {team && item("/anfragen", "Anfragen (Team)", "anfragen")}
       {item("/", "Fachauswahl und Website", "start")}
     </nav>
   );
