@@ -1,24 +1,23 @@
 import { Redis } from "@upstash/redis";
+import { redisCandidates } from "@/lib/redisCredentials";
 
 // Testmodus-Prinzip wie bei ANTHROPIC_API_KEY/RESEND_API_KEY (siehe
 // lib/anthropic.ts, lib/email.ts): ohne angebundenen Redis-Store läuft der
 // Limiter In-Memory weiter (nur pro Prozess, kein global konsistenter
 // Schutz) statt zu crashen - relevant für lokale Entwicklung und Tests. In
-// Produktion mit Upstash-Redis (per Vercel-Marketplace-Integration gesetzte
-// KV_REST_API_URL/KV_REST_API_TOKEN) ist der Schutz über alle
-// Serverless-Instanzen hinweg konsistent.
-const HAS_REDIS = !!(
-  (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL) &&
-  (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN)
-);
-
-// Kurze Zeitgrenze und kaum Wiederholungen: ein nicht erreichbarer Store
-// darf die Anmeldung nicht minutenlang blockieren.
-const redis = HAS_REDIS
-  ? Redis.fromEnv({ retry: { retries: 1, backoff: () => 200 }, signal: () => AbortSignal.timeout(1500) })
-  : null;
+// Produktion mit Upstash-Redis ist der Schutz über alle Serverless-Instanzen
+// hinweg konsistent.
+//
+// Alle gesetzten Zugangsdaten (alte und neue Datenbank, mit und ohne Präfix);
+// genutzt wird das erste Paar, das antwortet.
+const candidates = redisCandidates(process.env).map((c) => ({
+  ...c,
+  // Kurze Zeitgrenze und kaum Wiederholungen: ein nicht erreichbarer Store
+  // darf die Anmeldung nicht minutenlang blockieren.
+  client: new Redis({ url: c.url, token: c.token, retry: { retries: 1, backoff: () => 200 }, signal: () => AbortSignal.timeout(1500) }),
+  downUntil: 0,
+}));
 const REDIS_COOLDOWN_MS = 60 * 1000;
-let redisDownUntil = 0;
 
 type Bucket = { count: number; windowStart: number };
 const buckets = new Map<string, Bucket>();
@@ -27,23 +26,32 @@ const buckets = new Map<string, Bucket>();
 // deren Zugangsdaten noch gesetzt sind), soll der Missbrauchsschutz nicht die
 // Anmeldung lahmlegen: dann gilt für diesen Aufruf der In-Memory-Zähler.
 async function withRedis<T>(op: (r: Redis) => Promise<T>): Promise<{ ok: true; value: T } | { ok: false }> {
-  if (!redis || Date.now() < redisDownUntil) return { ok: false };
-  try {
-    return { ok: true, value: await op(redis) };
-  } catch (err) {
-    // Eine Minute lang nicht erneut versuchen, damit nicht jeder Aufruf auf die Zeitgrenze wartet.
-    redisDownUntil = Date.now() + REDIS_COOLDOWN_MS;
-    console.error("Rate-Limit: Redis nicht erreichbar, nutze Speicher-Zähler:", err);
-    return { ok: false };
+  for (const c of candidates) {
+    if (Date.now() < c.downUntil) continue;
+    try {
+      return { ok: true, value: await op(c.client) };
+    } catch (err) {
+      // Eine Minute lang nicht erneut versuchen, damit nicht jeder Aufruf auf die Zeitgrenze wartet.
+      c.downUntil = Date.now() + REDIS_COOLDOWN_MS;
+      console.error(`Rate-Limit: Redis (${c.source}) nicht erreichbar:`, err);
+    }
   }
+  return { ok: false };
 }
 
-/** Für /api/status: antwortet der Redis-Store wirklich? */
-export async function redisStatus(): Promise<"nicht angebunden" | "erreichbar" | "nicht erreichbar"> {
-  if (!redis) return "nicht angebunden";
-  redisDownUntil = 0; // Statusprüfung testet immer live
-  const res = await withRedis((r) => r.ping());
-  return res.ok ? "erreichbar" : "nicht erreichbar";
+/** Für /api/status: antwortet einer der Redis-Stores wirklich, und welcher? */
+export async function redisStatus(): Promise<{ state: "nicht angebunden" | "erreichbar" | "nicht erreichbar"; source?: string; tried: number }> {
+  if (!candidates.length) return { state: "nicht angebunden", tried: 0 };
+  for (const c of candidates) {
+    try {
+      await c.client.ping();
+      c.downUntil = 0;
+      return { state: "erreichbar", source: c.source, tried: candidates.length };
+    } catch {
+      c.downUntil = Date.now() + REDIS_COOLDOWN_MS;
+    }
+  }
+  return { state: "nicht erreichbar", tried: candidates.length };
 }
 
 function prefixed(key: string): string {

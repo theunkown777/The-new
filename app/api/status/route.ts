@@ -49,11 +49,11 @@ export async function GET(req: Request) {
 
   const redis = await redisStatus();
   checks["Missbrauchsschutz (Redis)"] =
-    redis === "erreichbar"
-      ? { ok: true, info: "Upstash erreichbar" }
-      : redis === "nicht angebunden"
+    redis.state === "erreichbar"
+      ? { ok: true, info: `Upstash erreichbar (${redis.source}${redis.tried > 1 ? `, ${redis.tried - 1} weitere Zugangsdaten gesetzt, die nicht antworten – können gelöscht werden` : ""})` }
+      : redis.state === "nicht angebunden"
         ? { ok: true, info: "nicht angebunden (Zähler nur im Speicher, für den Start in Ordnung)" }
-        : { ok: true, info: "Zugangsdaten gesetzt, aber Upstash antwortet nicht: läuft ersatzweise im Speicher. KV_/UPSTASH_-Variablen in Vercel löschen oder Datenbank neu anlegen." };
+        : { ok: true, info: `${redis.tried} Zugangsdaten gesetzt, keine antwortet: läuft ersatzweise im Speicher. Neue Upstash-Datenbank mit dem Projekt verbinden (Production) und neu deployen, alte KV_/UPSTASH_-Variablen löschen.` };
   checks["KI-Berichte"] = process.env.ANTHROPIC_API_KEY
     ? { ok: true, info: "Schlüssel gesetzt" }
     : { ok: true, info: "kein Schlüssel: Berichte im Testmodus" };
