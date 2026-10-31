@@ -38,3 +38,15 @@ describe("zwei verbundene Datenbanken", () => {
     expect(r.source).toBe("DATABASE_URL + DATABASE_URL_UNPOOLED");
   });
 });
+
+import { describeDatabaseEnv } from "@/lib/databaseUrl";
+describe("Diagnose und Bereinigung", () => {
+  it("akzeptiert Werte mit Anführungszeichen", () => {
+    expect(resolveDatabaseUrls({ DATABASE_URL: ' "postgresql://u:p@h/db" ' })?.runtime).toBe("postgresql://u:p@h/db");
+  });
+  it("nennt nur Namen, nie Werte", () => {
+    const d = describeDatabaseEnv({ DATABASE_URL: "postgresql://geheim@h/db", PGHOST: "h", NEON_PROJECT_ID: "", OTHER: "x" });
+    expect(d).toEqual(["DATABASE_URL (postgres-Adresse)", "NEON_PROJECT_ID (leer)", "PGHOST (anderer Wert)"]);
+    expect(d.join()).not.toContain("geheim");
+  });
+});

@@ -9,11 +9,13 @@ type Env = Record<string, string | undefined>;
 const POOLED = ["DATABASE_URL", "POSTGRES_PRISMA_URL", "POSTGRES_URL", "NEON_DATABASE_URL"];
 const DIRECT = ["DATABASE_URL_UNPOOLED", "POSTGRES_URL_NON_POOLING", "DIRECT_URL", "NEON_DATABASE_URL_UNPOOLED"];
 
-const isPg = (v: string | undefined): v is string => !!v && /^postgres(ql)?:\/\//.test(v);
+/** Wert bereinigen: versehentliche Anführungszeichen oder Leerzeichen aus der Vercel-Oberfläche. */
+const clean = (v: string | undefined) => v?.trim().replace(/^["']|["']$/g, "").trim();
+const isPg = (v: string | undefined): boolean => !!v && /^postgres(ql)?:\/\//.test(clean(v)!);
 
 function find(env: Env, names: string[], prefix?: string): { name: string; url: string; prefix: string } | null {
   if (prefix === undefined || prefix === "") {
-    for (const n of names) if (isPg(env[n])) return { name: n, url: env[n]!, prefix: "" };
+    for (const n of names) if (isPg(env[n])) return { name: n, url: clean(env[n])!, prefix: "" };
   }
   if (prefix === "") return null;
   // Mit Präfix, z. B. STORAGE_POSTGRES_PRISMA_URL
@@ -21,7 +23,7 @@ function find(env: Env, names: string[], prefix?: string): { name: string; url: 
     const key = Object.keys(env)
       .sort()
       .find((k) => (prefix ? k === `${prefix}_${n}` : k.endsWith(`_${n}`)) && isPg(env[k]));
-    if (key) return { name: key, url: env[key]!, prefix: key.slice(0, key.length - n.length - 1) };
+    if (key) return { name: key, url: clean(env[key])!, prefix: key.slice(0, key.length - n.length - 1) };
   }
   return null;
 }
@@ -62,4 +64,12 @@ export function resolveDatabaseUrls(env: Env): { runtime: string; direct: string
     direct: direct ? direct.url : unpooled(pooled.url),
     source: direct ? `${pooled.name} + ${direct.name}` : pooled.name,
   };
+}
+
+/** Für das Build-Protokoll: Namen (nie Werte) aller Variablen, die nach Datenbank aussehen. */
+export function describeDatabaseEnv(env: Env): string[] {
+  return Object.keys(env)
+    .filter((k) => /DATABASE|POSTGRES|NEON|^PG/i.test(k))
+    .sort()
+    .map((k) => `${k}${isPg(env[k]) ? " (postgres-Adresse)" : env[k] ? " (anderer Wert)" : " (leer)"}`);
 }

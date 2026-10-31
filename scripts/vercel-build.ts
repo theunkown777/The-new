@@ -2,13 +2,19 @@
 // Grunddaten anlegen, App bauen. Ersetzt die frühere Befehlskette in
 // package.json, damit fehlende Einstellungen verständlich gemeldet werden.
 import { execSync } from "child_process";
-import { resolveDatabaseUrls } from "../lib/databaseUrl";
+import { describeDatabaseEnv, resolveDatabaseUrls } from "../lib/databaseUrl";
 
 const db = resolveDatabaseUrls(process.env);
+const found = describeDatabaseEnv(process.env);
+console.log(`Vercel-Umgebung: ${process.env.VERCEL_ENV ?? "unbekannt"} · Branch: ${process.env.VERCEL_GIT_COMMIT_REF ?? "?"}`);
+console.log(`Datenbank-Variablen: ${found.length ? found.join(", ") : "keine"}`);
 if (!db) {
   console.error(`
 ============================================================
 SORRIDA: Keine Datenbank-Adresse gefunden.
+(Umgebung: ${process.env.VERCEL_ENV ?? "unbekannt"}. Steht hier "preview", gelten die
+ Variablen vermutlich nur für Production: Variable auch für Preview freigeben
+ oder unter Settings → Environments den Production-Branch prüfen.)
 
 So beheben (Vercel, Projekt öffnen):
 1. Reiter "Storage" → Ihre Neon-Datenbank → "Connect Project"
