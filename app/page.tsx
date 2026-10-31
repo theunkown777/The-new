@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { SPECIALTIES } from "@/lib/specialties";
@@ -44,7 +43,6 @@ const SCHRITTE = [
 
 export default async function Start() {
   const session = await getServerSession(authOptions);
-  if (session) redirect("/dashboard");
 
   return (
     <div className="min-h-screen bg-[#F5F2EE] text-slate-900">
@@ -58,9 +56,15 @@ export default async function Start() {
           <Link href="/ratgeber" className="hidden text-slate-600 hover:text-slate-900 sm:inline">
             Ratgeber
           </Link>
-          <Link href="/login" className="text-slate-600 hover:text-slate-900">
-            Anmelden
-          </Link>
+          {session ? (
+            <Link href="/dashboard" className="font-medium text-brand-700 hover:underline" data-testid="zur-uebersicht">
+              Zur Übersicht
+            </Link>
+          ) : (
+            <Link href="/login" className="text-slate-600 hover:text-slate-900">
+              Anmelden
+            </Link>
+          )}
           <Link href="/vorschau" className="rounded-full bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700">
             Vorschau
           </Link>
@@ -69,6 +73,14 @@ export default async function Start() {
 
       <main className="mx-auto max-w-6xl px-4 pb-20">
         <section className="mx-auto max-w-4xl pt-6 text-center sm:pt-12" id="fach">
+          {session && (
+            <p className="mx-auto mb-6 inline-flex flex-wrap items-center justify-center gap-x-2 rounded-full bg-white px-4 py-2 text-sm text-slate-600">
+              Angemeldet: <b className="text-slate-800">{session.user.practiceName}</b>
+              <Link href="/dashboard" className="font-medium text-brand-700 underline">
+                zurück zur Übersicht
+              </Link>
+            </p>
+          )}
           <p className="text-sm font-semibold text-brand-700">Willkommen bei Sorrida</p>
           <h1 className="mt-2 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">Welche Praxis haben Sie?</h1>
           <p className="mx-auto mt-3 max-w-2xl text-lg text-slate-600">
