@@ -159,7 +159,8 @@ export function reminderText(a: { level: number; firstName: string; practiceName
     return `Hallo ${a.firstName}, eine freundliche Erinnerung von ${a.practiceName}: Die Rechnung ${a.number} über ${betrag} ist am ${bis} fällig. Sie können bequem per GiroCode zahlen: ${a.url}`;
   }
   if (a.level === 2) {
-    return `Hallo ${a.firstName}, die Rechnung ${a.number} über ${betrag} von ${a.practiceName} ist noch offen (fällig seit ${bis}). Bitte zahlen Sie in den nächsten 7 Tagen. Falls Sie Raten brauchen, sagen Sie es uns im Portal: ${a.url}`;
+    const seit = a.dueDate.getTime() < Date.now() ? "fällig seit" : "fällig am";
+    return `Hallo ${a.firstName}, die Rechnung ${a.number} über ${betrag} von ${a.practiceName} ist noch offen (${seit} ${bis}). Bitte zahlen Sie in den nächsten 7 Tagen. Falls Sie Raten brauchen, sagen Sie es uns im Portal: ${a.url}`;
   }
   return `Guten Tag ${a.firstName}, trotz Erinnerungen ist die Rechnung ${a.number} über ${betrag} von ${a.practiceName} noch offen. Bitte begleichen Sie den Betrag innerhalb von 7 Tagen, sonst müssen wir weitere Schritte einleiten. Zahlung und Ratenanfrage: ${a.url}`;
 }
