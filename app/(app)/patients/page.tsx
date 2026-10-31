@@ -5,6 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PROPOSAL_STATUS_LABELS, ageFromBirthDate } from "@/lib/proposals";
 import { loadAnamnesis } from "@/lib/anamnesisView";
+import { TONE_CLASSES, formatCent, invoiceView } from "@/lib/invoices";
+import { PortalLinkButton } from "@/components/PortalLinkButton";
+import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 
 const PAGE_SIZE = 50;
 const DAY = 24 * 60 * 60 * 1000;
@@ -90,6 +93,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
               select: { id: true, status: true, patientResponse: true, shareTokenHash: true, patientViewedAt: true, updatedAt: true, createdAt: true, eigenanteilCent: true },
             },
             anamnesisForms: { where: { submittedAt: { not: null } }, orderBy: { submittedAt: "desc" }, take: 1, select: { submittedAt: true } },
+            invoices: { where: { status: { not: "STORNIERT" } }, orderBy: { dueDate: "desc" }, take: 4, select: { id: true, title: true, number: true, amountCent: true, status: true, dueDate: true } },
           },
         })
       : null,
@@ -298,6 +302,30 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
               ))}
             </ul>
           )}
+
+          <h3 className="mt-5 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Rechnungen</h3>
+          {selected.invoices.length === 0 ? (
+            <p className="mt-2 text-sm text-slate-500">Keine.</p>
+          ) : (
+            <ul className="mt-2 space-y-1.5 text-sm" data-testid="detail-invoices">
+              {selected.invoices.map((i) => {
+                const v = invoiceView(i);
+                return (
+                  <li key={i.id} className="flex items-center justify-between gap-2 px-2">
+                    <span className="min-w-0 truncate text-slate-700">{i.title}</span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="tabular-nums text-slate-800">{formatCent(i.amountCent)}</span>
+                      <span className={`rounded-full px-1.5 py-0.5 text-[11px] ${TONE_CLASSES[v.tone]}`}>{v.key === "faellig" ? "offen" : v.label}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <PortalLinkButton patientId={selected.id} firstName={selected.firstName} practiceName={session!.user.practiceName ?? ""} label="Portal-Link" />
+            <CreateInvoiceButton patientId={selected.id} title="Selbstzahlerleistung" label="Rechnung" free />
+          </div>
 
           <Link href={`/patients/${selected.id}`} className="btn-secondary mt-5 flex w-full items-center justify-between gap-2">
             Akte öffnen <span aria-hidden="true">→</span>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PRICE_SHORT } from "@/lib/pricing";
 import { notFound } from "next/navigation";
 import { SPECIALTIES, isTherapie, specialty } from "@/lib/specialties";
 import { PublicShell } from "@/components/PublicShell";
@@ -207,8 +208,8 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
             <div className="flex flex-col rounded-2xl bg-brand-700 p-5 text-white">
               <h2 className="text-lg font-semibold">Ein Preis, alles enthalten</h2>
               <p className="mt-2 text-sm text-white/85">
-                149 € im Monat für Einzelpraxen, 249 € für bis zu fünf {therapie ? "Behandelnde" : "Ärztinnen und Ärzte"}. Ohne Zähler, 30 Tage
-                kostenlos, monatlich kündbar. Endpreise nach § 19 UStG.
+                {PRICE_SHORT}. Mit Patientenportal, Zahlungen und Analyse. Ohne Zähler, 30 Tage kostenlos, monatlich kündbar. Endpreise nach
+                § 19 UStG.
               </p>
               <Link href={`/demo?fach=${s.id}`} className="mt-auto inline-block rounded-full bg-white px-4 py-2 text-center text-sm font-medium text-brand-700 hover:bg-brand-50">
                 Jetzt ausprobieren

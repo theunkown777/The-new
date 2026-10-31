@@ -24,6 +24,8 @@ export const config = {
     "/proposals/:path*",
     "/abschluss/:path*",
     "/settings/:path*",
+    "/zahlungen/:path*",
+    "/analyse/:path*",
     "/embed/:path*",
   ],
 };

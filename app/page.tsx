@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { SPECIALTIES } from "@/lib/specialties";
 import { FachWahl, type FachKachel } from "@/components/FachWahl";
+import { PricingPlans } from "@/components/PricingPlans";
+import { PLANS, eur } from "@/lib/pricing";
 import { Entlastung } from "@/components/Entlastung";
 import { ZeitRechner } from "@/components/ZeitRechner";
 import { PraxisFaq } from "@/components/PraxisFaq";
@@ -36,10 +38,7 @@ const GRUPPEN: { titel: string; kacheln: FachKachel[] }[] = [
   },
   {
     titel: "Versorgung: Hilfsmittel, Apotheke, Pflege, Kliniken",
-    kacheln: [
-      ...SPECIALTIES.filter((x) => x.gruppe === "versorgung").map(kachel),
-      { id: "andere", name: "Anderes Fach", href: "/fachgebiete/andere", teaser: "Eigene Leistungen anlegen, alles andere gleich" },
-    ],
+    kacheln: SPECIALTIES.filter((x) => x.gruppe === "versorgung").map(kachel),
   },
 ];
 
@@ -168,13 +167,15 @@ export default async function Start() {
           </div>
         </section>
 
+        <PricingPlans />
+
         <div className="">
           <PraxisFaq />
         </div>
 
         <section className="mt-20 flex flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
           <div>
-            <h2 className="text-2xl font-semibold">149 € im Monat. Alles enthalten.</h2>
+            <h2 className="text-2xl font-semibold">Ab {eur(PLANS[0].preis)} im Monat. Alles enthalten.</h2>
             <p className="mt-1 text-white/80">30 Tage kostenlos, monatlich kündbar, keine Zähler. Endpreise nach § 19 UStG.</p>
           </div>
           <a href="#fach" className="rounded-full bg-white px-5 py-3 font-medium text-brand-700 hover:bg-brand-50">

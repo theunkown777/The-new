@@ -130,7 +130,43 @@ export async function seedBulkDemo(args: {
       }),
     });
   }
-  if (proposals.length) await prisma.treatmentProposal.createMany({ data: proposals });
+  const createdProposals = proposals.length
+    ? await prisma.treatmentProposal.createManyAndReturn({ data: proposals, select: { id: true, patientId: true, status: true, eigenanteilCent: true, updatedAt: true } })
+    : [];
+
+  // Rechnungen für die meisten angenommenen Vorschläge mit Eigenanteil:
+  // überwiegend bezahlt, einige offen, gemeldet oder überfällig.
+  const invoices: Prisma.InvoiceCreateManyInput[] = [];
+  const year = now.getFullYear();
+  for (const p of createdProposals.filter((x) => x.status === "ANGENOMMEN" && x.eigenanteilCent > 0).sort((a, b) => +a.updatedAt - +b.updatedAt)) {
+    if (r() > 0.85) continue;
+    const createdAt = new Date(p.updatedAt.getTime() + DAY);
+    if (createdAt > now) continue;
+    const dueDate = new Date(createdAt.getTime() + 14 * DAY);
+    const age = (now.getTime() - createdAt.getTime()) / DAY;
+    // Überfällig nur bis etwa sechs Wochen; ältere Rechnungen sind erledigt.
+    const status =
+      age < 14
+        ? weighted(r, [["OFFEN", 0.6], ["GEMELDET", 0.15], ["BEZAHLT", 0.25]])
+        : age < 45
+          ? weighted(r, [["BEZAHLT", 0.75], ["OFFEN", 0.25]])
+          : weighted(r, [["BEZAHLT", 0.96], ["STORNIERT", 0.04]]);
+    invoices.push({
+      practiceId,
+      patientId: p.patientId,
+      proposalId: p.id,
+      number: `${year}-${String(invoices.length + 1).padStart(4, "0")}`,
+      title: dental ? "Eigenanteil Zahnbehandlung" : spec && spec.beruf === "therapie" ? "Selbstzahlerleistung" : "Privatleistung",
+      amountCent: p.eigenanteilCent,
+      dueDate,
+      status,
+      createdAt,
+      wantsInstallments: status === "OFFEN" && p.eigenanteilCent > 50000 && r() < 0.4,
+      ...(status === "GEMELDET" && { reportedPaidAt: new Date(Math.min(now.getTime(), createdAt.getTime() + 3 * DAY)) }),
+      ...(status === "BEZAHLT" && { paidAt: new Date(Math.min(now.getTime(), createdAt.getTime() + Math.floor(2 + r() * 16) * DAY)) }),
+    });
+  }
+  if (invoices.length) await prisma.invoice.createMany({ data: invoices });
 
   // Digitale Anamnese bei etwa 15 % der Patienten.
   const forms: Prisma.AnamnesisFormCreateManyInput[] = shuffled.slice(0, Math.round(patients.length * 0.15)).map((p) => {
@@ -172,5 +208,5 @@ export async function seedBulkDemo(args: {
     });
     await prisma.report.createMany({ data: reports });
   }
-  return { patients: patients.length, proposals: proposals.length, anamnesis: forms.length };
+  return { patients: patients.length, proposals: proposals.length, anamnesis: forms.length, invoices: invoices.length };
 }

@@ -70,6 +70,24 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
           </div>
         ))}
       </div>
+
+      {/* Bewusst getrennt von den Fachkacheln: kein weiteres Fach, sondern der Weg zu uns. */}
+      <Link
+        href="/hilfe"
+        className="group mt-10 flex flex-col gap-4 rounded-3xl border-2 border-dashed border-brand-300 bg-brand-50/60 p-5 text-left transition hover:border-brand-600 hover:bg-brand-50 sm:flex-row sm:items-center sm:p-6"
+        data-testid="fach-hilfe"
+      >
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-brand-700 shadow-sm group-hover:bg-brand-600 group-hover:text-white" aria-hidden="true">
+          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01" />
+          </svg>
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-lg font-semibold text-slate-900">Sie finden Ihre Fachrichtung nicht?</span>
+          <span className="mt-0.5 block text-slate-600">Hier ist Hilfe: Schreiben Sie uns kurz, was Sie anbieten. Wir richten Sorrida mit Ihnen ein, persönlich und kostenlos.</span>
+        </span>
+        <span className="shrink-0 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white group-hover:bg-brand-700">Zum Support →</span>
+      </Link>
     </div>
   );
 }

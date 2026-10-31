@@ -31,6 +31,11 @@ model Practice {
   connectorKeys     ConnectorKey[]
   launchTokens      LaunchToken[]
   anamnesisForms    AnamnesisForm[]
+  invoices          Invoice[]
+  /// Bankverbindung für den GiroCode im Patientenportal (lib/invoices.ts)
+  accountHolder     String?
+  iban              String?
+  bic               String?
   // Praxiseigene Preise für Behandlungsvorschläge (Euro je Preisschlüssel
   // aus lib/proposals.ts PRICE_DEFS). Null bzw. fehlende Schlüssel = die
   // dort hinterlegten Beispielwerte.
@@ -159,6 +164,12 @@ model Patient {
   proposals       TreatmentProposal[]
   launchTokens    LaunchToken[]
   anamnesisForms  AnamnesisForm[]
+  invoices        Invoice[]
+  // Patientenportal (/portal/<token>): offene Rechnungen und Dokumente auf
+  // dem eigenen Handy. Gespeichert wird nur der Hash des Tokens.
+  portalTokenHash String?   @unique
+  portalExpiresAt DateTime?
+  portalViewedAt  DateTime?
   // Herkunft aus einer Praxissoftware (VDDS-media): Sektionsname der PVS
   // (z. B. "DSWIN", "Z1") und deren Patientennummer (PATID). Gemeinsam
   // eindeutig je Praxis, damit derselbe PVS-Patient beim nächsten Aufruf
@@ -394,6 +405,7 @@ model TreatmentProposal {
   /// Erster Versand eines Patienten-Links (bleibt beim Sperren erhalten, für die Auswertung)
   shareCreatedAt     DateTime?
   patientWantsInstallments Boolean @default(false)
+  invoices        Invoice[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -449,6 +461,9 @@ model Lead {
   pvs          String?
   callbackTime String?
   specialty    String?
+  /// "pilot" (Pilotplatz) | "hilfe" (Fachrichtung nicht gefunden, Support)
+  kind         String   @default("pilot")
+  message      String?
   createdAt    DateTime @default(now())
 }
 
@@ -469,4 +484,33 @@ model AnamnesisForm {
   answers     Json?
 
   @@index([practiceId, patientId])
+}
+
+/// Rechnung an einen Patienten, z. B. der Eigenanteil eines angenommenen
+/// Vorschlags. Der Patient sieht sie im Patientenportal und zahlt per
+/// Überweisung (GiroCode). Status: "OFFEN" | "GEMELDET" (Patient hat
+/// Zahlung gemeldet) | "BEZAHLT" | "STORNIERT". Logik in lib/invoices.ts.
+model Invoice {
+  id             String             @id @default(cuid())
+  practiceId     String
+  practice       Practice           @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  patientId      String
+  patient        Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  proposalId     String?
+  proposal       TreatmentProposal? @relation(fields: [proposalId], references: [id], onDelete: SetNull)
+  number         String
+  title          String
+  amountCent     Int
+  dueDate        DateTime
+  status         String             @default("OFFEN")
+  /// Patient möchte in Raten zahlen (Anfrage aus dem Portal)
+  wantsInstallments Boolean         @default(false)
+  reportedPaidAt DateTime?
+  paidAt         DateTime?
+  remindedAt     DateTime?
+  createdAt      DateTime           @default(now())
+
+  @@unique([practiceId, number])
+  @@index([practiceId, status])
+  @@index([patientId])
 }

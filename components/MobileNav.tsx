@@ -9,6 +9,8 @@ const LINKS = [
   { href: "/patients", label: "Patienten" },
   { href: "/reports", label: "Berichte" },
   { href: "/proposals", label: "Vorschläge" },
+  { href: "/zahlungen", label: "Zahlungen" },
+  { href: "/analyse", label: "Analyse" },
 ];
 
 export function MobileNav({ userName, dental = true }: { userName?: string | null; dental?: boolean }) {

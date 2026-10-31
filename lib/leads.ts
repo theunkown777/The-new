@@ -40,3 +40,23 @@ export function leadEmailHtml(l: LeadInput): string {
 <li><b>Erreichbar unter:</b> ${esc(l.contact)}</li>
 ${l.specialty ? `<li><b>Fachgebiet:</b> ${esc(SPECIALTY_LABELS[l.specialty] ?? l.specialty)}</li>\n` : ""}${l.pvs ? `<li><b>Praxissoftware:</b> ${esc(l.pvs)}</li>\n` : ""}${l.callbackTime ? `<li><b>Rückruf am besten:</b> ${esc(l.callbackTime)}</li>\n` : ""}</ul>`;
 }
+
+/** Hilfe-Anfrage: Fachrichtung nicht gefunden oder Frage an den Support. */
+export const supportSchema = z.object({
+  contactName: z.string().trim().min(2, "Bitte Ihren Namen angeben").max(120),
+  practiceName: z.string().trim().max(120).optional(),
+  fach: z.string().trim().min(2, "Bitte Ihre Fachrichtung angeben").max(120),
+  contact: leadSchema.shape.contact,
+  message: z.string().trim().max(2000).optional(),
+  website: z.string().max(200).optional(),
+});
+export type SupportInput = z.infer<typeof supportSchema>;
+
+export function supportEmailHtml(l: SupportInput): string {
+  return `<p>Neue Hilfe-Anfrage über die Sorrida-Website (Fachrichtung nicht gefunden):</p>
+<ul>
+<li><b>Name:</b> ${esc(l.contactName)}</li>
+${l.practiceName ? `<li><b>Praxis:</b> ${esc(l.practiceName)}</li>\n` : ""}<li><b>Fachrichtung:</b> ${esc(l.fach)}</li>
+<li><b>Erreichbar unter:</b> ${esc(l.contact)}</li>
+</ul>${l.message ? `<p>${esc(l.message).replace(/\n/g, "<br>")}</p>` : ""}`;
+}

@@ -115,6 +115,7 @@ export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
   });
   for (const { id } of expired) {
     await prisma.$transaction([
+      prisma.invoice.deleteMany({ where: { practiceId: id } }),
       prisma.treatmentProposal.deleteMany({ where: { practiceId: id } }),
       prisma.anamnesisForm.deleteMany({ where: { practiceId: id } }),
       prisma.reportRevision.deleteMany({ where: { report: { practiceId: id } } }),
@@ -142,6 +143,9 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
       name: spec ? `${spec.kurz} am Markt (Demo)` : DEMO_PRACTICE_NAME,
       specialty: spec ? spec.id : DENTAL_ID,
       isDemo: true,
+      // Beispiel-IBAN aus der Bankendokumentation, damit das Portal den GiroCode zeigt.
+      accountHolder: spec ? `${spec.kurz} am Markt` : "Zahnarztpraxis am Markt",
+      iban: "DE89370400440532013000",
       demoExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
       gozPunktwertCent: STANDARD_GOZ_PUNKTWERT_CENT,
       installments: { enabled: true, months: 12, zinsfrei: true, minEur: 300 },

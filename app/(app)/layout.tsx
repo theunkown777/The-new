@@ -57,6 +57,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <Link href="/patients" className="hover:text-white">Patienten</Link>
               {dental && <Link href="/reports" className="hover:text-white">Berichte</Link>}
               <Link href="/proposals" className="hover:text-white">Vorschläge</Link>
+              <Link href="/zahlungen" className="hover:text-white">Zahlungen</Link>
+              <Link href="/analyse" className="hover:text-white">Analyse</Link>
               <Link href="/settings" className="hover:text-white">Einstellungen</Link>
             </nav>
             <MobileNav userName={session.user.name} dental={dental} />

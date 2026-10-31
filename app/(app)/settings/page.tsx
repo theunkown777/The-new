@@ -7,6 +7,11 @@ const CARDS = [
     description: "Zahnmedizin oder Arztpraxis: Fachgebiet wählen, Preise und eigene Selbstzahlerleistungen pflegen.",
   },
   {
+    href: "/zahlungen#konto",
+    title: "Bankverbindung",
+    description: "IBAN für den GiroCode im Patientenportal. Zahlungen gehen direkt auf Ihr Praxiskonto.",
+  },
+  {
     href: "/settings/security",
     title: "Sicherheit",
     description: "Zwei-Faktor-Authentifizierung (2FA) einrichten oder deaktivieren.",

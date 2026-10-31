@@ -1,3 +1,4 @@
+import { PRICE_SHORT, PRICE_TERMS } from "@/lib/pricing";
 import Link from "next/link";
 
 // Häufige Fragen von Praxen vor dem Start (aus Recherche und Pilotgesprächen abgeleitet).
@@ -34,7 +35,7 @@ export function PraxisFaq({ therapie = false, dental = false }: { therapie?: boo
         : `Nein. Sorrida öffnet sich aus Ihrer Praxissoftware mit dem aktuellen Patienten, ${dental ? "über VDDS-media (z. B. DS-Win, CGM Z1, charly, EVIDENT)" : "über GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS)"}. Ohne Anbindung geht es im Browser.`,
     ],
     ["Wie viel Arbeit macht die Einführung?", "Etwa eine Stunde: Preise prüfen, eigene Leistungen ergänzen, kurze Einweisung fürs Team. Im Pilotprogramm übernehmen wir die Einrichtung mit Ihnen."],
-    ["Was kostet es?", "149 € im Monat für Einzelpraxen, 249 € für bis zu fünf Behandelnde. Ohne Zähler und ohne KI-Kontingent, 30 Tage kostenlos, monatlich kündbar."],
+    ["Was kostet es?", `${PRICE_SHORT}. ${PRICE_TERMS}`],
   ];
   return (
     <section className="mt-14 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" aria-labelledby="faq">
