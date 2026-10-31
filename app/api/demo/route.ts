@@ -3,6 +3,9 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { cleanupExpiredDemos, createDemoPractice } from "@/lib/demo";
 import { DENTAL_ID, specialty } from "@/lib/specialties";
 
+// Anlegen von rund 1000 Beispielpatienten braucht einige Sekunden.
+export const maxDuration = 60;
+
 const LIMIT = 10;
 const WINDOW_MS = 60 * 60 * 1000;
 

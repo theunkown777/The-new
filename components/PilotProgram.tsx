@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { LEAD_PVS_DENTAL, LEAD_PVS_MEDICAL } from "@/lib/leads";
+import { LEAD_PVS_DENTAL, LEAD_PVS_MEDICAL, LEAD_PVS_THERAPIE } from "@/lib/leads";
 
 // Neukundengewinnung je Fach: Pilotprogramm mit Anfrageformular. Schickt an
 // /api/leads (Honeypot, Rate-Limit, Benachrichtigung an LEAD_NOTIFY_EMAIL).
-export function PilotProgram({ fach, kurz, dental = false }: { fach: string; kurz: string; dental?: boolean }) {
+export function PilotProgram({ fach, kurz, dental = false, therapie = false }: { fach: string; kurz: string; dental?: boolean; therapie?: boolean }) {
   const [form, setForm] = useState({ practiceName: "", contactName: "", dentists: "1", contact: "", pvs: "", callbackTime: "egal", website: "" });
   const [consent, setConsent] = useState(false);
   const [state, setState] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState("");
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({ ...form, [k]: e.target.value });
-  const pvsList = dental ? LEAD_PVS_DENTAL : LEAD_PVS_MEDICAL;
+  const pvsList: readonly string[] = dental ? LEAD_PVS_DENTAL : therapie ? LEAD_PVS_THERAPIE : LEAD_PVS_MEDICAL;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -71,7 +71,7 @@ export function PilotProgram({ fach, kurz, dental = false }: { fach: string; kur
               <input id="p-name" className="input" required value={form.contactName} onChange={set("contactName")} />
             </div>
             <div>
-              <label className="label" htmlFor="p-beh">{dental ? "Behandler" : "Ärztinnen und Ärzte"}</label>
+              <label className="label" htmlFor="p-beh">{dental ? "Behandler" : therapie ? "Therapeutinnen und Therapeuten" : "Ärztinnen und Ärzte"}</label>
               <select id="p-beh" className="input" value={form.dentists} onChange={set("dentists")}>
                 {["1", "2–3", "4–5", "mehr als 5"].map((v) => <option key={v}>{v}</option>)}
               </select>

@@ -10,7 +10,8 @@ const KEY = "sorrida-fach";
 
 // Fachauswahl auf der Startseite. Die letzte Wahl wird im Browser gemerkt,
 // damit wiederkehrende Besucher direkt zu ihrer Version springen können.
-export function FachWahl({ kacheln }: { kacheln: FachKachel[] }) {
+export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachKachel[] }[] }) {
+  const kacheln = gruppen.flatMap((g) => g.kacheln);
   const [last, setLast] = useState<FachKachel | null>(null);
 
   useEffect(() => {
@@ -40,8 +41,12 @@ export function FachWahl({ kacheln }: { kacheln: FachKachel[] }) {
           </Link>
         </p>
       )}
-      <ul className="grid gap-3 text-left sm:grid-cols-2 lg:grid-cols-3" data-testid="fach-kacheln">
-        {kacheln.map((k) => (
+      <div className="space-y-8" data-testid="fach-kacheln">
+        {gruppen.map((g) => (
+          <div key={g.titel}>
+            <h3 className="mb-3 text-left text-sm font-semibold uppercase tracking-wide text-slate-500">{g.titel}</h3>
+      <ul className="grid gap-3 text-left sm:grid-cols-2 lg:grid-cols-3">
+        {g.kacheln.map((k) => (
           <li key={k.id}>
             <Link
               href={k.href}
@@ -62,6 +67,9 @@ export function FachWahl({ kacheln }: { kacheln: FachKachel[] }) {
           </li>
         ))}
       </ul>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

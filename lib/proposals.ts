@@ -1,4 +1,4 @@
-import { isDental } from "@/lib/specialties";
+import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { buildMedicalProposal } from "@/lib/medicalProposals";
 // Behandlungsvorschläge ("Klarplan"): aus Zahnbefunden und allgemeinen
 // Befunden entstehen je Befund Behandlungsoptionen - immer zuerst die
@@ -14,25 +14,10 @@ import { buildMedicalProposal } from "@/lib/medicalProposals";
 // Reine Funktionen ohne DB-Zugriff, damit Client (Live-Vorschau) und Server
 // (Neuberechnung beim Speichern) dieselbe Logik nutzen.
 
-export const FINDINGS = {
-  karies_klein: "Karies, 1–2 Flächen",
-  karies_gross: "Karies, ab 3 Flächen",
-  fuellung_defekt: "Alte Füllung defekt",
-  wurzel: "Entzündeter Nerv",
-  zerstoert: "Stark zerstört, Krone nötig",
-  fehlt: "Zahn fehlt",
-  fissur: "Tiefe Fissuren, kariesfrei",
-} as const;
-export type FindingCode = keyof typeof FINDINGS;
-
-export const GLOBAL_FINDINGS = {
-  zahnstein: "Zahnstein und Beläge",
-  psi: "Parodontitis (PSI-Code 3 oder 4)",
-  bruxismus: "Knirschen oder Pressen",
-  raucher: "Raucher",
-  bleaching: "Patient wünscht hellere Zähne",
-} as const;
-export type GlobalCode = keyof typeof GLOBAL_FINDINGS;
+export { FINDINGS, GLOBAL_FINDINGS, UPPER_TEETH, LOWER_TEETH, isValidTooth } from "@/lib/dentalFindings";
+export type { FindingCode, GlobalCode } from "@/lib/dentalFindings";
+import { FINDINGS, GLOBAL_FINDINGS, UPPER_TEETH, LOWER_TEETH, type FindingCode, type GlobalCode } from "@/lib/dentalFindings";
+const ALL_TEETH = [...UPPER_TEETH, ...LOWER_TEETH];
 
 export const PRICE_DEFS = [
   { key: "fk_klein", label: "Kassenfüllung, 1–2 Flächen", default: 55 },
@@ -100,6 +85,10 @@ export interface ProposalOption {
   hinweis?: string;
   /** Ehrliche Angabe zum belegten Nutzen (Arztpraxen). */
   nutzen?: string;
+  /** Heilmittel: gesetzliche Zuzahlung (10 % + 10 € je Verordnung) für Erwachsene. */
+  zuzahlung?: boolean;
+  /** Eigene Bezeichnung der Leistungsart, z. B. "Selbstzahlerleistung" in Therapiepraxen. */
+  typeLabel?: string;
 }
 
 export interface ProposalItem {
@@ -156,13 +145,7 @@ export interface ProposalInput {
   med?: MedInput;
 }
 
-export const UPPER_TEETH = [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28];
-export const LOWER_TEETH = [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38];
-const ALL_TEETH = [...UPPER_TEETH, ...LOWER_TEETH];
 
-export function isValidTooth(n: number): boolean {
-  return ALL_TEETH.includes(n);
-}
 
 const pos = (n: number) => n % 10;
 const toothKind = (n: number) => (pos(n) <= 3 ? "front" : pos(n) <= 5 ? "pre" : "molar");
@@ -410,13 +393,21 @@ export function money(o: ProposalOption, p: PatientFactors, jahr?: ZuschussJahr)
     return { total, kasse, eigen: total - kasse, erstattet: 0, netto: total - kasse };
   }
   let kasse = 0;
-  if (o.type === "kasse") kasse = total;
+  if (o.type === "kasse") kasse = o.zuzahlung && (p.age == null || p.age >= 18) ? Math.max(0, total - heilmittelZuzahlung(total)) : total;
   else if (o.type === "mehrkosten" || o.type === "privatzusatz") kasse = o.base ?? 0;
   else if (o.type === "privat" || o.type === "igel") kasse = 0;
   else kasse = Math.min((o.regel ?? 0) * festzuschussQuote(p, jahr), total);
   const eigen = total - kasse;
   const erstattet = eigen * pct;
   return { total, kasse, eigen, erstattet, netto: eigen - erstattet };
+}
+
+/** Gesetzliche Zuzahlung bei Heilmitteln: 10 % der Kosten plus 10 € je Verordnung (§ 32 Abs. 2, § 61 SGB V). */
+export const heilmittelZuzahlung = (total: number) => total * 0.1 + 10;
+
+/** Bezeichnung der Leistungsart einer Option (eigene Bezeichnung hat Vorrang). */
+export function typeLabelOf(o: Pick<ProposalOption, "type" | "typeLabel">, insurance: "GKV" | "PKV"): string {
+  return o.typeLabel ?? optionTypeLabel(o.type, insurance);
 }
 
 export function chosenOption(item: ProposalItem, choices: Record<string, string>): ProposalOption | null {
@@ -516,6 +507,7 @@ export function buildLetter(args: {
 }): string {
   const { items, choices, patient, patientName, practiceName, date } = args;
   const dental = isDental(args.fach);
+  const therapie = isTherapie(specialty(args.fach));
   const jv = vergleicheJahre(items, choices, patient);
   // Den Vergleich nur zeigen, solange eine Bewilligung zu den alten Sätzen noch möglich ist.
   const vergleich = showsJahresvergleich(date) && jv.betroffen && (patient.zuschussJahr ?? defaultZuschussJahr(date)) === 2026;
@@ -542,7 +534,7 @@ export function buildLetter(args: {
           ? ` (bei Bewilligung ab 1.1.2027: ca. ${formatEuro(money(o, patient, 2027).netto)})`
           : "";
       L.push(
-        `   ${String.fromCharCode(97 + j)}) ${o.name} (${optionTypeLabel(o.type, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${later}${o.id === item.recommended ? "  ← unsere Empfehlung" : ""}`
+        `   ${String.fromCharCode(97 + j)}) ${o.name} (${typeLabelOf(o, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${later}${o.id === item.recommended ? "  ← unsere Empfehlung" : ""}`
       );
     });
     for (const o of item.options) {
@@ -567,6 +559,21 @@ export function buildLetter(args: {
     );
   }
   L.push("");
+  if (therapie) {
+    if (items.some((i) => i.options.some((o) => o.zuzahlung))) {
+      L.push(
+        "Für Leistungen auf Verordnung gilt bei Volljährigen die gesetzliche Zuzahlung: 10 % der Kosten plus 10 € je Verordnung. Kinder und Jugendliche sind befreit, ebenso Versicherte mit Befreiungsbescheid."
+      );
+      L.push("");
+    }
+    L.push(
+      "Selbstzahlerleistungen sind freiwillig und werden privat nach unserer Preisliste berechnet. Nehmen Sie sich Zeit für Ihre Entscheidung; vor der Behandlung vereinbaren wir sie schriftlich mit Ihnen. Alle Beträge sind Schätzungen."
+    );
+    L.push("");
+    L.push("Bei Fragen rufen Sie uns gern an.");
+    L.push(`Ihr Team der ${practiceName}`);
+    return L.join("\n");
+  }
   if (!dental) {
     L.push(
       "Wichtig: Selbstzahlerleistungen (IGeL) sind freiwillig und nicht Teil der Kassenleistung. Nehmen Sie sich Zeit für Ihre Entscheidung. Vor der Leistung schließen wir mit Ihnen eine schriftliche Vereinbarung mit den voraussichtlichen Kosten nach der Gebührenordnung für Ärzte (GOÄ). Alle Beträge sind Schätzungen. Diese Information erhalten Sie nach § 630c Abs. 3 BGB in Textform."

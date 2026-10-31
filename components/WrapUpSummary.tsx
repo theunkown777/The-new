@@ -43,6 +43,7 @@ export async function WrapUpSummary({
     patient: patientFactors ?? { age: null, insurance: report.patient.insuranceType === "PKV" ? "PKV" : "GKV", bonusYears: 0, haertefall: false, erstattungProzent: 0 },
     reportFinal: report.status === "FINAL",
     hasProposal: !!proposal,
+    fach: input?.success ? input.data.fach : undefined,
   });
   const jv = patientFactors ? vergleicheJahre(items, ch, patientFactors) : null;
   const text = report.editedText ?? report.generatedText ?? "";

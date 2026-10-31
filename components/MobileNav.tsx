@@ -11,7 +11,7 @@ const LINKS = [
   { href: "/proposals", label: "Vorschläge" },
 ];
 
-export function MobileNav({ userName }: { userName?: string | null }) {
+export function MobileNav({ userName, dental = true }: { userName?: string | null; dental?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -37,7 +37,7 @@ export function MobileNav({ userName }: { userName?: string | null }) {
       {open && (
         <div className="absolute inset-x-0 top-full z-40 border-t border-brand-800 bg-brand-600 px-4 py-3 shadow-lg">
           <nav className="flex flex-col gap-1 text-sm">
-            {LINKS.map((link) => (
+            {LINKS.filter((l) => dental || l.href !== "/reports").map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

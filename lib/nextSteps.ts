@@ -17,6 +17,7 @@ import {
   type PatientFactors,
   type ProposalItem,
 } from "@/lib/proposals";
+import { isTherapie, specialty } from "@/lib/specialties";
 
 export type StepOwner = "Rezeption" | "Behandler";
 
@@ -37,6 +38,8 @@ export function buildNextSteps(args: {
   reportFinal: boolean;
   hasProposal: boolean;
   today?: Date;
+  /** Fachgebiet: Therapiepraxen vereinbaren Selbstzahlerleistungen privat, nicht als IGeL. */
+  fach?: string;
 }): NextStep[] {
   const { items, choices, patient, reportFinal, hasProposal } = args;
   const today = args.today ?? new Date();
@@ -131,12 +134,20 @@ export function buildNextSteps(args: {
     });
   }
   if (igel.length) {
+    const therapie = isTherapie(specialty(args.fach));
     steps.push({
       id: "igel",
       owner: "Rezeption",
-      text: "Schriftliche Vereinbarung über Selbstzahlerleistungen (IGeL) vor der Leistung unterschreiben lassen",
-      detail: igel.join(" · ") + " – falls der Patient diese Leistung wählt; Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä)",
+      text: therapie
+        ? "Privatvereinbarung über Selbstzahlerleistungen vor der Behandlung unterschreiben lassen"
+        : "Schriftliche Vereinbarung über Selbstzahlerleistungen (IGeL) vor der Leistung unterschreiben lassen",
+      detail: therapie
+        ? igel.join(" · ") + " – falls der Patient diese Leistung wählt; Preis nach Praxispreisliste, Bedenkzeit lassen"
+        : igel.join(" · ") + " – falls der Patient diese Leistung wählt; Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä)",
     });
+  }
+  if (items.some((i) => chosenOption(i, choices)?.zuzahlung) && gkv && (patient.age == null || patient.age >= 18)) {
+    steps.push({ id: "zuzahlung", owner: "Rezeption", text: "Gesetzliche Zuzahlung kassieren oder Befreiungsbescheid prüfen", detail: "10 % der Kosten plus 10 € je Verordnung" });
   }
   if (termine.length) {
     steps.push({ id: "termine", owner: "Rezeption", text: "Folgetermine vereinbaren", detail: termine.join(" · ") });

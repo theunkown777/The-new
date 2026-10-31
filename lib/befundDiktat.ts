@@ -1,4 +1,4 @@
-import { FINDINGS, GLOBAL_FINDINGS, isValidTooth, type FindingCode, type GlobalCode } from "@/lib/proposals";
+import { FINDINGS, GLOBAL_FINDINGS, isValidTooth, type FindingCode, type GlobalCode } from "@/lib/dentalFindings";
 
 // Befund-Diktat: Aus gesprochenem oder getipptem Text wie
 // "16 Karies MOD, 25 Karies klein, 36 fehlt, 46 Füllung insuffizient, Zahnstein"

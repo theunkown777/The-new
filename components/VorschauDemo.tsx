@@ -8,7 +8,7 @@ import {
   chosenOption,
   formatEuro,
   money,
-  optionTypeLabel,
+  typeLabelOf,
   summarize,
   type PatientFactors,
   type ProposalInput,
@@ -21,7 +21,7 @@ import { SpecialtyIcon } from "@/components/SpecialtyIcon";
 // speichert nichts. Fach umschalten, Option antippen, Ergebnis sehen.
 
 const PATIENT: PatientFactors = { age: 46, insurance: "GKV", bonusYears: 10, haertefall: false, erstattungProzent: 0, zuschussJahr: 2026 };
-const AUSWAHL = ["zahn", "haut", "augen", "ortho", "gyn", "hausarzt"];
+const AUSWAHL = ["zahn", "hausarzt", "haut", "ortho", "radiologie", "psych", "physio"];
 
 function inputFor(fach: string): ProposalInput {
   if (fach === "zahn") return { teeth: { "36": "fehlt", "25": "karies_klein" }, globals: {}, patient: PATIENT };
@@ -36,7 +36,7 @@ export function VorschauDemo() {
   const input = useMemo(() => inputFor(fach), [fach]);
   const items = useMemo(() => buildProposal(input, DEFAULT_PRICES).filter((i) => i.options.length), [input]);
   const sum = summarize(items, choices, PATIENT);
-  const steps = buildNextSteps({ items, choices, patient: PATIENT, reportFinal: true, hasProposal: true, today: new Date("2026-11-02") });
+  const steps = buildNextSteps({ items, choices, patient: PATIENT, reportFinal: true, hasProposal: true, today: new Date("2026-11-02"), fach: fach === "zahn" ? undefined : fach });
   const name = fach === "zahn" ? "Zahnarztpraxis" : specialty(fach)?.kurz ?? "Praxis";
 
   const switchFach = (f: string) => {
@@ -75,7 +75,7 @@ export function VorschauDemo() {
                 <p className="text-xs text-slate-500">{it.where}</p>
                 <p className="font-medium text-slate-900">{it.title}</p>
                 <p className="mt-1 text-xs text-slate-600">
-                  {it.options.map((o) => `${o.name} (${optionTypeLabel(o.type, "GKV")})`).join(" · ")}
+                  {it.options.map((o) => `${o.name} (${typeLabelOf(o, "GKV")})`).join(" · ")}
                 </p>
               </li>
             ))}

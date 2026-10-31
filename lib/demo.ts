@@ -6,6 +6,7 @@ import { STANDARD_GOZ_PUNKTWERT_CENT } from "@/lib/billing";
 import { buildServiceSummary } from "@/lib/serviceSummary";
 import { DEFAULT_PRICES, buildProposal, defaultZuschussJahr, type ProposalInput } from "@/lib/proposals";
 import { DENTAL_ID, specialty, type Specialty } from "@/lib/specialties";
+import { seedBulkDemo } from "@/lib/demoBulk";
 import { computeProposal } from "@/lib/proposalSchema";
 import { QUESTIONS } from "@/lib/anamnesis";
 
@@ -283,6 +284,8 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
   }
 
   if (spec) await seedMedicalProposals(spec, practice.id, author.id, practice.name, created, now);
+  // Realistische Größe: rund 1000 Patienten mit Vorschlägen, Links, Anamnesen.
+  await seedBulkDemo({ practiceId: practice.id, practiceName: practice.name, authorId: author.id, fach: spec ? spec.id : DENTAL_ID, existing: created.length, now });
   return { email, password };
 }
 

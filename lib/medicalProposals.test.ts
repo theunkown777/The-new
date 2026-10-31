@@ -83,3 +83,33 @@ describe("To-dos für Arztpraxen", () => {
     expect(steps.map((s) => s.id)).not.toContain("hkp");
   });
 });
+
+import { heilmittelZuzahlung, typeLabelOf } from "@/lib/proposals";
+describe("Gesundheitsberufe (Heilmittel)", () => {
+  const physio = (age: number): ProposalInput => ({ teeth: {}, globals: {}, patient: patient(age), fach: "physio", anlaesse: ["ruecken"] });
+  it("Erwachsene zahlen 10 % plus 10 € zu, Kinder nichts", () => {
+    const [it] = buildProposal(physio(40), DEFAULT_PRICES);
+    const kg = it.options[0];
+    expect(kg).toMatchObject({ id: "kg_rezept", type: "kasse", zuzahlung: true });
+    expect(heilmittelZuzahlung(180)).toBe(28);
+    expect(money(kg, patient(40)).netto).toBe(28);
+    expect(money(kg, patient(12)).netto).toBe(0);
+  });
+  it("heißt in Therapiepraxen Selbstzahlerleistung, nicht IGeL", () => {
+    const [it] = buildProposal(physio(40), DEFAULT_PRICES);
+    expect(typeLabelOf(it.options[0], "GKV")).toBe("Kassenleistung mit Zuzahlung");
+    expect(typeLabelOf(it.options[1], "GKV")).toBe("Selbstzahlerleistung");
+  });
+  it("Schreiben und To-dos ohne IGeL-Regeln, mit Zuzahlungshinweis", () => {
+    const input = physio(40);
+    const items = buildProposal(input, DEFAULT_PRICES);
+    const letter = buildLetter({ items, choices: {}, patient: input.patient, patientName: "Herr Test", practiceName: "Physio", date: new Date("2026-11-02"), fach: "physio" });
+    expect(letter).toContain("10 % der Kosten plus 10 € je Verordnung");
+    expect(letter).not.toContain("IGeL");
+    const steps = buildNextSteps({ items, choices: { a_ruecken: "kg_selbst" }, patient: input.patient, reportFinal: true, hasProposal: true, fach: "physio" });
+    expect(steps.find((s) => s.id === "igel")?.text).toContain("Privatvereinbarung");
+  });
+  it("alle Fächer liefern Kasse vor Selbstzahler und keine IGeL-Empfehlung", () => {
+    expect(SPECIALTIES.length).toBeGreaterThanOrEqual(21);
+  });
+});

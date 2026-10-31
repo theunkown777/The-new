@@ -3,13 +3,28 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REPORT_TYPE_LABELS, REPORT_STATUS_LABELS } from "@/lib/reportLabels";
-import { formatEuro } from "@/lib/proposals";
+import { PROPOSAL_STATUS_LABELS, formatEuro } from "@/lib/proposals";
+import { isDental } from "@/lib/specialties";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
 
   const unopenedSince = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } });
+  // Arzt- und Therapiepraxen arbeiten ohne die zahnärztlichen KI-Berichte.
+  const dental = isDental(practice?.specialty);
+  const [anamnesen30, recentProposals] = dental
+    ? [0, []]
+    : await Promise.all([
+        prisma.anamnesisForm.count({ where: { practiceId, submittedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } } }),
+        prisma.treatmentProposal.findMany({
+          where: { practiceId },
+          orderBy: { createdAt: "desc" },
+          take: 8,
+          select: { id: true, status: true, createdAt: true, patient: { select: { firstName: true, lastName: true } } },
+        }),
+      ]);
   const [patientCount, draftCount, recentReports, openProposals, accepted, responses, unopened] = await Promise.all([
     prisma.patient.count({ where: { practiceId } }),
     prisma.report.count({ where: { practiceId, status: "ENTWURF" } }),
@@ -56,11 +71,11 @@ export default async function DashboardPage() {
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="card">
           <p className="text-sm text-slate-500">Patienten</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{patientCount}</p>
+          <p className="mt-1 text-2xl font-semibold text-slate-900">{patientCount.toLocaleString("de-DE")}</p>
         </div>
         <div className="card">
-          <p className="text-sm text-slate-500">Offene Entwürfe</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{draftCount}</p>
+          <p className="text-sm text-slate-500">{dental ? "Offene Entwürfe" : "Anamnesen (30 Tage)"}</p>
+          <p className="mt-1 text-2xl font-semibold text-slate-900">{dental ? draftCount : anamnesen30}</p>
         </div>
         <Link href="/proposals" className="card hover:bg-slate-50">
           <p className="text-sm text-slate-500">Offene Vorschläge</p>
@@ -113,6 +128,31 @@ export default async function DashboardPage() {
         </section>
       )}
 
+      {!dental && (
+        <section>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Neueste Vorschläge</h2>
+          <div className="card divide-y divide-slate-100 p-0">
+            {recentProposals.length === 0 ? (
+              <p className="px-6 py-4 text-sm text-slate-500">
+                Noch keine Vorschläge. <Link href="/abschluss/new" className="font-medium text-brand-600 hover:underline">Ersten Vorschlag erstellen</Link>
+              </p>
+            ) : (
+              recentProposals.map((r) => (
+                <Link key={r.id} href={`/proposals/${r.id}`} className="flex items-center justify-between px-6 py-3 hover:bg-slate-50">
+                  <span className="font-medium text-slate-900">
+                    {r.patient.firstName} {r.patient.lastName}
+                  </span>
+                  <span className="text-sm text-slate-500">
+                    {PROPOSAL_STATUS_LABELS[r.status]} · {r.createdAt.toLocaleDateString("de-DE")}
+                  </span>
+                </Link>
+              ))
+            )}
+          </div>
+        </section>
+      )}
+
+      {dental && (<>
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
         Zuletzt erstellte Berichte
       </h2>
@@ -150,6 +190,7 @@ export default async function DashboardPage() {
           ))}
         </div>
       )}
+      </>)}
     </div>
   );
 }

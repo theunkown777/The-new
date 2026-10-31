@@ -26,6 +26,8 @@ export interface MedOption {
   kasseAbAlter?: number;
   /** Ehrlicher Hinweis zum belegten Nutzen. */
   nutzen?: string;
+  /** Heilmittel: gesetzliche Zuzahlung für Erwachsene (10 % der Kosten + 10 € je Verordnung). */
+  zuzahlung?: boolean;
 }
 
 export interface Anlass {
@@ -46,6 +48,10 @@ export interface Specialty {
   arztDativ: string;
   /** Kurzbezeichnung für Website und Auswahl. */
   kurz: string;
+  /** Ärztliches Fach oder Gesundheitsberuf (Therapie): bestimmt Regeln und Wortwahl. */
+  beruf?: "arzt" | "therapie";
+  /** Kurzer Text für die Kachel auf der Startseite. */
+  teaser?: string;
   marketing: { headline: string; problem: string; beispiel: string };
   anlaesse: Anlass[];
 }
@@ -348,7 +354,408 @@ export const SPECIALTIES: Specialty[] = [
       },
     ],
   },
+  {
+    id: "radiologie",
+    name: "Radiologie",
+    kurz: "Radiologische Praxis",
+    teaser: "MRT ohne Indikation, Mammographie, Knochendichte",
+    arztDativ: "Ihrer Radiologin oder Ihrem Radiologen",
+    marketing: {
+      headline: "MRT auf Wunsch? Erst sagen, was die Kasse zahlt und was ein Befund ohne Beschwerden bringt",
+      problem: "Selbstzahler-MRTs und Vorsorgeuntersuchungen werden am Telefon angefragt. Die ehrliche Antwort zu Nutzen und Zufallsbefunden kostet Zeit am Empfang.",
+      beispiel: "Untersuchung mit Überweisung auf Kasse, Wunsch-MRT mit Preis und offenem Hinweis zu Zufallsbefunden.",
+    },
+    anlaesse: [
+      {
+        id: "mrt_wunsch",
+        label: "MRT oder CT auf eigenen Wunsch",
+        bereich: "Schnittbild",
+        options: [
+          { id: "mrt_kasse", name: "MRT mit Überweisung bei medizinischer Indikation", type: "kasse", price: 450, benefits: ["Kassenleistung mit Überweisung"] },
+          { id: "mrt_igel", name: "MRT ohne Indikation (je Körperregion)", type: "igel", price: 450, benefits: ["schneller Termin, ohne Strahlung"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt; Zufallsbefunde können zu weiteren Untersuchungen führen." },
+          { id: "ganzkoerper_mrt", name: "Ganzkörper-MRT zur Vorsorge", type: "igel", price: 950, benefits: ["Übersicht über viele Organe"], nutzen: "Ein Nutzen für Gesunde ist nicht belegt; häufige Zufallsbefunde verunsichern und ziehen Folgeuntersuchungen nach sich." },
+        ],
+      },
+      {
+        id: "mamma",
+        label: "Brustkrebs-Früherkennung",
+        bereich: "Vorsorge",
+        options: [
+          { id: "mammo_screening", name: "Mammographie-Screening", type: "kasse", price: 90, kasseAbAlter: 50, benefits: ["Kassenleistung ab 50 alle zwei Jahre, mit Einladung"] },
+          { id: "mamma_us", name: "Ultraschall der Brust ergänzend", type: "igel", price: 60, benefits: ["ohne Strahlung"], kasseWenn: "Bei Tastbefund oder Verdacht Kassenleistung.", nutzen: "Als alleinige Vorsorge ist ein Nutzen nicht belegt; bei dichtem Gewebe gemeinsam abwägen." },
+        ],
+      },
+      {
+        id: "knochen",
+        label: "Knochendichte",
+        bereich: "Knochen",
+        options: [
+          { id: "dxa_rad_kasse", name: "Knochendichtemessung (DXA) bei Verdacht", type: "kasse", price: 50, benefits: ["Kassenleistung nach Bruch ohne Unfall oder bei begründetem Verdacht"] },
+          { id: "dxa_rad_igel", name: "Knochendichtemessung (DXA) zur Vorsorge", type: "igel", price: 50, benefits: ["geringe Strahlung, wenige Minuten"], nutzen: "Ohne Risikofaktoren ist ein Nutzen nicht belegt." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "neuro",
+    name: "Neurologie",
+    kurz: "Neurologische Praxis",
+    teaser: "Gedächtnis-Check, Kopfschmerz, Gefäß-Ultraschall",
+    arztDativ: "Ihrer Neurologin oder Ihrem Neurologen",
+    marketing: {
+      headline: "Gedächtnis-Check und Gefäß-Ultraschall: offen sagen, wann es Kassenleistung ist",
+      problem: "Besorgte Angehörige fragen nach Demenz-Tests, Gesunde nach Gefäß-Checks. Beides braucht eine ruhige, ehrliche Einordnung.",
+      beispiel: "Abklärung bei Beschwerden auf Kasse, Check ohne Beschwerden mit klarem Hinweis zum Nutzen.",
+    },
+    anlaesse: [
+      {
+        id: "gedaechtnis",
+        label: "Gedächtnis und Konzentration",
+        bereich: "Diagnostik",
+        options: [
+          { id: "demenz_kasse", name: "Abklärung bei Beschwerden oder Verdacht", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "demenz_check", name: "Gedächtnis-Check ohne Beschwerden", type: "igel", price: 80, benefits: ["Tests zu Gedächtnis und Aufmerksamkeit"], nutzen: "Als Vorsorge ohne Beschwerden ist ein Nutzen nicht belegt." },
+        ],
+      },
+      {
+        id: "gefaesse",
+        label: "Gefäß-Ultraschall ohne Beschwerden",
+        bereich: "Vorsorge",
+        options: [
+          { id: "neuro_kasse", name: "Ultraschall bei Beschwerden oder Risikofaktoren", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "neuro_carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt; Fachgesellschaften raten davon ab." },
+        ],
+      },
+      {
+        id: "kopfschmerz",
+        label: "Chronischer Kopfschmerz",
+        bereich: "Schmerz",
+        options: [
+          { id: "kopf_kasse", name: "Diagnostik und Behandlung nach Leitlinie", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "kopf_akupunktur", name: "Akupunktur bei Kopfschmerz", type: "igel", price: 40, benefits: ["Ergänzung zur Behandlung"], kasseWenn: "Akupunktur ist nur bei chronischen Rücken- oder Knieschmerzen Kassenleistung." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "psych",
+    name: "Psychiatrie und Psychotherapie",
+    kurz: "Psychotherapeutische Praxis",
+    teaser: "Kassenplatz, Kostenerstattung, Selbstzahler-Sitzungen",
+    arztDativ: "Ihrer Therapeutin oder Ihrem Therapeuten",
+    marketing: {
+      headline: "Kassenplatz, Kostenerstattung oder Selbstzahler: Patienten verstehen ihre Wege",
+      problem: "Lange Wartezeiten führen zu vielen Anfragen. Die Erklärung von Sprechstunde, Kostenerstattung und Selbstzahler-Sitzungen wiederholt sich jeden Tag.",
+      beispiel: "Richtlinienpsychotherapie auf Kasse, Kostenerstattung als Weg erklärt, Selbstzahler-Sitzung mit Preis.",
+    },
+    anlaesse: [
+      {
+        id: "therapieplatz",
+        label: "Psychotherapie",
+        bereich: "Behandlung",
+        options: [
+          { id: "richtlinie", name: "Richtlinienpsychotherapie nach Sprechstunde", type: "kasse", price: 0, benefits: ["Kassenleistung, nach Sprechstunde und Antrag"] },
+          { id: "selbstzahler_sitzung", name: "Selbstzahler-Sitzung (je 50 Minuten)", type: "igel", price: 110, benefits: ["ohne Wartezeit auf einen Kassenplatz"], kasseWenn: "Bei langer Wartezeit kann die Kasse die Kosten einer Privatpraxis erstatten (Kostenerstattung nach § 13 Abs. 3 SGB V). Vorher bei der Kasse beantragen." },
+        ],
+      },
+      {
+        id: "coaching",
+        label: "Beratung ohne Krankheitswert",
+        bereich: "Beratung",
+        nurAufWunsch: true,
+        options: [{ id: "coaching_sitzung", name: "Beratung, z. B. Stressbewältigung (je Sitzung)", type: "igel", price: 90, benefits: ["für Belastungen ohne Krankheitswert"], nutzen: "Keine Krankenbehandlung und keine Kassenleistung." }],
+      },
+    ],
+  },
+  {
+    id: "gastro",
+    name: "Gastroenterologie",
+    kurz: "Gastroenterologische Praxis",
+    teaser: "Darmkrebs-Vorsorge, Atemtests, Ultraschall",
+    arztDativ: "Ihrer Gastroenterologin oder Ihrem Gastroenterologen",
+    marketing: {
+      headline: "Darmkrebs-Vorsorge: ab 50 auf Kasse, davor ehrlich mit Preis",
+      problem: "Jüngere Patienten wollen eine Darmspiegelung, ältere wissen nicht, dass sie Anspruch haben. Beides kostet Erklärzeit.",
+      beispiel: "Vorsorge ab 50 als Kassenleistung, Darmspiegelung vor 50 mit Hinweis, wann die Kasse trotzdem zahlt.",
+    },
+    anlaesse: [
+      {
+        id: "darm",
+        label: "Darmkrebs-Vorsorge",
+        bereich: "Vorsorge",
+        options: [
+          { id: "koloskopie", name: "Vorsorge-Darmspiegelung", type: "kasse", price: 300, kasseAbAlter: 50, benefits: ["Kassenleistung ab 50 Jahren"] },
+          { id: "ifobt", name: "Stuhltest auf verstecktes Blut", type: "igel", price: 30, benefits: ["einfacher Test zu Hause"], kasseWenn: "Ab 50 im Rahmen der Vorsorge Kassenleistung.", nutzen: "Ersetzt die Darmspiegelung nicht." },
+        ],
+        notes: ["Bei Beschwerden oder familiärer Belastung ist die Darmspiegelung auch vor 50 Kassenleistung."],
+      },
+      {
+        id: "unvertraeglich",
+        label: "Nahrungsmittel-Unverträglichkeit",
+        bereich: "Diagnostik",
+        options: [
+          { id: "atemtest_kasse", name: "Atemtest bei Beschwerden", type: "kasse", price: 45, benefits: ["Kassenleistung"] },
+          { id: "atemtest_igel", name: "Atemtest ohne Beschwerden", type: "igel", price: 45, benefits: ["Laktose oder Fruktose"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "pneumo",
+    name: "Pneumologie",
+    kurz: "Lungenfachpraxis",
+    teaser: "Lungenfunktion, Rauchstopp, Schlafapnoe",
+    arztDativ: "Ihrer Lungenfachärztin oder Ihrem Lungenfacharzt",
+    marketing: {
+      headline: "Lungen-Check und Rauchstopp: zeigen, was die Kasse übernimmt",
+      problem: "Raucher fragen nach Checks, Schnarcher nach Schlaftests. Die Antwort hängt am Anlass und an der Kasse.",
+      beispiel: "Lungenfunktion bei Beschwerden auf Kasse, Rauchstopp-Kurs mit Hinweis auf Zuschüsse der Kassen.",
+    },
+    anlaesse: [
+      {
+        id: "lunge",
+        label: "Lungen-Check",
+        bereich: "Diagnostik",
+        options: [
+          { id: "lufu_kasse", name: "Lungenfunktion bei Beschwerden", type: "kasse", price: 40, benefits: ["Kassenleistung bei Husten, Atemnot"] },
+          { id: "lufu_igel", name: "Lungenfunktion ohne Beschwerden (z. B. Raucher-Check)", type: "igel", price: 40, benefits: ["Ausgangswert für spätere Vergleiche"], nutzen: "Ohne Beschwerden ist der Nutzen begrenzt; am meisten bringt der Rauchstopp." },
+        ],
+      },
+      {
+        id: "rauchstopp",
+        label: "Rauchstopp",
+        bereich: "Prävention",
+        options: [{ id: "rauchstopp_kurs", name: "Rauchentwöhnungskurs", type: "igel", price: 150, benefits: ["Gruppenkurs über mehrere Wochen"], kasseWenn: "Zertifizierte Präventionskurse bezuschussen viele Krankenkassen (§ 20 SGB V)." }],
+      },
+    ],
+  },
+  {
+    id: "endo",
+    name: "Endokrinologie und Diabetologie",
+    kurz: "Diabetologische Praxis",
+    teaser: "Schilddrüse, Glukosesensor, Ernährungsberatung",
+    arztDativ: "Ihrer Diabetologin oder Ihrem Diabetologen",
+    marketing: {
+      headline: "Glukosesensor, Schilddrüse, Ernährung: klar, was die Kasse übernimmt",
+      problem: "Patienten fragen nach Sensoren und Checks, deren Kostenübernahme von der Therapie abhängt.",
+      beispiel: "Sensor bei intensivierter Insulintherapie auf Kasse, sonst mit Preis; Ernährungsberatung mit Hinweis auf Zuschüsse.",
+    },
+    anlaesse: [
+      {
+        id: "glukose",
+        label: "Glukosesensor",
+        bereich: "Diabetes",
+        options: [
+          { id: "cgm_kasse", name: "Kontinuierliche Glukosemessung bei intensivierter Insulintherapie", type: "kasse", price: 0, benefits: ["Kassenleistung nach Antrag"] },
+          { id: "cgm_igel", name: "Glukosesensor ohne Insulintherapie (je Monat)", type: "igel", price: 60, benefits: ["Verlauf des Zuckers im Alltag sehen"], nutzen: "Ohne Insulintherapie ist ein Nutzen für die Behandlung nicht belegt." },
+        ],
+      },
+      {
+        id: "schilddruese",
+        label: "Schilddrüse",
+        bereich: "Diagnostik",
+        options: [
+          { id: "sd_kasse", name: "Ultraschall und Blutwerte bei Beschwerden oder Befund", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "sd_igel", name: "Schilddrüsen-Check ohne Beschwerden", type: "igel", price: 50, benefits: ["Ultraschall und Blutwerte"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt; harmlose Knoten werden häufig gefunden." },
+        ],
+      },
+      {
+        id: "ernaehrung",
+        label: "Ernährungsberatung",
+        bereich: "Prävention",
+        options: [{ id: "ernaehrung_beratung", name: "Ernährungsberatung (je Termin)", type: "igel", price: 60, benefits: ["persönlicher Plan"], kasseWenn: "Viele Kassen bezuschussen Ernährungsberatung mit ärztlicher Bescheinigung." }],
+      },
+    ],
+  },
+  {
+    id: "chirurgie",
+    name: "Chirurgie, Phlebologie und Proktologie",
+    kurz: "Chirurgische Praxis",
+    teaser: "Krampfadern, Besenreiser, Hautveränderungen",
+    arztDativ: "Ihrer Chirurgin oder Ihrem Chirurgen",
+    marketing: {
+      headline: "Medizinisch notwendig oder kosmetisch? Die Grenze klar zeigen",
+      problem: "Ob eine Krampfader oder ein Muttermal auf Kasse behandelt wird, hängt am Befund. Patienten erfahren es oft zu spät.",
+      beispiel: "Behandlung bei Beschwerden auf Kasse, kosmetische Eingriffe mit Preis und ohne Druck.",
+    },
+    anlaesse: [
+      {
+        id: "venen",
+        label: "Krampfadern und Besenreiser",
+        bereich: "Venen",
+        options: [
+          { id: "venen_kasse", name: "Behandlung von Krampfadern bei Beschwerden", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "besenreiser", name: "Verödung von Besenreisern (je Sitzung)", type: "igel", price: 120, benefits: ["optische Verbesserung"], nutzen: "Kosmetische Behandlung, kein medizinischer Nutzen." },
+        ],
+      },
+      {
+        id: "haut_entfernung",
+        label: "Entfernung von Hautveränderungen",
+        bereich: "Kleine Eingriffe",
+        options: [
+          { id: "entfernung_kasse", name: "Entfernung bei medizinischer Indikation", type: "kasse", price: 0, benefits: ["Kassenleistung, z. B. bei Verdacht oder Beschwerden"] },
+          { id: "entfernung_kosmetisch", name: "Entfernung aus kosmetischen Gründen", type: "igel", price: 150, benefits: ["ambulant, örtliche Betäubung"] },
+        ],
+      },
+    ],
+  },
+  {
+    id: "aesthetik",
+    name: "Plastische und Ästhetische Chirurgie",
+    kurz: "Ästhetische Praxis",
+    teaser: "Nur auf Wunsch: Falten, Lider, Haut",
+    arztDativ: "Ihrer Fachärztin oder Ihrem Facharzt",
+    marketing: {
+      headline: "Ästhetik ohne Druck: Preis, Ablauf und Bedenkzeit in Textform",
+      problem: "Bei Wunschleistungen erwarten Patienten Klarheit über Kosten und Risiken, schriftlich und ohne Verkaufsgespräch.",
+      beispiel: "Medizinisch begründete Eingriffe mit Hinweis auf Kostenzusage, Wunschbehandlungen mit Preis und Bedenkzeit.",
+    },
+    anlaesse: [
+      {
+        id: "gesicht",
+        label: "Behandlung im Gesicht auf Wunsch",
+        bereich: "Ästhetik",
+        nurAufWunsch: true,
+        options: [
+          { id: "botulinum", name: "Faltenbehandlung mit Botulinum (Stirn)", type: "igel", price: 300, benefits: ["Wirkung für einige Monate"] },
+          { id: "filler", name: "Hyaluron-Unterspritzung (je Spritze)", type: "igel", price: 350, benefits: ["Volumenaufbau"] },
+        ],
+      },
+      {
+        id: "lider",
+        label: "Schlupflider",
+        bereich: "Lider",
+        options: [
+          { id: "lider_kasse", name: "Lidkorrektur bei Einschränkung des Gesichtsfelds", type: "kasse", price: 0, benefits: ["Kassenleistung nach Prüfung und Kostenzusage"] },
+          { id: "lider_aesthetik", name: "Lidstraffung aus ästhetischen Gründen", type: "igel", price: 2500, benefits: ["ambulant, örtliche Betäubung"] },
+        ],
+      },
+    ],
+  },
+  {
+    id: "physio",
+    name: "Physiotherapie und Osteopathie",
+    kurz: "Physiotherapie-Praxis",
+    beruf: "therapie",
+    teaser: "Verordnung mit Zuzahlung, Selbstzahler, Kurse",
+    arztDativ: "Ihrer Physiotherapeutin oder Ihrem Physiotherapeuten",
+    marketing: {
+      headline: "Rezept zu Ende, Beschwerden nicht: Anschlussbehandlung offen anbieten",
+      problem: "Nach der Verordnung brechen viele Patienten ab, obwohl sie weitermachen würden. Sie wissen nicht, was Selbstzahler-Einheiten kosten und was die Kasse erstattet.",
+      beispiel: "Krankengymnastik auf Verordnung mit gesetzlicher Zuzahlung, Folgeeinheiten als Selbstzahler, Osteopathie mit Hinweis auf Kassenzuschüsse.",
+    },
+    anlaesse: [
+      {
+        id: "ruecken",
+        label: "Rücken- oder Gelenkbeschwerden",
+        bereich: "Behandlung",
+        options: [
+          { id: "kg_rezept", name: "Krankengymnastik auf Verordnung (6 Einheiten)", type: "kasse", price: 180, zuzahlung: true, benefits: ["Kassenleistung mit gesetzlicher Zuzahlung"] },
+          { id: "kg_selbst", name: "Weitere Krankengymnastik als Selbstzahler (6 Einheiten)", type: "igel", price: 270, benefits: ["ohne Unterbrechung weiterbehandeln"], kasseWenn: "Mit neuer Verordnung wieder Kassenleistung." },
+          { id: "osteopathie", name: "Osteopathie (je Sitzung)", type: "igel", price: 90, benefits: ["ganzheitliche manuelle Behandlung"], kasseWenn: "Viele Krankenkassen erstatten Osteopathie anteilig als Zusatzleistung, oft mit ärztlicher Empfehlung." },
+        ],
+      },
+      {
+        id: "praevention",
+        label: "Training und Prävention",
+        bereich: "Prävention",
+        options: [
+          { id: "kgg_karte", name: "Gerätetraining unter Anleitung (10 Termine)", type: "igel", price: 150, benefits: ["Kraft und Stabilität"], kasseWenn: "Gerätegestützte Krankengymnastik ist mit Verordnung Kassenleistung." },
+          { id: "rueckenkurs", name: "Rückenkurs (8 Termine)", type: "igel", price: 120, benefits: ["in der Gruppe"], kasseWenn: "Zertifizierte Präventionskurse bezuschussen viele Krankenkassen (§ 20 SGB V)." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "ergo",
+    name: "Ergotherapie",
+    kurz: "Ergotherapie-Praxis",
+    beruf: "therapie",
+    teaser: "Verordnung mit Zuzahlung, Folgeeinheiten, Hirnleistung",
+    arztDativ: "Ihrer Ergotherapeutin oder Ihrem Ergotherapeuten",
+    marketing: {
+      headline: "Weiterbehandeln, wenn das Rezept endet: mit Preis statt Verlegenheit",
+      problem: "Angehörige fragen, was die Behandlung ohne neues Rezept kostet. Eine schriftliche Übersicht spart Zeit und Missverständnisse.",
+      beispiel: "Ergotherapie auf Verordnung mit Zuzahlung, Folgeeinheiten und Hirnleistungstraining als Selbstzahler.",
+    },
+    anlaesse: [
+      {
+        id: "ergo_behandlung",
+        label: "Ergotherapie",
+        bereich: "Behandlung",
+        options: [
+          { id: "ergo_rezept", name: "Ergotherapie auf Verordnung (10 Einheiten)", type: "kasse", price: 450, zuzahlung: true, benefits: ["Kassenleistung mit gesetzlicher Zuzahlung, für Kinder ohne Zuzahlung"] },
+          { id: "ergo_selbst", name: "Weitere Einheiten als Selbstzahler (je Einheit)", type: "igel", price: 55, benefits: ["ohne Unterbrechung weiterbehandeln"], kasseWenn: "Mit neuer Verordnung wieder Kassenleistung." },
+          { id: "hirnleistung", name: "Hirnleistungstraining (10 Einheiten)", type: "igel", price: 450, benefits: ["Gedächtnis und Konzentration üben"] },
+        ],
+      },
+    ],
+  },
+  {
+    id: "logo",
+    name: "Logopädie",
+    kurz: "Logopädie-Praxis",
+    beruf: "therapie",
+    teaser: "Sprachtherapie auf Rezept, Stimmtraining",
+    arztDativ: "Ihrer Logopädin oder Ihrem Logopäden",
+    marketing: {
+      headline: "Sprachtherapie auf Rezept und Stimmtraining für Berufe: beides klar erklärt",
+      problem: "Eltern und Berufstätige fragen, was die Kasse zahlt. Stimmtraining ohne Diagnose ist Selbstzahlerleistung.",
+      beispiel: "Therapie auf Verordnung (für Kinder ohne Zuzahlung), Stimmtraining für Sprechberufe mit Preis.",
+    },
+    anlaesse: [
+      {
+        id: "sprache",
+        label: "Sprach-, Sprech- oder Stimmtherapie",
+        bereich: "Behandlung",
+        options: [
+          { id: "logo_rezept", name: "Logopädie auf Verordnung (10 Einheiten)", type: "kasse", price: 500, zuzahlung: true, benefits: ["Kassenleistung mit gesetzlicher Zuzahlung, für Kinder ohne Zuzahlung"] },
+          { id: "stimmtraining", name: "Stimmtraining für Sprechberufe (5 Einheiten)", type: "igel", price: 300, benefits: ["für Lehrkräfte, Vortragende, Callcenter"], nutzen: "Training ohne Krankheitswert, keine Kassenleistung." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "podo",
+    name: "Podologie",
+    kurz: "Podologie-Praxis",
+    beruf: "therapie",
+    teaser: "Diabetischer Fuß auf Rezept, Fußpflege privat",
+    arztDativ: "Ihrer Podologin oder Ihrem Podologen",
+    marketing: {
+      headline: "Diabetischer Fuß auf Rezept, Fußpflege privat: ohne Diskussion am Tresen",
+      problem: "Viele wissen nicht, dass podologische Behandlung bei bestimmten Diagnosen Kassenleistung ist, und andere erwarten es fälschlich.",
+      beispiel: "Podologische Therapie auf Verordnung mit Zuzahlung, medizinische Fußpflege ohne Verordnung mit Preis.",
+    },
+    anlaesse: [
+      {
+        id: "fuss",
+        label: "Fußbehandlung",
+        bereich: "Behandlung",
+        options: [
+          { id: "podo_rezept", name: "Podologische Therapie auf Verordnung (6 Behandlungen)", type: "kasse", price: 240, zuzahlung: true, benefits: ["Kassenleistung, z. B. bei diabetischem Fußsyndrom"] },
+          { id: "fusspflege", name: "Medizinische Fußpflege ohne Verordnung (je Behandlung)", type: "igel", price: 35, benefits: ["Nägel, Hornhaut, Hühneraugen"], kasseWenn: "Bei diabetischem Fußsyndrom und einigen weiteren Diagnosen mit Verordnung Kassenleistung." },
+        ],
+      },
+    ],
+  },
 ];
+
+// Kacheltexte für die bestehenden Fächer.
+const TEASER: Record<string, string> = {
+  hausarzt: "Check-up, Reisemedizin, Sportuntersuchung",
+  augen: "Glaukom-Vorsorge, OCT, Führerschein-Sehtest",
+  haut: "Hautkrebs-Screening, Auflicht, Ästhetik auf Wunsch",
+  gyn: "Krebsfrüherkennung, Ultraschall, Schwangerschaft",
+  uro: "Prostata-Früherkennung, PSA mit Abwägung",
+  ortho: "Stoßwelle, Hyaluron, Akupunktur, Knochendichte",
+  hno: "Hörtest, Schnarchen und Schlafapnoe",
+  kinder: "U10, U11, J2, Sport und Reise",
+  kardio: "Herz-Check, Belastungs-EKG, Carotis",
+};
+for (const s of SPECIALTIES) s.teaser ??= TEASER[s.id];
+
+export const isTherapie = (s: Specialty | null | undefined) => s?.beruf === "therapie";
 
 export const SPECIALTY_IDS = [DENTAL_ID, ...SPECIALTIES.map((s) => s.id), "andere"] as const;
 

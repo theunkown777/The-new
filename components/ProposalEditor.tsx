@@ -24,7 +24,7 @@ import {
   vergleicheJahre,
   formatEuro,
   money,
-  optionTypeLabel,
+  typeLabelOf,
   summarize,
   type FindingCode,
   type GlobalCode,
@@ -482,7 +482,7 @@ export function ProposalEditor({
                                 <span
                                   className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${o.type === "kasse" || o.type === "regel" ? "border-green-600 text-green-700" : "border-slate-300 text-slate-500"}`}
                                 >
-                                  {optionTypeLabel(o.type, factors.insurance)}
+                                  {typeLabelOf(o, factors.insurance)}
                                 </span>
                                 {o.id === item.recommended && (
                                   <span className="text-[11px] font-semibold text-brand-700">Empfehlung</span>

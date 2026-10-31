@@ -75,7 +75,7 @@ export default function DemoPage() {
             </select>
           </div>
           <p className="text-sm text-slate-700">
-            Sie bekommen eine eigene Demo-Praxis mit erfundenen Beispielpatienten und fertigen Vorschlägen für Ihr Fach. Alles lässt sich
+            Sie bekommen eine eigene Demo-Praxis mit rund 1000 erfundenen Patienten, Vorschlägen, Rückmeldungen und Anamnesen aus mehreren Monaten. Alles lässt sich
             ausprobieren, auch der Patienten-Link und der Anamnesebogen.
           </p>
           <ul className="list-disc space-y-1 pl-5 text-sm text-slate-500">
@@ -85,7 +85,7 @@ export default function DemoPage() {
           </ul>
           {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
           <button type="button" onClick={start} disabled={busy} className="btn-primary w-full">
-            {busy ? "Demo-Praxis wird vorbereitet…" : "Gastzugang öffnen"}
+            {busy ? "Demo-Praxis mit 1000 Patienten wird angelegt…" : "Gastzugang öffnen"}
           </button>
         </div>
 

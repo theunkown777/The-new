@@ -4,11 +4,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { SPECIALTIES } from "@/lib/specialties";
 import { FachWahl, type FachKachel } from "@/components/FachWahl";
+import { Entlastung } from "@/components/Entlastung";
+import { ZeitRechner } from "@/components/ZeitRechner";
+import { PraxisFaq } from "@/components/PraxisFaq";
 
 export const metadata: Metadata = {
   title: "Sorrida – Nach dem Patientengespräch ein Klick. Für jede Praxis.",
   description:
-    "Behandlungsvorschlag mit Kassenleistung und Eigenanteil, Patienten-Link, digitale Anamnese und To-dos, zugeschnitten auf Ihr Fachgebiet: Zahnmedizin, Hausarzt, Augen, Haut, Frauenheilkunde, Urologie, Orthopädie, HNO, Kinder, Kardiologie.",
+    "Behandlungsvorschlag mit Kassenleistung und Eigenanteil, Patienten-Link, digitale Anamnese und To-dos, zugeschnitten auf über 20 Fachgebiete: Zahnmedizin, Hausarzt, Fachärzte von Augen bis Radiologie, Psychotherapie sowie Physiotherapie, Ergotherapie, Logopädie und Podologie.",
   openGraph: {
     title: "Sorrida – für jede Praxis, passend zu Ihrem Fach",
     description: "Kassenleistung zuerst, Selbstzahlerleistungen ehrlich erklärt, Patient entscheidet zu Hause und meldet sich zurück.",
@@ -16,22 +19,23 @@ export const metadata: Metadata = {
   },
 };
 
-const TEASER: Record<string, string> = {
-  hausarzt: "Check-up, Reisemedizin, Sportuntersuchung",
-  augen: "Glaukom-Vorsorge, OCT, Führerschein-Sehtest",
-  haut: "Hautkrebs-Screening, Auflicht, Ästhetik auf Wunsch",
-  gyn: "Krebsfrüherkennung, Ultraschall, Schwangerschaft",
-  uro: "Prostata-Früherkennung, PSA mit Abwägung",
-  ortho: "Stoßwelle, Hyaluron, Akupunktur, Knochendichte",
-  hno: "Hörtest, Schnarchen und Schlafapnoe",
-  kinder: "U10, U11, J2, Sport und Reise",
-  kardio: "Herz-Check, Belastungs-EKG, Carotis",
-};
+const kachel = (x: (typeof SPECIALTIES)[number]): FachKachel => ({ id: x.id, name: x.kurz, href: `/fachgebiete/${x.id}`, teaser: x.teaser ?? x.name });
 
-const KACHELN: FachKachel[] = [
-  { id: "zahn", name: "Zahnmedizin", href: "/zahnmedizin", teaser: "Zahnschema, Festzuschuss 2027, Mehrkostenvereinbarung" },
-  ...SPECIALTIES.map((s) => ({ id: s.id, name: s.kurz, href: `/fachgebiete/${s.id}`, teaser: TEASER[s.id] ?? s.name })),
-  { id: "andere", name: "Anderes Fach", href: "/fachgebiete/andere", teaser: "Eigene Leistungen anlegen, alles andere gleich" },
+const GRUPPEN: { titel: string; kacheln: FachKachel[] }[] = [
+  {
+    titel: "Ärztliche und zahnärztliche Praxen",
+    kacheln: [
+      { id: "zahn", name: "Zahnmedizin", href: "/zahnmedizin", teaser: "Zahnschema, Festzuschuss 2027, Mehrkostenvereinbarung" },
+      ...SPECIALTIES.filter((x) => x.beruf !== "therapie").map(kachel),
+    ],
+  },
+  {
+    titel: "Therapie und Gesundheitsberufe",
+    kacheln: [
+      ...SPECIALTIES.filter((x) => x.beruf === "therapie").map(kachel),
+      { id: "andere", name: "Anderes Fach", href: "/fachgebiete/andere", teaser: "Eigene Leistungen anlegen, alles andere gleich" },
+    ],
+  },
 ];
 
 const SCHRITTE = [
@@ -89,7 +93,7 @@ export default async function Start() {
         </section>
 
         <div className="mx-auto mt-8 max-w-5xl">
-          <FachWahl kacheln={KACHELN} />
+          <FachWahl gruppen={GRUPPEN} />
           <p className="mt-6 text-center">
             <Link
               href="/vorschau"
@@ -117,6 +121,14 @@ export default async function Start() {
             <li className="flex gap-3"><span className="text-emerald-700">✓</span> To-dos für die Rezeption, gemessene Annahmequote</li>
             <li className="flex gap-3"><span className="text-emerald-700">✓</span> Daten in Frankfurt, Pauschalpreis ohne KI-Kontingent</li>
           </ul>
+        </section>
+
+        <div className="mx-auto max-w-5xl">
+          <Entlastung />
+        </div>
+
+        <section className="mx-auto mt-20 max-w-5xl">
+          <ZeitRechner />
         </section>
 
         <section className="mx-auto mt-20 max-w-5xl">
@@ -148,6 +160,10 @@ export default async function Start() {
             <p className="mt-1 text-sm text-slate-600">Eigene Demo-Praxis für Ihr Fach, ohne Anmeldung, nach 24 Stunden gelöscht.</p>
           </div>
         </section>
+
+        <div className="mx-auto max-w-5xl">
+          <PraxisFaq />
+        </div>
 
         <section className="mx-auto mt-20 flex max-w-5xl flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
           <div>

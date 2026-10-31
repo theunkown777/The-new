@@ -5,7 +5,7 @@ import {
   chosenOption,
   isZahnersatz,
   money,
-  optionTypeLabel,
+  typeLabelOf,
   summarize,
   vergleicheJahre,
   type PatientFactors,
@@ -135,7 +135,7 @@ export function PatientProposalView(props: Props) {
                               <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-medium text-white">{t.recommended}</span>
                             )}
                           </div>
-                          <span className="text-xs text-slate-500">{tr(optionTypeLabel(o.type, patient.insurance), lang)}</span>
+                          <span className="text-xs text-slate-500">{tr(typeLabelOf(o, patient.insurance), lang)}</span>
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-semibold tabular-nums text-slate-900">{fmt(m.netto)}</div>

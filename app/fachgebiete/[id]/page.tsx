@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SPECIALTIES, specialty } from "@/lib/specialties";
+import { SPECIALTIES, isTherapie, specialty } from "@/lib/specialties";
 import { PublicShell } from "@/components/PublicShell";
 import { PilotProgram } from "@/components/PilotProgram";
+import { Entlastung } from "@/components/Entlastung";
+import { PraxisFaq } from "@/components/PraxisFaq";
 
 export function generateStaticParams() {
   return SPECIALTIES.map((s) => ({ id: s.id }));
@@ -20,6 +22,7 @@ const euro = (n: number) => (n ? `${n.toLocaleString("de-DE")} €` : "–");
 export default function SpecialtyPage({ params }: { params: { id: string } }) {
   const s = specialty(params.id);
   if (!s) notFound();
+  const therapie = isTherapie(s);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -86,17 +89,31 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
           <ul className="mt-3 list-disc space-y-1 pl-5 text-slate-700">
             <li>Patienteninformation in Textform mit Kosten je Option (§ 630c Abs. 3 BGB)</li>
             <li>Patienten-Link mit QR-Code: Optionen auf dem Handy vergleichen, Rückmeldung an die Praxis</li>
-            <li>To-do für die Rezeption: schriftliche IGeL-Vereinbarung vor der Leistung</li>
+            <li>To-do für die Rezeption: {therapie ? "Privatvereinbarung vor der Behandlung, gesetzliche Zuzahlung kassieren" : "schriftliche IGeL-Vereinbarung vor der Leistung"}</li>
             <li>Digitaler Anamnesebogen vor dem Termin, Warnhinweise beim Gespräch</li>
             <li>Gemessene Annahmequote statt Bauchgefühl</li>
-            <li>Öffnet sich aus Ihrer Praxissoftware über GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS) mit dem aktuellen Patienten</li>
+            <li>
+              {therapie
+                ? "Läuft im Browser neben Ihrer Praxissoftware, ohne Installation"
+                : "Öffnet sich aus Ihrer Praxissoftware über GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS) mit dem aktuellen Patienten"}
+            </li>
           </ul>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
           <h2 className="text-lg font-semibold text-slate-900">Regeln, an die Sorrida sich hält</h2>
           <ul className="mt-3 space-y-2 text-sm text-slate-700">
-            <li><b>Schriftliche Vereinbarung</b> vor jeder Selbstzahlerleistung (§ 18 Abs. 8 BMV-Ä), Berechnung nach GOÄ.</li>
-            <li><b>Kein Druck:</b> Sorrida empfiehlt keine IGeL von sich aus. Die Patienteninformation lädt ausdrücklich zur Bedenkzeit ein.</li>
+            {therapie ? (
+              <>
+                <li><b>Zuzahlung richtig:</b> Bei Leistungen auf Verordnung rechnet Sorrida die gesetzliche Zuzahlung für Erwachsene (10 % plus 10 € je Verordnung), Kinder sind befreit.</li>
+                <li><b>Schriftlich vereinbart:</b> Selbstzahlerleistungen nach Ihrer Preisliste, vor der Behandlung vereinbart.</li>
+                <li><b>Kein Druck:</b> Sorrida empfiehlt keine Selbstzahlerleistung von sich aus und lädt zur Bedenkzeit ein.</li>
+              </>
+            ) : (
+              <>
+                <li><b>Schriftliche Vereinbarung</b> vor jeder Selbstzahlerleistung (§ 18 Abs. 8 BMV-Ä), Berechnung nach GOÄ.</li>
+                <li><b>Kein Druck:</b> Sorrida empfiehlt keine IGeL von sich aus. Die Patienteninformation lädt ausdrücklich zur Bedenkzeit ein.</li>
+              </>
+            )}
             <li><b>Ehrlich zum Nutzen:</b> Wo kein Nutzen belegt ist, steht das beim Angebot.</li>
             <li><b>Kasse zuerst:</b> Wann die Kasse zahlt, steht bei jeder Leistung.</li>
           </ul>
@@ -106,7 +123,7 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
       <section className="mt-12 rounded-2xl border border-brand-200 bg-brand-50 p-6">
         <h2 className="text-lg font-semibold text-slate-900">Ein Preis, alles enthalten</h2>
         <p className="mt-1 text-slate-700">
-          149 € im Monat für Einzelpraxen, 249 € für Praxen mit bis zu fünf Ärztinnen und Ärzten. Ohne Zähler, 30 Tage kostenlos, monatlich
+          149 € im Monat für Einzelpraxen, 249 € für Praxen mit bis zu fünf {therapie ? "Therapeutinnen und Therapeuten" : "Ärztinnen und Ärzten"}. Ohne Zähler, 30 Tage kostenlos, monatlich
           kündbar. Endpreise nach § 19 UStG.
         </p>
         <Link href={`/demo?fach=${s.id}`} className="btn-primary mt-4 inline-block">
@@ -114,7 +131,11 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
         </Link>
       </section>
 
-      <PilotProgram fach={s.id} kurz={s.kurz} />
+      <Entlastung therapie={therapie} />
+
+      <PilotProgram fach={s.id} kurz={s.kurz} therapie={therapie} />
+
+      <PraxisFaq therapie={therapie} />
 
       <section className="mt-10 text-sm">
         <h2 className="mb-2 font-semibold text-slate-900">Weitere Fachgebiete</h2>

@@ -4,7 +4,8 @@ import { SPECIALTY_IDS, SPECIALTY_LABELS } from "@/lib/specialties";
 /** Praxissoftware für das Anfrageformular: Zahnarzt-Systeme (VDDS-media) und Arzt-Systeme (GDT). */
 export const LEAD_PVS_DENTAL = ["DS-Win", "CGM Z1", "charly", "EVIDENT"] as const;
 export const LEAD_PVS_MEDICAL = ["Medistar", "TURBOMED", "CGM M1 PRO", "x.isynet", "ALBIS", "T2med"] as const;
-export const LEAD_PVS = [...LEAD_PVS_DENTAL, ...LEAD_PVS_MEDICAL, "andere", "weiß nicht"] as const;
+export const LEAD_PVS_THERAPIE = ["THEORG"] as const;
+export const LEAD_PVS = [...LEAD_PVS_DENTAL, ...LEAD_PVS_MEDICAL, ...LEAD_PVS_THERAPIE, "andere", "weiß nicht"] as const;
 
 // Anfrage aus dem Formular der öffentlichen Website. "website" ist ein
 // verstecktes Feld (Honeypot): Menschen lassen es leer, einfache Bots füllen
