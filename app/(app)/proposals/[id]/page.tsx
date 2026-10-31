@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { PROPOSAL_STATUS_LABELS, resolvePrices } from "@/lib/proposals";
+import { PROPOSAL_STATUS_LABELS, buildProposal, resolvePrices } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 import { ProposalEditor } from "@/components/ProposalEditor";
+import { PatientLinkPanel } from "@/components/PatientLinkPanel";
+import { patientLinkState } from "@/lib/patientLink";
 
 export default async function ProposalDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -24,6 +26,10 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
   const input = proposalInputSchema.safeParse(proposal.input);
   const choices = choicesSchema.safeParse(proposal.choices);
   const p = proposal.patient;
+  const linkState = patientLinkState(
+    proposal,
+    input.success ? buildProposal(input.data, resolvePrices(proposal.practice.proposalPrices)) : [],
+  );
 
   return (
     <div>
@@ -61,6 +67,10 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
       ) : (
         <div className="card text-sm text-red-700">Die gespeicherten Befunddaten sind ungültig.</div>
       )}
+
+      <div className="mt-6">
+        {input.success && <PatientLinkPanel proposalId={proposal.id} state={linkState} firstName={p.firstName} />}
+      </div>
 
       {(proposal.status === "ANGENOMMEN" || proposal.status === "ABGELEHNT") && (
         <div className="card mt-6 space-y-2">

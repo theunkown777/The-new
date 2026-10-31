@@ -370,6 +370,18 @@ model TreatmentProposal {
   planTotalCent   Int
   eigenanteilCent Int
   letterText      String
+  // Patienten-Link: Der Patient sieht seinen Vorschlag auf dem eigenen
+  // Gerät (/p/<token>) und meldet Interesse oder Rückrufwunsch zurück.
+  // Gespeichert wird nur der Hash des Tokens.
+  shareTokenHash     String?   @unique
+  shareExpiresAt     DateTime?
+  patientViewedAt    DateTime?
+  // "INTERESSE" | "RUECKRUF"
+  patientResponse    String?
+  // Vom Patienten bevorzugte Option je Befund, z. B. {"t36":"impl"}
+  patientChoices     Json?
+  patientNote        String?
+  patientRespondedAt DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

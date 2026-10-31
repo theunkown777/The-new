@@ -5,6 +5,8 @@ import { buildProposal, formatEuro, resolvePrices, vergleicheJahre, showsJahresv
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { REPORT_STATUS_LABELS, REPORT_TYPE_LABELS } from "@/lib/reportLabels";
 import { CopyTextButton } from "@/components/CopyTextButton";
+import { PatientLinkPanel } from "@/components/PatientLinkPanel";
+import { patientLinkState } from "@/lib/patientLink";
 
 // Ergebnis des Abschluss-Schritts: was automatisch entstanden ist und was
 // Rezeption bzw. Behandler noch erledigen müssen. Gemeinsam genutzt von der
@@ -121,6 +123,10 @@ export async function WrapUpSummary({
           )}
         </section>
       </div>
+
+      {proposal && items.some((i) => i.options.length > 0) && (
+        <PatientLinkPanel proposalId={proposal.id} state={patientLinkState(proposal, items)} firstName={report.patient.firstName} />
+      )}
 
       <Link href={links.patient} className="text-sm text-brand-600 hover:underline">← Zum Patienten</Link>
     </div>

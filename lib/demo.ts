@@ -41,7 +41,13 @@ type DemoPatient = {
   birthDate: string;
   insuranceType: "GKV" | "PKV";
   insuranceName: string;
-  proposal?: { input: Omit<ProposalInput, "patient">; bonusYears: 0 | 5 | 10; status: string; choices?: Record<string, string> };
+  proposal?: {
+    input: Omit<ProposalInput, "patient">;
+    bonusYears: 0 | 5 | 10;
+    status: string;
+    choices?: Record<string, string>;
+    patientResponse?: { response: "INTERESSE" | "RUECKRUF"; note: string };
+  };
 };
 
 const PATIENTS: DemoPatient[] = [
@@ -73,7 +79,21 @@ const PATIENTS: DemoPatient[] = [
       choices: { t26: "wkplus" },
     },
   },
-  { firstName: "Peter", lastName: "Schulz", birthDate: "1968-09-22", insuranceType: "GKV", insuranceName: "AOK" },
+  {
+    firstName: "Peter",
+    lastName: "Schulz",
+    birthDate: "1968-09-22",
+    insuranceType: "GKV",
+    insuranceName: "AOK",
+    // Hat den Vorschlag über den Patienten-Link angesehen und um Rückruf gebeten.
+    proposal: {
+      input: { teeth: { "24": "fehlt" }, globals: {} },
+      bonusYears: 5,
+      status: "BESPROCHEN",
+      choices: { t24: "impl" },
+      patientResponse: { response: "RUECKRUF", note: "Ist eine Ratenzahlung möglich? Am besten nachmittags erreichbar." },
+    },
+  },
   { firstName: "Lena", lastName: "Hoffmann", birthDate: "2014-06-30", insuranceType: "GKV", insuranceName: "Barmer" },
 ];
 
@@ -210,6 +230,15 @@ export async function createDemoPractice(now = new Date()): Promise<{ email: str
           input: input as unknown as Prisma.InputJsonValue,
           reportId,
           ...computed,
+          ...(p.proposal.patientResponse && {
+            shareTokenHash: crypto.randomBytes(32).toString("hex"),
+            shareExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
+            patientViewedAt: new Date(now.getTime() - 3 * 60 * 60 * 1000),
+            patientResponse: p.proposal.patientResponse.response,
+            patientChoices: p.proposal.choices ?? {},
+            patientNote: p.proposal.patientResponse.note,
+            patientRespondedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+          }),
         },
       });
     }

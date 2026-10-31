@@ -68,9 +68,18 @@ export default async function ProposalsPage() {
                   {formatEuro(p.eigenanteilCent / 100)}
                 </p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-medium ${PROPOSAL_STATUS_BADGE[p.status]}`}>
-                {PROPOSAL_STATUS_LABELS[p.status]}
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                {p.patientResponse ? (
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
+                    {p.patientResponse === "RUECKRUF" ? "Rückruf gewünscht" : "Patient möchte besprechen"}
+                  </span>
+                ) : p.patientViewedAt ? (
+                  <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-800">vom Patienten gelesen</span>
+                ) : null}
+                <span className={`rounded-full px-3 py-1 text-xs font-medium ${PROPOSAL_STATUS_BADGE[p.status]}`}>
+                  {PROPOSAL_STATUS_LABELS[p.status]}
+                </span>
+              </div>
             </Link>
           ))}
         </div>

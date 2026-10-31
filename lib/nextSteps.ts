@@ -50,7 +50,7 @@ export function buildNextSteps(args: {
     steps.push({
       id: "schreiben",
       owner: "Rezeption",
-      text: "Patientenschreiben mitgeben oder per E-Mail/Portal senden",
+      text: "Patienten-Link per QR-Code oder SMS mitgeben, alternativ Patientenschreiben ausdrucken",
       detail: "Wirtschaftliche Aufklärung in Textform nach § 630c Abs. 3 BGB",
     });
   }

@@ -9,7 +9,7 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
 
-  const [patientCount, draftCount, recentReports, openProposals, accepted] = await Promise.all([
+  const [patientCount, draftCount, recentReports, openProposals, accepted, responses] = await Promise.all([
     prisma.patient.count({ where: { practiceId } }),
     prisma.report.count({ where: { practiceId, status: "ENTWURF" } }),
     prisma.report.findMany({
@@ -22,6 +22,12 @@ export default async function DashboardPage() {
     prisma.treatmentProposal.findMany({
       where: { practiceId, status: "ANGENOMMEN" },
       select: { baseTotalCent: true, planTotalCent: true },
+    }),
+    prisma.treatmentProposal.findMany({
+      where: { practiceId, patientResponse: { not: null }, status: { in: ["ENTWURF", "BESPROCHEN"] } },
+      orderBy: { patientRespondedAt: "desc" },
+      take: 10,
+      select: { id: true, patientResponse: true, patientRespondedAt: true, patientNote: true, patient: { select: { firstName: true, lastName: true } } },
     }),
   ]);
   const acceptedDeltaCent = accepted.reduce((sum, p) => sum + p.planTotalCent - p.baseTotalCent, 0);
@@ -51,6 +57,28 @@ export default async function DashboardPage() {
           <p className="mt-1 text-2xl font-semibold text-amber-700">{formatEuro(acceptedDeltaCent / 100)}</p>
         </Link>
       </div>
+
+      {responses.length > 0 && (
+        <section className="mb-8" data-testid="patient-responses">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Rückmeldungen von Patienten</h2>
+          <div className="card divide-y divide-slate-100 p-0">
+            {responses.map((r) => (
+              <Link key={r.id} href={`/proposals/${r.id}`} className="flex flex-wrap items-center justify-between gap-2 px-6 py-4 hover:bg-emerald-50">
+                <div>
+                  <p className="font-medium text-slate-900">
+                    {r.patient.firstName} {r.patient.lastName}
+                  </p>
+                  {r.patientNote && <p className="text-sm italic text-slate-600">„{r.patientNote}“</p>}
+                </div>
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
+                  {r.patientResponse === "RUECKRUF" ? "Rückruf gewünscht" : "möchte besprechen"}
+                  {r.patientRespondedAt && ` · ${r.patientRespondedAt.toLocaleDateString("de-DE")}`}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
         Zuletzt erstellte Berichte
