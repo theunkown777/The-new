@@ -21,7 +21,14 @@ So beheben (Vercel, Projekt öffnen):
 `);
   process.exit(1);
 }
-console.log(`Datenbank-Adresse aus ${db.source}`);
+const host = (u: string) => {
+  try {
+    return new URL(u).hostname;
+  } catch {
+    return "?";
+  }
+};
+console.log(`Datenbank-Adresse aus ${db.source}: App nutzt ${host(db.runtime)}, Migrationen über ${host(db.direct)}`);
 
 const run = (cmd: string, url: string) =>
   execSync(cmd, { stdio: "inherit", env: { ...process.env, DATABASE_URL: url } });

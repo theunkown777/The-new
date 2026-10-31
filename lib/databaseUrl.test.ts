@@ -20,3 +20,21 @@ describe("resolveDatabaseUrls", () => {
     expect(resolveDatabaseUrls({ DATABASE_URL: "", REDIS_URL: "redis://x" })).toBeNull();
   });
 });
+
+describe("zwei verbundene Datenbanken", () => {
+  const altPooled = "postgresql://u:p@ep-alt-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require";
+  const neuDirect = "postgresql://u:p@ep-neu.eu-central-1.aws.neon.tech/neondb?sslmode=require";
+  it("nimmt Migrations- und Laufzeitadresse nie aus verschiedenen Datenbanken", () => {
+    const r = resolveDatabaseUrls({ DATABASE_URL: altPooled, NEON2_DATABASE_URL_UNPOOLED: neuDirect, NEON2_DATABASE_URL: neuDirect.replace("ep-neu", "ep-neu-pooler") })!;
+    expect(r.runtime).toContain("ep-alt-pooler");
+    expect(r.direct).toBe("postgresql://u:p@ep-alt.eu-central-1.aws.neon.tech/neondb?sslmode=require");
+  });
+  it("ignoriert eine Direktadresse ohne Präfix, die zu einer anderen Datenbank gehört", () => {
+    const r = resolveDatabaseUrls({ DATABASE_URL: altPooled, DATABASE_URL_UNPOOLED: neuDirect })!;
+    expect(r.direct).toContain("ep-alt.");
+  });
+  it("nutzt die passende Direktadresse desselben Satzes", () => {
+    const r = resolveDatabaseUrls({ DATABASE_URL: altPooled, DATABASE_URL_UNPOOLED: altPooled.replace("-pooler", "") })!;
+    expect(r.source).toBe("DATABASE_URL + DATABASE_URL_UNPOOLED");
+  });
+});
