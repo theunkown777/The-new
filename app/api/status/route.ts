@@ -66,10 +66,22 @@ export async function GET(req: Request) {
     : process.env.LEAD_NOTIFY_EMAIL
       ? { ok: true, info: "Hilfe-Anfragen gehen an die Adresse für Pilot-Anfragen" }
       : { ok: true, info: "keine Empfängeradresse: Hilfe-Anfragen nur in der Datenbank und im Postfach /anfragen" };
-  const team = (process.env.SUPPORT_TEAM_EMAILS ?? "").split(/[,;\s]+/).filter((e) => e.includes("@")).length;
+  // Nur Anzahl und Form prüfen, nie Adressen ausgeben.
+  const rawTeam = process.env.SUPPORT_TEAM_EMAILS;
+  const team = (rawTeam ?? "").split(/[,;\s]+/).filter((e) => e.includes("@")).length;
+  const similar = Object.keys(process.env).filter((k) => /SUPPORT|TEAM/i.test(k) && k !== "SUPPORT_TEAM_EMAILS" && k !== "SUPPORT_NOTIFY_EMAIL");
   checks["Postfach Anfragen"] = team
     ? { ok: true, info: `${team} Team-${team === 1 ? "Konto" : "Konten"} freigeschaltet (/anfragen)` }
-    : { ok: true, info: "SUPPORT_TEAM_EMAILS fehlt: niemand sieht das Postfach /anfragen" };
+    : rawTeam !== undefined
+      ? { ok: true, info: `SUPPORT_TEAM_EMAILS ist gesetzt (${rawTeam.trim().length} Zeichen), enthält aber keine E-Mail-Adresse mit @. Wert in Vercel prüfen, dann neu deployen.` }
+      : {
+          ok: true,
+          info: `SUPPORT_TEAM_EMAILS fehlt in dieser Umgebung (${process.env.VERCEL_ENV ?? "unbekannt"}): niemand sieht das Postfach /anfragen.${similar.length ? ` Ähnlich benannte Einträge gefunden: ${similar.join(", ")} (Tippfehler?)` : ""} In Vercel für Production setzen und neu deployen.`,
+        };
+  checks["Deployment"] = {
+    ok: true,
+    info: `${process.env.VERCEL_ENV ?? "lokal"}, Stand ${process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "unbekannt"}${process.env.VERCEL_GIT_COMMIT_REF ? ` (${process.env.VERCEL_GIT_COMMIT_REF})` : ""}`,
+  };
 
   // Nur Information, kein Fehler: der Betrieb funktioniert auch außerhalb Frankfurts.
   const db = databaseLocation(resolveDatabaseUrls(process.env)?.runtime);
