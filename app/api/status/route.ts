@@ -70,5 +70,5 @@ export async function GET(req: Request) {
   };
 
   const ok = Object.values(checks).every((c) => c.ok);
-  return NextResponse.json({ ok, checks }, { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ ok, checks }, { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store", "Content-Type": "application/json; charset=utf-8" } });
 }
