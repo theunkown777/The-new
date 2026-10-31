@@ -112,33 +112,43 @@ export default async function PortalPage({ params, searchParams }: { params: { t
     }
   }
 
+  // Wohin der Knopf "Als Nächstes" führt: Rechnung, Vorschlag, Fragebogen oder Unterlagen.
+  const openProposal = patient.proposals.find((p) => (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse);
+  const nextHref = open.length
+    ? "#rechnungen"
+    : openProposal
+      ? `/portal/${params.token}/vorschlag/${openProposal.id}`
+      : patient.anamnesisForms[0]
+        ? `/portal/${params.token}/anamnese/${patient.anamnesisForms[0].id}`
+        : "#dokumente";
+
   return (
     <main className="min-h-screen bg-[#F5F2EE]" lang={lang} data-testid="portal">
       <div className="mx-auto max-w-xl px-4 pb-16 pt-6 sm:pt-10">
-        <header className="flex items-center gap-2 text-sm font-semibold text-brand-700">
+        {/* Sorrida-Portal: mittig aufgebaut, der Behandlungsweg zuerst, dann die Begrüßung und der eine nächste Schritt */}
+        <header className="flex flex-col items-center gap-1 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/sorrida-mark.svg" alt="" className="h-7 w-7 shrink-0" />
-          <span className="truncate">{practice.name}</span>
+          <img src="/brand/sorrida-mark.svg" alt="" className="h-10 w-10" />
+          <span className="text-sm font-medium text-slate-600">{practice.name}</span>
         </header>
 
-        <h1 className="font-display mt-8 text-4xl leading-tight text-slate-900">{t.hello(patient.firstName)}</h1>
-        <p className="mt-2 text-lg text-slate-700" data-testid="portal-summary">
-          <span className="font-semibold text-brand-700">{t.next}:</span> {t.step(weg.patient)}
-        </p>
-
-        {/* Sorrida-Signatur: der Behandlungsweg auf dem Lächelbogen, darunter Kasse zuerst */}
-        <section className="mt-6 rounded-3xl bg-white p-5" aria-labelledby="weg" data-testid="portal-weg">
-          <h2 id="weg" className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <Laechelbogen className="h-2 w-8 text-brand-600" />
-            {t.wayTitle}
-          </h2>
+        <section className="mt-5 rounded-[2rem] bg-salbei-50 px-5 pb-5 pt-6 text-center" aria-labelledby="weg" data-testid="portal-weg">
+          <h2 id="weg" className="text-xs font-semibold uppercase tracking-[0.18em] text-salbei-700">{t.wayTitle}</h2>
           <div className="mt-4">
             <Behandlungsweg erreicht={weg.erreicht} aktuell={weg.aktuell} abgelehnt={weg.abgelehnt} size="gross" labels={t.stations.split("|")} />
           </div>
+          <h1 className="font-display mt-3 text-4xl leading-tight text-slate-900">{t.hello(patient.firstName)}</h1>
+          <a href={nextHref} className="mt-4 flex items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-[0_10px_30px_-22px_rgba(52,72,50,.9)]" data-testid="portal-summary">
+            <span className="min-w-0 flex-1">
+              <span className="block text-xs font-semibold uppercase tracking-wide text-salbei-700">{t.next}</span>
+              <span className="block text-lg leading-snug text-slate-900">{t.step(weg.patient)}</span>
+            </span>
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-salbei-600 text-white" aria-hidden="true">→</span>
+          </a>
           {split && split.kasse + split.eigen > 0 && (
-            <KassenSockel className="mt-3" kasse={split.kasse} eigen={split.eigen} labels={{ kasse: t.kassePays, eigen: t.yourShare }} />
+            <KassenSockel className="mt-4 text-left" kasse={split.kasse} eigen={split.eigen} labels={{ kasse: t.kassePays, eigen: t.yourShare }} />
           )}
-          <p className="mt-4 border-t border-slate-100 pt-3 text-sm text-slate-600">
+          <p className="mt-3 text-sm text-slate-600">
             {open.length ? (
               <>
                 {t.openTotal}: <b className="tabular-nums text-slate-900">{money(openCent)}</b> · {t.nextDue(date(open[0].dueDate))}
