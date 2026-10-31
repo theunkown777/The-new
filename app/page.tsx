@@ -176,7 +176,7 @@ export default async function Start() {
         <section className="mt-20 flex flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
           <div>
             <h2 className="text-2xl font-semibold">Ab {eur(PLANS[0].preis)} im Monat. Alles enthalten.</h2>
-            <p className="mt-1 text-white/80">30 Tage kostenlos, monatlich kündbar, keine Zähler. Endpreise nach § 19 UStG.</p>
+            <p className="mt-1 text-white/80">30 Tage kostenlos, monatlich kündbar, keine Zähler. Endpreise ohne späteren Steueraufschlag.</p>
           </div>
           <a href="#fach" className="rounded-full bg-white px-5 py-3 font-medium text-brand-700 hover:bg-brand-50">
             Fach wählen und loslegen

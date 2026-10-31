@@ -36,4 +36,8 @@ export const eur = (n: number) => `${n.toLocaleString("de-DE")} €`;
 /** Kurzfassung für Fließtext und FAQ. */
 export const PRICE_SHORT = `${eur(PLANS[0].preis)} im Monat für Einzelpraxen, ${eur(PLANS[1].preis)} für bis zu fünf Behandelnde, MVZ ab ${eur(PLANS[2].preis)}`;
 export const PRICE_TERMS = `Alles enthalten, ohne Zähler. 30 Tage kostenlos, monatlich kündbar, bei jährlicher Zahlung zwei Monate geschenkt. Einrichtung einmalig ${eur(SETUP_EUR)}, für Pilotpraxen kostenlos.`;
-export const VAT_NOTE = "Endpreise. Nach § 19 UStG (Kleinunternehmerregelung) wird keine Umsatzsteuer berechnet.";
+// Preisgarantie: Die Beträge bleiben Endpreise, auch wenn Sorrida später
+// umsatzsteuerpflichtig wird. Heilberufe können Vorsteuer meist nicht
+// abziehen; ein späterer Aufschlag von 19 % wäre für sie eine echte
+// Preiserhöhung. Die Kalkulation trägt die Steuer (siehe Vault-Notiz).
+export const VAT_NOTE = "Endpreise. Derzeit nach § 19 UStG (Kleinunternehmerregelung) ohne Umsatzsteuer; die Preise bleiben auch danach Endpreise, ohne Aufschlag.";
