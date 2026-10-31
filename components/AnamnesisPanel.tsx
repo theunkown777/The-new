@@ -29,7 +29,7 @@ export function AnamnesisPanel({ patientId, firstName, summary }: { patientId: s
   const a = summary.answers;
 
   return (
-    <section className="card space-y-3" data-testid="anamnesis-panel">
+    <section id="anamnese" className="card scroll-mt-6 space-y-3" data-testid="anamnesis-panel">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-medium text-slate-900">Anamnese</h2>
         <button type="button" className="btn btn-secondary" onClick={create} disabled={busy}>

@@ -7,6 +7,7 @@ import { FachWahl, type FachKachel } from "@/components/FachWahl";
 import { Entlastung } from "@/components/Entlastung";
 import { ZeitRechner } from "@/components/ZeitRechner";
 import { PraxisFaq } from "@/components/PraxisFaq";
+import { ZweiAnsichten } from "@/components/ZweiAnsichten";
 
 export const metadata: Metadata = {
   title: "Sorrida – Nach dem Patientengespräch ein Klick. Für jede Praxis.",
@@ -110,7 +111,9 @@ export default async function Start() {
           </p>
         </div>
 
-        <section className="mt-20 grid  gap-8 lg:grid-cols-2 lg:items-center">
+        <ZweiAnsichten />
+
+        <section className="mt-20 grid gap-8 lg:grid-cols-2 lg:items-center">
           <div className="space-y-4">
             <h2 className="text-3xl font-bold leading-tight tracking-tight">Nach dem Patientengespräch ein Klick. Der Rest ist erledigt.</h2>
             <p className="text-lg leading-relaxed text-slate-600">
@@ -131,11 +134,11 @@ export default async function Start() {
           <Entlastung />
         </div>
 
-        <section className="mt-20 ">
+        <section className="mt-20">
           <ZeitRechner />
         </section>
 
-        <section className="mt-20 ">
+        <section className="mt-20">
           <h2 className="text-2xl font-semibold">So läuft es in jeder Praxis</h2>
           <ol className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {SCHRITTE.map(([t, d], i) => (
@@ -148,7 +151,7 @@ export default async function Start() {
           </ol>
         </section>
 
-        <section className="mt-20 grid  gap-6 rounded-3xl bg-white p-6 sm:grid-cols-3 sm:p-10">
+        <section className="mt-20 grid gap-6 rounded-3xl bg-white p-6 sm:grid-cols-3 sm:p-10">
           <div>
             <h3 className="font-semibold">Ehrlich statt verkaufen</h3>
             <p className="mt-1 text-sm text-slate-600">
@@ -169,7 +172,7 @@ export default async function Start() {
           <PraxisFaq />
         </div>
 
-        <section className="mt-20 flex  flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
+        <section className="mt-20 flex flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
           <div>
             <h2 className="text-2xl font-semibold">149 € im Monat. Alles enthalten.</h2>
             <p className="mt-1 text-white/80">30 Tage kostenlos, monatlich kündbar, keine Zähler. Endpreise nach § 19 UStG.</p>

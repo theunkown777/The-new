@@ -104,6 +104,7 @@ export async function seedBulkDemo(args: {
     const viewed = linked && r() < 0.8;
     const responded = viewed && (status !== "ENTWURF" ? r() < 0.55 : r() < 0.3);
     const shareCreatedAt = new Date(createdAt.getTime() + 3600 * 1000);
+    const respondedAt = new Date(shareCreatedAt.getTime() + Math.floor(24 + r() * 96) * 3600 * 1000);
     proposals.push({
       practiceId,
       patientId: p.id,
@@ -111,6 +112,7 @@ export async function seedBulkDemo(args: {
       status,
       input: input as unknown as Prisma.InputJsonValue,
       createdAt,
+      updatedAt: createdAt,
       ...computed,
       ...(linked && {
         shareTokenHash: crypto.randomBytes(32).toString("hex"),
@@ -120,7 +122,8 @@ export async function seedBulkDemo(args: {
         ...(responded && {
           patientResponse: r() < 0.6 ? "INTERESSE" : "RUECKRUF",
           patientChoices: computed.choices,
-          patientRespondedAt: new Date(shareCreatedAt.getTime() + Math.floor(24 + r() * 96) * 3600 * 1000),
+          patientRespondedAt: respondedAt,
+          updatedAt: respondedAt < now ? respondedAt : now,
           patientWantsInstallments: r() < 0.15,
           patientNote: r() < 0.3 ? weighted(r, [["Am besten nachmittags erreichbar.", 1], ["Ist eine Ratenzahlung möglich?", 1], ["Was zahlt meine Kasse davon?", 1], ["Kann ich erst nach dem Urlaub?", 1]]) : null,
         }),
