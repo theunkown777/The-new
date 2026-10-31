@@ -26,7 +26,7 @@ export default function DatenschutzPage() {
           vollständig in Ihrem Browser; Ihre Eingaben dort werden nicht übertragen.
         </p>
         <p>
-          Hosting: [Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA], auf Grundlage eines
+          Hosting: Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA, auf Grundlage eines
           Vertrags zur Auftragsverarbeitung und des EU-US Data Privacy Framework bzw. der
           EU-Standardvertragsklauseln.
         </p>
@@ -41,7 +41,7 @@ export default function DatenschutzPage() {
           (Art. 6 Abs. 1 lit. b und lit. a DSGVO). Die Angaben werden gelöscht, wenn kein Vertrag
           zustande kommt, spätestens 12 Monate nach der Anfrage. Ihre Einwilligung können Sie jederzeit
           per E-Mail widerrufen. Zur Benachrichtigung über neue Anfragen nutzen wir den E-Mail-Dienst
-          [Resend, Plus Five Five, Inc., USA].
+          Resend (Plus Five Five, Inc., USA).
         </p>
       </section>
 
@@ -55,9 +55,9 @@ export default function DatenschutzPage() {
           Patientendaten, die Praxen in Sorrida erfassen oder aus ihrer Praxissoftware übergeben,
           verarbeiten wir ausschließlich im Auftrag der jeweiligen Praxis nach Art. 28 DSGVO auf
           Grundlage eines Vertrags zur Auftragsverarbeitung. Verantwortlich gegenüber den Patienten ist
-          die Praxis. Eingesetzte Unterauftragsverarbeiter: Hosting [Vercel], Datenbank
-          [DATENBANK-ANBIETER eintragen], Zwischenspeicher für Missbrauchsschutz [Upstash, Inc.],
-          E-Mail-Versand [Resend] und für die Formulierung von Berichten [Anthropic PBC, USA].
+          die Praxis. Eingesetzte Unterauftragsverarbeiter: Hosting Vercel Inc. (Rechenzentrum Frankfurt am Main), Datenbank
+          Neon (Neon, Inc., USA) mit Speicherort Frankfurt am Main, Zwischenspeicher für Missbrauchsschutz Upstash, Inc. (nur falls aktiviert, ohne Patientendaten),
+          E-Mail-Versand Resend und für die Formulierung von Berichten Anthropic PBC, USA.
         </p>
       </section>
 

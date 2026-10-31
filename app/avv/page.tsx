@@ -114,7 +114,7 @@ export default function AvvPage() {
           <li><b>Eingabekontrolle:</b> Änderungsverlauf für Berichte mit Zeit und Person; angenommene Vorschläge werden nicht mehr verändert.</li>
           <li><b>Datenminimierung:</b> nur die für den Zweck nötigen Felder; Patienten-Links zeigen nur den Vornamen, enthalten keine Patientendaten und laufen nach 30 Tagen ab.</li>
           <li><b>Schutz vor Missbrauch:</b> Begrenzung der Anfragen je Absender für Anmeldung, Registrierung, Patienten-Links und Formulare.</li>
-          <li><b>Verfügbarkeit:</b> Betrieb bei einem Hosting-Anbieter mit redundanter Infrastruktur; Datensicherung durch den Datenbank-Anbieter [Intervall und Aufbewahrung eintragen].</li>
+          <li><b>Verfügbarkeit:</b> Betrieb bei einem Hosting-Anbieter mit redundanter Infrastruktur; Datensicherung durch den Datenbank-Anbieter Neon mit Wiederherstellung auf einen früheren Zeitpunkt innerhalb des im Tarif eingestellten Zeitraums.</li>
           <li><b>Trennung:</b> Gastzugänge laufen in eigenen Demo-Praxen ohne echte Patientendaten und werden nach 24 Stunden gelöscht.</li>
         </ul>
       </section>
@@ -127,8 +127,8 @@ export default function AvvPage() {
           </thead>
           <tbody>
             <tr><td className="py-1">Vercel Inc.</td><td>Hosting der Anwendung</td><td>Rechenzentrum Frankfurt am Main (Region fra1); Unternehmen in den USA</td></tr>
-            <tr><td className="py-1">[Datenbank-Anbieter]</td><td>Speicherung der Daten</td><td>[Region eintragen, empfohlen Frankfurt]</td></tr>
-            <tr><td className="py-1">Upstash, Inc.</td><td>Zwischenspeicher für Missbrauchsschutz (keine Patientendaten)</td><td>[Region eintragen]</td></tr>
+            <tr><td className="py-1">Neon, Inc.</td><td>Speicherung der Daten (PostgreSQL)</td><td>Frankfurt am Main (Region eu-central-1); Unternehmen in den USA</td></tr>
+            <tr><td className="py-1">Upstash, Inc.</td><td>Zwischenspeicher für Missbrauchsschutz, nur falls aktiviert (keine Patientendaten)</td><td>Region wie im Upstash-Konto gewählt; empfohlen Frankfurt</td></tr>
             <tr><td className="py-1">Resend (Plus Five Five, Inc.)</td><td>Versand von System-E-Mails (keine Patientendaten)</td><td>USA</td></tr>
             <tr><td className="py-1">Anthropic PBC</td><td>Formulierung von Berichtsentwürfen</td><td>USA</td></tr>
           </tbody>
