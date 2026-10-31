@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { redisStatus } from "@/lib/rateLimit";
 import { databaseLocation } from "@/lib/hostingRegion";
+import { resolveDatabaseUrls } from "@/lib/databaseUrl";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +59,7 @@ export async function GET(req: Request) {
     : { ok: true, info: "kein Schlüssel: Berichte im Testmodus" };
 
   // Nur Information, kein Fehler: der Betrieb funktioniert auch außerhalb Frankfurts.
-  const db = databaseLocation(process.env.DATABASE_URL);
+  const db = databaseLocation(resolveDatabaseUrls(process.env)?.runtime);
   checks["Standort Datenbank"] = {
     ok: true,
     info: `${db.provider}, Region ${db.region}${db.eu === true ? " (EU)" : db.eu === false ? " – außerhalb der EU: Website-/AVV-Angaben anpassen oder Datenbank in eu-central-1 anlegen" : " – bitte im Dashboard des Anbieters prüfen"}`,
