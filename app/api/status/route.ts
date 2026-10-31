@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { redisStatus } from "@/lib/rateLimit";
+import { databaseLocation } from "@/lib/hostingRegion";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +56,17 @@ export async function GET(req: Request) {
   checks["KI-Berichte"] = process.env.ANTHROPIC_API_KEY
     ? { ok: true, info: "Schlüssel gesetzt" }
     : { ok: true, info: "kein Schlüssel: Berichte im Testmodus" };
+
+  // Nur Information, kein Fehler: der Betrieb funktioniert auch außerhalb Frankfurts.
+  const db = databaseLocation(process.env.DATABASE_URL);
+  checks["Standort Datenbank"] = {
+    ok: true,
+    info: `${db.provider}, Region ${db.region}${db.eu === true ? " (EU)" : db.eu === false ? " – außerhalb der EU: Website-/AVV-Angaben anpassen oder Datenbank in eu-central-1 anlegen" : " – bitte im Dashboard des Anbieters prüfen"}`,
+  };
+  checks["Standort Funktionen"] = {
+    ok: true,
+    info: process.env.VERCEL_REGION ? `Vercel ${process.env.VERCEL_REGION}${process.env.VERCEL_REGION === "fra1" ? " (Frankfurt)" : " – erwartet fra1, vercel.json prüfen"}` : "nicht auf Vercel",
+  };
 
   const ok = Object.values(checks).every((c) => c.ok);
   return NextResponse.json({ ok, checks }, { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } });
