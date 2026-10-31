@@ -45,7 +45,7 @@ export function Entlastung({ therapie = false }: { therapie?: boolean }) {
       <h2 id="entlastung" className="text-2xl font-semibold text-slate-900">
         Was Praxen heute belastet, und was Sorrida abnimmt
       </h2>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {karten.map((k) => (
           <div key={k.titel} className="rounded-2xl border border-slate-200 bg-white p-5">
             <h3 className="font-semibold text-slate-900">{k.titel}</h3>

@@ -45,7 +45,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
         {gruppen.map((g) => (
           <div key={g.titel}>
             <h3 className="mb-3 text-left text-sm font-semibold uppercase tracking-wide text-slate-500">{g.titel}</h3>
-      <ul className="grid gap-3 text-left sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-3 text-left sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
         {g.kacheln.map((k) => (
           <li key={k.id}>
             <Link

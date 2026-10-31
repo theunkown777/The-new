@@ -24,7 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen">
       <header className="relative border-b border-brand-800 bg-brand-600">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3">
+        <div className="mx-auto flex max-w-[88rem] items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-10">
           <Link href="/dashboard" className="flex min-w-0 items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/sorrida-mark-hell.svg" alt="" className="h-8 w-auto shrink-0" />
@@ -53,7 +53,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </header>
       {demo && <DemoBanner expiresAt={demo} />}
       {!demo && !currentUser?.emailVerifiedAt && <VerifyEmailBanner />}
-      <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8">{children}</main>
+      <main className="mx-auto max-w-[88rem] px-4 py-6 sm:px-6 sm:py-8 lg:px-10">{children}</main>
     </div>
   );
 }

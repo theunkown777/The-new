@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Vorschau() {
   return (
-    <PublicShell wide>
+    <PublicShell full>
       <p className="text-sm font-semibold text-brand-700">Vorschau · ohne Anmeldung, es wird nichts gespeichert</p>
       <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-900">So arbeitet Sorrida in einer Beispielpraxis</h1>
       <p className="mb-8 mt-3 max-w-2xl text-lg text-slate-600">

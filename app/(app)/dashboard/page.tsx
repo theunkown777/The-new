@@ -87,6 +87,8 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
+      <div className="grid gap-8 xl:grid-cols-2">
+        <div className="min-w-0">
       {responses.length > 0 && (
         <section className="mb-8" data-testid="patient-responses">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Rückmeldungen von Patienten</h2>
@@ -128,6 +130,8 @@ export default async function DashboardPage() {
         </section>
       )}
 
+        </div>
+        <div className="min-w-0">
       {!dental && (
         <section>
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Neueste Vorschläge</h2>
@@ -191,6 +195,8 @@ export default async function DashboardPage() {
         </div>
       )}
       </>)}
+        </div>
+      </div>
     </div>
   );
 }

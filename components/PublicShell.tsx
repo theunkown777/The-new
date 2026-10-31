@@ -1,9 +1,11 @@
 import Link from "next/link";
 
 // Gemeinsamer Rahmen für öffentliche Seiten außerhalb der statischen Startseite.
-export function PublicShell({ children, wide = false }: { children: React.ReactNode; wide?: boolean }) {
+export function PublicShell({ children, wide = false, full = false }: { children: React.ReactNode; wide?: boolean; full?: boolean }) {
+  // full: ganze Desktop-Breite (Fachseiten, Vorschau); wide: Lesebreite für Ratgeber und Rechtliches.
   return (
-    <main className={`mx-auto px-4 py-10 ${wide ? "max-w-4xl" : "max-w-2xl"}`}>
+    <div className={full ? "min-h-screen bg-[#F5F2EE]" : undefined}>
+    <main className={`mx-auto px-4 py-10 ${full ? "max-w-[88rem] sm:px-6 lg:px-10" : wide ? "max-w-4xl" : "max-w-2xl"}`}>
       <nav className="mb-8 flex flex-wrap items-center justify-between gap-3 text-sm">
         <Link href="/" className="flex items-center gap-2 text-slate-500 hover:text-slate-800">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -22,5 +24,6 @@ export function PublicShell({ children, wide = false }: { children: React.ReactN
         <Link href="/datenschutz" className="underline">Datenschutz</Link> · <Link href="/avv" className="underline">AVV-Muster</Link>
       </p>
     </main>
+    </div>
   );
 }

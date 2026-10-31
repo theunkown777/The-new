@@ -54,7 +54,7 @@ export default async function Start() {
 
   return (
     <div className="min-h-screen bg-[#F5F2EE] text-slate-900">
-      <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-5">
+      <header className="mx-auto flex max-w-[88rem] items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-10">
         <Link href="/" className="flex items-center gap-3" aria-label="Sorrida Startseite">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/sorrida-mark.svg" alt="" className="h-11 w-11" />
@@ -79,7 +79,7 @@ export default async function Start() {
         </nav>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-20">
+      <main className="mx-auto max-w-[88rem] px-4 pb-20 sm:px-6 lg:px-10">
         <section className="mx-auto max-w-4xl pt-6 text-center sm:pt-12" id="fach">
           {session && (
             <p className="mx-auto mb-6 inline-flex flex-wrap items-center justify-center gap-x-2 rounded-full bg-white px-4 py-2 text-sm text-slate-600">
@@ -96,7 +96,7 @@ export default async function Start() {
           </p>
         </section>
 
-        <div className="mx-auto mt-8 max-w-5xl">
+        <div className="mt-10">
           <FachWahl gruppen={GRUPPEN} />
           <p className="mt-6 text-center">
             <Link
@@ -110,7 +110,7 @@ export default async function Start() {
           </p>
         </div>
 
-        <section className="mx-auto mt-20 grid max-w-5xl gap-8 lg:grid-cols-2 lg:items-center">
+        <section className="mt-20 grid  gap-8 lg:grid-cols-2 lg:items-center">
           <div className="space-y-4">
             <h2 className="text-3xl font-bold leading-tight tracking-tight">Nach dem Patientengespräch ein Klick. Der Rest ist erledigt.</h2>
             <p className="text-lg leading-relaxed text-slate-600">
@@ -127,15 +127,15 @@ export default async function Start() {
           </ul>
         </section>
 
-        <div className="mx-auto max-w-5xl">
+        <div className="">
           <Entlastung />
         </div>
 
-        <section className="mx-auto mt-20 max-w-5xl">
+        <section className="mt-20 ">
           <ZeitRechner />
         </section>
 
-        <section className="mx-auto mt-20 max-w-5xl">
+        <section className="mt-20 ">
           <h2 className="text-2xl font-semibold">So läuft es in jeder Praxis</h2>
           <ol className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {SCHRITTE.map(([t, d], i) => (
@@ -148,7 +148,7 @@ export default async function Start() {
           </ol>
         </section>
 
-        <section className="mx-auto mt-20 grid max-w-5xl gap-6 rounded-3xl bg-white p-6 sm:grid-cols-3 sm:p-10">
+        <section className="mt-20 grid  gap-6 rounded-3xl bg-white p-6 sm:grid-cols-3 sm:p-10">
           <div>
             <h3 className="font-semibold">Ehrlich statt verkaufen</h3>
             <p className="mt-1 text-sm text-slate-600">
@@ -165,11 +165,11 @@ export default async function Start() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-5xl">
+        <div className="">
           <PraxisFaq />
         </div>
 
-        <section className="mx-auto mt-20 flex max-w-5xl flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
+        <section className="mt-20 flex  flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
           <div>
             <h2 className="text-2xl font-semibold">149 € im Monat. Alles enthalten.</h2>
             <p className="mt-1 text-white/80">30 Tage kostenlos, monatlich kündbar, keine Zähler. Endpreise nach § 19 UStG.</p>
@@ -181,7 +181,7 @@ export default async function Start() {
       </main>
 
       <footer className="border-t border-slate-200">
-        <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-3 px-4 py-6 text-xs text-slate-500">
+        <div className="mx-auto flex max-w-[88rem] flex-wrap justify-between gap-3 px-4 py-6 text-xs text-slate-500 sm:px-6 lg:px-10">
           <span>
             Sorrida · <Link href="/ratgeber" className="hover:underline">Ratgeber</Link> ·{" "}
             <Link href="/avv" className="hover:underline">AVV-Muster</Link> · <Link href="/impressum" className="hover:underline">Impressum</Link> ·{" "}
