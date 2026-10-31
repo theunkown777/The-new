@@ -68,7 +68,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <MobileNav userName={session.user.name} dental={dental} team={team} analyse={analyse} />
           </div>
         </header>
-        {demo && <DemoBanner expiresAt={demo} />}
+        {demo && <DemoBanner expiresAt={demo} role={session.user.role} userName={session.user.name} />}
         {!demo && !currentUser?.emailVerifiedAt && <VerifyEmailBanner />}
         <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-10">{children}</main>
       </div>
