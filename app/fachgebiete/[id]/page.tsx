@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SPECIALTIES, specialty } from "@/lib/specialties";
 import { PublicShell } from "@/components/PublicShell";
+import { PilotProgram } from "@/components/PilotProgram";
 
 export function generateStaticParams() {
   return SPECIALTIES.map((s) => ({ id: s.id }));
@@ -40,11 +41,11 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
       <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-900">{s.marketing.headline}</h1>
       <p className="mt-4 max-w-2xl text-lg text-slate-600">{s.marketing.problem}</p>
       <div className="mt-6 flex flex-wrap gap-3">
-        <Link href={`/demo?fach=${s.id}`} className="btn-primary">
-          Gastzugang für die {s.kurz} öffnen
-        </Link>
-        <Link href={`/register?fach=${s.id}`} className="btn-secondary">
-          Praxis kostenlos anlegen
+        <a href="#pilot" className="btn-primary">
+          Pilotplatz anfragen
+        </a>
+        <Link href={`/demo?fach=${s.id}`} className="btn-secondary">
+          Demo-Praxis ansehen
         </Link>
       </div>
 
@@ -112,6 +113,8 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
           Jetzt ausprobieren
         </Link>
       </section>
+
+      <PilotProgram fach={s.id} kurz={s.kurz} />
 
       <section className="mt-10 text-sm">
         <h2 className="mb-2 font-semibold text-slate-900">Weitere Fachgebiete</h2>

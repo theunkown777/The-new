@@ -61,38 +61,53 @@ export default async function Start() {
           <Link href="/login" className="text-slate-600 hover:text-slate-900">
             Anmelden
           </Link>
-          <Link href="/demo" className="rounded-full bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700">
-            Ausprobieren
+          <Link href="/vorschau" className="rounded-full bg-brand-600 px-4 py-2 font-medium text-white hover:bg-brand-700">
+            Vorschau
           </Link>
         </nav>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 pb-20">
-        <section className="grid gap-10 pt-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14 lg:pt-14">
-          <div className="space-y-5 lg:sticky lg:top-8 lg:self-start">
-            <p className="text-sm font-semibold text-brand-700">Für Praxen jeder Fachrichtung</p>
-            <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-[2.9rem]">
-              Nach dem Patientengespräch ein Klick. Der Rest ist erledigt.
-            </h1>
+        <section className="mx-auto max-w-4xl pt-6 text-center sm:pt-12" id="fach">
+          <p className="text-sm font-semibold text-brand-700">Willkommen bei Sorrida</p>
+          <h1 className="mt-2 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">Welche Praxis haben Sie?</h1>
+          <p className="mx-auto mt-3 max-w-2xl text-lg text-slate-600">
+            Wählen Sie Ihr Fach. Sie sehen dann Sorrida mit Ihren Leistungen, Ihren Regeln und dem Pilotprogramm für Ihr Fach.
+          </p>
+        </section>
+
+        <div className="mx-auto mt-8 max-w-5xl">
+          <FachWahl kacheln={KACHELN} />
+          <p className="mt-6 text-center">
+            <Link
+              href="/vorschau"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:border-brand-600 hover:text-brand-700"
+              data-testid="vorschau-link"
+            >
+              Ohne Praxiswahl ansehen · Vorschau
+              <span aria-hidden="true">→</span>
+            </Link>
+          </p>
+        </div>
+
+        <section className="mx-auto mt-20 grid max-w-5xl gap-8 lg:grid-cols-2 lg:items-center">
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold leading-tight tracking-tight">Nach dem Patientengespräch ein Klick. Der Rest ist erledigt.</h2>
             <p className="text-lg leading-relaxed text-slate-600">
               Sorrida zeigt Patienten zuerst, was die Kasse zahlt, und dann die sinnvollen Alternativen mit dem Betrag, den sie selbst
               zahlen. Zu Hause vergleichen sie in Ruhe und melden sich mit einem Tipp zurück.
             </p>
-            <ul className="space-y-2 text-sm text-slate-600">
-              <li className="flex gap-2"><span className="text-emerald-700">✓</span> Kassenleistung immer zuerst, ehrliche Hinweise zum Nutzen</li>
-              <li className="flex gap-2"><span className="text-emerald-700">✓</span> Patienten-Link, digitale Anamnese, To-dos für die Rezeption</li>
-              <li className="flex gap-2"><span className="text-emerald-700">✓</span> Daten in Frankfurt, Pauschalpreis ohne KI-Kontingent</li>
-            </ul>
           </div>
-
-          <div id="fach" className="scroll-mt-6">
-            <h2 className="mb-1 text-xl font-semibold">In welchem Fach ist Ihre Praxis tätig?</h2>
-            <p className="mb-5 text-sm text-slate-500">Sie sehen danach Ihre Version: Ihre Leistungen, Ihre Regeln, Ihre Beispiele.</p>
-            <FachWahl kacheln={KACHELN} />
-          </div>
+          <ul className="space-y-3 rounded-3xl bg-white p-6 text-slate-700">
+            <li className="flex gap-3"><span className="text-emerald-700">✓</span> Kassenleistung immer zuerst, ehrliche Hinweise zum Nutzen</li>
+            <li className="flex gap-3"><span className="text-emerald-700">✓</span> Patienten-Link mit QR-Code, Rückmeldung an die Praxis, Ratenzahlung</li>
+            <li className="flex gap-3"><span className="text-emerald-700">✓</span> Digitale Anamnese, Warnhinweise beim Abschluss</li>
+            <li className="flex gap-3"><span className="text-emerald-700">✓</span> To-dos für die Rezeption, gemessene Annahmequote</li>
+            <li className="flex gap-3"><span className="text-emerald-700">✓</span> Daten in Frankfurt, Pauschalpreis ohne KI-Kontingent</li>
+          </ul>
         </section>
 
-        <section className="mt-20">
+        <section className="mx-auto mt-20 max-w-5xl">
           <h2 className="text-2xl font-semibold">So läuft es in jeder Praxis</h2>
           <ol className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {SCHRITTE.map(([t, d], i) => (
@@ -105,7 +120,7 @@ export default async function Start() {
           </ol>
         </section>
 
-        <section className="mt-20 grid gap-6 rounded-3xl bg-white p-6 sm:grid-cols-3 sm:p-10">
+        <section className="mx-auto mt-20 grid max-w-5xl gap-6 rounded-3xl bg-white p-6 sm:grid-cols-3 sm:p-10">
           <div>
             <h3 className="font-semibold">Ehrlich statt verkaufen</h3>
             <p className="mt-1 text-sm text-slate-600">
@@ -122,7 +137,7 @@ export default async function Start() {
           </div>
         </section>
 
-        <section className="mt-20 flex flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
+        <section className="mx-auto mt-20 flex max-w-5xl flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
           <div>
             <h2 className="text-2xl font-semibold">149 € im Monat. Alles enthalten.</h2>
             <p className="mt-1 text-white/80">30 Tage kostenlos, monatlich kündbar, keine Zähler. Endpreise nach § 19 UStG.</p>

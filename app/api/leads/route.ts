@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { sendEmail } from "@/lib/email";
+import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { isSpam, leadEmailHtml, leadSchema } from "@/lib/leads";
 
 const LIMIT = 5;
@@ -24,12 +25,12 @@ export async function POST(req: Request) {
   if (isSpam(parsed.data)) return NextResponse.json({ ok: true }, { status: 201 });
 
   const { practiceName, contactName, dentists, contact } = parsed.data;
-  await prisma.lead.create({ data: { practiceName, contactName, dentists, contact, pvs: parsed.data.pvs, callbackTime: parsed.data.callbackTime } });
+  await prisma.lead.create({ data: { practiceName, contactName, dentists, contact, pvs: parsed.data.pvs, callbackTime: parsed.data.callbackTime, specialty: parsed.data.specialty } });
 
   const notify = process.env.LEAD_NOTIFY_EMAIL;
   if (notify) {
     try {
-      await sendEmail({ to: notify, subject: `Neue Pilot-Anfrage: ${practiceName}`, html: leadEmailHtml(parsed.data) });
+      await sendEmail({ to: notify, subject: `Neue Pilot-Anfrage${parsed.data.specialty ? ` (${SPECIALTY_LABELS[parsed.data.specialty] ?? parsed.data.specialty})` : ""}: ${practiceName}`, html: leadEmailHtml(parsed.data) });
     } catch (err) {
       // Die Anfrage ist gespeichert; eine fehlgeschlagene Benachrichtigung soll den Besucher nicht blockieren.
       console.error("Lead-Benachrichtigung fehlgeschlagen:", err);

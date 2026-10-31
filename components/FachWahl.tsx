@@ -40,7 +40,7 @@ export function FachWahl({ kacheln }: { kacheln: FachKachel[] }) {
           </Link>
         </p>
       )}
-      <ul className="grid gap-3 sm:grid-cols-2" data-testid="fach-kacheln">
+      <ul className="grid gap-3 text-left sm:grid-cols-2 lg:grid-cols-3" data-testid="fach-kacheln">
         {kacheln.map((k) => (
           <li key={k.id}>
             <Link

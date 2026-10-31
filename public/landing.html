@@ -1576,7 +1576,7 @@ Object.values(R).forEach(s=>$(s).addEventListener("input",roi));
 $("#leadForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const btn=e.target.querySelector("button[type=submit]");
-  const data={practiceName:$("#lPraxis").value,contactName:$("#lName").value,dentists:$("#lBeh").value,contact:$("#lTel").value,pvs:$("#lPvs").value||undefined,callbackTime:$("#lZeit").value,website:$("#lWebsite").value};
+  const data={practiceName:$("#lPraxis").value,contactName:$("#lName").value,dentists:$("#lBeh").value,contact:$("#lTel").value,specialty:"zahn",pvs:$("#lPvs").value||undefined,callbackTime:$("#lZeit").value,website:$("#lWebsite").value};
   btn.disabled=true; btn.textContent="Wird gesendet…";
   try{
     const res=await fetch("/api/leads",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});

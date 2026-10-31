@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PublicShell } from "@/components/PublicShell";
+import { PilotProgram } from "@/components/PilotProgram";
 
 export const metadata: Metadata = {
   title: "Sorrida für jedes Fach – mit eigenen Leistungen",
@@ -61,15 +62,17 @@ export default function AnderesFach() {
         </div>
       </section>
 
+      <PilotProgram fach="andere" kurz="Ihre Fachrichtung" />
+
       <section className="mt-12">
         <h2 className="text-xl font-semibold text-slate-900">Ihr Fach soll fertige Vorlagen bekommen?</h2>
         <p className="mt-1 text-slate-600">
           Schreiben Sie uns, welche Leistungen Sie am häufigsten erklären. Wir bauen daraus ein Regelwerk für Ihr Fach und lassen es von
           Kolleginnen und Kollegen gegenlesen.
         </p>
-        <Link href="/zahnmedizin#kontakt" className="mt-3 inline-block text-brand-700 underline">
-          Kontakt aufnehmen
-        </Link>
+        <a href="#pilot" className="mt-3 inline-block text-brand-700 underline">
+          Im Formular oben angeben, welches Fach Sie haben
+        </a>
       </section>
     </PublicShell>
   );

@@ -448,6 +448,7 @@ model Lead {
   contact      String
   pvs          String?
   callbackTime String?
+  specialty    String?
   createdAt    DateTime @default(now())
 }
 

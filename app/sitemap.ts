@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${base}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${base}/zahnmedizin`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${base}/vorschau`, changeFrequency: "monthly", priority: 0.8 },
     ...SPECIALTIES.map((x) => ({ url: `${base}/fachgebiete/${x.id}`, changeFrequency: "monthly" as const, priority: 0.7 })),
     { url: `${base}/ratgeber`, changeFrequency: "monthly", priority: 0.7 },
     ...RATGEBER.map((a) => ({ url: `${base}/ratgeber/${a.slug}`, lastModified: a.updated, changeFrequency: "monthly" as const, priority: 0.6 })),
