@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Anamnesebogen",
   robots: { index: false, follow: false },
   referrer: "no-referrer",
+  openGraph: { title: "Ihr Anamnesebogen", description: "In drei Minuten vor Ihrem Termin ausgefüllt.", images: [{ url: "/og/anamnese.png", width: 1200, height: 630 }] },
 };
 
 export default async function AnamnesisPage({ params }: { params: { token: string } }) {

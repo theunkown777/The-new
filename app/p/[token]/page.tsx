@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   title: "Ihr Behandlungsvorschlag",
   robots: { index: false, follow: false },
   referrer: "no-referrer",
+  // Vorschau beim Teilen per SMS/Messenger: neutral, ohne Patienten- oder Praxisdaten.
+  openGraph: { title: "Ihr Behandlungsvorschlag", description: "Ihre Möglichkeiten und Ihr Eigenanteil, von Ihrer Zahnarztpraxis.", images: [{ url: "/og/vorschlag.png", width: 1200, height: 630 }] },
 };
 
 function Expired() {

@@ -13,7 +13,7 @@ export default function middleware(req: NextRequest, event: NextFetchEvent) {
     const loggedIn = SESSION_COOKIES.some((c) => req.cookies.has(c));
     return loggedIn
       ? NextResponse.redirect(new URL("/dashboard", req.url))
-      : NextResponse.rewrite(new URL("/landing.html", req.url));
+      : NextResponse.rewrite(new URL("/website", req.url));
   }
   return auth(req as NextRequestWithAuth, event);
 }
