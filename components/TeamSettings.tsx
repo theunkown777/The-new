@@ -15,6 +15,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
   const [inviteRole, setInviteRole] = useState<"admin" | "staff">("staff");
   const [inviting, setInviting] = useState(false);
   const [inviteMessage, setInviteMessage] = useState<string | null>(null);
+  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
 
   function load() {
     setLoading(true);
@@ -50,7 +51,12 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
       return;
     }
     setInviteEmail("");
-    setInviteMessage("Einladung verschickt.");
+    setInviteUrl(data.inviteUrl ?? null);
+    setInviteMessage(
+      data.inviteUrl
+        ? "Einladung angelegt. Es wurde keine Mail verschickt. Geben Sie diesen Link an die Person weiter (7 Tage gültig):"
+        : "Einladung verschickt.",
+    );
     load();
   }
 
@@ -211,6 +217,11 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
           </button>
         </form>
         {inviteMessage && <p className="mt-2 text-sm text-green-700">{inviteMessage}</p>}
+        {inviteUrl && (
+          <p className="mt-2 break-all rounded-lg bg-slate-50 px-3 py-2 font-mono text-xs text-slate-700" data-testid="invite-link">
+            {inviteUrl}
+          </p>
+        )}
         <p className="mt-3 text-xs text-slate-400">
           Admins können praxisweite Einstellungen (Abrechnung, Katalog, Team) ändern; Staff kann
           Patienten und Berichte bearbeiten, aber keine dieser Einstellungen.

@@ -76,6 +76,8 @@ export async function POST(req: Request) {
         name: parsed.data.name,
         passwordHash,
         role: invite.role,
+        // Wer den Einladungslink öffnet, hat die Adresse von der Geschäftsführung bekommen.
+        emailVerifiedAt: new Date(),
       },
     }),
     prisma.staffInvite.update({ where: { id: invite.id }, data: { acceptedAt: new Date() } }),

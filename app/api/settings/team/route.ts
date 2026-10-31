@@ -41,6 +41,7 @@ export async function POST(req: Request) {
   if (!session) return error;
   const blocked = await demoGuard(session.user.practiceId, "invite");
   if (blocked) return blocked;
+  const isDemo = !!(await prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { isDemo: true } }))?.isDemo;
 
   const rateLimitKey = `staff-invite:${session.user.practiceId}`;
   if (await isRateLimited(rateLimitKey, INVITE_LIMIT, INVITE_WINDOW_MS)) {
@@ -86,7 +87,10 @@ export async function POST(req: Request) {
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const inviteUrl = `${baseUrl}/accept-invite?token=${rawToken}`;
 
-  await sendEmail({
+  // Gastzugang: nie Mails an fremde Adressen verschicken, nur den Link zeigen.
+  if (isDemo) return NextResponse.json({ ok: true, inviteUrl, mailed: false });
+
+  const sent = await sendEmail({
     to: email,
     subject: `Einladung zu ${session.user.practiceName} – Sorrida`,
     html: `
@@ -97,5 +101,7 @@ export async function POST(req: Request) {
     `,
   });
 
-  return NextResponse.json({ ok: true });
+  // Ohne eingerichteten Mailversand bekommt die Geschäftsführung den Link
+  // angezeigt und kann ihn selbst weitergeben.
+  return NextResponse.json(sent.testMode ? { ok: true, inviteUrl, mailed: false } : { ok: true, mailed: true });
 }

@@ -7,12 +7,9 @@ import { DEMO_REPORT_LIMIT } from "@/lib/demo";
 export async function demoGuard(practiceId: string, action: "invite" | "report"): Promise<NextResponse | null> {
   const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { isDemo: true, createdAt: true } });
   if (!practice?.isDemo) return null;
-  if (action === "invite") {
-    return NextResponse.json(
-      { error: "Im Gastzugang können keine Teammitglieder eingeladen werden. Registrieren Sie dafür Ihre Praxis." },
-      { status: 403 }
-    );
-  }
+  // Einladungen im Gastzugang sind erlaubt, verschicken aber nie eine Mail
+  // (siehe app/api/settings/team/route.ts): Der Link wird nur angezeigt.
+  if (action === "invite") return null;
   // Nur selbst erstellte Berichte zählen, nicht die mitgelieferten Beispielberichte (zurückdatiert).
   const reports = await prisma.report.count({ where: { practiceId, createdAt: { gte: practice.createdAt } } });
   if (reports >= DEMO_REPORT_LIMIT) {
