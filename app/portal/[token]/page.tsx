@@ -41,10 +41,10 @@ export default async function PortalPage({ params, searchParams }: { params: { t
       practice: { select: { name: true, accountHolder: true, iban: true, bic: true } },
       invoices: { where: { status: { not: "STORNIERT" } }, orderBy: { dueDate: "asc" }, take: 50 },
       proposals: {
-        where: { status: { in: ["BESPROCHEN", "ANGENOMMEN"] } },
+        where: { OR: [{ shareCreatedAt: { not: null } }, { status: { in: ["BESPROCHEN", "ANGENOMMEN"] } }] },
         orderBy: { createdAt: "desc" },
         take: 5,
-        select: { id: true, createdAt: true, letterText: true, eigenanteilCent: true },
+        select: { id: true, createdAt: true, eigenanteilCent: true, status: true, patientResponse: true },
       },
       anamnesisForms: { where: { submittedAt: null, expiresAt: { gt: now } }, select: { id: true }, take: 1 },
     },
@@ -87,7 +87,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
   // Nur Texte (keine Funktionen) an die Client-Komponente geben.
   const text = Object.fromEntries(Object.entries(t).filter(([, v]) => typeof v === "string")) as PortalText;
   const openCent = open.reduce((s, i) => s + i.amountCent, 0);
-  const docs = patient.proposals.length;
+  const docs = patient.proposals.length + patient.anamnesisForms.length;
 
   return (
     <main className="min-h-screen bg-[#F5F2EE]" lang={lang} data-testid="portal">
@@ -134,21 +134,33 @@ export default async function PortalPage({ params, searchParams }: { params: { t
           <section className="mt-8" aria-labelledby="dokumente">
             <h2 id="dokumente" className="text-sm font-semibold uppercase tracking-wide text-slate-500">{t.documents}</h2>
             <ul className="mt-3 space-y-3">
-              {patient.anamnesisForms.length > 0 && <li className="rounded-2xl bg-sky-50 p-4 text-sm text-sky-900">{t.anamnesis}</li>}
-              {patient.proposals.map((p) => (
-                <li key={p.id}>
-                  <details className="group rounded-2xl bg-white p-4">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-                      <span>
-                        <span className="block font-medium text-slate-900">{t.proposalDoc(date(p.createdAt))}</span>
-                        <span className="text-sm text-slate-500">{t.eigen}: {money(p.eigenanteilCent)}</span>
-                      </span>
-                      <span className="rounded-full bg-brand-50 px-3 py-1 text-sm text-brand-700 group-open:hidden">{t.show}</span>
-                    </summary>
-                    <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-700">{p.letterText}</pre>
-                  </details>
+              {patient.anamnesisForms.map((f) => (
+                <li key={f.id}>
+                  <a href={`/portal/${params.token}/anamnese/${f.id}`} className="flex items-center justify-between gap-3 rounded-2xl bg-sky-50 p-4 hover:bg-sky-100" data-testid="portal-anamnese">
+                    <span>
+                      <span className="block font-medium text-slate-900">{t.anamnesisTitle}</span>
+                      <span className="text-sm text-slate-600">{t.anamnesis}</span>
+                    </span>
+                    <span className="shrink-0 rounded-full bg-sky-700 px-3 py-1 text-sm font-medium text-white">{t.fillIn}</span>
+                  </a>
                 </li>
               ))}
+              {patient.proposals.map((p) => {
+                const open = (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse;
+                return (
+                  <li key={p.id}>
+                    <a href={`/portal/${params.token}/vorschlag/${p.id}${lang === "en" ? "?lang=en" : ""}`} className="flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-brand-50" data-testid="portal-vorschlag">
+                      <span>
+                        <span className="block font-medium text-slate-900">{t.proposalDoc(date(p.createdAt))}</span>
+                        <span className="text-sm text-slate-500">
+                          {t.eigen}: {money(p.eigenanteilCent)} · {p.status === "ANGENOMMEN" ? t.accepted : p.patientResponse ? t.answered : t.waiting}
+                        </span>
+                      </span>
+                      <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-medium ${open ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-700"}`}>{open ? t.choose : t.show}</span>
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}

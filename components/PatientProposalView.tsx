@@ -16,6 +16,10 @@ import { UI, euro, tr, type PatientLang } from "@/lib/patientI18n";
 
 type Props = {
   token: string;
+  /** Abweichende Adresse für die Rückmeldung (Patientenportal). */
+  postUrl?: string;
+  /** Zurück-Link, z. B. ins Patientenportal. */
+  backHref?: string;
   practiceName: string;
   firstName: string;
   items: ProposalItem[];
@@ -54,7 +58,7 @@ export function PatientProposalView(props: Props) {
     setState("sending");
     setError("");
     const chosen = Object.fromEntries(items.map((i) => [i.key, chosenOption(i, choices)?.id ?? ""]).filter(([, v]) => v));
-    const res = await fetch(`/api/p/${props.token}`, {
+    const res = await fetch(props.postUrl ?? `/api/p/${props.token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ response, choices: chosen, note: note || undefined, wantsInstallments }),
@@ -70,6 +74,11 @@ export function PatientProposalView(props: Props) {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-40 pt-8 sm:pt-12" lang={lang}>
+      {props.backHref && (
+        <a href={props.backHref} className="mb-4 inline-block text-sm text-brand-700 underline" data-testid="zurueck-portal">
+          {lang === "en" ? "← Back to your portal" : "← Zurück zu Ihrem Portal"}
+        </a>
+      )}
       <header className="space-y-2">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-medium text-brand-700">{props.practiceName}</p>

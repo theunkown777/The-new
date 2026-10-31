@@ -7,7 +7,7 @@ const base = (process.env.NEXTAUTH_URL ?? "https://sorrida.de").replace(/\/$/, "
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${base}/`, changeFrequency: "weekly", priority: 1 },
-    { url: `${base}/zahnmedizin`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${base}/fachgebiete/zahn`, changeFrequency: "weekly", priority: 0.9 },
     { url: `${base}/vorschau`, changeFrequency: "monthly", priority: 0.8 },
     ...SPECIALTIES.map((x) => ({ url: `${base}/fachgebiete/${x.id}`, changeFrequency: "monthly" as const, priority: 0.7 })),
     { url: `${base}/ratgeber`, changeFrequency: "monthly", priority: 0.7 },

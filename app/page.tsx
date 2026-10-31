@@ -28,7 +28,7 @@ const GRUPPEN: { titel: string; kacheln: FachKachel[] }[] = [
   {
     titel: "Ärztliche und zahnärztliche Praxen",
     kacheln: [
-      { id: "zahn", name: "Zahnmedizin", href: "/zahnmedizin", teaser: "Zahnschema, Festzuschuss 2027, Mehrkostenvereinbarung" },
+      { id: "zahn", name: "Zahnmedizin", href: "/fachgebiete/zahn", teaser: "Zahnschema, Festzuschuss 2027, Mehrkostenvereinbarung" },
       ...SPECIALTIES.filter((x) => x.beruf !== "therapie").map(kachel),
     ],
   },
@@ -98,6 +98,18 @@ export default async function Start() {
 
         <div className="mt-10">
           <FachWahl gruppen={GRUPPEN} />
+          <div className="mt-8 grid gap-3 sm:grid-cols-2" data-testid="zugaenge">
+            <Link href="/demo?rolle=praxis" className="group rounded-2xl border border-slate-200 bg-white p-4 text-left hover:border-brand-600">
+              <span className="block text-xs font-semibold uppercase tracking-wide text-brand-700">Zugang Praxis</span>
+              <span className="mt-1 block font-semibold text-slate-900">Als Praxisleitung ansehen →</span>
+              <span className="mt-0.5 block text-sm text-slate-600">Das ganze System mit 1000 Beispielpatienten: Vorschläge, Zahlungen, Analyse.</span>
+            </Link>
+            <Link href="/demo?rolle=patient" className="group rounded-2xl border border-slate-200 bg-white p-4 text-left hover:border-brand-600" data-testid="zugang-patient">
+              <span className="block text-xs font-semibold uppercase tracking-wide text-brand-700">Zugang Patient</span>
+              <span className="mt-1 block font-semibold text-slate-900">Als Patient ansehen →</span>
+              <span className="mt-0.5 block text-sm text-slate-600">Was Patienten am Handy sehen: Rechnung zahlen, Vorschlag wählen, Fragebogen. Nichts Internes.</span>
+            </Link>
+          </div>
           <p className="mt-6 text-center">
             <Link
               href="/vorschau"

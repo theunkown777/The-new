@@ -131,7 +131,7 @@ export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
 }
 
 /** Neue Demo-Praxis mit Beispieldaten; liefert die Zugangsdaten für die sofortige Anmeldung. */
-export async function createDemoPractice(now = new Date(), fach: string = DENTAL_ID): Promise<{ email: string; password: string }> {
+export async function createDemoPractice(now = new Date(), fach: string = DENTAL_ID): Promise<{ email: string; password: string; practiceId: string }> {
   const spec = specialty(fach);
   const dental = !spec;
   const suffix = crypto.randomBytes(6).toString("hex");
@@ -290,7 +290,7 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
   if (spec) await seedMedicalProposals(spec, practice.id, author.id, practice.name, created, now);
   // Realistische Größe: rund 1000 Patienten mit Vorschlägen, Links, Anamnesen.
   await seedBulkDemo({ practiceId: practice.id, practiceName: practice.name, authorId: author.id, fach: spec ? spec.id : DENTAL_ID, existing: created.length, now });
-  return { email, password };
+  return { email, password, practiceId: practice.id };
 }
 
 /** Beispielvorschläge für eine Arztpraxis: offen, mit Rückruf-Wunsch und angenommen. */

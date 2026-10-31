@@ -5,7 +5,7 @@ import { WISHES, questionsFor } from "@/lib/anamnesis";
 
 type Ans = { yes?: boolean; detail?: string };
 
-export function AnamnesisForm({ token, practiceName, firstName, dental = true }: { token: string; practiceName: string; firstName: string; dental?: boolean }) {
+export function AnamnesisForm({ token, practiceName, firstName, dental = true, postUrl, backHref }: { token: string; practiceName: string; firstName: string; dental?: boolean; postUrl?: string; backHref?: string }) {
   const QUESTIONS = questionsFor(dental);
   const [answers, setAnswers] = useState<Record<string, Ans>>({});
   const [wishes, setWishes] = useState<string[]>([]);
@@ -28,7 +28,7 @@ export function AnamnesisForm({ token, practiceName, firstName, dental = true }:
     setState("sending");
     setError("");
     const q = Object.fromEntries(QUESTIONS.map((x) => [x.key, { yes: !!answers[x.key].yes, detail: answers[x.key].yes ? answers[x.key].detail || undefined : undefined }]));
-    const res = await fetch(`/api/a/${token}`, {
+    const res = await fetch(postUrl ?? `/api/a/${token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ q, wishes, note: note || undefined, confirmName }),
@@ -47,12 +47,14 @@ export function AnamnesisForm({ token, practiceName, firstName, dental = true }:
       <main className="mx-auto max-w-xl px-4 py-16 text-center" role="status">
         <h1 className="text-xl font-semibold text-slate-900">Vielen Dank, {firstName}</h1>
         <p className="mt-3 text-slate-600">Ihr Anamnesebogen ist bei {practiceName} angekommen. Sie müssen in der Praxis nichts mehr ausfüllen.</p>
+        {backHref && <a href={backHref} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Portal</a>}
       </main>
     );
   }
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-16 pt-8">
+      {backHref && <a href={backHref} className="mb-4 inline-block text-sm text-brand-700 underline">← Zurück zu Ihrem Portal</a>}
       <p className="text-sm font-medium text-brand-700">{practiceName}</p>
       <h1 className="mt-1 text-2xl font-semibold text-slate-900">Anamnesebogen für {firstName}</h1>
       <p className="mt-2 text-slate-600">
