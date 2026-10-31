@@ -2,6 +2,11 @@ import Link from "next/link";
 
 const CARDS = [
   {
+    href: "/settings/fachgebiet",
+    title: "Fachgebiet und Leistungen",
+    description: "Zahnmedizin oder Arztpraxis: Fachgebiet wählen, Preise und eigene Selbstzahlerleistungen pflegen.",
+  },
+  {
     href: "/settings/security",
     title: "Sicherheit",
     description: "Zwei-Faktor-Authentifizierung (2FA) einrichten oder deaktivieren.",

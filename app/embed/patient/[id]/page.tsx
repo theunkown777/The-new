@@ -10,6 +10,7 @@ import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 import { ServiceChecklistForm } from "@/components/ServiceChecklistForm";
 import { ProposalEditor } from "@/components/ProposalEditor";
 import { TreatmentWrapUp } from "@/components/TreatmentWrapUp";
+import { resolveMed } from "@/lib/practiceMed";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 
 const TAB_LABELS: Record<EmbedView, string> = {
@@ -42,7 +43,7 @@ export default async function EmbedPatientPage({
     }),
     prisma.practice.findUnique({
       where: { id: practiceId },
-      select: { name: true, gozPunktwertCent: true, bemaPunktwertCent: true, proposalPrices: true },
+      select: { name: true, gozPunktwertCent: true, bemaPunktwertCent: true, proposalPrices: true, specialty: true, medPrices: true, customOffers: true },
     }),
   ]);
   if (!patient) notFound();
@@ -85,6 +86,7 @@ export default async function EmbedPatientPage({
 
       {view === "abschluss" && (
         <TreatmentWrapUp
+          {...resolveMed(practice ?? {})}
           anamnesis={await loadAnamnesis(practiceId, patient.id)}
           patient={patientOption}
           practicePunktwerte={{
@@ -113,6 +115,7 @@ export default async function EmbedPatientPage({
 
       {view === "vorschlag" && (
         <ProposalEditor
+          {...resolveMed(practice ?? {})}
           patients={[patientOption]}
           initialPatientId={patient.id}
           prices={resolvePrices(practice?.proposalPrices)}

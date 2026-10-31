@@ -1,3 +1,5 @@
+import { isDental } from "@/lib/specialties";
+import { buildMedicalProposal } from "@/lib/medicalProposals";
 // Behandlungsvorschläge ("Klarplan"): aus Zahnbefunden und allgemeinen
 // Befunden entstehen je Befund Behandlungsoptionen - immer zuerst die
 // Kassen-/Regelleistung, danach nur Alternativen, die der Befund fachlich
@@ -80,7 +82,9 @@ export type OptionType =
   | "privatzusatz"
   | "regel"
   | "gleichartig"
-  | "andersartig";
+  | "andersartig"
+  /** Individuelle Gesundheitsleistung (Arztpraxen außerhalb der Zahnmedizin). */
+  | "igel";
 
 export interface ProposalOption {
   id: string;
@@ -92,6 +96,10 @@ export interface ProposalOption {
   base?: number;
   /** Kosten der Regelversorgung als Basis des Festzuschusses (Zahnersatz). */
   regel?: number;
+  /** Wann die Kasse eine Selbstzahlerleistung doch übernimmt (Arztpraxen). */
+  hinweis?: string;
+  /** Ehrliche Angabe zum belegten Nutzen (Arztpraxen). */
+  nutzen?: string;
 }
 
 export interface ProposalItem {
@@ -119,10 +127,33 @@ export interface PatientFactors {
   zuschussJahr?: ZuschussJahr;
 }
 
+/** Eigene Leistung einer Arztpraxis (Einstellungen → Vorschlagspreise). */
+export interface CustomOffer {
+  id: string;
+  anlass: string;
+  name: string;
+  price: number;
+  kasse?: boolean;
+  kasseWenn?: string;
+  nutzen?: string;
+  benefits?: string[];
+}
+
+/** Praxisdaten für Arztpraxen, beim Speichern in den Vorschlag übernommen. */
+export interface MedInput {
+  prices?: Record<string, number>;
+  custom?: CustomOffer[];
+}
+
 export interface ProposalInput {
   teeth: Partial<Record<string, FindingCode>>;
   globals: Partial<Record<GlobalCode, boolean>>;
   patient: PatientFactors;
+  /** Fachgebiet (lib/specialties.ts); fehlt es, gilt Zahnmedizin. */
+  fach?: string;
+  /** Gewählte Anlässe bei Arztpraxen. */
+  anlaesse?: string[];
+  med?: MedInput;
 }
 
 export const UPPER_TEETH = [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28];
@@ -306,6 +337,7 @@ function globalItem(code: GlobalCode, input: ProposalInput, P: Prices): Proposal
 }
 
 export function buildProposal(input: ProposalInput, prices: Prices): ProposalItem[] {
+  if (!isDental(input.fach)) return buildMedicalProposal(input);
   const items: ProposalItem[] = [];
   for (const n of ALL_TEETH) {
     const f = input.teeth[String(n)];
@@ -380,7 +412,7 @@ export function money(o: ProposalOption, p: PatientFactors, jahr?: ZuschussJahr)
   let kasse = 0;
   if (o.type === "kasse") kasse = total;
   else if (o.type === "mehrkosten" || o.type === "privatzusatz") kasse = o.base ?? 0;
-  else if (o.type === "privat") kasse = 0;
+  else if (o.type === "privat" || o.type === "igel") kasse = 0;
   else kasse = Math.min((o.regel ?? 0) * festzuschussQuote(p, jahr), total);
   const eigen = total - kasse;
   const erstattet = eigen * pct;
@@ -433,8 +465,14 @@ export function summarize(items: ProposalItem[], choices: Record<string, string>
   for (const item of items) {
     const o = chosenOption(item, choices);
     if (!o) continue;
-    baseTotal += item.options[0].total;
-    planTotal += o.total;
+    if (item.options.some((x) => x.type === "igel")) {
+      // Arztpraxen: Die IGeL kommt zur Kassenleistung hinzu; Mehrumsatz ist nur der Selbstzahleranteil.
+      planTotal += o.type === "igel" ? o.total : 0;
+    } else {
+      // Zahnmedizin: Basis = Kassen-/Regelleistung, Plan = gewählte Option.
+      baseTotal += item.options[0].total;
+      planTotal += o.total;
+    }
     const m = money(o, p);
     eigen += m.eigen;
     netto += m.netto;
@@ -450,6 +488,7 @@ const TYPE_LABELS: Record<OptionType, string> = {
   regel: "Regelversorgung",
   gleichartig: "Gleichartig",
   andersartig: "Andersartig",
+  igel: "Selbstzahlerleistung (IGeL)",
 };
 
 export function optionTypeLabel(t: OptionType, insurance: "GKV" | "PKV"): string {
@@ -458,6 +497,7 @@ export function optionTypeLabel(t: OptionType, insurance: "GKV" | "PKV"): string
     if (t === "regel") return "Basisversorgung";
     if (t === "privatzusatz") return "Basis + Zusatz";
     if (t === "mehrkosten" || t === "privat") return "Wahlleistung";
+    if (t === "igel") return "Privatleistung";
   }
   return TYPE_LABELS[t];
 }
@@ -471,8 +511,11 @@ export function buildLetter(args: {
   patientName: string;
   practiceName: string;
   date: Date;
+  /** Fachgebiet; außerhalb der Zahnmedizin gelten die Regeln für Selbstzahlerleistungen (IGeL). */
+  fach?: string;
 }): string {
   const { items, choices, patient, patientName, practiceName, date } = args;
+  const dental = isDental(args.fach);
   const jv = vergleicheJahre(items, choices, patient);
   // Den Vergleich nur zeigen, solange eine Bewilligung zu den alten Sätzen noch möglich ist.
   const vergleich = showsJahresvergleich(date) && jv.betroffen && (patient.zuschussJahr ?? defaultZuschussJahr(date)) === 2026;
@@ -483,7 +526,7 @@ export function buildLetter(args: {
   L.push(`Guten Tag ${patientName},`);
   L.push("");
   L.push(
-    `vielen Dank für Ihren Besuch. Hier finden Sie unsere Befunde und die Behandlungsmöglichkeiten, die wir mit Ihnen besprochen haben. Bei jedem Punkt steht zuerst die Leistung, die Ihre ${patient.insurance === "GKV" ? "Krankenkasse" : "Versicherung"} übernimmt oder bezuschusst.`
+    `vielen Dank für Ihren Besuch. Hier finden Sie unsere Befunde und die Behandlungsmöglichkeiten, die wir mit Ihnen besprochen haben. ${dental ? "Bei jedem Punkt steht zuerst die Leistung, die Ihre" : "Wo es eine Kassenleistung gibt, steht zuerst die Leistung, die Ihre"} ${patient.insurance === "GKV" ? "Krankenkasse" : "Versicherung"} übernimmt${dental ? " oder bezuschusst" : ""}.`
   );
   let i = 0;
   for (const item of items) {
@@ -502,6 +545,10 @@ export function buildLetter(args: {
         `   ${String.fromCharCode(97 + j)}) ${o.name} (${optionTypeLabel(o.type, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${later}${o.id === item.recommended ? "  ← unsere Empfehlung" : ""}`
       );
     });
+    for (const o of item.options) {
+      if (o.hinweis) L.push(`      ${o.name}: ${o.hinweis}`);
+      if (o.nutzen) L.push(`      Zum Nutzen: ${o.nutzen}`);
+    }
     const why = item.notes.filter((n) => n.kind === "info").map((n) => n.text);
     if (why.length) L.push(`   Warum: ${why.join(" ")}`);
     L.push(`   Besprochene Wahl: ${chosen.name}`);
@@ -520,6 +567,15 @@ export function buildLetter(args: {
     );
   }
   L.push("");
+  if (!dental) {
+    L.push(
+      "Wichtig: Selbstzahlerleistungen (IGeL) sind freiwillig und nicht Teil der Kassenleistung. Nehmen Sie sich Zeit für Ihre Entscheidung. Vor der Leistung schließen wir mit Ihnen eine schriftliche Vereinbarung mit den voraussichtlichen Kosten nach der Gebührenordnung für Ärzte (GOÄ). Alle Beträge sind Schätzungen. Diese Information erhalten Sie nach § 630c Abs. 3 BGB in Textform."
+    );
+    L.push("");
+    L.push("Bei Fragen rufen Sie uns gern an.");
+    L.push(`Ihr Team der ${practiceName}`);
+    return L.join("\n");
+  }
   L.push(
     "Wichtig: Die Kassenleistung ist bei jedem Punkt möglich. Alle Beträge sind Schätzungen. Verbindlich sind der Heil- und Kostenplan bzw. die schriftliche Mehrkostenvereinbarung, die wir vor Behandlungsbeginn mit Ihnen abschließen. Diese Information erhalten Sie nach § 630c Abs. 3 BGB in Textform."
   );

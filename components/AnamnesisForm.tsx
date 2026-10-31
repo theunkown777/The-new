@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { QUESTIONS, WISHES } from "@/lib/anamnesis";
+import { WISHES, questionsFor } from "@/lib/anamnesis";
 
 type Ans = { yes?: boolean; detail?: string };
 
-export function AnamnesisForm({ token, practiceName, firstName }: { token: string; practiceName: string; firstName: string }) {
+export function AnamnesisForm({ token, practiceName, firstName, dental = true }: { token: string; practiceName: string; firstName: string; dental?: boolean }) {
+  const QUESTIONS = questionsFor(dental);
   const [answers, setAnswers] = useState<Record<string, Ans>>({});
   const [wishes, setWishes] = useState<string[]>([]);
   const [note, setNote] = useState("");
@@ -56,7 +57,7 @@ export function AnamnesisForm({ token, practiceName, firstName }: { token: strin
       <h1 className="mt-1 text-2xl font-semibold text-slate-900">Anamnesebogen für {firstName}</h1>
       <p className="mt-2 text-slate-600">
         Etwa drei Minuten. Ihre Angaben helfen uns, Sie sicher zu behandeln, und gehen direkt an Ihre Praxis. Sie unterliegen der
-        zahnärztlichen Schweigepflicht.
+        {dental ? "zahnärztlichen" : "ärztlichen"} Schweigepflicht.
       </p>
 
       <form onSubmit={submit} className="mt-8 space-y-4">

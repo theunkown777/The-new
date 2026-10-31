@@ -583,6 +583,12 @@ nav.main a{white-space:nowrap}
 .modules .cta-tile .btn{justify-self:start;margin-top:.3rem}
 .ph-bar small{display:block;font-size:.66rem;color:var(--good);font-weight:700}
 .inbox-note .ok{color:var(--good);font-weight:700}
+
+/* Fachgebiete */
+.fach-chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.6rem}
+.fach-chips a{display:inline-block;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:.5rem 1rem;color:var(--ink);text-decoration:none;font-weight:700}
+.fach-chips a:hover{border-color:var(--accent);color:var(--accent)}
+.fach-chips .more a{border-style:dashed;font-weight:400;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -600,6 +606,7 @@ nav.main a{white-space:nowrap}
       <a href="#praxissoftware">Praxissoftware</a>
       <a href="#sicherheit">Sicherheit</a>
       <a href="#preise">Preise</a>
+      <a href="/fachgebiete">Arztpraxen</a>
       <a href="/ratgeber">Ratgeber</a>
     </nav>
     <a class="login-link" href="/login">Anmelden</a>
@@ -702,6 +709,16 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
       <li><span class="mi">07</span><h3>Fenster in der Praxissoftware</h3><p>Öffnet sich mit dem Patienten aus DS-Win, CGM Z1, charly und EVIDENT.</p></li>
       <li class="cta-tile"><h3>In zwei Minuten selbst sehen</h3><p>Eigene Demo-Praxis mit Beispielpatienten.</p><a class="btn small" href="/demo">Ausprobieren</a></li>
     </ol>
+  </div>
+</section>
+
+<section id="arztpraxen" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Auch für Arztpraxen, passend zu Ihrem Fach</h2>
+      <p class="lede">Beim Arzt heißt das Gegenstück zur Mehrkostenvereinbarung IGeL. Sorrida zeigt zuerst die Kassenleistung, sagt bei jeder Selbstzahlerleistung, wann die Kasse doch zahlt und was über den Nutzen bekannt ist, und denkt an die schriftliche Vereinbarung.</p>
+    </div>
+    <ul class="fach-chips"><li><a href="/fachgebiete/hausarzt">Hausarztpraxis</a></li><li><a href="/fachgebiete/augen">Augenarztpraxis</a></li><li><a href="/fachgebiete/haut">Hautarztpraxis</a></li><li><a href="/fachgebiete/gyn">Frauenarztpraxis</a></li><li><a href="/fachgebiete/uro">Urologie</a></li><li><a href="/fachgebiete/ortho">Orthopädie</a></li><li><a href="/fachgebiete/hno">HNO-Praxis</a></li><li><a href="/fachgebiete/kinder">Kinderarztpraxis</a></li><li><a href="/fachgebiete/kardio">Kardiologie</a></li><li class="more"><a href="/fachgebiete">Alle Fachgebiete und eigene Leistungen →</a></li></ul>
   </div>
 </section>
 

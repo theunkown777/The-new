@@ -18,8 +18,12 @@ export function pickLang(param: string | undefined, acceptLanguage: string | nul
 
 const UI_DE = {
   hello: (name: string) => `Hallo ${name}, hier ist Ihr Behandlungsvorschlag`,
-  intro:
-    "Sie können sich in Ruhe ansehen, welche Möglichkeiten es gibt und was sie für Sie kosten. Tippen Sie eine Option an, um Ihren Eigenanteil zu sehen. Entschieden wird erst im Gespräch mit Ihrer Zahnärztin oder Ihrem Zahnarzt.",
+  intro: (arzt: string) =>
+    `Sie können sich in Ruhe ansehen, welche Möglichkeiten es gibt und was sie für Sie kosten. Tippen Sie eine Option an, um Ihren Eigenanteil zu sehen. Entschieden wird erst im Gespräch mit ${arzt}.`,
+  kasseWenn: "Kasse zahlt:",
+  nutzen: "Zum Nutzen:",
+  fineMed: (until: string) =>
+    `Unverbindliche Kostenschätzung nach der Gebührenordnung für Ärzte (GOÄ). Selbstzahlerleistungen (IGeL) sind freiwillig; vor der Leistung schließen wir eine schriftliche Vereinbarung mit Ihnen. Nehmen Sie sich Zeit für Ihre Entscheidung. Dieser Link ist gültig bis ${until}.`,
   deadlineTitle: "Wichtig für Zahnersatz:",
   deadline: (days: number) =>
     `Ab 2027 zahlen die Krankenkassen weniger zu. Wird der Heil- und Kostenplan noch bis 31.12.2026 bewilligt (in ${days} Tagen), sparen Sie bei Ihrer Auswahl etwa`,
@@ -56,8 +60,12 @@ type Ui = typeof UI_DE;
 
 const UI_EN: Ui = {
   hello: (name) => `Hello ${name}, here is your treatment proposal`,
-  intro:
+  intro: () =>
     "Take your time to look at the options and what each one costs you. Tap an option to see your share of the cost. Nothing is decided until you have talked it through with your dentist.",
+  kasseWenn: "Covered by your insurer:",
+  nutzen: "About the benefit:",
+  fineMed: (until) =>
+    `Non-binding cost estimate. Self-pay services are voluntary; a written agreement is made before the service. This link is valid until ${until}. Only the German version is legally binding.`,
   deadlineTitle: "Important for dentures, crowns and bridges:",
   deadline: (days) =>
     `From 2027, statutory health insurers pay less. If your treatment and cost plan is approved by 31 Dec 2026 (in ${days} days), you save about`,

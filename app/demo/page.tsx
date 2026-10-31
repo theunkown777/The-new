@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { AUTH_UNAVAILABLE_MESSAGE, authServiceAvailable } from "@/lib/authAvailable";
+import { DENTAL_ID, SPECIALTIES } from "@/lib/specialties";
 
 // Einstieg "Als Gast ansehen": legt per Klick eine eigene Demo-Praxis an und
 // meldet direkt an. Bewusst per Knopf statt automatisch, damit Suchmaschinen
@@ -11,6 +12,13 @@ import { AUTH_UNAVAILABLE_MESSAGE, authServiceAvailable } from "@/lib/authAvaila
 export default function DemoPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fach, setFach] = useState<string>(DENTAL_ID);
+
+  // Vorauswahl über /demo?fach=haut (z. B. von den Fachgebietsseiten).
+  useEffect(() => {
+    const f = new URLSearchParams(window.location.search).get("fach");
+    if (f && SPECIALTIES.some((s) => s.id === f)) setFach(f);
+  }, []);
 
   async function start() {
     setBusy(true);
@@ -20,7 +28,7 @@ export default function DemoPage() {
       setError(AUTH_UNAVAILABLE_MESSAGE);
       return;
     }
-    const res = await fetch("/api/demo", { method: "POST" });
+    const res = await fetch("/api/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fach }) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setBusy(false);
@@ -57,10 +65,18 @@ export default function DemoPage() {
         <p className="mt-1 text-sm text-slate-500">Gastzugang</p>
 
         <div className="card mt-6 space-y-4 text-left">
+          <div>
+            <label className="label" htmlFor="demo-fach">Ihr Fachgebiet</label>
+            <select id="demo-fach" className="input" value={fach} onChange={(e) => setFach(e.target.value)}>
+              <option value={DENTAL_ID}>Zahnmedizin</option>
+              {SPECIALTIES.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </div>
           <p className="text-sm text-slate-700">
-            Sie bekommen eine eigene Demo-Praxis mit vier erfundenen Beispielpatienten, einem fertigen
-            Bericht und zwei Behandlungsvorschlägen. Alles lässt sich ausprobieren, auch „Behandlung
-            abschließen“.
+            Sie bekommen eine eigene Demo-Praxis mit erfundenen Beispielpatienten und fertigen Vorschlägen für Ihr Fach. Alles lässt sich
+            ausprobieren, auch der Patienten-Link und der Anamnesebogen.
           </p>
           <ul className="list-disc space-y-1 pl-5 text-sm text-slate-500">
             <li>Keine Anmeldung, keine E-Mail nötig</li>

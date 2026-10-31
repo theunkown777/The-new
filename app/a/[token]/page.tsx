@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { AnamnesisForm } from "@/components/AnamnesisForm";
+import { isDental } from "@/lib/specialties";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export default async function AnamnesisPage({ params }: { params: { token: strin
   const form = /^[A-Za-z0-9_-]{20,128}$/.test(params.token)
     ? await prisma.anamnesisForm.findUnique({
         where: { tokenHash: hashToken(params.token) },
-        include: { practice: { select: { name: true } }, patient: { select: { firstName: true } } },
+        include: { practice: { select: { name: true, specialty: true } }, patient: { select: { firstName: true } } },
       })
     : null;
   if (!form || form.submittedAt || form.expiresAt < new Date()) {
@@ -27,5 +28,5 @@ export default async function AnamnesisPage({ params }: { params: { token: strin
     );
   }
   if (!form.viewedAt) await prisma.anamnesisForm.update({ where: { id: form.id }, data: { viewedAt: new Date() } });
-  return <AnamnesisForm token={params.token} practiceName={form.practice.name} firstName={form.patient.firstName} />;
+  return <AnamnesisForm token={params.token} practiceName={form.practice.name} firstName={form.patient.firstName} dental={isDental(form.practice.specialty)} />;
 }

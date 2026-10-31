@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { cleanupExpiredDemos, createDemoPractice } from "@/lib/demo";
+import { DENTAL_ID, specialty } from "@/lib/specialties";
 
 const LIMIT = 10;
 const WINDOW_MS = 60 * 60 * 1000;
@@ -36,7 +37,9 @@ async function handle(req: Request) {
     console.error("Aufräumen abgelaufener Gastzugänge fehlgeschlagen:", err);
   }
   try {
-    const credentials = await createDemoPractice();
+    const body = await req.json().catch(() => ({}));
+    const fach = typeof body?.fach === "string" && specialty(body.fach) ? body.fach : DENTAL_ID;
+    const credentials = await createDemoPractice(new Date(), fach);
     return NextResponse.json(credentials, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     console.error("Gastzugang konnte nicht angelegt werden:", err);

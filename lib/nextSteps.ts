@@ -59,6 +59,7 @@ export function buildNextSteps(args: {
   let zeMehrkosten2027 = 0;
   const mehrkosten: string[] = [];
   const privat: string[] = [];
+  const igel: string[] = [];
   const termine: string[] = [];
 
   for (const item of items) {
@@ -74,6 +75,8 @@ export function buildNextSteps(args: {
       mehrkosten.push(label);
     } else if (o.type === "privat" || o.type === "privatzusatz") {
       privat.push(label);
+    } else if (o.type === "igel") {
+      igel.push(label);
     }
 
     if (o.id === "par") {
@@ -125,6 +128,14 @@ export function buildNextSteps(args: {
       owner: "Rezeption",
       text: "Private Vereinbarung bzw. Kostenvoranschlag vor der Behandlung unterschreiben lassen",
       detail: privat.join(" · ") + " – falls der Patient diese Option wählt",
+    });
+  }
+  if (igel.length) {
+    steps.push({
+      id: "igel",
+      owner: "Rezeption",
+      text: "Schriftliche Vereinbarung über Selbstzahlerleistungen (IGeL) vor der Leistung unterschreiben lassen",
+      detail: igel.join(" · ") + " – falls der Patient diese Leistung wählt; Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä)",
     });
   }
   if (termine.length) {

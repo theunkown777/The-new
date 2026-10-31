@@ -4,10 +4,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { STANDARD_GOZ_PUNKTWERT_CENT } from "@/lib/billing";
+import { DENTAL_ID, SPECIALTY_IDS } from "@/lib/specialties";
 import { sendVerificationEmail } from "@/lib/emailVerification";
 
 const registerSchema = z.object({
   practiceName: z.string().min(2, "Praxisname ist zu kurz"),
+  specialty: z.enum(SPECIALTY_IDS as unknown as [string, ...string[]]).default(DENTAL_ID),
   name: z.string().min(2, "Name ist zu kurz"),
   email: z.string().email("Ungültige E-Mail-Adresse"),
   password: z.string().min(8, "Passwort muss mindestens 8 Zeichen haben"),
@@ -37,7 +39,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const { practiceName, name, email, password } = parsed.data;
+  const { practiceName, name, email, password, specialty } = parsed.data;
   const normalizedEmail = email.toLowerCase().trim();
 
   const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
@@ -53,6 +55,7 @@ export async function POST(req: Request) {
   const practice = await prisma.practice.create({
     data: {
       name: practiceName,
+      specialty,
       // GOZ-Punktwert ist bundeseinheitlich fixiert und wird vorbelegt; der
       // BEMA-Punktwert ist regional unterschiedlich und muss von der Praxis
       // selbst unter "Einstellungen > Abrechnung" eingetragen werden.

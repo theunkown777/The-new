@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { SPECIALTY_LABELS } from "@/lib/specialties";
 import Link from "next/link";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [practiceName, setPracticeName] = useState("");
+  const [specialty, setSpecialty] = useState("zahn");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +24,7 @@ export default function RegisterPage() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ practiceName, name, email, password }),
+      body: JSON.stringify({ practiceName, name, email, password, specialty }),
     });
 
     if (!res.ok) {
@@ -65,8 +67,16 @@ export default function RegisterPage() {
               className="input"
               value={practiceName}
               onChange={(e) => setPracticeName(e.target.value)}
-              placeholder="Zahnarztpraxis Mustermann"
+              placeholder="Praxis Mustermann"
             />
+          </div>
+          <div>
+            <label className="label" htmlFor="specialty">Fachgebiet</label>
+            <select id="specialty" className="input" value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
+              {Object.entries(SPECIALTY_LABELS).map(([id, label]) => (
+                <option key={id} value={id}>{label}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="label" htmlFor="name">Ihr Name</label>

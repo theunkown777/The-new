@@ -13,6 +13,18 @@ import {
   type Prices,
   type ProposalInput,
 } from "@/lib/proposals";
+import { SPECIALTY_IDS } from "@/lib/specialties";
+
+export const customOfferSchema = z.object({
+  id: z.string().regex(/^[a-z0-9_-]{1,40}$/),
+  anlass: z.string().trim().min(2).max(80),
+  name: z.string().trim().min(2).max(120),
+  price: z.number().min(0).max(100000),
+  kasse: z.boolean().optional(),
+  kasseWenn: z.string().trim().max(300).optional(),
+  nutzen: z.string().trim().max(300).optional(),
+  benefits: z.array(z.string().trim().max(120)).max(6).optional(),
+});
 
 const findingCodes = Object.keys(FINDINGS) as [FindingCode, ...FindingCode[]];
 const globalShape = Object.fromEntries(
@@ -33,6 +45,14 @@ export const proposalInputSchema = z.object({
     erstattungProzent: z.number().min(0).max(100),
     zuschussJahr: z.union([z.literal(2026), z.literal(2027)]).optional(),
   }),
+  fach: z.enum(SPECIALTY_IDS as unknown as [string, ...string[]]).optional(),
+  anlaesse: z.array(z.string().max(60)).max(50).optional(),
+  med: z
+    .object({
+      prices: z.record(z.string().max(60), z.number().min(0).max(100000)).optional(),
+      custom: z.array(customOfferSchema).max(100).optional(),
+    })
+    .optional(),
 });
 
 export const choicesSchema = z.record(z.string().max(40), z.string().max(40));
@@ -73,6 +93,7 @@ export function computeProposal(args: {
       patient: args.input.patient,
       patientName: args.patientName,
       practiceName: args.practiceName,
+      fach: args.input.fach,
       date: args.date,
     }),
   };

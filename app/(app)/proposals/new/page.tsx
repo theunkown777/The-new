@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolvePrices } from "@/lib/proposals";
 import { ProposalEditor } from "@/components/ProposalEditor";
+import { resolveMed } from "@/lib/practiceMed";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 
 export default async function NewProposalPage({
@@ -20,7 +21,7 @@ export default async function NewProposalPage({
     }),
     prisma.practice.findUnique({
       where: { id: session!.user.practiceId },
-      select: { name: true, proposalPrices: true },
+      select: { name: true, proposalPrices: true, specialty: true, medPrices: true, customOffers: true },
     }),
   ]);
 
@@ -38,6 +39,7 @@ export default async function NewProposalPage({
         prices={resolvePrices(practice?.proposalPrices)}
         practiceName={practice?.name ?? "Ihre Zahnarztpraxis"}
         initialGlobals={anamnesis?.globals}
+        {...resolveMed(practice ?? {})}
       />
     </div>
   );

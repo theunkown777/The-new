@@ -37,6 +37,11 @@ model Practice {
   proposalPrices    Json?
   /// Ratenzahlung im Patienten-Link (lib/installments.ts)
   installments      Json?
+  /// Fachgebiet (lib/specialties.ts): "zahn", "augen", "haut", … oder "andere"
+  specialty         String            @default("zahn")
+  /// Arztpraxen: Preise je Leistung und eigene Leistungen (lib/medicalProposals.ts)
+  medPrices         Json?
+  customOffers      Json?
   // Gastzugang: Demo-Praxis mit Beispieldaten, die nach Ablauf automatisch
   // gelöscht wird (lib/demo.ts).
   isDemo            Boolean           @default(false)

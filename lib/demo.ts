@@ -4,7 +4,8 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { STANDARD_GOZ_PUNKTWERT_CENT } from "@/lib/billing";
 import { buildServiceSummary } from "@/lib/serviceSummary";
-import { DEFAULT_PRICES, defaultZuschussJahr, type ProposalInput } from "@/lib/proposals";
+import { DEFAULT_PRICES, buildProposal, defaultZuschussJahr, type ProposalInput } from "@/lib/proposals";
+import { DENTAL_ID, specialty, type Specialty } from "@/lib/specialties";
 import { computeProposal } from "@/lib/proposalSchema";
 import { QUESTIONS } from "@/lib/anamnesis";
 
@@ -128,14 +129,17 @@ export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
 }
 
 /** Neue Demo-Praxis mit Beispieldaten; liefert die Zugangsdaten für die sofortige Anmeldung. */
-export async function createDemoPractice(now = new Date()): Promise<{ email: string; password: string }> {
+export async function createDemoPractice(now = new Date(), fach: string = DENTAL_ID): Promise<{ email: string; password: string }> {
+  const spec = specialty(fach);
+  const dental = !spec;
   const suffix = crypto.randomBytes(6).toString("hex");
   const email = `gast-${suffix}@demo.sorrida.invalid`;
   const password = crypto.randomBytes(24).toString("base64url");
 
   const practice = await prisma.practice.create({
     data: {
-      name: DEMO_PRACTICE_NAME,
+      name: spec ? `${spec.kurz} am Markt (Demo)` : DEMO_PRACTICE_NAME,
+      specialty: spec ? spec.id : DENTAL_ID,
       isDemo: true,
       demoExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
       gozPunktwertCent: STANDARD_GOZ_PUNKTWERT_CENT,
@@ -160,6 +164,7 @@ export async function createDemoPractice(now = new Date()): Promise<{ email: str
     include: { items: { include: { catalogItem: true }, orderBy: { position: "asc" } } },
   });
 
+  const created: { id: string; firstName: string; lastName: string; birthDate: string; insuranceType: "GKV" | "PKV" }[] = [];
   for (const p of PATIENTS) {
     const patient = await prisma.patient.create({
       data: {
@@ -201,7 +206,8 @@ export async function createDemoPractice(now = new Date()): Promise<{ email: str
     }
 
     let reportId: string | null = null;
-    if (p.lastName === "Weber" && template) {
+    created.push({ id: patient.id, firstName: p.firstName, lastName: p.lastName, birthDate: p.birthDate, insuranceType: p.insuranceType });
+    if (dental && p.lastName === "Weber" && template) {
       const entries = template.items.map((it, i) => ({
         catalogItemId: it.catalogItemId,
         // Bei Dubletten GOZ/BEMA nur die zur Kassenart passende Position als erbracht.
@@ -231,7 +237,7 @@ export async function createDemoPractice(now = new Date()): Promise<{ email: str
       reportId = report.id;
     }
 
-    if (p.proposal) {
+    if (dental && p.proposal) {
       const input: ProposalInput = {
         ...p.proposal.input,
         patient: {
@@ -276,5 +282,62 @@ export async function createDemoPractice(now = new Date()): Promise<{ email: str
     }
   }
 
+  if (spec) await seedMedicalProposals(spec, practice.id, author.id, practice.name, created, now);
   return { email, password };
+}
+
+/** Beispielvorschläge für eine Arztpraxis: offen, mit Rückruf-Wunsch und angenommen. */
+async function seedMedicalProposals(
+  spec: Specialty,
+  practiceId: string,
+  authorId: string,
+  practiceName: string,
+  patients: { id: string; firstName: string; lastName: string; birthDate: string; insuranceType: "GKV" | "PKV" }[],
+  now: Date,
+) {
+  const by = (n: string) => patients.find((p) => p.lastName === n)!;
+  const order =
+    spec.id === "uro" ? [by("Schulz")] : spec.id === "gyn" ? [by("Weber"), by("Krüger")] : spec.id === "kinder" ? [by("Hoffmann")] : [by("Weber"), by("Schulz"), by("Krüger")];
+  const anlaesse = spec.anlaesse.filter((a) => !a.nurAufWunsch).map((a) => a.id);
+  const plans: { status: string; anlaesse: string[]; pickIgel: boolean; response?: boolean }[] = [
+    { status: "ENTWURF", anlaesse, pickIgel: false },
+    { status: "BESPROCHEN", anlaesse: anlaesse.slice(0, 1), pickIgel: true, response: true },
+    { status: "ANGENOMMEN", anlaesse: anlaesse.slice(0, 1), pickIgel: true },
+  ];
+  for (const [i, p] of order.entries()) {
+    const plan = plans[i] ?? plans[0];
+    const input: ProposalInput = {
+      teeth: {},
+      globals: {},
+      patient: { age: age(p.birthDate, now), insurance: p.insuranceType, bonusYears: 0, haertefall: false, erstattungProzent: p.insuranceType === "PKV" ? 80 : 0 },
+      fach: spec.id,
+      anlaesse: plan.anlaesse,
+      med: { prices: {}, custom: [] },
+    };
+    const items = buildProposal(input, DEFAULT_PRICES);
+    const choices = plan.pickIgel
+      ? Object.fromEntries(items.map((it) => [it.key, it.options.find((o) => o.type === "igel")?.id ?? it.options[0].id]))
+      : {};
+    const computed = computeProposal({ input, choices, prices: DEFAULT_PRICES, patientName: `${p.firstName} ${p.lastName}`, practiceName, date: now });
+    await prisma.treatmentProposal.create({
+      data: {
+        practiceId,
+        patientId: p.id,
+        authorId,
+        status: plan.status,
+        input: input as unknown as Prisma.InputJsonValue,
+        ...computed,
+        ...(plan.response && {
+          shareTokenHash: crypto.randomBytes(32).toString("hex"),
+          shareExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
+          shareCreatedAt: new Date(now.getTime() - 26 * 60 * 60 * 1000),
+          patientViewedAt: new Date(now.getTime() - 3 * 60 * 60 * 1000),
+          patientResponse: "RUECKRUF",
+          patientChoices: computed.choices,
+          patientNote: "Was zahlt meine Kasse davon?",
+          patientRespondedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+        }),
+      },
+    });
+  }
 }

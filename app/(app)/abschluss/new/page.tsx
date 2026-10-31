@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolvePrices } from "@/lib/proposals";
 import { TreatmentWrapUp } from "@/components/TreatmentWrapUp";
+import { resolveMed } from "@/lib/practiceMed";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 
 export default async function NewWrapUpPage({ searchParams }: { searchParams: { patientId?: string } }) {
@@ -16,7 +17,7 @@ export default async function NewWrapUpPage({ searchParams }: { searchParams: { 
       : null,
     prisma.practice.findUnique({
       where: { id: practiceId },
-      select: { name: true, gozPunktwertCent: true, bemaPunktwertCent: true, proposalPrices: true },
+      select: { name: true, gozPunktwertCent: true, bemaPunktwertCent: true, proposalPrices: true, specialty: true, medPrices: true, customOffers: true },
     }),
   ]);
 
@@ -60,6 +61,7 @@ export default async function NewWrapUpPage({ searchParams }: { searchParams: { 
       </p>
       <div>
         <TreatmentWrapUp
+          {...resolveMed(practice ?? {})}
           anamnesis={anamnesis}
           patient={{
             id: patient.id,

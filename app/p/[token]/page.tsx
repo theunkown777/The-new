@@ -6,7 +6,8 @@ import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } f
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
-import { pickLang } from "@/lib/patientI18n";
+import { hasTranslation, pickLang } from "@/lib/patientI18n";
+import { isDental, specialty } from "@/lib/specialties";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -56,6 +57,9 @@ export default async function PatientLinkPage({
   }
 
   const items = buildProposal(input.data, resolvePrices(proposal.practice.proposalPrices)).filter((i) => i.options.length > 0);
+  const dental = isDental(input.data.fach);
+  // Fach-Texte gibt es bisher nur auf Deutsch; dann keine halb übersetzte Ansicht anbieten.
+  const translatable = dental && items.every((i) => [i.title, i.where, ...i.options.flatMap((o) => [o.name, ...o.benefits])].every(hasTranslation));
   const patientChoices = choicesSchema.safeParse(proposal.patientChoices);
   const now = new Date();
 
@@ -72,7 +76,10 @@ export default async function PatientLinkPage({
       tageBisStichtag={tageBisStichtag(now)}
       expiresAt={proposal.shareExpiresAt.toISOString()}
       installments={resolveInstallments(proposal.practice.installments)}
-      lang={pickLang(searchParams.lang, headers().get("accept-language"))}
+      lang={translatable ? pickLang(searchParams.lang, headers().get("accept-language")) : "de"}
+      translatable={translatable}
+      dental={dental}
+      arztDativ={specialty(input.data.fach)?.arztDativ}
     />
   );
 }

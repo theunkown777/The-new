@@ -17,6 +17,8 @@ export type Question = {
   flag?: { level: "warn" | "info"; text: string };
   /** Übernahme in den Behandlungsvorschlag. */
   proposal?: GlobalCode;
+  /** Nur in Zahnarztpraxen gefragt. */
+  dentalOnly?: boolean;
 };
 
 export const QUESTIONS: Question[] = [
@@ -32,7 +34,7 @@ export const QUESTIONS: Question[] = [
   { key: "bestrahlung", text: "Wurden Sie im Kopf- oder Halsbereich bestrahlt?", flag: { level: "warn", text: "Bestrahlung Kopf/Hals: Risiko Osteoradionekrose" } },
   { key: "schwanger", text: "Sind Sie schwanger oder könnten Sie schwanger sein?", flag: { level: "warn", text: "Schwangerschaft: Röntgen und Medikamente prüfen" } },
   { key: "rauchen", text: "Rauchen Sie?", flag: { level: "info", text: "Raucher" }, proposal: "raucher" },
-  { key: "knirschen", text: "Knirschen oder pressen Sie mit den Zähnen (z. B. nachts)?", flag: { level: "info", text: "Knirschen/Pressen" }, proposal: "bruxismus" },
+  { key: "knirschen", text: "Knirschen oder pressen Sie mit den Zähnen (z. B. nachts)?", flag: { level: "info", text: "Knirschen/Pressen" }, proposal: "bruxismus", dentalOnly: true },
 ];
 
 export const WISHES = [
@@ -50,7 +52,9 @@ export const anamnesisSchema = z.object({
   wishes: z.array(z.enum(WISHES.map((w) => w.key) as [string, ...string[]])).max(WISHES.length).default([]),
   note: z.string().trim().max(1000).optional(),
   confirmName: z.string().trim().min(2, "Bitte Ihren Namen zur Bestätigung eintragen").max(120),
-}).refine((a) => QUESTIONS.every((q) => a.q[q.key] !== undefined), { message: "Bitte alle Fragen beantworten" });
+}).refine((a) => QUESTIONS.every((q) => q.dentalOnly || a.q[q.key] !== undefined), { message: "Bitte alle Fragen beantworten" });
+
+export const questionsFor = (dental: boolean) => QUESTIONS.filter((q) => dental || !q.dentalOnly);
 export type AnamnesisAnswers = z.infer<typeof anamnesisSchema>;
 
 export type AnamnesisFlag = { level: "warn" | "info"; text: string; detail?: string };

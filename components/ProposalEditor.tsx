@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BefundDiktat } from "@/components/BefundDiktat";
+import { AnlassPicker } from "@/components/AnlassPicker";
+import { isDental, specialty } from "@/lib/specialties";
 import type { DiktatResult } from "@/lib/befundDiktat";
 import {
   FINDINGS,
@@ -29,6 +31,7 @@ import {
   type PatientFactors,
   type Prices,
   type ProposalInput,
+  type MedInput,
   type ZuschussJahr,
 } from "@/lib/proposals";
 
@@ -69,6 +72,8 @@ export function ProposalEditor({
   savedHrefPrefix = "/proposals/",
   compact = false,
   onChange,
+  fach: practiceFach,
+  med: practiceMed,
 }: {
   patients: PatientOption[];
   initialPatientId?: string;
@@ -82,6 +87,10 @@ export function ProposalEditor({
   /** Im Abschluss-Schritt: ohne eigene Speichern-Knöpfe und Schreiben-Reiter, gespeichert wird gemeinsam. */
   compact?: boolean;
   onChange?: (input: ProposalInput, choices: Record<string, string>) => void;
+  /** Fachgebiet der Praxis; ohne Angabe Zahnmedizin. */
+  fach?: string;
+  /** Preise und eigene Leistungen einer Arztpraxis. */
+  med?: MedInput;
 }) {
   const router = useRouter();
   const [patientId, setPatientId] = useState(existing?.patientId ?? initialPatientId ?? "");
@@ -92,6 +101,11 @@ export function ProposalEditor({
     existing?.input.globals ?? Object.fromEntries((initialGlobals ?? []).map((k) => [k, true])),
   );
   const [choices, setChoices] = useState<Record<string, string>>(existing?.choices ?? {});
+  const fach = existing ? existing.input.fach : practiceFach;
+  const dental = isDental(fach);
+  const spec = specialty(fach);
+  const medData = existing?.input.med ?? practiceMed ?? {};
+  const [anlaesse, setAnlaesse] = useState<string[]>(existing?.input.anlaesse ?? []);
   const [selected, setSelected] = useState<number>(16);
   const [tab, setTab] = useState<"praxis" | "patient">("praxis");
   const [saving, setSaving] = useState(false);
@@ -101,11 +115,13 @@ export function ProposalEditor({
   const status = existing?.status ?? "ENTWURF";
   const locked = status === "ANGENOMMEN" || status === "ABGELEHNT";
 
-  const input: ProposalInput = { teeth, globals, patient: factors };
-  const items = useMemo(() => buildProposal(input, prices), [teeth, globals, factors, prices]); // eslint-disable-line react-hooks/exhaustive-deps
+  const input: ProposalInput = dental
+    ? { teeth, globals, patient: factors }
+    : { teeth: {}, globals: {}, patient: factors, fach, anlaesse, med: medData };
+  const items = useMemo(() => buildProposal(input, prices), [teeth, globals, factors, prices, anlaesse]); // eslint-disable-line react-hooks/exhaustive-deps
   const summary = summarize(items, choices, factors);
   const patientName = patient ? `${patient.firstName} ${patient.lastName}` : "";
-  const letter = buildLetter({ items, choices, patient: factors, patientName, practiceName, date: new Date() });
+  const letter = buildLetter({ items, choices, patient: factors, patientName, practiceName, date: new Date(), fach });
   const delta = summary.planTotal - summary.baseTotal;
   const jv = vergleicheJahre(items, choices, factors);
   const jahr: ZuschussJahr = factors.zuschussJahr ?? defaultZuschussJahr();
@@ -114,8 +130,8 @@ export function ProposalEditor({
   const pct = (y: ZuschussJahr) => `${Math.round(FESTZUSCHUSS_SAETZE[y][factors.bonusYears] * 100)} %`;
 
   useEffect(() => {
-    onChange?.({ teeth, globals, patient: factors }, choices);
-  }, [teeth, globals, factors, choices]); // eslint-disable-line react-hooks/exhaustive-deps
+    onChange?.(input, choices);
+  }, [teeth, globals, factors, choices, anlaesse]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function changePatient(id: string) {
     setPatientId(id);
@@ -263,7 +279,7 @@ export function ProposalEditor({
                 </select>
               </div>
             </div>
-            {factors.insurance === "GKV" && (
+            {dental && factors.insurance === "GKV" && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="label" htmlFor="proposal-bonus">Bonusheft</label>
@@ -288,7 +304,7 @@ export function ProposalEditor({
                 </label>
               </div>
             )}
-            {factors.insurance === "GKV" && (
+            {dental && factors.insurance === "GKV" && (
               <div>
                 <label className="label" htmlFor="proposal-zuschussjahr">Bewilligung des HKP durch die Kasse</label>
                 <select
@@ -320,7 +336,14 @@ export function ProposalEditor({
             </div>
           </div>
 
-          <BefundDiktat onApply={applyDiktat} />
+          {!dental && (
+            <AnlassPicker spec={spec} custom={medData.custom ?? []} value={anlaesse} onChange={setAnlaesse} />
+          )}
+
+          {dental && <BefundDiktat onApply={applyDiktat} />}
+
+          {dental && (
+          <>
 
           <div className="card space-y-3">
             <h2 className="font-medium text-slate-900">Zahnschema (FDI)</h2>
@@ -360,11 +383,13 @@ export function ProposalEditor({
               </label>
             ))}
           </div>
+          </>
+          )}
         </fieldset>
 
         <div className="min-w-0 space-y-4">
           <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-4 [&>div]:bg-white">
-            <Stat label="Nur Kasse" value={formatEuro(summary.baseTotal)} />
+            {dental ? <Stat label="Nur Kasse" value={formatEuro(summary.baseTotal)} /> : <Stat label="Anlässe" value={String(items.length)} />}
             <Stat label="Gewählter Plan" value={formatEuro(summary.planTotal)} />
             <Stat
               label="Mehrumsatz"
@@ -428,7 +453,7 @@ export function ProposalEditor({
           {tab === "praxis" ? (
             items.length === 0 ? (
               <div className="card text-sm text-slate-500">
-                Noch kein Befund. Wählen Sie im Zahnschema einen Zahn und setzen Sie einen Befund.
+                {dental ? "Noch kein Befund. Wählen Sie im Zahnschema einen Zahn und setzen Sie einen Befund." : "Noch kein Anlass gewählt. Kreuzen Sie links an, worum es im Gespräch geht."}
               </div>
             ) : (
               items.map((item) => {
@@ -467,6 +492,8 @@ export function ProposalEditor({
                               <ul className="list-disc pl-4 text-xs text-slate-500">
                                 {o.benefits.map((b) => <li key={b}>{b}</li>)}
                               </ul>
+                              {o.hinweis && <span className="text-xs text-green-800">Kasse: {o.hinweis}</span>}
+                              {o.nutzen && <span className="text-xs text-amber-800">Nutzen: {o.nutzen}</span>}
                               <span className="mt-auto flex justify-between border-t border-dashed border-slate-200 pt-2 text-xs text-slate-500">
                                 Eigenanteil
                                 <b className="tabular-nums text-amber-700">{formatEuro(m.netto)}</b>
@@ -519,10 +546,9 @@ export function ProposalEditor({
           )}
 
           <p className="text-xs text-slate-400">
-            Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise).
-            Die Empfehlung ist ein Vorschlag des Regelwerks; die fachliche Entscheidung trifft die
-            behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer
-            Praxissoftware.
+            {dental
+              ? "Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Die Empfehlung ist ein Vorschlag des Regelwerks; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware."
+              : "Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Empfohlen wird nur die Kassenleistung; ob eine Selbstzahlerleistung sinnvoll ist, entscheiden Sie im Gespräch. Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}
           </p>
 
           {!compact && <div className="flex flex-wrap gap-2">

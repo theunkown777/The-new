@@ -27,6 +27,11 @@ type Props = {
   expiresAt: string;
   installments: Installments;
   lang: PatientLang;
+  /** "Ihrer Hautärztin oder Ihrem Hautarzt"; Zahnmedizin als Standard. */
+  arztDativ?: string;
+  dental?: boolean;
+  /** Sprachumschalter nur, wenn alle Texte übersetzt sind. */
+  translatable?: boolean;
 };
 
 export function PatientProposalView(props: Props) {
@@ -68,7 +73,7 @@ export function PatientProposalView(props: Props) {
       <header className="space-y-2">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-medium text-brand-700">{props.practiceName}</p>
-          <nav aria-label="Sprache / Language" className="flex gap-1 text-xs">
+          {props.translatable !== false && <nav aria-label="Sprache / Language" className="flex gap-1 text-xs">
             {(["de", "en"] as const).map((l) => (
               <a
                 key={l}
@@ -80,10 +85,10 @@ export function PatientProposalView(props: Props) {
                 {l === "de" ? "Deutsch" : "English"}
               </a>
             ))}
-          </nav>
+          </nav>}
         </div>
         <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{t.hello(props.firstName)}</h1>
-        <p className="text-slate-600">{t.intro}</p>
+        <p className="text-slate-600">{t.intro(props.arztDativ ?? "Ihrer Zahnärztin oder Ihrem Zahnarzt")}</p>
         {t.langNote && <p className="text-xs text-slate-500">{t.langNote}</p>}
       </header>
 
@@ -143,6 +148,16 @@ export function PatientProposalView(props: Props) {
                             <li key={b}>{tr(b, lang)}</li>
                           ))}
                         </ul>
+                      )}
+                      {o.hinweis && (
+                        <p className="mt-2 text-xs text-emerald-800">
+                          {t.kasseWenn} {o.hinweis}
+                        </p>
+                      )}
+                      {o.nutzen && (
+                        <p className="mt-1 text-xs text-amber-800">
+                          {t.nutzen} {o.nutzen}
+                        </p>
                       )}
                       <p className="mt-2 text-xs text-slate-500">
                         {t.total} {fmt(m.total)}
@@ -230,7 +245,7 @@ export function PatientProposalView(props: Props) {
       </section>
 
       <p className="mt-6 text-xs leading-relaxed text-slate-500">
-        {t.fine(gkv, until)}
+        {props.dental === false ? t.fineMed(until) : t.fine(gkv, until)}
         {offer.kind === "rate" && t.installmentsFine(props.installments.provider)}
       </p>
 
