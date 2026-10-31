@@ -18,7 +18,7 @@ export default async function EmbedLayout({ children }: { children: React.ReactN
             <img src="/brand/sorrida-mark-hell.svg" alt="" className="h-6 w-auto shrink-0" />
             {session.user.practiceName}
           </span>
-          <span className="shrink-0 text-xs tracking-[0.2em] text-brand-200">SORRIDA</span>
+          <span className="font-brand shrink-0 text-xs text-brand-200">SORRIDA</span>
         </div>
       </header>
       <main className="px-4 py-4">{children}</main>

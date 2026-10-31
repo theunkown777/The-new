@@ -46,7 +46,7 @@ export default function DatenschutzPage() {
       </section>
 
       <section>
-        <h2>4. Nutzung der Sorrida-App durch Zahnarztpraxen</h2>
+        <h2>4. Nutzung der Sorrida-App durch Praxen</h2>
         <p>
           Für angemeldete Praxen verarbeiten wir Kontodaten (Name, E-Mail, Passwort als Hash) sowie
           Anmelde-Cookies, die für den Betrieb technisch notwendig sind (§ 25 Abs. 2 TDDDG).

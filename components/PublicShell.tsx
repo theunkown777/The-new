@@ -8,10 +8,10 @@ export function PublicShell({ children, wide = false }: { children: React.ReactN
         <Link href="/" className="flex items-center gap-2 text-slate-500 hover:text-slate-800">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/sorrida-mark.svg" alt="" className="h-10 w-auto" />
-          <span className="tracking-[0.2em]">SORRIDA</span>
+          <span className="font-brand text-brand-700">SORRIDA</span>
         </Link>
         <span className="flex flex-wrap gap-4">
-          <Link href="/fachgebiete" className="text-slate-600 hover:underline">Fachgebiete</Link>
+          <Link href="/#fach" className="text-slate-600 hover:underline">Fachgebiete</Link>
           <Link href="/ratgeber" className="text-slate-600 hover:underline">Ratgeber</Link>
           <Link href="/demo" className="font-medium text-brand-600 hover:underline">Kostenlos ausprobieren</Link>
         </span>

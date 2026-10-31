@@ -31,15 +31,20 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
   return (
     <PublicShell wide>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <p className="text-sm font-medium text-brand-700">Sorrida für die {s.kurz}</p>
+      <p className="text-sm font-medium text-brand-700">
+        Sorrida für die {s.kurz} ·{" "}
+        <Link href="/#fach" className="font-normal text-slate-500 underline">
+          Fach wechseln
+        </Link>
+      </p>
       <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-900">{s.marketing.headline}</h1>
       <p className="mt-4 max-w-2xl text-lg text-slate-600">{s.marketing.problem}</p>
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href={`/demo?fach=${s.id}`} className="btn-primary">
           Gastzugang für die {s.kurz} öffnen
         </Link>
-        <Link href="/#kontakt" className="btn-secondary">
-          Pilotplatz anfragen
+        <Link href={`/register?fach=${s.id}`} className="btn-secondary">
+          Praxis kostenlos anlegen
         </Link>
       </div>
 
@@ -116,7 +121,7 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
               {x.kurz}
             </Link>
           ))}
-          <Link href="/" className="text-brand-600 hover:underline">Zahnarztpraxis</Link>
+          <Link href="/zahnmedizin" className="text-brand-600 hover:underline">Zahnarztpraxis</Link>
         </p>
       </section>
     </PublicShell>

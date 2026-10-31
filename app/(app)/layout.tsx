@@ -28,7 +28,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <span className="truncate font-semibold tracking-tight text-white">
               {session.user.practiceName}
             </span>
-            <span className="hidden shrink-0 text-xs font-light tracking-[0.2em] text-brand-200 sm:inline">
+            <span className="font-brand hidden shrink-0 text-xs text-brand-200 sm:inline">
               SORRIDA
             </span>
           </Link>

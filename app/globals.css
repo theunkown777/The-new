@@ -33,3 +33,17 @@ h1 {
 .label {
   @apply mb-1 block text-sm font-medium text-slate-700;
 }
+
+/* Wortmarke SORRIDA (Schrift liegt lokal, keine Verbindung zu Google). */
+@font-face {
+  font-family: "Cormorant Garamond";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(/fonts/cormorant-garamond-500-latin.woff2) format("woff2");
+}
+.font-brand {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+}

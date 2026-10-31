@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
@@ -10,6 +10,11 @@ export default function RegisterPage() {
   const router = useRouter();
   const [practiceName, setPracticeName] = useState("");
   const [specialty, setSpecialty] = useState("zahn");
+  // Vorauswahl über /register?fach=haut (z. B. von den Fachseiten).
+  useEffect(() => {
+    const f = new URLSearchParams(window.location.search).get("fach");
+    if (f && f in SPECIALTY_LABELS) setSpecialty(f);
+  }, []);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,7 +57,7 @@ export default function RegisterPage() {
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-slate-900">Praxis registrieren</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Erstellen Sie ein Konto für Ihre Zahnarztpraxis
+            Erstellen Sie ein Konto für Ihre Praxis
           </p>
         </div>
         <form onSubmit={handleSubmit} className="card space-y-4">

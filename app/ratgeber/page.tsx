@@ -3,7 +3,7 @@ import Link from "next/link";
 import { RATGEBER } from "@/lib/ratgeber";
 
 export const metadata: Metadata = {
-  title: "Ratgeber für Zahnarztpraxen – Sorrida",
+  title: "Ratgeber für Praxisteams – Sorrida",
   description: "Festzuschuss 2027, Heil- und Kostenplan, Mehrkostenvereinbarung: kurz erklärt für Praxisteams.",
 };
 
@@ -13,7 +13,7 @@ export default function RatgeberIndex() {
       <Link href="/" className="mb-8 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/sorrida-mark.svg" alt="" className="h-10 w-auto" />
-        <span className="tracking-[0.2em]">SORRIDA</span>
+        <span className="font-brand text-brand-700">SORRIDA</span>
       </Link>
       <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Ratgeber für Praxisteams</h1>
       <p className="mt-3 text-slate-600">

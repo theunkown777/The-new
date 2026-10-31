@@ -21,7 +21,7 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
         <Link href="/" className="flex items-center gap-2 text-slate-500 hover:text-slate-800">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/sorrida-mark.svg" alt="" className="h-10 w-auto" />
-          <span className="tracking-[0.2em]">SORRIDA</span>
+          <span className="font-brand text-brand-700">SORRIDA</span>
         </Link>
         <Link href="/ratgeber" className="text-brand-600 hover:underline">
           Alle Ratgeber

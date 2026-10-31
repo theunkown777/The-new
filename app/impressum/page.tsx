@@ -36,7 +36,7 @@ export default function ImpressumPage() {
       <section>
         <h2>Verbraucherstreitbeilegung</h2>
         <p>
-          Sorrida richtet sich an Zahnarztpraxen als Unternehmer. Wir sind nicht bereit oder verpflichtet,
+          Sorrida richtet sich an Arzt- und Zahnarztpraxen als Unternehmer. Wir sind nicht bereit oder verpflichtet,
           an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
         </p>
       </section>
