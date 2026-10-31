@@ -72,6 +72,22 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
         {input.success && <PatientLinkPanel proposalId={proposal.id} state={linkState} firstName={p.firstName} />}
       </div>
 
+      {proposal.agreedAt && (
+        <section className="card mt-6 border-salbei-200 bg-salbei-50" data-testid="einverstaendnis">
+          <h2 className="font-display text-2xl text-slate-900">Digitales Einverständnis</h2>
+          <p className="mt-1 text-sm text-slate-700">
+            Unterschrieben am {proposal.agreedAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })} von <b>{proposal.agreedName}</b> im Patientenportal.
+          </p>
+          {proposal.agreedSignature && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={proposal.agreedSignature} alt={`Unterschrift von ${proposal.agreedName}`} className="mt-3 h-24 rounded-xl border border-salbei-200 bg-white p-2" />
+          )}
+          <p className="mt-3 text-xs text-slate-600">
+            Ersetzt nicht die schriftliche Mehrkosten- bzw. IGeL-Vereinbarung: Diese vor der Behandlung in der Praxis unterschreiben lassen.
+          </p>
+        </section>
+      )}
+
       {(proposal.status === "ANGENOMMEN" || proposal.status === "ABGELEHNT") && (
         <div className="card mt-6 space-y-2">
           <h2 className="font-medium text-slate-900">Gespeichertes Patientenschreiben</h2>

@@ -47,3 +47,11 @@ h1 {
   font-weight: 500;
   letter-spacing: 0.3em;
 }
+
+/* Sorrida-Designsprache: Überschriften in der Serifenschrift der Wortmarke,
+   ohne Sperrung. Fließtext bleibt Open Sans. */
+.font-display {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}

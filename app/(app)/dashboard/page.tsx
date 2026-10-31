@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { REPORT_TYPE_LABELS, REPORT_STATUS_LABELS } from "@/lib/reportLabels";
 import { PROPOSAL_STATUS_LABELS, formatEuro } from "@/lib/proposals";
 import { isDental } from "@/lib/specialties";
+import { journey, STATIONEN } from "@/lib/journey";
+import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -61,12 +63,51 @@ export default async function DashboardPage() {
   ]);
   const acceptedDeltaCent = accepted.reduce((sum, p) => sum + p.planTotalCent - p.baseTotalCent, 0);
 
+  // Wege der letzten 90 Tage: wie viele Patienten stehen an welcher Station?
+  const wege = await prisma.treatmentProposal.findMany({
+    where: { practiceId, createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) } },
+    orderBy: { createdAt: "desc" },
+    distinct: ["patientId"],
+    take: 2000,
+    select: {
+      status: true, shareCreatedAt: true, patientViewedAt: true, patientResponse: true, patientRespondedAt: true, eigenanteilCent: true,
+      invoices: { where: { status: { not: "STORNIERT" } }, select: { status: true, dueDate: true } },
+    },
+  });
+  const now = new Date();
+  const proStation = [0, 0, 0, 0, 0];
+  let heute = 0;
+  for (const w of wege) {
+    const j = journey({ proposal: w, invoices: w.invoices }, now);
+    if (j.abgelehnt) continue;
+    proStation[j.aktuell ?? 4]++;
+    if (j.praxis.tone === "achtung") heute++;
+  }
+
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Übersicht</h1>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl text-slate-900">Heute in Ihrer Praxis</h1>
+          <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500">
+            <Laechelbogen className="h-2 w-8 text-brand-600" />
+            {heute ? `${heute} ${heute === 1 ? "Patient braucht" : "Patienten brauchen"} heute Ihre Aufmerksamkeit` : "Heute ist nichts liegen geblieben"}
+          </p>
+        </div>
         <Link href="/abschluss/new" className="btn-primary">Behandlung abschließen</Link>
       </div>
+
+      {/* Sorrida-Signatur: Wege der letzten 90 Tage auf dem Lächelbogen */}
+      <section className="mb-8 rounded-3xl bg-white p-5 sm:p-6" data-testid="wege-trichter">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-semibold text-slate-900">Wo Ihre Patienten gerade stehen</h2>
+          <Link href="/patients" className="text-sm text-brand-700 underline">Zur Arbeitsliste</Link>
+        </div>
+        <div className="mx-auto mt-4 max-w-2xl">
+          <Behandlungsweg erreicht={5} aktuell={null} size="gross" labels={STATIONEN.map((st, i) => `${st} · ${proStation[i]}`)} />
+        </div>
+        <p className="mt-1 text-xs text-slate-500">Je Patient der jüngste Vorschlag der letzten 90 Tage, abgelehnte nicht mitgezählt.</p>
+      </section>
 
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="card">

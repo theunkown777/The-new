@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Seitenleiste der App auf dem Desktop (Aufbau angelehnt an übliche Praxisportale,
-// Farben und Formen im Sorrida-Stil).
+// Seitenleiste der App auf dem Desktop. Sorrida-eigener Aufbau: Gruppen nach
+// dem Arbeitsweg (Heute, Patienten, Geld, Praxis); der aktive Eintrag trägt
+// den Lächelbogen aus dem Logo statt einer gefüllten Fläche.
 const ICONS: Record<string, string> = {
   dashboard: "M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10",
   patients: "M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM22 19v-1a4 4 0 0 0-3-3.9M16 3.1a3.5 3.5 0 0 1 0 6.8",
@@ -28,16 +29,29 @@ function Icon({ name }: { name: string }) {
 
 export function SidebarNav({ dental, team = false, analyse = false }: { dental: boolean; team?: boolean; analyse?: boolean }) {
   const path = usePathname();
-  const links: [string, string, string][] = [
-    ["/dashboard", "Übersicht", "dashboard"],
-    ["/patients", "Patienten", "patients"],
-    ["/proposals", "Vorschläge", "proposals"],
-    ["/abschluss/new", "Behandlung abschließen", "wrapup"],
-    ["/zahlungen", "Zahlungen", "zahlungen"],
-    ...(analyse ? ([["/analyse", "Analyse", "analyse"]] as [string, string, string][]) : []),
-    ...(dental ? ([["/reports", "Berichte", "reports"]] as [string, string, string][]) : []),
+  type L = [string, string, string];
+  const gruppen: [string, L[]][] = [
+    ["Heute", [["/dashboard", "Übersicht", "dashboard"]]],
+    [
+      "Patienten",
+      [
+        ["/patients", "Patienten und Wege", "patients"],
+        ["/abschluss/new", "Behandlung abschließen", "wrapup"],
+        ["/proposals", "Vorschläge", "proposals"],
+        ...(dental ? ([["/reports", "Berichte", "reports"]] as L[]) : []),
+      ],
+    ],
+    ["Geld", [["/zahlungen", "Zahlungen", "zahlungen"], ...(analyse ? ([["/analyse", "Analyse", "analyse"]] as L[]) : [])]],
+    [
+      "Praxis",
+      [
+        ["/settings", "Einstellungen", "settings"],
+        ...(team ? ([["/anfragen", "Anfragen (Team)", "anfragen"]] as L[]) : []),
+        ["/", "Fachauswahl und Website", "start"],
+      ],
+    ],
   ];
-  const item = (href: string, label: string, icon: string) => {
+  const item = ([href, label, icon]: L) => {
     const base = href.replace("/new", "");
     const active = path === href || (href !== "/" && href !== "/dashboard" && path.startsWith(base));
     return (
@@ -45,20 +59,26 @@ export function SidebarNav({ dental, team = false, analyse = false }: { dental: 
         key={href}
         href={href}
         aria-current={active ? "page" : undefined}
-        className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm ${active ? "bg-brand-600 font-medium text-white" : "text-slate-700 hover:bg-brand-50 hover:text-brand-700"}`}
+        className={`group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm ${active ? "bg-white font-semibold text-brand-800 shadow-[0_6px_18px_-14px_rgba(107,42,36,.7)]" : "text-slate-700 hover:bg-white/70 hover:text-brand-700"}`}
       >
         <Icon name={icon} />
         {label}
+        {active && (
+          <svg viewBox="0 0 40 8" className="absolute bottom-1 left-10 h-1.5 w-8 text-brand-600" aria-hidden="true">
+            <path d="M2 2 Q20 10 38 2" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" />
+          </svg>
+        )}
       </Link>
     );
   };
   return (
-    <nav className="space-y-1" aria-label="Hauptnavigation">
-      {links.map(([h, l, i]) => item(h, l, i))}
-      <div className="my-3 border-t border-slate-100" />
-      {item("/settings", "Einstellungen", "settings")}
-      {team && item("/anfragen", "Anfragen (Team)", "anfragen")}
-      {item("/", "Fachauswahl und Website", "start")}
+    <nav className="space-y-4" aria-label="Hauptnavigation">
+      {gruppen.map(([titel, links]) => (
+        <div key={titel}>
+          <p className="font-display px-3 pb-1 text-base text-slate-500">{titel}</p>
+          <div className="space-y-0.5">{links.map(item)}</div>
+        </div>
+      ))}
     </nav>
   );
 }

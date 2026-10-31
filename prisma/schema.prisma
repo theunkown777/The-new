@@ -407,6 +407,11 @@ model TreatmentProposal {
   /// Erster Versand eines Patienten-Links (bleibt beim Sperren erhalten, für die Auswertung)
   shareCreatedAt     DateTime?
   patientWantsInstallments Boolean @default(false)
+  /// Digitales Einverständnis im Patientenportal (Name, Unterschrift als PNG-Data-URL, Zeitpunkt)
+  agreedAt        DateTime?
+  agreedName      String?
+  agreedSignature String?
+  agreedChoices   Json?
   invoices        Invoice[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

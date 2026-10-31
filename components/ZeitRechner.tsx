@@ -27,7 +27,7 @@ export function ZeitRechner() {
   return (
     <div className="grid gap-6 rounded-3xl bg-white p-6 sm:p-10 lg:grid-cols-2" data-testid="zeitrechner">
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold">Wie viel Zeit bekommt Ihr Team zurück?</h2>
+        <h2 className="font-display text-4xl">Wie viel Zeit bekommt Ihr Team zurück?</h2>
         <p className="text-sm text-slate-500">Rechnen Sie mit Ihren eigenen Zahlen. Gemessen ist davon nichts; im Pilotbetrieb messen wir es mit Ihnen.</p>
         {feld("Gespräche pro Woche mit Kosten- oder Selbstzahlerfragen", gespraeche, setGespraeche, 5, 150, 5, "")}
         {feld("davon mit Rückfrage am Tresen oder Telefon", rueckfragen, setRueckfragen, 0, 100, 10, "%")}

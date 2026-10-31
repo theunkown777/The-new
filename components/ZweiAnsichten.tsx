@@ -1,34 +1,62 @@
-// Zwei Ansichten, ein System: Patienten-Link auf dem Handy und die Praxis-App
-// am Bildschirm. Als HTML nachgebaut (keine Bilder), damit es scharf bleibt
-// und die Inhalte zum echten Produkt passen.
+import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 
-const ZEILEN: [string, string, string, string, string][] = [
-  ["Weber, Martina", "31.10.2026 09:12", "12.03.1980", "Rückmeldung", "bg-emerald-100 text-emerald-800"],
-  ["Yılmaz, Elif", "31.10.2026 08:47", "04.07.1991", "Anamnese neu", "bg-sky-100 text-sky-800"],
-  ["Schulz, Peter", "30.10.2026 17:20", "22.09.1968", "Link ungeöffnet", "bg-orange-100 text-orange-800"],
-  ["Nowak, Piotr", "30.10.2026 15:03", "18.02.1955", "Vorschlag offen", "bg-amber-100 text-amber-800"],
-  ["Krüger, Anna", "30.10.2026 11:41", "02.04.1975", "Angenommen", "bg-slate-100 text-slate-600"],
-  ["Haddad, Omar", "29.10.2026 16:28", "30.06.1978", "Neuer Patient", "bg-brand-100 text-brand-800"],
-  ["Fischer, Ingrid", "29.10.2026 10:05", "11.11.1949", "Vorschlag offen", "bg-amber-100 text-amber-800"],
-  ["Demir, Can", "29.10.2026 09:14", "15.05.1987", "Rückmeldung", "bg-emerald-100 text-emerald-800"],
-  ["Lange, Sabine", "28.10.2026 14:52", "27.08.1962", "Anamnese neu", "bg-sky-100 text-sky-800"],
-  ["Rossi, Giulia", "28.10.2026 11:30", "09.01.2001", "Neuer Patient", "bg-brand-100 text-brand-800"],
+// "Ein Weg, zwei Seiten": Sorridas eigener Aufbau. Oben der Behandlungsweg
+// mit dem, was Praxis und Patient an jeder Station tun. Links das Portal auf
+// einem Handy in echter Größe, rechts die Arbeitsliste der Praxis mit dem
+// nächsten Schritt je Patient.
+
+const STATIONEN_TEXT: [string, string, string][] = [
+  ["Gespräch", "Befund oder Anlass wählen, ein Klick", "Hört zu, fragt nach"],
+  ["Vorschlag", "Kasse zuerst, Alternativen begründet, Link per SMS", "Bekommt den Link aufs Handy"],
+  ["Entscheidung", "Sieht Rückmeldung und Wunsch nach Raten", "Vergleicht zu Hause, tippt eine Antwort"],
+  ["Vereinbart", "Vereinbarung und Rechnung mit einem Klick", "Weiß vorher, was die Kasse zahlt"],
+  ["Bezahlt", "Eingang bestätigen, nichts abtippen", "Zahlt per GiroCode, ohne Konto"],
 ];
+
+const LISTE: [string, number, number, string, "aktiv" | "achtung" | "warten" | "erledigt"][] = [
+  ["Weber, Martina", 3, 3, "Rückruf gewünscht: heute anrufen", "achtung"],
+  ["Yılmaz, Elif", 0, 0, "Anamnese liegt vor: Vorschlag erstellen", "aktiv"],
+  ["Schulz, Peter", 2, 2, "Link seit Tagen ungeöffnet: kurz anrufen", "achtung"],
+  ["Nowak, Piotr", 2, 2, "Vorschlag angesehen: Rückmeldung abwarten", "warten"],
+  ["Krüger, Anna", 4, 4, "Vereinbart: Rechnung erstellen", "aktiv"],
+  ["Haddad, Omar", 5, -1, "Abgeschlossen", "erledigt"],
+];
+const TONE = { aktiv: "text-brand-700", achtung: "text-red-700", warten: "text-slate-600", erledigt: "text-salbei-700" };
 
 export function ZweiAnsichten() {
   return (
-    <section className="mt-20 grid gap-6 xl:grid-cols-[minmax(31rem,5fr)_minmax(0,8fr)]" aria-labelledby="ansichten" data-testid="zwei-ansichten">
-      <h2 id="ansichten" className="sr-only">
-        Patientenansicht und Praxisansicht
-      </h2>
+    <section className="mt-20" aria-labelledby="ansichten" data-testid="zwei-ansichten">
+      <div className="max-w-3xl">
+        <p className="flex items-center gap-2 text-sm font-semibold text-brand-700"><Laechelbogen className="h-2 w-8" />Der Behandlungsweg</p>
+        <h2 id="ansichten" className="font-display mt-1 text-4xl leading-tight text-slate-900 sm:text-5xl">Ein Weg, zwei Seiten.</h2>
+        <p className="mt-3 text-lg text-slate-600">
+          Praxis und Patient sehen denselben Weg vom Gespräch bis zur Zahlung. Jeder mit seinem nächsten Schritt, nichts geht verloren.
+        </p>
+      </div>
 
+      {/* Fünf Stationen auf dem Lächelbogen */}
+      <div className="mt-8 rounded-3xl bg-white p-5 sm:p-8" data-testid="weg-band">
+        <div className="mx-auto hidden max-w-2xl md:block">
+          <Behandlungsweg erreicht={5} aktuell={null} size="gross" labels={["", "", "", "", ""]} />
+        </div>
+        <ol className="grid gap-4 md:mt-2 md:grid-cols-5">
+          {STATIONEN_TEXT.map(([name, praxis, patient], i) => (
+            <li key={name} className="rounded-2xl bg-[#F5F2EE] p-4">
+              <p className="font-display text-2xl text-slate-900"><span className="text-brand-600">{i + 1}</span> {name}</p>
+              <p className="mt-2 text-sm text-slate-700"><b className="text-brand-700">Praxis:</b> {praxis}</p>
+              <p className="mt-1 text-sm text-slate-700"><b className="text-salbei-700">Patient:</b> {patient}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(31rem,5fr)_minmax(0,8fr)]">
       {/* Patient */}
       <div className="flex flex-col overflow-hidden rounded-3xl bg-white p-6 sm:p-10">
-        <p className="text-sm font-semibold text-brand-700">Für Patienten</p>
-        <h3 className="mt-1 text-2xl font-semibold text-slate-900 sm:text-3xl">Der Vorschlag auf dem Handy</h3>
+        <p className="text-sm font-semibold text-salbei-700">Für Patienten</p>
+        <h3 className="font-display mt-1 text-3xl text-slate-900">Der nächste Schritt, auf dem eigenen Handy</h3>
         <p className="mt-3 text-slate-600">
-          Ohne App und ohne Konto: Optionen vergleichen, den eigenen Anteil sehen und mit einem Tipp zurückmelden. Auf Deutsch oder
-          Englisch.
+          Ohne App und ohne Konto, auf Deutsch oder Englisch. Kasse zuerst, dann die Alternativen mit dem eigenen Anteil.
         </p>
         {/* Echte Handygröße: Bildschirm 375 × 812 CSS-Pixel (logische Größe eines iPhone 13 mini / X), Schrift wie im echten Patienten-Link. */}
         <div
@@ -49,9 +77,10 @@ export function ZweiAnsichten() {
             <div className="min-h-0 flex-1 space-y-4 overflow-hidden px-4 pt-3">
               <p className="text-sm font-medium text-brand-700">Hautarztpraxis am Markt</p>
               <div>
-                <p className="text-2xl font-semibold leading-tight text-slate-900">Hallo Martina</p>
-                <p className="mt-1 text-base text-slate-600">Ihr Vorschlag zur Hautkrebs-Früherkennung</p>
+                <p className="font-display text-[2rem] leading-tight text-slate-900">Guten Tag, Martina</p>
+                <p className="mt-1 text-base text-slate-700"><b className="text-brand-700">Als Nächstes:</b> Ihren Vorschlag ansehen und wählen.</p>
               </div>
+              <Behandlungsweg erreicht={2} aktuell={2} size="gross" />
               {[
                 ["Hautkrebs-Screening", "Kassenleistung", "0 €", true, "Alle zwei Jahre ab 35 Jahren"],
                 ["Auflichtmikroskopie", "Selbstzahlerleistung", "35 €", false, "Bei verdächtigen Malen zahlt die Kasse"],
@@ -81,79 +110,27 @@ export function ZweiAnsichten() {
         </div>
       </div>
 
-      {/* Praxis */}
-      <div className="flex flex-col overflow-hidden rounded-3xl bg-white p-6 sm:p-10">
+      {/* Praxis: Arbeitsliste statt Tabelle */}
+      <div className="flex flex-col rounded-3xl bg-white p-6 sm:p-10">
         <p className="text-sm font-semibold text-brand-700">Für die Praxis</p>
-        <h3 className="mt-1 text-2xl font-semibold text-slate-900 sm:text-3xl">Alle Patienten und Vorgänge an einem Ort</h3>
+        <h3 className="font-display mt-1 text-3xl text-slate-900">Heute: wer als Nächstes dran ist</h3>
         <p className="mt-3 max-w-2xl text-slate-600">
-          Wer hat sich zurückgemeldet, wer hat den Link noch nicht geöffnet, wo ist die Anamnese neu? Der Status steht in jeder Zeile, die
-          nächsten Schritte rechts daneben.
+          Keine Spalten voller Zustände. Jeder Patient steht auf seinem Weg, daneben steht, was jetzt zu tun ist. Rot heißt: heute.
         </p>
-        <div className="mt-auto hidden pt-8 sm:block" aria-hidden="true">
-        <div className="overflow-hidden rounded-2xl border-[10px] border-slate-900 bg-white shadow-xl">
-          <div className="grid grid-cols-[8.5rem_minmax(0,1fr)_10rem] text-[10px]">
-            <div className="border-r border-slate-100 bg-white p-3">
-              <p className="font-brand mb-3 text-[11px] text-brand-700">SORRIDA</p>
-              {["Übersicht", "Patienten", "Vorschläge", "Abschließen", "Einstellungen"].map((n) => (
-                <p key={n} className={`mb-1 rounded-md px-2 py-1 ${n === "Patienten" ? "bg-brand-600 text-white" : "text-slate-600"}`}>
-                  {n}
-                </p>
-              ))}
-            </div>
-            <div className="min-w-0 bg-[#FBFAF8] p-3">
-              <div className="mb-2 flex gap-1.5">
-                {["Alle", "Offen", "Rückmeldung"].map((f, i) => (
-                  <span key={f} className={`rounded-full px-2 py-0.5 ${i === 0 ? "bg-brand-600 text-white" : "bg-white text-slate-600"}`}>
-                    {f}
-                  </span>
-                ))}
-                <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-slate-400">Suche nach Name</span>
-              </div>
-              <table className="w-full">
-                <thead>
-                  <tr className="text-left text-[8px] uppercase tracking-wider text-slate-400">
-                    <th className="py-1 font-semibold">Patient</th>
-                    <th className="py-1 font-semibold">Letzte Änderung</th>
-                    <th className="hidden py-1 font-semibold md:table-cell">Geburtsdatum</th>
-                    <th className="py-1 font-semibold">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ZEILEN.map(([n, d, g, s, c]) => (
-                    <tr key={n} className={`border-t border-slate-100 ${n.startsWith("Weber") ? "bg-brand-50" : ""}`}>
-                      <td className="py-1.5 text-slate-800">{n}</td>
-                      <td className="py-1.5 tabular-nums text-slate-500">{d}</td>
-                      <td className="hidden py-1.5 tabular-nums text-slate-500 md:table-cell">{g}</td>
-                      <td className="py-1.5">
-                        <span className={`rounded-full px-1.5 py-0.5 ${c}`}>{s}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="border-l border-slate-100 bg-white p-3">
-              <p className="mb-2 font-semibold text-slate-900">Weber, Martina</p>
-              <div className="grid grid-cols-2 gap-1 text-center text-[9px]">
-                <span className="rounded-md bg-brand-600 py-2 text-white">Abschließen</span>
-                <span className="rounded-md bg-brand-50 py-2 text-brand-800">Vorschlag</span>
-                <span className="rounded-md bg-brand-50 py-2 text-brand-800">Anamnese</span>
-                <span className="rounded-md bg-brand-50 py-2 text-brand-800">Link</span>
-              </div>
-              <p className="mt-3 text-[8px] uppercase tracking-wider text-slate-400">Persönliche Daten</p>
-              <p className="mt-1 text-slate-600">12.03.1980 (46)</p>
-              <p className="text-slate-600">Techniker Krankenkasse</p>
-              <p className="mt-2 rounded-md bg-emerald-50 px-2 py-1 text-emerald-800">Möchte besprechen: Auflicht</p>
-            </div>
-          </div>
-        </div>
-        <div className="mx-auto h-10 w-28 bg-gradient-to-b from-slate-300 to-slate-200" />
-        <div className="mx-auto h-2 w-48 rounded-t-lg bg-slate-300" />
-        </div>
-        <ul className="mt-6 grid gap-2 text-sm text-slate-600 sm:hidden">
-          <li>Status je Patient: Rückmeldung, Link ungeöffnet, Anamnese neu</li>
-          <li>Rechts die nächsten Schritte mit einem Klick</li>
+        <ul className="mt-6 space-y-2" aria-hidden="true">
+          {LISTE.map(([name, erreicht, aktuell, text, tone]) => (
+            <li key={name} className="grid items-center gap-x-4 gap-y-1 rounded-2xl bg-[#F5F2EE] px-4 py-3 sm:grid-cols-[minmax(0,11rem)_7.5rem_minmax(0,1fr)]">
+              <span className="flex items-center gap-3">
+                <span className="font-display grid h-9 w-9 place-items-center rounded-full bg-white text-lg text-brand-700">{name.charAt(0)}</span>
+                <span className="font-medium text-slate-900">{name}</span>
+              </span>
+              <Behandlungsweg erreicht={erreicht} aktuell={aktuell < 0 ? null : aktuell} className="hidden sm:block" />
+              <span className={`text-sm ${TONE[tone]}`}>{tone === "achtung" && "● "}{text}</span>
+            </li>
+          ))}
         </ul>
+        <p className="mt-auto pt-6 text-sm text-slate-500">Aus der Demo-Praxis: erfundene Beispielpatienten.</p>
+      </div>
       </div>
     </section>
   );

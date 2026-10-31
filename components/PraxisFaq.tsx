@@ -40,7 +40,7 @@ export function PraxisFaq({ therapie = false, dental = false }: { therapie?: boo
   return (
     <section className="mt-14 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" aria-labelledby="faq">
       <div>
-        <h2 id="faq" className="text-2xl font-semibold text-slate-900">
+        <h2 id="faq" className="font-display text-4xl text-slate-900">
           Was Praxen vor dem Start fragen
         </h2>
         <p className="mt-2 text-sm text-slate-500">Ihre Frage fehlt? Im Pilotprogramm klären wir sie persönlich.</p>

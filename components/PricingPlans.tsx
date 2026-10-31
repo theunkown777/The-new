@@ -6,7 +6,7 @@ export function PricingPlans({ cta = "#fach" }: { cta?: string }) {
     <section id="preise" className="mt-20 scroll-mt-6" aria-labelledby="preise-titel" data-testid="preise">
       <div className="max-w-3xl">
         <p className="text-sm font-semibold text-brand-700">Preise</p>
-        <h2 id="preise-titel" className="mt-1 text-3xl font-semibold text-slate-900">Ein Werkzeug statt fünf. Ein Preis, alles drin.</h2>
+        <h2 id="preise-titel" className="font-display mt-1 text-3xl text-slate-900">Ein Werkzeug statt fünf. Ein Preis, alles drin.</h2>
         <p className="mt-3 text-slate-600">
           Vorschläge, Patienten-Link, Patientenportal mit Zahlung, Anamnese, Diktat und Analyse. Wofür Praxen sonst mehrere Abos bezahlen und
           Daten zwischen Programmen abtippen, läuft hier an einem Ort.

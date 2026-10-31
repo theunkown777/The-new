@@ -20,7 +20,7 @@ export default function HilfePage({ searchParams }: { searchParams: { fach?: str
       <div className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <div>
           <p className="text-sm font-semibold text-brand-700">Support</p>
-          <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl">Sie finden Ihre Fachrichtung nicht? Hier ist Hilfe.</h1>
+          <h1 className="font-display mt-2 text-3xl leading-tight text-slate-900 sm:text-4xl">Sie finden Ihre Fachrichtung nicht? Hier ist Hilfe.</h1>
           <p className="mt-4 text-lg text-slate-600">
             Sorrida bringt für 30 Fachrichtungen fertige Anlässe mit. Für alle anderen richten wir es mit Ihnen ein: Kassenleistung zuerst,
             Patienten-Link, Patientenportal mit Zahlung und Analyse funktionieren in jedem Fach gleich.

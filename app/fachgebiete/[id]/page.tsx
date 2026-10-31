@@ -107,13 +107,13 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
 
         <div className="min-w-0">
           <p className="text-sm font-semibold text-brand-700">Sorrida für die {s.kurz}</p>
-          <h1 className="mt-2 max-w-4xl text-3xl font-bold leading-tight tracking-tight text-slate-900 sm:text-4xl">{s.marketing.headline}</h1>
+          <h1 className="font-display mt-2 max-w-4xl text-3xl leading-tight text-slate-900 sm:text-4xl">{s.marketing.headline}</h1>
           <p className="mt-4 max-w-3xl text-lg text-slate-600">{s.marketing.problem}</p>
 
           <section id="beispiel" className="mt-12 scroll-mt-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-semibold text-slate-900">So sieht es Ihr Patient</h2>
+                <h2 className="font-display text-4xl text-slate-900">So sieht es Ihr Patient</h2>
                 <p className="mt-1 max-w-3xl text-slate-600">{s.marketing.beispiel} Beispielpreise, in den Einstellungen anpassbar.</p>
               </div>
               <Link href="/vorschau" className="text-sm text-brand-700 underline">
@@ -176,7 +176,7 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
 
           <section id="automatisch" className="mt-14 grid scroll-mt-6 gap-5 lg:grid-cols-3">
             <div className="rounded-2xl bg-white p-5">
-              <h2 className="text-lg font-semibold text-slate-900">Was nach dem Gespräch automatisch entsteht</h2>
+              <h2 className="font-display text-2xl text-slate-900">Was nach dem Gespräch automatisch entsteht</h2>
               <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-slate-700">
                 {dental && <li>Befund- und Behandlungsbericht mit erfassten Leistungen (BEMA/GOZ)</li>}
                 <li>Patienteninformation in Textform mit Kosten je Option (§ 630c Abs. 3 BGB)</li>
@@ -199,7 +199,7 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
               </ul>
             </div>
             <div className="rounded-2xl bg-white p-5">
-              <h2 className="text-lg font-semibold text-slate-900">Regeln, an die Sorrida sich hält</h2>
+              <h2 className="font-display text-2xl text-slate-900">Regeln, an die Sorrida sich hält</h2>
               <ul className="mt-3 space-y-2 text-sm text-slate-700">
                 {zuzahlungText && (
                   <li>
@@ -236,7 +236,7 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
               </ul>
             </div>
             <div className="flex flex-col rounded-2xl bg-brand-700 p-5 text-white">
-              <h2 className="text-lg font-semibold">Ein Preis, alles enthalten</h2>
+              <h2 className="font-display text-2xl">Ein Preis, alles enthalten</h2>
               <p className="mt-2 text-sm text-white/85">
                 {PRICE_SHORT}. Mit Patientenportal, Zahlungen und Analyse. Ohne Zähler, 30 Tage kostenlos, monatlich kündbar. Endpreise ohne späteren Steueraufschlag.
               </p>
@@ -257,7 +257,7 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
           </div>
 
           <section className="mt-14">
-            <h2 className="mb-3 text-lg font-semibold text-slate-900">Weitere Fachgebiete</h2>
+            <h2 className="font-display mb-3 text-lg text-slate-900">Weitere Fachgebiete</h2>
             <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {[DENTAL_SHOWCASE, ...SPECIALTIES].filter((x) => x.id !== s.id).map((x) => ({ id: x.id, kurz: x.kurz, href: `/fachgebiete/${x.id}` })).map((x) => (
                 <li key={x.id}>

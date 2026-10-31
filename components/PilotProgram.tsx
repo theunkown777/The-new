@@ -34,7 +34,7 @@ export function PilotProgram({ fach, kurz, dental = false, therapie = false }: {
     <section id="pilot" className="mt-14 grid scroll-mt-6 gap-8 rounded-3xl bg-white p-6 sm:p-10 lg:grid-cols-2" data-testid="pilot-program">
       <div className="space-y-4">
         <p className="text-sm font-semibold text-brand-700">Pilotprogramm {kurz}</p>
-        <h2 className="text-2xl font-semibold text-slate-900">Wir suchen zehn Pilotpraxen in Ihrem Fach</h2>
+        <h2 className="font-display text-4xl text-slate-900">Wir suchen zehn Pilotpraxen in Ihrem Fach</h2>
         <p className="text-slate-600">
           Sorrida ist neu. Bevor wir es breit anbieten, prüfen wir es mit zehn Praxen je Fach im echten Alltag und schärfen das Regelwerk
           gemeinsam mit Ihnen.

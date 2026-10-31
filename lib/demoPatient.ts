@@ -38,7 +38,7 @@ export async function preparePatientDemo(practiceId: string, now = new Date()): 
   const used = await prisma.invoice.count({ where: { practiceId } });
   await prisma.invoice.createMany({
     data: [
-      { practiceId, patientId: patient.id, number: invoiceNumber(year, used + 1), title: open.eigenanteilCent > 0 ? "Eigenanteil Behandlung" : dental ? "Eigenanteil Zahnbehandlung" : "Privatleistung nach GOÄ", amountCent: open.eigenanteilCent > 0 ? open.eigenanteilCent : 18640, dueDate: new Date(now.getTime() + 12 * DAY), createdAt: new Date(now.getTime() - 2 * DAY) },
+      { practiceId, patientId: patient.id, number: invoiceNumber(year, used + 1), title: dental ? "Mehrkosten Füllung (frühere Behandlung)" : "Privatleistung nach GOÄ (frühere Behandlung)", amountCent: 18640, dueDate: new Date(now.getTime() + 12 * DAY), createdAt: new Date(now.getTime() - 2 * DAY) },
       { practiceId, patientId: patient.id, number: invoiceNumber(year, used + 2), title: dental ? "Professionelle Zahnreinigung" : "Vorsorgeuntersuchung (Privatleistung)", amountCent: 11000, dueDate: new Date(now.getTime() - 40 * DAY), status: "BEZAHLT", paidAt: new Date(now.getTime() - 45 * DAY), createdAt: new Date(now.getTime() - 54 * DAY) },
     ],
   });

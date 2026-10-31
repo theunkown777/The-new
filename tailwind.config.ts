@@ -17,6 +17,17 @@ const config: Config = {
           700: "#5a1d1d",
           800: "#431515",
         },
+        // Salbei: Sorridas Farbe für die Kassenleistung ("Kasse zuerst"), nie für Werbung.
+        salbei: {
+          50: "#f2f5f1",
+          100: "#e3ebe0",
+          200: "#c7d6c2",
+          300: "#a2b99b",
+          500: "#6c8c65",
+          600: "#557350",
+          700: "#435c40",
+          800: "#344832",
+        },
       },
       fontFamily: {
         sans: ["var(--font-open-sans)", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],

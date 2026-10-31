@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { SPECIALTIES } from "@/lib/specialties";
 import { FachWahl, type FachKachel } from "@/components/FachWahl";
 import { PricingPlans } from "@/components/PricingPlans";
+import { Grundsaetze } from "@/components/Grundsaetze";
 import { PLANS, eur } from "@/lib/pricing";
 import { Entlastung } from "@/components/Entlastung";
 import { ZeitRechner } from "@/components/ZeitRechner";
@@ -90,7 +91,7 @@ export default async function Start() {
             </p>
           )}
           <p className="text-sm font-semibold text-brand-700">Willkommen bei Sorrida</p>
-          <h1 className="mt-2 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">Welche Praxis haben Sie?</h1>
+          <h1 className="font-display mt-2 text-4xl leading-tight sm:text-5xl">Welche Praxis haben Sie?</h1>
           <p className="mx-auto mt-3 max-w-2xl text-lg text-slate-600">
             Wählen Sie Ihr Fach. Sie sehen dann Sorrida mit Ihren Leistungen, Ihren Regeln und dem Pilotprogramm für Ihr Fach.
           </p>
@@ -123,10 +124,11 @@ export default async function Start() {
         </div>
 
         <ZweiAnsichten />
+        <Grundsaetze />
 
         <section className="mt-20 grid gap-8 lg:grid-cols-2 lg:items-center">
           <div className="space-y-4">
-            <h2 className="text-3xl font-bold leading-tight tracking-tight">Nach dem Patientengespräch ein Klick. Der Rest ist erledigt.</h2>
+            <h2 className="font-display text-4xl leading-tight">Nach dem Patientengespräch ein Klick. Der Rest ist erledigt.</h2>
             <p className="text-lg leading-relaxed text-slate-600">
               Sorrida zeigt Patienten zuerst, was die Kasse zahlt, und dann die sinnvollen Alternativen mit dem Betrag, den sie selbst
               zahlen. Zu Hause vergleichen sie in Ruhe und melden sich mit einem Tipp zurück.
@@ -150,7 +152,7 @@ export default async function Start() {
         </section>
 
         <section className="mt-20">
-          <h2 className="text-2xl font-semibold">So läuft es in jeder Praxis</h2>
+          <h2 className="font-display text-4xl">So läuft es in jeder Praxis</h2>
           <ol className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {SCHRITTE.map(([t, d], i) => (
               <li key={t} className="space-y-1">
@@ -187,7 +189,7 @@ export default async function Start() {
 
         <section className="mt-20 flex flex-col items-start justify-between gap-6 rounded-3xl bg-brand-700 p-8 text-white sm:flex-row sm:items-center sm:p-10">
           <div>
-            <h2 className="text-2xl font-semibold">Ab {eur(PLANS[0].preis)} im Monat. Alles enthalten.</h2>
+            <h2 className="font-display text-4xl">Ab {eur(PLANS[0].preis)} im Monat. Alles enthalten.</h2>
             <p className="mt-1 text-white/80">30 Tage kostenlos, monatlich kündbar, keine Zähler. Endpreise ohne späteren Steueraufschlag.</p>
           </div>
           <a href="#fach" className="rounded-full bg-white px-5 py-3 font-medium text-brand-700 hover:bg-brand-50">

@@ -42,7 +42,7 @@ export function Entlastung({ therapie = false }: { therapie?: boolean }) {
   ];
   return (
     <section className="mt-14" aria-labelledby="entlastung">
-      <h2 id="entlastung" className="text-2xl font-semibold text-slate-900">
+      <h2 id="entlastung" className="font-display text-4xl text-slate-900">
         Was Praxen heute belastet, und was Sorrida abnimmt
       </h2>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

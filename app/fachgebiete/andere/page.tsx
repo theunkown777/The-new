@@ -19,7 +19,7 @@ export default function AnderesFach() {
   return (
     <PublicShell wide>
       <p className="text-sm font-medium text-brand-700">Sorrida für jedes Fach</p>
-      <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-900">Ihr Fach ist nicht dabei? Dann legen Sie Ihre Leistungen selbst an.</h1>
+      <h1 className="font-display mt-2 text-3xl leading-tight text-slate-900">Ihr Fach ist nicht dabei? Dann legen Sie Ihre Leistungen selbst an.</h1>
       <p className="mt-4 max-w-2xl text-lg text-slate-600">
         Für neun Fächer bringt Sorrida fertige Anlässe mit. Für alle anderen tragen Sie ein, was Sie anbieten. Alles andere funktioniert
         genauso: Kassenleistung zuerst, Patienten-Link, Rückmeldung, schriftliche Vereinbarung und Auswertung.
@@ -35,7 +35,7 @@ export default function AnderesFach() {
 
       <section className="mt-12 grid gap-8 sm:grid-cols-2">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">So richten Sie es ein</h2>
+          <h2 className="font-display text-2xl text-slate-900">So richten Sie es ein</h2>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-slate-700">
             <li>Praxis anlegen und als Fachgebiet „Andere Fachrichtung“ wählen.</li>
             <li>Unter Einstellungen → Fachgebiet und Leistungen je Leistung eintragen: Anlass, Name, Preis.</li>
@@ -44,7 +44,7 @@ export default function AnderesFach() {
           </ol>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-5">
-          <h2 className="text-lg font-semibold text-slate-900">Beispiel Gastroenterologie: eigene Leistungen</h2>
+          <h2 className="font-display text-2xl text-slate-900">Beispiel Gastroenterologie: eigene Leistungen</h2>
           <ul className="mt-3 space-y-3 text-sm">
             {BEISPIEL.map((b) => (
               <li key={b.name} className="rounded-xl border border-slate-200 p-3">
@@ -65,7 +65,7 @@ export default function AnderesFach() {
       <PilotProgram fach="andere" kurz="Ihre Fachrichtung" />
 
       <section className="mt-12">
-        <h2 className="text-xl font-semibold text-slate-900">Ihr Fach soll fertige Vorlagen bekommen?</h2>
+        <h2 className="font-display text-2xl text-slate-900">Ihr Fach soll fertige Vorlagen bekommen?</h2>
         <p className="mt-1 text-slate-600">
           Schreiben Sie uns, welche Leistungen Sie am häufigsten erklären. Wir bauen daraus ein Regelwerk für Ihr Fach und lassen es von
           Kolleginnen und Kollegen gegenlesen.

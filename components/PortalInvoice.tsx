@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TONE_CLASSES, type InvoiceView } from "@/lib/invoices";
+import type { InvoiceView } from "@/lib/invoices";
 import type { PortalUi } from "@/lib/portalI18n";
 
 export type PortalInvoiceData = {
@@ -16,6 +16,8 @@ export type PortalInvoiceData = {
   wantsInstallments: boolean;
   reference: string;
   qr: string | null;
+  /** Fälligkeit für das Datumsfeld, z. B. ["12", "Nov."]. */
+  due: [string, string];
 };
 
 export type PortalText = Omit<PortalUi, "hello" | "summary" | "nextDue" | "proposalDoc" | "valid">;
@@ -69,15 +71,20 @@ export function PortalInvoice({ token, inv, bank, t, startOpen }: { token: strin
 
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm" data-testid="portal-invoice">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+      {/* Sorrida-Rechnungskarte: Datumsfeld "zahlbar bis" links, Betrag rechts, Status als Satz */}
+      <div className="flex items-start gap-3">
+        <div className={`grid w-14 shrink-0 place-items-center rounded-xl py-1.5 text-center ${inv.tone === "red" && !reported ? "bg-red-50 text-red-800" : "bg-[#F5F2EE] text-brand-800"}`} aria-hidden="true">
+          <span className="font-display text-2xl leading-none">{inv.due[0]}</span>
+          <span className="text-[11px] uppercase tracking-wide">{inv.due[1]}</span>
+        </div>
+        <div className="min-w-0 flex-1">
           <p className="font-medium text-slate-900">{inv.title}</p>
           <p className="text-xs text-slate-500">{t.invoiceNo} {inv.number}</p>
         </div>
         <p className="shrink-0 text-lg font-semibold tabular-nums text-slate-900">{inv.amount}</p>
       </div>
       <div className="mt-3 flex items-center justify-between gap-3">
-        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${TONE_CLASSES[reported ? "sky" : inv.tone]}`}>{reported && !inv.reported ? t.reportedLabel : inv.status}</span>
+        <span className={`text-sm ${reported ? "text-sky-800" : inv.tone === "red" ? "font-medium text-red-700" : "text-slate-600"}`} data-testid="invoice-status">{reported && !inv.reported ? t.reportedLabel : inv.status}</span>
         {!reported && (
           <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
             {open ? t.hide : t.pay}
