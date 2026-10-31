@@ -10,6 +10,7 @@ import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 import { ServiceChecklistForm } from "@/components/ServiceChecklistForm";
 import { ProposalEditor } from "@/components/ProposalEditor";
 import { TreatmentWrapUp } from "@/components/TreatmentWrapUp";
+import { loadAnamnesis } from "@/lib/anamnesisView";
 
 const TAB_LABELS: Record<EmbedView, string> = {
   abschluss: "Behandlung abschließen",
@@ -84,6 +85,7 @@ export default async function EmbedPatientPage({
 
       {view === "abschluss" && (
         <TreatmentWrapUp
+          anamnesis={await loadAnamnesis(practiceId, patient.id)}
           patient={patientOption}
           practicePunktwerte={{
             gozPunktwertCent: practice?.gozPunktwertCent ?? null,

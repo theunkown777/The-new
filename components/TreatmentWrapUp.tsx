@@ -3,6 +3,8 @@
 import { useRef } from "react";
 import { ServiceChecklistForm } from "@/components/ServiceChecklistForm";
 import { ProposalEditor } from "@/components/ProposalEditor";
+import { AnamnesisFlags } from "@/components/AnamnesisFlags";
+import type { AnamnesisSummary } from "@/lib/anamnesisView";
 import type { Prices, ProposalInput } from "@/lib/proposals";
 
 type PatientOption = {
@@ -22,6 +24,7 @@ export function TreatmentWrapUp({
   prices,
   practiceName,
   basePath,
+  anamnesis,
 }: {
   patient: PatientOption;
   practicePunktwerte: { gozPunktwertCent: number | null; bemaPunktwertCent: number | null };
@@ -29,6 +32,8 @@ export function TreatmentWrapUp({
   practiceName: string;
   /** "/abschluss" in der App, "/embed/abschluss" im Praxissoftware-Fenster. */
   basePath: string;
+  /** Hinweise aus der Anamnese über dem Abschluss; Raucher usw. gehen in den Vorschlag. */
+  anamnesis?: Pick<AnamnesisSummary, "flags" | "submittedAt" | "globals">;
 }) {
   const proposal = useRef<{ input: ProposalInput; choices: Record<string, string> } | null>(null);
 
@@ -53,6 +58,8 @@ export function TreatmentWrapUp({
   }
 
   return (
+    <div className="space-y-4">
+    {anamnesis && <AnamnesisFlags flags={anamnesis.flags} submittedAt={anamnesis.submittedAt} />}
     <ServiceChecklistForm
       patients={[patient]}
       initialPatientId={patient.id}
@@ -77,6 +84,7 @@ export function TreatmentWrapUp({
             <ProposalEditor
               patients={[patient]}
               initialPatientId={patient.id}
+              initialGlobals={anamnesis?.globals}
               prices={prices}
               practiceName={practiceName}
               compact
@@ -88,5 +96,6 @@ export function TreatmentWrapUp({
         </details>
       }
     />
+    </div>
   );
 }

@@ -30,6 +30,7 @@ model Practice {
   proposals         TreatmentProposal[]
   connectorKeys     ConnectorKey[]
   launchTokens      LaunchToken[]
+  anamnesisForms    AnamnesisForm[]
   // Praxiseigene Preise für Behandlungsvorschläge (Euro je Preisschlüssel
   // aus lib/proposals.ts PRICE_DEFS). Null bzw. fehlende Schlüssel = die
   // dort hinterlegten Beispielwerte.
@@ -152,6 +153,7 @@ model Patient {
   reports         Report[]
   proposals       TreatmentProposal[]
   launchTokens    LaunchToken[]
+  anamnesisForms  AnamnesisForm[]
   // Herkunft aus einer Praxissoftware (VDDS-media): Sektionsname der PVS
   // (z. B. "DSWIN", "Z1") und deren Patientennummer (PATID). Gemeinsam
   // eindeutig je Praxis, damit derselbe PVS-Patient beim nächsten Aufruf
@@ -442,4 +444,23 @@ model Lead {
   pvs          String?
   callbackTime String?
   createdAt    DateTime @default(now())
+}
+
+/// Digitale Anamnese: Die Praxis schickt einen Link/QR-Code, der Patient
+/// füllt den Bogen auf dem eigenen Gerät aus. Gespeichert wird nur der Hash
+/// des Tokens. Fragen und Auswertung in lib/anamnesis.ts.
+model AnamnesisForm {
+  id          String    @id @default(cuid())
+  practiceId  String
+  practice    Practice  @relation(fields: [practiceId], references: [id])
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id])
+  tokenHash   String?   @unique
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  viewedAt    DateTime?
+  submittedAt DateTime?
+  answers     Json?
+
+  @@index([practiceId, patientId])
 }

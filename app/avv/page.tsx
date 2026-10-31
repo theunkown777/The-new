@@ -39,7 +39,7 @@ export default function AvvPage() {
         <h2>§ 2 Art der Daten und Betroffene</h2>
         <ul className="ml-5 list-disc space-y-1">
           <li>Patientinnen und Patienten der Praxis: Name, Geburtsdatum, Versicherungsart und Kasse, Befunde, erbrachte Leistungen,
-            Behandlungsvorschläge, Berichte, Rückmeldungen über den Patienten-Link. Dies sind Gesundheitsdaten nach Art. 9 DSGVO.</li>
+            Behandlungsvorschläge, Berichte, Rückmeldungen über den Patienten-Link, Angaben aus dem digitalen Anamnesebogen. Dies sind Gesundheitsdaten nach Art. 9 DSGVO.</li>
           <li>Beschäftigte der Praxis: Name, E-Mail-Adresse, Rolle, Anmeldedaten, Änderungsverlauf.</li>
         </ul>
         <p>

@@ -6,6 +6,7 @@ import { STANDARD_GOZ_PUNKTWERT_CENT } from "@/lib/billing";
 import { buildServiceSummary } from "@/lib/serviceSummary";
 import { DEFAULT_PRICES, defaultZuschussJahr, type ProposalInput } from "@/lib/proposals";
 import { computeProposal } from "@/lib/proposalSchema";
+import { QUESTIONS } from "@/lib/anamnesis";
 
 // Gastzugang: Jeder Gast bekommt eine eigene, abgeschottete Demo-Praxis mit
 // erfundenen Beispielpatienten, damit er Sorrida so sieht wie ein Kunde,
@@ -113,6 +114,7 @@ export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
   for (const { id } of expired) {
     await prisma.$transaction([
       prisma.treatmentProposal.deleteMany({ where: { practiceId: id } }),
+      prisma.anamnesisForm.deleteMany({ where: { practiceId: id } }),
       prisma.reportRevision.deleteMany({ where: { report: { practiceId: id } } }),
       prisma.report.deleteMany({ where: { practiceId: id } }),
       prisma.patient.deleteMany({ where: { practiceId: id } }),
@@ -170,6 +172,33 @@ export async function createDemoPractice(now = new Date()): Promise<{ email: str
         notes: "Beispielpatient im Gastzugang (erfundene Daten)",
       },
     });
+
+    if (p.lastName === "Krüger") {
+      // Ausgefüllte digitale Anamnese als Beispiel für Hinweise und Übernahme in den Vorschlag.
+      await prisma.anamnesisForm.create({
+        data: {
+          practiceId: practice.id,
+          patientId: patient.id,
+          expiresAt: now,
+          viewedAt: new Date(now.getTime() - 26 * 60 * 60 * 1000),
+          submittedAt: new Date(now.getTime() - 25 * 60 * 60 * 1000),
+          answers: {
+            q: Object.fromEntries(
+              QUESTIONS.map((q) => [
+                q.key,
+                q.key === "blutverduenner"
+                  ? { yes: true, detail: "ASS 100" }
+                  : q.key === "allergien"
+                    ? { yes: true, detail: "Penicillin" }
+                    : { yes: q.key === "knirschen" || q.key === "medikamente", detail: q.key === "medikamente" ? "ASS 100, Ramipril" : undefined },
+              ]),
+            ),
+            wishes: ["hell"],
+            confirmName: "Anna Krüger",
+          },
+        },
+      });
+    }
 
     let reportId: string | null = null;
     if (p.lastName === "Weber" && template) {

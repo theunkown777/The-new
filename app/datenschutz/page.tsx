@@ -77,7 +77,17 @@ export default function DatenschutzPage() {
       </section>
 
       <section>
-        <h2>6. Ihre Rechte</h2>
+        <h2>6. Digitaler Anamnesebogen</h2>
+        <p>
+          Praxen können Patienten einen Link zum Anamnesebogen schicken. Die Angaben zu Gesundheit, Medikamenten, Allergien und
+          Wünschen verarbeiten wir im Auftrag der Praxis (Art. 28 DSGVO) und nur für sie. Wie beim Patienten-Link enthält der Link
+          keine Patientendaten und ist nach dem Absenden oder spätestens nach 14 Tagen ungültig. Die Seite setzt keine Cookies und ist
+          für Suchmaschinen gesperrt.
+        </p>
+      </section>
+
+      <section>
+        <h2>7. Ihre Rechte</h2>
         <p>
           Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung,
           Datenübertragbarkeit und Widerspruch (Art. 15–21 DSGVO) sowie das Recht, sich bei einer

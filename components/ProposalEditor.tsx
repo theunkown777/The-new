@@ -62,6 +62,7 @@ function defaultFactors(p: PatientOption | undefined): PatientFactors {
 export function ProposalEditor({
   patients,
   initialPatientId,
+  initialGlobals,
   prices,
   practiceName,
   existing,
@@ -71,6 +72,8 @@ export function ProposalEditor({
 }: {
   patients: PatientOption[];
   initialPatientId?: string;
+  /** Allgemeine Befunde aus der Anamnese (z. B. Raucher), nur für neue Vorschläge. */
+  initialGlobals?: GlobalCode[];
   prices: Prices;
   practiceName: string;
   existing?: ExistingProposal;
@@ -85,7 +88,9 @@ export function ProposalEditor({
   const patient = patients.find((p) => p.id === patientId);
   const [factors, setFactors] = useState<PatientFactors>(existing?.input.patient ?? defaultFactors(patient));
   const [teeth, setTeeth] = useState<Partial<Record<string, FindingCode>>>(existing?.input.teeth ?? {});
-  const [globals, setGlobals] = useState<Partial<Record<GlobalCode, boolean>>>(existing?.input.globals ?? {});
+  const [globals, setGlobals] = useState<Partial<Record<GlobalCode, boolean>>>(
+    existing?.input.globals ?? Object.fromEntries((initialGlobals ?? []).map((k) => [k, true])),
+  );
   const [choices, setChoices] = useState<Record<string, string>>(existing?.choices ?? {});
   const [selected, setSelected] = useState<number>(16);
   const [tab, setTab] = useState<"praxis" | "patient">("praxis");
@@ -341,6 +346,9 @@ export function ProposalEditor({
 
           <div className="card space-y-2">
             <h2 className="mb-1 font-medium text-slate-900">Allgemeiner Befund</h2>
+            {!existing && initialGlobals && initialGlobals.length > 0 && (
+              <p className="text-xs text-slate-500" data-testid="globals-from-anamnesis">Aus der Anamnese übernommen, bitte prüfen.</p>
+            )}
             {(Object.entries(GLOBAL_FINDINGS) as [GlobalCode, string][]).map(([k, l]) => (
               <label key={k} className="flex items-center gap-2 text-sm text-slate-700">
                 <input

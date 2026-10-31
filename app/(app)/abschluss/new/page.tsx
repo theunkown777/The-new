@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolvePrices } from "@/lib/proposals";
 import { TreatmentWrapUp } from "@/components/TreatmentWrapUp";
+import { loadAnamnesis } from "@/lib/anamnesisView";
 
 export default async function NewWrapUpPage({ searchParams }: { searchParams: { patientId?: string } }) {
   const session = await getServerSession(authOptions);
@@ -48,6 +49,8 @@ export default async function NewWrapUpPage({ searchParams }: { searchParams: { 
     );
   }
 
+  const anamnesis = await loadAnamnesis(practiceId, patient.id);
+
   return (
     <div>
       <h1 className="mb-1 text-xl font-semibold text-slate-900">Behandlung abschließen</h1>
@@ -57,6 +60,7 @@ export default async function NewWrapUpPage({ searchParams }: { searchParams: { 
       </p>
       <div>
         <TreatmentWrapUp
+          anamnesis={anamnesis}
           patient={{
             id: patient.id,
             firstName: patient.firstName,

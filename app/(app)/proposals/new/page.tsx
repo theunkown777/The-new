@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolvePrices } from "@/lib/proposals";
 import { ProposalEditor } from "@/components/ProposalEditor";
+import { loadAnamnesis } from "@/lib/anamnesisView";
 
 export default async function NewProposalPage({
   searchParams,
@@ -23,6 +24,11 @@ export default async function NewProposalPage({
     }),
   ]);
 
+  const anamnesis =
+    searchParams.patientId && patients.some((p) => p.id === searchParams.patientId)
+      ? await loadAnamnesis(session!.user.practiceId, searchParams.patientId)
+      : null;
+
   return (
     <div>
       <h1 className="mb-6 text-xl font-semibold text-slate-900">Neuer Behandlungsvorschlag</h1>
@@ -31,6 +37,7 @@ export default async function NewProposalPage({
         initialPatientId={searchParams.patientId}
         prices={resolvePrices(practice?.proposalPrices)}
         practiceName={practice?.name ?? "Ihre Zahnarztpraxis"}
+        initialGlobals={anamnesis?.globals}
       />
     </div>
   );

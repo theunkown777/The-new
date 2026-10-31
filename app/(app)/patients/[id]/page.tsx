@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { REPORT_TYPE_LABELS, REPORT_STATUS_LABELS } from "@/lib/reportLabels";
 import { PROPOSAL_STATUS_LABELS, formatEuro } from "@/lib/proposals";
 import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
+import { loadAnamnesis } from "@/lib/anamnesisView";
+import { AnamnesisPanel } from "@/components/AnamnesisPanel";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -22,6 +24,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   });
 
   if (!patient) notFound();
+  const anamnesis = await loadAnamnesis(session!.user.practiceId, patient.id);
 
   return (
     <div>
@@ -48,6 +51,10 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             Behandlung abschließen
           </Link>
         </div>
+      </div>
+
+      <div className="mb-8">
+        <AnamnesisPanel patientId={patient.id} firstName={patient.firstName} summary={anamnesis} />
       </div>
 
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
