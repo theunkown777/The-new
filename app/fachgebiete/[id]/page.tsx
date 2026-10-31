@@ -83,6 +83,7 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
             <li>To-do für die Rezeption: schriftliche IGeL-Vereinbarung vor der Leistung</li>
             <li>Digitaler Anamnesebogen vor dem Termin, Warnhinweise beim Gespräch</li>
             <li>Gemessene Annahmequote statt Bauchgefühl</li>
+            <li>Öffnet sich aus Ihrer Praxissoftware über GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS) mit dem aktuellen Patienten</li>
           </ul>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">

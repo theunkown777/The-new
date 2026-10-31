@@ -17,7 +17,9 @@ param(
   [Parameter(Mandatory = $true)][string]$Server,
   [Parameter(Mandatory = $true)][string]$Key,
   [ValidateSet("abschluss", "bericht", "vorschlag", "verlauf")][string]$View = "abschluss",
-  [string]$Source = (Join-Path $PSScriptRoot "SorridaConnector.cs")
+  [string]$Source = (Join-Path $PSScriptRoot "SorridaConnector.cs"),
+  # Arzt-Praxissoftware (GDT): fest eingestellte Übergabedatei, falls die Software den Pfad nicht mitgibt.
+  [string]$GdtFile = ""
 )
 $ErrorActionPreference = "Stop"
 
@@ -55,7 +57,9 @@ if ($LASTEXITCODE -ne 0) { throw "Übersetzen fehlgeschlagen." }
 $configDir = Join-Path $env:ProgramData "Sorrida"
 New-Item -ItemType Directory -Force -Path $configDir | Out-Null
 $config = Join-Path $configDir "connector.ini"
-@("[SORRIDA]", "SERVER=$($Server.TrimEnd('/'))", "KEY=$Key", "VIEW=$View", "WINDOW=1200,900") | Set-Content -Path $config -Encoding Default
+$lines = @("[SORRIDA]", "SERVER=$($Server.TrimEnd('/'))", "KEY=$Key", "VIEW=$View", "WINDOW=1200,900")
+if ($GdtFile) { $lines += "GDTFILE=$GdtFile" }
+$lines | Set-Content -Path $config -Encoding Default
 # Lesen dürfen alle Nutzer des PCs (der Connector läuft im Kontext der Praxissoftware), ändern nur Administratoren.
 icacls $config /inheritance:r /grant:r "*S-1-5-32-544:F" "*S-1-5-18:F" "*S-1-5-32-545:R" | Out-Null
 

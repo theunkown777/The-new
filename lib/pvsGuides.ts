@@ -51,4 +51,15 @@ export const PVS_GUIDES = [
     ],
     source: "VDDS-media 1.4",
   },
+  {
+    name: "Arztpraxen mit GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS)",
+    share: "",
+    steps: [
+      "Installationsbefehl wie oben ausführen und zusätzlich -GdtFile \"C:\\GDT\\SORR.GDT\" anhängen (Pfad frei wählbar).",
+      "In der Geräte- bzw. GDT-Verwaltung Ihrer Praxissoftware ein neues Gerät „Sorrida“ anlegen: Programm „C:\\Program Files\\Sorrida\\SorridaConnector.exe“, Übergabedatei wie oben, Satzart „Stammdaten übermitteln“ (6311).",
+      "Aus der Patientenakte das Gerät „Sorrida“ aufrufen. Übernommen werden nur Patientennummer, Name, Geburtsdatum und Geschlecht; Adresse und Versichertendaten werden verworfen.",
+      "Den genauen Menüpunkt für GDT-Geräte nennt der Support Ihrer Praxissoftware.",
+    ],
+    source: "GDT 2.1 (Qualitätsring Medizinische Software)",
+  },
 ] as const;

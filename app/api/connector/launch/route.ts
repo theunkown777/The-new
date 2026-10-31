@@ -5,7 +5,7 @@ import { generateToken } from "@/lib/tokens";
 import {
   EMBED_VIEWS,
   LAUNCH_TOKEN_TTL_MS,
-  extractVddsPatient,
+  extractHandoverPatient,
   hashConnectorKey,
   vddsToPatientFields,
   type EmbedView,
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   if (Buffer.byteLength(text, "utf8") > MAX_BODY_BYTES) {
     return NextResponse.json({ error: "Übergabedatei zu groß." }, { status: 413 });
   }
-  const { data, error } = extractVddsPatient(text);
+  const { data, error } = extractHandoverPatient(text);
   if (!data) return NextResponse.json({ error }, { status: 400 });
 
   const url = new URL(req.url);

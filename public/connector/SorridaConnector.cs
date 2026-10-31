@@ -32,6 +32,21 @@ using System.Text.RegularExpressions;
 internal static class SorridaConnector
 {
     // Felder aus VDDS-media 1.4, Tabelle 3, die Sorrida verarbeitet.
+    private static readonly string[] GdtFields = { "8000", "8316", "3000", "3101", "3102", "3103", "3110" };
+
+    // GDT-Datei erkennen (Zeile beginnt mit Länge + Feld 8000) und im angegebenen
+    // Zeichensatz lesen (Feld 9206: 2 = IBM CP437, 3 = ISO 8859-1; sonst wie INI).
+    private static string ReadGdt(string path)
+    {
+        byte[] bytes = File.ReadAllBytes(path);
+        string probe = Encoding.ASCII.GetString(bytes, 0, Math.Min(bytes.Length, 200));
+        if (!Regex.IsMatch(probe.TrimStart(), "^\\d{3}8000")) return null;
+        Match cs = Regex.Match(probe + Encoding.ASCII.GetString(bytes), "\\d{3}9206(\\d)");
+        if (cs.Success && cs.Groups[1].Value == "2") return Encoding.GetEncoding(437).GetString(bytes);
+        if (cs.Success && cs.Groups[1].Value == "3") return Encoding.GetEncoding("ISO-8859-1").GetString(bytes);
+        return ReadText(path);
+    }
+
     private static readonly string[] Fields =
     {
         "PVS", "PATID", "PATSHOWNR", "LASTNAME", "FIRSTNAME", "TITLE",
@@ -47,16 +62,18 @@ internal static class SorridaConnector
     private static int Main(string[] args)
     {
         string handover = args.Length > 0 ? args[0].Trim('"') : null;
+        bool gdt = false;
         int errorLevel = 0;
         string errorText = "";
         try
         {
-            if (string.IsNullOrEmpty(handover) || !File.Exists(handover))
-                throw new ConnectorException("Keine Übergabedatei erhalten. Sorrida bitte über die Praxissoftware aufrufen.");
-
             Dictionary<string, string> config = ReadSection(
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Sorrida", "connector.ini"),
                 "SORRIDA");
+            // Arzt-Praxissoftware (GDT) schreibt oft in eine fest eingestellte Datei, ohne sie zu übergeben.
+            if (string.IsNullOrEmpty(handover)) handover = Get(config, "GDTFILE");
+            if (string.IsNullOrEmpty(handover) || !File.Exists(handover))
+                throw new ConnectorException("Keine Übergabedatei erhalten. Sorrida bitte über die Praxissoftware aufrufen.");
             string server = Get(config, "SERVER").TrimEnd('/');
             string key = Get(config, "KEY");
             if (server.Length == 0 || key.Length == 0)
@@ -64,12 +81,26 @@ internal static class SorridaConnector
             if (!server.StartsWith("https://", StringComparison.OrdinalIgnoreCase) && !server.StartsWith("http://localhost", StringComparison.OrdinalIgnoreCase))
                 throw new ConnectorException("SERVER muss eine https-Adresse sein.");
 
-            Dictionary<string, string> patient = ReadSection(handover, "PATIENT");
-            var body = new StringBuilder("[PATIENT]\r\n");
-            foreach (string field in Fields)
+            var body = new StringBuilder();
+            string gdtText = ReadGdt(handover);
+            if (gdtText != null)
             {
-                string value = Get(patient, field);
-                if (value.Length > 0) body.Append(field).Append('=').Append(value).Append("\r\n");
+                // GDT: nur Satzart, Absender, Patientennummer, Name, Geburtsdatum, Geschlecht weitergeben.
+                gdt = true;
+                foreach (string raw in gdtText.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
+                {
+                    if (raw.Length >= 7 && Array.IndexOf(GdtFields, raw.Substring(3, 4)) >= 0) body.Append(raw).Append("\r\n");
+                }
+            }
+            else
+            {
+                Dictionary<string, string> patient = ReadSection(handover, "PATIENT");
+                body.Append("[PATIENT]\r\n");
+                foreach (string field in Fields)
+                {
+                    string value = Get(patient, field);
+                    if (value.Length > 0) body.Append(field).Append('=').Append(value).Append("\r\n");
+                }
             }
 
             string view = Get(config, "VIEW");
@@ -92,14 +123,18 @@ internal static class SorridaConnector
             errorText = "Sorrida ist nicht erreichbar: " + ex.Message;
         }
 
-        if (!string.IsNullOrEmpty(handover) && File.Exists(handover))
+        if (!gdt && !string.IsNullOrEmpty(handover) && File.Exists(handover))
         {
             // Reihenfolge laut Spezifikation: READY=1 immer als letzte Aktion.
             WritePrivateProfileString("PATIENT", "ERRORLEVEL", errorLevel.ToString(), handover);
             WritePrivateProfileString("PATIENT", "ERRORTEXT", errorText, handover);
             WritePrivateProfileString("PATIENT", "READY", "1", handover);
         }
-        if (errorLevel > 0) MessageBoxW(IntPtr.Zero, errorText, "Sorrida", 0x10);
+        if (errorLevel > 0)
+        {
+            Console.Error.WriteLine("Sorrida: " + errorText);
+            MessageBoxW(IntPtr.Zero, errorText, "Sorrida", 0x10);
+        }
         return errorLevel;
     }
 

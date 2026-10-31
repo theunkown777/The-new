@@ -118,3 +118,48 @@ export function vddsToPatientFields(p: VddsPatient) {
 export const EMBED_VIEWS = ["abschluss", "bericht", "vorschlag", "verlauf"] as const;
 export type EmbedView = (typeof EMBED_VIEWS)[number];
 export const LAUNCH_TOKEN_TTL_MS = 5 * 60 * 1000;
+
+// GDT (Gerätedatenträger) ist die Schnittstelle der Arzt-Praxissoftware
+// (z. B. Medistar, TURBOMED, CGM M1, x.isynet, ALBIS). Jede Zeile:
+// 3 Stellen Zeilenlänge, 4 Stellen Feldkennung, Inhalt. Verwendet werden nur
+// Patientennummer, Name, Geburtsdatum und Geschlecht; der Connector schickt
+// keine weiteren Zeilen.
+export const GDT_FIELDS = { "8000": "SATZART", "8316": "SENDER", "3000": "PATID", "3101": "LASTNAME", "3102": "FIRSTNAME", "3103": "BIRTHDAY", "3110": "SEX" } as const;
+
+export function isGdt(text: string): boolean {
+  return /^﻿?\d{3}8000/.test(text.trimStart());
+}
+
+export function parseGdt(text: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const raw of text.replace(/^﻿/, "").split(/\r?\n/)) {
+    const m = raw.match(/^\d{3}(\d{4})(.*)$/);
+    if (m && !(m[1] in out)) out[m[1]] = m[2].trim();
+  }
+  return out;
+}
+
+/** GDT-Datensatz in dieselbe Form wie VDDS-media bringen, damit der Rest gleich bleibt. */
+export function extractGdtPatient(text: string): { data?: VddsPatient; error?: string } {
+  const f = parseGdt(text);
+  if (!f["3000"]) return { error: "Patientennummer (3000) fehlt in der GDT-Datei." };
+  const birth = f["3103"]?.match(/^(\d{2})(\d{2})(\d{4})$/);
+  const sex = f["3110"] === "1" ? "M" : f["3110"] === "2" ? "W" : undefined;
+  const sender = (f["8316"] || "GDT").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 30) || "GDT";
+  const picked: Record<string, string | undefined> = {
+    PVS: `GDT-${sender}`.slice(0, 30),
+    PATID: f["3000"].replace(/\s/g, ""),
+    LASTNAME: f["3101"],
+    FIRSTNAME: f["3102"],
+    BIRTHDAY: birth ? `${birth[3]}${birth[2]}${birth[1]}` : undefined,
+    SEX: sex,
+  };
+  const parsed = vddsPatientSchema.safeParse(Object.fromEntries(Object.entries(picked).filter(([, v]) => v)));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message.replace("Übergabedatei", "GDT-Datei") ?? "GDT-Datei ungültig." };
+  return { data: parsed.data };
+}
+
+/** VDDS-media (Zahnarzt) oder GDT (Arztpraxis) automatisch erkennen. */
+export function extractHandoverPatient(text: string): { data?: VddsPatient; error?: string; format: "VDDS" | "GDT" } {
+  return isGdt(text) ? { ...extractGdtPatient(text), format: "GDT" } : { ...extractVddsPatient(text), format: "VDDS" };
+}

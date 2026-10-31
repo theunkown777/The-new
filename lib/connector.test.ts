@@ -100,3 +100,19 @@ describe("connector keys", () => {
     expect(connectorKeyPrefix(a)).toBe(a.slice(0, 15));
   });
 });
+
+import { extractHandoverPatient } from "@/lib/connector";
+describe("GDT (Arzt-Praxissoftware)", () => {
+  const gdt = ["01380006311", "014810000276", "0158316MEDISTAR", "0143000A12345", "0163101Krüger", "0133102Anna", "017310302041975", "01031102", "0213108Versichert"].join("\r\n");
+  it("liest Patientennummer, Name, Geburtsdatum und Geschlecht", () => {
+    const r = extractHandoverPatient(gdt);
+    expect(r.format).toBe("GDT");
+    expect(r.data).toMatchObject({ PVS: "GDT-MEDISTAR", PATID: "A12345", LASTNAME: "Krüger", FIRSTNAME: "Anna", BIRTHDAY: "19750402", SEX: "W" });
+  });
+  it("meldet fehlende Patientennummer verständlich", () => {
+    expect(extractHandoverPatient("01380006311\r\n0163101Krüger").error).toContain("Patientennummer");
+  });
+  it("VDDS-media bleibt unverändert", () => {
+    expect(extractHandoverPatient("[PATIENT]\nPVS=DSWIN\nPATID=4711\nLASTNAME=Weber\nFIRSTNAME=Martina").format).toBe("VDDS");
+  });
+});
