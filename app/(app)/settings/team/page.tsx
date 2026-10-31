@@ -13,7 +13,7 @@ export default async function TeamSettingsPage() {
         <TeamSettings currentUserId={session!.user.id} />
       ) : (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          Die Teamverwaltung ist nur für Admin-Konten der Praxis verfügbar.
+          Die Teamverwaltung ist nur für die Geschäftsführung (Admin) der Praxis verfügbar.
         </p>
       )}
     </div>

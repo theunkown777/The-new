@@ -150,18 +150,28 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
       gozPunktwertCent: STANDARD_GOZ_PUNKTWERT_CENT,
       installments: { enabled: true, months: 12, zinsfrei: true, minEur: 300 },
       users: {
-        create: {
-          name: "Gast (Dr. Demo)",
-          email,
-          passwordHash: await bcrypt.hash(password, 10),
-          role: "admin",
-          emailVerifiedAt: now,
-        },
+        create: [
+          {
+            name: "Gast (Dr. Demo)",
+            email,
+            passwordHash: await bcrypt.hash(password, 10),
+            role: "admin",
+            emailVerifiedAt: now,
+          },
+          // Mitarbeiterin ohne Analyse-Freigabe, damit die Berechtigung im Team sichtbar ist.
+          // Zufälliges Passwort, das niemand kennt: Anmelden ist mit diesem Konto nicht möglich.
+          {
+            name: "Rezeption (Demo)",
+            email: `rezeption-${crypto.randomBytes(6).toString("hex")}@demo.sorrida.invalid`,
+            passwordHash: await bcrypt.hash(crypto.randomBytes(24).toString("base64url"), 10),
+            role: "staff",
+          },
+        ],
       },
     },
     include: { users: true },
   });
-  const author = practice.users[0];
+  const author = practice.users.find((u) => u.role === "admin") ?? practice.users[0];
   const zuschussJahr = defaultZuschussJahr(now);
 
   const template = await prisma.serviceTemplate.findFirst({

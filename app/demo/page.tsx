@@ -13,14 +13,12 @@ export default function DemoPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fach, setFach] = useState<string>(DENTAL_ID);
-  const [rolle, setRolle] = useState<"praxis" | "patient">("praxis");
 
   // Vorauswahl über /demo?fach=haut (z. B. von den Fachgebietsseiten).
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const f = q.get("fach");
     if (f && SPECIALTIES.some((s) => s.id === f)) setFach(f);
-    if (q.get("rolle") === "patient") setRolle("patient");
   }, []);
 
   async function start() {
@@ -31,16 +29,11 @@ export default function DemoPage() {
       setError(AUTH_UNAVAILABLE_MESSAGE);
       return;
     }
-    const res = await fetch("/api/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fach, rolle }) });
+    const res = await fetch("/api/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fach }) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setBusy(false);
       setError(data.error ?? `Der Gastzugang konnte nicht angelegt werden (Fehler ${res.status}). Details unter /api/status.`);
-      return;
-    }
-    // Patientenansicht: direkt ins Portal, ohne Anmeldung in der Praxis.
-    if (rolle === "patient" && data.portalUrl) {
-      window.location.assign(data.portalUrl);
       return;
     }
     let result: Awaited<ReturnType<typeof signIn>>;
@@ -73,21 +66,10 @@ export default function DemoPage() {
         <p className="mt-1 text-sm text-slate-500">Gastzugang</p>
 
         <div className="card mt-6 space-y-4 text-left">
-          <fieldset>
-            <legend className="label">Wie möchten Sie Sorrida ansehen?</legend>
-            <div className="mt-1 grid gap-2 sm:grid-cols-2" data-testid="demo-rolle">
-              {([
-                ["praxis", "Als Praxisleitung", "Das ganze System: Patienten, Vorschläge, Zahlungen, Analyse, Einstellungen."],
-                ["patient", "Als Patient", "Nur das, was Patienten sehen: eigene Rechnungen, Vorschlag, Fragebogen. Nichts Internes."],
-              ] as const).map(([id, titel, text]) => (
-                <label key={id} className={`cursor-pointer rounded-xl border p-3 ${rolle === id ? "border-brand-600 bg-brand-50 ring-1 ring-brand-600" : "border-slate-200 hover:border-brand-300"}`}>
-                  <input type="radio" name="rolle" value={id} checked={rolle === id} onChange={() => setRolle(id)} className="sr-only" />
-                  <span className="block font-semibold text-slate-900">{titel}</span>
-                  <span className="mt-0.5 block text-xs leading-snug text-slate-600">{text}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
+          <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-900" data-testid="demo-zugang">
+            Sie sehen Sorrida als <b>Geschäftsführung der Praxis</b>. Die Patientenansicht öffnen Sie von dort aus über den Portal-Link eines
+            Patienten, so wie Ihre Patienten es später auch bekommen.
+          </p>
           <div>
             <label className="label" htmlFor="demo-fach">Ihr Fachgebiet</label>
             <select id="demo-fach" className="input" value={fach} onChange={(e) => setFach(e.target.value)}>
@@ -108,7 +90,7 @@ export default function DemoPage() {
           </ul>
           {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
           <button type="button" onClick={start} disabled={busy} className="btn-primary w-full">
-            {busy ? (rolle === "patient" ? "Patientenansicht wird vorbereitet…" : "Demo-Praxis mit 1000 Patienten wird angelegt…") : rolle === "patient" ? "Als Patient ansehen" : "Als Praxisleitung ansehen"}
+            {busy ? "Demo-Praxis mit 1000 Patienten wird angelegt…" : "Demo-Praxis öffnen"}
           </button>
         </div>
 

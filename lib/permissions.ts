@@ -24,3 +24,14 @@ export async function requireAdmin(): Promise<
   }
   return { session, error: null };
 }
+
+/**
+ * Darf dieses Konto die Analyse sehen? Die Geschäftsführung (Admin) immer,
+ * Mitarbeitende nur mit Freigabe durch einen Admin (Einstellungen → Team).
+ */
+export async function canSeeAnalytics(userId: string | undefined | null): Promise<boolean> {
+  if (!userId) return false;
+  const { prisma } = await import("@/lib/prisma");
+  const u = await prisma.user.findUnique({ where: { id: userId }, select: { role: true, canSeeAnalytics: true } });
+  return !!u && (u.role === "admin" || u.canSeeAnalytics);
+}

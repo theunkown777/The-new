@@ -17,7 +17,7 @@ const ZEILEN: [string, string, string, string, string][] = [
 
 export function ZweiAnsichten() {
   return (
-    <section className="mt-20 grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,8fr)]" aria-labelledby="ansichten" data-testid="zwei-ansichten">
+    <section className="mt-20 grid gap-6 xl:grid-cols-[minmax(31rem,5fr)_minmax(0,8fr)]" aria-labelledby="ansichten" data-testid="zwei-ansichten">
       <h2 id="ansichten" className="sr-only">
         Patientenansicht und Praxisansicht
       </h2>
@@ -30,26 +30,52 @@ export function ZweiAnsichten() {
           Ohne App und ohne Konto: Optionen vergleichen, den eigenen Anteil sehen und mit einem Tipp zurückmelden. Auf Deutsch oder
           Englisch.
         </p>
-        <div className="mx-auto mt-8 w-full max-w-[290px] translate-y-6 rounded-[2.4rem] border-[9px] border-slate-900 bg-[#F5F2EE] shadow-xl">
-          <div className="mx-auto mt-2 h-5 w-24 rounded-full bg-slate-900" />
-          <div className="space-y-3 p-4 pb-0">
-            <p className="text-[11px] font-semibold text-brand-700">Hautarztpraxis am Markt</p>
-            <p className="text-lg font-semibold leading-tight text-slate-900">Hallo Martina</p>
-            <p className="text-xs text-slate-500">Ihr Vorschlag: Hautkrebs-Früherkennung</p>
-            {[
-              ["Hautkrebs-Screening", "Kasse", true],
-              ["Auflichtmikroskopie", "35 €", false],
-              ["Videodermatoskopie", "90 €", false],
-            ].map(([n, v, sel]) => (
-              <div key={n as string} className={`flex justify-between rounded-xl border bg-white px-3 py-2 text-xs ${sel ? "border-brand-600 ring-1 ring-brand-600" : "border-slate-200"}`}>
-                <span className="text-slate-800">{n}</span>
-                <b className="tabular-nums text-slate-900">{v}</b>
+        {/* Echte Handygröße: Bildschirm 375 × 812 CSS-Pixel (logische Größe eines iPhone 13 mini / X), Schrift wie im echten Patienten-Link. */}
+        <div
+          className="mx-auto mt-8 w-full max-w-[399px] rounded-[3.2rem] border-[12px] border-slate-900 bg-slate-900 shadow-2xl"
+          data-testid="handy-mockup"
+          aria-hidden="true"
+        >
+          <div className="relative flex aspect-[375/812] w-full flex-col overflow-hidden rounded-[2.5rem] bg-[#F5F2EE]">
+            {/* Statusleiste mit Kameraaussparung */}
+            <div className="relative flex h-11 shrink-0 items-center justify-between px-7 text-[15px] font-semibold text-slate-900">
+              <span>9:41</span>
+              <span className="absolute left-1/2 top-2.5 h-7 w-28 -translate-x-1/2 rounded-full bg-slate-900" />
+              <span className="flex items-center gap-1.5">
+                <svg viewBox="0 0 18 12" className="h-3 w-[18px]" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5" width="3" height="7" rx="1" /><rect x="10" y="2" width="3" height="10" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></svg>
+                <span className="inline-block h-3 w-6 rounded-[4px] border border-slate-900 p-[1.5px]"><span className="block h-full w-4/5 rounded-[2px] bg-slate-900" /></span>
+              </span>
+            </div>
+            <div className="min-h-0 flex-1 space-y-4 overflow-hidden px-4 pt-3">
+              <p className="text-sm font-medium text-brand-700">Hautarztpraxis am Markt</p>
+              <div>
+                <p className="text-2xl font-semibold leading-tight text-slate-900">Hallo Martina</p>
+                <p className="mt-1 text-base text-slate-600">Ihr Vorschlag zur Hautkrebs-Früherkennung</p>
               </div>
-            ))}
-            <p className="text-[10px] leading-snug text-emerald-800">Kasse zahlt: bei verdächtigen Malen auch die Auflichtmikroskopie.</p>
-            <div className="rounded-xl bg-brand-600 py-2 text-center text-xs font-semibold text-white">Diese Auswahl besprechen</div>
-            <div className="flex items-baseline justify-between border-t border-slate-200 py-3 text-[11px] text-slate-500">
-              Ihr Eigenanteil <b className="text-base text-slate-900">0 €</b>
+              {[
+                ["Hautkrebs-Screening", "Kassenleistung", "0 €", true, "Alle zwei Jahre ab 35 Jahren"],
+                ["Auflichtmikroskopie", "Selbstzahlerleistung", "35 €", false, "Bei verdächtigen Malen zahlt die Kasse"],
+                ["Videodermatoskopie", "Selbstzahlerleistung", "90 €", false, "Ohne Verdacht ist ein Zusatznutzen nicht belegt"],
+              ].map(([n, art, v, sel, hint]) => (
+                <div key={n as string} className={`rounded-2xl border bg-white p-4 ${sel ? "border-brand-600 ring-2 ring-brand-600" : "border-slate-200"}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-base font-medium text-slate-900">{n}</p>
+                      <p className="text-sm text-slate-500">{art}</p>
+                    </div>
+                    <b className="text-lg tabular-nums text-slate-900">{v}</b>
+                  </div>
+                  <p className={`mt-2 text-sm ${sel ? "text-emerald-800" : "text-slate-600"}`}>{hint}</p>
+                </div>
+              ))}
+            </div>
+            {/* Fester Bereich unten wie im echten Patienten-Link */}
+            <div className="shrink-0 border-t border-slate-200 bg-white px-4 pb-2 pt-3">
+              <div className="flex items-baseline justify-between text-sm text-slate-600">
+                Ihr Eigenanteil <b className="text-2xl tabular-nums text-slate-900">0 €</b>
+              </div>
+              <div className="mt-3 rounded-xl bg-brand-600 py-3.5 text-center text-base font-semibold text-white">Diese Auswahl besprechen</div>
+              <div className="mx-auto mt-3 h-[5px] w-[134px] rounded-full bg-slate-900" />
             </div>
           </div>
         </div>

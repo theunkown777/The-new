@@ -49,7 +49,7 @@ const CARDS = [
   {
     href: "/settings/team",
     title: "Team",
-    description: "Weitere Praxismitglieder einladen, Rollen (Admin/Staff) verwalten.",
+    description: "Mitarbeitende einladen, Rollen verwalten und die Analyse für einzelne Mitarbeitende freigeben.",
   },
 ];
 

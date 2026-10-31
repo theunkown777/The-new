@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { cleanupExpiredDemos, createDemoPractice } from "@/lib/demo";
 import { DENTAL_ID, specialty } from "@/lib/specialties";
-import { preparePatientDemo } from "@/lib/demoPatient";
 
 // Anlegen von rund 1000 Beispielpatienten braucht einige Sekunden.
 export const maxDuration = 60;
@@ -43,12 +42,7 @@ async function handle(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
     const fach = typeof body?.fach === "string" && specialty(body.fach) ? body.fach : DENTAL_ID;
-    const { email, password, practiceId } = await createDemoPractice(new Date(), fach);
-    if (body?.rolle === "patient") {
-      // Patientenansicht: nur der Portal-Link, keine Zugangsdaten zur Praxis.
-      const token = await preparePatientDemo(practiceId);
-      return NextResponse.json({ portalUrl: `/portal/${token}` }, { status: 201, headers: { "Cache-Control": "no-store" } });
-    }
+    const { email, password } = await createDemoPractice(new Date(), fach);
     return NextResponse.json({ email, password }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     console.error("Gastzugang konnte nicht angelegt werden:", err);

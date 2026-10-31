@@ -15,7 +15,7 @@ export async function GET() {
     prisma.user.findMany({
       where: { practiceId: session.user.practiceId },
       orderBy: { createdAt: "asc" },
-      select: { id: true, name: true, email: true, role: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, canSeeAnalytics: true, createdAt: true },
     }),
     prisma.staffInvite.findMany({
       where: { practiceId: session.user.practiceId, acceptedAt: null, expiresAt: { gt: new Date() } },

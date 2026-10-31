@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/permissions";
 
 const roleSchema = z.object({ role: z.enum(["admin", "staff"]) });
+const analyticsSchema = z.object({ canSeeAnalytics: z.boolean() });
 
 async function countAdmins(practiceId: string): Promise<number> {
   return prisma.user.count({ where: { practiceId, role: "admin" } });
@@ -19,6 +20,16 @@ export async function PATCH(req: Request, { params }: { params: { userId: string
   if (!target) return NextResponse.json({ error: "Konto nicht gefunden" }, { status: 404 });
 
   const body = await req.json().catch(() => null);
+  // Analyse-Freigabe für Mitarbeitende (nur Admins dürfen sie erteilen).
+  const perm = analyticsSchema.safeParse(body);
+  if (perm.success) {
+    const updated = await prisma.user.update({
+      where: { id: target.id },
+      data: { canSeeAnalytics: perm.data.canSeeAnalytics },
+      select: { id: true, name: true, email: true, role: true, canSeeAnalytics: true },
+    });
+    return NextResponse.json({ user: updated });
+  }
   const parsed = roleSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Ungültige Eingabe" }, { status: 400 });

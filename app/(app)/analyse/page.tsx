@@ -5,6 +5,7 @@ import { loadAnalysis } from "@/lib/analyticsLoad";
 import { prisma } from "@/lib/prisma";
 import { formatCent, invoiceTotals } from "@/lib/invoices";
 import type { Group, Risk } from "@/lib/analytics";
+import { canSeeAnalytics } from "@/lib/permissions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Analyse" };
@@ -89,6 +90,21 @@ function GroupList({ title, groups, testid }: { title: string; groups: Group[]; 
 
 export default async function AnalysePage({ searchParams }: { searchParams: { tage?: string } }) {
   const session = await getServerSession(authOptions);
+  // Umsätze und Risiken sind Sache der Geschäftsführung: Mitarbeitende sehen
+  // die Analyse nur mit Freigabe (Einstellungen → Team). Ohne Freigabe werden
+  // keine Zahlen geladen.
+  if (!(await canSeeAnalytics(session?.user.id))) {
+    return (
+      <div className="mx-auto max-w-xl py-10 text-center" data-testid="analyse-gesperrt">
+        <h1 className="text-xl font-semibold text-slate-900">Analyse nur für die Geschäftsführung</h1>
+        <p className="mt-3 text-slate-600">
+          Umsätze, Annahmequoten und Risiken der Praxis sieht die Geschäftsführung. Wenn Sie die Analyse brauchen, bitten Sie sie, Ihnen die
+          Freigabe unter Einstellungen → Team zu erteilen.
+        </p>
+        <Link href="/dashboard" className="btn-primary mt-6 inline-block">Zur Übersicht</Link>
+      </div>
+    );
+  }
   const practiceId = session!.user.practiceId;
   const tage = ZEITRAUM.find(([t]) => String(t) === searchParams.tage)?.[0] ?? 90;
   const [a, invoices] = await Promise.all([

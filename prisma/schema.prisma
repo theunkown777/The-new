@@ -76,6 +76,8 @@ model User {
   passwordHash String
   name         String
   role         String   @default("staff") // "admin" | "staff"
+  /// Analyse (/analyse) für Mitarbeitende freigegeben; Admins (Geschäftsführung) sehen sie immer
+  canSeeAnalytics Boolean @default(false)
   practiceId   String
   practice     Practice @relation(fields: [practiceId], references: [id])
   reports      Report[]

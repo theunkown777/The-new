@@ -152,8 +152,7 @@ export default function LoginPage() {
           </Link>
         </p>
         <p className="mt-4 rounded-xl bg-[#F5F2EE] px-4 py-3 text-center text-sm text-slate-600">
-          Sie sind Patient? Sie brauchen kein Konto. Ihre Praxis schickt Ihnen einen persönlichen Link zu Ihrem Patientenportal.{" "}
-          <Link href="/demo?rolle=patient" className="font-medium text-brand-700 hover:underline">So sieht es aus</Link>
+          Sie sind Patient? Hier ist keine Anmeldung nötig. Ihre Praxis schickt Ihnen einen persönlichen Link zu Ihrem Patientenportal.
         </p>
         <p className="mt-6 text-center text-xs text-slate-400">
           <Link href="/demo" className="hover:underline">Als Gast ansehen</Link> ·{" "}

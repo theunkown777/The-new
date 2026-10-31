@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DemoPatientButton } from "@/components/DemoPatientButton";
 
 // Hinweis im Gastzugang: Beispieldaten, automatische Löschung, Weg zur eigenen Praxis.
 export function DemoBanner({ expiresAt }: { expiresAt: Date }) {
@@ -9,7 +10,10 @@ export function DemoBanner({ expiresAt }: { expiresAt: Date }) {
           <b>Gastzugang</b> mit erfundenen Beispielpatienten. Bitte keine echten Patientendaten eingeben.
           Wird am {expiresAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })} gelöscht.
         </span>
-        <Link href="/register" className="font-medium underline">Eigene Praxis registrieren</Link>
+        <span className="flex flex-wrap gap-x-4 gap-y-1">
+          <DemoPatientButton />
+          <Link href="/register" className="font-medium underline">Eigene Praxis registrieren</Link>
+        </span>
       </div>
     </div>
   );

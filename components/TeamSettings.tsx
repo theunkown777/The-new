@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type Member = { id: string; name: string; email: string; role: string; createdAt: string };
+type Member = { id: string; name: string; email: string; role: string; canSeeAnalytics?: boolean; createdAt: string };
 type Invite = { id: string; email: string; role: string; createdAt: string; expiresAt: string };
 
 export function TeamSettings({ currentUserId }: { currentUserId: string }) {
@@ -69,6 +69,23 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
     load();
   }
 
+  async function setAnalytics(userId: string, canSeeAnalytics: boolean) {
+    setError(null);
+    // Sofort anzeigen, bei Fehler lädt load() den echten Stand zurück.
+    setUsers((list) => list.map((u) => (u.id === userId ? { ...u, canSeeAnalytics } : u)));
+    const res = await fetch(`/api/settings/team/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ canSeeAnalytics }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error ?? "Ändern fehlgeschlagen.");
+      load();
+      return;
+    }
+  }
+
   async function removeUser(userId: string) {
     if (!confirm("Dieses Konto wirklich entfernen? Die Person kann sich danach nicht mehr anmelden.")) {
       return;
@@ -110,14 +127,22 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
                       : "rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600"
                   }
                 >
-                  {u.role === "admin" ? "Admin" : "Staff"}
+                  {u.role === "admin" ? "Geschäftsführung" : "Mitarbeiter/in"}
                 </span>
+                {u.role === "admin" ? (
+                  <span className="text-xs text-slate-500">Analyse: immer</span>
+                ) : (
+                  <label className="flex cursor-pointer items-center gap-1.5 text-xs text-slate-700" data-testid={`analyse-freigabe-${u.id}`}>
+                    <input type="checkbox" checked={!!u.canSeeAnalytics} onChange={(e) => setAnalytics(u.id, e.target.checked)} />
+                    Analyse freigeben
+                  </label>
+                )}
                 <button
                   type="button"
                   className="text-xs font-medium text-brand-600 hover:underline"
                   onClick={() => changeRole(u.id, u.role === "admin" ? "staff" : "admin")}
                 >
-                  {u.role === "admin" ? "Zu Staff machen" : "Zu Admin machen"}
+                  {u.role === "admin" ? "Zu Mitarbeiter/in machen" : "Zur Geschäftsführung machen"}
                 </button>
                 {u.id !== currentUserId && (
                   <button
@@ -145,7 +170,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
                 <div>
                   <div className="font-medium text-slate-900">{inv.email}</div>
                   <div className="text-xs text-slate-400">
-                    {inv.role === "admin" ? "Admin" : "Staff"} · gültig bis{" "}
+                    {inv.role === "admin" ? "Geschäftsführung" : "Mitarbeiter/in"} · gültig bis{" "}
                     {new Date(inv.expiresAt).toLocaleDateString("de-DE")}
                   </div>
                 </div>
@@ -177,8 +202,8 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value as "admin" | "staff")}
             >
-              <option value="staff">Staff</option>
-              <option value="admin">Admin</option>
+              <option value="staff">Mitarbeiter/in (Analyse nur mit Freigabe)</option>
+              <option value="admin">Geschäftsführung (alles inkl. Analyse)</option>
             </select>
           </div>
           <button type="submit" disabled={inviting} className="btn-primary">

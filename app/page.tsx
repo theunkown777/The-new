@@ -99,16 +99,16 @@ export default async function Start() {
         <div className="mt-10">
           <FachWahl gruppen={GRUPPEN} />
           <div className="mt-8 grid gap-3 sm:grid-cols-2" data-testid="zugaenge">
-            <Link href="/demo?rolle=praxis" className="group rounded-2xl border border-slate-200 bg-white p-4 text-left hover:border-brand-600">
-              <span className="block text-xs font-semibold uppercase tracking-wide text-brand-700">Zugang Praxis</span>
-              <span className="mt-1 block font-semibold text-slate-900">Als Praxisleitung ansehen →</span>
-              <span className="mt-0.5 block text-sm text-slate-600">Das ganze System mit 1000 Beispielpatienten: Vorschläge, Zahlungen, Analyse.</span>
+            <Link href="/demo" className="group rounded-2xl border border-slate-200 bg-white p-4 text-left hover:border-brand-600" data-testid="zugang-praxis">
+              <span className="block text-xs font-semibold uppercase tracking-wide text-brand-700">Für Praxen</span>
+              <span className="mt-1 block font-semibold text-slate-900">Demo-Praxis ansehen →</span>
+              <span className="mt-0.5 block text-sm text-slate-600">Das ganze System mit 1000 Beispielpatienten. Von dort öffnen Sie auch die Patientenansicht.</span>
             </Link>
-            <Link href="/demo?rolle=patient" className="group rounded-2xl border border-slate-200 bg-white p-4 text-left hover:border-brand-600" data-testid="zugang-patient">
-              <span className="block text-xs font-semibold uppercase tracking-wide text-brand-700">Zugang Patient</span>
-              <span className="mt-1 block font-semibold text-slate-900">Als Patient ansehen →</span>
-              <span className="mt-0.5 block text-sm text-slate-600">Was Patienten am Handy sehen: Rechnung zahlen, Vorschlag wählen, Fragebogen. Nichts Internes.</span>
-            </Link>
+            <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-left" data-testid="hinweis-patienten">
+              <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">Für Patienten</span>
+              <span className="mt-1 block font-semibold text-slate-900">Kein eigener Zugang nötig</span>
+              <span className="mt-0.5 block text-sm text-slate-600">Patienten bekommen ihren persönlichen Link von ihrer Praxis, per SMS oder QR-Code. Ohne Konto, ohne Passwort.</span>
+            </div>
           </div>
           <p className="mt-6 text-center">
             <Link

@@ -26,7 +26,7 @@ function Icon({ name }: { name: string }) {
   );
 }
 
-export function SidebarNav({ dental, team = false }: { dental: boolean; team?: boolean }) {
+export function SidebarNav({ dental, team = false, analyse = false }: { dental: boolean; team?: boolean; analyse?: boolean }) {
   const path = usePathname();
   const links: [string, string, string][] = [
     ["/dashboard", "Übersicht", "dashboard"],
@@ -34,7 +34,7 @@ export function SidebarNav({ dental, team = false }: { dental: boolean; team?: b
     ["/proposals", "Vorschläge", "proposals"],
     ["/abschluss/new", "Behandlung abschließen", "wrapup"],
     ["/zahlungen", "Zahlungen", "zahlungen"],
-    ["/analyse", "Analyse", "analyse"],
+    ...(analyse ? ([["/analyse", "Analyse", "analyse"]] as [string, string, string][]) : []),
     ...(dental ? ([["/reports", "Berichte", "reports"]] as [string, string, string][]) : []),
   ];
   const item = (href: string, label: string, icon: string) => {
