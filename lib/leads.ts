@@ -13,6 +13,8 @@ export const leadSchema = z.object({
     .min(5, "Bitte Telefonnummer oder E-Mail angeben")
     .max(120)
     .refine((v) => /@/.test(v) || /\d{5,}/.test(v.replace(/[\s/()+-]/g, "")), "Bitte eine gültige Telefonnummer oder E-Mail angeben"),
+  pvs: z.enum(["DS-Win", "CGM Z1", "charly", "EVIDENT", "andere", "weiß nicht"]).optional(),
+  callbackTime: z.enum(["vormittags", "mittags", "nachmittags", "egal"]).optional(),
   website: z.string().max(200).optional(),
 });
 export type LeadInput = z.infer<typeof leadSchema>;
@@ -28,5 +30,5 @@ export function leadEmailHtml(l: LeadInput): string {
 <li><b>Ansprechpartner:</b> ${esc(l.contactName)}</li>
 <li><b>Behandler:</b> ${esc(l.dentists)}</li>
 <li><b>Erreichbar unter:</b> ${esc(l.contact)}</li>
-</ul>`;
+${l.pvs ? `<li><b>Praxissoftware:</b> ${esc(l.pvs)}</li>\n` : ""}${l.callbackTime ? `<li><b>Rückruf am besten:</b> ${esc(l.callbackTime)}</li>\n` : ""}</ul>`;
 }

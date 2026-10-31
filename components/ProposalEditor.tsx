@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { BefundDiktat } from "@/components/BefundDiktat";
+import type { DiktatResult } from "@/lib/befundDiktat";
 import {
   FINDINGS,
   GLOBAL_FINDINGS,
@@ -121,6 +123,20 @@ export function ProposalEditor({
       else delete next[String(n)];
       return next;
     });
+  }
+
+  function applyDiktat(r: DiktatResult) {
+    setTeeth((t) => {
+      const next = { ...t };
+      for (const [n, c] of Object.entries(r.teeth)) {
+        if (c === "ok") delete next[n];
+        else if (c) next[n] = c;
+      }
+      return next;
+    });
+    if (r.globals.length) setGlobals((g) => ({ ...g, ...Object.fromEntries(r.globals.map((k) => [k, true])) }));
+    const first = Object.keys(r.teeth).map(Number)[0];
+    if (first) setSelected(first);
   }
 
   async function save(nextStatus?: string) {
@@ -298,6 +314,8 @@ export function ProposalEditor({
               />
             </div>
           </div>
+
+          <BefundDiktat onApply={applyDiktat} />
 
           <div className="card space-y-3">
             <h2 className="font-medium text-slate-900">Zahnschema (FDI)</h2>

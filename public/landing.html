@@ -9,6 +9,7 @@
 <!-- Öffentliche Website von Sorrida. Wird von der App unter "/" für nicht
      angemeldete Besucher ausgeliefert (middleware.ts). Diese Datei ist die
      Vorlage der Website; Live-Demo und Rechner laufen vollständig im Browser. -->
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sorrida", "applicationCategory": "BusinessApplication", "applicationSubCategory": "Software für Zahnarztpraxen", "operatingSystem": "Web", "inLanguage": "de-DE", "description": "Nach der Behandlung ein Klick: Leistungserfassung, KI-Bericht, Behandlungsvorschlag mit Eigenanteil, Patienten-Link und To-dos. Startet aus DS-Win, CGM Z1, charly und EVIDENT.", "offers": [{"@type": "Offer", "name": "Einzelpraxis", "price": "149", "priceCurrency": "EUR"}, {"@type": "Offer", "name": "Praxis", "price": "249", "priceCurrency": "EUR"}]}</script>
 <style>
 /* Schriften liegen lokal in /fonts (keine Verbindung zu Google beim Seitenaufruf). */
 @font-face {
@@ -183,7 +184,7 @@ header.top .wrap{display:flex;align-items:center;gap:1.5rem;padding-block:.7rem}
 :root[data-theme="dark"] .logo .logo-dark{display:block}
 .login-link{color:var(--muted);font-weight:700;font-size:.95rem;text-decoration:none;white-space:nowrap}
 .login-link+.login-link{margin-left:-.6rem}
-@media (max-width:560px){.login-link[href="/demo"]{display:none}}
+
 .login-link:hover{color:var(--ink)}
 nav.main{display:flex;gap:1.1rem;margin-left:auto;flex-wrap:wrap}
 nav.main a{color:var(--muted);text-decoration:none;font-weight:700;font-size:.95rem}
@@ -506,6 +507,59 @@ footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
 .stage-caption{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;margin-top:1rem;font-size:.85rem;color:var(--muted)}
 @media (max-width:520px){.stage{min-height:520px}.win-pvs{width:100%}.win-sor{width:92%}}
 @media (prefers-reduced-motion: reduce){.win-sor,.cursor{transition:none}}
+
+/* Hero-Hinweis unter den Knöpfen */
+header.top .btn.small{white-space:nowrap}
+nav.main a{white-space:nowrap}
+.cta-note{color:var(--muted);font-size:.9rem;max-width:52ch;margin-top:-.2rem}
+/* Integrationsleiste: Produktnamen als Text, keine fremden Logos */
+.pvs-strip{border-block:1px solid var(--line);background:var(--surface);padding-block:1rem;margin-bottom:clamp(2.5rem,6vw,4.5rem)}
+.pvs-strip .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.6rem}
+.pvs-strip .lbl,.lbl{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pvs-strip ul{display:flex;flex-wrap:wrap;gap:.4rem 1.6rem;margin:0;padding:0;list-style:none}
+.pvs-strip li{font-family:var(--f-display);font-weight:800;font-size:1.15rem;color:var(--ink);opacity:.8}
+.pvs-strip li.more{font-family:var(--f-body);font-weight:400;font-size:.9rem;color:var(--muted);opacity:1;align-self:center}
+.pvs-strip a{margin-left:auto;font-size:.9rem;color:var(--accent);font-weight:700}
+@media (max-width:700px){.pvs-strip a{margin-left:0}}
+/* Patienten-Link */
+.plink{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(1.5rem,4vw,3.5rem);align-items:center}
+@media (max-width:900px){.plink{grid-template-columns:1fr}}
+.plink-copy{display:grid;gap:1rem;min-width:0}
+.phone-stage{position:relative;display:grid;justify-items:center;padding:1rem 0 7.5rem}
+.phone{width:min(300px,100%);background:var(--surface);border:10px solid var(--ink);border-radius:34px;padding:1.1rem .9rem 0;display:grid;gap:.6rem;box-shadow:0 30px 60px -35px rgba(40,20,18,.55);overflow:hidden}
+.ph-top{font-size:.72rem;color:var(--accent);font-weight:700}
+.ph-h{font-family:var(--f-display);font-weight:800;font-size:1.05rem;line-height:1.2}
+.ph-card{border:1px solid var(--line);border-radius:12px;padding:.6rem;display:grid;gap:.4rem}
+.ph-t{font-weight:700;font-size:.85rem}
+.ph-opt{display:flex;justify-content:space-between;gap:.5rem;border:1px solid var(--line);border-radius:9px;padding:.45rem .55rem;font-size:.78rem}
+.ph-opt b{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ph-opt.sel{border:2px solid var(--accent);background:var(--accent-soft)}
+.ph-opt i{font-style:normal;font-size:.62rem;background:var(--accent);color:var(--accent-ink);border-radius:99px;padding:.05rem .4rem;margin-left:.2rem;white-space:nowrap}
+.ph-btn{text-align:center;font-size:.78rem;font-weight:700;border:1px solid var(--line);border-radius:9px;padding:.5rem}
+.ph-btn.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.ph-bar{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);margin:0 -.9rem;padding:.6rem .9rem .8rem;font-size:.75rem;color:var(--muted)}
+.ph-bar b{font-family:var(--f-mono);font-size:1.05rem;color:var(--ink)}
+.inbox-note{position:absolute;right:2%;bottom:0;max-width:250px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--good);border-radius:10px;padding:.7rem .9rem;display:grid;gap:.15rem;font-size:.85rem;box-shadow:0 18px 30px -22px rgba(40,20,18,.6);transform:rotate(1.2deg)}
+.inbox-note span{color:var(--muted)}
+.inbox-note em{font-family:var(--f-hand);font-size:1.15rem;font-style:normal;color:var(--accent)}
+@media (max-width:520px){.inbox-note{position:static;transform:none;margin-top:1rem;max-width:none}.phone-stage{padding-bottom:0}}
+/* Diktat */
+.dikt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(1.5rem,4vw,3rem);align-items:center}
+@media (max-width:900px){.dikt{grid-template-columns:1fr}}
+.dikt-demo{display:grid;gap:.6rem}
+.dikt-demo label{font-weight:700}
+.dikt-demo textarea{width:100%;font:inherit;font-family:var(--f-mono);font-size:.9rem;line-height:1.5;padding:.7rem;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--ink);resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:0;padding:0;list-style:none;min-height:2rem}
+.chips li{background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:.25rem .7rem;font-size:.85rem;font-weight:700}
+.chips li.empty{background:none;color:var(--muted);font-weight:400;padding-left:0}
+/* Sicherheit */
+.sec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+@media (max-width:900px){.sec-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.sec-grid{grid-template-columns:1fr}}
+.sec-grid>div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.2rem;display:grid;gap:.4rem;align-content:start}
+.sec-grid h3{font-size:1.02rem}
+.sec-grid p{color:var(--muted);font-size:.93rem}
+.price-note{margin-top:1rem;color:var(--muted);font-size:.88rem}
 </style>
 </head>
 <body>
@@ -519,16 +573,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
     </a>
     <nav class="main" aria-label="Hauptnavigation">
       <a href="#demo">Live-Demo</a>
-      <a href="#abschluss">Nach der Behandlung</a>
-      <a href="#rechner">Rechner</a>
+      <a href="#patientenlink">Patienten-Link</a>
       <a href="#praxissoftware">Praxissoftware</a>
-      <a href="#regeln">Rechtliches</a>
+      <a href="#sicherheit">Sicherheit</a>
       <a href="#preise">Preise</a>
-      <a href="#faq">Fragen</a>
+      <a href="/ratgeber">Ratgeber</a>
     </nav>
-    <a class="login-link" href="/demo">Gastzugang</a>
     <a class="login-link" href="/login">Anmelden</a>
-    <a class="btn small" href="#kontakt">Pilotplatz anfragen</a>
+    <a class="btn small" href="/demo">Kostenlos ausprobieren</a>
   </div>
 </header>
 
@@ -542,10 +594,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
       <p class="lede">Sorrida macht aus Ihrem Befund in zwei Minuten ein Schreiben, das Patienten mit nach Hause nehmen. Oben steht die Kassenleistung. Darunter stehen die Alternativen, die medizinisch Sinn ergeben, jeweils mit dem Betrag, den der Patient selbst zahlt.</p>
       <p class="lede" style="font-size:1rem">Festzuschuss, Bonusheft, Härtefall und Zusatzversicherung sind eingerechnet. Heil- und Kostenplan und Mehrkostenvereinbarung erstellen Sie weiter in Ihrer Praxissoftware.</p>
       <div class="ctas">
-        <a class="btn" href="#kontakt">Demo mit eigenen Fällen anfragen</a>
-        <a class="btn ghost" href="/demo">Als Gast ansehen</a>
+        <a class="btn" href="/demo">Jetzt ausprobieren, ohne Anmeldung</a>
+        <a class="btn ghost" href="#kontakt">Mit eigenen Fällen zeigen lassen</a>
       </div>
-      <div class="trust"><span>Ein Klick aus DS-Win, Z1, charly, EVIDENT</span><span>30 Tage kostenlos</span><span>monatlich kündbar</span></div>
+      <p class="cta-note">Sie bekommen sofort eine eigene Demo-Praxis mit Beispielpatienten. Kein Formular, kein Verkaufsgespräch. Nach 24 Stunden wird sie gelöscht.</p>
+      <div class="trust"><span>Pauschalpreis ohne KI-Kontingent</span><span>30 Tage kostenlos</span><span>monatlich kündbar</span></div>
     </div>
     <div class="paper-stage" aria-label="Beispiel eines Patientenschreibens">
       <div class="paper">
@@ -564,6 +617,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
     </div>
   </div>
 </section>
+
+<div class="pvs-strip" aria-label="Unterstützte Praxissoftware">
+  <div class="wrap">
+    <span class="lbl">Öffnet sich direkt aus</span>
+    <ul><li>DS-Win</li><li>CGM Z1</li><li>charly</li><li>EVIDENT</li><li class="more">und weiteren Systemen mit VDDS-media</li></ul>
+    <a href="#praxissoftware">So funktioniert es →</a>
+  </div>
+</div>
 
 <section style="padding-top:0">
   <div class="wrap">
@@ -779,12 +840,66 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
       <p class="who">Martina Weber <span>· automatisch erstellt: Bericht, Vorschlag, Patientenschreiben, 7 To-dos</span></p>
       <ul>
         <li><span>KI-Bericht lesen und freigeben</span><em>Behandler</em></li>
-        <li><span>Patientenschreiben mitgeben</span><em>Rezeption</em></li>
+        <li><span>Patienten-Link per QR-Code mitgeben</span><em>Rezeption</em></li>
         <li class="hot"><span>HKP für Zahn 36 anlegen und einreichen</span><em>Rezeption</em></li>
         <li class="hot"><span>HKP bis 31.12.2026 bewilligen lassen<small>Sonst zahlt die Patientin ca. 175 € mehr.</small></span><em>Rezeption</em></li>
         <li><span>Mehrkostenvereinbarung Zahn 25<small>falls die Patientin diese Option wählt</small></span><em>Rezeption</em></li>
         <li><span>Folgetermine: Zahn 25, PZR</span><em>Rezeption</em></li>
       </ul>
+    </div>
+  </div>
+</section>
+
+<section id="patientenlink">
+  <div class="wrap plink">
+    <div class="plink-copy">
+      <span class="kicker">Patienten-Link</span>
+      <h2>Der Vorschlag geht mit nach Hause, auf das Handy des Patienten</h2>
+      <p class="lede">Am Empfang zeigt die Rezeption einen QR-Code oder schickt den Link per SMS. Zu Hause tippt der Patient die Möglichkeiten durch und sieht bei jeder sofort, was er selbst zahlt. Wenn er sich entschieden hat, meldet er sich mit einem Tipp in der Praxis.</p>
+      <ul class="outputs">
+        <li><b>Selbst vergleichen.</b> Eine Option antippen, der Eigenanteil unten rechnet mit. Bei Zahnersatz steht daneben der Betrag bei Bewilligung ab 2027.</li>
+        <li><b>Rückmeldung landet in der Übersicht.</b> „Möchte besprechen“ oder „Bitte um Rückruf“, mit der gewählten Versorgung und seiner Frage. Die Rezeption ruft gezielt zurück und muss niemandem hinterhertelefonieren.</li>
+        <li><b>Lesebestätigung.</b> Sie sehen, ob und wann der Vorschlag geöffnet wurde.</li>
+        <li><b>Datensparsam.</b> Keine App und kein Konto. Im Link stehen keine Patientendaten, angezeigt wird nur der Vorname. Nach 30 Tagen läuft er ab, sperren können Sie ihn jederzeit.</li>
+      </ul>
+    </div>
+    <div class="phone-stage" aria-label="Beispiel: Patienten-Link auf dem Handy und Rückmeldung in der Praxis">
+      <div class="phone">
+        <div class="ph-top">Zahnarztpraxis am Markt</div>
+        <div class="ph-h">Hallo Martina, hier ist Ihr Behandlungsvorschlag</div>
+        <div class="ph-card">
+          <div class="ph-t">Zahn 36 fehlt</div>
+          <div class="ph-opt"><span>Brücke, Regelversorgung</span><b>438 €</b></div>
+          <div class="ph-opt"><span>Vollkeramik-Brücke</span><b>1.138 €</b></div>
+          <div class="ph-opt sel"><span>Implantat mit Krone <i>Empfehlung</i></span><b>2.088 €</b></div>
+        </div>
+        <div class="ph-btn p">Diese Auswahl besprechen</div>
+        <div class="ph-btn">Bitte rufen Sie mich an</div>
+        <div class="ph-bar"><span>Ihr Eigenanteil</span><b>2.088 €</b></div>
+      </div>
+      <div class="inbox-note">
+        <span class="lbl">In Sorrida, 19:42 Uhr</span>
+        <b>Martina Weber möchte besprechen</b>
+        <span>Zahn 36: Implantat mit Krone</span>
+        <em>„Geht auch eine Ratenzahlung?“</em>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="diktat">
+  <div class="wrap dikt">
+    <div class="sec-head" style="margin:0">
+      <span class="kicker">Befund diktieren</span>
+      <h2>Sie sprechen den Befund, das Zahnschema füllt sich</h2>
+      <p class="lede">„Sechzehn Karies MOD, sechsunddreißig fehlt, Zahnstein.“ Sorrida erkennt FDI-Zahnnummern, gesprochene Zahlen und Flächenangaben und trägt die Befunde ein. Sie prüfen die Vorschau und übernehmen sie mit einem Klick.</p>
+      <p style="color:var(--muted)">Ausgewertet wird direkt im Browser nach festen Regeln. Das geht ohne Wartezeit, verbraucht keine KI-Einheiten, und der Befund verlässt den Rechner nicht.</p>
+    </div>
+    <div class="panel dikt-demo">
+      <label for="diktIn">Tippen Sie einen Befund, so wie Sie ihn sagen würden</label>
+      <textarea id="diktIn" rows="3">16 Karies MOD, 25 Karies klein, 36 fehlt, 46 Füllung insuffizient, Zahnstein</textarea>
+      <span class="lbl">Sorrida trägt ein</span>
+      <ul id="diktOut" class="chips" aria-live="polite"><li>16: Karies, ab 3 Flächen</li><li>25: Karies, 1–2 Flächen</li><li>36: Zahn fehlt</li><li>46: Alte Füllung defekt</li><li>Zahnstein und Beläge</li></ul>
     </div>
   </div>
 </section>
@@ -797,8 +912,8 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
     <ol class="steps">
       <li><h3>Aus der Praxissoftware öffnen</h3><p>Im Patienten auf „Sorrida“ klicken. Der Patient ist schon da, „Behandlung abschließen“ ist offen.</p></li>
       <li><h3>Leistungen bestätigen</h3><p>Die Liste des Sitzungstyps ist vorausgefüllt. Nur streichen, was nicht gemacht wurde.</p></li>
-      <li><h3>Befunde anklicken</h3><p>Zähne im Schema anklicken, wenn ein Vorschlag nötig ist. Sorrida empfiehlt, Sie bestätigen oder ändern.</p></li>
-      <li><h3>Abschließen</h3><p>Ein Klick: Bericht, Vorschlag, Patientenschreiben und To-dos sind fertig. Die Rezeption arbeitet die Liste ab.</p></li>
+      <li><h3>Befunde sagen oder anklicken</h3><p>Befund diktieren oder Zähne im Schema anklicken, wenn ein Vorschlag nötig ist. Sorrida empfiehlt, Sie bestätigen oder ändern.</p></li>
+      <li><h3>Abschließen</h3><p>Ein Klick: Bericht, Vorschlag, Patienten-Link und To-dos sind fertig. Der Patient entscheidet zu Hause und meldet sich zurück.</p></li>
     </ol>
   </div>
 </section>
@@ -842,9 +957,26 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
           <tr><td class="law">§§ 55, 56 SGB V</td><td>Befundbezogene Festzuschüsse beim Zahnersatz, Bonus 70 % oder 75 %, Härtefall.</td><td>Regel-, gleich- und andersartige Versorgung stehen mit gleichem Festzuschuss nebeneinander.</td></tr>
           <tr><td class="law">§ 2 Abs. 3 GOZ</td><td>Verlangensleistungen nur auf ausdrücklichen Wunsch des Patienten.</td><td>Bleaching erscheint erst, wenn der Wunsch des Patienten angekreuzt ist.</td></tr>
           <tr><td class="law">Berufsordnung</td><td>Kein Druck, Therapiefreiheit der Zahnärztin oder des Zahnarztes.</td><td>Die Kassenleistung steht immer oben. Die Empfehlung bestätigen Sie selbst.</td></tr>
-          <tr><td class="law">DSGVO</td><td>Gesundheitsdaten nur mit Rechtsgrundlage und Vertrag zur Auftragsverarbeitung.</td><td>Server in Deutschland, AVV inklusive. Diese Demo speichert nichts.</td></tr>
+          <tr><td class="law">DSGVO</td><td>Gesundheitsdaten nur mit Rechtsgrundlage und Vertrag zur Auftragsverarbeitung.</td><td>Rechenzentrum in Frankfurt am Main, Vertrag zur Auftragsverarbeitung inklusive. Die Live-Demo auf dieser Seite speichert nichts.</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</section>
+
+<section id="sicherheit">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Sicherheit, nachprüfbar beschrieben</h2>
+      <p class="lede">Wir schreiben hier nur hin, was Sorrida heute tatsächlich tut. Ein Zertifikat haben wir noch nicht. Was wir haben, zeigen wir Ihnen im Gespräch gern im Detail.</p>
+    </div>
+    <div class="sec-grid">
+      <div><h3>Hosting in Frankfurt</h3><p>Anwendung und Datenbank laufen im Rechenzentrum Frankfurt am Main. Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO gehört zu jedem Paket.</p></div>
+      <div><h3>Wenig Daten</h3><p>Name, Geburtsdatum und Versicherungsart. Versichertennummer, Adresse und Telefon aus der Praxissoftware werden beim Öffnen verworfen.</p></div>
+      <div><h3>Verschlüsselt übertragen</h3><p>Jede Verbindung läuft über HTTPS. Passwörter werden nur als bcrypt-Hash gespeichert.</p></div>
+      <div><h3>Zwei-Faktor-Anmeldung</h3><p>Per Authenticator-App für jeden Zugang. Rollen trennen Praxisleitung und Team.</p></div>
+      <div><h3>Nachvollziehbar</h3><p>Jede Änderung an einem Bericht wird mit Zeit und Person gespeichert. Angenommene Vorschläge bleiben unverändert als Nachweis der Aufklärung.</p></div>
+      <div><h3>Schutz vor Missbrauch</h3><p>Anmeldung, Patienten-Links und Formulare sind gegen massenhafte Versuche begrenzt. Schlüssel für die Praxissoftware gelten je Arbeitsplatz und lassen sich einzeln sperren.</p></div>
     </div>
   </div>
 </section>
@@ -853,13 +985,13 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
   <div class="wrap">
     <div class="sec-head">
       <h2>Ein angenommenes Inlay im Monat deckt die Kosten</h2>
-      <p class="lede">30 Tage kostenlos testen, danach monatlich kündbar. Alle Preise zzgl. MwSt.</p>
+      <p class="lede">30 Tage kostenlos testen, danach monatlich kündbar. Ein fester Monatspreis: Berichte, Vorschläge, Patienten-Links und Diktat sind ohne Zähler und ohne Zusatzeinheiten enthalten.</p>
     </div>
     <div class="plans">
       <div class="plan">
         <h3>Einzelpraxis</h3>
         <div class="price">149 € <small>/ Monat</small></div>
-        <ul><li>1 Behandler, beliebig viele Abschlüsse</li><li>Leistungserfassung, KI-Bericht, Vorschlag, To-dos</li><li>Regelwerk für Füllung, Endo, Zahnersatz, Prophylaxe, PAR</li><li>Patientenschreiben nach § 630c BGB</li><li>Eigene Preisliste</li></ul>
+        <ul><li>1 Behandler, beliebig viele Abschlüsse</li><li>Leistungserfassung, KI-Bericht, Vorschlag, To-dos</li><li>Patienten-Link mit QR-Code und Rückmeldung</li><li>Befund-Diktat</li><li>Regelwerk für Füllung, Endo, Zahnersatz, Prophylaxe, PAR</li><li>Patientenschreiben nach § 630c BGB</li><li>Eigene Preisliste</li></ul>
         <a class="btn ghost" href="#kontakt">30 Tage testen</a>
       </div>
       <div class="plan feat">
@@ -876,6 +1008,7 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
         <a class="btn ghost" href="#kontakt">Gespräch vereinbaren</a>
       </div>
     </div>
+    <p class="price-note">Endpreise. Nach § 19 UStG (Kleinunternehmerregelung) wird keine Umsatzsteuer berechnet.</p>
   </div>
 </section>
 
@@ -888,6 +1021,8 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
       <details><summary>Woher kommen die Preise?</summary><p>Aus Ihrer Praxis. Sie tragen einmal Ihre Sätze nach GOZ und BEMA und Ihre Laborpreise ein. Die Festzuschüsse aktualisieren wir jedes Jahr. In der Demo oben sind alle Beträge Beispielwerte.</p></details>
       <details><summary>Wer trifft die medizinische Entscheidung?</summary><p>Immer Sie. Das Regelwerk liefert eine begründete Empfehlung, die Sie mit einem Klick ändern.</p></details>
       <details><summary>Funktioniert das mit unserer Praxissoftware?</summary><p>Wenn Ihre Praxissoftware VDDS-media unterstützt, ja. Das gilt für DS-Win, CGM Z1, charly, EVIDENT und weitere Systeme, die so heute schon Röntgen- oder Scannerprogramme starten. Ohne VDDS-media öffnen Sie Sorrida im Browser und wählen den Patienten dort aus. In der Demo prüfen wir das gemeinsam an Ihrem System.</p></details>
+      <details><summary>Brauchen Patienten eine App für den Patienten-Link?</summary><p>Nein. Der Link öffnet sich im Browser des Handys. Patienten brauchen kein Konto und kein Passwort. Wer kein Smartphone nutzt, bekommt das Patientenschreiben wie bisher ausgedruckt.</p></details>
+      <details><summary>Kostet die KI extra, wenn wir viel nutzen?</summary><p>Nein. Der Monatspreis gilt unabhängig davon, wie viele Berichte, Vorschläge und Links Sie erstellen. Es gibt keine Einheiten, die ablaufen oder nachgekauft werden müssen.</p></details>
       <details><summary>Wie lange dauert die Einrichtung?</summary><p>Etwa eine Stunde: Preisliste eintragen, Logo hochladen, kurze Einweisung für Behandler und Rezeption.</p></details>
       <details><summary>Was passiert mit Patientendaten?</summary><p>Sorrida braucht Name, Alter und Versicherungsart. Versichertennummern speichert es nicht. Die Server stehen in Deutschland, ein Vertrag zur Auftragsverarbeitung gehört dazu.</p></details>
     </div>
@@ -914,10 +1049,14 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
           <div class="field"><label for="lBeh">Behandler</label><select id="lBeh"><option>1</option><option selected>2–3</option><option>4–5</option><option>mehr als 5</option></select></div>
         </div>
         <div class="field"><label for="lTel">Telefon oder E-Mail</label><input id="lTel" type="text" required></div>
+        <div class="grid2">
+          <div class="field"><label for="lPvs">Praxissoftware</label><select id="lPvs"><option value="">bitte wählen</option><option>DS-Win</option><option>CGM Z1</option><option>charly</option><option>EVIDENT</option><option>andere</option><option>weiß nicht</option></select></div>
+          <div class="field"><label for="lZeit">Rückruf am besten</label><select id="lZeit"><option>egal</option><option>vormittags</option><option>mittags</option><option>nachmittags</option></select></div>
+        </div>
         <div aria-hidden="true" style="position:absolute;left:-9999px"><label for="lWebsite">Website</label><input id="lWebsite" type="text" tabindex="-1" autocomplete="off"></div>
         <label class="check" style="font-size:.85rem"><input type="checkbox" id="lConsent" required> Ich bin einverstanden, dass Sorrida meine Angaben speichert, um mich wegen der Demo zu kontaktieren (<a href="/datenschutz">Datenschutz</a>).</label>
         <button class="btn" type="submit">Pilotplatz anfragen</button>
-        <small style="color:var(--muted)">Wir melden uns innerhalb von zwei Werktagen und zeigen Sorrida 20 Minuten lang an Fällen aus Ihrer Praxis.</small>
+        <small style="color:var(--muted)">Wir melden uns innerhalb von zwei Werktagen zu Ihrer Wunschzeit und zeigen Sorrida 20 Minuten lang an Fällen aus Ihrer Praxis. Wer nicht warten will: <a href="/demo">sofort ausprobieren</a>.</small>
       </form>
       <div class="done" id="leadDone" hidden>
         <b>Danke, Ihre Anfrage ist angekommen.</b>
@@ -934,9 +1073,10 @@ Eigenanteil voraussichtl. siehe Anlage 2</pre>
 </section>
 </main>
 
-<footer><div class="wrap"><span>Sorrida · Bericht, Vorschlag und To-dos nach der Behandlung · <a href="/login">Anmelden</a> · <a href="/register">Praxis registrieren</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></span><span>Demo mit Beispielwerten. Keine Abrechnungs- oder Rechtsberatung.</span></div></footer>
+<footer><div class="wrap"><span>Sorrida · Bericht, Vorschlag und To-dos nach der Behandlung · <a href="/login">Anmelden</a> · <a href="/register">Praxis registrieren</a> · <a href="/ratgeber">Ratgeber</a> · <a href="/impressum">Impressum</a> · <a href="/datenschutz">Datenschutz</a></span><span>Demo mit Beispielwerten. Keine Abrechnungs- oder Rechtsberatung. Genannte Produktnamen sind Marken ihrer Inhaber.</span></div></footer>
 <div class="toast" id="toast" hidden></div>
 
+<script src="/js/befund-diktat.js" defer></script>
 <script>
 (function(){
 "use strict";
@@ -1373,7 +1513,7 @@ Object.values(R).forEach(s=>$(s).addEventListener("input",roi));
 $("#leadForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const btn=e.target.querySelector("button[type=submit]");
-  const data={practiceName:$("#lPraxis").value,contactName:$("#lName").value,dentists:$("#lBeh").value,contact:$("#lTel").value,website:$("#lWebsite").value};
+  const data={practiceName:$("#lPraxis").value,contactName:$("#lName").value,dentists:$("#lBeh").value,contact:$("#lTel").value,pvs:$("#lPvs").value||undefined,callbackTime:$("#lZeit").value,website:$("#lWebsite").value};
   btn.disabled=true; btn.textContent="Wird gesendet…";
   try{
     const res=await fetch("/api/leads",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
@@ -1389,6 +1529,16 @@ $("#copyLead").addEventListener("click",()=>copyFrom($("#leadText")));
 
 renderPrices(); all(); roi();
 })();
+(function(){
+  const inp=document.getElementById("diktIn"), out=document.getElementById("diktOut");
+  if(!inp||!out) return;
+  const render=()=>{
+    if(!window.SorridaDiktat) return;
+    const items=window.SorridaDiktat.preview(inp.value);
+    out.replaceChildren(...(items.length?items:["Noch nichts erkannt. Zum Beispiel: 36 fehlt"]).map((t,i)=>{const li=document.createElement("li");li.textContent=t;if(!items.length)li.className="empty";return li;}));
+  };
+  inp.addEventListener("input",render);
+  window.addEventListener("load",render);
+})();
 </script>
-</body>
 </html>

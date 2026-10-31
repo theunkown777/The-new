@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   if (isSpam(parsed.data)) return NextResponse.json({ ok: true }, { status: 201 });
 
   const { practiceName, contactName, dentists, contact } = parsed.data;
-  await prisma.lead.create({ data: { practiceName, contactName, dentists, contact } });
+  await prisma.lead.create({ data: { practiceName, contactName, dentists, contact, pvs: parsed.data.pvs, callbackTime: parsed.data.callbackTime } });
 
   const notify = process.env.LEAD_NOTIFY_EMAIL;
   if (notify) {

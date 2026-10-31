@@ -1,0 +1,2 @@
+ALTER TABLE "Lead" ADD COLUMN "pvs" TEXT,
+ADD COLUMN "callbackTime" TEXT;

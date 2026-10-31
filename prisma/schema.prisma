@@ -434,5 +434,7 @@ model Lead {
   contactName  String
   dentists     String
   contact      String
+  pvs          String?
+  callbackTime String?
   createdAt    DateTime @default(now())
 }
