@@ -57,6 +57,15 @@ export async function GET(req: Request) {
   checks["KI-Berichte"] = process.env.ANTHROPIC_API_KEY
     ? { ok: true, info: "Schlüssel gesetzt" }
     : { ok: true, info: "kein Schlüssel: Berichte im Testmodus" };
+  // Nur ob gesetzt, nie die Werte: zeigt, ob Pilot- und Hilfe-Anfragen per Mail ankommen.
+  checks["E-Mail-Versand"] = process.env.RESEND_API_KEY
+    ? { ok: true, info: `Resend-Schlüssel gesetzt${process.env.RESEND_FROM_EMAIL ? ", eigene Absenderadresse" : ", Absender onboarding@resend.dev (nur an die eigene Resend-Kontoadresse zustellbar)"}` }
+    : { ok: true, info: "kein Schlüssel: Mails werden nur protokolliert, Anfragen landen trotzdem in der Datenbank" };
+  checks["Benachrichtigung Support"] = process.env.SUPPORT_NOTIFY_EMAIL
+    ? { ok: true, info: "eigene Support-Adresse gesetzt" }
+    : process.env.LEAD_NOTIFY_EMAIL
+      ? { ok: true, info: "Hilfe-Anfragen gehen an die Adresse für Pilot-Anfragen" }
+      : { ok: true, info: "keine Empfängeradresse: Hilfe-Anfragen nur in der Datenbank" };
 
   // Nur Information, kein Fehler: der Betrieb funktioniert auch außerhalb Frankfurts.
   const db = databaseLocation(resolveDatabaseUrls(process.env)?.runtime);
