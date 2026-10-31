@@ -113,3 +113,32 @@ describe("Gesundheitsberufe (Heilmittel)", () => {
     expect(SPECIALTIES.length).toBeGreaterThanOrEqual(21);
   });
 });
+
+import { hilfsmittelZuzahlung } from "@/lib/proposals";
+describe("Versorgung: Hilfsmittel, Apotheke, Klinik", () => {
+  it("Hilfs- und Arzneimittel: 10 %, mindestens 5 €, höchstens 10 €", () => {
+    expect(hilfsmittelZuzahlung(40)).toBe(5);
+    expect(hilfsmittelZuzahlung(80)).toBe(8);
+    expect(hilfsmittelZuzahlung(750)).toBe(10);
+    expect(hilfsmittelZuzahlung(3)).toBe(3);
+    const [it] = buildProposal({ teeth: {}, globals: {}, patient: patient(70), fach: "apotheke", anlaesse: ["rezept"] }, DEFAULT_PRICES);
+    expect(money(it.options[0], patient(70)).netto).toBe(5);
+  });
+  it("höherwertiges Hörgerät: Kasse zahlt den Festbetrag, Eigenanteil ist die Differenz", () => {
+    const [it] = buildProposal({ teeth: {}, globals: {}, patient: patient(75), fach: "hoerakustik", anlaesse: ["hoergeraet"] }, DEFAULT_PRICES);
+    const plus = it.options.find((o) => o.id === "hg_plus")!;
+    expect(plus).toMatchObject({ type: "mehrkosten", base: 750 });
+    expect(money(plus, patient(75)).netto).toBe(900);
+    expect(money(it.options[0], patient(75)).netto).toBe(10);
+    const sum = summarize([it], { a_hoergeraet: "hg_plus" }, patient(75));
+    expect(sum.planTotal - sum.baseTotal).toBe(900);
+    expect(it.recommended).toBe("hg_kasse");
+  });
+  it("alle Bereiche bauen ohne Fehler und mit Kassenleistung zuerst", () => {
+    expect(SPECIALTIES.length).toBeGreaterThanOrEqual(29);
+    for (const s of SPECIALTIES) {
+      const items = buildProposal({ teeth: {}, globals: {}, patient: patient(40), fach: s.id, anlaesse: s.anlaesse.map((a) => a.id) }, DEFAULT_PRICES);
+      expect(items.length).toBe(s.anlaesse.length);
+    }
+  });
+});

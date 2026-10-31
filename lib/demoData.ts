@@ -43,6 +43,16 @@ export function profileFor(fach: string): Profile {
       return { minAge: 12, maxAge: 92, meanAge: 52, female: 0.55 };
     case "aesthetik":
       return { minAge: 20, maxAge: 75, meanAge: 44, female: 0.8 };
+    case "hebamme":
+      return { minAge: 18, maxAge: 44, meanAge: 31, female: 1 };
+    case "pflege":
+    case "hoerakustik":
+      return { minAge: 55, maxAge: 99, meanAge: 79, female: 0.6 };
+    case "klinik":
+    case "apotheke":
+    case "optik":
+    case "sanitaetshaus":
+      return { minAge: 2, maxAge: 95, meanAge: 55, female: 0.53 };
     default:
       return { minAge: 0, maxAge: 95, meanAge: 45, female: 0.52 };
   }

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BefundDiktat } from "@/components/BefundDiktat";
 import { AnlassPicker } from "@/components/AnlassPicker";
-import { isDental, specialty } from "@/lib/specialties";
+import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import type { DiktatResult } from "@/lib/befundDiktat";
 import {
   FINDINGS,
@@ -548,7 +548,7 @@ export function ProposalEditor({
           <p className="text-xs text-slate-400">
             {dental
               ? "Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Die Empfehlung ist ein Vorschlag des Regelwerks; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware."
-              : "Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Empfohlen wird nur die Kassenleistung; ob eine Selbstzahlerleistung sinnvoll ist, entscheiden Sie im Gespräch. Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}
+              : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Empfohlen wird nur die Kassenleistung; ob eine Selbstzahlerleistung sinnvoll ist, entscheiden Sie im Gespräch. ${isTherapie(spec) ? "Selbstzahlerleistungen vereinbaren Sie vor der Behandlung schriftlich." : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
           </p>
 
           {!compact && <div className="flex flex-wrap gap-2">

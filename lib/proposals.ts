@@ -85,8 +85,8 @@ export interface ProposalOption {
   hinweis?: string;
   /** Ehrliche Angabe zum belegten Nutzen (Arztpraxen). */
   nutzen?: string;
-  /** Heilmittel: gesetzliche Zuzahlung (10 % + 10 € je Verordnung) für Erwachsene. */
-  zuzahlung?: boolean;
+  /** Gesetzliche Zuzahlung für Erwachsene (siehe zuzahlungBetrag). */
+  zuzahlung?: boolean | "heilmittel" | "hilfsmittel";
   /** Eigene Bezeichnung der Leistungsart, z. B. "Selbstzahlerleistung" in Therapiepraxen. */
   typeLabel?: string;
 }
@@ -393,7 +393,7 @@ export function money(o: ProposalOption, p: PatientFactors, jahr?: ZuschussJahr)
     return { total, kasse, eigen: total - kasse, erstattet: 0, netto: total - kasse };
   }
   let kasse = 0;
-  if (o.type === "kasse") kasse = o.zuzahlung && (p.age == null || p.age >= 18) ? Math.max(0, total - heilmittelZuzahlung(total)) : total;
+  if (o.type === "kasse") kasse = o.zuzahlung && (p.age == null || p.age >= 18) ? Math.max(0, total - zuzahlungBetrag(o.zuzahlung, total)) : total;
   else if (o.type === "mehrkosten" || o.type === "privatzusatz") kasse = o.base ?? 0;
   else if (o.type === "privat" || o.type === "igel") kasse = 0;
   else kasse = Math.min((o.regel ?? 0) * festzuschussQuote(p, jahr), total);
@@ -404,6 +404,14 @@ export function money(o: ProposalOption, p: PatientFactors, jahr?: ZuschussJahr)
 
 /** Gesetzliche Zuzahlung bei Heilmitteln: 10 % der Kosten plus 10 € je Verordnung (§ 32 Abs. 2, § 61 SGB V). */
 export const heilmittelZuzahlung = (total: number) => total * 0.1 + 10;
+
+/** Hilfs- und Arzneimittel: 10 %, mindestens 5 €, höchstens 10 €, nie mehr als die Kosten (§ 61 SGB V). */
+export const hilfsmittelZuzahlung = (total: number) => Math.min(total, Math.min(10, Math.max(5, total * 0.1)));
+
+export function zuzahlungBetrag(art: ProposalOption["zuzahlung"], total: number): number {
+  if (!art) return 0;
+  return art === "hilfsmittel" ? hilfsmittelZuzahlung(total) : heilmittelZuzahlung(total);
+}
 
 /** Bezeichnung der Leistungsart einer Option (eigene Bezeichnung hat Vorrang). */
 export function typeLabelOf(o: Pick<ProposalOption, "type" | "typeLabel">, insurance: "GKV" | "PKV"): string {
@@ -458,7 +466,7 @@ export function summarize(items: ProposalItem[], choices: Record<string, string>
     if (!o) continue;
     if (item.options.some((x) => x.type === "igel")) {
       // Arztpraxen: Die IGeL kommt zur Kassenleistung hinzu; Mehrumsatz ist nur der Selbstzahleranteil.
-      planTotal += o.type === "igel" ? o.total : 0;
+      planTotal += o.type === "igel" ? o.total : o.type === "mehrkosten" ? o.total - (o.base ?? 0) : 0;
     } else {
       // Zahnmedizin: Basis = Kassen-/Regelleistung, Plan = gewählte Option.
       baseTotal += item.options[0].total;
@@ -560,9 +568,10 @@ export function buildLetter(args: {
   }
   L.push("");
   if (therapie) {
-    if (items.some((i) => i.options.some((o) => o.zuzahlung))) {
+    const arten = new Set(items.flatMap((i) => i.options.map((o) => o.zuzahlung)).filter(Boolean));
+    if (arten.size) {
       L.push(
-        "Für Leistungen auf Verordnung gilt bei Volljährigen die gesetzliche Zuzahlung: 10 % der Kosten plus 10 € je Verordnung. Kinder und Jugendliche sind befreit, ebenso Versicherte mit Befreiungsbescheid."
+        `Für Leistungen auf Verordnung gilt bei Volljährigen die gesetzliche Zuzahlung: ${arten.has("hilfsmittel") ? "10 % des Preises, mindestens 5 €, höchstens 10 €" : "10 % der Kosten plus 10 € je Verordnung"}. Kinder und Jugendliche sind befreit, ebenso Versicherte mit Befreiungsbescheid.`
       );
       L.push("");
     }

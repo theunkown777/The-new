@@ -300,7 +300,7 @@ async function seedMedicalProposals(
 ) {
   const by = (n: string) => patients.find((p) => p.lastName === n)!;
   const order =
-    spec.id === "uro" ? [by("Schulz")] : spec.id === "gyn" ? [by("Weber"), by("Krüger")] : spec.id === "kinder" ? [by("Hoffmann")] : [by("Weber"), by("Schulz"), by("Krüger")];
+    spec.id === "uro" ? [by("Schulz")] : spec.id === "gyn" || spec.id === "hebamme" ? [by("Weber"), by("Krüger")] : spec.id === "kinder" ? [by("Hoffmann")] : [by("Weber"), by("Schulz"), by("Krüger")];
   const anlaesse = spec.anlaesse.filter((a) => !a.nurAufWunsch).map((a) => a.id);
   const plans: { status: string; anlaesse: string[]; pickIgel: boolean; response?: boolean }[] = [
     { status: "ENTWURF", anlaesse, pickIgel: false },

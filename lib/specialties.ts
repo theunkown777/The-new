@@ -26,8 +26,13 @@ export interface MedOption {
   kasseAbAlter?: number;
   /** Ehrlicher Hinweis zum belegten Nutzen. */
   nutzen?: string;
-  /** Heilmittel: gesetzliche Zuzahlung für Erwachsene (10 % der Kosten + 10 € je Verordnung). */
-  zuzahlung?: boolean;
+  /**
+   * Gesetzliche Zuzahlung für Erwachsene: true/"heilmittel" = 10 % der Kosten + 10 € je Verordnung;
+   * "hilfsmittel" = 10 %, mindestens 5 €, höchstens 10 € (auch Arzneimittel je Packung).
+   */
+  zuzahlung?: boolean | "heilmittel" | "hilfsmittel";
+  /** Kassenanteil (Festbetrag), wenn der Patient ein höherwertiges Produkt wählt und nur die Differenz zahlt. */
+  kasseAnteil?: number;
 }
 
 export interface Anlass {
@@ -50,6 +55,8 @@ export interface Specialty {
   kurz: string;
   /** Ärztliches Fach oder Gesundheitsberuf (Therapie): bestimmt Regeln und Wortwahl. */
   beruf?: "arzt" | "therapie";
+  /** Gruppe auf der Startseite: Versorger wie Hörakustik, Optik, Pflege, Kliniken. */
+  gruppe?: "versorgung";
   /** Kurzer Text für die Kachel auf der Startseite. */
   teaser?: string;
   marketing: { headline: string; problem: string; beispiel: string };
@@ -736,6 +743,227 @@ export const SPECIALTIES: Specialty[] = [
           { id: "podo_rezept", name: "Podologische Therapie auf Verordnung (6 Behandlungen)", type: "kasse", price: 240, zuzahlung: true, benefits: ["Kassenleistung, z. B. bei diabetischem Fußsyndrom"] },
           { id: "fusspflege", name: "Medizinische Fußpflege ohne Verordnung (je Behandlung)", type: "igel", price: 35, benefits: ["Nägel, Hornhaut, Hühneraugen"], kasseWenn: "Bei diabetischem Fußsyndrom und einigen weiteren Diagnosen mit Verordnung Kassenleistung." },
         ],
+      },
+    ],
+  },
+  {
+    id: "hebamme",
+    name: "Hebammenhilfe",
+    kurz: "Hebammenpraxis",
+    beruf: "therapie",
+    gruppe: "versorgung",
+    teaser: "Kurse auf Kasse, Partnergebühr, Zusatzangebote",
+    arztDativ: "Ihrer Hebamme",
+    marketing: {
+      headline: "Was die Kasse in Schwangerschaft und Wochenbett zahlt, und was nicht",
+      problem: "Werdende Eltern fragen nach Kursen, Partnergebühr und Zusatzangeboten. Die Antworten wiederholen sich bei jeder Familie.",
+      beispiel: "Geburtsvorbereitung und Wochenbett auf Kasse, Partnergebühr und Babymassage mit Hinweis auf Zuschüsse.",
+    },
+    anlaesse: [
+      {
+        id: "geburt",
+        label: "Geburtsvorbereitung und Wochenbett",
+        bereich: "Begleitung",
+        options: [
+          { id: "gv_kurs", name: "Geburtsvorbereitungskurs und Wochenbettbetreuung", type: "kasse", price: 0, benefits: ["Kassenleistung für die Schwangere"] },
+          { id: "partner", name: "Partnergebühr für den Geburtsvorbereitungskurs", type: "igel", price: 90, benefits: ["Begleitperson nimmt teil"], kasseWenn: "Manche Krankenkassen erstatten die Partnergebühr; bitte nachfragen." },
+          { id: "babymassage", name: "Babymassage-Kurs", type: "igel", price: 90, benefits: ["in der Gruppe, mehrere Termine"], kasseWenn: "Einige Kassen bezuschussen Kurse rund um die Geburt." },
+          { id: "akupunktur_geburt", name: "Akupunktur zur Geburtsvorbereitung (je Sitzung)", type: "igel", price: 25, benefits: ["ab der 36. Woche"], nutzen: "Ein Nutzen ist wissenschaftlich nicht sicher belegt." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "pflege",
+    name: "Ambulante Pflege",
+    kurz: "Pflegedienst",
+    beruf: "therapie",
+    gruppe: "versorgung",
+    teaser: "Pflegesachleistung, Entlastungsbetrag, Privatleistungen",
+    arztDativ: "Ihrem Pflegedienst",
+    marketing: {
+      headline: "Was die Pflegekasse zahlt und was darüber hinaus kostet, für Angehörige verständlich",
+      problem: "Angehörige verstehen Pflegegrade, Sachleistungsbeträge und Entlastungsbetrag kaum. Unklare Rechnungen kosten Vertrauen.",
+      beispiel: "Pflegesachleistung nach Pflegegrad, Behandlungspflege auf Verordnung, zusätzliche Stunden mit Preis und Hinweis auf den Entlastungsbetrag.",
+    },
+    anlaesse: [
+      {
+        id: "pflegeplan",
+        label: "Pflege und Betreuung zu Hause",
+        bereich: "Pflege",
+        options: [
+          { id: "sachleistung", name: "Pflegesachleistungen nach Pflegegrad", type: "kasse", price: 0, benefits: ["Pflegekasse zahlt bis zum Höchstbetrag des Pflegegrads"] },
+          { id: "behandlungspflege", name: "Behandlungspflege auf ärztliche Verordnung (z. B. Medikamente, Verbände)", type: "kasse", price: 0, benefits: ["Krankenkasse zahlt"] },
+          { id: "betreuung_privat", name: "Zusätzliche Betreuung über den Höchstbetrag hinaus (je Stunde)", type: "igel", price: 40, benefits: ["Begleitung, Gesellschaft, Entlastung der Angehörigen"], kasseWenn: "Der Entlastungsbetrag der Pflegekasse kann dafür eingesetzt werden." },
+          { id: "hauswirtschaft", name: "Hauswirtschaftliche Hilfe privat (je Stunde)", type: "igel", price: 35, benefits: ["Einkauf, Wäsche, Reinigung"], kasseWenn: "Der Entlastungsbetrag der Pflegekasse kann dafür eingesetzt werden." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "apotheke",
+    name: "Apotheke",
+    kurz: "Apotheke",
+    beruf: "therapie",
+    gruppe: "versorgung",
+    teaser: "Rezept mit Zuzahlung, Medikationsberatung, Selbstmedikation",
+    arztDativ: "Ihrer Apotheke",
+    marketing: {
+      headline: "Zuzahlung, Medikationsberatung, Selbstmedikation: Kunden sehen, was sie zahlen",
+      problem: "Kunden kennen ihren Anspruch auf pharmazeutische Dienstleistungen kaum und wundern sich über Zuzahlungen.",
+      beispiel: "Arzneimittel auf Rezept mit gesetzlicher Zuzahlung, Medikationsberatung als Kassenleistung bei vielen Medikamenten, Messungen als Selbstzahler.",
+    },
+    anlaesse: [
+      {
+        id: "rezept",
+        label: "Arzneimittel und Beratung",
+        bereich: "Arzneimittel",
+        options: [
+          { id: "rx_kasse", name: "Arzneimittel auf Kassenrezept (je Packung)", type: "kasse", price: 40, zuzahlung: "hilfsmittel", benefits: ["Kassenleistung mit gesetzlicher Zuzahlung"] },
+          { id: "medikationsberatung", name: "Erweiterte Medikationsberatung bei Polymedikation", type: "kasse", price: 0, benefits: ["Kassenleistung bei dauerhaft mindestens fünf Wirkstoffen"] },
+          { id: "otc", name: "Rezeptfreies Präparat zur Selbstmedikation", type: "igel", price: 12, benefits: ["mit Beratung in der Apotheke"] },
+          { id: "messung", name: "Blutzucker- oder Cholesterinmessung", type: "igel", price: 8, benefits: ["Ergebnis in wenigen Minuten"], nutzen: "Ersetzt keine ärztliche Untersuchung." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "hoerakustik",
+    name: "Hörakustik",
+    kurz: "Hörakustik",
+    beruf: "therapie",
+    gruppe: "versorgung",
+    teaser: "Hörgerät ohne Aufzahlung oder mit Mehrkosten",
+    arztDativ: "Ihrer Hörakustikerin oder Ihrem Hörakustiker",
+    marketing: {
+      headline: "Hörgerät ohne Aufzahlung oder höherwertig: die Differenz offen zeigen",
+      problem: "Kunden fragen, wie viel die Kasse übernimmt und was ein höherwertiges Gerät wirklich zusätzlich kostet. Die Erklärung des Festbetrags braucht Zeit.",
+      beispiel: "Aufzahlungsfreies Kassengerät immer zuerst, höherwertige Geräte mit Kassenanteil und Eigenanteil.",
+    },
+    anlaesse: [
+      {
+        id: "hoergeraet",
+        label: "Hörgeräteversorgung",
+        bereich: "Hörgeräte",
+        options: [
+          { id: "hg_kasse", name: "Hörgerät ohne Aufzahlung (je Ohr)", type: "kasse", price: 750, zuzahlung: "hilfsmittel", benefits: ["Kassenversorgung mit moderner Technik", "gesetzliche Zuzahlung 10 €"] },
+          { id: "hg_plus", name: "Höherwertiges Hörgerät (je Ohr)", type: "igel", price: 1650, kasseAnteil: 750, benefits: ["z. B. Akku, Bluetooth, besseres Sprachverstehen in Gruppen"] },
+        ],
+        notes: ["Ein aufzahlungsfreies Gerät muss immer angeboten werden; die Mehrkosten eines anderen Geräts tragen Sie nur, wenn Sie es ausdrücklich wählen."],
+      },
+    ],
+  },
+  {
+    id: "optik",
+    name: "Augenoptik",
+    kurz: "Augenoptik",
+    beruf: "therapie",
+    gruppe: "versorgung",
+    teaser: "Kassenzuschuss für Gläser, Gleitsicht, Zusatzoptionen",
+    arztDativ: "Ihrer Augenoptikerin oder Ihrem Augenoptiker",
+    marketing: {
+      headline: "Wann die Kasse Brillengläser bezuschusst, und welche Extras sich lohnen",
+      problem: "Viele Kunden wissen nicht, ob ihnen ein Kassenzuschuss zusteht, und können Zusatzoptionen schlecht einordnen.",
+      beispiel: "Hinweis auf den Kassenzuschuss für Kinder und bei starker Sehschwäche, Gleitsicht und Extras mit Preis und ehrlicher Einordnung.",
+    },
+    anlaesse: [
+      {
+        id: "brille",
+        label: "Neue Brille",
+        bereich: "Brille",
+        options: [
+          { id: "einstaerke", name: "Einstärkenbrille (Gläser und Fassung)", type: "igel", price: 180, benefits: ["für Ferne oder Nähe"], kasseWenn: "Für Kinder und Jugendliche sowie bei starker Sehschwäche zahlt die Kasse die Gläser bis zum Festbetrag; die Fassung zahlen alle selbst." },
+          { id: "gleitsicht", name: "Gleitsichtbrille", type: "igel", price: 600, benefits: ["Ferne und Nähe in einem Glas"] },
+          { id: "blaufilter", name: "Zusätzlicher Blaulichtfilter", type: "igel", price: 60, benefits: ["Beschichtung der Gläser"], nutzen: "Ein Nutzen für die Augengesundheit ist nicht belegt." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "sanitaetshaus",
+    name: "Sanitätshaus und Orthopädietechnik",
+    kurz: "Sanitätshaus",
+    beruf: "therapie",
+    gruppe: "versorgung",
+    teaser: "Einlagen, Kompression: Festbetrag plus Aufzahlung",
+    arztDativ: "Ihrem Sanitätshaus",
+    marketing: {
+      headline: "Festbetrag, Zuzahlung, Aufzahlung: Hilfsmittel ohne Missverständnisse",
+      problem: "Bei Einlagen und Kompressionsstrümpfen verwechseln Kunden gesetzliche Zuzahlung und freiwillige Aufzahlung. Das führt zu Diskussionen an der Kasse.",
+      beispiel: "Versorgung auf Verordnung mit gesetzlicher Zuzahlung, Komfortvarianten mit Kassenanteil und klarer Aufzahlung.",
+    },
+    anlaesse: [
+      {
+        id: "einlagen",
+        label: "Einlagen",
+        bereich: "Hilfsmittel",
+        options: [
+          { id: "einlage_kasse", name: "Einlagen auf Verordnung", type: "kasse", price: 80, zuzahlung: "hilfsmittel", benefits: ["Kassenversorgung mit gesetzlicher Zuzahlung"] },
+          { id: "einlage_komfort", name: "Einlagen mit Komfortausstattung", type: "igel", price: 140, kasseAnteil: 80, benefits: ["z. B. für Sportschuhe oder besonders dünn"] },
+        ],
+      },
+      {
+        id: "kompression",
+        label: "Kompressionsstrümpfe",
+        bereich: "Hilfsmittel",
+        options: [
+          { id: "kompr_kasse", name: "Kompressionsstrümpfe auf Verordnung", type: "kasse", price: 90, zuzahlung: "hilfsmittel", benefits: ["Kassenversorgung mit gesetzlicher Zuzahlung"] },
+          { id: "kompr_mode", name: "Kompressionsstrümpfe in Modefarbe oder mit Muster", type: "igel", price: 120, kasseAnteil: 90, benefits: ["gleiche Wirkung, andere Optik"] },
+        ],
+      },
+    ],
+  },
+  {
+    id: "heilpraktiker",
+    name: "Heilpraktik und Naturheilkunde",
+    kurz: "Heilpraktiker-Praxis",
+    beruf: "therapie",
+    gruppe: "versorgung",
+    teaser: "Privatleistungen, Erstattung durch Zusatzversicherung",
+    arztDativ: "Ihrer Heilpraktikerin oder Ihrem Heilpraktiker",
+    marketing: {
+      headline: "Privat und transparent: Preise vorab, Erstattung klar benannt",
+      problem: "Heilpraktiker-Leistungen sind fast immer Privatleistungen. Patienten wollen vorher wissen, was es kostet und was ihre Zusatzversicherung erstattet.",
+      beispiel: "Jede Leistung mit Preis, Hinweis auf Erstattung durch Zusatzversicherungen und ehrlicher Angabe zum Nutzen.",
+    },
+    anlaesse: [
+      {
+        id: "naturheil",
+        label: "Naturheilkundliche Behandlung",
+        bereich: "Behandlung",
+        options: [
+          { id: "hp_anamnese", name: "Ausführliche Erstanamnese", type: "igel", price: 80, benefits: ["etwa 60 Minuten"], kasseWenn: "Gesetzliche Kassen zahlen nicht; private Zusatzversicherungen für Heilpraktiker erstatten oft anteilig." },
+          { id: "hp_akupunktur", name: "Akupunktur (je Sitzung)", type: "igel", price: 50, benefits: ["etwa 30 Minuten"], kasseWenn: "Private Zusatzversicherungen erstatten oft anteilig." },
+          { id: "hp_verfahren", name: "Weitere naturheilkundliche Verfahren (je Sitzung)", type: "igel", price: 60, benefits: ["nach Absprache"], nutzen: "Für viele naturheilkundliche Verfahren ist ein Nutzen wissenschaftlich nicht belegt." },
+        ],
+      },
+    ],
+  },
+  {
+    id: "klinik",
+    name: "Klinik und Krankenhaus (Wahlleistungen)",
+    kurz: "Klinik",
+    beruf: "therapie",
+    gruppe: "versorgung",
+    teaser: "Ein- oder Zweibettzimmer, Wahlarzt, Zuzahlung",
+    arztDativ: "Ihrer Klinik",
+    marketing: {
+      headline: "Wahlleistungen vor der Aufnahme klären, nicht am Krankenbett",
+      problem: "Patienten entscheiden über Einbettzimmer und Wahlarzt oft unter Zeitdruck bei der Aufnahme und erleben danach Überraschungen auf der Rechnung.",
+      beispiel: "Allgemeine Krankenhausleistung mit gesetzlicher Zuzahlung, Wahlleistungen mit Preis je Tag und Hinweis auf Zusatzversicherungen, vorab per Link.",
+    },
+    anlaesse: [
+      {
+        id: "aufenthalt",
+        label: "Stationärer Aufenthalt",
+        bereich: "Aufnahme",
+        options: [
+          { id: "allgemein", name: "Allgemeine Krankenhausleistung", type: "kasse", price: 0, benefits: ["Kassenleistung, medizinisch vollwertig", "gesetzliche Zuzahlung 10 € pro Tag, höchstens 28 Tage im Jahr"] },
+          { id: "zweibett", name: "Zweibettzimmer (je Tag)", type: "igel", price: 60, benefits: ["mehr Ruhe"], kasseWenn: "Private Zusatzversicherungen übernehmen das oft." },
+          { id: "einbett", name: "Einbettzimmer (je Tag)", type: "igel", price: 110, benefits: ["eigenes Zimmer"], kasseWenn: "Private Zusatzversicherungen übernehmen das oft." },
+          { id: "wahlarzt", name: "Wahlärztliche Behandlung (geschätzt für den Aufenthalt)", type: "igel", price: 800, benefits: ["Behandlung durch die leitenden Ärztinnen und Ärzte"], kasseWenn: "Private Zusatzversicherungen übernehmen das oft.", nutzen: "Die allgemeine Krankenhausleistung ist medizinisch vollwertig." },
+        ],
+        notes: ["Wahlleistungen werden vor der Erbringung schriftlich vereinbart."],
       },
     ],
   },

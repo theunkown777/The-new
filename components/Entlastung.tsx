@@ -4,6 +4,7 @@ const QUELLEN = {
   buerokratie: "https://www.monitor-versorgungsforschung.de/news/umfrage-fuer-deutsche-ist-der-buerokratieaufwand-in-arztpraxen-unzumutbar/",
   personal: "https://biermann-medizin.de/zi-umfrage-buerokratie-und-it-chaos-bewegen-viele-aerzte-zum-praxis-ausstieg/",
   igel: "https://patientenbeauftragter.de/2025/08/19/umfassendere-aufklaerung-bei-igel-gefordert/",
+  kbv: "https://www.kbv.de/infothek/zahlen-und-fakten/studien-und-berichte/praxisbarometer-digitalisierung",
 };
 
 export function Entlastung({ therapie = false }: { therapie?: boolean }) {
@@ -32,8 +33,8 @@ export function Entlastung({ therapie = false }: { therapie?: boolean }) {
     },
     {
       titel: "Kein weiteres Insel-System",
-      fakt: "Viele Praxen kämpfen mit IT-Problemen; rund jede dritte wollte zuletzt ihre Praxissoftware wechseln.",
-      quelle: QUELLEN.personal,
+      fakt: "Über die Hälfte der Praxen kommuniziert schon überwiegend digital mit Patienten. Die Akzeptanz steigt, wenn Anwendungen zuverlässig laufen; Störungen und unflexible Praxissoftware bremsen (KBV PraxisBarometer 2025).",
+      quelle: QUELLEN.kbv,
       sorrida: therapie
         ? "Läuft im Browser, ohne Installation und ohne Umstellung Ihrer Abrechnung."
         : "Öffnet sich aus Ihrer Praxissoftware (VDDS-media oder GDT) mit dem aktuellen Patienten. Ihre Abrechnung bleibt, wo sie ist.",

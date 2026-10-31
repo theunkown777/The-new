@@ -55,6 +55,10 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
       <section className="mt-12">
         <h2 className="text-xl font-semibold text-slate-900">So sieht es Ihr Patient</h2>
         <p className="mt-1 text-slate-600">{s.marketing.beispiel} Beispielpreise, in den Einstellungen anpassbar.</p>
+        <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          Entwurf: Die Regeln für dieses Fach sind nach öffentlichen Quellen zusammengestellt und werden im Pilotprogramm mit Praxen des
+          Fachs gegengelesen. Bitte prüfen Sie die Angaben für Ihre Praxis.
+        </p>
         <div className="mt-6 space-y-6">
           {s.anlaesse.map((a) => (
             <div key={a.id} className="rounded-2xl border border-slate-200 bg-white p-5">

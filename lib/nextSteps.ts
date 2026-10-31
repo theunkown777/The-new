@@ -146,8 +146,14 @@ export function buildNextSteps(args: {
         : igel.join(" · ") + " – falls der Patient diese Leistung wählt; Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä)",
     });
   }
-  if (items.some((i) => chosenOption(i, choices)?.zuzahlung) && gkv && (patient.age == null || patient.age >= 18)) {
-    steps.push({ id: "zuzahlung", owner: "Rezeption", text: "Gesetzliche Zuzahlung kassieren oder Befreiungsbescheid prüfen", detail: "10 % der Kosten plus 10 € je Verordnung" });
+  const zz = items.map((i) => chosenOption(i, choices)?.zuzahlung).find(Boolean);
+  if (zz && gkv && (patient.age == null || patient.age >= 18)) {
+    steps.push({
+      id: "zuzahlung",
+      owner: "Rezeption",
+      text: "Gesetzliche Zuzahlung kassieren oder Befreiungsbescheid prüfen",
+      detail: zz === "hilfsmittel" ? "10 % des Preises, mindestens 5 €, höchstens 10 €" : "10 % der Kosten plus 10 € je Verordnung",
+    });
   }
   if (termine.length) {
     steps.push({ id: "termine", owner: "Rezeption", text: "Folgetermine vereinbaren", detail: termine.join(" · ") });
