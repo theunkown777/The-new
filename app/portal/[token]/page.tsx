@@ -161,7 +161,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
 
         {openInvoices.length > 0 && (
           <section className="mt-8" aria-labelledby="rechnungen">
-            <h2 id="rechnungen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-brand-600" />{t.invoices}</h2>
+            <h2 id="rechnungen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{t.invoices}</h2>
             {!bank && <p className="mt-3 rounded-2xl bg-white p-4 text-sm text-slate-600">{t.noBank}</p>}
             <ul className="mt-3 space-y-3">
               {openInvoices.map((i, idx) => (
@@ -175,7 +175,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
 
         {(docs > 0 || patient.anamnesisForms.length > 0) && (
           <section className="mt-8" aria-labelledby="dokumente">
-            <h2 id="dokumente" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-brand-600" />{t.documents}</h2>
+            <h2 id="dokumente" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{t.documents}</h2>
             <ul className="mt-3 space-y-3">
               {patient.anamnesisForms.map((f) => (
                 <li key={f.id}>
@@ -192,20 +192,20 @@ export default async function PortalPage({ params, searchParams }: { params: { t
                 const open = (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse;
                 return (
                   <li key={p.id}>
-                    <a href={`/portal/${params.token}/vorschlag/${p.id}${lang === "en" ? "?lang=en" : ""}`} className="flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-brand-50" data-testid="portal-vorschlag">
+                    <a href={`/portal/${params.token}/vorschlag/${p.id}${lang === "en" ? "?lang=en" : ""}`} className="flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-salbei-50" data-testid="portal-vorschlag">
                       <span>
                         <span className="block font-medium text-slate-900">{t.proposalDoc(date(p.createdAt))}</span>
                         <span className="text-sm text-slate-500">
                           {t.eigen}: {money(p.eigenanteilCent)} · {p.status === "ANGENOMMEN" ? t.accepted : p.patientResponse ? t.answered : t.waiting}
                         </span>
                       </span>
-                      <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-medium ${open ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-700"}`}>{open ? t.choose : t.show}</span>
+                      <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-medium ${open ? "bg-salbei-600 text-white" : "bg-salbei-50 text-salbei-700"}`}>{open ? t.choose : t.show}</span>
                     </a>
                     {p.status !== "ABGELEHNT" && (
                       p.agreedAt ? (
                         <p className="mt-1 px-4 text-sm text-salbei-700">✓ {t.signed} · {date(p.agreedAt)}</p>
                       ) : (
-                        <a href={`/portal/${params.token}/vereinbarung/${p.id}`} className="mt-1 block px-4 text-sm font-medium text-brand-700 underline" data-testid="portal-unterschreiben">
+                        <a href={`/portal/${params.token}/vereinbarung/${p.id}`} className="mt-1 block px-4 text-sm font-medium text-salbei-700 underline" data-testid="portal-unterschreiben">
                           {t.sign} →
                         </a>
                       )
@@ -240,7 +240,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
         <footer className="mt-10 space-y-1 text-center text-xs text-slate-500">
           <nav className="mb-3 flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm" aria-label="Sprache" data-testid="portal-sprachen">
             {PORTAL_LANGS.map((l) => (
-              <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-brand-700 underline" : "text-slate-600 hover:text-brand-700"}>
+              <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-salbei-700 underline" : "text-slate-600 hover:text-salbei-700"}>
                 {PORTAL_LANG_NAMES[l]}
               </a>
             ))}

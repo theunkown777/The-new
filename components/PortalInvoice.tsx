@@ -33,7 +33,7 @@ function CopyRow({ label, value, raw, t }: { label: string; value: string; raw?:
       </div>
       <button
         type="button"
-        className="shrink-0 rounded-full border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:border-brand-600 hover:text-brand-700"
+        className="shrink-0 rounded-full border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:border-salbei-600 hover:text-salbei-700"
         onClick={async () => {
           try {
             await navigator.clipboard.writeText(raw ?? value);
@@ -73,7 +73,7 @@ export function PortalInvoice({ token, inv, bank, t, startOpen }: { token: strin
     <div className="rounded-2xl bg-white p-4 shadow-sm" data-testid="portal-invoice">
       {/* Sorrida-Rechnungskarte: Datumsfeld "zahlbar bis" links, Betrag rechts, Status als Satz */}
       <div className="flex items-start gap-3">
-        <div className={`grid w-14 shrink-0 place-items-center rounded-xl py-1.5 text-center ${inv.tone === "red" && !reported ? "bg-red-50 text-red-800" : "bg-[#F5F2EE] text-brand-800"}`} aria-hidden="true">
+        <div className={`grid w-14 shrink-0 place-items-center rounded-xl py-1.5 text-center ${inv.tone === "red" && !reported ? "bg-red-50 text-red-800" : "bg-[#F5F2EE] text-salbei-800"}`} aria-hidden="true">
           <span className="font-display text-2xl leading-none">{inv.due[0]}</span>
           <span className="text-[11px] uppercase tracking-wide">{inv.due[1]}</span>
         </div>
@@ -86,7 +86,7 @@ export function PortalInvoice({ token, inv, bank, t, startOpen }: { token: strin
       <div className="mt-3 flex items-center justify-between gap-3">
         <span className={`text-sm ${reported ? "text-sky-800" : inv.tone === "red" ? "font-medium text-red-700" : "text-slate-600"}`} data-testid="invoice-status">{reported && !inv.reported ? t.reportedLabel : inv.status}</span>
         {!reported && (
-          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="rounded-full bg-salbei-600 px-4 py-2 text-sm font-semibold text-white hover:bg-salbei-700">
             {open ? t.hide : t.pay}
           </button>
         )}
@@ -114,10 +114,10 @@ export function PortalInvoice({ token, inv, bank, t, startOpen }: { token: strin
             <p className="text-sm text-slate-600">{t.noBank}</p>
           )}
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            <button type="button" disabled={busy} onClick={() => send("gezahlt")} className="rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60">
+            <button type="button" disabled={busy} onClick={() => send("gezahlt")} className="rounded-xl bg-salbei-600 px-4 py-3 text-sm font-semibold text-white hover:bg-salbei-700 disabled:opacity-60">
               {t.reported}
             </button>
-            <button type="button" disabled={busy || raten} onClick={() => send("raten")} className="rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 hover:border-brand-600 disabled:opacity-60">
+            <button type="button" disabled={busy || raten} onClick={() => send("raten")} className="rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 hover:border-salbei-600 disabled:opacity-60">
               {raten ? "✓ " + t.installments : t.installments}
             </button>
           </div>

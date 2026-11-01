@@ -32,7 +32,7 @@ export default async function Vereinbarung({ params }: { params: { token: string
   return (
     <main className="min-h-screen bg-[#F5F2EE]" data-testid="vereinbarung">
       <div className="mx-auto max-w-xl px-4 pb-16 pt-6 sm:pt-10">
-        <a href={back} className="text-sm text-brand-700 underline">← Zurück zu Ihrem Behandlungsweg</a>
+        <a href={back} className="text-sm text-salbei-700 underline">← Zurück zu Ihrem Behandlungsweg</a>
         <h1 className="font-display mt-6 text-4xl leading-tight text-slate-900">Ihr Einverständnis</h1>
         <p className="mt-2 text-slate-600">Bestätigen Sie Ihre Wahl schon jetzt. Die Praxis sieht es sofort und bereitet alles vor.</p>
         <KassenSockel className="mt-5" kasse={kasse} eigen={eigen} />
