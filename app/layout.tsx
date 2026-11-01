@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
+import { WegAnimationen } from "@/components/WegAnimationen";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -18,7 +19,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de" className={openSans.variable}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <WegAnimationen />
+      </body>
     </html>
   );
 }

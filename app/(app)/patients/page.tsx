@@ -237,7 +237,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
           </div>
 
           <div className="mt-5">
-            <Behandlungsweg erreicht={selWeg.erreicht} aktuell={selWeg.aktuell} abgelehnt={selWeg.abgelehnt} size="gross" />
+            <Behandlungsweg erreicht={selWeg.erreicht} aktuell={selWeg.aktuell} abgelehnt={selWeg.abgelehnt} size="gross" animate />
           </div>
 
           <div className={`mt-2 rounded-2xl p-4 ${selWeg.praxis.tone === "achtung" ? "bg-red-50" : selWeg.praxis.tone === "erledigt" ? "bg-salbei-50" : "bg-brand-50"}`} data-testid="naechster-schritt">

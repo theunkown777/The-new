@@ -25,7 +25,7 @@ export function Grundsaetze() {
           <p className="font-display text-5xl text-brand-600">3</p>
           <h3 className="font-display mt-2 text-2xl text-slate-900">Ein Weg statt Listen</h3>
           <p className="mt-2 text-sm text-slate-600">Gespräch, Vorschlag, Entscheidung, Vereinbart, Bezahlt. Praxis und Patient sehen denselben Weg und den nächsten Schritt.</p>
-          <div className="mt-4"><Behandlungsweg erreicht={3} aktuell={3} size="gross" /></div>
+          <div className="mt-4"><Behandlungsweg erreicht={3} aktuell={3} size="gross" animate /></div>
         </article>
         <article className="rounded-3xl bg-white p-6">
           <p className="font-display text-5xl text-brand-600">4</p>

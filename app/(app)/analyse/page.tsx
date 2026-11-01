@@ -4,7 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { loadAnalysis } from "@/lib/analyticsLoad";
 import { prisma } from "@/lib/prisma";
 import { formatCent, invoiceTotals } from "@/lib/invoices";
-import type { Group, Risk } from "@/lib/analytics";
+import type { Risk } from "@/lib/analytics";
+import { AnalyseExplorer } from "@/components/AnalyseExplorer";
 import { canSeeAnalytics } from "@/lib/permissions";
 
 export const dynamic = "force-dynamic";
@@ -24,69 +25,9 @@ const STUFE: Record<Risk["stufe"], { label: string; cls: string; dot: string }> 
   info: { label: "Hinweis", cls: "border-slate-200 bg-white", dot: "bg-slate-400" },
 };
 
-function Quote({ q }: { q: number | null }) {
-  if (q == null) return <span className="text-xs text-slate-400">zu wenig Fälle</span>;
-  const cls = q >= 60 ? "bg-emerald-100 text-emerald-800" : q >= 40 ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-800";
-  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium tabular-nums ${cls}`}>{q} % Annahme</span>;
-}
 
-/** Gestapelter Balken: Selbstzahler (dunkel) und Kasse (hell), Werte stehen daneben als Text. */
-function Bar({ g, max }: { g: Group; max: number }) {
-  const w = (n: number) => `${max > 0 ? (n / max) * 100 : 0}%`;
-  return (
-    <div className="flex h-2.5 w-full gap-[2px] overflow-hidden rounded-full bg-slate-100" title={`Selbstzahler ${eur(g.privat)} · Kasse ${eur(g.kasse)}`}>
-      {g.privat > 0 && <span className="h-full rounded-l-full bg-brand-600" style={{ width: w(g.privat) }} />}
-      {g.kasse > 0 && <span className="h-full bg-brand-300" style={{ width: w(g.kasse) }} />}
-    </div>
-  );
-}
 
-function Legend() {
-  return (
-    <p className="flex flex-wrap gap-4 text-xs text-slate-500">
-      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-brand-600" />Selbstzahler / privat</span>
-      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-brand-300" />Kasse</span>
-    </p>
-  );
-}
 
-function GroupList({ title, groups, testid }: { title: string; groups: Group[]; testid?: string }) {
-  const shown = groups.filter((g) => g.umsatz > 0 || g.entschieden > 0).slice(0, 8);
-  const max = Math.max(...shown.map((g) => g.umsatz), 1);
-  return (
-    <section className="card" data-testid={testid}>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-semibold text-slate-900">{title}</h2>
-        <Legend />
-      </div>
-      {shown.length === 0 ? (
-        <p className="text-sm text-slate-500">Noch keine angenommenen Vorschläge in diesem Zeitraum.</p>
-      ) : (
-        <ol className="space-y-4">
-          {shown.map((g, i) => (
-            <li key={g.name}>
-              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-sm">
-                <span className="min-w-0 font-medium text-slate-800">
-                  <span className="mr-2 text-slate-400 tabular-nums">{i + 1}.</span>
-                  {g.name}
-                </span>
-                <span className="flex items-center gap-2">
-                  <Quote q={g.quote} />
-                  <b className="tabular-nums text-slate-900">{eur(g.umsatz)}</b>
-                </span>
-              </div>
-              <div className="mt-1.5"><Bar g={g} max={max} /></div>
-              <p className="mt-1 text-xs text-slate-500">
-                {g.angenommen}× angenommen · davon selbst bezahlt {eur(g.privat)}
-                {g.privat > 0 && ` · ${Math.round(g.anteil * 100)} % Ihres Selbstzahler-Umsatzes`}
-              </p>
-            </li>
-          ))}
-        </ol>
-      )}
-    </section>
-  );
-}
 
 export default async function AnalysePage({ searchParams }: { searchParams: { tage?: string } }) {
   const session = await getServerSession(authOptions);
@@ -112,7 +53,6 @@ export default async function AnalysePage({ searchParams }: { searchParams: { ta
     prisma.invoice.findMany({ where: { practiceId }, select: { status: true, dueDate: true, amountCent: true, paidAt: true } }),
   ]);
   const inv = invoiceTotals(invoices);
-  const monthMax = Math.max(...a.monate.map((m) => m.privat + m.kasse), 1);
 
   return (
     <div className="space-y-6" data-testid="analyse">
@@ -157,9 +97,15 @@ export default async function AnalysePage({ searchParams }: { searchParams: { ta
         </Link>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <GroupList title="Womit Sie am meisten verdienen" groups={a.leistungen} testid="top-leistungen" />
+      <AnalyseExplorer
+        leistungen={a.leistungen}
+        themen={a.themen}
+        arten={a.arten}
+        monate={a.monate}
+        kpi={{ privat: a.privat, entschieden: a.entschieden, angenommen: a.angenommen, zeitraumTage: a.zeitraumTage }}
+      />
 
+      <div className="grid gap-6">
         <section className="space-y-3" data-testid="risiken">
           <h2 className="font-semibold text-slate-900">Hinweise und mögliche Probleme</h2>
           {a.risiken.length === 0 && <p className="card text-sm text-slate-600">Gerade nichts Auffälliges. Sobald sich etwas zeigt, steht es hier mit Grund und Vorschlag.</p>}
@@ -221,31 +167,6 @@ export default async function AnalysePage({ searchParams }: { searchParams: { ta
           ))}
         </div>
       </section>
-
-      <div className="grid gap-6 xl:grid-cols-3">
-        <section className="card" data-testid="verlauf">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="font-semibold text-slate-900">Verlauf</h2>
-            <Legend />
-          </div>
-          <div className="flex h-44 items-end gap-3" role="img" aria-label="Umsatz aus angenommenen Vorschlägen der letzten sechs Monate">
-            {a.monate.map((m) => (
-              <div key={m.monat} className="flex h-full flex-1 flex-col items-center justify-end gap-1" title={`${m.monat}: ${eur(m.privat)} selbst bezahlt, ${eur(m.kasse)} Kasse`}>
-                <span className="text-[10px] tabular-nums text-slate-500">{m.privat + m.kasse > 0 ? eur(m.privat + m.kasse) : ""}</span>
-                <div className="flex w-full max-w-[2.5rem] flex-col gap-[2px]" style={{ height: `${((m.privat + m.kasse) / monthMax) * 80}%` }}>
-                  {m.kasse > 0 && <div className="w-full rounded-t-[4px] bg-brand-300" style={{ flex: m.kasse }} />}
-                  {m.privat > 0 && <div className={`w-full bg-brand-600 ${m.kasse > 0 ? "" : "rounded-t-[4px]"}`} style={{ flex: m.privat }} />}
-                </div>
-                <span className="text-xs text-slate-500">{m.monat}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-        <div className="xl:col-span-2 grid gap-6 lg:grid-cols-2">
-          <GroupList title="Nach Thema" groups={a.themen} />
-          <GroupList title="Nach Leistungsart" groups={a.arten} />
-        </div>
-      </div>
 
       <p className="text-xs text-slate-500">
         Umsatz = Preise der gewählten Optionen in angenommenen Vorschlägen, nach Ihren hinterlegten Preisen. Abgerechnet wird weiter über Ihre Praxissoftware;

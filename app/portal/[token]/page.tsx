@@ -135,7 +135,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
         <section className="mt-5 rounded-[2rem] bg-salbei-50 px-5 pb-5 pt-6 text-center" aria-labelledby="weg" data-testid="portal-weg">
           <h2 id="weg" className="text-xs font-semibold uppercase tracking-[0.18em] text-salbei-700">{t.wayTitle}</h2>
           <div className="mt-4">
-            <Behandlungsweg erreicht={weg.erreicht} aktuell={weg.aktuell} abgelehnt={weg.abgelehnt} size="gross" labels={t.stations.split("|")} />
+            <Behandlungsweg erreicht={weg.erreicht} aktuell={weg.aktuell} abgelehnt={weg.abgelehnt} size="gross" labels={t.stations.split("|")} animate />
           </div>
           <h1 className="font-display mt-3 text-4xl leading-tight text-slate-900">{t.hello(patient.firstName)}</h1>
           <a href={nextHref} className="mt-4 flex items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-[0_10px_30px_-22px_rgba(52,72,50,.9)]" data-testid="portal-summary">

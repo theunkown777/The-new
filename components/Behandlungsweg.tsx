@@ -19,6 +19,7 @@ export function Behandlungsweg({
   size = "mini",
   labels = STATIONEN as readonly string[],
   className = "",
+  animate = false,
 }: {
   erreicht: number;
   aktuell: number | null;
@@ -26,16 +27,27 @@ export function Behandlungsweg({
   size?: "mini" | "gross";
   labels?: readonly string[];
   className?: string;
+  /** Weg wird nachgezeichnet, Stationen erscheinen nacheinander, ein Punkt läuft den Bogen ab. */
+  animate?: boolean;
 }) {
   const frac = Math.max(0, Math.min(1, (erreicht - 1) / 4));
   const gross = size === "gross";
   const title = `Behandlungsweg: ${erreicht} von 5 Stationen${abgelehnt ? " (abgelehnt)" : ""}`;
   return (
-    <div className={`relative ${gross ? "w-full" : "w-[7.5rem] shrink-0"} ${className}`} role="img" aria-label={title} title={title} data-testid="behandlungsweg">
+    <div className={`relative ${gross ? "w-full" : "w-[7.5rem] shrink-0"} ${animate ? "weg-anim" : ""} ${className}`} role="img" aria-label={title} title={title} data-testid="behandlungsweg">
       <svg viewBox="0 0 200 40" className="block h-auto w-full overflow-visible" aria-hidden="true">
         <path d={PATH} fill="none" stroke="currentColor" className="text-slate-200" strokeWidth={gross ? 2 : 3} strokeLinecap="round" />
         {erreicht > 1 && (
-          <path d={PATH} fill="none" pathLength={1} strokeDasharray={`${frac} 1`} className={abgelehnt ? "stroke-slate-400" : "stroke-brand-600"} strokeWidth={gross ? 2.5 : 3.5} strokeLinecap="round" />
+          <path
+            d={PATH}
+            fill="none"
+            pathLength={1}
+            strokeDasharray={`${frac} 1`}
+            className={`weg-strich ${abgelehnt ? "stroke-slate-400" : "stroke-brand-600"}`}
+            style={{ ["--frac" as string]: frac }}
+            strokeWidth={gross ? 2.5 : 3.5}
+            strokeLinecap="round"
+          />
         )}
         {[0, 1, 2, 3, 4].map((i) => {
           const [x, y] = pt(i / 4);
@@ -43,7 +55,7 @@ export function Behandlungsweg({
           const cur = aktuell === i;
           const r = gross ? 5 : 7;
           return (
-            <g key={i}>
+            <g key={i} className="weg-station" style={{ ["--i" as string]: i, transformOrigin: `${x}px ${y}px`, transformBox: "view-box" }}>
               {cur && <circle cx={x} cy={y} r={r + 4} className="fill-brand-100" />}
               <circle
                 cx={x}
@@ -57,6 +69,12 @@ export function Behandlungsweg({
             </g>
           );
         })}
+        {animate && (
+          // Ein Punkt läuft den Weg ab, Station für Station, und beginnt dann von vorn.
+          <circle r={gross ? 3.2 : 3.5} className="weg-laeufer fill-salbei-500">
+            <animateMotion dur="5s" repeatCount="indefinite" path={PATH} keyPoints="0;0.25;0.25;0.5;0.5;0.75;0.75;1;1" keyTimes="0;0.15;0.25;0.4;0.5;0.65;0.75;0.9;1" calcMode="linear" />
+          </circle>
+        )}
       </svg>
       {gross && (
         <div className="relative mt-1 h-10">
