@@ -5,6 +5,8 @@ import { praxisManager } from "@/lib/praxisManager";
 import { loadRecallDue } from "@/lib/recallLoad";
 import { canSeeAnalytics } from "@/lib/permissions";
 import { PraxisManager } from "@/components/PraxisManager";
+import { loadTermineHeute } from "@/lib/termineLoad";
+import { loadBillingCheck } from "@/lib/billingCheckLoad";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Praxismanager" };
@@ -14,7 +16,7 @@ export default async function PraxisManagerPage() {
   const practiceId = session!.user.practiceId;
   const now = new Date();
   const seit = new Date(now.getTime() - 400 * 864e5);
-  const [invoices, reports, proposals, anamnesis, recall, analyse] = await Promise.all([
+  const [invoices, reports, proposals, anamnesis, recall, analyse, termine, pruefung] = await Promise.all([
     prisma.invoice.findMany({
       where: { practiceId, OR: [{ status: { in: ["OFFEN", "GEMELDET"] } }, { paidAt: { gte: seit } }] },
       select: { id: true, status: true, dueDate: true, amountCent: true, paidAt: true, reminderLevel: true, remindedAt: true },
@@ -27,6 +29,8 @@ export default async function PraxisManagerPage() {
     prisma.anamnesisForm.findMany({ where: { patient: { practiceId }, submittedAt: null }, select: { createdAt: true, submittedAt: true, expiresAt: true } }),
     loadRecallDue(practiceId, now),
     canSeeAnalytics(session!.user.id),
+    loadTermineHeute(practiceId, now),
+    loadBillingCheck(practiceId, now),
   ]);
   const antworten = praxisManager({
     now,
@@ -36,6 +40,12 @@ export default async function PraxisManagerPage() {
     anamnesis,
     recallDue: recall.due.length,
     recallNeverReminded: recall.due.filter((d) => !d.p.recallSentAt).length,
+    termine,
+    pruefung: {
+      hinweise: pruefung.length,
+      ohneRechnungCent: pruefung.reduce((a, b) => a + (b.betragCent ?? 0), 0),
+      ohneDoku: pruefung.filter((b) => b.art === "ohne_doku").length,
+    },
   }).filter((a) => analyse || a.thema !== "umsatz");
 
   return (

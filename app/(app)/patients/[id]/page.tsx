@@ -9,6 +9,10 @@ import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 import { AnamnesisPanel } from "@/components/AnamnesisPanel";
 import { PatientDatenschutz } from "@/components/PatientDatenschutz";
+import { PatientAkte } from "@/components/PatientAkte";
+import { TerminUeberblick } from "@/components/TerminUeberblick";
+import { loadBriefing } from "@/lib/briefingLoad";
+import { kiVerfuegbar } from "@/lib/anthropic";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -25,7 +29,19 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   });
 
   if (!patient) notFound();
-  const anamnesis = await loadAnamnesis(session!.user.practiceId, patient.id);
+  const practiceId = session!.user.practiceId;
+  const naechster = await prisma.appointment.findFirst({
+    where: { practiceId, patientId: patient.id, start: { gte: new Date(Date.now() - 2 * 3600e3) }, status: { not: "ABGESAGT" } },
+    orderBy: { start: "asc" },
+    select: { start: true, reason: true },
+  });
+  const [anamnesis, briefing, entries, documents] = await Promise.all([
+    loadAnamnesis(practiceId, patient.id),
+    loadBriefing(practiceId, patient.id, naechster ? `${naechster.reason}, ${naechster.start.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Berlin" })}` : null),
+    prisma.patientEntry.findMany({ where: { practiceId, patientId: patient.id }, orderBy: [{ inaktiv: "asc" }, { createdAt: "desc" }] }),
+    prisma.patientDocument.findMany({ where: { practiceId, patientId: patient.id }, orderBy: { createdAt: "desc" }, select: { id: true, name: true, mime: true, size: true, createdAt: true, createdBy: true } }),
+  ]);
+  const de = (d: Date) => d.toLocaleDateString("de-DE");
 
   return (
     <div>
@@ -52,6 +68,16 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             Behandlung abschließen
           </Link>
         </div>
+      </div>
+
+      <div className="mb-8 grid gap-6 xl:grid-cols-2">
+        {briefing && <TerminUeberblick patientId={patient.id} briefing={briefing} ki={kiVerfuegbar()} />}
+        <PatientAkte
+          patientId={patient.id}
+          isAdmin={session!.user.role === "admin"}
+          entries={entries.map((e) => ({ id: e.id, art: e.art, text: e.text, code: e.code, datum: e.datum ? de(e.datum) : null, inaktiv: e.inaktiv, createdBy: e.createdBy, createdAt: de(e.createdAt) }))}
+          documents={documents.map((d) => ({ ...d, createdAt: de(d.createdAt) }))}
+        />
       </div>
 
       <div className="mb-8">

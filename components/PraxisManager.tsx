@@ -54,7 +54,7 @@ export function PraxisManager({ antworten }: { antworten: Antwort[] }) {
 
       {unbekannt && (
         <p className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600" data-testid="manager-unbekannt">
-          Dazu hat der Praxismanager keine Antwort. Er kennt offene Rechnungen, Berichte zur Freigabe, fällige Vorsorge, Umsatz (mit Freigabe) und Engpässe.
+          Dazu hat der Praxismanager keine Antwort. Er kennt Termine, offene Rechnungen, nicht Abgerechnetes, Berichte zur Freigabe, fällige Vorsorge, Umsatz (mit Freigabe) und Engpässe.
         </p>
       )}
 
@@ -88,4 +88,4 @@ export function PraxisManager({ antworten }: { antworten: Antwort[] }) {
   );
 }
 
-const ord = (a: Antwort) => ({ dringend: 0, beachten: 1, ok: 2 })[a.stufe] * 10 + ["engpaesse", "rechnungen", "berichte", "vorsorge", "umsatz", "termine"].indexOf(a.thema);
+const ord = (a: Antwort) => ({ dringend: 0, beachten: 1, ok: 2 })[a.stufe] * 10 + ["engpaesse", "termine", "rechnungen", "abrechnung", "berichte", "vorsorge", "umsatz"].indexOf(a.thema);

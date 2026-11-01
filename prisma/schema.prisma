@@ -32,6 +32,8 @@ model Practice {
   launchTokens      LaunchToken[]
   anamnesisForms    AnamnesisForm[]
   invoices          Invoice[]
+  locations         Location[]
+  appointments      Appointment[]
   /// Bankverbindung für den GiroCode im Patientenportal (lib/invoices.ts)
   accountHolder     String?
   iban              String?
@@ -167,6 +169,9 @@ model Patient {
   launchTokens    LaunchToken[]
   anamnesisForms  AnamnesisForm[]
   invoices        Invoice[]
+  entries         PatientEntry[]
+  documents       PatientDocument[]
+  appointments    Appointment[]
   // Patientenportal (/portal/<token>): offene Rechnungen und Dokumente auf
   // dem eigenen Handy. Gespeichert wird nur der Hash des Tokens.
   portalTokenHash String?   @unique
@@ -553,4 +558,83 @@ model AuditLog {
   createdAt  DateTime @default(now())
 
   @@index([practiceId, createdAt])
+}
+
+// Patientenakte: strukturierte Einträge statt Freitext, damit Allergien vor
+// jedem Termin oben stehen und Diagnosen nach Code gesucht werden können.
+// art: "ALLERGIE" | "DIAGNOSE" | "BEFUND" | "MEDIKATION" | "NOTIZ"
+model PatientEntry {
+  id          String    @id @default(cuid())
+  practiceId  String
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  art         String
+  text        String
+  /// ICD-10-GM bei Diagnosen, optional
+  code        String?
+  datum       DateTime?
+  /// Nicht mehr aktuell (z. B. abgeheilte Diagnose); bleibt für die Historie
+  inaktiv     Boolean   @default(false)
+  createdById String?
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+
+  @@index([practiceId, patientId])
+}
+
+// Dokumente zur Akte (Befunde von extern, Röntgen-PDF, Überweisungen).
+// Für den Pilotbetrieb in der Datenbank; vor größeren Mengen in einen
+// verschlüsselten Objektspeicher in der EU auslagern.
+model PatientDocument {
+  id          String   @id @default(cuid())
+  practiceId  String
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  name        String
+  mime        String
+  size        Int
+  data        Bytes
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  @@index([practiceId, patientId])
+}
+
+// Standort einer Praxis (Hauptpraxis, Zweigpraxis). Behandlungsplätze und
+// Sprechzeit pro Tag ergeben die Kapazität für die Auslastung.
+model Location {
+  id            String        @id @default(cuid())
+  practiceId    String
+  practice      Practice      @relation(fields: [practiceId], references: [id])
+  name          String
+  address       String?
+  rooms         Int           @default(1)
+  minutesPerDay Int           @default(480)
+  createdAt     DateTime      @default(now())
+  appointments  Appointment[]
+
+  @@index([practiceId])
+}
+
+// Termin in Sorrida. Solange keine Terminschnittstelle zur Praxissoftware
+// besteht, werden Termine hier eingetragen; sie werden nicht aus dem PVS
+// gelesen. status: GEPLANT | BESTAETIGT | ERSCHIENEN | ABGESAGT | NICHT_ERSCHIENEN
+model Appointment {
+  id          String    @id @default(cuid())
+  practiceId  String
+  practice    Practice  @relation(fields: [practiceId], references: [id])
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  locationId  String?
+  location    Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  start       DateTime
+  minutes     Int       @default(30)
+  reason      String
+  status      String    @default("GEPLANT")
+  confirmedAt DateTime?
+  remindedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([practiceId, start])
+  @@index([patientId])
 }

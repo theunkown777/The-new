@@ -18,6 +18,11 @@ export const AUDIT_ACTIONS = {
   "2fa.an": "Zwei-Faktor-Anmeldung eingeschaltet",
   "2fa.aus": "Zwei-Faktor-Anmeldung ausgeschaltet",
   "schnittstelle.schluessel": "Schnittstellen-Schlüssel geändert",
+  "akte.eintrag": "Akteneintrag geändert",
+  "akte.dokument": "Dokument hochgeladen oder gelöscht",
+  "akte.dokument.abruf": "Dokument geöffnet",
+  "ueberblick.ki": "Terminüberblick mit KI formuliert",
+  "standort": "Standort geändert",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

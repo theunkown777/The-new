@@ -6,6 +6,10 @@ import { REPORT_TYPE_LABELS, REPORT_STATUS_LABELS } from "@/lib/reportLabels";
 import { PROPOSAL_STATUS_LABELS, formatEuro } from "@/lib/proposals";
 import { isDental } from "@/lib/specialties";
 import { journey, STATIONEN } from "@/lib/journey";
+import { loadTermineHeute } from "@/lib/termineLoad";
+import { uhrzeit, STATUS_LABEL, type TerminStatus } from "@/lib/termine";
+import { canSeeAnalytics } from "@/lib/permissions";
+import { formatCent } from "@/lib/invoices";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 
 export default async function DashboardPage() {
@@ -61,6 +65,13 @@ export default async function DashboardPage() {
       select: { id: true, shareCreatedAt: true, patient: { select: { firstName: true, lastName: true } } },
     }),
   ]);
+  const monatsStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const [termine, darfUmsatz, bezahltMonat] = await Promise.all([
+    loadTermineHeute(practiceId),
+    canSeeAnalytics(session!.user.id),
+    prisma.invoice.aggregate({ where: { practiceId, status: "BEZAHLT", paidAt: { gte: monatsStart } }, _sum: { amountCent: true } }),
+  ]);
+  const aufgaben = draftCount + termine.morgenUnbestaetigt;
   const acceptedDeltaCent = accepted.reduce((sum, p) => sum + p.planTotalCent - p.baseTotalCent, 0);
 
   // Wege der letzten 90 Tage: wie viele Patienten stehen an welcher Station?
@@ -96,6 +107,57 @@ export default async function DashboardPage() {
         </div>
         <Link href="/abschluss/new" className="btn-primary">Behandlung abschließen</Link>
       </div>
+
+      <section className="mb-8 grid gap-4 lg:grid-cols-[1fr_22rem]" data-testid="heute">
+        <div className="card p-0">
+          <div className="flex items-baseline justify-between px-5 pt-4">
+            <h2 className="font-semibold text-slate-900">Termine heute</h2>
+            <Link href="/termine" className="text-sm text-brand-700 underline">Tagesplan</Link>
+          </div>
+          {termine.liste.length === 0 ? (
+            <p className="px-5 pb-5 pt-2 text-sm text-slate-600">Für heute ist kein Termin in Sorrida eingetragen.</p>
+          ) : (
+            <ul className="mt-2 divide-y divide-slate-100">
+              {termine.liste.slice(0, 6).map((t) => (
+                <li key={t.id} className="flex items-center gap-4 px-5 py-2.5 text-sm">
+                  <span className="w-12 font-semibold tabular-nums text-slate-900">{uhrzeit(t.start)}</span>
+                  <Link href={`/patients/${t.patient.id}`} className="min-w-0 flex-1 truncate text-slate-800 hover:text-brand-700">
+                    {t.patient.lastName}, {t.patient.firstName} <span className="text-slate-500">· {t.reason}</span>
+                  </Link>
+                  <span className="text-xs text-slate-500">{STATUS_LABEL[t.status as TerminStatus]}</span>
+                </li>
+              ))}
+              {termine.liste.length > 6 && <li className="px-5 py-2 text-xs text-slate-500">und {termine.liste.length - 6} weitere</li>}
+            </ul>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Link href="/termine" className="card hover:bg-slate-50">
+            <p className="text-xs text-slate-500">Auslastung</p>
+            <p className="mt-1 text-xl font-semibold tabular-nums">{termine.auslastungHeute} %</p>
+            <p className="text-xs text-slate-500">{termine.heute} Termine</p>
+          </Link>
+          <Link href="/praxismanager" className="card hover:bg-slate-50" data-testid="aufgaben">
+            <p className="text-xs text-slate-500">Aufgaben</p>
+            <p className="mt-1 text-xl font-semibold tabular-nums">{aufgaben}</p>
+            <p className="text-xs text-slate-500">Freigaben, Bestätigungen</p>
+          </Link>
+          <Link href="/abrechnungspruefung" className="card hover:bg-slate-50">
+            <p className="text-xs text-slate-500">Ausfallquote</p>
+            <p className="mt-1 text-xl font-semibold tabular-nums">{termine.ausfallquote == null ? "–" : `${termine.ausfallquote} %`}</p>
+            <p className="text-xs text-slate-500">60 Tage</p>
+          </Link>
+          {darfUmsatz ? (
+            <Link href="/analyse" className="card hover:bg-slate-50">
+              <p className="text-xs text-slate-500">Eingang Monat</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums">{formatCent(bezahltMonat._sum.amountCent ?? 0)}</p>
+              <p className="text-xs text-slate-500">bezahlte Rechnungen</p>
+            </Link>
+          ) : (
+            <div className="card"><p className="text-xs text-slate-500">Umsatz</p><p className="mt-1 text-xs text-slate-500">nur mit Freigabe</p></div>
+          )}
+        </div>
+      </section>
 
       {/* Sorrida-Signatur: Wege der letzten 90 Tage auf dem Lächelbogen */}
       <section className="mb-8 rounded-3xl bg-white p-5 sm:p-6" data-testid="wege-trichter">

@@ -211,3 +211,25 @@ Wichtige Regeln:
 
   return reidentify(textBlock.text.trim(), input.patient);
 }
+
+/** Ist ein echter KI-Zugang hinterlegt? (Sonst Testmodus.) */
+export const kiVerfuegbar = () => HAS_REAL_KEY;
+
+/**
+ * Formuliert den regelbasierten Überblick vor dem Termin in drei bis vier
+ * Sätzen. Eingabe enthält keine Namen; Namen im Freitext werden zusätzlich
+ * ersetzt. Gibt null zurück, wenn kein KI-Zugang hinterlegt ist.
+ */
+export async function generateBriefingSummary(facts: string, patient: { firstName: string; lastName: string }): Promise<string | null> {
+  if (!HAS_REAL_KEY) return null;
+  const message = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 400,
+    system: `Du fasst für eine Ärztin oder einen Arzt die Akte vor einem Termin zusammen. Drei bis vier kurze Sätze auf Deutsch.
+Regeln: Nur die gegebenen Fakten verwenden, nichts ergänzen, keine Diagnosen oder Therapien vorschlagen.
+Zeilen mit ACHTUNG gehören in den ersten Satz. Platzhalter in eckigen Klammern unverändert lassen.`,
+    messages: [{ role: "user", content: maskNames(facts, patient) }],
+  });
+  const t = message.content.find((b) => b.type === "text");
+  return t && t.type === "text" ? t.text.trim() : null;
+}

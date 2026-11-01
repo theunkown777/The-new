@@ -17,6 +17,10 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
       proposals: true,
       anamnesisForms: true,
       invoices: true,
+      entries: true,
+      appointments: { select: { start: true, minutes: true, reason: true, status: true, confirmedAt: true, remindedAt: true, location: { select: { name: true } } } },
+      // Dokumente als Liste; die Dateien selbst einzeln über die Akte abrufbar.
+      documents: { select: { name: true, mime: true, size: true, createdAt: true } },
     },
   });
   if (!patient) return NextResponse.json({ error: "Patient nicht gefunden" }, { status: 404 });

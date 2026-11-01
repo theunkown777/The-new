@@ -10,7 +10,8 @@ describe("Praxismanager", () => {
   it("meldet ruhige Lage ohne erfundene Zahlen", () => {
     const a = praxisManager(base);
     expect(a.map((x) => x.stufe)).toEqual(["ok", "ok", "ok", "ok", "ok", "ok"]);
-    expect(get(base, "termine").kurz).toMatch(/kennt Sorrida nicht/);
+    expect(get(base, "termine").kurz).toMatch(/kein Termin eingetragen/);
+    expect(a.find((x) => x.thema === "abrechnung")).toBeUndefined();
   });
 
   it("findet überfällige Rechnungen und schlägt Erinnerungen vor, ohne zu versenden", () => {
@@ -48,6 +49,16 @@ describe("Praxismanager", () => {
     expect(a.stufe).toBe("dringend");
     expect(a.punkte[0]).toContain("nie geöffnet");
     expect(get(s, "berichte").vorschlag?.href).toBe("/reports?status=ENTWURF");
+  });
+
+  it("nutzt eingetragene Termine und die Abrechnungsprüfung", () => {
+    const s = { ...base, termine: { heute: 12, auslastungHeute: 85, kapazitaetAngenommen: false, morgenUnbestaetigt: 4, ausfallquote: 18 }, pruefung: { hinweise: 3, ohneRechnungCent: 45000, ohneDoku: 1 } };
+    const t = get(s, "termine");
+    expect(t.kurz).toBe("12 Termine heute, 85 % ausgelastet.");
+    expect(t.stufe).toBe("beachten");
+    expect(t.punkte[1]).toContain("4 Termine morgen sind noch nicht bestätigt");
+    expect(get(s, "abrechnung").punkte[0]).toContain("450,00 €");
+    expect(themaFuerFrage("Was haben wir vergessen abzurechnen?")).toBe("abrechnung");
   });
 
   it("ordnet freie Fragen nachvollziehbar zu", () => {

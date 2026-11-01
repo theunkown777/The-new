@@ -29,6 +29,8 @@ export const config = {
     "/anfragen/:path*",
     "/vorsorge/:path*",
     "/praxismanager/:path*",
+    "/termine/:path*",
+    "/abrechnungspruefung/:path*",
     "/embed/:path*",
   ],
 };

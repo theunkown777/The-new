@@ -6,7 +6,7 @@
 
 import { formatCent, invoiceView } from "@/lib/invoices";
 
-export type ThemaId = "rechnungen" | "berichte" | "vorsorge" | "umsatz" | "engpaesse" | "termine";
+export type ThemaId = "rechnungen" | "berichte" | "vorsorge" | "umsatz" | "engpaesse" | "termine" | "abrechnung";
 
 export interface Snapshot {
   now: Date;
@@ -16,6 +16,10 @@ export interface Snapshot {
   anamnesis: { createdAt: Date; submittedAt: Date | null; expiresAt: Date }[];
   recallDue: number;
   recallNeverReminded: number;
+  /** Termine heute und morgen (aus Sorrida, nicht aus der Praxissoftware). */
+  termine?: { heute: number; auslastungHeute: number; kapazitaetAngenommen: boolean; morgenUnbestaetigt: number; ausfallquote: number | null };
+  /** Ergebnis der Abrechnungsprüfung. */
+  pruefung?: { hinweise: number; ohneRechnungCent: number; ohneDoku: number };
 }
 
 export interface Antwort {
@@ -41,6 +45,7 @@ export const FRAGEN: Record<ThemaId, string> = {
   umsatz: "Wie läuft der Umsatz?",
   engpaesse: "Wo hakt es gerade?",
   termine: "Wie voll ist der Kalender?",
+  abrechnung: "Was ist nicht abgerechnet?",
 };
 
 function rechnungen(s: Snapshot): Antwort {
@@ -154,23 +159,57 @@ function engpaesse(s: Snapshot): Antwort {
   };
 }
 
-function termine(): Antwort {
+function termine(s: Snapshot): Antwort {
+  const t = s.termine;
+  if (!t || (t.heute === 0 && t.morgenUnbestaetigt === 0 && t.ausfallquote == null)) {
+    return {
+      thema: "termine",
+      frage: FRAGEN.termine,
+      kurz: "Für heute ist in Sorrida kein Termin eingetragen.",
+      punkte: ["Termine werden in Sorrida eingetragen; eine Übernahme aus der Praxissoftware gibt es noch nicht."],
+      vorschlag: { text: "Termine eintragen.", href: "/termine" },
+      stufe: "ok",
+    };
+  }
+  const punkte = [`Auslastung heute ${t.auslastungHeute} %${t.kapazitaetAngenommen ? " (angenommen: 1 Platz, 8 Std.; Standorte pflegen für genaue Werte)" : ""}.`];
+  if (t.morgenUnbestaetigt) punkte.push(`${n(t.morgenUnbestaetigt, "Termin morgen ist", "Termine morgen sind")} noch nicht bestätigt.`);
+  if (t.ausfallquote != null) punkte.push(`Ausfallquote der letzten 60 Tage: ${t.ausfallquote} %.`);
   return {
     thema: "termine",
     frage: FRAGEN.termine,
-    kurz: "Termine kennt Sorrida nicht. Der Kalender liegt in Ihrer Praxissoftware.",
-    punkte: ["Eine Terminanbindung an die Praxissoftware ist geplant, aber noch nicht gebaut. Bis dahin zeigt Sorrida hier keine erfundenen Zahlen."],
-    stufe: "ok",
+    kurz: `${n(t.heute, "Termin", "Termine")} heute, ${t.auslastungHeute} % ausgelastet.`,
+    punkte,
+    vorschlag: t.morgenUnbestaetigt
+      ? { text: "Bestätigungen für morgen vorbereiten. Den Text verschicken Sie selbst.", href: "/termine" }
+      : { text: "Tagesplan ansehen.", href: "/termine" },
+    stufe: t.auslastungHeute > 100 || (t.ausfallquote ?? 0) > 15 ? "beachten" : "ok",
+  };
+}
+
+function abrechnung(s: Snapshot): Antwort | null {
+  const p = s.pruefung;
+  if (!p) return null;
+  return {
+    thema: "abrechnung",
+    frage: FRAGEN.abrechnung,
+    kurz: p.hinweise ? `${n(p.hinweise, "Hinweis", "Hinweise")} aus der Abrechnungsprüfung.` : "Die Abrechnungsprüfung findet nichts.",
+    punkte: [
+      ...(p.ohneRechnungCent ? [`${formatCent(p.ohneRechnungCent)} aus angenommenen Vorschlägen sind noch nicht in Rechnung gestellt.`] : []),
+      ...(p.ohneDoku ? [`${n(p.ohneDoku, "Termin hat", "Termine haben")} keine Dokumentation.`] : []),
+    ],
+    vorschlag: p.hinweise ? { text: "Hinweise einzeln prüfen und beheben.", href: "/abrechnungspruefung" } : undefined,
+    stufe: p.ohneRechnungCent || p.ohneDoku ? "beachten" : "ok",
   };
 }
 
 export function praxisManager(s: Snapshot): Antwort[] {
-  return [rechnungen(s), berichte(s), vorsorge(s), umsatz(s), engpaesse(s), termine()];
+  return [rechnungen(s), berichte(s), vorsorge(s), umsatz(s), engpaesse(s), termine(s), abrechnung(s)].filter((a): a is Antwort => !!a);
 }
 
 // Freie Frage einem Thema zuordnen. Bewusst einfach: Stichwörter statt
 // Sprachmodell, damit nachvollziehbar bleibt, warum welche Antwort kommt.
 const STICHWORTE: [ThemaId, RegExp][] = [
+  ["abrechnung", /abgerechnet|abrechnung|vergessen|nicht in rechnung|leistung(en)? (fehl|vergessen)|prüfung/i],
   ["termine", /termin|kalender|auslastung|frei(e|er)? (slot|platz)|morgen|woche/i],
   ["berichte", /bericht|freigab|entwurf|befund|arztbrief|dokumentation/i],
   ["vorsorge", /vorsorge|recall|prophylaxe|kontrolle|check|erinner(n|ung) an/i],

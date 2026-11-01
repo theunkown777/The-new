@@ -47,6 +47,11 @@ const CARDS = [
     description: "Nachschlagewerk zu gängigen Selbstzahlerleistungen – nicht patientenbezogen.",
   },
   {
+    href: "/settings/standorte",
+    title: "Standorte",
+    description: "Hauptpraxis und Zweigpraxen mit Behandlungsplätzen und Sprechzeit, für Termine und Auslastung je Standort.",
+  },
+  {
     href: "/settings/protokoll",
     title: "Protokoll und Datenschutz",
     description: "Wer hat sich wann angemeldet, Berichte freigegeben, Daten exportiert oder gelöscht. Stand der Zwei-Faktor-Anmeldung im Team.",

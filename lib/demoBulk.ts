@@ -6,6 +6,7 @@ import { computeProposal } from "@/lib/proposalSchema";
 import { QUESTIONS, WISHES } from "@/lib/anamnesis";
 import { specialty } from "@/lib/specialties";
 import { ageOn, generatePatients, rng } from "@/lib/demoData";
+import { heuteTag, tagesGrenzen } from "@/lib/termine";
 
 // Füllt eine Demo-Praxis mit rund 1000 erfundenen Patienten und dem, was in
 // einer echten Praxis über einige Monate entsteht: Vorschläge in allen
@@ -46,6 +47,7 @@ export async function seedBulkDemo(args: {
   const r = rng(seed);
   const rows = generatePatients(DEMO_PATIENT_COUNT - args.existing, fach, seed, now);
 
+  const reportDates: { patientId: string; at: Date }[] = [];
   const patients = await prisma.patient.createManyAndReturn({
     data: rows.map((p) => ({
       practiceId,
@@ -207,6 +209,85 @@ export async function seedBulkDemo(args: {
       };
     });
     await prisma.report.createMany({ data: reports });
+    reportDates.push(...reports.map((x) => ({ patientId: x.patientId, at: new Date(x.treatmentDate as Date) })));
   }
+  await seedTermineUndAkte({ practiceId, patients, dental, r, now, reportDates });
   return { patients: patients.length, proposals: proposals.length, anamnesis: forms.length, invoices: invoices.length };
+}
+
+// Standorte, Termine und Akteneinträge, damit Tagesplan, Auslastung,
+// Abrechnungsprüfung und Überblick vor dem Termin in der Demo etwas zeigen.
+async function seedTermineUndAkte(a: {
+  practiceId: string;
+  patients: { id: string }[];
+  dental: boolean;
+  r: () => number;
+  now: Date;
+  reportDates: { patientId: string; at: Date }[];
+}) {
+  const { practiceId, patients, dental, r, now } = a;
+  const [haupt, zweig] = await prisma.location.createManyAndReturn({
+    data: [
+      { practiceId, name: "Hauptpraxis", address: "Musterstraße 1", rooms: 3, minutesPerDay: 510 },
+      { practiceId, name: "Zweigpraxis", address: "Am Markt 7", rooms: 1, minutesPerDay: 360 },
+    ],
+    select: { id: true },
+  });
+  const pick = () => patients[Math.floor(r() * patients.length)].id;
+  const anlaesse = dental
+    ? ["Kontrolle", "Füllung", "Professionelle Zahnreinigung", "Schmerzbehandlung", "Beratung Zahnersatz"]
+    : ["Kontrolle", "Check-up", "Impfung", "Befundbesprechung", "Akutsprechstunde"];
+  // Tage in deutscher Zeit, sonst landen Termine um Mitternacht (Server in UTC) auf dem falschen Tag.
+  const heute0 = tagesGrenzen(heuteTag(now)).von.getTime();
+  const at = (tagOffset: number, minute: number) => new Date(heute0 + tagOffset * DAY + (8 * 60 + minute) * 60000);
+  const rows: Prisma.AppointmentCreateManyInput[] = [];
+  // Vergangenheit: in der Zahnmedizin passend zu den Berichten, sonst zufällig.
+  const vergangen = dental
+    ? a.reportDates.filter((x) => now.getTime() - x.at.getTime() < 60 * DAY)
+    : [...Array(240)].map(() => ({ patientId: pick(), at: at(-1 - Math.floor(r() * 60), Math.floor(r() * 18) * 30) }));
+  for (const v of vergangen) {
+    const tagOffset = Math.round((tagesGrenzen(heuteTag(v.at)).von.getTime() - heute0) / DAY);
+    const start = at(tagOffset, Math.floor(r() * 18) * 30);
+    rows.push({ practiceId, patientId: v.patientId, locationId: r() < 0.8 ? haupt.id : zweig.id, start, minutes: 30, reason: anlaesse[Math.floor(r() * anlaesse.length)], status: "ERSCHIENEN" });
+  }
+  // Ausfälle und (Zahnmedizin) drei Termine ohne Dokumentation in der letzten Woche.
+  for (let i = 0; i < 18; i++) rows.push({ practiceId, patientId: pick(), locationId: haupt.id, start: at(-1 - Math.floor(r() * 55), 60 + i * 15), minutes: 30, reason: "Kontrolle", status: r() < 0.6 ? "NICHT_ERSCHIENEN" : "ABGESAGT" });
+  if (dental) for (let i = 1; i <= 3; i++) rows.push({ practiceId, patientId: pick(), locationId: haupt.id, start: at(-i, 120 + i * 30), minutes: 45, reason: "Füllung", status: "ERSCHIENEN" });
+  // Heute bis in zwei Wochen.
+  for (let tag = 0; tag <= 14; tag++) {
+    const wd = new Date(at(tag, 240)).getUTCDay();
+    if (wd === 0 || wd === 6) continue;
+    const anzahl = tag === 0 ? 16 : 10 + Math.floor(r() * 6);
+    for (let i = 0; i < anzahl; i++) {
+      const imHaupt = i % 4 !== 3;
+      rows.push({
+        practiceId,
+        patientId: pick(),
+        locationId: imHaupt ? haupt.id : zweig.id,
+        start: at(tag, Math.floor((i / anzahl) * 17) * 30),
+        minutes: [20, 30, 30, 45, 60][Math.floor(r() * 5)],
+        reason: anlaesse[Math.floor(r() * anlaesse.length)],
+        status: tag === 0 ? (i < 6 ? "ERSCHIENEN" : r() < 0.7 ? "BESTAETIGT" : "GEPLANT") : r() < 0.4 ? "BESTAETIGT" : "GEPLANT",
+        confirmedAt: r() < 0.4 ? new Date(now.getTime() - DAY) : null,
+      });
+    }
+  }
+  await prisma.appointment.createMany({ data: rows });
+
+  const allergien = ["Penicillin", "Latex", "Lokalanästhetika vom Estertyp", "Nickel", "Ibuprofen"];
+  const diagnosen: [string, string][] = dental
+    ? [["Karies des Dentins", "K02.1"], ["Chronische Gingivitis", "K05.1"], ["Chronische Parodontitis", "K05.3"], ["Zahnverlust durch Extraktion", "K08.1"]]
+    : [["Essentielle Hypertonie", "I10.90"], ["Diabetes mellitus Typ 2", "E11.90"], ["Asthma bronchiale", "J45.9"], ["Hypercholesterinämie", "E78.0"]];
+  const medis = ["Metformin 1000 mg 1-0-1", "Ramipril 5 mg 1-0-0", "ASS 100 mg 1-0-0 (Blutverdünner)", "L-Thyroxin 75 µg 1-0-0"];
+  const entries: Prisma.PatientEntryCreateManyInput[] = [];
+  for (const p of patients) {
+    const x = r();
+    if (x < 0.08) entries.push({ practiceId, patientId: p.id, art: "ALLERGIE", text: allergien[Math.floor(r() * allergien.length)], createdBy: "Demo" });
+    if (r() < 0.22) {
+      const [text, code] = diagnosen[Math.floor(r() * diagnosen.length)];
+      entries.push({ practiceId, patientId: p.id, art: "DIAGNOSE", text, code, createdBy: "Demo" });
+    }
+    if (r() < 0.12) entries.push({ practiceId, patientId: p.id, art: "MEDIKATION", text: medis[Math.floor(r() * medis.length)], createdBy: "Demo" });
+  }
+  if (entries.length) await prisma.patientEntry.createMany({ data: entries });
 }
