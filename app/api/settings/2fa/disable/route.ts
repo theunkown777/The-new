@@ -1,3 +1,4 @@
+import { auditFromSession, audit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import bcrypt from "bcryptjs";
@@ -32,5 +33,6 @@ export async function POST(req: Request) {
     data: { totpEnabled: false, totpSecret: null, totpBackupCodes: null },
   });
 
+  await auditFromSession(session, "2fa.aus", { entityType: "Konto", entityId: session.user.id });
   return NextResponse.json({ ok: true });
 }

@@ -47,6 +47,11 @@ const CARDS = [
     description: "Nachschlagewerk zu gängigen Selbstzahlerleistungen – nicht patientenbezogen.",
   },
   {
+    href: "/settings/protokoll",
+    title: "Protokoll und Datenschutz",
+    description: "Wer hat sich wann angemeldet, Berichte freigegeben, Daten exportiert oder gelöscht. Stand der Zwei-Faktor-Anmeldung im Team.",
+  },
+  {
     href: "/settings/team",
     title: "Team",
     description: "Mitarbeitende einladen, Rollen verwalten und die Analyse für einzelne Mitarbeitende freigeben.",

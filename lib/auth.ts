@@ -1,3 +1,4 @@
+import { audit } from "@/lib/audit";
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
@@ -45,6 +46,7 @@ export const authOptions: AuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!isValid) {
           await recordAttempt(rateLimitKey, LOGIN_ATTEMPT_WINDOW_MS);
+          await audit({ practiceId: user.practiceId, userId: user.id, userName: user.name, action: "login.fehlgeschlagen", summary: "falsches Passwort" });
           return null;
         }
 
@@ -60,6 +62,7 @@ export const authOptions: AuthOptions = {
             const remainingCodes = await consumeBackupCode(credentials.token, user.totpBackupCodes);
             if (remainingCodes === null) {
               await recordAttempt(rateLimitKey, LOGIN_ATTEMPT_WINDOW_MS);
+              await audit({ practiceId: user.practiceId, userId: user.id, userName: user.name, action: "login.fehlgeschlagen", summary: "falscher 2FA-Code" });
               throw new Error("2FA_INVALID");
             }
             await prisma.user.update({
@@ -70,6 +73,7 @@ export const authOptions: AuthOptions = {
         }
 
         await clearAttempts(rateLimitKey);
+        await audit({ practiceId: user.practiceId, userId: user.id, userName: user.name, action: "login", summary: user.totpEnabled ? "mit 2FA" : "ohne 2FA" });
 
         return {
           id: user.id,

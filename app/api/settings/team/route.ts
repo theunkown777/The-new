@@ -1,3 +1,4 @@
+import { auditFromSession } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -83,6 +84,8 @@ export async function POST(req: Request) {
       expiresAt: new Date(Date.now() + INVITE_TTL_MS),
     },
   });
+
+  await auditFromSession(session, "team.einladung", { entityType: "Einladung", summary: `Rolle ${parsed.data.role}` });
 
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const inviteUrl = `${baseUrl}/accept-invite?token=${rawToken}`;

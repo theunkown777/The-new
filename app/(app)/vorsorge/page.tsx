@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ageFromBirthDate } from "@/lib/proposals";
-import { RECALL_RULES, recallFor } from "@/lib/recall";
+import { loadRecallDue } from "@/lib/recallLoad";
 import { specialty } from "@/lib/specialties";
 import { Laechelbogen } from "@/components/Behandlungsweg";
 import { RecallButton } from "@/components/RecallButton";
@@ -16,38 +16,7 @@ export const metadata = { title: "Vorsorge fällig" };
 export default async function VorsorgePage() {
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
-  const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true, name: true } });
-  const fach = practice?.specialty ?? "zahn";
-  const rules = RECALL_RULES[fach] ?? [];
-  const now = new Date();
-
-  const patients = rules.length
-    ? await prisma.patient.findMany({
-        where: { practiceId },
-        select: {
-          id: true, firstName: true, lastName: true, birthDate: true, createdAt: true, recallSentAt: true, insuranceType: true,
-          proposals: { orderBy: { createdAt: "desc" }, take: 1, select: { createdAt: true } },
-          reports: { orderBy: { treatmentDate: "desc" }, take: 1, select: { treatmentDate: true, createdAt: true } },
-          anamnesisForms: { where: { submittedAt: { not: null } }, orderBy: { submittedAt: "desc" }, take: 1, select: { submittedAt: true } },
-        },
-        take: 5000,
-      })
-    : [];
-  const due = patients
-    .map((p) => {
-      const letzter = new Date(
-        Math.max(
-          p.createdAt.getTime(),
-          p.proposals[0]?.createdAt.getTime() ?? 0,
-          (p.reports[0]?.treatmentDate ?? p.reports[0]?.createdAt)?.getTime() ?? 0,
-          p.anamnesisForms[0]?.submittedAt?.getTime() ?? 0,
-        ),
-      );
-      const r = recallFor({ fach, age: ageFromBirthDate(p.birthDate), letzterKontakt: letzter, erinnertAm: p.recallSentAt }, now);
-      return r ? { p, r, letzter } : null;
-    })
-    .filter((x): x is NonNullable<typeof x> => !!x)
-    .sort((a, b) => b.r.tage - a.r.tage);
+  const { practice, fach, rules, due, now } = await loadRecallDue(practiceId);
   const shown = due.slice(0, 60);
   const fmt = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 

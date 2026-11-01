@@ -1,3 +1,4 @@
+import { auditFromSession, audit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -28,6 +29,7 @@ export async function PATCH(req: Request, { params }: { params: { userId: string
       data: { canSeeAnalytics: perm.data.canSeeAnalytics },
       select: { id: true, name: true, email: true, role: true, canSeeAnalytics: true },
     });
+    await auditFromSession(session, "team.rolle", { entityType: "Konto", entityId: params.userId, summary: `Analyse-Freigabe ${perm.data.canSeeAnalytics ? "erteilt" : "entzogen"}` });
     return NextResponse.json({ user: updated });
   }
   const parsed = roleSchema.safeParse(body);
@@ -54,6 +56,7 @@ export async function PATCH(req: Request, { params }: { params: { userId: string
     select: { id: true, name: true, email: true, role: true },
   });
 
+  await auditFromSession(session, "team.rolle", { entityType: "Konto", entityId: params.userId, summary: `Rolle ${parsed.data.role}` });
   return NextResponse.json({ user: updated });
 }
 
@@ -84,5 +87,6 @@ export async function DELETE(_req: Request, { params }: { params: { userId: stri
   }
 
   await prisma.user.delete({ where: { id: target.id } });
+  await auditFromSession(session, "team.entfernt", { entityType: "Konto", entityId: params.userId });
   return NextResponse.json({ ok: true });
 }

@@ -8,6 +8,7 @@ import { PROPOSAL_STATUS_LABELS, formatEuro } from "@/lib/proposals";
 import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 import { AnamnesisPanel } from "@/components/AnamnesisPanel";
+import { PatientDatenschutz } from "@/components/PatientDatenschutz";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -118,6 +119,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           ))}
         </div>
       )}
+      {session!.user.role === "admin" && <PatientDatenschutz patientId={patient.id} lastName={patient.lastName} />}
     </div>
   );
 }

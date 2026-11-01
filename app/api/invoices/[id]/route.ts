@@ -1,3 +1,4 @@
+import { auditFromSession, audit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -17,6 +18,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     // Gewünschte Stufe setzen (nie zurück), damit doppelte Klicks nicht zwei Stufen überspringen.
     const level = Math.max(inv.reminderLevel, parsed.data.level ?? Math.min(3, inv.reminderLevel + 1));
     await prisma.invoice.update({ where: { id: params.id }, data: { remindedAt: now, reminderLevel: level } });
+    await auditFromSession(session, "rechnung.status", { entityType: "Rechnung", entityId: params.id, summary: `Erinnerung Stufe ${level}` });
     return NextResponse.json({ ok: true });
   }
   const data =
@@ -29,5 +31,6 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
           : { remindedAt: now };
   const res = await prisma.invoice.updateMany({ where: { id: params.id, practiceId: session.user.practiceId }, data });
   if (res.count === 0) return NextResponse.json({ error: "Rechnung nicht gefunden" }, { status: 404 });
+  await auditFromSession(session, "rechnung.status", { entityType: "Rechnung", entityId: params.id, summary: parsed.data.action });
   return NextResponse.json({ ok: true });
 }

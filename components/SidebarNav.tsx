@@ -17,6 +17,7 @@ const ICONS: Record<string, string> = {
   vorsorge: "M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10ZM9 12h6M12 9v6",
   anfragen: "M4 4h16v12H8l-4 4zM8 9h8M8 12h5",
   zahlungen: "M3 6h18v12H3zM3 10h18M7 15h3",
+  manager: "M4 5h16v10H9l-5 4zM8 9h8M8 12h4",
   analyse: "M4 20V10M10 20V4M16 20v-7M22 20H2",
 };
 
@@ -32,7 +33,7 @@ export function SidebarNav({ dental, team = false, analyse = false }: { dental: 
   const path = usePathname();
   type L = [string, string, string];
   const gruppen: [string, L[]][] = [
-    ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/vorsorge", "Vorsorge fällig", "vorsorge"]]],
+    ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/praxismanager", "Praxismanager", "manager"], ["/vorsorge", "Vorsorge fällig", "vorsorge"]]],
     [
       "Patienten",
       [

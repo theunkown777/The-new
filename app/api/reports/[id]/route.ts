@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { auditFromSession } from "@/lib/audit";
+import { approvalUpdate } from "@/lib/reportApproval";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -56,10 +58,22 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     });
   }
 
+  // Freigabe: wer und wann. Eine spätere Textänderung macht aus dem
+  // freigegebenen Bericht wieder einen Entwurf, damit nie ein ungeprüfter
+  // Text als freigegeben gilt.
+  const approval = approvalUpdate({
+    previousStatus: existing.status,
+    requestedStatus: parsed.data.status,
+    textChanging,
+    user: { id: session.user.id, name: session.user.name ?? "Unbekannt" },
+  });
   const report = await prisma.report.update({
     where: { id: params.id },
-    data: parsed.data,
+    data: { ...parsed.data, ...approval.data },
   });
+  if (approval.event) {
+    await auditFromSession(session, approval.event, { entityType: "Bericht", entityId: report.id });
+  }
 
   return NextResponse.json({ report });
 }

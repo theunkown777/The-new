@@ -1,3 +1,4 @@
+import { auditFromSession, audit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
@@ -39,5 +40,6 @@ export async function POST(req: Request) {
     data: { totpEnabled: true, totpBackupCodes: hashesJoined },
   });
 
+  await auditFromSession(session, "2fa.an", { entityType: "Konto", entityId: session.user.id });
   return NextResponse.json({ ok: true, backupCodes });
 }

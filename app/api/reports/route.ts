@@ -1,3 +1,4 @@
+import { auditFromSession } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
@@ -265,5 +266,10 @@ export async function POST(req: Request) {
     },
   });
 
+  await auditFromSession(session, "bericht.ki", {
+    entityType: "Bericht",
+    entityId: report.id,
+    summary: generatedText?.startsWith("[TESTMODUS") ? "Testmodus ohne KI" : "Entwurf, pseudonymisiert an KI-Dienst",
+  });
   return NextResponse.json({ report });
 }

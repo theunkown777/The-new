@@ -1,3 +1,4 @@
+import { auditFromSession } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -55,7 +56,17 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       generatedText,
       editedText: null,
       additionalContext: additionalContext ?? existing.additionalContext,
+      // Neuer Text = neue Prüfung: eine frühere Freigabe gilt nicht mehr.
+      status: "ENTWURF",
+      approvedById: null,
+      approvedByName: null,
+      approvedAt: null,
     },
+  });
+  await auditFromSession(session, "bericht.ki", {
+    entityType: "Bericht",
+    entityId: report.id,
+    summary: generatedText.startsWith("[TESTMODUS") ? "neu erzeugt, Testmodus" : "neu erzeugt, pseudonymisiert an KI-Dienst",
   });
 
   return NextResponse.json({ report });

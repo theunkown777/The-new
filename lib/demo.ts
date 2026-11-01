@@ -115,6 +115,7 @@ export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
   });
   for (const { id } of expired) {
     await prisma.$transaction([
+      prisma.auditLog.deleteMany({ where: { practiceId: id } }),
       prisma.invoice.deleteMany({ where: { practiceId: id } }),
       prisma.treatmentProposal.deleteMany({ where: { practiceId: id } }),
       prisma.anamnesisForm.deleteMany({ where: { practiceId: id } }),

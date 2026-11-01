@@ -210,6 +210,11 @@ model Report {
   additionalContext String?
   generatedText     String?
   editedText        String?
+  // Freigabe: wer den Bericht als fertig markiert hat und wann. Wird bei
+  // jeder späteren Textänderung zurückgesetzt (Bericht ist dann wieder Entwurf).
+  approvedById      String?
+  approvedByName    String?
+  approvedAt        DateTime?
   revisions         ReportRevision[]
   proposals         TreatmentProposal[]
   createdAt         DateTime          @default(now())
@@ -530,4 +535,22 @@ model Invoice {
   @@unique([practiceId, number])
   @@index([practiceId, status])
   @@index([patientId])
+}
+
+// Protokoll sicherheitsrelevanter Vorgänge (Art. 32 DSGVO): wer hat wann was
+// getan. Bewusst ohne Fremdschlüssel, damit Einträge das Löschen von Konten
+// oder Patienten überdauern, und ohne Gesundheitsdaten: gespeichert werden
+// nur Art des Vorgangs, betroffene Kennung und ein kurzer, neutraler Text.
+model AuditLog {
+  id         String   @id @default(cuid())
+  practiceId String
+  userId     String?
+  userName   String?
+  action     String
+  entityType String?
+  entityId   String?
+  summary    String
+  createdAt  DateTime @default(now())
+
+  @@index([practiceId, createdAt])
 }

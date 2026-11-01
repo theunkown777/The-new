@@ -54,6 +54,9 @@ export async function loadReportEditorProps(id: string, practiceId: string) {
       patient: { firstName: report.patient.firstName, lastName: report.patient.lastName },
       author: { name: report.author.name },
       createdAt: report.createdAt.toLocaleDateString("de-DE"),
+      approval: report.approvedAt
+        ? { name: report.approvedByName ?? "Unbekannt", at: report.approvedAt.toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" }) }
+        : null,
     },
     practicePunktwerte: {
       gozPunktwertCent: practice?.gozPunktwertCent ?? null,

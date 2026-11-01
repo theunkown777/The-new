@@ -1,3 +1,4 @@
+import { auditFromSession, audit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
     select: { id: true, name: true, keyPrefix: true, createdAt: true, lastUsedAt: true, revokedAt: true },
   });
 
+  await auditFromSession(session, "schnittstelle.schluessel", { entityType: "Schlüssel", entityId: created.id, summary: "angelegt" });
   // Der volle Schlüssel wird nur in dieser Antwort einmal angezeigt.
   return NextResponse.json({ key: created, secret: key }, { status: 201 });
 }

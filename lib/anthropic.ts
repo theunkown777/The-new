@@ -41,6 +41,65 @@ oder Genehmigung), Grußformel. Formeller, überzeugender, aber sachlicher Stil,
 Kostenträgern üblich ist.`,
 };
 
+// Datenminimierung (Art. 5 und 25 DSGVO, § 203 StGB): An den KI-Dienst gehen
+// keine Namen, kein Geburtsdatum und keine Versichertennummer. Stattdessen
+// stehen Platzhalter im Auftrag; die echten Angaben setzt erst Sorrida nach
+// der Antwort wieder ein. Medizinische Inhalte (Leistungen, Notiz) bleiben,
+// sonst kann kein Bericht entstehen; darin vorkommende Namen werden ersetzt.
+export const PLATZHALTER = {
+  name: "[PATIENT]",
+  vorname: "[VORNAME]",
+  nachname: "[NACHNAME]",
+  geburtsdatum: "[GEBURTSDATUM]",
+  versichertennummer: "[VERSICHERTENNUMMER]",
+} as const;
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Ersetzt Namen (ganzes Wort, ohne Groß/Klein) im Freitext durch Platzhalter. */
+export function maskNames(text: string, p: { firstName: string; lastName: string }): string {
+  let out = text;
+  const full = `${p.firstName} ${p.lastName}`.trim();
+  const reps: [string, string][] = [
+    [full, PLATZHALTER.name],
+    [p.lastName, PLATZHALTER.nachname],
+    [p.firstName, PLATZHALTER.vorname],
+  ];
+  for (const [needle, ph] of reps) {
+    if (needle.trim().length < 2) continue;
+    out = out.replace(new RegExp(`(?<![\\p{L}])${escapeRe(needle.trim())}(?![\\p{L}])`, "giu"), ph);
+  }
+  return out;
+}
+
+export function pseudonymize(input: GenerateReportInput): GenerateReportInput {
+  const p = input.patient;
+  return {
+    ...input,
+    patient: {
+      firstName: PLATZHALTER.vorname,
+      lastName: PLATZHALTER.nachname,
+      birthDate: p.birthDate ? PLATZHALTER.geburtsdatum : null,
+      insuranceName: p.insuranceName,
+      insuranceNumber: p.insuranceNumber ? PLATZHALTER.versichertennummer : null,
+    },
+    serviceSummary: maskNames(input.serviceSummary, p),
+    additionalContext: input.additionalContext ? maskNames(input.additionalContext, p) : null,
+  };
+}
+
+/** Setzt die echten Angaben nach der KI-Antwort wieder ein. */
+export function reidentify(text: string, p: GenerateReportInput["patient"]): string {
+  const name = `${p.firstName} ${p.lastName}`.trim();
+  return text
+    .split(`${PLATZHALTER.vorname} ${PLATZHALTER.nachname}`).join(name)
+    .split(PLATZHALTER.name).join(name)
+    .split(PLATZHALTER.vorname).join(p.firstName)
+    .split(PLATZHALTER.nachname).join(p.lastName)
+    .split(PLATZHALTER.geburtsdatum).join(p.birthDate ?? "[Geburtsdatum ergänzen]")
+    .split(PLATZHALTER.versichertennummer).join(p.insuranceNumber ?? "[Versichertennummer ergänzen]");
+}
+
 function buildPrompt(input: GenerateReportInput): string {
   const { patient } = input;
   return `Praxis: ${input.practiceName}
@@ -132,6 +191,9 @@ Wichtige Regeln:
   sinngemäß und etwas ausführlicher in den Bericht ein, aber halte dich dabei an die oben
   vorgegebene Gliederung/Struktur des Berichtstyps - die Kürze der Notiz rechtfertigt keine
   Abweichung vom üblichen Aufbau.
+- Angaben in eckigen Großbuchstaben wie [VORNAME], [NACHNAME], [PATIENT], [GEBURTSDATUM] oder
+  [VERSICHERTENNUMMER] sind Platzhalter für Daten, die die Praxis später einsetzt. Übernimm sie
+  unverändert, genau so geschrieben, und ersetze sie nicht durch erfundene Angaben.
 - Der Bericht ist ein Entwurf und wird vor Versand von einer approbierten Zahnärztin / einem approbierten
   Zahnarzt geprüft und freigegeben.`;
 
@@ -139,7 +201,7 @@ Wichtige Regeln:
     model: MODEL,
     max_tokens: 2000,
     system: systemPrompt,
-    messages: [{ role: "user", content: buildPrompt(input) }],
+    messages: [{ role: "user", content: buildPrompt(pseudonymize(input)) }],
   });
 
   const textBlock = message.content.find((block) => block.type === "text");
@@ -147,5 +209,5 @@ Wichtige Regeln:
     throw new Error("Keine Textantwort vom KI-Modell erhalten.");
   }
 
-  return textBlock.text.trim();
+  return reidentify(textBlock.text.trim(), input.patient);
 }
