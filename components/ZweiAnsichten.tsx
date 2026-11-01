@@ -50,9 +50,40 @@ export function ZweiAnsichten() {
         </ol>
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(31rem,5fr)_minmax(0,8fr)]">
+      {/* Eigener Aufbau: eine gemeinsame Fläche, links die Praxis (Ausgangspunkt), rechts der Patient (Empfänger),
+          verbunden durch einen gestrichelten Lächelbogen "Link per SMS". */}
+      <div className="relative mt-6 grid gap-10 rounded-[2.5rem] bg-white p-6 sm:p-10 xl:grid-cols-[minmax(0,1fr)_26rem] xl:gap-24" data-testid="praxis-zu-patient">
+      {/* Praxis: Arbeitsliste statt Tabelle */}
+      <div className="flex flex-col" data-testid="seite-praxis">
+        <p className="text-sm font-semibold text-brand-700">Für die Praxis</p>
+        <h3 className="font-display mt-1 text-3xl text-slate-900">Heute: wer als Nächstes dran ist</h3>
+        <p className="mt-3 max-w-2xl text-slate-600">
+          Keine Spalten voller Zustände. Jeder Patient steht auf seinem Weg, daneben steht, was jetzt zu tun ist. Rot heißt: heute.
+        </p>
+        <ul className="mt-6 space-y-2" aria-hidden="true">
+          {LISTE.map(([name, erreicht, aktuell, text, tone]) => (
+            <li key={name} className="grid items-center gap-x-4 gap-y-1 rounded-2xl bg-[#F5F2EE] px-4 py-3 sm:grid-cols-[minmax(0,11rem)_7.5rem_minmax(0,1fr)]">
+              <span className="flex items-center gap-3">
+                <span className="font-display grid h-9 w-9 place-items-center rounded-full bg-white text-lg text-brand-700">{name.charAt(0)}</span>
+                <span className="font-medium text-slate-900">{name}</span>
+              </span>
+              <Behandlungsweg erreicht={erreicht} aktuell={aktuell < 0 ? null : aktuell} className="hidden sm:block" />
+              <span className={`text-sm ${TONE[tone]}`}>{tone === "achtung" && "● "}{text}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-auto pt-6 text-sm text-slate-500">Aus der Demo-Praxis: erfundene Beispielpatienten.</p>
+      </div>
       {/* Patient */}
-      <div className="flex flex-col overflow-hidden rounded-3xl bg-white p-6 sm:p-10">
+      <div className="relative flex flex-col" data-testid="seite-patient">
+        {/* Verbindung von der Arbeitsliste zur Patientenkarte */}
+        <div className="pointer-events-none absolute -left-24 top-72 hidden w-24 xl:block" aria-hidden="true">
+          <p className="font-hand -mt-8 text-center text-lg leading-none text-salbei-700">Link per SMS</p>
+          <svg viewBox="0 0 100 40" className="h-10 w-24 text-salbei-500">
+            <path d="M2 6 Q50 44 92 12" fill="none" stroke="currentColor" strokeWidth={2.5} strokeDasharray="5 5" strokeLinecap="round" />
+            <path d="M84 8 L94 11 L88 20" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
         <p className="text-sm font-semibold text-salbei-700">Für Patienten</p>
         <h3 className="font-display mt-1 text-3xl text-slate-900">Der nächste Schritt, auf dem eigenen Handy</h3>
         <p className="mt-3 text-slate-600">
@@ -119,27 +150,6 @@ export function ZweiAnsichten() {
         </div>
       </div>
 
-      {/* Praxis: Arbeitsliste statt Tabelle */}
-      <div className="flex flex-col rounded-3xl bg-white p-6 sm:p-10">
-        <p className="text-sm font-semibold text-brand-700">Für die Praxis</p>
-        <h3 className="font-display mt-1 text-3xl text-slate-900">Heute: wer als Nächstes dran ist</h3>
-        <p className="mt-3 max-w-2xl text-slate-600">
-          Keine Spalten voller Zustände. Jeder Patient steht auf seinem Weg, daneben steht, was jetzt zu tun ist. Rot heißt: heute.
-        </p>
-        <ul className="mt-6 space-y-2" aria-hidden="true">
-          {LISTE.map(([name, erreicht, aktuell, text, tone]) => (
-            <li key={name} className="grid items-center gap-x-4 gap-y-1 rounded-2xl bg-[#F5F2EE] px-4 py-3 sm:grid-cols-[minmax(0,11rem)_7.5rem_minmax(0,1fr)]">
-              <span className="flex items-center gap-3">
-                <span className="font-display grid h-9 w-9 place-items-center rounded-full bg-white text-lg text-brand-700">{name.charAt(0)}</span>
-                <span className="font-medium text-slate-900">{name}</span>
-              </span>
-              <Behandlungsweg erreicht={erreicht} aktuell={aktuell < 0 ? null : aktuell} className="hidden sm:block" />
-              <span className={`text-sm ${TONE[tone]}`}>{tone === "achtung" && "● "}{text}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-auto pt-6 text-sm text-slate-500">Aus der Demo-Praxis: erfundene Beispielpatienten.</p>
-      </div>
       </div>
     </section>
   );
