@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { patientInPractice } from "@/lib/patientScope";
 import { loadBriefing } from "@/lib/briefingLoad";
 import { briefingAsText } from "@/lib/akte";
-import { generateBriefingSummary, kiVerfuegbar } from "@/lib/anthropic";
+import { generateBriefingSummary, kiFehlerGrund, kiVerfuegbar } from "@/lib/anthropic";
 import { auditFromSession } from "@/lib/audit";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 
@@ -25,6 +25,6 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
     return NextResponse.json({ text });
   } catch (e) {
     console.error("KI-Überblick fehlgeschlagen", e);
-    return NextResponse.json({ error: "Die KI-Kurzfassung ist gerade nicht verfügbar." }, { status: 502 });
+    return NextResponse.json({ error: `KI-Kurzfassung nicht möglich: ${kiFehlerGrund(e)}` }, { status: 502 });
   }
 }

@@ -233,3 +233,21 @@ Zeilen mit ACHTUNG gehören in den ersten Satz. Platzhalter in eckigen Klammern 
   const t = message.content.find((b) => b.type === "text");
   return t && t.type === "text" ? t.text.trim() : null;
 }
+
+/**
+ * Übersetzt einen Fehler des KI-Dienstes in einen verständlichen Grund,
+ * ohne Schlüssel oder Inhalte preiszugeben.
+ */
+export function kiFehlerGrund(e: unknown): string {
+  if (e instanceof Anthropic.APIError) {
+    const msg = String((e as { message?: string }).message ?? "").toLowerCase();
+    if (e.status === 401) return "Der KI-Schlüssel ist ungültig (in Vercel prüfen).";
+    if (e.status === 403) return "Der KI-Schlüssel hat keine Berechtigung für dieses Modell.";
+    if (e.status === 404) return `Das eingestellte Modell ist nicht verfügbar (${MODEL}).`;
+    if (e.status === 400 && msg.includes("credit")) return "Das Guthaben beim KI-Anbieter ist aufgebraucht.";
+    if (e.status === 429) return "Der KI-Dienst ist gerade ausgelastet. Bitte gleich noch einmal versuchen.";
+    if (e.status && e.status >= 500) return "Der KI-Dienst hat gerade eine Störung.";
+    return `Der KI-Dienst hat die Anfrage abgelehnt (Status ${e.status ?? "unbekannt"}).`;
+  }
+  return "Der KI-Dienst ist nicht erreichbar.";
+}

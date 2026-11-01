@@ -5,7 +5,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { demoGuard } from "@/lib/demoGuard";
-import { generateReportText } from "@/lib/anthropic";
+import { kiFehlerGrund, generateReportText } from "@/lib/anthropic";
 import { buildServiceSummary } from "@/lib/serviceSummary";
 import { computeEffectivePerformed, parseDependsOn } from "@/lib/serviceDependency";
 import { validateFaktor, findExclusionConflicts, validateGueltigkeit } from "@/lib/serviceRules";
@@ -234,7 +234,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("Fehler bei der Berichtsgenerierung:", err);
     return NextResponse.json(
-      { error: "Der Bericht konnte nicht generiert werden. Bitte versuchen Sie es erneut." },
+      { error: `Der Bericht konnte nicht erstellt werden: ${kiFehlerGrund(err)}` },
       { status: 502 }
     );
   }

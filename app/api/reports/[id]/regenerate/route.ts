@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { demoGuard } from "@/lib/demoGuard";
-import { generateReportText, ReportType } from "@/lib/anthropic";
+import { kiFehlerGrund, generateReportText, ReportType } from "@/lib/anthropic";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -45,7 +45,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   } catch (err) {
     console.error("Fehler bei der Berichtsgenerierung:", err);
     return NextResponse.json(
-      { error: "Der Bericht konnte nicht neu generiert werden. Bitte versuchen Sie es erneut." },
+      { error: `Der Bericht konnte nicht erstellt werden: ${kiFehlerGrund(err)}` },
       { status: 502 }
     );
   }
