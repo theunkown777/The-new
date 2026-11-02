@@ -261,12 +261,12 @@ let kiPruefung: { at: number; ok: boolean; info: string } | null = null;
  */
 export async function kiZugangPruefen(): Promise<{ ok: boolean; info: string }> {
   if (!HAS_REAL_KEY) return { ok: true, info: "kein Schlüssel: Berichte im Testmodus" };
-  if (kiPruefung && Date.now() - kiPruefung.at < 6 * 3600e3) return kiPruefung;
+  if (kiPruefung && Date.now() - kiPruefung.at < 6 * 3600e3) return { ok: kiPruefung.ok, info: kiPruefung.info };
   try {
     await anthropic.messages.create({ model: MODEL, max_tokens: 1, messages: [{ role: "user", content: "ok" }] });
     kiPruefung = { at: Date.now(), ok: true, info: `Schlüssel gültig, Modell ${MODEL} erreichbar` };
   } catch (e) {
     kiPruefung = { at: Date.now(), ok: false, info: kiFehlerGrund(e) };
   }
-  return kiPruefung;
+  return { ok: kiPruefung.ok, info: kiPruefung.info };
 }
