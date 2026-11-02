@@ -24,7 +24,7 @@ export default async function NewReportPage({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-6 text-xl font-semibold text-slate-900">Neuer Bericht</h1>
+      <h1 className="mb-6 font-display text-3xl text-slate-900">Neuer Bericht</h1>
       <ServiceChecklistForm
         patients={patients}
         initialPatientId={searchParams.patientId}

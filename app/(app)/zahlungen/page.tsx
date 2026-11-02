@@ -75,7 +75,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
     <div className="space-y-6" data-testid="zahlungen">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">Zahlungen</h1>
+          <h1 className="font-display text-3xl text-slate-900">Zahlungen</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-600">
             Rechnungen für Eigenanteile und Selbstzahlerleistungen. Patienten sehen sie auf ihrem Behandlungsweg am Handy und überweisen per GiroCode direkt auf Ihr Konto.
           </p>

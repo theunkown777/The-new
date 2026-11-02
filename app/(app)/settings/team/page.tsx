@@ -8,7 +8,7 @@ export default async function TeamSettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-xl font-semibold text-slate-900">Team</h1>
+      <h1 className="mb-6 font-display text-3xl text-slate-900">Team</h1>
       {isAdmin ? (
         <TeamSettings currentUserId={session!.user.id} />
       ) : (

@@ -36,7 +36,7 @@ export default async function NewWrapUpPage({ searchParams }: { searchParams: { 
     });
     return (
       <div className="mx-auto max-w-2xl">
-        <h1 className="mb-2 text-xl font-semibold text-slate-900">Behandlung abschließen</h1>
+        <h1 className="mb-2 font-display text-3xl text-slate-900">Behandlung abschließen</h1>
         <p className="mb-6 text-sm text-slate-500">
           Für welchen Patienten? Schneller geht es direkt aus Ihrer Praxissoftware (Einstellungen → Praxissoftware).
         </p>
@@ -67,7 +67,7 @@ export default async function NewWrapUpPage({ searchParams }: { searchParams: { 
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-semibold text-slate-900">Behandlung abschließen</h1>
+      <h1 className="mb-1 font-display text-3xl text-slate-900">Behandlung abschließen</h1>
       <p className="mb-6 text-sm text-slate-500">
         {patient.firstName} {patient.lastName} · Leistungen prüfen, optional Befunde anklicken, einmal abschließen.
         Bericht, Vorschlag, Patientenschreiben und To-dos entstehen automatisch.

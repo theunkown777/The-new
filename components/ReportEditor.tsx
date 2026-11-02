@@ -141,7 +141,7 @@ export function ReportEditor({
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">
+          <h1 className="font-display text-3xl text-slate-900">
             {REPORT_TYPE_LABELS[report.type]}
           </h1>
           <p className="mt-1 text-sm text-slate-500">

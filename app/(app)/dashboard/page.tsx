@@ -112,10 +112,10 @@ export default async function DashboardPage() {
         <div className="card p-0">
           <div className="flex items-baseline justify-between px-5 pt-4">
             <h2 className="font-semibold text-slate-900">Termine heute</h2>
-            <Link href="/termine" className="text-sm text-brand-700 underline">Tagesplan</Link>
+            <Link href="/termine" className="ziel text-sm text-brand-700 underline">Tagesplan</Link>
           </div>
           {termine.liste.length === 0 ? (
-            <p className="px-5 pb-5 pt-2 text-sm text-slate-600">Für heute ist kein Termin in Sorrida eingetragen.</p>
+            <p className="px-5 pb-5 pt-2 text-sm text-slate-600">Für heute ist kein Termin in Sorrida eingetragen. <Link href="/termine" className="text-brand-700 underline">Termin eintragen</Link></p>
           ) : (
             <ul className="mt-2 divide-y divide-slate-100">
               {termine.liste.slice(0, 6).map((t) => (
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
       <section className="mb-8 rounded-3xl bg-white p-5 sm:p-6" data-testid="wege-trichter">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-semibold text-slate-900">Wo Ihre Patienten gerade stehen</h2>
-          <Link href="/patients" className="text-sm text-brand-700 underline">Zur Arbeitsliste</Link>
+          <Link href="/patients" className="ziel text-sm text-brand-700 underline">Zur Arbeitsliste</Link>
         </div>
         <div className="mx-auto mt-4 max-w-2xl">
           <Behandlungsweg erreicht={5} aktuell={null} size="gross" labels={STATIONEN.map((st, i) => `${st} · ${proStation[i]}`)} animate />

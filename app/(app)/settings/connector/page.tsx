@@ -16,7 +16,7 @@ export default async function ConnectorSettingsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">Praxissoftware anbinden</h1>
+        <h1 className="font-display text-3xl text-slate-900">Praxissoftware anbinden</h1>
         <p className="mt-1 text-sm text-slate-500">
           Sorrida öffnet sich als eigenes Fenster direkt aus Ihrer Praxissoftware, mit dem gerade
           gewählten Patienten: Bericht schreiben, Behandlungsvorschlag erstellen, Verlauf ansehen.

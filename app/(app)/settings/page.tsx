@@ -66,7 +66,7 @@ const CARDS = [
 export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-xl font-semibold text-slate-900">Einstellungen</h1>
+      <h1 className="mb-6 font-display text-3xl text-slate-900">Einstellungen</h1>
       <div className="grid gap-4 sm:grid-cols-2">
         {CARDS.map((card) => (
           <Link key={card.href} href={card.href} className="card hover:bg-slate-50">

@@ -13,7 +13,7 @@ export default async function SpecialtySettingsPage() {
   const { fach, med } = resolveMed(practice ?? {});
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-2 text-xl font-semibold text-slate-900">Fachgebiet und Leistungen</h1>
+      <h1 className="mb-2 font-display text-3xl text-slate-900">Fachgebiet und Leistungen</h1>
       <p className="mb-6 text-sm text-slate-500">
         Sorrida passt Behandlungsvorschläge, Patientenschreiben und Patienten-Link an Ihr Fachgebiet an. Eigene Leistungen ergänzen oder
         ersetzen die mitgelieferten Beispiele.

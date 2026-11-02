@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { cleanupExpiredDemos, createDemoPractice } from "@/lib/demo";
+import { aufraeumen } from "@/lib/aufraeumen";
+
+let letztesAufraeumen = 0;
 import { DENTAL_ID, specialty } from "@/lib/specialties";
 
 // Anlegen von rund 1000 Beispielpatienten braucht einige Sekunden.
@@ -35,7 +38,13 @@ async function handle(req: Request) {
   await recordAttempt(key, WINDOW_MS);
 
   try {
-    await cleanupExpiredDemos();
+    // Löschfristen auch ohne Cron anwenden, höchstens einmal pro Stunde je Instanz.
+    if (Date.now() - letztesAufraeumen > 3600e3) {
+      letztesAufraeumen = Date.now();
+      await aufraeumen();
+    } else {
+      await cleanupExpiredDemos();
+    }
   } catch (err) {
     console.error("Aufräumen abgelaufener Gastzugänge fehlgeschlagen:", err);
   }

@@ -53,7 +53,7 @@ export async function WrapUpSummary({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-green-700">Behandlung abgeschlossen</p>
-          <h1 className="text-xl font-semibold text-slate-900">
+          <h1 className="font-display text-3xl text-slate-900">
             {report.patient.firstName} {report.patient.lastName}
           </h1>
           <p className="text-sm text-slate-500">

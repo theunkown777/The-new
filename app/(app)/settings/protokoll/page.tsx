@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AUDIT_ACTIONS, type AuditAction } from "@/lib/audit";
+import { LOESCHFRISTEN, NICHT_AUTOMATISCH } from "@/lib/loeschfristen";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Protokoll" };
@@ -21,7 +22,7 @@ export default async function ProtokollPage({ searchParams }: { searchParams: { 
   if (session?.user.role !== "admin") {
     return (
       <div className="mx-auto max-w-xl py-10 text-center">
-        <h1 className="text-xl font-semibold text-slate-900">Protokoll nur für Admins</h1>
+        <h1 className="font-display text-3xl text-slate-900">Protokoll nur für Admins</h1>
         <p className="mt-3 text-slate-600">Das Protokoll enthält Anmeldungen und Änderungen aller Mitarbeitenden und ist deshalb der Praxisleitung vorbehalten.</p>
       </div>
     );
@@ -43,8 +44,8 @@ export default async function ProtokollPage({ searchParams }: { searchParams: { 
   return (
     <div className="mx-auto max-w-4xl space-y-6" data-testid="protokoll">
       <div>
-        <Link href="/settings" className="text-sm text-slate-500 hover:text-brand-700">← Einstellungen</Link>
-        <h1 className="mt-2 text-xl font-semibold text-slate-900">Protokoll und Datenschutz</h1>
+        <Link href="/settings" className="ziel text-sm text-slate-500 hover:text-brand-700">← Einstellungen</Link>
+        <h1 className="mt-2 font-display text-3xl text-slate-900">Protokoll und Datenschutz</h1>
         <p className="mt-1 text-sm text-slate-600">
           Sicherheitsrelevante Vorgänge der letzten Zeit. Das Protokoll enthält keine Gesundheitsdaten und keine Patientennamen, nur Art, Person und Zeitpunkt.
         </p>
@@ -105,6 +106,38 @@ export default async function ProtokollPage({ searchParams }: { searchParams: { 
           </table>
         )}
       </div>
+      <section className="card space-y-4" data-testid="sicherung">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="font-semibold text-slate-900">Datensicherung</h2>
+            <p className="mt-1 max-w-2xl text-sm text-slate-600">
+              Gesamtexport aller Praxisdaten als JSON-Datei, für Ihre eigene Sicherung und für die Rückgabe der Daten bei Vertragsende.
+              Dokumentdateien laden Sie einzeln aus der Akte. Die Datenbank selbst sichert der Hoster (Neon, Frankfurt) mit Wiederherstellung auf einen Zeitpunkt;
+              den Zeitraum legt der gebuchte Tarif fest.
+            </p>
+          </div>
+          <a href="/api/settings/export" className="btn-secondary whitespace-nowrap" data-testid="gesamtexport">Gesamtexport herunterladen</a>
+        </div>
+      </section>
+
+      <section className="card" data-testid="loeschfristen">
+        <h2 className="font-semibold text-slate-900">Löschfristen</h2>
+        <p className="mt-1 text-sm text-slate-600">Das löscht Sorrida täglich selbst:</p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-xs uppercase tracking-wide text-slate-500"><tr><th className="py-1 pr-4">Daten</th><th className="py-1 pr-4">Frist</th><th className="py-1">Grund</th></tr></thead>
+            <tbody>
+              {LOESCHFRISTEN.map((f) => (
+                <tr key={f.id} className="border-t border-slate-100 align-top"><td className="py-2 pr-4 text-slate-800">{f.daten}</td><td className="whitespace-nowrap py-2 pr-4 text-slate-800">{f.frist}</td><td className="py-2 text-slate-600">{f.grund}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-4 text-sm text-slate-600">Nicht automatisch gelöscht wird:</p>
+        <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-600">{NICHT_AUTOMATISCH.map((t) => <li key={t}>{t}</li>)}</ul>
+        <p className="mt-3 text-xs text-slate-500">Die Fristen sind Vorschläge von Sorrida. Bitte mit Ihrem Datenschutzbeauftragten abstimmen.</p>
+      </section>
+
       <p className="text-xs text-slate-500">Angezeigt werden die letzten 200 Einträge. {Object.keys(AUDIT_ACTIONS).length} Vorgangsarten werden erfasst.</p>
     </div>
   );

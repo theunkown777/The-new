@@ -81,3 +81,10 @@ h1 {
   font-family: "Caveat", "Comic Sans MS", cursive;
   font-weight: 600;
 }
+
+/* Mindestgröße für Klickziele (WCAG 2.2, 2.5.8): 24 px Höhe für eigenständige Links und Textknöpfe. */
+.ziel {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+}

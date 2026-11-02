@@ -25,7 +25,7 @@ export default async function ProposalsPage() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-slate-900">Behandlungsvorschläge</h1>
+        <h1 className="font-display text-3xl text-slate-900">Behandlungsvorschläge</h1>
         <Link href="/proposals/new" className="btn-primary">Neuer Vorschlag</Link>
       </div>
 

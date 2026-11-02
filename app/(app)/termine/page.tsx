@@ -63,41 +63,41 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
         </nav>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="card" data-testid="auslastung">
-          <p className="text-sm text-slate-500">Auslastung</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{a.prozent} %</p>
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="card !p-3 sm:!p-5" data-testid="auslastung">
+          <p className="text-xs text-slate-500 sm:text-sm">Auslastung</p>
+          <p className="mt-1 text-xl font-semibold sm:text-2xl tabular-nums text-slate-900">{a.prozent} %</p>
           <div className="mt-2 h-2 rounded-full bg-slate-200"><div className={`h-2 rounded-full ${a.prozent > 95 ? "bg-red-600" : "bg-brand-600"}`} style={{ width: `${Math.min(100, a.prozent)}%` }} /></div>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 hidden text-xs text-slate-500 sm:block">
             {Math.round(a.gebucht / 60 * 10) / 10} von {Math.round(a.kapazitaet / 60)} Std.{a.angenommen ? " · angenommen: 1 Platz, 8 Std. Standorte unter Einstellungen pflegen." : ""}
           </p>
         </div>
-        <div className="card">
-          <p className="text-sm text-slate-500">Noch nicht bestätigt</p>
-          <p className={`mt-1 text-2xl font-semibold tabular-nums ${unbestaetigt ? "text-amber-700" : "text-slate-900"}`}>{unbestaetigt}</p>
-          <p className="mt-1 text-xs text-slate-500">Bestätigte Termine fallen seltener aus.</p>
+        <div className="card !p-3 sm:!p-5">
+          <p className="text-xs text-slate-500 sm:text-sm">Noch nicht bestätigt</p>
+          <p className={`mt-1 text-xl font-semibold sm:text-2xl tabular-nums ${unbestaetigt ? "text-amber-700" : "text-slate-900"}`}>{unbestaetigt}</p>
+          <p className="mt-1 hidden text-xs text-slate-500 sm:block">Bestätigte Termine fallen seltener aus.</p>
         </div>
-        <div className="card">
-          <p className="text-sm text-slate-500">Ausfallquote, 60 Tage</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{quote == null ? "–" : `${quote} %`}</p>
-          <p className="mt-1 text-xs text-slate-500">{quote == null ? "Ab fünf abgeschlossenen Terminen." : "Nicht erschienen im Verhältnis zu allen abgeschlossenen Terminen."}</p>
+        <div className="card !p-3 sm:!p-5">
+          <p className="text-xs text-slate-500 sm:text-sm">Ausfallquote, 60 Tage</p>
+          <p className="mt-1 text-xl font-semibold sm:text-2xl tabular-nums text-slate-900">{quote == null ? "–" : `${quote} %`}</p>
+          <p className="mt-1 hidden text-xs text-slate-500 sm:block">{quote == null ? "Ab fünf abgeschlossenen Terminen." : "Nicht erschienen im Verhältnis zu allen abgeschlossenen Terminen."}</p>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="card divide-y divide-slate-100 p-0">
-          {termine.length === 0 && <p className="p-5 text-sm text-slate-600">Für diesen Tag ist nichts eingetragen.</p>}
+          {termine.length === 0 && <p className="p-5 text-sm text-slate-600">Für diesen Tag ist nichts eingetragen. Termine tragen Sie rechts ein{standorte.length === 0 ? "; für eine genaue Auslastung legen Sie unter Einstellungen → Standorte Ihre Behandlungsplätze an" : ""}.</p>}
           {termine.map((t) => (
             <div key={t.id} className="flex flex-col gap-2 p-4" data-testid="termin">
               <div className="flex min-w-0 gap-4">
                 <p className="w-14 shrink-0 font-semibold tabular-nums text-slate-900">{uhrzeit(t.start)}<span className="block text-xs font-normal text-slate-500">{t.minutes} Min.</span></p>
                 <div className="min-w-0">
-                  <Link href={`/patients/${t.patient.id}`} className="font-medium text-slate-900 hover:text-brand-700">{t.patient.lastName}, {t.patient.firstName}</Link>
+                  <Link href={`/patients/${t.patient.id}`} className="ziel font-medium text-slate-900 hover:text-brand-700">{t.patient.lastName}, {t.patient.firstName}</Link>
                   <p className="text-sm text-slate-600">{t.reason}{t.location && standorte.length > 1 ? ` · ${t.location.name}` : ""}</p>
                   <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs ${STATUS_CLS[t.status as TerminStatus]}`}>{STATUS_LABEL[t.status as TerminStatus]}</span>
                 </div>
               </div>
-              <div className="pl-[4.5rem]"><TerminAktionen
+              <div className="sm:pl-[4.5rem]"><TerminAktionen
                 id={t.id}
                 status={t.status as TerminStatus}
                 confirmedAt={t.confirmedAt ? kurz(t.confirmedAt) : null}

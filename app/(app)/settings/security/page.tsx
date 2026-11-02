@@ -12,7 +12,7 @@ export default async function SecuritySettingsPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="mb-6 text-xl font-semibold text-slate-900">Sicherheit</h1>
+      <h1 className="mb-6 font-display text-3xl text-slate-900">Sicherheit</h1>
       <TwoFactorSettings initialEnabled={user?.totpEnabled ?? false} />
     </div>
   );

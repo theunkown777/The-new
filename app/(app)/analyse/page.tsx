@@ -37,7 +37,7 @@ export default async function AnalysePage({ searchParams }: { searchParams: { ta
   if (!(await canSeeAnalytics(session?.user.id))) {
     return (
       <div className="mx-auto max-w-xl py-10 text-center" data-testid="analyse-gesperrt">
-        <h1 className="text-xl font-semibold text-slate-900">Analyse nur für die Geschäftsführung</h1>
+        <h1 className="font-display text-3xl text-slate-900">Analyse nur für die Geschäftsführung</h1>
         <p className="mt-3 text-slate-600">
           Umsätze, Annahmequoten und Risiken der Praxis sieht die Geschäftsführung. Wenn Sie die Analyse brauchen, bitten Sie sie, Ihnen die
           Freigabe unter Einstellungen → Team zu erteilen.
@@ -58,7 +58,7 @@ export default async function AnalysePage({ searchParams }: { searchParams: { ta
     <div className="space-y-6" data-testid="analyse">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">Analyse</h1>
+          <h1 className="font-display text-3xl text-slate-900">Analyse</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-600">
             Womit Ihre Praxis Geld verdient, warum Patienten zusagen und wo es haken kann. Grundlage sind Ihre Vorschläge und Rechnungen, keine Schätzungen von außen.
           </p>

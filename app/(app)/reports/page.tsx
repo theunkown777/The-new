@@ -34,7 +34,7 @@ export default async function ReportsPage({
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Berichte</h1>
+        <h1 className="font-display text-3xl text-slate-900">Berichte</h1>
         <Link href="/reports/new" className="btn-primary">Neuer Bericht</Link>
       </div>
 

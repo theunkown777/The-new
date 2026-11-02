@@ -35,7 +35,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">
+          <h1 className="font-display text-3xl text-slate-900">
             Vorschlag für{" "}
             <Link href={`/patients/${p.id}`} className="hover:underline">
               {p.firstName} {p.lastName}

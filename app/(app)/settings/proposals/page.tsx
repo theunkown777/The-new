@@ -15,7 +15,7 @@ export default async function ProposalPricesPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-xl font-semibold text-slate-900">Vorschlagspreise</h1>
+      <h1 className="mb-6 font-display text-3xl text-slate-900">Vorschlagspreise</h1>
       {session!.user.role !== "admin" && (
         <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
           Nur Admin-Konten der Praxis können diese Werte ändern. Sie sehen die aktuellen Werte

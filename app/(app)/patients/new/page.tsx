@@ -45,7 +45,7 @@ export default function NewPatientPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="mb-6 text-xl font-semibold text-slate-900">Neuer Patient</h1>
+      <h1 className="mb-6 font-display text-3xl text-slate-900">Neuer Patient</h1>
       <form onSubmit={handleSubmit} className="card space-y-4">
         {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

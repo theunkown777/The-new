@@ -36,7 +36,7 @@ export default async function AnfragenPage({ searchParams }: { searchParams: { f
   return (
     <div className="space-y-6" data-testid="anfragen">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">Anfragen</h1>
+        <h1 className="font-display text-3xl text-slate-900">Anfragen</h1>
         <p className="mt-1 text-sm text-slate-600">Hilfe- und Pilot-Anfragen von der Website. {offen} offen. Nur für das Sorrida-Team sichtbar.</p>
       </div>
       <nav className="flex flex-wrap gap-2">

@@ -251,3 +251,22 @@ export function kiFehlerGrund(e: unknown): string {
   }
   return "Der KI-Dienst ist nicht erreichbar.";
 }
+
+let kiPruefung: { at: number; ok: boolean; info: string } | null = null;
+
+/**
+ * Prüft den KI-Zugang mit einer Mini-Anfrage (1 Ausgabetoken, ohne
+ * Patientendaten). Ergebnis wird 6 Stunden je Instanz zwischengespeichert,
+ * damit die öffentliche Statusseite keine Kosten treibt.
+ */
+export async function kiZugangPruefen(): Promise<{ ok: boolean; info: string }> {
+  if (!HAS_REAL_KEY) return { ok: true, info: "kein Schlüssel: Berichte im Testmodus" };
+  if (kiPruefung && Date.now() - kiPruefung.at < 6 * 3600e3) return kiPruefung;
+  try {
+    await anthropic.messages.create({ model: MODEL, max_tokens: 1, messages: [{ role: "user", content: "ok" }] });
+    kiPruefung = { at: Date.now(), ok: true, info: `Schlüssel gültig, Modell ${MODEL} erreichbar` };
+  } catch (e) {
+    kiPruefung = { at: Date.now(), ok: false, info: kiFehlerGrund(e) };
+  }
+  return kiPruefung;
+}

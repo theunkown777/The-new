@@ -32,7 +32,7 @@ export default async function NewProposalPage({
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold text-slate-900">Neuer Behandlungsvorschlag</h1>
+      <h1 className="mb-6 font-display text-3xl text-slate-900">Neuer Behandlungsvorschlag</h1>
       <ProposalEditor
         patients={patients.map((p) => ({ ...p, birthDate: p.birthDate?.toISOString() ?? null }))}
         initialPatientId={searchParams.patientId}

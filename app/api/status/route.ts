@@ -55,9 +55,10 @@ export async function GET(req: Request) {
       : redis.state === "nicht angebunden"
         ? { ok: true, info: "nicht angebunden (Zähler nur im Speicher, für den Start in Ordnung)" }
         : { ok: true, info: `${redis.tried} Zugangsdaten gesetzt, keine antwortet: läuft ersatzweise im Speicher. Neue Upstash-Datenbank mit dem Projekt verbinden (Production) und neu deployen, alte KV_/UPSTASH_-Variablen löschen.` };
-  checks["KI-Berichte"] = process.env.ANTHROPIC_API_KEY
-    ? { ok: true, info: "Schlüssel gesetzt" }
-    : { ok: true, info: "kein Schlüssel: Berichte im Testmodus" };
+  checks["KI-Berichte"] = await (await import("@/lib/anthropic")).kiZugangPruefen();
+  checks["Löschfristen (Cron)"] = process.env.CRON_SECRET
+    ? { ok: true, info: "CRON_SECRET gesetzt, täglicher Lauf aktiv" }
+    : { ok: true, info: "kein CRON_SECRET: Fristen laufen nur beim Öffnen eines Gastzugangs. CRON_SECRET in Vercel setzen" };
   // Nur ob gesetzt, nie die Werte: zeigt, ob Pilot- und Hilfe-Anfragen per Mail ankommen.
   checks["E-Mail-Versand"] = process.env.RESEND_API_KEY
     ? { ok: true, info: `Resend-Schlüssel gesetzt${process.env.RESEND_FROM_EMAIL ? ", eigene Absenderadresse" : ", Absender onboarding@resend.dev (nur an die eigene Resend-Kontoadresse zustellbar)"}` }

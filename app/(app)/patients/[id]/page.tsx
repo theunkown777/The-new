@@ -47,7 +47,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900">
+          <h1 className="font-display text-3xl text-slate-900">
             {patient.firstName} {patient.lastName}
           </h1>
           <p className="mt-1 text-sm text-slate-500">

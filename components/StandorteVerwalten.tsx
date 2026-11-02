@@ -41,8 +41,8 @@ export function StandorteVerwalten({ standorte }: { standorte: S[] }) {
               <p className="text-sm text-slate-600">{[s.address, `${s.rooms} ${s.rooms === 1 ? "Behandlungsplatz" : "Behandlungsplätze"}`, `${s.minutesPerDay / 60} Std. pro Tag`, `${s.termine} Termine`].filter(Boolean).join(" · ")}</p>
             </div>
             <div className="flex gap-3 text-sm">
-              <button type="button" className="underline" onClick={() => { setEdit(s.id); setF({ name: s.name, address: s.address ?? "", rooms: s.rooms, stunden: s.minutesPerDay / 60 }); }}>bearbeiten</button>
-              <button type="button" className="text-red-700 underline" onClick={() => remove(s.id)}>entfernen</button>
+              <button type="button" className="ziel underline" onClick={() => { setEdit(s.id); setF({ name: s.name, address: s.address ?? "", rooms: s.rooms, stunden: s.minutesPerDay / 60 }); }}>bearbeiten</button>
+              <button type="button" className="ziel text-red-700 underline" onClick={() => remove(s.id)}>entfernen</button>
             </div>
           </div>
         ))}

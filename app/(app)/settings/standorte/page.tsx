@@ -19,8 +19,8 @@ export default async function StandortePage() {
   });
   return (
     <div className="mx-auto max-w-3xl space-y-4" data-testid="standorte">
-      <Link href="/settings" className="text-sm text-slate-500 hover:text-brand-700">← Einstellungen</Link>
-      <h1 className="text-xl font-semibold text-slate-900">Standorte</h1>
+      <Link href="/settings" className="ziel text-sm text-slate-500 hover:text-brand-700">← Einstellungen</Link>
+      <h1 className="font-display text-3xl text-slate-900">Standorte</h1>
       <p className="text-sm text-slate-600">
         Hauptpraxis und Zweigpraxen mit Behandlungsplätzen und Sprechzeit. Daraus rechnet Sorrida die Auslastung je Standort; Termine lassen sich nach Standort filtern.
       </p>

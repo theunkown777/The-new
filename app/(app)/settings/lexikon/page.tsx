@@ -14,7 +14,7 @@ export default async function LexikonPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-2 text-xl font-semibold text-slate-900">Leistungslexikon</h1>
+      <h1 className="mb-2 font-display text-3xl text-slate-900">Leistungslexikon</h1>
       <p className="mb-6 text-sm text-slate-500">
         Allgemeine Hintergrundinfos zu gängigen Selbstzahlerleistungen (IGEL) – zum Nachschlagen im
         Beratungsgespräch, nicht patientenbezogen.
