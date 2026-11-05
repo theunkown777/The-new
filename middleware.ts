@@ -45,6 +45,7 @@ export const config = {
     "/praxismanager/:path*",
     "/termine/:path*",
     "/abrechnungspruefung/:path*",
+    "/abrechnung/:path*",
     "/embed/:path*",
     "/api/:path*",
   ],

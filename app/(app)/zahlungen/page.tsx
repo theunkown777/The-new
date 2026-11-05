@@ -7,6 +7,7 @@ import { REMINDER_LABELS, formatCent, formatIban, invoiceTotals, invoiceView } f
 import { InvoiceActions } from "@/components/InvoiceActions";
 import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { BankSettings } from "@/components/BankSettings";
+import { Bankabgleich } from "@/components/Bankabgleich";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zahlungen" };
@@ -213,6 +214,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
               </ul>
             )}
           </section>
+          <Bankabgleich />
           {practice?.iban && (
             <section className="card">
               <h2 className="font-semibold text-slate-900">Bankverbindung</h2>

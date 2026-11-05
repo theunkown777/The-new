@@ -11,6 +11,9 @@ import { AnamnesisPanel } from "@/components/AnamnesisPanel";
 import { PatientDatenschutz } from "@/components/PatientDatenschutz";
 import { PatientAkte } from "@/components/PatientAkte";
 import { PatientKontakt } from "@/components/PatientKontakt";
+import { BefundAuswahl } from "@/components/BefundAuswahl";
+import { befundmodell } from "@/lib/befundmodelle";
+import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { TerminUeberblick } from "@/components/TerminUeberblick";
 import { loadBriefing } from "@/lib/briefingLoad";
 import { kiVerfuegbar } from "@/lib/anthropic";
@@ -43,6 +46,8 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     prisma.patientDocument.findMany({ where: { practiceId, patientId: patient.id }, orderBy: { createdAt: "desc" }, select: { id: true, name: true, mime: true, size: true, createdAt: true, createdBy: true } }),
   ]);
   const de = (d: Date) => d.toLocaleDateString("de-DE");
+  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } });
+  const fach = praxis?.specialty ?? "hausarzt";
 
   return (
     <div>
@@ -78,6 +83,15 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           isAdmin={session!.user.role === "admin"}
           entries={entries.map((e) => ({ id: e.id, art: e.art, text: e.text, code: e.code, datum: e.datum ? de(e.datum) : null, inaktiv: e.inaktiv, createdBy: e.createdBy, createdAt: de(e.createdAt) }))}
           documents={documents.map((d) => ({ ...d, createdAt: de(d.createdAt) }))}
+        />
+      </div>
+
+      <div className="mb-8">
+        <BefundAuswahl
+          patientId={patient.id}
+          regionen={befundmodell(fach)}
+          fachName={SPECIALTY_LABELS[fach] ?? "Allgemeinmedizin"}
+          vorhanden={entries.filter((e) => !e.inaktiv && e.code).map((e) => e.code!)}
         />
       </div>
 

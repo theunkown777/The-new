@@ -18,6 +18,7 @@ const ICONS: Record<string, string> = {
   anfragen: "M4 4h16v12H8l-4 4zM8 9h8M8 12h5",
   zahlungen: "M3 6h18v12H3zM3 10h18M7 15h3",
   manager: "M4 5h16v10H9l-5 4zM8 9h8M8 12h4",
+  abrechnung: "M7 3h10v18l-5-3-5 3zM9 8h6M9 12h6",
   termine: "M4 5h16v15H4zM4 10h16M8 3v4M16 3v4",
   pruefung: "M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9",
   analyse: "M4 20V10M10 20V4M16 20v-7M22 20H2",
@@ -45,7 +46,7 @@ export function SidebarNav({ dental, team = false, analyse = false }: { dental: 
         ...(dental ? ([["/reports", "Berichte", "reports"]] as L[]) : []),
       ],
     ],
-    ["Geld", [["/zahlungen", "Zahlungen", "zahlungen"], ["/abrechnungspruefung", "Abrechnungsprüfung", "pruefung"], ...(analyse ? ([["/analyse", "Analyse", "analyse"]] as L[]) : [])]],
+    ["Geld", [["/zahlungen", "Zahlungen", "zahlungen"], ["/abrechnung", "Abrechnung", "abrechnung"], ["/abrechnungspruefung", "Abrechnungsprüfung", "pruefung"], ...(analyse ? ([["/analyse", "Analyse", "analyse"]] as L[]) : [])]],
     [
       "Praxis",
       [
