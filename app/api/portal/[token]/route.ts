@@ -2,11 +2,15 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
+import { isValidIban, normalizeIban } from "@/lib/invoices";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 
 const schema = z.object({
   invoiceId: z.string().min(1).max(40),
-  action: z.enum(["gezahlt", "raten"]),
+  action: z.enum(["gezahlt", "raten", "lastschrift"]),
+  iban: z.string().max(40).optional(),
+  name: z.string().trim().max(70).optional(),
+  zustimmung: z.boolean().optional(),
 });
 
 // Patientenportal (öffentlich, ohne Login): Zahlung melden oder Ratenzahlung anfragen.
@@ -27,6 +31,20 @@ export async function POST(req: Request, { params }: { params: { token: string }
   }
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Ungültige Angaben" }, { status: 400 });
+
+  if (parsed.data.action === "lastschrift") {
+    // Einzel-Lastschriftmandat: nur mit gültiger IBAN, Namen und ausdrücklicher Zustimmung zum Mandatstext.
+    const iban = normalizeIban(parsed.data.iban ?? "");
+    if (!isValidIban(iban)) return NextResponse.json({ error: "Die IBAN ist ungültig." }, { status: 400 });
+    if (!parsed.data.name || parsed.data.name.length < 2) return NextResponse.json({ error: "Bitte den Namen des Kontoinhabers angeben." }, { status: 400 });
+    if (!parsed.data.zustimmung) return NextResponse.json({ error: "Bitte dem Lastschriftmandat zustimmen." }, { status: 400 });
+    const r = await prisma.invoice.updateMany({
+      where: { id: parsed.data.invoiceId, patientId: patient.id, status: "OFFEN", sepaExportedAt: null, practice: { glaeubigerId: { not: null } } },
+      data: { sepaIban: iban, sepaName: parsed.data.name, sepaMandatAt: new Date() },
+    });
+    if (r.count === 0) return NextResponse.json({ error: "Lastschrift für diese Rechnung nicht möglich." }, { status: 409 });
+    return NextResponse.json({ ok: true });
+  }
 
   const res = await prisma.invoice.updateMany({
     where: { id: parsed.data.invoiceId, patientId: patient.id, status: { in: ["OFFEN", "GEMELDET"] } },

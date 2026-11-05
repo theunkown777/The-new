@@ -98,7 +98,25 @@ export const bankSchema = z.object({
     .transform((s) => s.toUpperCase())
     .refine((s) => s === "" || /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(s), "Die BIC ist ungültig.")
     .optional(),
+  glaeubigerId: z
+    .string()
+    .trim()
+    .transform((s) => s.replace(/\s+/g, "").toUpperCase())
+    .refine((s) => s === "" || isValidGlaeubigerIdLocal(s), "Die Gläubiger-ID ist ungültig.")
+    .optional(),
 });
+
+/** Prüfziffer der Gläubiger-ID (wie lib/sepa.ts, hier ohne Import-Zyklus). */
+function isValidGlaeubigerIdLocal(id: string): boolean {
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{3}[A-Z0-9]{1,28}$/.test(id) || (id.startsWith("DE") && id.length !== 18)) return false;
+  const moved = id.slice(7) + id.slice(0, 4);
+  let rest = 0;
+  for (const ch of moved) {
+    const v = /\d/.test(ch) ? ch : String(ch.charCodeAt(0) - 55);
+    for (const d of v) rest = (rest * 10 + Number(d)) % 97;
+  }
+  return rest === 1;
+}
 
 // ------------------------------------------------------------ GiroCode ----
 

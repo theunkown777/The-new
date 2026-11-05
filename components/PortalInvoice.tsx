@@ -18,6 +18,10 @@ export type PortalInvoiceData = {
   qr: string | null;
   /** Fälligkeit für das Datumsfeld, z. B. ["12", "Nov."]. */
   due: [string, string];
+  /** Lastschriftmandat bereits erteilt. */
+  sepa?: boolean;
+  /** Mandatstext, wenn die Praxis Lastschrift anbietet. */
+  mandat?: string | null;
 };
 
 export type PortalText = Omit<PortalUi, "hello" | "summary" | "nextDue" | "proposalDoc" | "valid">;
@@ -52,12 +56,23 @@ function CopyRow({ label, value, raw, t }: { label: string; value: string; raw?:
 
 // Eine offene Rechnung im Patientenportal: Status, Bezahldaten mit GiroCode,
 // "Ich habe überwiesen" und Ratenanfrage.
-export function PortalInvoice({ token, inv, bank, t, startOpen }: { token: string; inv: PortalInvoiceData; bank: { name: string; iban: string } | null; t: Text; startOpen: boolean }) {
+export function PortalInvoice({ token, inv, bank, t, startOpen, mandat }: { token: string; inv: PortalInvoiceData; bank: { name: string; iban: string } | null; t: Text; startOpen: boolean; mandat?: string | null }) {
   const [open, setOpen] = useState(startOpen);
   const [reported, setReported] = useState(inv.reported);
   const [raten, setRaten] = useState(inv.wantsInstallments);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sepa, setSepa] = useState(!!inv.sepa);
+  const [ls, setLs] = useState({ iban: "", name: "", zustimmung: false, offen: false });
+
+  async function lastschrift() {
+    setBusy(true);
+    setError(null);
+    const res = await fetch(`/api/portal/${token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ invoiceId: inv.id, action: "lastschrift", iban: ls.iban, name: ls.name, zustimmung: ls.zustimmung }) });
+    setBusy(false);
+    if (!res.ok) return setError((await res.json().catch(() => ({}))).error ?? t.failed);
+    setSepa(true);
+  }
 
   async function send(action: "gezahlt" | "raten") {
     setBusy(true);
@@ -113,6 +128,25 @@ export function PortalInvoice({ token, inv, bank, t, startOpen }: { token: strin
           ) : (
             <p className="text-sm text-slate-600">{t.noBank}</p>
           )}
+          {mandat && !sepa && (
+            <div className="mt-4 rounded-xl border border-slate-200 p-3" data-testid="lastschrift">
+              {!ls.offen ? (
+                <button type="button" className="text-sm font-medium text-salbei-800 underline" onClick={() => setLs({ ...ls, offen: true })}>Stattdessen per Lastschrift zahlen</button>
+              ) : (
+                <div className="space-y-2 text-sm">
+                  <p className="font-medium text-slate-900">SEPA-Lastschrift</p>
+                  <input className="input w-full font-mono" placeholder="IBAN" value={ls.iban} onChange={(e) => setLs({ ...ls, iban: e.target.value })} aria-label="IBAN" data-testid="ls-iban" />
+                  <input className="input w-full" placeholder="Kontoinhaber" value={ls.name} onChange={(e) => setLs({ ...ls, name: e.target.value })} aria-label="Kontoinhaber" data-testid="ls-name" />
+                  <label className="flex items-start gap-2 text-xs leading-relaxed text-slate-600">
+                    <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0" checked={ls.zustimmung} onChange={(e) => setLs({ ...ls, zustimmung: e.target.checked })} data-testid="ls-zustimmung" />
+                    <span>{mandat}</span>
+                  </label>
+                  <button type="button" disabled={busy || !ls.zustimmung} onClick={lastschrift} className="w-full rounded-xl bg-salbei-600 px-4 py-3 font-semibold text-white disabled:opacity-60" data-testid="ls-senden">Lastschrift erteilen</button>
+                </div>
+              )}
+            </div>
+          )}
+          {sepa && <p className="mt-4 rounded-xl bg-salbei-50 p-3 text-sm text-salbei-900" data-testid="ls-erteilt">Lastschrift erteilt. Die Praxis zieht den Betrag ein, Sie müssen nichts weiter tun.</p>}
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <button type="button" disabled={busy} onClick={() => send("gezahlt")} className="rounded-xl bg-salbei-600 px-4 py-3 text-sm font-semibold text-white hover:bg-salbei-700 disabled:opacity-60">
               {t.reported}

@@ -38,6 +38,8 @@ model Practice {
   accountHolder     String?
   iban              String?
   bic               String?
+  /// Gläubiger-Identifikationsnummer (Bundesbank) für SEPA-Lastschriften
+  glaeubigerId      String?
   // Praxiseigene Preise für Behandlungsvorschläge (Euro je Preisschlüssel
   // aus lib/proposals.ts PRICE_DEFS). Null bzw. fehlende Schlüssel = die
   // dort hinterlegten Beispielwerte.
@@ -542,6 +544,12 @@ model Invoice {
   remindedAt     DateTime?
   /// Mahnstufe: 0 = noch nicht erinnert, 1 = Erinnerung, 2 = 2. Erinnerung, 3 = letzte Mahnung
   reminderLevel  Int                @default(0)
+  /// SEPA-Lastschriftmandat aus dem Portal (Einzelmandat für diese Rechnung)
+  sepaIban       String?
+  sepaName       String?
+  sepaMandatAt   DateTime?
+  /// In eine pain.008-Datei übernommen (nicht doppelt einziehen)
+  sepaExportedAt DateTime?
   createdAt      DateTime           @default(now())
 
   @@unique([practiceId, number])

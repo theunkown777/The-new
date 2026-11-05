@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { mandatsReferenz, mandatsText } from "@/lib/sepa";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
@@ -47,7 +48,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
       lastName: true,
       portalExpiresAt: true,
       portalViewedAt: true,
-      practice: { select: { name: true, accountHolder: true, iban: true, bic: true, proposalPrices: true } },
+      practice: { select: { name: true, accountHolder: true, iban: true, bic: true, proposalPrices: true, glaeubigerId: true } },
       invoices: { where: { status: { not: "STORNIERT" } }, orderBy: { dueDate: "asc" }, take: 50 },
       proposals: {
         where: { OR: [{ shareCreatedAt: { not: null } }, { status: { in: ["BESPROCHEN", "ANGENOMMEN"] } }] },
@@ -91,6 +92,8 @@ export default async function PortalPage({ params, searchParams }: { params: { t
         reference,
         qr,
         due: [String(i.dueDate.getDate()), i.dueDate.toLocaleDateString(locale, { month: "short" })] as [string, string],
+        sepa: !!i.sepaMandatAt,
+        mandat: practice.glaeubigerId && i.status === "OFFEN" && !i.sepaExportedAt ? mandatsText(practice.accountHolder || practice.name, practice.glaeubigerId, mandatsReferenz(i.number)) : null,
       };
     }),
   );
@@ -166,7 +169,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
             <ul className="mt-3 space-y-3">
               {openInvoices.map((i, idx) => (
                 <li key={i.id}>
-                  <PortalInvoice token={params.token} inv={i} bank={bank ? { name: bank.name, iban: formatIban(bank.iban) } : null} t={text} startOpen={idx === 0 && openInvoices.length === 1} />
+                  <PortalInvoice token={params.token} inv={i} bank={bank ? { name: bank.name, iban: formatIban(bank.iban) } : null} t={text} startOpen={idx === 0 && openInvoices.length === 1} mandat={i.mandat} />
                 </li>
               ))}
             </ul>

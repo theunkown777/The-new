@@ -11,7 +11,7 @@ export async function PATCH(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Ungültige Eingabe" }, { status: 400 });
   await prisma.practice.update({
     where: { id: session.user.practiceId },
-    data: { accountHolder: parsed.data.accountHolder, iban: normalizeIban(parsed.data.iban), bic: parsed.data.bic || null },
+    data: { accountHolder: parsed.data.accountHolder, iban: normalizeIban(parsed.data.iban), bic: parsed.data.bic || null, glaeubigerId: parsed.data.glaeubigerId || null },
   });
   return NextResponse.json({ ok: true });
 }

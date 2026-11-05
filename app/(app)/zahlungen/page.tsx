@@ -8,6 +8,7 @@ import { InvoiceActions } from "@/components/InvoiceActions";
 import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { BankSettings } from "@/components/BankSettings";
 import { Bankabgleich } from "@/components/Bankabgleich";
+import { SepaExport } from "@/components/SepaExport";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zahlungen" };
@@ -51,8 +52,8 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
             : {};
 
   const [practice, all, list, billable] = await Promise.all([
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, accountHolder: true, iban: true, bic: true } }),
-    prisma.invoice.findMany({ where: { practiceId }, select: { status: true, dueDate: true, amountCent: true, paidAt: true, wantsInstallments: true } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, accountHolder: true, iban: true, bic: true, glaeubigerId: true } }),
+    prisma.invoice.findMany({ where: { practiceId }, select: { status: true, dueDate: true, amountCent: true, paidAt: true, wantsInstallments: true, sepaMandatAt: true, sepaExportedAt: true } }),
     prisma.invoice.findMany({
       where: { practiceId, ...where },
       orderBy: f === "bezahlt" ? { paidAt: "desc" } : { dueDate: "asc" },
@@ -136,7 +137,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <Link href={`/patients?sel=${i.patient.id}`} className="font-medium text-slate-900">{i.patient.lastName}, {i.patient.firstName}</Link>
-                        <p className="text-xs text-slate-500">{i.title} · Nr. {i.number} · fällig {fmtDate(i.dueDate)}{i.wantsInstallments ? " · Raten angefragt" : ""}{i.reminderLevel > 0 ? ` · ${REMINDER_LABELS[i.reminderLevel]}` : ""}</p>
+                        <p className="text-xs text-slate-500">{i.title} · Nr. {i.number} · fällig {fmtDate(i.dueDate)}{i.wantsInstallments ? " · Raten angefragt" : ""}{i.sepaMandatAt ? (i.sepaExportedAt ? " · Lastschrift eingereicht" : " · Lastschrift erteilt") : ""}{i.reminderLevel > 0 ? ` · ${REMINDER_LABELS[i.reminderLevel]}` : ""}</p>
                       </div>
                       <b className="shrink-0 tabular-nums text-slate-900">{formatCent(i.amountCent)}</b>
                     </div>
@@ -174,7 +175,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                         </td>
                         <td className="px-4 py-3">
                           <p className="text-slate-800">{i.title}</p>
-                          <p className="text-xs text-slate-500">Nr. {i.number}{i.wantsInstallments ? " · Raten angefragt" : ""}{i.reminderLevel > 0 ? ` · ${REMINDER_LABELS[i.reminderLevel]}${i.remindedAt ? ` am ${fmtDate(i.remindedAt)}` : ""}` : ""}</p>
+                          <p className="text-xs text-slate-500">Nr. {i.number}{i.wantsInstallments ? " · Raten angefragt" : ""}{i.sepaMandatAt ? (i.sepaExportedAt ? " · Lastschrift eingereicht" : " · Lastschrift erteilt") : ""}{i.reminderLevel > 0 ? ` · ${REMINDER_LABELS[i.reminderLevel]}${i.remindedAt ? ` am ${fmtDate(i.remindedAt)}` : ""}` : ""}</p>
                         </td>
                         <td className="px-4 py-3 tabular-nums text-slate-600">{fmtDate(i.dueDate)}</td>
                         <td className="px-4 py-3 text-right font-medium tabular-nums text-slate-900">{formatCent(i.amountCent)}</td>
@@ -214,6 +215,13 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
               </ul>
             )}
           </section>
+          {isAdmin && (
+            <SepaExport
+              bereit={!!practice?.iban && !!practice?.glaeubigerId}
+              anzahl={all.filter((i) => i.status === "OFFEN" && i.sepaMandatAt && !i.sepaExportedAt).length}
+              summe={formatCent(all.filter((i) => i.status === "OFFEN" && i.sepaMandatAt && !i.sepaExportedAt).reduce((a, i) => a + i.amountCent, 0))}
+            />
+          )}
           <Bankabgleich />
           {practice?.iban && (
             <section className="card">
@@ -222,7 +230,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
               <details className="mt-3">
                 <summary className="cursor-pointer text-sm text-brand-700">Ändern</summary>
                 <div className="mt-3">
-                  <BankSettings initial={{ accountHolder: practice.accountHolder ?? "", iban: formatIban(practice.iban), bic: practice.bic ?? "" }} readOnly={!isAdmin} />
+                  <BankSettings initial={{ accountHolder: practice.accountHolder ?? "", iban: formatIban(practice.iban), bic: practice.bic ?? "", glaeubigerId: practice.glaeubigerId ?? "" }} readOnly={!isAdmin} />
                 </div>
               </details>
             </section>
