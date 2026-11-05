@@ -13,7 +13,10 @@ export default function NewPatientPage() {
     insuranceName: "",
     insuranceNumber: "",
     notes: "",
+    email: "",
+    phone: "",
   });
+  const [einwilligung, setEinwilligung] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +32,7 @@ export default function NewPatientPage() {
     const res = await fetch("/api/patients", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, einwilligung }),
     });
 
     const data = await res.json();
@@ -106,6 +109,20 @@ export default function NewPatientPage() {
             onChange={(e) => update("insuranceNumber", e.target.value)}
           />
         </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="label">E-Mail (optional)</label>
+            <input className="input" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} />
+          </div>
+          <div>
+            <label className="label">Mobilnummer (optional)</label>
+            <input className="input" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+          </div>
+        </div>
+        <label className="flex items-start gap-2 text-sm text-slate-700">
+          <input type="checkbox" className="mt-1 h-4 w-4" checked={einwilligung} onChange={(e) => setEinwilligung(e.target.checked)} />
+          <span>Der Patient willigt ein, Terminbestätigungen, Erinnerungen und Zahlungserinnerungen per E-Mail zu erhalten.</span>
+        </label>
         <div>
           <label className="label">Notizen (optional)</label>
           <textarea

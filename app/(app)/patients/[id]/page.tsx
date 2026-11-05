@@ -10,6 +10,7 @@ import { loadAnamnesis } from "@/lib/anamnesisView";
 import { AnamnesisPanel } from "@/components/AnamnesisPanel";
 import { PatientDatenschutz } from "@/components/PatientDatenschutz";
 import { PatientAkte } from "@/components/PatientAkte";
+import { PatientKontakt } from "@/components/PatientKontakt";
 import { TerminUeberblick } from "@/components/TerminUeberblick";
 import { loadBriefing } from "@/lib/briefingLoad";
 import { kiVerfuegbar } from "@/lib/anthropic";
@@ -78,6 +79,10 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           entries={entries.map((e) => ({ id: e.id, art: e.art, text: e.text, code: e.code, datum: e.datum ? de(e.datum) : null, inaktiv: e.inaktiv, createdBy: e.createdBy, createdAt: de(e.createdAt) }))}
           documents={documents.map((d) => ({ ...d, createdAt: de(d.createdAt) }))}
         />
+      </div>
+
+      <div className="mb-8">
+        <PatientKontakt patientId={patient.id} email={patient.email} phone={patient.phone} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} />
       </div>
 
       <div className="mb-8">

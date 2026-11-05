@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PortalLinkButton } from "@/components/PortalLinkButton";
+import { MailSenden } from "@/components/MailSenden";
 import { REMINDER_LABELS, nextReminderLevel, reminderText } from "@/lib/invoices";
 
-export function InvoiceActions({ id, status, patientId, firstName, practiceName, level = 0, number = "", amountCent = 0, dueDate }: {
+export function InvoiceActions({ id, status, patientId, firstName, practiceName, level = 0, number = "", amountCent = 0, dueDate, mail = false }: {
+  mail?: boolean;
   id: string;
   status: string;
   patientId: string;
@@ -64,6 +66,11 @@ export function InvoiceActions({ id, status, patientId, firstName, practiceName,
             message={(url) => reminderText({ level: next, firstName, practiceName, number, amountCent, dueDate: dueDate ? new Date(dueDate) : new Date(), url })}
             onCreated={() => act("erinnert", next)}
           />
+          {mail && (
+            <div className="mt-2">
+              <MailSenden art="zahlungserinnerung" id={id} label={`${REMINDER_LABELS[next]} per E-Mail senden`} className="btn-secondary" />
+            </div>
+          )}
         </div>
       )}
     </div>

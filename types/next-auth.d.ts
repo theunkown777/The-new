@@ -10,6 +10,7 @@ declare module "next-auth" {
       role: string;
       practiceId: string;
       practiceName: string;
+      mfaPending?: boolean;
     };
   }
 
@@ -18,6 +19,8 @@ declare module "next-auth" {
     role: string;
     practiceId: string;
     practiceName: string;
+    /** Zwei-Faktor-Pflicht, aber noch nicht eingerichtet: API gesperrt bis zur Neuanmeldung mit 2FA. */
+    mfaPending?: boolean;
   }
 }
 
@@ -27,5 +30,7 @@ declare module "next-auth/jwt" {
     role: string;
     practiceId: string;
     practiceName: string;
+    /** Zwei-Faktor-Pflicht, aber noch nicht eingerichtet: API gesperrt bis zur Neuanmeldung mit 2FA. */
+    mfaPending?: boolean;
   }
 }

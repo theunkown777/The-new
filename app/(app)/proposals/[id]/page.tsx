@@ -16,7 +16,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
   const proposal = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, practiceId: session!.user.practiceId },
     include: {
-      patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true } },
+      patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true, externalId: true } },
       author: { select: { name: true } },
       practice: { select: { name: true, proposalPrices: true } },
     },
@@ -88,6 +88,11 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
           <a href={`/api/proposals/${proposal.id}/einverstaendnis`} className="btn-secondary mt-3 inline-block" data-testid="einverstaendnis-pdf">
             Als PDF für die Akte (mit Gegenzeichnung)
           </a>
+          {proposal.status === "ANGENOMMEN" && proposal.patient.externalId && (
+            <a href={`/api/gdt?art=vorschlag&id=${proposal.id}`} className="btn-secondary ml-2 mt-3 inline-block" data-testid="gdt-export">
+              Als GDT-Datei für die Praxissoftware
+            </a>
+          )}
         </section>
       )}
 

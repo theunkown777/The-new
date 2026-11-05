@@ -52,6 +52,7 @@ export async function loadReportEditorProps(id: string, practiceId: string) {
       })),
       additionalContext: report.additionalContext,
       patient: { firstName: report.patient.firstName, lastName: report.patient.lastName },
+      pvs: !!report.patient.externalId,
       author: { name: report.author.name },
       createdAt: report.createdAt.toLocaleDateString("de-DE"),
       approval: report.approvedAt

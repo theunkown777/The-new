@@ -180,6 +180,8 @@ fertigen, gut lesbaren Bericht auf Deutsch.
 ${TYPE_INSTRUCTIONS[input.reportType]}
 
 Wichtige Regeln:
+- Eine Empfehlung oder ein weiteres Vorgehen schreibst du nur, wenn die Praxis es in ihren Angaben
+  oder der Notiz selbst nennt. Schlage nie eigene Diagnosen oder Therapien vor.
 - Nutze ausschließlich die gegebenen Informationen. Erfinde keine Diagnosen, Befunde, Maßnahmen,
   Zähne/Zahnschemata, Daten oder Zahlen, die nicht genannt wurden.
 - Falls für den Berichtstyp üblicherweise eine Angabe fehlt (z. B. Zahnnummer, genaues Datum), lass an

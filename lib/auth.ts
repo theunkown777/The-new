@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt, clearAttempts } from "@/lib/rateLimit";
 import { verifyTotpToken, consumeBackupCode } from "@/lib/twoFactor";
+import { zweiFaktorPflicht } from "@/lib/zweiFaktorPflicht";
 
 const LOGIN_ATTEMPT_LIMIT = 5;
 const LOGIN_ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
@@ -50,16 +51,20 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
+        // Ein leeres Codefeld kommt je nach Client als "" oder als Text
+        // "undefined"/"null" an; das gilt als „kein Code“, nicht als falscher Code.
+        const code = (credentials.token ?? "").trim();
+        const ohneCode = code === "" || code === "undefined" || code === "null";
         if (user.totpEnabled && user.totpSecret) {
-          if (!credentials.token) {
+          if (ohneCode) {
             throw new Error("2FA_REQUIRED");
           }
-          const tokenValid = await verifyTotpToken(credentials.token, user.totpSecret);
+          const tokenValid = await verifyTotpToken(code, user.totpSecret);
           if (!tokenValid) {
             // Kein gültiger TOTP-Code - ggf. handelt es sich um einen
             // Einmal-Backup-Code (für den Fall, dass die Authenticator-App
             // nicht verfügbar ist).
-            const remainingCodes = await consumeBackupCode(credentials.token, user.totpBackupCodes);
+            const remainingCodes = await consumeBackupCode(code, user.totpBackupCodes);
             if (remainingCodes === null) {
               await recordAttempt(rateLimitKey, LOGIN_ATTEMPT_WINDOW_MS);
               await audit({ practiceId: user.practiceId, userId: user.id, userName: user.name, action: "login.fehlgeschlagen", summary: "falscher 2FA-Code" });
@@ -82,6 +87,7 @@ export const authOptions: AuthOptions = {
           role: user.role,
           practiceId: user.practiceId,
           practiceName: user.practice.name,
+          mfaPending: !user.totpEnabled && zweiFaktorPflicht({ role: user.role, require2faAll: user.practice.require2faAll, isDemo: user.practice.isDemo }),
         };
       },
     }),
@@ -93,6 +99,7 @@ export const authOptions: AuthOptions = {
         token.role = (user as any).role;
         token.practiceId = (user as any).practiceId;
         token.practiceName = (user as any).practiceName;
+        token.mfaPending = !!(user as any).mfaPending;
       }
       return token;
     },
@@ -102,6 +109,7 @@ export const authOptions: AuthOptions = {
         (session.user as any).role = token.role;
         (session.user as any).practiceId = token.practiceId;
         (session.user as any).practiceName = token.practiceName;
+        (session.user as any).mfaPending = !!token.mfaPending;
       }
       return session;
     },

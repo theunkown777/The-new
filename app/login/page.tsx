@@ -32,7 +32,7 @@ export default function LoginPage() {
       result = await signIn("credentials", {
         email,
         password,
-        token: needsTotp ? token : undefined,
+        ...(needsTotp ? { token } : {}),
         redirect: false,
       });
     } catch {

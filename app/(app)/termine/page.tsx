@@ -28,7 +28,7 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
     prisma.appointment.findMany({
       where: { practiceId, start: { gte: von, lt: bis }, ...(ort ? { locationId: ort } : {}) },
       orderBy: { start: "asc" },
-      include: { patient: { select: { id: true, firstName: true, lastName: true } }, location: { select: { name: true } } },
+      include: { patient: { select: { id: true, firstName: true, lastName: true, email: true, contactConsentAt: true } }, location: { select: { name: true } } },
     }),
     prisma.appointment.findMany({ where: { practiceId, start: { gte: new Date(Date.now() - 60 * 864e5), lt: new Date() } }, select: { status: true } }),
     prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true } }),
@@ -100,6 +100,7 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
               <div className="sm:pl-[4.5rem]"><TerminAktionen
                 id={t.id}
                 status={t.status as TerminStatus}
+                mail={!!t.patient.email && !!t.patient.contactConsentAt}
                 confirmedAt={t.confirmedAt ? kurz(t.confirmedAt) : null}
                 remindedAt={t.remindedAt ? kurz(t.remindedAt) : null}
                 bestaetigung={bestaetigungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, reason: t.reason })}

@@ -11,6 +11,8 @@ import { DemoBanner } from "@/components/DemoBanner";
 import { isDental } from "@/lib/specialties";
 import { isSupportTeam } from "@/lib/supportTeam";
 import { canSeeAnalytics } from "@/lib/permissions";
+import { zweiFaktorPflicht } from "@/lib/zweiFaktorPflicht";
+import { TwoFactorSettings } from "@/components/TwoFactorSettings";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -18,13 +20,22 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const currentUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { emailVerifiedAt: true, practice: { select: { isDemo: true, demoExpiresAt: true, specialty: true } } },
+    select: { emailVerifiedAt: true, role: true, totpEnabled: true, practice: { select: { isDemo: true, demoExpiresAt: true, specialty: true, require2faAll: true } } },
   });
   const demo = currentUser?.practice.isDemo ? currentUser.practice.demoExpiresAt : null;
   // Berichte (KI, BEMA/GOZ) gibt es bisher nur für Zahnarztpraxen.
   const dental = isDental(currentUser?.practice.specialty);
   const team = await isSupportTeam(session.user.id);
   const analyse = await canSeeAnalytics(session.user.id);
+  // Ohne eingerichtete Zwei-Faktor-Anmeldung zeigt Sorrida bei Pflicht nur die
+  // Einrichtung, keine Patientendaten.
+  // Auch nach dem Einrichten bleibt die Sitzung gesperrt, bis man sich mit
+  // Code neu angemeldet hat (die API-Sperre hängt am Anmelde-Token).
+  const nachEinrichtungNeuAnmelden = !!session.user.mfaPending && !!currentUser?.totpEnabled;
+  const sperre =
+    !!currentUser &&
+    (!currentUser.totpEnabled || nachEinrichtungNeuAnmelden) &&
+    zweiFaktorPflicht({ role: currentUser.role, require2faAll: currentUser.practice.require2faAll, isDemo: currentUser.practice.isDemo });
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
@@ -70,7 +81,24 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </header>
         {demo && <DemoBanner expiresAt={demo} role={session.user.role} userName={session.user.name} />}
         {!demo && !currentUser?.emailVerifiedAt && <VerifyEmailBanner />}
-        <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-10">{children}</main>
+        <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
+          {sperre ? (
+            <div className="mx-auto max-w-xl space-y-4" data-testid="zwei-faktor-pflicht">
+              <h1 className="font-display text-3xl text-slate-900">Zwei-Faktor-Anmeldung einrichten</h1>
+              <p className="text-sm text-slate-600">
+                {currentUser?.role === "admin"
+                  ? "Für Konten der Praxisleitung ist die Zwei-Faktor-Anmeldung Pflicht, weil sie Zugriff auf alle Patientendaten, Exporte und Einstellungen haben."
+                  : "Ihre Praxis verlangt die Zwei-Faktor-Anmeldung für alle Konten."}{" "}
+                Sie brauchen eine Authenticator-App (z. B. die von Microsoft, Google oder Apple). Danach geht es direkt weiter.
+              </p>
+              <TwoFactorSettings initialEnabled={currentUser?.totpEnabled ?? false} />
+              <p className="text-sm text-slate-600">Wenn die Zwei-Faktor-Anmeldung eingerichtet ist und Sie die Backup-Codes gesichert haben, melden Sie sich einmal neu an, diesmal mit Code.</p>
+              <SignOutButton className="btn-primary" />
+            </div>
+          ) : (
+            children
+          )}
+        </main>
       </div>
     </div>
   );

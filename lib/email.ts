@@ -15,6 +15,9 @@ interface SendEmailInput {
 // Berichtsgenerierung ohne Anthropic-Key. So bleiben Passwort-Reset und
 // E-Mail-Verifizierung ohne Kosten durchspielbar; sobald ein echter Key
 // gesetzt ist, greift automatisch der echte Versand.
+/** Ist echter Mailversand eingerichtet? */
+export const mailVersandAktiv = () => !!resend;
+
 export async function sendEmail(input: SendEmailInput): Promise<{ testMode: boolean }> {
   if (!resend) {
     console.log(

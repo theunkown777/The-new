@@ -41,6 +41,8 @@ interface ReportData {
   author: { name: string };
   createdAt: string;
   approval?: { name: string; at: string } | null;
+  /** Patient kam aus der Praxissoftware: Rückgabe als GDT-Datei möglich. */
+  pvs?: boolean;
 }
 
 type Revision = { id: string; text: string; createdAt: string; editedBy: { name: string } };
@@ -179,6 +181,11 @@ export function ReportEditor({
         <p className="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800" data-testid="freigabe">
           Freigegeben von <strong>{report.approval.name}</strong> am {report.approval.at}. Eine spätere Änderung macht den Bericht
           wieder zum Entwurf und verlangt eine neue Freigabe.
+          {report.pvs && (
+            <a href={`/api/gdt?art=bericht&id=${report.id}`} className="ziel ml-1 font-medium underline" data-testid="gdt-export">
+              Als GDT-Datei für die Praxissoftware
+            </a>
+          )}
         </p>
       )}
 

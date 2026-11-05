@@ -56,7 +56,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
       where: { practiceId, ...where },
       orderBy: f === "bezahlt" ? { paidAt: "desc" } : { dueDate: "asc" },
       take: 100,
-      include: { patient: { select: { id: true, firstName: true, lastName: true, portalViewedAt: true, portalExpiresAt: true } } },
+      include: { patient: { select: { id: true, firstName: true, lastName: true, portalViewedAt: true, portalExpiresAt: true, email: true, contactConsentAt: true } } },
     }),
     // Angenommene Vorschläge mit Eigenanteil, für die es noch keine Rechnung gibt.
     prisma.treatmentProposal.findMany({
@@ -141,7 +141,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <Status tone={v.tone} label={v.label} />
-                      <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} />
+                      <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} />
                     </div>
                   </li>
                 );
@@ -181,7 +181,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                           <Status tone={v.tone} label={v.label} />
                         </td>
                         <td className="px-4 py-3">
-                          <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} />
+                          <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} />
                         </td>
                       </tr>
                     );

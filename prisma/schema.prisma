@@ -52,6 +52,8 @@ model Practice {
   // Gastzugang: Demo-Praxis mit Beispieldaten, die nach Ablauf automatisch
   // gelöscht wird (lib/demo.ts).
   isDemo            Boolean           @default(false)
+  /// Zwei-Faktor-Anmeldung auch für Mitarbeitende verlangen (für Admins immer Pflicht)
+  require2faAll     Boolean           @default(false)
   demoExpiresAt     DateTime?
 
   @@index([isDemo, demoExpiresAt])
@@ -162,6 +164,11 @@ model Patient {
   insuranceType   String?
   insuranceName   String?
   insuranceNumber String?
+  /// Kontakt für Terminbestätigungen, Erinnerungen und Zahlungserinnerungen
+  email           String?
+  phone           String?
+  /// Einwilligung in Nachrichten per E-Mail (Zeitpunkt, null = keine)
+  contactConsentAt DateTime?
   notes           String?
   createdAt       DateTime @default(now())
   reports         Report[]

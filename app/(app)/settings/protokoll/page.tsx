@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AUDIT_ACTIONS, type AuditAction } from "@/lib/audit";
 import { LOESCHFRISTEN, NICHT_AUTOMATISCH } from "@/lib/loeschfristen";
+import { ZweiFaktorAlle } from "@/components/ZweiFaktorAlle";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Protokoll" };
@@ -39,6 +40,7 @@ export default async function ProtokollPage({ searchParams }: { searchParams: { 
     prisma.user.findMany({ where: { practiceId }, select: { id: true, name: true, role: true, totpEnabled: true }, orderBy: { name: "asc" } }),
     prisma.auditLog.count({ where: { practiceId, action: "login.fehlgeschlagen", createdAt: { gte: new Date(Date.now() - 7 * 864e5) } } }),
   ]);
+  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { require2faAll: true } });
   const ohne2fa = team.filter((u) => !u.totpEnabled);
 
   return (
@@ -56,8 +58,9 @@ export default async function ProtokollPage({ searchParams }: { searchParams: { 
           <p className="text-sm text-slate-500">Zwei-Faktor-Anmeldung</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{team.length - ohne2fa.length} / {team.length}</p>
           <p className="mt-1 text-xs text-slate-600">
-            {ohne2fa.length ? `Ohne 2FA: ${ohne2fa.map((u) => u.name).join(", ")}. Bei Gesundheitsdaten dringend empfohlen.` : "Alle Konten sind geschützt."}
+            {ohne2fa.length ? `Ohne 2FA: ${ohne2fa.map((u) => u.name).join(", ")}. Admins müssen sie beim nächsten Öffnen einrichten.` : "Alle Konten sind geschützt."}
           </p>
+          <ZweiFaktorAlle initial={praxis?.require2faAll ?? false} />
         </div>
         <div className="card">
           <p className="text-sm text-slate-500">Fehlgeschlagene Anmeldungen, 7 Tage</p>

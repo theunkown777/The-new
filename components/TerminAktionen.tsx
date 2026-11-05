@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { TerminStatus } from "@/lib/termine";
+import { MailSenden } from "@/components/MailSenden";
 
 // Status setzen und Bestätigung/Erinnerung als Text kopieren. Sorrida
 // verschickt nichts selbst; „kopiert“ wird als „verschickt am“ gemerkt.
-export function TerminAktionen({ id, status, bestaetigung, erinnerung, confirmedAt, remindedAt }: {
-  id: string; status: TerminStatus; bestaetigung: string; erinnerung: string; confirmedAt: string | null; remindedAt: string | null;
+export function TerminAktionen({ id, status, bestaetigung, erinnerung, confirmedAt, remindedAt, mail = false }: {
+  id: string; status: TerminStatus; bestaetigung: string; erinnerung: string; confirmedAt: string | null; remindedAt: string | null; mail?: boolean;
 }) {
   const router = useRouter();
   const [hinweis, setHinweis] = useState<string | null>(null);
@@ -37,6 +38,9 @@ export function TerminAktionen({ id, status, bestaetigung, erinnerung, confirmed
               <button type="button" className={chip} onClick={() => kopieren(erinnerung, "erinnerung")} data-testid="termin-erinnerung">
                 {remindedAt ? `Erinnert ${remindedAt}` : "Erinnerung kopieren"}
               </button>
+            )}
+            {mail && (
+              <MailSenden art={confirmedAt ? "termin-erinnerung" : "termin-bestaetigung"} id={id} label={confirmedAt ? "Erinnerung per E-Mail" : "Bestätigung per E-Mail"} className={chip} />
             )}
             <details className="w-full sm:relative sm:w-auto">
               <summary className={`${chip} inline-flex cursor-pointer list-none text-slate-600`} data-testid="termin-mehr">Mehr</summary>

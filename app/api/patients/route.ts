@@ -12,6 +12,9 @@ const patientSchema = z.object({
   insuranceName: z.string().optional().nullable(),
   insuranceNumber: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
+  email: z.string().trim().email("Die E-Mail-Adresse ist ungültig.").optional().nullable().or(z.literal("")),
+  phone: z.string().trim().max(40).optional().nullable(),
+  einwilligung: z.boolean().optional(),
 });
 
 export async function GET(req: Request) {
@@ -64,6 +67,9 @@ export async function POST(req: Request) {
       insuranceName: insuranceName || null,
       insuranceNumber: insuranceNumber || null,
       notes: notes || null,
+      email: parsed.data.email || null,
+      phone: parsed.data.phone || null,
+      contactConsentAt: parsed.data.einwilligung && parsed.data.email ? new Date() : null,
     },
   });
 

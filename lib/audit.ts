@@ -23,6 +23,8 @@ export const AUDIT_ACTIONS = {
   "akte.dokument.abruf": "Dokument geöffnet",
   "ueberblick.ki": "Terminüberblick mit KI formuliert",
   "standort": "Standort geändert",
+  "nachricht": "Nachricht per E-Mail verschickt",
+  "schnittstelle.export": "An die Praxissoftware übergeben",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

@@ -1,3 +1,4 @@
+import { zweiFaktorPflicht } from "@/lib/zweiFaktorPflicht";
 import { auditFromSession, audit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -28,6 +29,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Passwort ist falsch." }, { status: 400 });
   }
 
+  const pflicht = await prisma.user.findUnique({ where: { id: session.user.id }, select: { role: true, practice: { select: { require2faAll: true, isDemo: true } } } });
+  if (pflicht && zweiFaktorPflicht({ role: pflicht.role, require2faAll: pflicht.practice.require2faAll, isDemo: pflicht.practice.isDemo })) {
+    return NextResponse.json({ error: "Für Ihr Konto ist die Zwei-Faktor-Anmeldung Pflicht und kann nicht ausgeschaltet werden. Ein neues Gerät richten Sie mit einem Backup-Code ein." }, { status: 409 });
+  }
   await prisma.user.update({
     where: { id: user.id },
     data: { totpEnabled: false, totpSecret: null, totpBackupCodes: null },
