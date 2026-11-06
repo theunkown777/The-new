@@ -80,6 +80,13 @@ export function PatientProposalView(props: Props) {
       ),
     [items, patient],
   );
+  // Hinweis "Bitte wählen Sie noch" verschwindet, sobald alles gewählt ist.
+  useEffect(() => {
+    if (state === "error" && offen.length === 0) {
+      setError("");
+      setState("idle");
+    }
+  }, [choices]); // eslint-disable-line react-hooks/exhaustive-deps
   const recSum = useMemo(() => summarize(items, props.empfehlung, patient).netto, [items, props.empfehlung, patient]);
   const lowSum = useMemo(() => summarize(items, lowChoices, patient).netto, [items, lowChoices, patient]);
   const gkv = patient.insurance === "GKV";
