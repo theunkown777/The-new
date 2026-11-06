@@ -17,6 +17,7 @@ import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { TerminUeberblick } from "@/components/TerminUeberblick";
 import { loadBriefing } from "@/lib/briefingLoad";
 import { kiVerfuegbar } from "@/lib/anthropic";
+import { BehandlerWahl } from "@/components/BehandlerWahl";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -46,7 +47,10 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     prisma.patientDocument.findMany({ where: { practiceId, patientId: patient.id }, orderBy: { createdAt: "desc" }, select: { id: true, name: true, mime: true, size: true, createdAt: true, createdBy: true } }),
   ]);
   const de = (d: Date) => d.toLocaleDateString("de-DE");
-  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } });
+  const [praxis, team] = await Promise.all([
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }),
+    prisma.user.findMany({ where: { practiceId }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+  ]);
   const fach = praxis?.specialty ?? "hausarzt";
 
   return (
@@ -63,6 +67,9 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             {patient.geschlecht ? ` · ${{ W: "weiblich", M: "männlich", D: "divers" }[patient.geschlecht] ?? ""}` : ""}
             {patient.insuranceName ? ` · ${patient.insuranceName}` : ""}
           </p>
+          <div className="mt-2">
+            <BehandlerWahl patientId={patient.id} value={patient.behandlerId} team={team} meId={session!.user.id} />
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href={`/proposals/new?patientId=${patient.id}`} className="btn-secondary">

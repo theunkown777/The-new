@@ -168,6 +168,14 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
             role: "admin",
             emailVerifiedAt: now,
           },
+          // Zweite Behandlerin, damit "Mein Bereich" zeigt, dass jede Person nur ihren Stamm sieht.
+          // Zufälliges Passwort, das niemand kennt: Anmelden ist mit diesem Konto nicht möglich.
+          {
+            name: "Lea Brandt (Demo)",
+            email: `brandt-${crypto.randomBytes(6).toString("hex")}@demo.sorrida.invalid`,
+            passwordHash: await bcrypt.hash(crypto.randomBytes(24).toString("base64url"), 10),
+            role: "staff",
+          },
           // Mitarbeiterin ohne Analyse-Freigabe, damit die Berechtigung im Team sichtbar ist.
           // Zufälliges Passwort, das niemand kennt: Anmelden ist mit diesem Konto nicht möglich.
           {
@@ -325,6 +333,7 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
   if (spec) await seedMedicalProposals(spec, practice.id, author.id, practice.name, created, now);
   // Realistische Größe: rund 1000 Patienten mit Vorschlägen, Links, Anamnesen.
   await seedBulkDemo({ practiceId: practice.id, practiceName: practice.name, authorId: author.id, fach: spec ? spec.id : DENTAL_ID, existing: created.length, now });
+  await verteileStamm(practice.id, author.id, practice.users.find((u) => u.name.startsWith("Lea Brandt"))?.id, new Set(created.map((c) => c.id)));
   return { email, password, practiceId: practice.id };
 }
 
@@ -384,5 +393,29 @@ async function seedMedicalProposals(
         }),
       },
     });
+  }
+}
+
+/**
+ * Demo: Patientenstamm auf zwei Behandelnde verteilen (etwa 55 % Gast, 35 %
+ * Kollegin, 10 % ohne feste Zuordnung). Vorschläge der Patientinnen und
+ * Patienten der Kollegin stammen dann auch von ihr, damit Umsatz und
+ * Annahmequote in "Mein Bereich" getrennt sind. Die festen Beispielpatienten
+ * bleiben beim Gast.
+ */
+async function verteileStamm(practiceId: string, gastId: string, kolleginId: string | undefined, fest: Set<string>) {
+  const ids = (await prisma.patient.findMany({ where: { practiceId }, select: { id: true } })).map((p) => p.id);
+  const gast: string[] = [];
+  const kollegin: string[] = [];
+  ids.forEach((id) => {
+    const r = parseInt(id.slice(-4), 36) % 20;
+    if (fest.has(id) || r < 11 || !kolleginId) gast.push(id);
+    else if (r < 18) kollegin.push(id);
+  });
+  await prisma.patient.updateMany({ where: { id: { in: gast } }, data: { behandlerId: gastId } });
+  if (kolleginId && kollegin.length) {
+    await prisma.patient.updateMany({ where: { id: { in: kollegin } }, data: { behandlerId: kolleginId } });
+    await prisma.treatmentProposal.updateMany({ where: { practiceId, patientId: { in: kollegin } }, data: { authorId: kolleginId } });
+    await prisma.report.updateMany({ where: { practiceId, patientId: { in: kollegin } }, data: { authorId: kolleginId } });
   }
 }

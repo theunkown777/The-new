@@ -22,6 +22,7 @@ const ICONS: Record<string, string> = {
   termine: "M4 5h16v15H4zM4 10h16M8 3v4M16 3v4",
   pruefung: "M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9",
   analyse: "M4 20V10M10 20V4M16 20v-7M22 20H2",
+  mein: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1",
 };
 
 function Icon({ name }: { name: string }) {
@@ -36,7 +37,7 @@ export function SidebarNav({ dental, team = false, analyse = false, personPl = "
   const path = usePathname();
   type L = [string, string, string];
   const gruppen: [string, L[]][] = [
-    ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/termine", "Termine", "termine"], ["/praxismanager", "Praxismanager", "manager"], ["/vorsorge", "Vorsorge fällig", "vorsorge"]]],
+    ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/mein-bereich", "Mein Bereich", "mein"], ["/termine", "Termine", "termine"], ["/praxismanager", "Praxismanager", "manager"], ["/vorsorge", "Vorsorge fällig", "vorsorge"]]],
     [
       personPl,
       [

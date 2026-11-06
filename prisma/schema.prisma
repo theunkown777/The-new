@@ -88,6 +88,8 @@ model User {
   practice     Practice @relation(fields: [practiceId], references: [id])
   reports      Report[]
   proposals    TreatmentProposal[]
+  /// Patienten, für die dieses Konto Stammbehandler/in ist (Seite "Mein Bereich")
+  stammPatienten Patient[] @relation("Stammbehandler")
   // TOTP-Zweitfaktor (RFC 6238). totpSecret wird beim Einrichten gesetzt,
   // aber erst nach erfolgreicher Verifikation ist totpEnabled=true und der
   // Login verlangt zusätzlich zum Passwort einen gültigen Code.
@@ -163,6 +165,9 @@ model Patient {
   birthDate       DateTime?
   /// "W" | "M" | "D" (divers); steuert geschlechtsbezogene Angebote und Befunde
   geschlecht      String?
+  /// Stammbehandler/in (meist Ärztin oder Arzt); bestimmt, wessen "Mein Bereich" den Patienten zeigt
+  behandlerId     String?
+  behandler       User?    @relation("Stammbehandler", fields: [behandlerId], references: [id], onDelete: SetNull)
   // "GKV" (gesetzlich) | "PKV" (privat) - bestimmt, welches Gebührenwerk
   // (BEMA vs. GOZ/GOÄ) für diesen Patienten grundsätzlich greift.
   insuranceType   String?
@@ -199,6 +204,7 @@ model Patient {
 
   @@unique([practiceId, externalSource, externalId])
   @@index([practiceId])
+  @@index([behandlerId])
 }
 
 // SQLite has no native enum support; these are constrained to

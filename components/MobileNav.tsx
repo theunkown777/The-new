@@ -7,6 +7,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 // Gleiche Bereiche wie die Seitenleiste am Desktop, damit am Handy nichts fehlt.
 const LINKS = [
   { href: "/dashboard", label: "Übersicht" },
+  { href: "/mein-bereich", label: "Mein Bereich" },
   { href: "/termine", label: "Termine" },
   { href: "/praxismanager", label: "Praxismanager" },
   { href: "/vorsorge", label: "Vorsorge fällig" },

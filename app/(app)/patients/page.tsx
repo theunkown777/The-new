@@ -12,6 +12,7 @@ import { PortalLinkButton } from "@/components/PortalLinkButton";
 import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { journey, TONE_STYLE } from "@/lib/journey";
+import { meinePatientenWhere } from "@/lib/meinBereich";
 
 const PAGE_SIZE = 50;
 const DAY = 24 * 60 * 60 * 1000;
@@ -25,6 +26,8 @@ const FILTERS = {
   },
   anamnese: { label: "Mit Anamnese", where: { anamnesisForms: { some: { submittedAt: { not: null } } } } },
   privat: { label: "Privat versichert", where: { insuranceType: "PKV" } },
+  // Platzhalter; die Bedingung hängt am angemeldeten Konto (siehe unten).
+  meine: { label: "Nur meine", where: {} },
 } satisfies Record<string, { label: string; where: Prisma.PatientWhereInput }>;
 type FilterKey = keyof typeof FILTERS;
 
@@ -45,6 +48,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
   const where: Prisma.PatientWhereInput = {
     practiceId,
     ...FILTERS[filter].where,
+    ...(filter === "meine" ? { OR: meinePatientenWhere(practiceId, session!.user.id).OR } : {}),
     AND: words.map((w) => ({
       OR: [{ firstName: { contains: w, mode: "insensitive" as const } }, { lastName: { contains: w, mode: "insensitive" as const } }],
     })),
