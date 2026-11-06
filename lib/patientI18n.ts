@@ -44,6 +44,25 @@ const UI_DE = {
   installmentsInterest: "Ich interessiere mich für Ratenzahlung",
   discuss: "Diese Auswahl besprechen",
   callMe: "Bitte rufen Sie mich an",
+  callMeLead: "Lieber persönlich sprechen?",
+  pick: "Bitte wählen Sie eine Option.",
+  open: (n: number) => (n === 1 ? "Noch 1 Auswahl offen" : `Noch ${n} Auswahlen offen`),
+  missing: (titles: string) => `Bitte wählen Sie noch: ${titles}.`,
+  seeRec: "Hier sehen Sie unsere Empfehlung",
+  recTitle: "Unsere Empfehlung im Vergleich",
+  recIntro: "Zur Kontrolle: Ihre Auswahl neben dem, was Ihre Praxis empfehlen würde. Entscheiden können Sie frei.",
+  yourChoice: "Ihre Wahl",
+  ourRec: "Empfehlung",
+  notChosen: "noch nicht gewählt",
+  same: "entspricht der Empfehlung",
+  why: "Warum:",
+  variants: "Drei Varianten im Überblick",
+  vYours: "Ihre Auswahl",
+  vRec: "Wie empfohlen",
+  vLow: "Geringster Eigenanteil",
+  takeRec: "Empfehlung übernehmen",
+  keepMine: "Bei meiner Auswahl bleiben",
+  close: "Schließen",
   sendFailed: "Senden fehlgeschlagen. Bitte versuchen Sie es erneut oder rufen Sie die Praxis an.",
   fine: (gkv: boolean, until: string) =>
     `Unverbindliche Kostenschätzung. Verbindlich sind der Heil- und Kostenplan bzw. die Vereinbarung mit Ihrer Praxis.${gkv ? " Der Kassenanteil bei Zahnersatz richtet sich nach dem Datum der Bewilligung durch Ihre Krankenkasse." : ""} Erstattungen Ihrer Zusatzversicherung sind geschätzt. Dieser Link ist gültig bis ${until}.`,
@@ -85,6 +104,25 @@ const UI_EN: Ui = {
   installmentsInterest: "I am interested in paying in instalments",
   discuss: "Discuss this choice",
   callMe: "Please call me",
+  callMeLead: "Would you rather talk in person?",
+  pick: "Please choose an option.",
+  open: (n) => (n === 1 ? "1 choice still open" : `${n} choices still open`),
+  missing: (titles) => `Please still choose: ${titles}.`,
+  seeRec: "See our recommendation",
+  recTitle: "Our recommendation in comparison",
+  recIntro: "As a check: your choice next to what your practice would recommend. The decision is yours.",
+  yourChoice: "Your choice",
+  ourRec: "Recommended",
+  notChosen: "not chosen yet",
+  same: "matches the recommendation",
+  why: "Why:",
+  variants: "Three variants at a glance",
+  vYours: "Your choice",
+  vRec: "As recommended",
+  vLow: "Lowest share",
+  takeRec: "Take the recommendation",
+  keepMine: "Keep my choice",
+  close: "Close",
   sendFailed: "Sending failed. Please try again or call the practice.",
   fine: (gkv, until) =>
     `Non-binding cost estimate. The treatment and cost plan or your agreement with the practice is binding.${gkv ? " For dentures, crowns and bridges, the insurer's share depends on the date your health insurer approves the plan." : ""} Reimbursements from supplementary insurance are estimates. This link is valid until ${until}. Only the German version is legally binding.`,
@@ -242,3 +280,21 @@ export function hasTranslation(text: string): boolean {
 
 export const euro = (n: number, lang: PatientLang) =>
   lang === "en" ? `€${Math.round(n).toLocaleString("en-GB")}` : `${Math.round(n).toLocaleString("de-DE")} €`;
+
+/**
+ * Empfehlung je Position für die Kontrolle im Patientenvorschlag: Hat die
+ * Praxis im Editor eine Option gewählt, gilt diese, sonst die Empfehlung
+ * aus dem Regelwerk.
+ */
+export function empfehlungJe(
+  items: { key: string; recommended?: string | null; options: { id: string }[] }[],
+  praxisWahl: Record<string, string>,
+): Record<string, string> {
+  return Object.fromEntries(
+    items.map((i) => {
+      const p = praxisWahl[i.key];
+      const id = p && i.options.some((o) => o.id === p) ? p : i.options.some((o) => o.id === i.recommended) ? i.recommended! : (i.options[0]?.id ?? "");
+      return [i.key, id];
+    }),
+  );
+}

@@ -5,7 +5,7 @@ import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } f
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
-import { hasTranslation, pickLang } from "@/lib/patientI18n";
+import { empfehlungJe, hasTranslation, pickLang } from "@/lib/patientI18n";
 import { isDental, specialty } from "@/lib/specialties";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 
@@ -53,7 +53,8 @@ export default async function PortalProposal({ params, searchParams }: { params:
       firstName={patient.firstName}
       items={items}
       patient={input.data.patient}
-      initialChoices={patientChoices.success ? patientChoices.data : saved.success ? saved.data : {}}
+      initialChoices={patientChoices.success ? patientChoices.data : {}}
+      empfehlung={empfehlungJe(items, saved.success ? saved.data : {})}
       alreadyResponded={decided ? proposal.patientResponse ?? "INTERESSE" : proposal.patientResponse}
       showJahresvergleich={showsJahresvergleich(now)}
       tageBisStichtag={tageBisStichtag(now)}

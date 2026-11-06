@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  chosenOption,
   isZahnersatz,
   money,
   typeLabelOf,
@@ -25,6 +24,8 @@ type Props = {
   items: ProposalItem[];
   patient: PatientFactors;
   initialChoices: Record<string, string>;
+  /** Empfehlung der Praxis je Position; erscheint erst auf Wunsch als Kontrolle. */
+  empfehlung: Record<string, string>;
   alreadyResponded: string | null;
   showJahresvergleich: boolean;
   tageBisStichtag: number;
@@ -42,22 +43,59 @@ export function PatientProposalView(props: Props) {
   const { items, patient, lang } = props;
   const t = UI[lang];
   const fmt = (n: number) => euro(n, lang);
-  const [choices, setChoices] = useState<Record<string, string>>(props.initialChoices);
+  // Nichts ist vorausgewählt: Die Patientin oder der Patient entscheidet selbst.
+  // Nur Positionen mit einer einzigen Option sind automatisch gesetzt.
+  const [choices, setChoices] = useState<Record<string, string>>(() => {
+    const c: Record<string, string> = {};
+    for (const i of items) {
+      const own = props.initialChoices[i.key];
+      if (own && i.options.some((o) => o.id === own)) c[i.key] = own;
+      else if (i.options.length === 1) c[i.key] = i.options[0].id;
+    }
+    return c;
+  });
+  const [recOpen, setRecOpen] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = dialogRef.current;
+    if (!d) return;
+    if (recOpen && !d.open) d.showModal?.();
+    if (!recOpen && d.open) d.close();
+  }, [recOpen]);
   const [note, setNote] = useState("");
   const [wantsInstallments, setWantsInstallments] = useState(false);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">(props.alreadyResponded ? "sent" : "idle");
   const [error, setError] = useState("");
 
-  const sum = useMemo(() => summarize(items, choices, patient), [items, choices, patient]);
-  const jahre = useMemo(() => vergleicheJahre(items, choices, patient), [items, choices, patient]);
+  const gewaehlt = (item: ProposalItem) => item.options.find((o) => o.id === choices[item.key]) ?? null;
+  const chosenItems = useMemo(() => items.filter((i) => i.options.some((o) => o.id === choices[i.key])), [items, choices]);
+  const offen = items.filter((i) => !choices[i.key]);
+  const sum = useMemo(() => summarize(chosenItems, choices, patient), [chosenItems, choices, patient]);
+  const jahre = useMemo(() => vergleicheJahre(chosenItems, choices, patient), [chosenItems, choices, patient]);
+  // Varianten für die Kontrolle: Empfehlung und geringster Eigenanteil je Position.
+  const lowChoices = useMemo(
+    () =>
+      Object.fromEntries(
+        items.map((i) => [i.key, [...i.options].sort((a, b) => money(a, patient).netto - money(b, patient).netto)[0]?.id ?? ""]),
+      ),
+    [items, patient],
+  );
+  const recSum = useMemo(() => summarize(items, props.empfehlung, patient).netto, [items, props.empfehlung, patient]);
+  const lowSum = useMemo(() => summarize(items, lowChoices, patient).netto, [items, lowChoices, patient]);
   const gkv = patient.insurance === "GKV";
   const offer = installmentOffer(sum.netto, props.installments);
   const until = new Date(props.expiresAt).toLocaleDateString(lang === "en" ? "en-GB" : "de-DE");
 
   async function send(response: "INTERESSE" | "RUECKRUF") {
+    if (response === "INTERESSE" && offen.length > 0) {
+      setError(t.missing(offen.map((i) => tr(i.title, lang)).join(", ")));
+      setState("error");
+      document.getElementById(`pos-${offen[0].key}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     setState("sending");
     setError("");
-    const chosen = Object.fromEntries(items.map((i) => [i.key, chosenOption(i, choices)?.id ?? ""]).filter(([, v]) => v));
+    const chosen = Object.fromEntries(items.map((i) => [i.key, choices[i.key] ?? ""]).filter(([, v]) => v));
     const res = await fetch(props.postUrl ?? `/api/p/${props.token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -109,13 +147,14 @@ export function PatientProposalView(props: Props) {
 
       <div className="mt-8 space-y-6">
         {items.map((item) => {
-          const current = chosenOption(item, choices);
+          const current = gewaehlt(item);
           const title = tr(item.title, lang);
           const infos = item.notes.filter((n) => n.kind === "info");
           return (
-            <section key={item.key} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            <section key={item.key} id={`pos-${item.key}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <h2 className="font-semibold text-slate-900">{title}</h2>
               <p className="text-sm text-slate-500">{tr(item.where, lang)}</p>
+              {!current && <p className="mt-1 text-xs text-brand-700">{t.pick}</p>}
               <fieldset className="mt-4 space-y-3">
                 <legend className="sr-only">{t.optionsFor(title)}</legend>
                 {item.options.map((o) => {
@@ -140,9 +179,6 @@ export function PatientProposalView(props: Props) {
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium text-slate-900">{tr(o.name, lang)}</span>
-                            {item.recommended === o.id && (
-                              <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-medium text-white">{t.recommended}</span>
-                            )}
                           </div>
                           <span className="text-xs text-slate-500">{tr(typeLabelOf(o, patient.insurance), lang)}</span>
                         </div>
@@ -236,19 +272,29 @@ export function PatientProposalView(props: Props) {
                 {t.installmentsInterest}
               </label>
             )}
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <button type="button" className="btn btn-primary py-3" disabled={state === "sending"} onClick={() => send("INTERESSE")}>
-                {t.discuss}
-              </button>
-              <button type="button" className="btn btn-secondary py-3" disabled={state === "sending"} onClick={() => send("RUECKRUF")}>
-                {t.callMe}
-              </button>
-            </div>
+            <button
+              type="button"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-salbei-300 bg-salbei-50 px-3 py-1.5 text-sm text-salbei-800 hover:bg-salbei-100"
+              onClick={() => setRecOpen(true)}
+              data-testid="empfehlung-oeffnen"
+            >
+              <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden="true"><path d="M2 9c2 3 10 3 12 0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
+              {t.seeRec}
+            </button>
+            <button type="button" className="btn btn-primary mt-4 w-full py-3" disabled={state === "sending"} onClick={() => send("INTERESSE")}>
+              {t.discuss}
+            </button>
             {error && (
               <p className="mt-2 text-sm text-red-700" role="alert">
                 {error}
               </p>
             )}
+            <p className="mt-5 border-t border-slate-100 pt-4 text-center text-sm text-slate-500" data-testid="rueckruf">
+              {t.callMeLead}{" "}
+              <button type="button" className="text-brand-700 underline underline-offset-2" disabled={state === "sending"} onClick={() => send("RUECKRUF")}>
+                {t.callMe}
+              </button>
+            </p>
           </>
         )}
       </section>
@@ -265,6 +311,7 @@ export function PatientProposalView(props: Props) {
             <div className="text-xl font-semibold tabular-nums text-slate-900" aria-live="polite">
               {fmt(sum.netto)}
             </div>
+            {offen.length > 0 && <div className="text-xs text-brand-700">{t.open(offen.length)}</div>}
             {offer.kind === "rate" && (
               <div className="text-xs text-emerald-700" data-testid="installment-rate">
                 {t.rate(offer.months, fmt(offer.monthly))}
@@ -281,6 +328,83 @@ export function PatientProposalView(props: Props) {
           )}
         </div>
       </div>
+
+      <dialog
+        ref={dialogRef}
+        onClose={() => setRecOpen(false)}
+        onClick={(e) => e.target === dialogRef.current && setRecOpen(false)}
+        className="m-auto w-[calc(100%-2rem)] max-w-lg rounded-2xl p-0 shadow-xl backdrop:bg-slate-900/40"
+        aria-labelledby="empfehlung-titel"
+        data-testid="empfehlung-dialog"
+      >
+        {recOpen && (
+          <div className="max-h-[85vh] overflow-y-auto p-5">
+            <h2 id="empfehlung-titel" className="font-display text-2xl text-slate-900">{t.recTitle}</h2>
+            <p className="mt-1 text-sm text-slate-600">{t.recIntro}</p>
+            <ul className="mt-4 space-y-3">
+              {items.map((item) => {
+                const mine = gewaehlt(item);
+                const rec = item.options.find((o) => o.id === props.empfehlung[item.key]) ?? null;
+                const gleich = !!mine && mine.id === rec?.id;
+                return (
+                  <li key={item.key} className="rounded-xl border border-slate-200 p-3">
+                    <p className="font-medium text-slate-900">{tr(item.title, lang)}</p>
+                    <dl className="mt-1 grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-0.5 text-sm">
+                      <dt className="text-slate-500">{t.yourChoice}</dt>
+                      <dd className={mine ? "text-slate-900" : "text-brand-700"}>{mine ? tr(mine.name, lang) : t.notChosen}</dd>
+                      <dd className="text-right tabular-nums text-slate-700">{mine ? fmt(money(mine, patient).netto) : ""}</dd>
+                      {rec && (
+                        <>
+                          <dt className="text-salbei-700">{t.ourRec}</dt>
+                          <dd className="text-slate-900">{tr(rec.name, lang)}</dd>
+                          <dd className="text-right tabular-nums text-slate-700">{fmt(money(rec, patient).netto)}</dd>
+                        </>
+                      )}
+                    </dl>
+                    {gleich ? (
+                      <p className="mt-1 text-xs text-salbei-700">✓ {t.same}</p>
+                    ) : (
+                      rec?.benefits[0] && (
+                        <p className="mt-1 text-xs text-slate-600">
+                          {t.why} {tr(rec.benefits[0], lang)}
+                        </p>
+                      )
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            <h3 className="mt-5 text-sm font-medium text-slate-700">{t.variants}</h3>
+            <div className="mt-2 grid grid-cols-3 gap-2 text-center" data-testid="varianten">
+              {[
+                { label: t.vYours, value: offen.length ? null : sum.netto, cls: "border-brand-200 bg-brand-50" },
+                { label: t.vRec, value: recSum, cls: "border-salbei-200 bg-salbei-50" },
+                { label: t.vLow, value: lowSum, cls: "border-slate-200 bg-slate-50" },
+              ].map((v) => (
+                <div key={v.label} className={`rounded-xl border p-2 ${v.cls}`}>
+                  <div className="text-[11px] leading-tight text-slate-600">{v.label}</div>
+                  <div className="mt-0.5 font-semibold tabular-nums text-slate-900">{v.value == null ? "–" : fmt(v.value)}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                className="btn btn-secondary py-2.5"
+                onClick={() => {
+                  setChoices((c) => ({ ...c, ...Object.fromEntries(Object.entries(props.empfehlung).filter(([, v]) => v)) }));
+                  setRecOpen(false);
+                }}
+              >
+                {t.takeRec}
+              </button>
+              <button type="button" className="btn btn-primary py-2.5" onClick={() => setRecOpen(false)}>
+                {offen.length ? t.close : t.keepMine}
+              </button>
+            </div>
+          </div>
+        )}
+      </dialog>
     </main>
   );
 }

@@ -33,6 +33,7 @@ export function VorschauDemo() {
   const [fach, setFach] = useState("zahn");
   const [choices, setChoices] = useState<Record<string, string>>({});
   const [sent, setSent] = useState(false);
+  const [recOpen, setRecOpen] = useState(false);
   const input = useMemo(() => inputFor(fach), [fach]);
   const items = useMemo(() => buildProposal(input, DEFAULT_PRICES).filter((i) => i.options.length), [input]);
   const sum = summarize(items, choices, PATIENT);
@@ -106,7 +107,6 @@ export function VorschauDemo() {
                         >
                           <span>
                             {o.name}
-                            {o.id === it.recommended && <span className="ml-1 rounded-full bg-brand-600 px-1.5 text-[9px] text-white">Empfehlung</span>}
                           </span>
                           <b className="shrink-0 tabular-nums">{formatEuro(money(o, PATIENT).netto)}</b>
                         </button>
@@ -115,6 +115,28 @@ export function VorschauDemo() {
                   </div>
                 );
               })}
+              <button
+                type="button"
+                onClick={() => setRecOpen(!recOpen)}
+                aria-expanded={recOpen}
+                className="rounded-full border border-salbei-300 bg-salbei-50 px-2 py-1 text-[11px] text-salbei-800"
+              >
+                Hier sehen Sie unsere Empfehlung
+              </button>
+              {recOpen && (
+                <div className="rounded-xl border border-salbei-200 bg-salbei-50 p-2 text-[11px] text-slate-700" data-testid="vorschau-empfehlung">
+                  {items.map((it) => {
+                    const rec = it.options.find((o) => o.id === it.recommended);
+                    const mine = chosenOption(it, choices);
+                    return (
+                      <p key={it.key}>
+                        {it.title}: <b>{rec?.name ?? "–"}</b>
+                        {mine?.id === rec?.id ? " ✓ wie gewählt" : ""}
+                      </p>
+                    );
+                  })}
+                </div>
+              )}
               <button
                 type="button"
                 onClick={() => setSent(true)}

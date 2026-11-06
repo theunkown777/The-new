@@ -6,7 +6,7 @@ import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } f
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
-import { hasTranslation, pickLang } from "@/lib/patientI18n";
+import { empfehlungJe, hasTranslation, pickLang } from "@/lib/patientI18n";
 import { isDental, specialty } from "@/lib/specialties";
 
 export const dynamic = "force-dynamic";
@@ -70,7 +70,8 @@ export default async function PatientLinkPage({
       firstName={proposal.patient.firstName}
       items={items}
       patient={input.data.patient}
-      initialChoices={patientChoices.success ? patientChoices.data : saved.success ? saved.data : {}}
+      initialChoices={patientChoices.success ? patientChoices.data : {}}
+      empfehlung={empfehlungJe(items, saved.success ? saved.data : {})}
       alreadyResponded={proposal.patientResponse}
       showJahresvergleich={showsJahresvergleich(now)}
       tageBisStichtag={tageBisStichtag(now)}
