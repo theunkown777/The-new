@@ -27,3 +27,13 @@ describe("Termine", () => {
     expect(t).toContain("rechtzeitig ab");
   });
 });
+
+describe("Erinnerungstext je Fach", () => {
+  it("Versichertenkarte nur, wo sie gebraucht wird", async () => {
+    const { erinnerungText } = await import("./termine");
+    const basis = { firstName: "Anna", practiceName: "X", start: new Date("2026-11-20T09:00:00Z"), ort: null };
+    expect(erinnerungText({ ...basis, fach: "hausarzt" })).toContain("Versichertenkarte");
+    expect(erinnerungText({ ...basis, fach: "optik" })).not.toContain("Versichertenkarte");
+    expect(erinnerungText({ ...basis, fach: "pflege" })).not.toContain("Versichertenkarte");
+  });
+});

@@ -28,7 +28,7 @@ export function TerminNeu({ tag, standorte }: { tag: string; standorte: { id: st
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!patient) return setError("Bitte einen Patienten wählen.");
+    if (!patient) return setError("Bitte zuerst eine Person auswählen.");
     setBusy(true);
     setError(null);
     const start = new Date(`${tag}T${zeit}:00`);
@@ -53,7 +53,7 @@ export function TerminNeu({ tag, standorte }: { tag: string; standorte: { id: st
             <button type="button" className="text-xs underline" onClick={() => { setPatient(null); setQ(""); }}>ändern</button>
           </p>
         ) : (
-          <input className="input w-full" placeholder="Patient suchen (Name)" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Patient suchen" data-testid="termin-patient" />
+          <input className="input w-full" placeholder="Name suchen" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Name suchen" data-testid="termin-patient" />
         )}
         {treffer.length > 0 && !patient && (
           <ul className="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 bg-white text-sm shadow-lg">

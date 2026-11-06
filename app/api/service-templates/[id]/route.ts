@@ -1,3 +1,4 @@
+import { sichtbarFuer, SCHREIBGESCHUETZT } from "@/lib/katalogScope";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
@@ -11,7 +12,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 
   const template = await prisma.serviceTemplate.findFirst({
-    where: { id: params.id, OR: [{ practiceId: null }, { practiceId: session.user.practiceId }] },
+    where: { id: params.id, ...(await sichtbarFuer(session.user.practiceId)) },
     include: { items: { orderBy: { position: "asc" }, include: { catalogItem: true } } },
   });
   if (!template) return NextResponse.json({ error: "Vorlage nicht gefunden" }, { status: 404 });
@@ -39,7 +40,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     return NextResponse.json({ error: "Ungültige Eingabe" }, { status: 400 });
   }
 
-  const existing = await prisma.serviceTemplate.findFirst({ where: { id: params.id, practiceId: null } });
+  const existing = await prisma.serviceTemplate.findFirst({ where: { id: params.id, practiceId: session.user.practiceId } });
+  if (!existing && (await prisma.serviceTemplate.count({ where: { id: params.id, practiceId: null } }))) return NextResponse.json({ error: SCHREIBGESCHUETZT }, { status: 403 });
   if (!existing) return NextResponse.json({ error: "Vorlage nicht gefunden" }, { status: 404 });
 
   const template = await prisma.serviceTemplate.update({ where: { id: params.id }, data: parsed.data });
@@ -50,7 +52,8 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
   const { session, error } = await requireAdmin();
   if (!session) return error;
 
-  const existing = await prisma.serviceTemplate.findFirst({ where: { id: params.id, practiceId: null } });
+  const existing = await prisma.serviceTemplate.findFirst({ where: { id: params.id, practiceId: session.user.practiceId } });
+  if (!existing && (await prisma.serviceTemplate.count({ where: { id: params.id, practiceId: null } }))) return NextResponse.json({ error: SCHREIBGESCHUETZT }, { status: 403 });
   if (!existing) return NextResponse.json({ error: "Vorlage nicht gefunden" }, { status: 404 });
 
   const reportUsage = await prisma.report.count({ where: { serviceTemplateId: params.id } });

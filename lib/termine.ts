@@ -53,8 +53,12 @@ export function bestaetigungText(a: { firstName: string; practiceName: string; s
   return `Hallo ${a.firstName}, Ihr Termin bei ${a.practiceName}${a.ort ? ` (${a.ort})` : ""} ist eingetragen: ${terminZeit(a.start)} Uhr, ${a.reason}. Falls Sie nicht kommen können, sagen Sie bitte rechtzeitig ab, dann kann jemand anderes nachrücken.`;
 }
 
-export function erinnerungText(a: { firstName: string; practiceName: string; start: Date; ort: string | null }): string {
-  return `Hallo ${a.firstName}, kurze Erinnerung an Ihren Termin bei ${a.practiceName}${a.ort ? ` (${a.ort})` : ""} am ${terminZeit(a.start)} Uhr. Bitte bringen Sie Ihre Versichertenkarte mit. Absagen bitte telefonisch.`;
+/** Fächer, bei denen die Versichertenkarte zum Termin nicht gebraucht wird (Selbstzahler, Hausbesuche, Fachgeschäft ohne Verordnung). */
+const OHNE_KARTE = new Set(["optik", "hoerakustik", "sanitaetshaus", "heilpraktiker", "aesthetik", "pflege", "hebamme"]);
+
+export function erinnerungText(a: { firstName: string; practiceName: string; start: Date; ort: string | null; fach?: string | null }): string {
+  const karte = !OHNE_KARTE.has(a.fach ?? "") ? " Bitte bringen Sie Ihre Versichertenkarte mit." : "";
+  return `Hallo ${a.firstName}, kurze Erinnerung an Ihren Termin bei ${a.practiceName}${a.ort ? ` (${a.ort})` : ""} am ${terminZeit(a.start)} Uhr.${karte} Absagen bitte telefonisch.`;
 }
 
 /** Termine, die belegt sind (abgesagte zählen nicht). */

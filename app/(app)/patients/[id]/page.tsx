@@ -60,6 +60,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             {patient.birthDate
               ? `geb. ${patient.birthDate.toLocaleDateString("de-DE")}`
               : "Kein Geburtsdatum hinterlegt"}
+            {patient.geschlecht ? ` · ${{ W: "weiblich", M: "männlich", D: "divers" }[patient.geschlecht] ?? ""}` : ""}
             {patient.insuranceName ? ` · ${patient.insuranceName}` : ""}
           </p>
         </div>
@@ -86,17 +87,17 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         />
       </div>
 
-      <div className="mb-8">
+      {befundmodell(fach).length > 0 && <div className="mb-8">
         <BefundAuswahl
           patientId={patient.id}
-          regionen={befundmodell(fach)}
+          regionen={befundmodell(fach, { geschlecht: patient.geschlecht })}
           fachName={SPECIALTY_LABELS[fach] ?? "Allgemeinmedizin"}
           vorhanden={entries.filter((e) => !e.inaktiv && e.code).map((e) => e.code!)}
         />
-      </div>
+      </div>}
 
       <div className="mb-8">
-        <PatientKontakt patientId={patient.id} email={patient.email} phone={patient.phone} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} />
+        <PatientKontakt patientId={patient.id} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} />
       </div>
 
       <div className="mb-8">

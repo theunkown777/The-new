@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { serializeDependsOn } from "../lib/serviceDependency";
+import { FACHPROFILE } from "../lib/fachprofile";
 
 const prisma = new PrismaClient();
 
@@ -358,12 +359,13 @@ async function main() {
     const frequenzlimitZeitraumTage = item.frequenzlimitZeitraumTage ?? null;
 
     const existing = await prisma.serviceCatalogItem.findFirst({
-      where: { practiceId: null, system: item.system, code: item.code, title: item.title },
+      where: { practiceId: null, system: item.system, code: item.code, title: item.title, OR: [{ fach: "zahn" }, { fach: null }] },
     });
     const record = existing
       ? await prisma.serviceCatalogItem.update({
           where: { id: existing.id },
           data: {
+            fach: "zahn",
             description: item.description,
             category: item.category,
             toothRelevant: item.toothRelevant,
@@ -376,6 +378,7 @@ async function main() {
       : await prisma.serviceCatalogItem.create({
           data: {
             practiceId: null,
+            fach: "zahn",
             system: item.system,
             code: item.code,
             title: item.title,
@@ -411,14 +414,14 @@ async function main() {
 
   for (const tpl of TEMPLATES) {
     let template = await prisma.serviceTemplate.findFirst({
-      where: { practiceId: null, name: tpl.name },
+      where: { practiceId: null, name: tpl.name, OR: [{ fach: "zahn" }, { fach: null }] },
     });
     if (!template) {
       template = await prisma.serviceTemplate.create({
-        data: { practiceId: null, name: tpl.name, description: tpl.description },
+        data: { practiceId: null, fach: "zahn", name: tpl.name, description: tpl.description },
       });
     } else {
-      await prisma.serviceTemplate.update({ where: { id: template.id }, data: { description: tpl.description } });
+      await prisma.serviceTemplate.update({ where: { id: template.id }, data: { fach: "zahn", description: tpl.description } });
     }
 
     for (let i = 0; i < tpl.items.length; i++) {
@@ -438,6 +441,32 @@ async function main() {
   }
 
   console.log(`Vorlagen: ${TEMPLATES.length}.`);
+
+  // Sitzungstypen der übrigen Fächer aus lib/fachprofile.ts
+  let fachVorlagen = 0;
+  for (const [fach, profil] of Object.entries(FACHPROFILE)) {
+    for (const st of profil.sitzungstypen) {
+      let template = await prisma.serviceTemplate.findFirst({ where: { practiceId: null, fach, name: st.name } });
+      template = template
+        ? await prisma.serviceTemplate.update({ where: { id: template.id }, data: { description: st.description } })
+        : await prisma.serviceTemplate.create({ data: { practiceId: null, fach, name: st.name, description: st.description } });
+      for (let i = 0; i < st.leistungen.length; i++) {
+        const l = st.leistungen[i];
+        const faktor = l.system === "GOAE" ? STANDARD_FAKTOR : {};
+        const existing = await prisma.serviceCatalogItem.findFirst({ where: { practiceId: null, fach, system: l.system, code: l.code, title: l.title } });
+        const item = existing
+          ? await prisma.serviceCatalogItem.update({ where: { id: existing.id }, data: { category: l.category, toothRelevant: !!l.region, ...faktor } })
+          : await prisma.serviceCatalogItem.create({ data: { practiceId: null, fach, system: l.system, code: l.code, title: l.title, category: l.category, toothRelevant: !!l.region, ...faktor } });
+        await prisma.serviceTemplateItem.upsert({
+          where: { templateId_catalogItemId: { templateId: template.id, catalogItemId: item.id } },
+          update: { position: i },
+          create: { templateId: template.id, catalogItemId: item.id, position: i },
+        });
+      }
+      fachVorlagen++;
+    }
+  }
+  console.log(`Fach-Vorlagen: ${fachVorlagen}.`);
 
   console.log("Seede Leistungslexikon…");
   for (let i = 0; i < LEXIKON.length; i++) {

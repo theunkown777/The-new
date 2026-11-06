@@ -161,6 +161,8 @@ model Patient {
   firstName       String
   lastName        String
   birthDate       DateTime?
+  /// "W" | "M" | "D" (divers); steuert geschlechtsbezogene Angebote und Befunde
+  geschlecht      String?
   // "GKV" (gesetzlich) | "PKV" (privat) - bestimmt, welches Gebührenwerk
   // (BEMA vs. GOZ/GOÄ) für diesen Patienten grundsätzlich greift.
   insuranceType   String?
@@ -262,6 +264,8 @@ model ReportRevision {
 // Praxen sichtbar; gesetzt = praxiseigene Zusatzposition.
 model ServiceCatalogItem {
   id           String              @id @default(cuid())
+  /// Fach der globalen Position; eigene Positionen der Praxis haben keins
+  fach         String?
   practiceId   String?
   practice     Practice?           @relation(fields: [practiceId], references: [id])
   system       String // "GOZ" | "BEMA" | "GOAE" | "BEL_II" | "SONSTIGES"
@@ -309,6 +313,8 @@ model ServiceCatalogItem {
 // wird.
 model ServiceTemplate {
   id          String                @id @default(cuid())
+  /// Fach der globalen Vorlage (z. B. "zahn", "kardio"); eigene Vorlagen der Praxis haben keins
+  fach        String?
   practiceId  String?
   practice    Practice?             @relation(fields: [practiceId], references: [id])
   name        String

@@ -6,6 +6,7 @@ export const kontaktSchema = z.object({
   email: z.string().trim().max(200).optional().nullable().refine((v) => !v || z.string().email().safeParse(v).success, "Die E-Mail-Adresse ist ungültig."),
   phone: z.string().trim().max(40).optional().nullable().refine((v) => !v || /^[+0-9 ()/-]{6,}$/.test(v), "Die Telefonnummer ist ungültig."),
   einwilligung: z.boolean().optional(),
+  geschlecht: z.enum(["W", "M", "D"]).optional().nullable().or(z.literal("")),
 });
 
 export type NachrichtArt = "termin-bestaetigung" | "termin-erinnerung" | "zahlungserinnerung";

@@ -24,4 +24,15 @@ describe("Befundmodelle", () => {
     expect(befundmodell("kardio").map((r) => r.id)).toContain("koronarien");
     expect(befundmodell("xyz")).toBe(BEFUNDMODELLE.hausarzt);
   });
+  it("kein Diagnosemodell für Apotheke, Optik, Pflege & Co.", () => {
+    for (const f of ["apotheke", "optik", "hoerakustik", "sanitaetshaus", "pflege", "hebamme"]) expect(befundmodell(f), f).toEqual([]);
+  });
+  it("Frauen sehen keine Prostata-Befunde, Männer keine PCOS", () => {
+    const frau = JSON.stringify(befundmodell("uro", { geschlecht: "W" }));
+    expect(frau).not.toContain("Prostata");
+    expect(frau).not.toContain("Erektile");
+    expect(frau).toContain("Harninkontinenz");
+    expect(JSON.stringify(befundmodell("uro", { geschlecht: "M" }))).toContain("Prostata");
+    expect(JSON.stringify(befundmodell("endo", { geschlecht: "M" }))).not.toContain("Polyzystisch");
+  });
 });

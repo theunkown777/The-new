@@ -1,3 +1,4 @@
+import { sichtbarFuer, SCHREIBGESCHUETZT } from "@/lib/katalogScope";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
@@ -14,11 +15,12 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 
   const items = await prisma.serviceCatalogItem.findMany({
-    where: { practiceId: null },
+    where: await sichtbarFuer(session.user.practiceId),
     orderBy: [{ category: "asc" }, { title: "asc" }],
     select: {
       id: true,
       system: true,
+      practiceId: true,
       code: true,
       title: true,
       description: true,
@@ -36,7 +38,7 @@ export async function GET() {
 const STANDARD_FAKTOR = { faktorMin: 1.0, faktorMax: 3.5, regelhoechstfaktor: 2.3, begruendungspflichtAbFaktor: 2.3 };
 
 const createSchema = z.object({
-  system: z.enum(["GOZ", "BEMA", "GOAE", "BEL_II", "SONSTIGES"]),
+  system: z.enum(["GOZ", "BEMA", "GOAE", "BEL_II", "EBM", "UVGOAE", "HEILMITTEL", "PFLEGE", "HEBAMME", "APO", "HILFSMITTEL", "SELBST", "SONSTIGES"]),
   code: z.string().min(1),
   title: z.string().min(1),
   description: z.string().optional().nullable(),
@@ -63,7 +65,7 @@ export async function POST(req: Request) {
   const item = await prisma.serviceCatalogItem.create({
     data: {
       ...rest,
-      practiceId: null,
+      practiceId: session.user.practiceId,
       ...(hasFaktor ? STANDARD_FAKTOR : {}),
     },
   });

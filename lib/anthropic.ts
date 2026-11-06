@@ -1,4 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { fachprofil } from "@/lib/fachprofile";
+import { SPECIALTY_LABELS } from "@/lib/specialties";
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
 // Ohne echten, kostenpflichtigen API-Key (z. B. im Testbetrieb) wird auf eine
@@ -13,6 +15,8 @@ const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 export type ReportType = "BEFUND" | "KRANKENKASSE";
 
 interface GenerateReportInput {
+  /** Fach der Praxis; bestimmt Stil und Wortwahl (Standard: Zahnmedizin) */
+  fach?: string;
   reportType: ReportType;
   practiceName: string;
   authorName: string;
@@ -32,7 +36,7 @@ const TYPE_INSTRUCTIONS: Record<ReportType, string> = {
   BEFUND: `Verfasse einen Befund- und Behandlungsbericht für die Patientenakte bzw. zur Weitergabe an
 mit- oder weiterbehandelnde Kolleg:innen. Gliedere in: Anrede/Betreff (falls an eine andere Praxis
 gerichtet, sonst neutraler Titel), Befund, durchgeführte Behandlung, ggf. Empfehlung / weiteres
-Vorgehen. Sachlicher, präziser zahnmedizinischer Fachstil.`,
+Vorgehen. Sachlicher, präziser Fachstil.`,
   KRANKENKASSE: `Verfasse ein formelles Schreiben an die gesetzliche/private Krankenkasse zur Begründung
 der medizinischen Notwendigkeit einer Behandlung bzw. zur Beantragung der Kostenübernahme/-erstattung.
 Gliedere in: Anschrift/Betreff, Anrede, kurze Darstellung des Befunds, Begründung der medizinischen
@@ -173,19 +177,21 @@ export async function generateReportText(input: GenerateReportInput): Promise<st
     return buildTemplateReportText(input);
   }
 
-  const systemPrompt = `Du unterstützt eine Zahnarztpraxis dabei, professionelle schriftliche Berichte zu
+  const profil = fachprofil(input.fach || "zahn");
+  const systemPrompt = `Du unterstützt eine Einrichtung (${profil.einrichtung}, Fach: ${SPECIALTY_LABELS[input.fach || "zahn"] ?? "Medizin"}) dabei, professionelle schriftliche Berichte zu
 verfassen. Du bekommst strukturierte Angaben und Stichpunkte der Praxis und formulierst daraus einen
 fertigen, gut lesbaren Bericht auf Deutsch.
 
 ${TYPE_INSTRUCTIONS[input.reportType]}
+Fachstil dieser Einrichtung: ${profil.berichtStil}.
 
 Wichtige Regeln:
 - Eine Empfehlung oder ein weiteres Vorgehen schreibst du nur, wenn die Praxis es in ihren Angaben
   oder der Notiz selbst nennt. Schlage nie eigene Diagnosen oder Therapien vor.
 - Nutze ausschließlich die gegebenen Informationen. Erfinde keine Diagnosen, Befunde, Maßnahmen,
-  Zähne/Zahnschemata, Daten oder Zahlen, die nicht genannt wurden.
-- Falls für den Berichtstyp üblicherweise eine Angabe fehlt (z. B. Zahnnummer, genaues Datum), lass an
-  der Stelle einen Platzhalter in eckigen Klammern stehen, z. B. [Zahnnummer ergänzen], statt zu raten.
+  Seiten- oder Regionsangaben, Daten oder Zahlen, die nicht genannt wurden.
+- Falls für den Berichtstyp üblicherweise eine Angabe fehlt (z. B. ${profil.region ?? "Region"}, genaues Datum), lass an
+  der Stelle einen Platzhalter in eckigen Klammern stehen, z. B. [${profil.region ?? "Angabe"} ergänzen], statt zu raten.
 - Schreibe im Fließtext bzw. mit klaren Absätzen, keine rohe Stichpunktliste, sofern es sich nicht um
   eine tabellarische Aufstellung handelt.
 - Gib ausschließlich den fertigen Berichtstext zurück, ohne einleitende Kommentare wie "Hier ist der Bericht:".
@@ -196,8 +202,7 @@ Wichtige Regeln:
 - Angaben in eckigen Großbuchstaben wie [VORNAME], [NACHNAME], [PATIENT], [GEBURTSDATUM] oder
   [VERSICHERTENNUMMER] sind Platzhalter für Daten, die die Praxis später einsetzt. Übernimm sie
   unverändert, genau so geschrieben, und ersetze sie nicht durch erfundene Angaben.
-- Der Bericht ist ein Entwurf und wird vor Versand von einer approbierten Zahnärztin / einem approbierten
-  Zahnarzt geprüft und freigegeben.`;
+- Der Bericht ist ein Entwurf und wird vor Versand von der verantwortlichen Fachkraft geprüft und freigegeben.`;
 
   const message = await anthropic.messages.create({
     model: MODEL,

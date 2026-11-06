@@ -15,6 +15,7 @@ const patientSchema = z.object({
   email: z.string().trim().email("Die E-Mail-Adresse ist ungültig.").optional().nullable().or(z.literal("")),
   phone: z.string().trim().max(40).optional().nullable(),
   einwilligung: z.boolean().optional(),
+  geschlecht: z.enum(["W", "M", "D"]).optional().nullable().or(z.literal("")),
 });
 
 export async function GET(req: Request) {
@@ -70,6 +71,7 @@ export async function POST(req: Request) {
       email: parsed.data.email || null,
       phone: parsed.data.phone || null,
       contactConsentAt: parsed.data.einwilligung && parsed.data.email ? new Date() : null,
+      geschlecht: parsed.data.geschlecht || null,
     },
   });
 

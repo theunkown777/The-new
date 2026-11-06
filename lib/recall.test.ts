@@ -26,3 +26,14 @@ describe("recallFor", () => {
     expect(t).toContain("https://x");
   });
 });
+
+describe("Vorsorge mit Geschlechtsbezug", () => {
+  it("erinnert Frauen beim Urologen nicht an die Krebsfrüherkennung für Männer", async () => {
+    const { recallFor } = await import("./recall");
+    const alt = new Date("2024-01-01");
+    const now = new Date("2026-11-06");
+    expect(recallFor({ fach: "uro", age: 60, letzterKontakt: alt, geschlecht: "W" }, now)).toBeNull();
+    expect(recallFor({ fach: "uro", age: 60, letzterKontakt: alt, geschlecht: "M" }, now)?.leistung).toContain("Männer");
+    expect(recallFor({ fach: "uro", age: 60, letzterKontakt: alt, geschlecht: null }, now)).toBeNull();
+  });
+});

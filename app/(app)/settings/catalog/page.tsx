@@ -1,9 +1,13 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { CatalogSettings } from "@/components/CatalogSettings";
+import { prisma } from "@/lib/prisma";
+import { fachprofil, systemGruppe } from "@/lib/fachprofile";
 
 export default async function CatalogSettingsPage() {
   const session = await getServerSession(authOptions);
+  const praxis = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true } });
+  const fach = praxis?.specialty ?? "zahn";
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -14,7 +18,10 @@ export default async function CatalogSettingsPage() {
           aktuellen Werte hier nur lesend.
         </p>
       )}
-      <CatalogSettings readOnly={session!.user.role !== "admin"} />
+      <p className="mb-4 text-sm text-slate-600">
+        Positionen mit „Vorgabe“ stammen von Sorrida für Ihr Fach und sind schreibgeschützt. Eigene Positionen legen Sie unten an; sie gelten nur für Ihre Praxis.
+      </p>
+      <CatalogSettings readOnly={session!.user.role !== "admin"} systeme={systemGruppe(fach)} regionLabel={fachprofil(fach).region} />
     </div>
   );
 }

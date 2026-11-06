@@ -12,7 +12,7 @@ export async function loadRecallDue(practiceId: string, now = new Date()) {
     ? await prisma.patient.findMany({
         where: { practiceId },
         select: {
-          id: true, firstName: true, lastName: true, birthDate: true, createdAt: true, recallSentAt: true, insuranceType: true,
+          id: true, firstName: true, lastName: true, birthDate: true, createdAt: true, recallSentAt: true, insuranceType: true, geschlecht: true,
           proposals: { orderBy: { createdAt: "desc" }, take: 1, select: { createdAt: true } },
           reports: { orderBy: { treatmentDate: "desc" }, take: 1, select: { treatmentDate: true, createdAt: true } },
           anamnesisForms: { where: { submittedAt: { not: null } }, orderBy: { submittedAt: "desc" }, take: 1, select: { submittedAt: true } },
@@ -30,7 +30,7 @@ export async function loadRecallDue(practiceId: string, now = new Date()) {
           p.anamnesisForms[0]?.submittedAt?.getTime() ?? 0,
         ),
       );
-      const r = recallFor({ fach, age: ageFromBirthDate(p.birthDate), letzterKontakt: letzter, erinnertAm: p.recallSentAt }, now);
+      const r = recallFor({ fach, age: ageFromBirthDate(p.birthDate), letzterKontakt: letzter, erinnertAm: p.recallSentAt, geschlecht: p.geschlecht }, now);
       return r ? { p, r, letzter } : null;
     })
     .filter((x): x is NonNullable<typeof x> => !!x)

@@ -12,6 +12,8 @@ export interface Befund {
   abrechnung?: string;
   /** Passendes Angebot im Behandlungsweg (Anlass-ID des Fachs). */
   anlass?: string;
+  /** Nur bei diesem Geschlecht möglich (z. B. Prostata). */
+  geschlecht?: "W" | "M";
 }
 
 export interface Region {
@@ -80,7 +82,7 @@ export const BEFUNDMODELLE: Record<string, Region[]> = {
       { text: "Hallux valgus", icd: "M20.1" },
       { text: "Fersensporn", icd: "M77.3", abrechnung: "Stoßwellentherapie ist meist IGeL." },
     ] },
-    { id: "knochen", name: "Knochen", befunde: [{ text: "Postmenopausale Osteoporose", icd: "M81.0", anlass: "osteoporose", abrechnung: "Knochendichtemessung ist Kassenleistung nur bei Fraktur ohne Unfall bzw. bestimmtem Verdacht, sonst IGeL." }] },
+    { id: "knochen", name: "Knochen", befunde: [{ text: "Postmenopausale Osteoporose", icd: "M81.0", geschlecht: "W", anlass: "osteoporose", abrechnung: "Knochendichtemessung ist Kassenleistung nur bei Fraktur ohne Unfall bzw. bestimmtem Verdacht, sonst IGeL." }] },
   ],
   haut: [
     { id: "flaeche", name: "Hautfläche", befunde: [
@@ -126,13 +128,14 @@ export const BEFUNDMODELLE: Record<string, Region[]> = {
     { id: "infekt", name: "Infektionen", befunde: [{ text: "Akute Kolpitis", icd: "N76.0" }] },
   ],
   uro: [
-    { id: "prostata", name: "Prostata", befunde: [{ text: "Prostatahyperplasie", icd: "N40", anlass: "prostata", abrechnung: "PSA-Test zur Früherkennung ohne Verdacht ist IGeL." }] },
+    { id: "prostata", name: "Prostata", befunde: [{ text: "Prostatahyperplasie", icd: "N40", geschlecht: "M", anlass: "prostata", abrechnung: "PSA-Test zur Früherkennung ohne Verdacht ist IGeL." }] },
     { id: "harnwege", name: "Harnwege und Niere", befunde: [
       { text: "Harnwegsinfektion", icd: "N39.0" },
       { text: "Nierenstein", icd: "N20.0" },
-      { text: "Harninkontinenz", icd: "R32" },
+      { text: "Harninkontinenz", icd: "R32", abrechnung: "Beckenbodentraining als Heilmittel verordnen; Inkontinenzhilfsmittel auf Rezept." },
+      { text: "Belastungsinkontinenz", icd: "N39.3", abrechnung: "Beckenbodentraining als Heilmittel verordnen." },
     ] },
-    { id: "maennergesundheit", name: "Männergesundheit", befunde: [{ text: "Erektile Dysfunktion organischen Ursprungs", icd: "N48.4" }] },
+    { id: "maennergesundheit", name: "Männergesundheit", befunde: [{ text: "Erektile Dysfunktion organischen Ursprungs", icd: "N48.4", geschlecht: "M" }] },
   ],
   hausarzt: [
     { id: "stoffwechsel", name: "Stoffwechsel und Kreislauf", befunde: [
@@ -186,7 +189,7 @@ export const BEFUNDMODELLE: Record<string, Region[]> = {
     ] },
     { id: "stoffwechsel", name: "Stoffwechsel und Hormone", befunde: [
       { text: "Diabetes mellitus Typ 2", icd: "E11.90" },
-      { text: "Polyzystisches Ovarialsyndrom", icd: "E28.2" },
+      { text: "Polyzystisches Ovarialsyndrom", icd: "E28.2", geschlecht: "W" },
     ] },
   ],
   psych: [
@@ -245,6 +248,19 @@ export const BEFUNDMODELLE: Record<string, Region[]> = {
 
 BEFUNDMODELLE.ergo = BEFUNDMODELLE.physio;
 
-export function befundmodell(fach: string | null | undefined): Region[] {
-  return BEFUNDMODELLE[fach ?? ""] ?? BEFUNDMODELLE.hausarzt;
+// Für Apotheke, Optik, Hörakustik, Sanitätshaus, Pflege, Hebammenhilfe,
+// Heilpraktik, Klinik, Radiologie und Ästhetik gibt es bewusst kein
+// Diagnosemodell: Dort stellt niemand ICD-Diagnosen bzw. die Diagnose kommt
+// von der überweisenden Praxis. Ein Hausarzt-Modell wäre dort falsch.
+const OHNE_BEFUNDMODELL = new Set(["apotheke", "optik", "hoerakustik", "sanitaetshaus", "pflege", "hebamme", "heilpraktiker", "klinik", "radiologie", "aesthetik"]);
+
+export function befundmodell(fach: string | null | undefined, person?: { geschlecht?: string | null }): Region[] {
+  const f = fach || "zahn";
+  if (OHNE_BEFUNDMODELL.has(f)) return [];
+  const regionen = BEFUNDMODELLE[f] ?? BEFUNDMODELLE.hausarzt;
+  const g = person?.geschlecht;
+  if (!g || g === "D") return regionen;
+  return regionen
+    .map((r) => ({ ...r, befunde: r.befunde.filter((b) => !b.geschlecht || b.geschlecht === g) }))
+    .filter((r) => r.befunde.length > 0);
 }

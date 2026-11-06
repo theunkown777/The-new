@@ -1,3 +1,4 @@
+import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -20,6 +21,7 @@ export default async function DashboardPage() {
   const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } });
   // Arzt- und Therapiepraxen arbeiten ohne die zahnärztlichen KI-Berichte.
   const dental = isDental(practice?.specialty);
+  const P = fachprofil(practice?.specialty ?? "zahn").person;
   const [anamnesen30, recentProposals] = dental
     ? [0, []]
     : await Promise.all([
@@ -102,10 +104,10 @@ export default async function DashboardPage() {
           <h1 className="font-display text-3xl text-slate-900">Heute in Ihrer Praxis</h1>
           <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500">
             <Laechelbogen className="h-2 w-8 text-brand-600" />
-            {heute ? `${heute} ${heute === 1 ? "Patient braucht" : "Patienten brauchen"} heute Ihre Aufmerksamkeit` : "Heute ist nichts liegen geblieben"}
+            {heute ? `${heute} ${heute === 1 ? `${P.sg} braucht` : `${P.pl} brauchen`} heute Ihre Aufmerksamkeit` : "Heute ist nichts liegen geblieben"}
           </p>
         </div>
-        <Link href="/abschluss/new" className="btn-primary">Behandlung abschließen</Link>
+        <Link href="/abschluss/new" className="btn-primary">{abschlussWort(practice?.specialty)} abschließen</Link>
       </div>
 
       <section className="mb-8 grid gap-4 lg:grid-cols-[1fr_22rem]" data-testid="heute">
@@ -162,7 +164,7 @@ export default async function DashboardPage() {
       {/* Sorrida-Signatur: Wege der letzten 90 Tage auf dem Lächelbogen */}
       <section className="mb-8 rounded-3xl bg-white p-5 sm:p-6" data-testid="wege-trichter">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-semibold text-slate-900">Wo Ihre Patienten gerade stehen</h2>
+          <h2 className="font-semibold text-slate-900">Wo Ihre {P.pl} gerade stehen</h2>
           <Link href="/patients" className="ziel text-sm text-brand-700 underline">Zur Arbeitsliste</Link>
         </div>
         <div className="mx-auto mt-4 max-w-2xl">
@@ -173,7 +175,7 @@ export default async function DashboardPage() {
 
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="card">
-          <p className="text-sm text-slate-500">Patienten</p>
+          <p className="text-sm text-slate-500">{P.pl}</p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">{patientCount.toLocaleString("de-DE")}</p>
         </div>
         <div className="card">
@@ -194,7 +196,7 @@ export default async function DashboardPage() {
         <div className="min-w-0">
       {responses.length > 0 && (
         <section className="mb-8" data-testid="patient-responses">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Rückmeldungen von Patienten</h2>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Rückmeldungen von {P.pl}</h2>
           <div className="card divide-y divide-slate-100 p-0">
             {responses.map((r) => (
               <Link key={r.id} href={`/proposals/${r.id}`} className="flex flex-wrap items-center justify-between gap-2 px-6 py-4 hover:bg-emerald-50">

@@ -21,7 +21,7 @@ export function buildServiceSummary(entries: EntryForSummary[]): string {
     .map((e) => {
       const ref = e.catalogItem.code !== "–" ? `${e.catalogItem.system} ${e.catalogItem.code}` : e.catalogItem.system;
       const parts = [`- ${e.catalogItem.title} (${ref})`];
-      if (e.toothNumbers) parts.push(`Zahn/Region: ${e.toothNumbers}`);
+      if (e.toothNumbers) parts.push(`Region: ${e.toothNumbers}`);
       if (e.quantity && e.quantity !== 1) parts.push(`Anzahl: ${e.quantity}`);
       if (e.note) parts.push(`Hinweis: ${e.note}`);
       return parts.join(" – ");

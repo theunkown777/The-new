@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 
 type CatalogItem = {
   id: string;
+  /** null = Vorgabe von Sorrida (schreibgeschützt) */
+  practiceId?: string | null;
   system: string;
   code: string;
   title: string;
@@ -16,13 +18,21 @@ type CatalogItem = {
 
 type RowState = { punktzahl: string; festbetrag: string; saving: boolean; saved: boolean; error: string | null };
 
-const SYSTEMS = ["GOZ", "BEMA", "GOAE", "BEL_II", "SONSTIGES"] as const;
+const SYSTEME_JE_FACH: Record<string, string[]> = {
+  zahn: ["GOZ", "BEMA", "GOAE", "BEL_II", "SONSTIGES"],
+  therapie: ["HEILMITTEL", "SELBST", "SONSTIGES"],
+  apotheke: ["APO", "HILFSMITTEL", "SELBST", "SONSTIGES"],
+  versorgung: ["HILFSMITTEL", "SELBST", "SONSTIGES"],
+  pflege: ["PFLEGE", "SELBST", "SONSTIGES"],
+  hebamme: ["HEBAMME", "SELBST", "SONSTIGES"],
+  selbst: ["SELBST", "SONSTIGES"],
+  arzt: ["EBM", "GOAE", "UVGOAE", "SELBST", "SONSTIGES"],
+};
+const SYSTEM_LABEL: Record<string, string> = { GOAE: "GOÄ", UVGOAE: "UV-GOÄ", HEILMITTEL: "Heilmittel", PFLEGE: "Pflege", HEBAMME: "Hebammenhilfe", APO: "Apotheke", HILFSMITTEL: "Hilfsmittel", SELBST: "Selbstzahler", SONSTIGES: "Sonstiges", BEL_II: "BEL II" };
 
-function emptyNewItem() {
-  return { system: "GOZ" as (typeof SYSTEMS)[number], code: "", title: "", category: "", toothRelevant: false, hasFaktor: true };
-}
-
-export function CatalogSettings({ readOnly = false }: { readOnly?: boolean }) {
+export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabel = "Zahn/Region" }: { readOnly?: boolean; systeme?: string; regionLabel?: string | null }) {
+  const SYSTEMS = SYSTEME_JE_FACH[systeme] ?? SYSTEME_JE_FACH.arzt;
+  const emptyNewItem = () => ({ system: SYSTEMS[0], code: "", title: "", category: "", toothRelevant: false, hasFaktor: SYSTEMS[0] === "GOZ" || SYSTEMS[0] === "GOAE" });
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [rows, setRows] = useState<Record<string, RowState>>({});
   const [loading, setLoading] = useState(true);
@@ -159,7 +169,10 @@ export function CatalogSettings({ readOnly = false }: { readOnly?: boolean }) {
               return (
                 <div key={item.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                   <div className="w-full sm:min-w-[220px] sm:w-auto sm:flex-1">
-                    <div className="text-sm font-medium text-slate-900">{item.title}</div>
+                    <div className="text-sm font-medium text-slate-900">
+                      {item.title}
+                      {!item.practiceId && <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-normal text-slate-500" title="Vorgabe von Sorrida, schreibgeschützt">Vorgabe</span>}
+                    </div>
                     <div className="text-xs text-slate-400">{ref}</div>
                   </div>
                   <div className="flex flex-wrap items-end gap-3">
@@ -170,7 +183,7 @@ export function CatalogSettings({ readOnly = false }: { readOnly?: boolean }) {
                         type="number"
                         step="0.1"
                         min="0"
-                        disabled={readOnly}
+                        disabled={readOnly || !item.practiceId}
                         value={row.punktzahl}
                         onChange={(e) => updateRow(item.id, { punktzahl: e.target.value })}
                       />
@@ -182,12 +195,12 @@ export function CatalogSettings({ readOnly = false }: { readOnly?: boolean }) {
                         type="number"
                         step="0.01"
                         min="0"
-                        disabled={readOnly}
+                        disabled={readOnly || !item.practiceId}
                         value={row.festbetrag}
                         onChange={(e) => updateRow(item.id, { festbetrag: e.target.value })}
                       />
                     </div>
-                    {!readOnly && (
+                    {!readOnly && item.practiceId && (
                       <div className="flex flex-col items-start gap-1">
                         <div className="flex gap-2">
                           <button
@@ -243,7 +256,7 @@ export function CatalogSettings({ readOnly = false }: { readOnly?: boolean }) {
                     onChange={(e) => setNewItem((p) => ({ ...p, system: e.target.value as typeof p.system }))}
                   >
                     {SYSTEMS.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s}>{SYSTEM_LABEL[s] ?? s}</option>
                     ))}
                   </select>
                 </div>
@@ -282,7 +295,7 @@ export function CatalogSettings({ readOnly = false }: { readOnly?: boolean }) {
                     checked={newItem.toothRelevant}
                     onChange={(e) => setNewItem((p) => ({ ...p, toothRelevant: e.target.checked }))}
                   />
-                  Zahn/Region relevant
+                  {regionLabel ?? "Region"} relevant
                 </label>
                 <label className="flex items-center gap-2 self-end pb-2 text-sm text-slate-700">
                   <input

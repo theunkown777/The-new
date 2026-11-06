@@ -1,3 +1,4 @@
+import { sichtbarFuer, SCHREIBGESCHUETZT } from "@/lib/katalogScope";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
@@ -12,7 +13,7 @@ export async function GET() {
 
   const templates = await prisma.serviceTemplate.findMany({
     where: {
-      OR: [{ practiceId: null }, { practiceId: session.user.practiceId }],
+      ...(await sichtbarFuer(session.user.practiceId)),
     },
     orderBy: { name: "asc" },
     include: {
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
   }
 
   const template = await prisma.serviceTemplate.create({
-    data: { practiceId: null, name: parsed.data.name, description: parsed.data.description },
+    data: { practiceId: session.user.practiceId, name: parsed.data.name, description: parsed.data.description },
   });
 
   return NextResponse.json({ template });

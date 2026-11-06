@@ -5,7 +5,7 @@
 
 import type { Gebuehrenwerk } from "@/lib/gebuehren";
 
-export type ArtId = "gkv_ebm" | "gkv_bema" | "zahnersatz" | "pkv_goae" | "pkv_goz" | "beihilfe" | "igel" | "mehrkosten_zahn" | "bg" | "heilmittel" | "hebamme" | "selbstzahler_therapie" | "pflege" | "hilfsmittel";
+export type ArtId = "apotheke" | "klinik_wahl" | "heilpraktiker" | "gkv_ebm" | "gkv_bema" | "zahnersatz" | "pkv_goae" | "pkv_goz" | "beihilfe" | "igel" | "mehrkosten_zahn" | "bg" | "heilmittel" | "hebamme" | "selbstzahler_therapie" | "pflege" | "hilfsmittel";
 
 export interface Abrechnungsart {
   id: ArtId;
@@ -23,6 +23,38 @@ export interface Abrechnungsart {
 }
 
 export const ARTEN: Record<ArtId, Abrechnungsart> = {
+  apotheke: {
+    id: "apotheke",
+    name: "Apotheke: Rezepte, Dienstleistungen, Hilfsmittel",
+    zahler: "Krankenkasse über das Apothekenrechenzentrum; Kunde zahlt Zuzahlung, Selbstmedikation und Freiwahl",
+    rechenweg: "Rezeptarzneimittel nach Arzneimittelpreisverordnung (Festzuschlag plus prozentualer Zuschlag) abzüglich Kassenabschlag; pharmazeutische Dienstleistungen und Impfungen nach eigener Vergütungsvereinbarung über den Nacht- und Notdienstfonds bzw. die Kasse.",
+    regeln: ["Rezepte (E-Rezept) monatlich über das Rechenzentrum abrechnen", "Zuzahlung 10 %, mindestens 5 €, höchstens 10 € je Packung; Befreiungen prüfen", "Hilfsmittel nur mit Vertrag der jeweiligen Kasse (Präqualifizierung)", "pDL nur mit dokumentierter Leistung und Unterschrift des Kunden"],
+    begriffe: [["AMPreisV", "Arzneimittelpreisverordnung, regelt Preise verschreibungspflichtiger Mittel"], ["Kassenabschlag", "Rabatt der Apotheke an die Krankenkasse je Packung"], ["pDL", "pharmazeutische Dienstleistung nach § 129 Abs. 5e SGB V"], ["Retaxation", "Kasse kürzt die Vergütung wegen Formfehlern auf dem Rezept"], ["Präqualifizierung", "Nachweis, dass die Apotheke bestimmte Hilfsmittel abgeben darf"]],
+    geldhebel: [
+      { problem: "Pharmazeutische Dienstleistungen werden kaum angeboten, obwohl viele Kunden Anspruch haben", massnahme: "Anspruch erkennen (z. B. ab 5 Dauermedikamenten) und Termine anbieten", inSorrida: "Sitzungstypen pDL, Termine, Akte mit Medikation" },
+      { problem: "Retaxationen wegen Formfehlern", massnahme: "Rezept vor Abgabe prüfen", inSorrida: "geplant" },
+      { problem: "Pflegehilfsmittel-Anspruch (42 € im Monat) ungenutzt", massnahme: "Pflegebedürftige Kunden aktiv ansprechen", inSorrida: "Angebot Pflegehilfsmittel" },
+    ],
+  },
+  klinik_wahl: {
+    id: "klinik_wahl",
+    name: "Klinik: Wahlleistungen",
+    werk: "GOAE",
+    zahler: "Patient bzw. private Zusatzversicherung; allgemeine Krankenhausleistungen zahlt die Kasse über Fallpauschalen (DRG)",
+    rechenweg: "Unterkunft (Ein-/Zweibettzimmer) nach Preisvereinbarung, wahlärztliche Leistungen nach GOÄ mit Minderung nach § 6a GOÄ.",
+    regeln: ["Schriftliche Wahlleistungsvereinbarung vor Erbringung (§ 17 KHEntgG)", "Unterrichtung über Entgelte vor Abschluss", "Wahlarztkette beachten"],
+    begriffe: [["DRG", "Fallpauschale für die allgemeine Krankenhausleistung"], ["Wahlleistung", "Zusatzleistung gegen gesondertes Entgelt"], ["§ 6a GOÄ", "Minderung der Gebühren bei stationären Leistungen"]],
+    geldhebel: [{ problem: "Wahlleistungen werden nicht schriftlich vereinbart und sind dann nicht abrechenbar", massnahme: "Vereinbarung digital vor Aufnahme", inSorrida: "Vorschlag mit digitalem Einverständnis" }],
+  },
+  heilpraktiker: {
+    id: "heilpraktiker",
+    name: "Heilpraktik (Selbstzahler)",
+    zahler: "Patient; private Krankenversicherung, Beihilfe oder Zusatzversicherung erstatten je nach Tarif",
+    rechenweg: "Freie Vereinbarung; das Gebührenverzeichnis für Heilpraktiker (GebüH) dient Versicherungen als Orientierung für die Erstattung.",
+    regeln: ["Kosten vor der Behandlung in Textform nennen", "Hinweis, dass gesetzliche Kassen in der Regel nicht zahlen", "Keine Heilversprechen (Heilmittelwerbegesetz)"],
+    begriffe: [["GebüH", "Gebührenverzeichnis für Heilpraktiker, Orientierung für Erstattungen"], ["Zusatzversicherung", "private Ergänzung für Naturheilverfahren"]],
+    geldhebel: [{ problem: "Patienten zahlen spät oder streiten über Erstattung", massnahme: "Kosten und Erstattungsgrenzen vorher schriftlich, Rechnung mit GebüH-Bezug", inSorrida: "Vorschlag, Rechnung mit GiroCode" }],
+  },
   gkv_ebm: {
     id: "gkv_ebm",
     name: "Gesetzlich versichert (EBM)",
@@ -192,7 +224,10 @@ export function artenFuer(fach: string | null | undefined): Abrechnungsart[] {
     : f === "hebamme" ? ["hebamme", "selbstzahler_therapie"]
     : f === "pflege" ? ["pflege"]
     : ["hoerakustik", "optik", "sanitaetshaus"].includes(f) ? ["hilfsmittel"]
-    : f === "heilpraktiker" ? ["selbstzahler_therapie"]
+    : f === "heilpraktiker" ? ["heilpraktiker"]
+    : f === "apotheke" ? ["apotheke", "hilfsmittel"]
+    : f === "klinik" ? ["klinik_wahl"]
+    : f === "aesthetik" ? ["pkv_goae", "igel"]
     : ["chirurgie", "ortho", "hausarzt", "radiologie"].includes(f) ? ["gkv_ebm", "pkv_goae", "beihilfe", "igel", "bg"]
     : ["gkv_ebm", "pkv_goae", "beihilfe", "igel"];
   return ids.map((i) => ARTEN[i]);

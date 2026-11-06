@@ -1,3 +1,4 @@
+import { praxisFach } from "@/lib/katalogScope";
 import { auditFromSession } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -24,6 +25,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   let generatedText: string;
   try {
     generatedText = await generateReportText({
+      fach: await praxisFach(session.user.practiceId),
       reportType: existing.type as ReportType,
       practiceName: session.user.practiceName,
       authorName: session.user.name ?? "",

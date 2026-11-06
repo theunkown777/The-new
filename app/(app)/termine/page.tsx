@@ -31,7 +31,7 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
       include: { patient: { select: { id: true, firstName: true, lastName: true, email: true, contactConsentAt: true } }, location: { select: { name: true } } },
     }),
     prisma.appointment.findMany({ where: { practiceId, start: { gte: new Date(Date.now() - 60 * 864e5), lt: new Date() } }, select: { status: true } }),
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, specialty: true } }),
   ]);
   const a = auslastung(termine, standorte, ort);
   const quote = ausfallquote(letzte);
@@ -104,7 +104,7 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
                 confirmedAt={t.confirmedAt ? kurz(t.confirmedAt) : null}
                 remindedAt={t.remindedAt ? kurz(t.remindedAt) : null}
                 bestaetigung={bestaetigungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, reason: t.reason })}
-                erinnerung={erinnerungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null })}
+                erinnerung={erinnerungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, fach: practice?.specialty })}
               /></div>
             </div>
           ))}

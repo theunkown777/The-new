@@ -37,7 +37,9 @@ export default async function AbrechnungPage() {
     : null;
   const arten = artenFuer(fach);
   const werke = [...new Set(arten.map((a) => a.werk).filter((w): w is Gebuehrenwerk => !!w))];
-  const alleWerke: Gebuehrenwerk[] = werke.length ? [...werke, ...(["GOAE", "GOZ", "EBM", "BEMA", "UVGOAE"] as Gebuehrenwerk[]).filter((w) => !werke.includes(w))] : ["GOAE", "EBM", "UVGOAE"];
+  // Rechner nur mit den Gebührenwerken, die das Fach wirklich nutzt (Zahn: BEMA/GOZ, Arzt: EBM/GOÄ, ggf. UV-GOÄ);
+  // Apotheke, Pflege, Heilmittel & Co. rechnen nicht nach Gebührenordnung und sehen keinen Rechner.
+  const alleWerke: Gebuehrenwerk[] = werke.includes("BEMA") || werke.includes("GOZ") ? [...new Set<Gebuehrenwerk>([...werke, "GOZ", "BEMA"])] : werke;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6" data-testid="abrechnung">
@@ -65,7 +67,7 @@ export default async function AbrechnungPage() {
         </section>
       )}
 
-      <Gebuehrenrechner werke={alleWerke} punktwerte={{ ...(practice?.bemaPunktwertCent ? { BEMA: practice.bemaPunktwertCent } : {}) }} />
+      {alleWerke.length > 0 && <Gebuehrenrechner werke={alleWerke} punktwerte={{ ...(practice?.bemaPunktwertCent ? { BEMA: practice.bemaPunktwertCent } : {}) }} />}
 
       <div className="space-y-4">
         {arten.map((a) => (

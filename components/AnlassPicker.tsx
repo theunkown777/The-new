@@ -3,6 +3,7 @@
 import type { Specialty } from "@/lib/specialties";
 import type { CustomOffer } from "@/lib/proposals";
 import { CUSTOM_PREFIX } from "@/lib/medicalProposals";
+import { passtZuPerson } from "@/lib/fachprofile";
 
 // Anlässe für Arztpraxen ankreuzen (Gegenstück zum Zahnschema).
 export function AnlassPicker({
@@ -10,7 +11,10 @@ export function AnlassPicker({
   custom,
   value,
   onChange,
+  person,
 }: {
+  /** Geschlecht und Alter des Patienten: Angebote, die nicht passen, werden nicht gezeigt. */
+  person?: { geschlecht?: string | null; alter?: number | null };
   spec: Specialty | null;
   custom: CustomOffer[];
   value: string[];
@@ -20,7 +24,7 @@ export function AnlassPicker({
   return (
     <div className="card space-y-2" data-testid="anlass-picker">
       <h2 className="mb-1 font-medium text-slate-900">Anlass des Gesprächs</h2>
-      {spec?.anlaesse.map((a) => (
+      {spec?.anlaesse.filter((a) => !person || passtZuPerson(a, person)).map((a) => (
         <label key={a.id} className="flex items-start gap-2 text-sm text-slate-700">
           <input type="checkbox" className="mt-1" checked={value.includes(a.id)} onChange={(e) => toggle(a.id, e.target.checked)} />
           <span>

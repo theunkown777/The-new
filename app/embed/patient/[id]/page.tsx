@@ -1,3 +1,4 @@
+import { fachprofil } from "@/lib/fachprofile";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
@@ -54,6 +55,7 @@ export default async function EmbedPatientPage({
     lastName: patient.lastName,
     insuranceType: patient.insuranceType,
     birthDate: patient.birthDate?.toISOString() ?? null,
+    geschlecht: patient.geschlecht,
   };
 
   return (
@@ -94,7 +96,7 @@ export default async function EmbedPatientPage({
             bemaPunktwertCent: practice?.bemaPunktwertCent ?? null,
           }}
           prices={resolvePrices(practice?.proposalPrices)}
-          practiceName={practice?.name ?? "Ihre Zahnarztpraxis"}
+          practiceName={practice?.name ?? "Ihre Praxis"}
           basePath="/embed/abschluss"
         />
       )}
@@ -102,6 +104,7 @@ export default async function EmbedPatientPage({
       {view === "bericht" && (
         <div className="max-w-3xl">
           <ServiceChecklistForm
+            regionLabel={fachprofil(practice?.specialty ?? "zahn").region}
             patients={[patientOption]}
             initialPatientId={patient.id}
             practicePunktwerte={{
@@ -119,7 +122,7 @@ export default async function EmbedPatientPage({
           patients={[patientOption]}
           initialPatientId={patient.id}
           prices={resolvePrices(practice?.proposalPrices)}
-          practiceName={practice?.name ?? "Ihre Zahnarztpraxis"}
+          practiceName={practice?.name ?? "Ihre Praxis"}
           savedHrefPrefix="/embed/proposal/"
         />
       )}

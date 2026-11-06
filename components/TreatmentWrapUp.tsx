@@ -5,6 +5,7 @@ import { ServiceChecklistForm } from "@/components/ServiceChecklistForm";
 import { ProposalEditor } from "@/components/ProposalEditor";
 import { AnamnesisFlags } from "@/components/AnamnesisFlags";
 import { isDental } from "@/lib/specialties";
+import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 import type { AnamnesisSummary } from "@/lib/anamnesisView";
 import type { MedInput, Prices, ProposalInput } from "@/lib/proposals";
 
@@ -14,6 +15,7 @@ type PatientOption = {
   lastName: string;
   insuranceType: string | null;
   birthDate: string | null;
+  geschlecht?: string | null;
 };
 
 // Abschluss einer Behandlung in einem Schritt: Leistungen bestätigen,
@@ -66,10 +68,11 @@ export function TreatmentWrapUp({
     <div className="space-y-4">
     {anamnesis && <AnamnesisFlags flags={anamnesis.flags} submittedAt={anamnesis.submittedAt} />}
     <ServiceChecklistForm
+      regionLabel={fachprofil(fach || "zahn").region}
       patients={[patient]}
       initialPatientId={patient.id}
       practicePunktwerte={practicePunktwerte}
-      submitLabel="Behandlung abschließen"
+      submitLabel={`${abschlussWort(fach)} abschließen`}
       submittingLabel="Bericht, Vorschlag und To-dos werden erstellt…"
       onCreated={afterReport}
       beforeSubmit={

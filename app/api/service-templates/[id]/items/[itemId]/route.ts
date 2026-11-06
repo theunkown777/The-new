@@ -17,7 +17,7 @@ export async function PATCH(
   if (!session) return error;
 
   const existing = await prisma.serviceTemplateItem.findFirst({
-    where: { id: params.itemId, templateId: params.id, template: { practiceId: null } },
+    where: { id: params.itemId, templateId: params.id, template: { practiceId: session.user.practiceId } },
   });
   if (!existing) return NextResponse.json({ error: "Position nicht gefunden" }, { status: 404 });
 
@@ -48,7 +48,7 @@ export async function DELETE(
   if (!session) return error;
 
   const existing = await prisma.serviceTemplateItem.findFirst({
-    where: { id: params.itemId, templateId: params.id, template: { practiceId: null } },
+    where: { id: params.itemId, templateId: params.id, template: { practiceId: session.user.practiceId } },
   });
   if (!existing) return NextResponse.json({ error: "Position nicht gefunden" }, { status: 404 });
 

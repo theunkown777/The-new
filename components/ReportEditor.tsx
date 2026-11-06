@@ -335,7 +335,7 @@ export function ReportEditor({
                   )}
                   {entry.performed && (entry.toothNumbers || entry.quantity !== 1 || entry.note) && (
                     <p className="mt-0.5 text-xs text-slate-500">
-                      {entry.toothNumbers && `Zahn/Region: ${entry.toothNumbers}`}
+                      {entry.toothNumbers && `Region: ${entry.toothNumbers}`}
                       {entry.toothNumbers && (entry.quantity !== 1 || entry.note) && " · "}
                       {entry.quantity !== 1 && `Anzahl: ${entry.quantity}`}
                       {entry.quantity !== 1 && entry.note && " · "}

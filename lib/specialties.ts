@@ -1,3 +1,4 @@
+import { ZUSATZ_ANLAESSE } from "@/lib/fachangebote";
 // Fachgebiete für Arztpraxen. Sorrida begann als Zahnarzt-Werkzeug; in
 // anderen Fächern heißt das Gegenstück zur Mehrkostenvereinbarung
 // "Individuelle Gesundheitsleistung" (IGeL): vom Patienten selbst bezahlt,
@@ -44,6 +45,11 @@ export interface Anlass {
   notes?: string[];
   /** Nur auf ausdrücklichen Wunsch des Patienten (z. B. Ästhetik). */
   nurAufWunsch?: boolean;
+  /** Nur für ein Geschlecht (z. B. Prostata nur Männer, Verhütung nur Frauen). */
+  geschlecht?: "W" | "M";
+  /** Altersgrenzen, z. B. Kassenleistung erst ab 35 oder Kinderangebot bis 17. */
+  abAlter?: number;
+  bisAlter?: number;
 }
 
 export interface Specialty {
@@ -191,6 +197,7 @@ export const SPECIALTIES: Specialty[] = [
     anlaesse: [
       {
         id: "krebsvorsorge",
+        geschlecht: "W",
         label: "Krebsfrüherkennung Gebärmutter und Eierstöcke",
         bereich: "Vorsorge",
         options: [
@@ -201,6 +208,7 @@ export const SPECIALTIES: Specialty[] = [
       },
       {
         id: "brust",
+        geschlecht: "W",
         label: "Brust-Früherkennung",
         bereich: "Vorsorge",
         options: [
@@ -210,6 +218,7 @@ export const SPECIALTIES: Specialty[] = [
       },
       {
         id: "schwangerschaft",
+        geschlecht: "W", abAlter: 14, bisAlter: 50,
         label: "Schwangerschaft: Zusatzuntersuchungen",
         bereich: "Schwangerschaft",
         options: [
@@ -233,6 +242,7 @@ export const SPECIALTIES: Specialty[] = [
     anlaesse: [
       {
         id: "prostata",
+        geschlecht: "M",
         label: "Prostatakrebs-Früherkennung",
         bereich: "Vorsorge",
         options: [
@@ -320,6 +330,7 @@ export const SPECIALTIES: Specialty[] = [
     anlaesse: [
       {
         id: "vorsorge_kind",
+        bisAlter: 17,
         label: "Vorsorgeuntersuchungen",
         bereich: "Vorsorge",
         options: [
@@ -385,6 +396,7 @@ export const SPECIALTIES: Specialty[] = [
       },
       {
         id: "mamma",
+        geschlecht: "W",
         label: "Brustkrebs-Früherkennung",
         bereich: "Vorsorge",
         options: [
@@ -762,6 +774,7 @@ export const SPECIALTIES: Specialty[] = [
     anlaesse: [
       {
         id: "geburt",
+        geschlecht: "W",
         label: "Geburtsvorbereitung und Wochenbett",
         bereich: "Begleitung",
         options: [
@@ -982,6 +995,12 @@ const TEASER: Record<string, string> = {
   kardio: "Herz-Check, Belastungs-EKG, Carotis",
 };
 for (const s of SPECIALTIES) s.teaser ??= TEASER[s.id];
+
+// Ergänzende Anlässe je Fach (lib/fachangebote.ts) anhängen; IDs bleiben eindeutig.
+for (const s of SPECIALTIES) {
+  const extra = ZUSATZ_ANLAESSE[s.id] ?? [];
+  for (const a of extra) if (!s.anlaesse.some((x) => x.id === a.id)) s.anlaesse.push(a);
+}
 
 export const isTherapie = (s: Specialty | null | undefined) => s?.beruf === "therapie";
 

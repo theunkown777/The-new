@@ -15,7 +15,11 @@ describe("Demo-Patienten", () => {
     const gyn = generatePatients(500, "gyn", 2, today);
     expect(gyn.every((p) => p.sex === "W")).toBe(true);
     const uro = generatePatients(1000, "uro", 3, today);
-    expect(uro.filter((p) => p.sex === "M").length).toBeGreaterThan(700);
+    // Urologie: überwiegend Männer, aber auch Frauen (Inkontinenz, Harnwegsinfekte, Steine)
+    expect(uro.filter((p) => p.sex === "M").length).toBeGreaterThan(600);
+    expect(uro.filter((p) => p.sex === "W").length).toBeGreaterThan(200);
+    expect(generatePatients(300, "hebamme", 4, today).every((p) => p.sex === "W")).toBe(true);
+    expect(generatePatients(300, "kinder", 5, today).every((p) => today.getFullYear() - p.birthDate.getUTCFullYear() <= 18)).toBe(true);
   });
   it("etwa 12 % privat versichert", () => {
     const pkv = generatePatients(2000, "hausarzt", 7, today).filter((p) => p.insuranceType === "PKV").length;

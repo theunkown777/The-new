@@ -15,6 +15,7 @@ export default function NewPatientPage() {
     notes: "",
     email: "",
     phone: "",
+    geschlecht: "",
   });
   const [einwilligung, setEinwilligung] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +49,7 @@ export default function NewPatientPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="mb-6 font-display text-3xl text-slate-900">Neuer Patient</h1>
+      <h1 className="mb-6 font-display text-3xl text-slate-900">Neu anlegen</h1>
       <form onSubmit={handleSubmit} className="card space-y-4">
         {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -70,6 +71,16 @@ export default function NewPatientPage() {
               onChange={(e) => update("lastName", e.target.value)}
             />
           </div>
+        </div>
+        <div>
+          <label className="label">Geschlecht</label>
+          <select className="input" value={form.geschlecht} onChange={(e) => update("geschlecht", e.target.value)} data-testid="geschlecht">
+            <option value="">nicht angegeben</option>
+            <option value="W">weiblich</option>
+            <option value="M">männlich</option>
+            <option value="D">divers</option>
+          </select>
+          <p className="mt-1 text-xs text-slate-500">Steuert geschlechtsbezogene Vorsorge und Angebote (z. B. Prostata- oder Brust-Früherkennung).</p>
         </div>
         <div>
           <label className="label">Geburtsdatum</label>

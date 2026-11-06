@@ -7,6 +7,8 @@ type Template = {
   id: string;
   name: string;
   description: string | null;
+  /** null = Vorgabe von Sorrida */
+  practiceId?: string | null;
   items: { id: string }[];
 };
 
@@ -80,13 +82,16 @@ export function TemplateList({ readOnly = false }: { readOnly?: boolean }) {
           {templates.map((tpl) => (
             <div key={tpl.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
               <Link href={`/settings/templates/${tpl.id}`} className="min-w-[220px] flex-1">
-                <div className="text-sm font-medium text-slate-900">{tpl.name}</div>
+                <div className="text-sm font-medium text-slate-900">
+                  {tpl.name}
+                  {!tpl.practiceId && <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-normal text-slate-500">Vorgabe</span>}
+                </div>
                 <div className="text-xs text-slate-400">
                   {tpl.items.length} Position{tpl.items.length === 1 ? "" : "en"}
                   {tpl.description ? ` · ${tpl.description}` : ""}
                 </div>
               </Link>
-              {!readOnly && (
+              {!readOnly && tpl.practiceId && (
                 <div className="flex flex-col items-end gap-1">
                   <button
                     type="button"

@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const key = `nachricht:${practiceId}`;
   if (await isRateLimited(key, 300, 3600e3)) return NextResponse.json({ error: "Zu viele Nachrichten in kurzer Zeit." }, { status: 429 });
 
-  const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, isDemo: true } });
+  const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, isDemo: true, specialty: true } });
   if (practice?.isDemo) return NextResponse.json({ error: "Im Gastzugang werden keine Nachrichten verschickt." }, { status: 403 });
   const praxis = practice?.name ?? "Ihrer Praxis";
   const testmodus = () => NextResponse.json({ ok: false, testMode: true, error: "Mailversand ist noch nicht eingerichtet (Testmodus). Es wurde nichts verschickt; bitte den Text kopieren." }, { status: 503 });
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     const ort = t.location?.name ?? null;
     text = art === "termin-bestaetigung"
       ? bestaetigungText({ firstName: t.patient.firstName, practiceName: praxis, start: t.start, ort, reason: t.reason })
-      : erinnerungText({ firstName: t.patient.firstName, practiceName: praxis, start: t.start, ort });
+      : erinnerungText({ firstName: t.patient.firstName, practiceName: praxis, start: t.start, ort, fach: practice?.specialty });
     nachher = () => prisma.appointment.update({ where: { id: t.id }, data: art === "termin-bestaetigung" ? { confirmedAt: now } : { remindedAt: now } });
   }
 

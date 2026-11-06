@@ -93,7 +93,10 @@ export function ServiceChecklistForm({
   submitLabel = "Bericht generieren",
   submittingLabel = "Bericht wird generiert…",
   onCreated,
+  regionLabel = "Zahn/Region",
 }: {
+  /** Bezeichnung des Regionsfelds je Fach (Zahn, Auge, Ohr, Körperregion); null blendet es aus */
+  regionLabel?: string | null;
   patients: PatientOption[];
   initialPatientId?: string;
   practicePunktwerte: { gozPunktwertCent: number | null; bemaPunktwertCent: number | null };
@@ -528,7 +531,7 @@ export function ServiceChecklistForm({
                         )}
 
                         {eff && !locked && (() => {
-                          const showTooth = item.catalogItem.toothRelevant || !!expandedTooth[item.catalogItemId];
+                          const showTooth = regionLabel !== null && (item.catalogItem.toothRelevant || !!expandedTooth[item.catalogItemId]);
                           const hasFaktor =
                             item.catalogItem.faktorMin != null && item.catalogItem.faktorMax != null;
                           const threshold =
@@ -559,7 +562,7 @@ export function ServiceChecklistForm({
                                 {showTooth && (
                                   <input
                                     className="input py-1 text-xs"
-                                    placeholder="Zahn/Region"
+                                    placeholder={regionLabel ?? ""}
                                     autoFocus={!item.catalogItem.toothRelevant}
                                     value={entry.toothNumbers}
                                     onChange={(e) =>
@@ -596,7 +599,7 @@ export function ServiceChecklistForm({
                                   />
                                 )}
                               </div>
-                              {!showTooth && (
+                              {!showTooth && regionLabel !== null && (
                                 <button
                                   type="button"
                                   className="mt-1.5 text-xs text-brand-600 hover:underline"
@@ -604,7 +607,7 @@ export function ServiceChecklistForm({
                                     setExpandedTooth((prev) => ({ ...prev, [item.catalogItemId]: true }))
                                   }
                                 >
-                                  + Zahn/Region ergänzen
+                                  + {regionLabel} ergänzen
                                 </button>
                               )}
                               {needsBegruendung && (

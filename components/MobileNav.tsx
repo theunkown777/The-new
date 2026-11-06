@@ -4,17 +4,23 @@ import { useState } from "react";
 import Link from "next/link";
 import { SignOutButton } from "@/components/SignOutButton";
 
+// Gleiche Bereiche wie die Seitenleiste am Desktop, damit am Handy nichts fehlt.
 const LINKS = [
   { href: "/dashboard", label: "Übersicht" },
+  { href: "/termine", label: "Termine" },
+  { href: "/praxismanager", label: "Praxismanager" },
   { href: "/vorsorge", label: "Vorsorge fällig" },
   { href: "/patients", label: "Patienten" },
-  { href: "/reports", label: "Berichte" },
+  { href: "/abschluss/new", label: "Behandlung abschließen" },
   { href: "/proposals", label: "Vorschläge" },
+  { href: "/reports", label: "Berichte" },
   { href: "/zahlungen", label: "Zahlungen" },
+  { href: "/abrechnung", label: "Abrechnung" },
+  { href: "/abrechnungspruefung", label: "Abrechnungsprüfung" },
   { href: "/analyse", label: "Analyse" },
 ];
 
-export function MobileNav({ userName, dental = true, team = false, analyse = false }: { userName?: string | null; dental?: boolean; team?: boolean; analyse?: boolean }) {
+export function MobileNav({ userName, dental = true, team = false, analyse = false, personPl = "Patienten", abschluss = "Behandlung" }: { userName?: string | null; dental?: boolean; team?: boolean; analyse?: boolean; personPl?: string; abschluss?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -47,7 +53,7 @@ export function MobileNav({ userName, dental = true, team = false, analyse = fal
                 onClick={() => setOpen(false)}
                 className="rounded-md px-2 py-2 text-brand-100 hover:bg-brand-700 hover:text-white"
               >
-                {link.label}
+                {link.href === "/patients" ? personPl : link.href === "/abschluss/new" ? `${abschluss} abschließen` : link.label}
               </Link>
             ))}
             <Link

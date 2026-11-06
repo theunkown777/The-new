@@ -112,6 +112,7 @@ export function vddsToPatientFields(p: VddsPatient) {
     birthDate: parseVddsDate(p.BIRTHDAY),
     insuranceType: p.INSURANCESTATUS ? (p.INSURANCESTATUS === "P" ? "PKV" : "GKV") : null,
     insuranceName: p.INSURANCE ?? null,
+    geschlecht: p.SEX === "M" ? "M" : p.SEX === "W" || p.SEX === "F" ? "W" : p.SEX === "D" || p.SEX === "X" ? "D" : null,
   };
 }
 

@@ -16,7 +16,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
   const proposal = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, practiceId: session!.user.practiceId },
     include: {
-      patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true, externalId: true } },
+      patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true, externalId: true, geschlecht: true } },
       author: { select: { name: true } },
       practice: { select: { name: true, proposalPrices: true } },
     },

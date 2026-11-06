@@ -1,3 +1,4 @@
+import { sichtbarFuer, SCHREIBGESCHUETZT } from "@/lib/katalogScope";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -38,8 +39,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   const existing = await prisma.serviceCatalogItem.findFirst({
-    where: { id: params.id, practiceId: null },
+    where: { id: params.id, practiceId: session.user.practiceId },
   });
+  if (!existing && (await prisma.serviceCatalogItem.count({ where: { id: params.id, practiceId: null } }))) {
+    return NextResponse.json({ error: SCHREIBGESCHUETZT }, { status: 403 });
+  }
   if (!existing) {
     return NextResponse.json({ error: "Katalogposition nicht gefunden" }, { status: 404 });
   }
@@ -61,8 +65,11 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
   if (!session) return error;
 
   const existing = await prisma.serviceCatalogItem.findFirst({
-    where: { id: params.id, practiceId: null },
+    where: { id: params.id, practiceId: session.user.practiceId },
   });
+  if (!existing && (await prisma.serviceCatalogItem.count({ where: { id: params.id, practiceId: null } }))) {
+    return NextResponse.json({ error: SCHREIBGESCHUETZT }, { status: 403 });
+  }
   if (!existing) {
     return NextResponse.json({ error: "Katalogposition nicht gefunden" }, { status: 404 });
   }

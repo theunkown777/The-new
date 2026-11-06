@@ -61,7 +61,22 @@ export type KassenLabel = {
 export function kassenLabel(system: string): KassenLabel {
   switch (system) {
     case "BEMA":
+    case "EBM":
       return { text: "GKV-Leistung", tone: "gkv" };
+    case "HEILMITTEL":
+      return { text: "Heilmittel auf Verordnung", tone: "gkv" };
+    case "PFLEGE":
+      return { text: "Pflegekasse / Krankenkasse", tone: "gkv" };
+    case "HEBAMME":
+      return { text: "Hebammenhilfe (Kasse)", tone: "gkv" };
+    case "APO":
+      return { text: "Apothekenleistung", tone: "neutral" };
+    case "HILFSMITTEL":
+      return { text: "Hilfsmittel (Kasse mit Zuzahlung/Mehrkosten)", tone: "gkv" };
+    case "UVGOAE":
+      return { text: "Berufsgenossenschaft", tone: "gkv" };
+    case "SELBST":
+      return { text: "Selbstzahler", tone: "privat" };
     case "GOZ":
     case "GOAE":
       return { text: "Privatleistung / IGEL", tone: "privat" };

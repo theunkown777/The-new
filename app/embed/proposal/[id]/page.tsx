@@ -14,7 +14,7 @@ export default async function EmbedProposalPage({ params }: { params: { id: stri
   const proposal = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, practiceId: session!.user.practiceId },
     include: {
-      patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true } },
+      patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true, geschlecht: true } },
       practice: { select: { name: true, proposalPrices: true } },
     },
   });

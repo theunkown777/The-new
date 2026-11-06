@@ -32,16 +32,16 @@ function Icon({ name }: { name: string }) {
   );
 }
 
-export function SidebarNav({ dental, team = false, analyse = false }: { dental: boolean; team?: boolean; analyse?: boolean }) {
+export function SidebarNav({ dental, team = false, analyse = false, personPl = "Patienten", abschluss = "Behandlung" }: { dental: boolean; team?: boolean; analyse?: boolean; personPl?: string; abschluss?: string }) {
   const path = usePathname();
   type L = [string, string, string];
   const gruppen: [string, L[]][] = [
     ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/termine", "Termine", "termine"], ["/praxismanager", "Praxismanager", "manager"], ["/vorsorge", "Vorsorge fällig", "vorsorge"]]],
     [
-      "Patienten",
+      personPl,
       [
-        ["/patients", "Patienten und Wege", "patients"],
-        ["/abschluss/new", "Behandlung abschließen", "wrapup"],
+        ["/patients", `${personPl} und Wege`, "patients"],
+        ["/abschluss/new", `${abschluss} abschließen`, "wrapup"],
         ["/proposals", "Vorschläge", "proposals"],
         ...(dental ? ([["/reports", "Berichte", "reports"]] as L[]) : []),
       ],

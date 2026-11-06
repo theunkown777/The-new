@@ -1,3 +1,4 @@
+import { fachprofil } from "@/lib/fachprofile";
 // Erfundene Patientendaten für Demo-Praxen. Deterministisch über einen
 // Startwert, damit Tests stabil sind. Namen sind häufige Vor- und Nachnamen
 // in Deutschland, bewusst gemischt; Kombinationen sind Zufall.
@@ -21,41 +22,10 @@ const PKV = ["Debeka", "Allianz Private", "AXA", "DKV", "Signal Iduna", "HUK-Cob
 
 export type Profile = { minAge: number; maxAge: number; meanAge: number; female: number };
 
-/** Alters- und Geschlechterverteilung je Fach, grob nach typischem Patientengut. */
+/** Alters- und Geschlechterverteilung je Fach, aus dem Fachprofil (typisches Patientengut). */
 export function profileFor(fach: string): Profile {
-  switch (fach) {
-    case "kinder":
-      return { minAge: 0, maxAge: 17, meanAge: 7, female: 0.49 };
-    case "gyn":
-      return { minAge: 16, maxAge: 85, meanAge: 42, female: 1 };
-    case "uro":
-      return { minAge: 18, maxAge: 90, meanAge: 61, female: 0.18 };
-    case "logo":
-    case "ergo":
-      return { minAge: 3, maxAge: 90, meanAge: 30, female: 0.45 };
-    case "podo":
-    case "kardio":
-    case "endo":
-      return { minAge: 30, maxAge: 95, meanAge: 66, female: 0.5 };
-    case "ortho":
-    case "physio":
-    case "radiologie":
-      return { minAge: 12, maxAge: 92, meanAge: 52, female: 0.55 };
-    case "aesthetik":
-      return { minAge: 20, maxAge: 75, meanAge: 44, female: 0.8 };
-    case "hebamme":
-      return { minAge: 18, maxAge: 44, meanAge: 31, female: 1 };
-    case "pflege":
-    case "hoerakustik":
-      return { minAge: 55, maxAge: 99, meanAge: 79, female: 0.6 };
-    case "klinik":
-    case "apotheke":
-    case "optik":
-    case "sanitaetshaus":
-      return { minAge: 2, maxAge: 95, meanAge: 55, female: 0.53 };
-    default:
-      return { minAge: 0, maxAge: 95, meanAge: 45, female: 0.52 };
-  }
+  const p = fachprofil(fach);
+  return { minAge: p.alter[0], maxAge: p.alter[1], meanAge: p.alter[2], female: p.frauenAnteil };
 }
 
 export type DemoPatientRow = {

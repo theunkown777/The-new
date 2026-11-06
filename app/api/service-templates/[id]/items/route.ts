@@ -1,3 +1,4 @@
+import { sichtbarFuer, SCHREIBGESCHUETZT } from "@/lib/katalogScope";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -13,7 +14,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const { session, error } = await requireAdmin();
   if (!session) return error;
 
-  const template = await prisma.serviceTemplate.findFirst({ where: { id: params.id, practiceId: null } });
+  const template = await prisma.serviceTemplate.findFirst({ where: { id: params.id, practiceId: session.user.practiceId } });
+  if (!template && (await prisma.serviceTemplate.count({ where: { id: params.id, practiceId: null } }))) return NextResponse.json({ error: SCHREIBGESCHUETZT }, { status: 403 });
   if (!template) return NextResponse.json({ error: "Vorlage nicht gefunden" }, { status: 404 });
 
   const body = await req.json().catch(() => null);
@@ -26,7 +28,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 
   const catalogItem = await prisma.serviceCatalogItem.findFirst({
-    where: { id: parsed.data.catalogItemId, practiceId: null },
+    where: { id: parsed.data.catalogItemId, ...(await sichtbarFuer(session.user.practiceId)) },
   });
   if (!catalogItem) return NextResponse.json({ error: "Katalogposition nicht gefunden" }, { status: 404 });
 

@@ -41,6 +41,7 @@ type PatientOption = {
   lastName: string;
   insuranceType: string | null;
   birthDate: string | null;
+  geschlecht?: string | null;
 };
 
 export type ExistingProposal = {
@@ -337,7 +338,7 @@ export function ProposalEditor({
           </div>
 
           {!dental && (
-            <AnlassPicker spec={spec} custom={medData.custom ?? []} value={anlaesse} onChange={setAnlaesse} />
+            <AnlassPicker spec={spec} custom={medData.custom ?? []} value={anlaesse} onChange={setAnlaesse} person={patient ? { geschlecht: patient.geschlecht ?? null, alter: ageFromBirthDate(patient.birthDate) } : undefined} />
           )}
 
           {dental && <BefundDiktat onApply={applyDiktat} />}

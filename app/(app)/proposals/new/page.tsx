@@ -17,7 +17,7 @@ export default async function NewProposalPage({
     prisma.patient.findMany({
       where: { practiceId: session!.user.practiceId },
       orderBy: { lastName: "asc" },
-      select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true },
+      select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true, geschlecht: true },
     }),
     prisma.practice.findUnique({
       where: { id: session!.user.practiceId },

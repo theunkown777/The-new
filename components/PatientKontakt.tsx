@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function PatientKontakt({ patientId, email, phone, einwilligungAm }: { patientId: string; email: string | null; phone: string | null; einwilligungAm: string | null }) {
+export function PatientKontakt({ patientId, email, phone, einwilligungAm, geschlecht = null }: { patientId: string; email: string | null; phone: string | null; einwilligungAm: string | null; geschlecht?: string | null }) {
   const router = useRouter();
-  const [f, setF] = useState({ email: email ?? "", phone: phone ?? "", einwilligung: !!einwilligungAm });
+  const [f, setF] = useState({ email: email ?? "", phone: phone ?? "", einwilligung: !!einwilligungAm, geschlecht: geschlecht ?? "" });
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   async function save(e: React.FormEvent) {
@@ -18,8 +18,14 @@ export function PatientKontakt({ patientId, email, phone, einwilligungAm }: { pa
   }
   return (
     <form onSubmit={save} className="card space-y-3" data-testid="kontakt">
-      <h2 className="font-semibold text-slate-900">Kontakt</h2>
-      <div className="grid gap-2 sm:grid-cols-2">
+      <h2 className="font-semibold text-slate-900">Kontakt und Stammdaten</h2>
+      <div className="grid gap-2 sm:grid-cols-3">
+        <select className="input w-full" value={f.geschlecht} onChange={(e) => setF({ ...f, geschlecht: e.target.value })} aria-label="Geschlecht" data-testid="kontakt-geschlecht">
+          <option value="">Geschlecht nicht angegeben</option>
+          <option value="W">weiblich</option>
+          <option value="M">männlich</option>
+          <option value="D">divers</option>
+        </select>
         <input className="input w-full" type="email" placeholder="E-Mail" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-label="E-Mail" data-testid="kontakt-email" />
         <input className="input w-full" type="tel" placeholder="Mobilnummer" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} aria-label="Mobilnummer" />
       </div>

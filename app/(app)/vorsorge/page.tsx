@@ -1,3 +1,4 @@
+import { fachprofil } from "@/lib/fachprofile";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -26,7 +27,7 @@ export default async function VorsorgePage() {
         <h1 className="font-display text-3xl text-slate-900">Vorsorge fällig</h1>
         <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500">
           <Laechelbogen className="h-2 w-8 text-salbei-600" />
-          Kassenleistungen, an die Ihre Patienten erinnert werden möchten. Kasse zuerst, auch hier.
+          Kassenleistungen, an die Ihre {fachprofil(fach).person.pl} erinnert werden möchten. Kasse zuerst, auch hier.
         </p>
       </div>
 

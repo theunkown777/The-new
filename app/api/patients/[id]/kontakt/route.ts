@@ -18,6 +18,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       phone: d.phone || null,
       // Zeitpunkt der Einwilligung bleibt, solange sie besteht; Widerruf löscht ihn.
       contactConsentAt: d.einwilligung ? alt?.contactConsentAt ?? new Date() : null,
+      ...(d.geschlecht !== undefined ? { geschlecht: d.geschlecht || null } : {}),
     },
   });
   await auditFromSession(session, "akte.eintrag", { entityType: "Patient", entityId: patient.id, summary: `Kontaktdaten geändert, Einwilligung ${d.einwilligung ? "erteilt" : "nicht erteilt"}` });

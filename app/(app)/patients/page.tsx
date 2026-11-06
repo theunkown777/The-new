@@ -1,3 +1,5 @@
+import { fachprofil } from "@/lib/fachprofile";
+import { praxisFach } from "@/lib/katalogScope";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import type { Prisma } from "@prisma/client";
@@ -32,6 +34,7 @@ const fmtStamp = (d: Date) => `${fmtDate(d)} ${d.toLocaleTimeString("de-DE", { h
 export default async function PatientsPage({ searchParams }: { searchParams: { q?: string; page?: string; filter?: string; sel?: string } }) {
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
+  const P = fachprofil(await praxisFach(practiceId)).person;
   const q = (searchParams.q ?? "").trim().slice(0, 60);
   const filter: FilterKey = searchParams.filter && searchParams.filter in FILTERS ? (searchParams.filter as FilterKey) : "alle";
   const page = Math.max(1, Number(searchParams.page) || 1);
@@ -121,12 +124,12 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="font-display text-3xl text-slate-900">
-              Patienten <span className="font-sans text-base font-normal text-slate-500">({all.toLocaleString("de-DE")})</span>
+              {P.pl} <span className="font-sans text-base font-normal text-slate-500">({all.toLocaleString("de-DE")})</span>
             </h1>
             <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500"><Laechelbogen className="h-2 w-8 text-brand-600" />Jeder auf seinem Behandlungsweg, mit dem nächsten Schritt</p>
           </div>
           <Link href="/patients/new" className="btn-primary">
-            Neuer Patient
+            Neu anlegen
           </Link>
         </div>
 
@@ -146,7 +149,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
           </nav>
           <form action="/patients" className="ml-auto flex min-w-[16rem] flex-1 gap-2 sm:flex-none" role="search">
             {filter !== "alle" && <input type="hidden" name="filter" value={filter} />}
-            <input name="q" defaultValue={q} className="input py-1.5" placeholder="Name eingeben" aria-label="Patienten suchen" />
+            <input name="q" defaultValue={q} className="input py-1.5" placeholder="Name eingeben" aria-label={`${P.pl} suchen`} />
             <button className="btn-secondary py-1.5">Suchen</button>
           </form>
         </div>
@@ -155,13 +158,13 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
           <div className="card text-sm text-slate-500">
             {all === 0 ? (
               <>
-                Noch keine Patienten angelegt.{" "}
+                Noch keine {P.pl} angelegt.{" "}
                 <Link href="/patients/new" className="font-medium text-brand-600 hover:underline">
-                  Ersten Patienten anlegen
+                  Jetzt anlegen
                 </Link>
               </>
             ) : (
-              "Keine Patienten gefunden."
+              `Keine ${P.pl} gefunden.`
             )}
           </div>
         ) : (

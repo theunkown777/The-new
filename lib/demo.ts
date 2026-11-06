@@ -7,6 +7,7 @@ import { buildServiceSummary } from "@/lib/serviceSummary";
 import { DEFAULT_PRICES, buildProposal, defaultZuschussJahr, type ProposalInput } from "@/lib/proposals";
 import { DENTAL_ID, specialty, type Specialty } from "@/lib/specialties";
 import { seedBulkDemo } from "@/lib/demoBulk";
+import { fachprofil, passtZuPerson } from "@/lib/fachprofile";
 import { computeProposal } from "@/lib/proposalSchema";
 import { QUESTIONS } from "@/lib/anamnesis";
 
@@ -41,6 +42,7 @@ Füllungstherapie 16 und 25, Überkronung 46, Versorgung der Lücke 36 nach Ents
 type DemoPatient = {
   firstName: string;
   lastName: string;
+  geschlecht: "W" | "M";
   birthDate: string;
   insuranceType: "GKV" | "PKV";
   insuranceName: string;
@@ -56,6 +58,7 @@ type DemoPatient = {
 const PATIENTS: DemoPatient[] = [
   {
     firstName: "Martina",
+    geschlecht: "W",
     lastName: "Weber",
     birthDate: "1980-03-12",
     insuranceType: "GKV",
@@ -71,6 +74,7 @@ const PATIENTS: DemoPatient[] = [
   },
   {
     firstName: "Anna",
+    geschlecht: "W",
     lastName: "Krüger",
     birthDate: "1975-04-02",
     insuranceType: "PKV",
@@ -84,6 +88,7 @@ const PATIENTS: DemoPatient[] = [
   },
   {
     firstName: "Peter",
+    geschlecht: "M",
     lastName: "Schulz",
     birthDate: "1968-09-22",
     insuranceType: "GKV",
@@ -97,7 +102,7 @@ const PATIENTS: DemoPatient[] = [
       patientResponse: { response: "RUECKRUF", note: "Am besten nachmittags erreichbar." },
     },
   },
-  { firstName: "Lena", lastName: "Hoffmann", birthDate: "2014-06-30", insuranceType: "GKV", insuranceName: "Barmer" },
+  { firstName: "Lena", geschlecht: "W", lastName: "Hoffmann", birthDate: "2014-06-30", insuranceType: "GKV", insuranceName: "Barmer" },
 ];
 
 function age(birth: string, today = new Date()): number {
@@ -180,21 +185,36 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
   const zuschussJahr = defaultZuschussJahr(now);
 
   const template = await prisma.serviceTemplate.findFirst({
-    where: { practiceId: null, name: "Kontrolluntersuchung" },
+    where: { practiceId: null, fach: "zahn", name: "Kontrolluntersuchung" },
     include: { items: { include: { catalogItem: true }, orderBy: { position: "asc" } } },
   });
 
-  const created: { id: string; firstName: string; lastName: string; birthDate: string; insuranceType: "GKV" | "PKV" }[] = [];
-  for (const p of PATIENTS) {
+  const created: { id: string; firstName: string; lastName: string; birthDate: string; insuranceType: "GKV" | "PKV"; geschlecht: "W" | "M" }[] = [];
+  // Feste Beispielpatienten nur, wenn sie zum Fach passen: keine Männer in der
+  // Frauenheilkunde oder Hebammenhilfe, keine Erwachsenen beim Kinderarzt, keine
+  // Kinder in reinen Erwachsenenfächern. Das Alter wird in den Bereich des Fachs gelegt.
+  const profil = fachprofil(spec ? spec.id : DENTAL_ID);
+  const passende = PATIENTS.filter((p) => !profil.nurGeschlecht || p.geschlecht === profil.nurGeschlecht).filter((p) => {
+    const a = age(p.birthDate, now);
+    const kind = a < 18;
+    return profil.alter[1] < 18 ? kind : !(kind && profil.alter[0] >= 14);
+  }).map((p) => {
+    const a = age(p.birthDate, now);
+    if (a >= profil.alter[0] && a <= profil.alter[1]) return p;
+    const ziel = Math.min(profil.alter[1], Math.max(profil.alter[0], profil.alter[2]));
+    return { ...p, birthDate: `${now.getFullYear() - ziel}${p.birthDate.slice(4)}` };
+  });
+  for (const p of passende) {
     const patient = await prisma.patient.create({
       data: {
         practiceId: practice.id,
         firstName: p.firstName,
         lastName: p.lastName,
         birthDate: new Date(p.birthDate),
+        geschlecht: p.geschlecht,
         insuranceType: p.insuranceType,
         insuranceName: p.insuranceName,
-        notes: "Beispielpatient im Gastzugang (erfundene Daten)",
+        notes: `Beispiel (${profil.person.sg}) im Gastzugang, erfundene Daten`,
       },
     });
 
@@ -226,7 +246,7 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
     }
 
     let reportId: string | null = null;
-    created.push({ id: patient.id, firstName: p.firstName, lastName: p.lastName, birthDate: p.birthDate, insuranceType: p.insuranceType });
+    created.push({ id: patient.id, firstName: p.firstName, lastName: p.lastName, birthDate: p.birthDate, insuranceType: p.insuranceType, geschlecht: p.geschlecht });
     if (dental && p.lastName === "Weber" && template) {
       const entries = template.items.map((it, i) => ({
         catalogItemId: it.catalogItemId,
@@ -314,19 +334,22 @@ async function seedMedicalProposals(
   practiceId: string,
   authorId: string,
   practiceName: string,
-  patients: { id: string; firstName: string; lastName: string; birthDate: string; insuranceType: "GKV" | "PKV" }[],
+  patients: { id: string; firstName: string; lastName: string; birthDate: string; insuranceType: "GKV" | "PKV"; geschlecht: "W" | "M" }[],
   now: Date,
 ) {
-  const by = (n: string) => patients.find((p) => p.lastName === n)!;
-  const order =
-    spec.id === "uro" ? [by("Schulz")] : spec.id === "gyn" || spec.id === "hebamme" ? [by("Weber"), by("Krüger")] : spec.id === "kinder" ? [by("Hoffmann")] : [by("Weber"), by("Schulz"), by("Krüger")];
-  const anlaesse = spec.anlaesse.filter((a) => !a.nurAufWunsch).map((a) => a.id);
-  const plans: { status: string; anlaesse: string[]; pickIgel: boolean; response?: boolean }[] = [
-    { status: "ENTWURF", anlaesse, pickIgel: false },
-    { status: "BESPROCHEN", anlaesse: anlaesse.slice(0, 1), pickIgel: true, response: true },
-    { status: "ANGENOMMEN", anlaesse: anlaesse.slice(0, 1), pickIgel: true },
-  ];
+  const by = (n: string) => patients.find((p) => p.lastName === n);
+  const order = (
+    spec.id === "uro" ? [by("Schulz"), by("Weber")] : spec.id === "gyn" || spec.id === "hebamme" ? [by("Weber"), by("Krüger")] : spec.id === "kinder" ? [by("Hoffmann")] : [by("Weber"), by("Schulz"), by("Krüger")]
+  ).filter((p): p is NonNullable<typeof p> => !!p);
   for (const [i, p] of order.entries()) {
+    // Nur Anlässe, die zu Geschlecht und Alter dieser Person passen
+    const anlaesse = spec.anlaesse.filter((a) => !a.nurAufWunsch && passtZuPerson(a, { geschlecht: p.geschlecht, alter: age(p.birthDate, now) })).map((a) => a.id);
+    if (!anlaesse.length) continue;
+    const plans: { status: string; anlaesse: string[]; pickIgel: boolean; response?: boolean }[] = [
+      { status: "ENTWURF", anlaesse, pickIgel: false },
+      { status: "BESPROCHEN", anlaesse: anlaesse.slice(0, 1), pickIgel: true, response: true },
+      { status: "ANGENOMMEN", anlaesse: anlaesse.slice(0, 1), pickIgel: true },
+    ];
     const plan = plans[i] ?? plans[0];
     const input: ProposalInput = {
       teeth: {},
