@@ -9,6 +9,7 @@ import { PilotProgram } from "@/components/PilotProgram";
 import { Entlastung } from "@/components/Entlastung";
 import { PraxisFaq } from "@/components/PraxisFaq";
 import { DENTAL_SHOWCASE } from "@/lib/dentalShowcase";
+import { bereicheFuerFach, katalogFuerAnlass, slugBereich } from "@/lib/leistungskatalog";
 
 // Zahnmedizin hat dieselbe Seite wie alle anderen Fächer (/fachgebiete/zahn).
 const fach = (id: string) => (id === "zahn" ? DENTAL_SHOWCASE : specialty(id));
@@ -131,6 +132,20 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
                 Fachs gegengelesen. Bitte prüfen Sie die Angaben für Ihre Praxis.
               </p>
             )}
+            {bereicheFuerFach(s.id).length > 0 && (
+              <p className="mt-3 text-sm text-slate-600" data-testid="katalog-link">
+                Für Ihre Patientinnen und Patienten erklärt:{" "}
+                {bereicheFuerFach(s.id).map((b, i) => (
+                  <span key={b}>
+                    {i > 0 && ", "}
+                    <Link href={`/leistungen?bereich=${slugBereich(b)}`} className="text-brand-700 underline">
+                      {b}
+                    </Link>
+                  </span>
+                ))}{" "}
+                im Leistungskatalog A–Z.
+              </p>
+            )}
             <div className="mt-6 grid gap-5 xl:grid-cols-2">
               {s.anlaesse.map((a) => (
                 <div key={a.id} className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -139,6 +154,17 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
                     {a.label}
                     {a.nurAufWunsch && <span className="ml-2 text-xs font-normal text-slate-500">nur auf Wunsch des Patienten</span>}
                   </h3>
+                  {katalogFuerAnlass(s.id, a.id).length > 0 && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Erklärt im Katalog:{" "}
+                      {katalogFuerAnlass(s.id, a.id).map((l, i) => (
+                        <span key={l.id}>
+                          {i > 0 && ", "}
+                          <Link href={`/leistungen/${l.id}`} className="text-brand-700 hover:underline">{l.name}</Link>
+                        </span>
+                      ))}
+                    </p>
+                  )}
                   <ul className="mt-3 space-y-3">
                     {a.options.map((o) => (
                       <li key={o.id} className={`rounded-xl border p-3 ${o.type === "kasse" ? "border-green-300 bg-green-50" : "border-slate-200"}`}>

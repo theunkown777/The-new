@@ -14,6 +14,7 @@ export function PublicShell({ children, wide = false, full = false }: { children
         </Link>
         <span className="flex flex-wrap gap-4">
           <Link href="/#fach" className="text-slate-600 hover:underline">Fachgebiete</Link>
+          <Link href="/leistungen" className="text-slate-600 hover:underline">Leistungen A–Z</Link>
           <Link href="/ratgeber" className="text-slate-600 hover:underline">Ratgeber</Link>
           <Link href="/demo" className="font-medium text-brand-600 hover:underline">Kostenlos ausprobieren</Link>
         </span>
