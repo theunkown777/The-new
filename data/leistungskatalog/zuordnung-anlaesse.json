@@ -1,0 +1,329 @@
+{
+ "zahn:fuellung": [
+  "zahnmedizin-kunststofffuellung-kassenstandard",
+  "zahnmedizin-keramik-inlay",
+  "zahnmedizin-gold-inlay"
+ ],
+ "zahn:krone": [
+  "zahnmedizin-vollkeramikkrone",
+  "zahnmedizin-metallkeramikkrone",
+  "zahnmedizin-goldkrone"
+ ],
+ "zahn:luecke": [
+  "zahnmedizin-bruecke",
+  "zahnmedizin-zahnimplantat-einzelzahn"
+ ],
+ "zahn:endo": [
+  "zahnmedizin-wurzelkanalbehandlung"
+ ],
+ "zahn:prophylaxe": [
+  "zahnmedizin-professionelle-zahnreinigung"
+ ],
+ "hausarzt:checkup": [
+  "vorsorge-check-ups-gesundheits-check-up"
+ ],
+ "hausarzt:reise": [
+  "impfungen-reisemedizin-reisemedizinische-beratung",
+  "impfungen-reisemedizin-reiseimpfungen"
+ ],
+ "hausarzt:sport": [
+  "sportmedizin-sportmedizinische-untersuchung"
+ ],
+ "hausarzt:impfen": [
+  "impfungen-reisemedizin-standardimpfungen"
+ ],
+ "hausarzt:chroniker": [
+  "allgemeinmedizin-hausarzt-chronikerprogramme"
+ ],
+ "augen:glaukom": [
+  "vorsorge-check-ups-augeninnendruck-messung",
+  "augenheilkunde-gruener-star-behandlung"
+ ],
+ "augen:netzhaut": [
+  "augenheilkunde-makula-behandlung",
+  "augenheilkunde-netzhaut-untersuchung-oct"
+ ],
+ "augen:fuehrerschein": [
+  "allgemeinmedizin-hausarzt-fuehrerschein-untersuchung"
+ ],
+ "augen:trockenes_auge": [
+  "augenheilkunde-trockene-augen"
+ ],
+ "augen:lasern": [
+  "weitere-selbstzahler-eingriffe-augenlasern-lasik-femto-lasik",
+  "weitere-selbstzahler-eingriffe-linsentausch"
+ ],
+ "haut:hautkrebs": [
+  "vorsorge-check-ups-hautkrebs-screening",
+  "dermatologie-medizinisch-muttermal-check-mit-auflichtmikroskop"
+ ],
+ "haut:haare": [
+  "dermatologie-medizinisch-haarausfall-diagnostik"
+ ],
+ "haut:akne": [
+  "aesthetische-medizin-minimal-invasiv-akne-behandlung",
+  "aesthetische-medizin-minimal-invasiv-chemisches-peeling"
+ ],
+ "gyn:krebsvorsorge": [
+  "gynaekologie-geburtshilfe-frauenaerztliche-vorsorge",
+  "vorsorge-check-ups-gebaermutterhalskrebs-vorsorge",
+  "vorsorge-check-ups-ultraschall-eierstoecke-gebaermutter"
+ ],
+ "gyn:brust": [
+  "gynaekologie-geburtshilfe-brustsprechstunde",
+  "vorsorge-check-ups-ultraschall-der-brust",
+  "vorsorge-check-ups-mammographie-screening"
+ ],
+ "gyn:schwangerschaft": [
+  "gynaekologie-geburtshilfe-schwangerschaftsvorsorge",
+  "gynaekologie-geburtshilfe-ultraschall-in-der-schwangerschaft",
+  "gynaekologie-geburtshilfe-praenataldiagnostik"
+ ],
+ "gyn:verhuetung": [
+  "gynaekologie-geburtshilfe-verhuetungsberatung",
+  "gynaekologie-geburtshilfe-spirale-einsetzen"
+ ],
+ "gyn:wechseljahre": [
+  "gynaekologie-geburtshilfe-wechseljahre-beratung"
+ ],
+ "gyn:hpv": [
+  "impfungen-reisemedizin-hpv-impfung"
+ ],
+ "uro:prostata": [
+  "vorsorge-check-ups-prostatakrebs-vorsorge",
+  "vorsorge-check-ups-psa-test"
+ ],
+ "uro:inkontinenz": [
+  "urologie-andrologie-blasenschwaeche"
+ ],
+ "uro:hwi": [
+  "urologie-andrologie-blasenentzuendung"
+ ],
+ "uro:maennergesundheit": [
+  "urologie-andrologie-erektionsstoerungen",
+  "urologie-andrologie-testosteron-check"
+ ],
+ "uro:vasektomie": [
+  "urologie-andrologie-sterilisation-beim-mann"
+ ],
+ "ortho:gelenkschmerz": [
+  "orthopaedie-unfallchirurgie-stosswellentherapie",
+  "orthopaedie-unfallchirurgie-hyaluron-ins-gelenk",
+  "orthopaedie-unfallchirurgie-eigenbluttherapie-gelenk"
+ ],
+ "ortho:osteoporose": [
+  "innere-medizin-osteoporose-diagnostik",
+  "orthopaedie-unfallchirurgie-osteoporose-behandlung"
+ ],
+ "ortho:ruecken": [
+  "orthopaedie-unfallchirurgie-rueckenschmerz-therapie"
+ ],
+ "ortho:arbeitsunfall": [
+  "orthopaedie-unfallchirurgie-arbeits-und-wegeunfall"
+ ],
+ "hno:hoeren": [
+  "hno-hals-nasen-ohren-hoertest"
+ ],
+ "hno:schnarchen": [
+  "hno-hals-nasen-ohren-schnarch-behandlung"
+ ],
+ "hno:tinnitus": [
+  "hno-hals-nasen-ohren-tinnitus-behandlung"
+ ],
+ "hno:allergie": [
+  "hno-hals-nasen-ohren-allergie-behandlung-hno"
+ ],
+ "kinder:vorsorge_kind": [
+  "vorsorge-check-ups-kinder-vorsorgeuntersuchungen"
+ ],
+ "kinder:sport_kind": [
+  "allgemeinmedizin-hausarzt-atteste-bescheinigungen"
+ ],
+ "kinder:impfen_kind": [
+  "impfungen-reisemedizin-kinderimpfungen"
+ ],
+ "kinder:u10": [
+  "kinder-jugendmedizin-jugendgesundheit"
+ ],
+ "kardio:herzcheck": [
+  "vorsorge-check-ups-herz-check"
+ ],
+ "kardio:rhythmus": [
+  "innere-medizin-behandlung-von-herzrhythmusstoerungen",
+  "innere-medizin-langzeit-ekg"
+ ],
+ "kardio:sportkardio": [
+  "sportmedizin-sportmedizinische-untersuchung",
+  "innere-medizin-belastungs-ekg"
+ ],
+ "radiologie:mrt_wunsch": [
+  "vorsorge-check-ups-ganzkoerper-mrt",
+  "radiologie-nuklearmedizin-mrt"
+ ],
+ "radiologie:mamma": [
+  "vorsorge-check-ups-mammographie-screening"
+ ],
+ "radiologie:knochen": [
+  "innere-medizin-osteoporose-diagnostik"
+ ],
+ "neuro:gedaechtnis": [
+  "neurologie-gedaechtnissprechstunde"
+ ],
+ "neuro:gefaesse": [
+  "innere-medizin-gefaessultraschall"
+ ],
+ "neuro:kopfschmerz": [
+  "neurologie-kopfschmerz-und-migraenesprechstunde"
+ ],
+ "psych:therapieplatz": [
+  "psychiatrie-psychotherapie-psychosomatik-psychotherapeutische-sprechstunde",
+  "psychiatrie-psychotherapie-psychosomatik-verhaltenstherapie"
+ ],
+ "psych:coaching": [
+  "psychiatrie-psychotherapie-psychosomatik-coaching-psychologische-beratung"
+ ],
+ "gastro:darm": [
+  "vorsorge-check-ups-darmkrebs-vorsorge-stuhltest",
+  "vorsorge-check-ups-vorsorge-darmspiegelung"
+ ],
+ "gastro:unvertraeglich": [
+  "labor-humangenetik-unvertraeglichkeitstests"
+ ],
+ "gastro:atemtest": [
+  "innere-medizin-atemtests",
+  "innere-medizin-reizdarm-unvertraeglichkeiten"
+ ],
+ "pneumo:lunge": [
+  "innere-medizin-grosse-lungenfunktion"
+ ],
+ "pneumo:rauchstopp": [
+  "allgemeinmedizin-hausarzt-raucherentwoehnung"
+ ],
+ "endo:glukose": [
+  "innere-medizin-diabetes-behandlung"
+ ],
+ "endo:schilddruese": [
+  "innere-medizin-schilddruesen-sprechstunde"
+ ],
+ "endo:ernaehrung": [
+  "therapieberufe-heilmittel-ernaehrungsberatung"
+ ],
+ "chirurgie:venen": [
+  "chirurgie-krampfadern-behandlung"
+ ],
+ "chirurgie:haut_entfernung": [
+  "chirurgie-ambulante-kleinchirurgie",
+  "plastische-aesthetische-chirurgie-muttermal-entfernen"
+ ],
+ "aesthetik:gesicht": [
+  "aesthetische-medizin-minimal-invasiv-botox-stirnfalten",
+  "aesthetische-medizin-minimal-invasiv-nasolabialfalten-auffuellen"
+ ],
+ "aesthetik:lider": [
+  "plastische-aesthetische-chirurgie-oberlidstraffung"
+ ],
+ "physio:ruecken": [
+  "therapieberufe-heilmittel-krankengymnastik",
+  "therapieberufe-heilmittel-manuelle-therapie"
+ ],
+ "physio:praevention": [
+  "therapieberufe-heilmittel-physiotherapie-privat-selbstzahler"
+ ],
+ "physio:lymph": [
+  "therapieberufe-heilmittel-lymphdrainage"
+ ],
+ "physio:beckenboden": [
+  "therapieberufe-heilmittel-beckenbodentraining"
+ ],
+ "ergo:ergo_behandlung": [
+  "therapieberufe-heilmittel-ergotherapie"
+ ],
+ "ergo:ergo_hausbesuch": [
+  "therapieberufe-heilmittel-ergotherapie"
+ ],
+ "logo:sprache": [
+  "therapieberufe-heilmittel-sprachtherapie"
+ ],
+ "logo:logo_schlucken": [
+  "therapieberufe-heilmittel-schlucktherapie"
+ ],
+ "podo:fuss": [
+  "therapieberufe-heilmittel-medizinische-fusspflege"
+ ],
+ "podo:nagelspange": [
+  "therapieberufe-heilmittel-nagelkorrekturspange"
+ ],
+ "hebamme:geburt": [
+  "hebammenhilfe-geburtsvorbereitungskurs",
+  "hebammenhilfe-schwangerschaftsbetreuung-hebamme"
+ ],
+ "hebamme:wochenbett": [
+  "hebammenhilfe-wochenbettbetreuung",
+  "hebammenhilfe-stillberatung"
+ ],
+ "pflege:pflegeplan": [
+  "pflege-ambulanter-pflegedienst",
+  "pflege-pflegegrad-beantragen"
+ ],
+ "pflege:entlastung": [
+  "pflege-tages-und-kurzzeitpflege"
+ ],
+ "pflege:beratung_pf": [
+  "pflege-pflegeberatung"
+ ],
+ "pflege:behandlungspflege": [
+  "pflege-haeusliche-krankenpflege"
+ ],
+ "apotheke:rezept": [
+  "digitale-gesundheit-apotheke-e-rezept"
+ ],
+ "apotheke:pdl": [
+  "digitale-gesundheit-apotheke-pharmazeutische-dienstleistungen"
+ ],
+ "apotheke:impfen_apo": [
+  "digitale-gesundheit-apotheke-impfen-in-der-apotheke"
+ ],
+ "apotheke:service_apo": [
+  "geriatrie-palliativmedizin-medikamenten-check"
+ ],
+ "hoerakustik:hoergeraet": [
+  "hilfsmittel-gesundheitshandwerk-hoergeraeteanpassung"
+ ],
+ "hoerakustik:hoertest_hk": [
+  "hno-hals-nasen-ohren-hoertest"
+ ],
+ "hoerakustik:tinnitus_hk": [
+  "hno-hals-nasen-ohren-tinnitus-behandlung"
+ ],
+ "optik:brille": [
+  "hilfsmittel-gesundheitshandwerk-brillen-kontaktlinsen"
+ ],
+ "optik:kontaktlinsen": [
+  "hilfsmittel-gesundheitshandwerk-brillen-kontaktlinsen"
+ ],
+ "optik:fuehrerschein_op": [
+  "allgemeinmedizin-hausarzt-fuehrerschein-untersuchung"
+ ],
+ "optik:kinderbrille": [
+  "hilfsmittel-gesundheitshandwerk-brillen-kontaktlinsen"
+ ],
+ "sanitaetshaus:einlagen": [
+  "hilfsmittel-gesundheitshandwerk-orthopaedische-einlagen-schuhe"
+ ],
+ "sanitaetshaus:kompression": [
+  "hilfsmittel-gesundheitshandwerk-kompressionsstruempfe"
+ ],
+ "sanitaetshaus:bandagen": [
+  "hilfsmittel-gesundheitshandwerk-prothesen-orthesen",
+  "orthopaedie-unfallchirurgie-einlagen-bandagen"
+ ],
+ "sanitaetshaus:mobilitaet": [
+  "hilfsmittel-gesundheitshandwerk-rollstuhl-mobilitaetshilfen"
+ ],
+ "heilpraktiker:naturheil": [
+  "naturheilkunde-komplementaermedizin-naturheilverfahren"
+ ],
+ "heilpraktiker:akupunktur_hp": [
+  "naturheilkunde-komplementaermedizin-akupunktur"
+ ]
+}
