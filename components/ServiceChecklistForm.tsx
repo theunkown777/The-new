@@ -122,7 +122,7 @@ export function ServiceChecklistForm({
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templateId, setTemplateId] = useState<string>("");
   const [entries, setEntries] = useState<Record<string, EntryState>>({});
-  const [expandedTooth, setExpandedTooth] = useState<Record<string, boolean>>({});
+  const [open, setOpen] = useState<Record<string, boolean>>({});
   const [reviewConfirmed, setReviewConfirmed] = useState(false);
 
   const [loadingTemplates, setLoadingTemplates] = useState(true);
@@ -164,7 +164,7 @@ export function ServiceChecklistForm({
       };
     }
     setEntries(next);
-    setExpandedTooth({});
+    setOpen({});
     setReviewConfirmed(false);
   }, [selectedTemplate, kassenart]);
 
@@ -406,236 +406,190 @@ export function ServiceChecklistForm({
       </div>
 
       {selectedTemplate && (
-        <div className="card">
-          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <section className="card p-0" data-testid="leistungsliste">
+          <header className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
             <div>
-              <h2 className="font-medium text-slate-900">{selectedTemplate.name}</h2>
+              <h2 className="font-display text-2xl text-slate-900">{selectedTemplate.name}</h2>
               {selectedTemplate.description && (
                 <p className="text-sm text-slate-500">{selectedTemplate.description}</p>
               )}
             </div>
-            <div className="sm:text-right">
-              <p className="text-sm text-slate-500">
-                {performedCount} erbracht · {struckCount} gestrichen von {totalCount}
+            <div className="text-right">
+              <p className="text-sm text-slate-600" data-testid="zaehler">
+                <span className="font-semibold tabular-nums text-slate-900">{performedCount}</span> von {totalCount} erbracht
               </p>
               {totalEstimatedCent != null && (
-                <p className="text-sm font-medium text-slate-700">
-                  ≈ {formatEuro(totalEstimatedCent)} geschätzt
+                <p className="text-xs text-slate-500" title="Schätzung aus Punktwert und Faktor, keine Rechnung">
+                  ≈ {formatEuro(totalEstimatedCent)}
                 </p>
               )}
             </div>
-          </div>
+          </header>
 
-          <p className="mb-4 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
-            Alle Positionen sind standardmäßig als <strong>erbracht</strong> markiert. Streichen Sie
-            gezielt, was der Arzt / die Ärztin bei diesem Termin <strong>nicht</strong> gemacht hat,
-            statt Einzelnes anzuhaken. Manche Positionen bauen aufeinander auf: Wird ein
-            vorausgehender Schritt gestrichen, werden abhängige Folgeschritte automatisch mit
-            gestrichen und gesperrt.
+          <p className="px-5 pt-3 text-sm text-slate-500 sm:px-6">
+            Alles ist als erbracht vorbelegt. Tippen Sie an, was heute <strong className="font-semibold text-slate-700">nicht</strong> gemacht wurde{struckCount > 0 ? ` (${struckCount} gestrichen)` : ""}.
           </p>
-          {totalEstimatedCent != null && (
-            <p className="mb-4 -mt-2 text-xs text-slate-400">
-              Geschätzter Gesamtbetrag der erbrachten Positionen – keine verbindliche Rechnung,
-              abhängig von hinterlegtem Punktwert und ggf. Labor-/Praxiskosten.
-            </p>
-          )}
 
-          <div className="space-y-6">
+          <div className="space-y-5 px-3 pb-4 pt-3 sm:px-4">
             {grouped.map(([category, items]) => (
               <div key={category}>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  {category}
-                </h3>
-                <div className="divide-y divide-slate-100 rounded-lg border border-slate-100">
+                <h3 className="mb-1 px-2 text-xs font-medium text-slate-400">{category}</h3>
+                <ul className="space-y-1">
                   {items.map((item) => {
                     const entry = entries[item.catalogItemId];
                     if (!entry) return null;
-                    const isBranch = item.dependsOn.length > 0;
                     const locked = isLocked(item);
                     const eff = effective[item.catalogItemId] ?? false;
-                    const ref =
-                      item.catalogItem.code !== "–"
-                        ? `${item.catalogItem.system} ${item.catalogItem.code}`
-                        : item.catalogItem.system;
+                    const offen = !!open[item.catalogItemId];
                     const badge = kassenLabel(item.catalogItem.system);
-                    const badgeClass =
+                    const art =
                       badge.tone === "gkv"
-                        ? "bg-blue-50 text-blue-700"
+                        ? { text: "Kasse", cls: "text-salbei-700", dot: "bg-salbei-500" }
                         : badge.tone === "privat"
-                          ? "bg-purple-50 text-purple-700"
+                          ? { text: item.catalogItem.system === "SELBST" ? "Selbstzahler" : "Privat", cls: "text-brand-700", dot: "bg-brand-600" }
                           : badge.tone === "labor"
-                            ? "bg-amber-50 text-amber-700"
-                            : "bg-slate-100 text-slate-500";
+                            ? { text: "Labor", cls: "text-amber-700", dot: "bg-amber-500" }
+                            : { text: item.catalogItem.system === "APO" ? "Apotheke" : "ohne eigene Abrechnung", cls: "text-slate-500", dot: "bg-slate-300" };
+                    const code = item.catalogItem.code !== "–" ? `${item.catalogItem.system} ${item.catalogItem.code}` : null;
+                    const hasFaktor = item.catalogItem.faktorMin != null && item.catalogItem.faktorMax != null;
+                    const threshold = item.catalogItem.begruendungspflichtAbFaktor ?? item.catalogItem.regelhoechstfaktor;
+                    const faktorNum = entry.faktor.trim() !== "" ? Number(entry.faktor) : null;
+                    const needsBegruendung = hasFaktor && threshold != null && faktorNum != null && faktorNum > threshold;
+                    const showRegion = regionLabel !== null;
+                    const regionPflicht = regionLabel !== null && item.catalogItem.toothRelevant && !entry.toothNumbers.trim();
+                    const itemAmountCent = estimateAmountCent(item.catalogItem, faktorNum, Number(entry.quantity) || 1, practicePunktwerte);
+                    const zusatz = [
+                      entry.quantity > 1 ? `${entry.quantity}×` : null,
+                      hasFaktor && entry.faktor ? `Faktor ${entry.faktor.replace(".", ",")}` : null,
+                      entry.toothNumbers ? `${regionLabel ?? "Region"} ${entry.toothNumbers}` : null,
+                      entry.note ? "Notiz" : null,
+                    ].filter(Boolean) as string[];
                     return (
-                      <div
+                      <li
                         key={item.catalogItemId}
-                        className={
-                          "px-3 py-3" + (isBranch ? " relative border-l-2 border-slate-100 pl-7" : "")
-                        }
+                        className={`rounded-lg transition ${eff ? "bg-white" : "bg-slate-50"} ${offen ? "ring-1 ring-slate-200" : ""} ${item.dependsOn.length ? "ml-5" : ""}`}
+                        data-testid="position"
                       >
-                        <label
-                          className={
-                            "flex items-start gap-3" + (locked ? " cursor-not-allowed" : " cursor-pointer")
-                          }
-                        >
-                          <input
-                            type="checkbox"
-                            className="mt-1 h-4 w-4 rounded border-slate-300 disabled:opacity-40"
-                            checked={entry.performed && !locked}
+                        <div className="flex items-center gap-3 px-2 py-2">
+                          <button
+                            type="button"
+                            role="checkbox"
+                            aria-checked={eff}
+                            aria-label={`${item.catalogItem.title}: ${eff ? "erbracht" : "nicht erbracht"}`}
                             disabled={locked}
-                            onChange={() => toggleItem(item.catalogItemId)}
-                          />
-                          <span className="flex-1">
-                            <span
-                              className={
-                                eff
-                                  ? "font-medium text-slate-900"
-                                  : "font-medium text-slate-400 line-through decoration-2"
-                              }
-                            >
-                              {item.catalogItem.title}
-                            </span>{" "}
-                            <span
-                              className={
-                                eff ? "text-xs text-slate-400" : "text-xs text-slate-300 line-through"
-                              }
-                            >
-                              ({ref})
-                            </span>{" "}
-                            {eff && (
-                              <span
-                                className={
-                                  "rounded-full px-2 py-0.5 text-[11px] font-medium " + badgeClass
-                                }
-                              >
-                                {badge.text}
+                            onClick={() => toggleItem(item.catalogItemId)}
+                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition disabled:cursor-not-allowed ${
+                              eff ? "border-salbei-600 bg-salbei-600 text-white" : "border-slate-300 bg-white text-transparent"
+                            }`}
+                          >
+                            <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                          </button>
+                          <button
+                            type="button"
+                            className="min-w-0 flex-1 text-left"
+                            disabled={locked}
+                            onClick={() => toggleItem(item.catalogItemId)}
+                          >
+                            <span className={`block text-[15px] ${eff ? "text-slate-900" : "text-slate-400 line-through"}`}>{item.catalogItem.title}</span>
+                            <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-slate-400">
+                              <span className={`inline-flex items-center gap-1 ${eff ? art.cls : ""}`} title={badge.text}>
+                                <span className={`h-1.5 w-1.5 rounded-full ${eff ? art.dot : "bg-slate-300"}`} />
+                                {art.text}
                               </span>
-                            )}
-                          </span>
-                          {locked && (
-                            <span className="shrink-0 text-xs font-medium text-slate-400">gesperrt</span>
+                              {code && <span>{code}</span>}
+                              {eff && zusatz.map((z) => <span key={z} className="text-slate-600">· {z}</span>)}
+                              {locked && <span>· setzt voraus: {titlesFor(item.dependsOn)}</span>}
+                            </span>
+                          </button>
+                          {eff && !locked && (
+                            <button
+                              type="button"
+                              onClick={() => setOpen((o) => ({ ...o, [item.catalogItemId]: !o[item.catalogItemId] }))}
+                              aria-expanded={offen}
+                              className={`shrink-0 rounded-full px-2.5 py-1 text-xs ${regionPflicht || needsBegruendung ? "bg-amber-50 text-amber-800" : "text-slate-500 hover:bg-slate-100"}`}
+                            >
+                              {regionPflicht ? `${regionLabel} fehlt` : needsBegruendung && !entry.begruendung ? "Begründung fehlt" : offen ? "Fertig" : "Details"}
+                            </button>
                           )}
-                        </label>
-
-                        {locked && (
-                          <p className="ml-7 mt-1 text-xs italic text-slate-400">
-                            Setzt voraus: {titlesFor(item.dependsOn)}
-                          </p>
-                        )}
+                        </div>
 
                         {eff && conflictingIds.has(item.catalogItemId) && (
-                          <p className="ml-7 mt-1 rounded bg-amber-50 px-2 py-1 text-xs text-amber-800">
-                            Schließt sich laut Katalog aus mit: {titlesFor(item.catalogItem.ausschlussMit)}.
-                            Bitte eine der beiden Positionen streichen.
+                          <p className="mx-2 mb-2 ml-11 rounded bg-amber-50 px-2 py-1 text-xs text-amber-800">
+                            Schließt sich aus mit {titlesFor(item.catalogItem.ausschlussMit)}. Bitte eine davon streichen.
                           </p>
                         )}
 
-                        {eff && !locked && (() => {
-                          const showTooth = regionLabel !== null && (item.catalogItem.toothRelevant || !!expandedTooth[item.catalogItemId]);
-                          const hasFaktor =
-                            item.catalogItem.faktorMin != null && item.catalogItem.faktorMax != null;
-                          const threshold =
-                            item.catalogItem.begruendungspflichtAbFaktor ?? item.catalogItem.regelhoechstfaktor;
-                          const faktorNum = entry.faktor.trim() !== "" ? Number(entry.faktor) : null;
-                          const needsBegruendung =
-                            hasFaktor && threshold != null && faktorNum != null && faktorNum > threshold;
-                          const itemAmountCent = estimateAmountCent(
-                            item.catalogItem,
-                            faktorNum,
-                            Number(entry.quantity) || 1,
-                            practicePunktwerte
-                          );
-                          return (
-                            <div className="ml-7 mt-2">
-                              {itemAmountCent != null && (
-                                <p className="mb-1 text-xs text-slate-500">
-                                  ≈ {formatEuro(itemAmountCent)} geschätzt
-                                </p>
-                              )}
-                              <div
-                                className={
-                                  "grid grid-cols-2 gap-2" +
-                                  (showTooth || hasFaktor ? " sm:grid-cols-3" : "") +
-                                  (showTooth && hasFaktor ? " lg:grid-cols-4" : "")
-                                }
-                              >
-                                {showTooth && (
+                        {eff && !locked && offen && (
+                          <div className="space-y-3 px-2 pb-3 pl-11">
+                            <div className="flex flex-wrap items-center gap-3">
+                              <span className="text-xs text-slate-500">Anzahl</span>
+                              <div className="inline-flex items-center rounded-full border border-slate-200">
+                                <button type="button" className="h-8 w-8 rounded-full text-slate-600 hover:bg-slate-100 disabled:opacity-30" disabled={entry.quantity <= 1} onClick={() => updateItem(item.catalogItemId, { quantity: Math.max(1, entry.quantity - 1) })} aria-label="Eins weniger">−</button>
+                                <span className="w-6 text-center text-sm tabular-nums" data-testid="anzahl">{entry.quantity}</span>
+                                <button type="button" className="h-8 w-8 rounded-full text-slate-600 hover:bg-slate-100" onClick={() => updateItem(item.catalogItemId, { quantity: Math.min(99, entry.quantity + 1) })} aria-label="Eins mehr">+</button>
+                              </div>
+                              {hasFaktor && (
+                                <label className="flex items-center gap-2 text-xs text-slate-500">
+                                  Faktor
                                   <input
-                                    className="input py-1 text-xs"
-                                    placeholder={regionLabel ?? ""}
-                                    autoFocus={!item.catalogItem.toothRelevant}
-                                    value={entry.toothNumbers}
-                                    onChange={(e) =>
-                                      updateItem(item.catalogItemId, { toothNumbers: e.target.value })
-                                    }
-                                  />
-                                )}
-                                <input
-                                  className="input py-1 text-xs"
-                                  type="number"
-                                  min={1}
-                                  placeholder="Anzahl"
-                                  value={entry.quantity}
-                                  onChange={(e) =>
-                                    updateItem(item.catalogItemId, { quantity: Number(e.target.value) })
-                                  }
-                                />
-                                <input
-                                  className="input py-1 text-xs"
-                                  placeholder="Notiz (optional)"
-                                  value={entry.note}
-                                  onChange={(e) => updateItem(item.catalogItemId, { note: e.target.value })}
-                                />
-                                {hasFaktor && (
-                                  <input
-                                    className="input py-1 text-xs"
+                                    className="input w-20 py-1 text-sm"
                                     type="number"
                                     step={0.1}
                                     min={item.catalogItem.faktorMin ?? undefined}
                                     max={item.catalogItem.faktorMax ?? undefined}
-                                    placeholder="Faktor"
                                     value={entry.faktor}
                                     onChange={(e) => updateItem(item.catalogItemId, { faktor: e.target.value })}
                                   />
-                                )}
-                              </div>
-                              {!showTooth && regionLabel !== null && (
-                                <button
-                                  type="button"
-                                  className="mt-1.5 text-xs text-brand-600 hover:underline"
-                                  onClick={() =>
-                                    setExpandedTooth((prev) => ({ ...prev, [item.catalogItemId]: true }))
-                                  }
-                                >
-                                  + {regionLabel} ergänzen
-                                </button>
+                                </label>
                               )}
-                              {needsBegruendung && (
-                                <div className="mt-2">
-                                  <label className="mb-1 block text-xs font-medium text-amber-700">
-                                    Begründung Pflicht (Faktor {entry.faktor} über Regelhöchstfaktor {threshold})
-                                  </label>
-                                  <textarea
-                                    className="input min-h-14 py-1 text-xs"
-                                    placeholder="Schriftliche Begründung für den erhöhten Faktor (§5 GOZ)"
-                                    value={entry.begruendung}
-                                    onChange={(e) =>
-                                      updateItem(item.catalogItemId, { begruendung: e.target.value })
-                                    }
-                                  />
-                                </div>
-                              )}
+                              {itemAmountCent != null && <span className="text-xs text-slate-500">≈ {formatEuro(itemAmountCent)}</span>}
                             </div>
-                          );
-                        })()}
-                      </div>
+                            <div className={`grid gap-2 ${showRegion ? "sm:grid-cols-[10rem_1fr]" : ""}`}>
+                              {showRegion && (
+                                <input
+                                  className="input py-1.5"
+                                  placeholder={regionLabel ?? ""}
+                                  aria-label={regionLabel ?? "Region"}
+                                  value={entry.toothNumbers}
+                                  onChange={(e) => updateItem(item.catalogItemId, { toothNumbers: e.target.value })}
+                                />
+                              )}
+                              <input
+                                className="input py-1.5"
+                                placeholder="Notiz für den Bericht (optional)"
+                                aria-label="Notiz"
+                                value={entry.note}
+                                onChange={(e) => updateItem(item.catalogItemId, { note: e.target.value })}
+                              />
+                            </div>
+                            {needsBegruendung && (
+                              <label className="block">
+                                <span className="mb-1 block text-xs text-amber-800">
+                                  Faktor über {String(threshold).replace(".", ",")}: Begründung für die Rechnung
+                                </span>
+                                <textarea
+                                  className="input min-h-14 py-1.5"
+                                  placeholder="Warum war der Aufwand höher?"
+                                  value={entry.begruendung}
+                                  onChange={(e) => updateItem(item.catalogItemId, { begruendung: e.target.value })}
+                                />
+                              </label>
+                            )}
+                          </div>
+                        )}
+                      </li>
                     );
                   })}
-                </div>
+                </ul>
               </div>
             ))}
           </div>
-        </div>
+          {totalEstimatedCent != null && (
+            <p className="border-t border-slate-100 px-5 py-2 text-xs text-slate-400 sm:px-6">
+              Beträge sind Schätzungen aus Punktwert und Faktor, keine Rechnung.
+            </p>
+          )}
+        </section>
       )}
 
       <div className="card">
