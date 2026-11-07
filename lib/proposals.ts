@@ -1,6 +1,6 @@
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { buildMedicalProposal } from "@/lib/medicalProposals";
-// Behandlungsvorschläge ("Klarplan"): aus Zahnbefunden und allgemeinen
+// Behandlungsvorschläge: aus Zahnbefunden und allgemeinen
 // Befunden entstehen je Befund Behandlungsoptionen - immer zuerst die
 // Kassen-/Regelleistung, danach nur Alternativen, die der Befund fachlich
 // rechtfertigt. Unterdrückte Optionen werden mit Begründung ausgewiesen,

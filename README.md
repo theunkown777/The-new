@@ -151,9 +151,9 @@ geprüft und freigegeben werden.
   Musterberufsordnung). Ein automatisiertes Vorschlagssystem für
   Zusatzleistungen aus Mustern wurde bewusst **nicht** gebaut; das
   befundbezogene Vorschlagsmodul und seine Grenzen beschreibt
-  „Behandlungsvorschläge (Klarplan) und ihre Grenzen“ unten.
+  „Behandlungsvorschläge und ihre Grenzen“ unten.
 
-## Behandlungsvorschläge (Klarplan) und ihre Grenzen
+## Behandlungsvorschläge und ihre Grenzen
 
 Ursprünglich wurde bewusst **kein** Vorschlagsmodul gebaut (Begründung
 siehe unten, sie gilt weiterhin als Leitplanke). Seit Oktober 2026 gibt es
