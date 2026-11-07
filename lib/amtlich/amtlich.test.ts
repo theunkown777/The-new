@@ -10,7 +10,7 @@ const nach = (system: string) => alle.find((d) => d.meta.system === system)!.lei
 describe("Amtliche Leistungsverzeichnisse", () => {
   it("vollständig geladen, Codes je Verzeichnis eindeutig, jede Position mit Text und Quelle", () => {
     const anzahl = Object.fromEntries(alle.map((d) => [d.meta.system, d.leistungen.length]));
-    expect(anzahl).toMatchObject({ GOAE: 2401, GOZ: 215, BEMA: 296, HEBAMME: 85, HEILMITTEL: 164, HKP: 39, SGB_XI: 26, HMV: 2719, APOTHEKE: 15, HEILPRAKTIKER: 147 });
+    expect(anzahl).toMatchObject({ GOAE: 2401, GOZ: 215, BEMA: 296, HEBAMME: 85, HEILMITTEL: 164, HKP: 39, SGB_XI: 26, HMV: 2719, APOTHEKE: 15, HEILPRAKTIKER: 147, UVGOAE: 2934 });
     for (const d of alle) {
       expect(d.meta.quelle.length, d.meta.system).toBeGreaterThan(20);
       const codes = d.leistungen.map((l) => l.code);
@@ -30,6 +30,11 @@ describe("Amtliche Leistungsverzeichnisse", () => {
     expect(bema["13 a"]).toMatchObject({ text: "einflächig", punkte: 33 });
     const hkp = nach("HKP").map((l) => l.code);
     expect(hkp).toContain("HKP 31a");
+    const uv = Object.fromEntries(nach("UVGOAE").map((l) => [l.code, l]));
+    expect(uv["1"]).toMatchObject({ euroCent: 837 });
+    expect(uv["2000"]).toMatchObject({ text: "Erstversorgung einer kleinen Wunde", euroCent: 686 });
+    expect(uv["201 A"].euroCent).toBe(617);
+    expect(uv["3400"].euroCent).toBe(10502);
   });
 
   it("jede Fachrichtung hat amtliche Leistungen (EBM kommt per Import dazu)", () => {

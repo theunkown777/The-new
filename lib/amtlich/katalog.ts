@@ -13,6 +13,7 @@ export const KATALOG_SYSTEM: Record<string, string> = {
   HMV: "HILFSMITTEL",
   APOTHEKE: "APO",
   HEILPRAKTIKER: "SELBST",
+  UVGOAE: "UVGOAE",
 };
 
 export const SYSTEM_TITEL: Record<string, string> = {
@@ -27,6 +28,13 @@ export const SYSTEM_TITEL: Record<string, string> = {
   HMV: "Hilfsmittelverzeichnis",
   APOTHEKE: "Apotheke",
   HEILPRAKTIKER: "Heilpraktiker (BBhV Anlage 2)",
+  UVGOAE: "UV-GOÄ (Berufsgenossenschaft)",
+};
+
+/** Kurzbezeichnung vor der Ziffer in Listen. */
+export const SYSTEM_KURZ: Record<string, string> = {
+  EBM: "EBM", GOAE: "GOÄ", GOZ: "GOZ", BEMA: "BEMA", HEILMITTEL: "HM", HEBAMME: "Hebamme", HKP: "HKP", SGB_XI: "SGB XI",
+  HMV: "HMV", APOTHEKE: "Apotheke", HEILPRAKTIKER: "HP", UVGOAE: "UV-GOÄ",
 };
 
 /** Faktorgrenzen nach Gebührenordnung (GOÄ/GOZ: 1,0 bis 3,5; Regelhöchstsatz 2,3). */

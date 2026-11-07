@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { praxisFach } from "@/lib/katalogScope";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
-import { SYSTEM_TITEL } from "@/lib/amtlich/katalog";
+import { KATALOG_SYSTEM, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog";
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 
 export const dynamic = "force-dynamic";
@@ -45,10 +45,10 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
   const [gesamt, rest, imKatalog] = await Promise.all([
     prisma.amtlicheLeistung.count({ where }),
     prisma.amtlicheLeistung.findMany({ where: { ...where, id: { notIn: exakt.map((e) => e.id) } }, orderBy: [{ system: "asc" }, { code: "asc" }], skip: (seite - 1) * SEITE, take: SEITE - exakt.length }),
-    prisma.serviceCatalogItem.findMany({ where: { practiceId }, select: { code: true } }),
+    prisma.serviceCatalogItem.findMany({ where: { practiceId }, select: { system: true, code: true } }),
   ]);
   const treffer = [...exakt, ...rest];
-  const katalogCodes = new Set(imKatalog.map((k) => k.code));
+  const katalogCodes = new Set(imKatalog.map((k) => `${k.system}|${k.code}`));
   const summe = proSystem.reduce((a, s) => a + s._count, 0);
   const link = (p: Record<string, string | null | undefined>) => {
     const u = new URLSearchParams();
@@ -116,7 +116,7 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
                 <div className="min-w-0 flex-1">
                   <p className="text-slate-900">
                     <span className="mr-2 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-600">
-                      {t.system} {t.code}
+                      {SYSTEM_KURZ[t.system] ?? t.system} {t.code}
                     </span>
                     {t.text}
                   </p>
@@ -134,7 +134,7 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
                       {t.system === "GOAE" || t.system === "GOZ" ? " (1,0-fach)" : ""}
                     </p>
                   )}
-                  {admin && (katalogCodes.has(t.code) ? <p className="text-xs text-salbei-700">im Katalog</p> : <LeistungUebernehmen ids={[t.id]} />)}
+                  {admin && (katalogCodes.has(`${KATALOG_SYSTEM[t.system] ?? "SONSTIGES"}|${t.code.slice(0, 40)}`) ? <p className="text-xs text-salbei-700">im Katalog</p> : <LeistungUebernehmen ids={[t.id]} />)}
                 </div>
               </li>
             );
@@ -149,7 +149,7 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
       </section>
       <p className="text-xs text-slate-500">
         Quellen: GOÄ, GOZ, SGB XI und BBhV (gesetze-im-internet.de), EBM (KBV-Stammdatei, nur mit bestätigter KBV-Lizenz), BEMA (KZBV), Heilmittel und Hebammenhilfe
-        (Verträge des GKV-Spitzenverbands), Häusliche Krankenpflege (G-BA-Richtlinie), Hilfsmittelverzeichnis (GKV-Spitzenverband). EBM-Beträge mit dem Orientierungswert
+        (Verträge des GKV-Spitzenverbands), Häusliche Krankenpflege (G-BA-Richtlinie), Hilfsmittelverzeichnis (GKV-Spitzenverband), UV-GOÄ (DGUV, Stand 01.07.2026, Betrag für die allgemeine Heilbehandlung). EBM-Beträge mit dem Orientierungswert
         2026 ({EBM_ORIENTIERUNGSWERT.toLocaleString("de-DE")} Cent je Punkt) ohne regionale Zuschläge; BEMA-Punkte mit dem Punktwert Ihrer KZV. Keine Abrechnungsberatung.
       </p>
     </div>

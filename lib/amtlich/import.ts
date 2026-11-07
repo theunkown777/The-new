@@ -9,7 +9,7 @@ import { SDEBM_URL, ebmAusXml, ebmFaecher, zipEintraege } from "./ebm";
 // wegen der KBV-Lizenz nicht im Repository gespeichert, sondern beim Import
 // direkt von der KBV geladen, und nur wenn KBV_STAMMDATEN_LIZENZ=akzeptiert.
 
-export const DATEIEN = ["goae", "goz", "bema", "hebamme", "heilmittel", "hkp", "sgb11", "hilfsmittel", "apotheke", "heilpraktiker"] as const;
+export const DATEIEN = ["goae", "goz", "bema", "hebamme", "heilmittel", "hkp", "sgb11", "hilfsmittel", "apotheke", "heilpraktiker", "uvgoae"] as const;
 
 type Eintrag = { code: string; text: string; hinweis?: string | null; kapitel?: string | null; abschnitt?: string | null; abschnittTitel?: string | null; punkte?: number | null; euroCent?: number | null; faecher?: string[] };
 type Datei = { meta: { system: string; titel: string; quelle: string; stand?: string }; leistungen: Eintrag[] };
