@@ -150,7 +150,8 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
       <p className="text-xs text-slate-500">
         Quellen: GOÄ, GOZ, SGB XI und BBhV (gesetze-im-internet.de), EBM (KBV-Stammdatei nach Lizenzvereinbarung der KBV), BEMA (KZBV), Heilmittel und Hebammenhilfe
         (Verträge des GKV-Spitzenverbands), Häusliche Krankenpflege (G-BA-Richtlinie), Hilfsmittelverzeichnis (GKV-Spitzenverband), UV-GOÄ (DGUV, Stand 01.07.2026, Betrag für die allgemeine Heilbehandlung). EBM-Beträge mit dem Orientierungswert
-        2026 ({EBM_ORIENTIERUNGSWERT.toLocaleString("de-DE")} Cent je Punkt) ohne regionale Zuschläge; BEMA-Punkte mit dem Punktwert Ihrer KZV. Keine Abrechnungsberatung.
+        2026 ({EBM_ORIENTIERUNGSWERT.toLocaleString("de-DE")} Cent je Punkt) ohne regionale Zuschläge; BEMA-Punkte mit dem Punktwert Ihrer KZV. Keine Abrechnungsberatung. OPS: Herausgegeben vom Bundesinstitut für Arzneimittel und Medizinprodukte (BfArM) im Auftrag des
+        Bundesministeriums für Gesundheit (BMG). Die Erstellung erfolgt unter Verwendung der maschinenlesbaren Fassung des BfArM.
       </p>
     </div>
   );
