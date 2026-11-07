@@ -51,3 +51,40 @@ describe("DATEV-Buchungsstapel", () => {
     expect(bytes.includes(0x80)).toBe(true); // €
   });
 });
+
+// Feldregeln aus dem Schema der verbreiteten Bibliothek ledermann/datev (Version 0.12.1,
+// DATEV-Format 7.0): Kopf 31 Felder mit Längen, Buchungen mit 125 Spalten in derselben
+// Reihenfolge, Umsatz mit 2 Nachkommastellen, Konto bis 9 Stellen, Belegdatum TTMM,
+// Belegfeld 1 bis 36 Zeichen aus [a-zA-Z0-9$&%*+-/], Buchungstext bis 60 Zeichen.
+describe("DATEV: Abgleich mit dem Schema der datev-Bibliothek", () => {
+  const unq = (v: string) => (v.startsWith('"') ? v.slice(1, -1).replace(/""/g, '"') : v);
+  it("Kopf und jede Buchung halten die Feldregeln ein, auch bei Grenzfällen", () => {
+    const rechnungen = [
+      { number: "2026-0001", amountCent: 1, status: "BEZAHLT", createdAt: new Date(2026, 0, 2), paidAt: new Date(2026, 0, 31) },
+      { number: "2026/Ä-0002 (Kopie)", amountCent: 999_999_999, status: "OFFEN", createdAt: new Date(2026, 11, 31), paidAt: null },
+      { number: "X".repeat(50), amountCent: 123456, status: "GEMELDET", createdAt: new Date(2026, 5, 15), paidAt: null },
+    ];
+    const e2 = datevSchema.parse({ beraternummer: 9999999, mandantennummer: 99999, sachkontenlaenge: 8, erloeskonto: 81000000, bankkonto: 12000000, debitor: 100000000, kuerzel: "Z".repeat(25) });
+    const v = new Date(2026, 0, 1), b2 = new Date(2026, 11, 31, 23, 59, 59);
+    const zeilen = datevStapel(datevBuchungen(rechnungen, e2, v, b2), e2, v, b2).split("\r\n").slice(0, -1);
+    const kopf = zeilen[0].split(";");
+    expect(kopf).toHaveLength(31);
+    const grenzen: Record<number, number> = { 1: 4, 2: 3, 3: 2, 5: 3, 8: 2, 9: 25, 10: 10, 11: 7, 12: 5, 14: 1, 17: 30, 18: 2, 19: 1, 20: 2, 22: 3 };
+    for (const [i, max] of Object.entries(grenzen)) expect(unq(kopf[Number(i) - 1]).length, `Kopf ${i}`).toBeLessThanOrEqual(max);
+    expect(kopf[5]).toMatch(/^\d{17}$/);
+    for (const i of [13, 15, 16]) expect(kopf[i - 1]).toMatch(/^\d{8}$/);
+    expect(zeilen[1].split(";")).toEqual([...DATEV_SPALTEN]);
+    for (const z of zeilen.slice(2)) {
+      const f = z.split(";");
+      expect(f).toHaveLength(125);
+      expect(f[0]).toMatch(/^\d{1,10},\d{2}$/);
+      expect(["S", "H"]).toContain(unq(f[1]));
+      expect(f[6]).toMatch(/^\d{1,9}$/);
+      expect(f[7]).toMatch(/^\d{1,9}$/);
+      expect(f[9]).toMatch(/^(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])$/);
+      expect(unq(f[10])).toMatch(/^[a-zA-Z0-9$&%*+\-/]{0,36}$/);
+      expect(unq(f[13]).length).toBeLessThanOrEqual(60);
+    }
+    expect(zeilen.length).toBe(2 + 4);
+  });
+});
