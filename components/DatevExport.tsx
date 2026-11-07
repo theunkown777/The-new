@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type E = { beraternummer?: number; mandantennummer?: number; sachkontenlaenge?: number; erloeskonto?: number; bankkonto?: number; debitor?: number; kontenrahmen?: "03" | "04" };
+type E = { beraternummer?: number; mandantennummer?: number; sachkontenlaenge?: number; erloeskonto?: number; bankkonto?: number; geldtransit?: number; debitor?: number; kontenrahmen?: "03" | "04" };
 
 const monat = (d: Date, letzter = false) => {
   const x = letzter ? new Date(d.getFullYear(), d.getMonth() + 1, 0) : new Date(d.getFullYear(), d.getMonth(), 1);
@@ -14,7 +14,7 @@ export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | nu
   const vormonat = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
   const [von, setVon] = useState(monat(vormonat));
   const [bis, setBis] = useState(monat(vormonat, true));
-  const [e, setE] = useState<E>(einstellungen ?? { sachkontenlaenge: 4, erloeskonto: 8100, bankkonto: 1200, debitor: 10000 });
+  const [e, setE] = useState<E>(einstellungen ?? { sachkontenlaenge: 4, erloeskonto: 8100, bankkonto: 1200, geldtransit: 1360, debitor: 10000 });
   const [bearbeiten, setBearbeiten] = useState(!einstellungen);
   const [msg, setMsg] = useState("");
 
@@ -46,6 +46,7 @@ export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | nu
           {feld("sachkontenlaenge", "Sachkontenlänge", "meist 4")}
           {feld("erloeskonto", "Erlöskonto", "SKR03 üblich: 8100 (steuerfrei)")}
           {feld("bankkonto", "Bankkonto", "SKR03 üblich: 1200")}
+          {feld("geldtransit", "Geldtransit (Online-Zahlung)", "SKR03 1360, SKR04 1460")}
           {feld("debitor", "Debitor (Sammelkonto)", "eine Stelle länger als die Sachkonten, z. B. 10000")}
           <label className="block text-sm">
             <span className="text-slate-600">Kontenrahmen</span>

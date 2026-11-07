@@ -53,6 +53,8 @@ model Practice {
   customOffers      Json?
   /// DATEV-Export: Berater-/Mandantennummer, Sachkontenlänge, Konten (mit der Steuerberatung abgestimmt)
   datev             Json?
+  /// Verbundenes Stripe-Konto der Praxis (Stripe Connect); Online-Zahlungen gehen direkt an die Praxis
+  stripeAccountId   String?  @unique
   // Gastzugang: Demo-Praxis mit Beispieldaten, die nach Ablauf automatisch
   // gelöscht wird (lib/demo.ts).
   isDemo            Boolean           @default(false)
@@ -569,6 +571,10 @@ model Invoice {
   sepaMandatAt   DateTime?
   /// In eine pain.008-Datei übernommen (nicht doppelt einziehen)
   sepaExportedAt DateTime?
+  /// Wie bezahlt wurde: UEBERWEISUNG | LASTSCHRIFT | ONLINE (für DATEV: Online über Geldtransit)
+  paidVia        String?
+  /// Stripe-Checkout-Sitzung der Online-Zahlung
+  stripeSessionId String?          @unique
   createdAt      DateTime           @default(now())
 
   @@unique([practiceId, number])

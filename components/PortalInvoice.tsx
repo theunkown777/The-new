@@ -22,7 +22,38 @@ export type PortalInvoiceData = {
   sepa?: boolean;
   /** Mandatstext, wenn die Praxis Lastschrift anbietet. */
   mandat?: string | null;
+  /** Online-Zahlung über das Stripe-Konto der Praxis möglich. */
+  online?: boolean;
 };
+
+function OnlineZahlen({ token, id, t }: { token: string; id: string; t: Pick<Text, "payOnline" | "payOnlineHint"> }) {
+  const [laeuft, setLaeuft] = useState(false);
+  const [fehler, setFehler] = useState("");
+  return (
+    <div className="mt-4" data-testid="online-zahlen">
+      <button
+        type="button"
+        className="btn-primary w-full py-3"
+        disabled={laeuft}
+        onClick={async () => {
+          setLaeuft(true);
+          setFehler("");
+          const res = await fetch(`/api/portal/${token}/rechnung/${id}/online`, { method: "POST" }).catch(() => null);
+          const d = await res?.json().catch(() => null);
+          if (res?.ok && d?.url) window.location.href = d.url;
+          else {
+            setFehler(d?.error ?? "Bitte später erneut versuchen.");
+            setLaeuft(false);
+          }
+        }}
+      >
+        {t.payOnline}
+      </button>
+      <p className="mt-1 text-center text-xs text-slate-500">{t.payOnlineHint}</p>
+      {fehler && <p className="mt-1 text-center text-xs text-red-700" role="alert">{fehler}</p>}
+    </div>
+  );
+}
 
 export type PortalText = Omit<PortalUi, "hello" | "summary" | "nextDue" | "proposalDoc" | "valid">;
 type Text = PortalText;
@@ -109,6 +140,7 @@ export function PortalInvoice({ token, inv, bank, t, startOpen, mandat }: { toke
 
       {open && !reported && (
         <div className="mt-4 border-t border-slate-100 pt-4">
+          {inv.online && <OnlineZahlen token={token} id={inv.id} t={t} />}
           {bank ? (
             <>
               <p className="text-xs leading-relaxed text-slate-500">{t.howTo}</p>

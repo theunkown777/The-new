@@ -10,6 +10,8 @@ import { BankSettings } from "@/components/BankSettings";
 import { Bankabgleich } from "@/components/Bankabgleich";
 import { SepaExport } from "@/components/SepaExport";
 import { DatevExport } from "@/components/DatevExport";
+import { OnlineZahlungEinrichten } from "@/components/OnlineZahlungEinrichten";
+import { onlineZahlungStatus } from "@/lib/onlineZahlung";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zahlungen" };
@@ -36,7 +38,7 @@ function Status({ tone, label }: { tone: string; label: string }) {
   );
 }
 
-export default async function ZahlungenPage({ searchParams }: { searchParams: { f?: string } }) {
+export default async function ZahlungenPage({ searchParams }: { searchParams: { f?: string; stripe?: string } }) {
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const f = FILTER.find(([k]) => k === searchParams.f)?.[0] ?? "offen";
@@ -53,7 +55,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
             : {};
 
   const [practice, all, list, billable] = await Promise.all([
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, accountHolder: true, iban: true, bic: true, glaeubigerId: true, datev: true } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, accountHolder: true, iban: true, bic: true, glaeubigerId: true, datev: true, stripeAccountId: true } }),
     prisma.invoice.findMany({ where: { practiceId }, select: { status: true, dueDate: true, amountCent: true, paidAt: true, wantsInstallments: true, sepaMandatAt: true, sepaExportedAt: true } }),
     prisma.invoice.findMany({
       where: { practiceId, ...where },
@@ -223,6 +225,11 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
               summe={formatCent(all.filter((i) => i.status === "OFFEN" && i.sepaMandatAt && !i.sepaExportedAt).reduce((a, i) => a + i.amountCent, 0))}
             />
           )}
+          <section className="card" aria-labelledby="online-titel">
+            <h2 id="online-titel" className="font-semibold text-slate-900">Online-Zahlung mit DATEV-Anbindung</h2>
+            <p className="mt-1 mb-3 text-sm text-slate-600">Patienten bezahlen offene Rechnungen im Portal; die Zahlung landet über den DATEV-Datenservice in der Buchhaltung.</p>
+            <OnlineZahlungEinrichten {...onlineZahlungStatus()} konto={practice?.stripeAccountId ?? null} istAdmin={isAdmin} meldung={searchParams?.stripe} />
+          </section>
           <section className="card" aria-labelledby="datev-titel">
             <h2 id="datev-titel" className="font-semibold text-slate-900">DATEV für die Steuerberatung</h2>
             <p className="mt-1 mb-3 text-sm text-slate-600">Rechnungen und Zahlungseingänge eines Zeitraums als Buchungsstapel.</p>

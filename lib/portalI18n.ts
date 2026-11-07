@@ -2,6 +2,9 @@
 // Texte des Patientenportals. Rechnungstitel und Dokumente bleiben in der
 // Sprache der Praxis; übersetzt wird die Oberfläche.
 const DE = {
+  payOnline: "Online bezahlen (Karte, PayPal, Klarna …)",
+  payOnlineHint: "Sichere Zahlung über Stripe direkt an Ihre Praxis.",
+  paidOnlineThanks: "Danke! Ihre Online-Zahlung wird bestätigt; die Rechnung erscheint gleich als bezahlt.",
   hello: (n: string) => `Guten Tag, ${n}`,
   next: "Als Nächstes",
   step: (s: string) => s,
@@ -71,6 +74,9 @@ const STEP_EN: Record<string, string> = {
 };
 
 const EN: typeof DE = {
+  payOnline: "Pay online (card, PayPal, Klarna …)",
+  payOnlineHint: "Secure payment via Stripe, directly to your practice.",
+  paidOnlineThanks: "Thank you! Your online payment is being confirmed; the invoice will show as paid shortly.",
   hello: (n) => `Good day, ${n}`,
   next: "Next",
   step: (s: string) => STEP_EN[s] ?? s,
@@ -133,6 +139,9 @@ const step = (m: Record<string, string>) => (s: string) => m[s] ?? s;
 
 const TR: PortalUi = {
   ...DE,
+  payOnline: "Çevrimiçi öde (kart, PayPal, Klarna …)",
+  payOnlineHint: "Stripe üzerinden doğrudan muayenehanenize güvenli ödeme.",
+  paidOnlineThanks: "Teşekkürler! Çevrimiçi ödemeniz onaylanıyor; fatura kısa süre içinde ödendi olarak görünecek.",
   hello: (n) => `İyi günler, ${n}`,
   next: "Sıradaki adım",
   step: step({
@@ -195,6 +204,9 @@ const TR: PortalUi = {
 
 const PL: PortalUi = {
   ...DE,
+  payOnline: "Zapłać online (karta, PayPal, Klarna …)",
+  payOnlineHint: "Bezpieczna płatność przez Stripe bezpośrednio na konto gabinetu.",
+  paidOnlineThanks: "Dziękujemy! Płatność online jest potwierdzana; faktura wkrótce pojawi się jako opłacona.",
   hello: (n) => `Dzień dobry, ${n}`,
   next: "Następny krok",
   step: step({
@@ -257,6 +269,9 @@ const PL: PortalUi = {
 
 const RU: PortalUi = {
   ...DE,
+  payOnline: "Оплатить онлайн (карта, PayPal, Klarna …)",
+  payOnlineHint: "Безопасная оплата через Stripe напрямую вашей практике.",
+  paidOnlineThanks: "Спасибо! Ваш онлайн-платёж подтверждается; счёт скоро будет отмечен как оплаченный.",
   hello: (n) => `Добрый день, ${n}`,
   next: "Следующий шаг",
   step: step({
@@ -319,6 +334,9 @@ const RU: PortalUi = {
 
 const UK: PortalUi = {
   ...DE,
+  payOnline: "Сплатити онлайн (картка, PayPal, Klarna …)",
+  payOnlineHint: "Безпечна оплата через Stripe безпосередньо вашій практиці.",
+  paidOnlineThanks: "Дякуємо! Ваш онлайн-платіж підтверджується; рахунок незабаром буде позначено як оплачений.",
   hello: (n) => `Добрий день, ${n}`,
   next: "Наступний крок",
   step: step({

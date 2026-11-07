@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
   const rechnungen = await prisma.invoice.findMany({
     where: { practiceId: session.user.practiceId, OR: [{ createdAt: { gte: von, lte: bis } }, { paidAt: { gte: von, lte: bis } }] },
-    select: { number: true, amountCent: true, status: true, createdAt: true, paidAt: true },
+    select: { number: true, amountCent: true, status: true, createdAt: true, paidAt: true, paidVia: true },
   });
   const buchungen = datevBuchungen(rechnungen, e.data, von, bis);
   await auditFromSession(session, "datev.export", { summary: `${vonS} bis ${bisS}, ${buchungen.length} Buchungen` });

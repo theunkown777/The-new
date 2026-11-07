@@ -56,6 +56,11 @@ export async function GET(req: Request) {
         ? { ok: true, info: "nicht angebunden (Zähler nur im Speicher, für den Start in Ordnung)" }
         : { ok: true, info: `${redis.tried} Zugangsdaten gesetzt, keine antwortet: läuft ersatzweise im Speicher. Neue Upstash-Datenbank mit dem Projekt verbinden (Production) und neu deployen, alte KV_/UPSTASH_-Variablen löschen.` };
   checks["KI-Berichte"] = await (await import("@/lib/anthropic")).kiZugangPruefen();
+  {
+    const { onlineZahlungStatus } = await import("@/lib/onlineZahlung");
+    const o = onlineZahlungStatus();
+    checks["Online-Zahlung (Stripe Connect, DATEV-Datenservice)"] = { ok: true, info: o.aktiv ? "eingerichtet: Praxen können ihr Stripe-Konto verbinden" : `nicht eingerichtet (fehlt: ${o.fehlt.join(", ")}); Patienten zahlen per Überweisung oder Lastschrift` };
+  }
   checks["Löschfristen (Cron)"] = process.env.CRON_SECRET
     ? { ok: true, info: "CRON_SECRET gesetzt, täglicher Lauf aktiv" }
     : { ok: true, info: "kein CRON_SECRET: Fristen laufen nur beim Öffnen eines Gastzugangs. CRON_SECRET in Vercel setzen" };

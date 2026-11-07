@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { epcPayload, formatIban, invoiceView, isOutstanding, paymentReference } from "@/lib/invoices";
 import { PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, PORTAL_UI, pickPortalLang, portalStatus, reminderLabel } from "@/lib/portalI18n";
+import { onlineZahlungStatus } from "@/lib/onlineZahlung";
 import { PortalInvoice, type PortalInvoiceData, type PortalText } from "@/components/PortalInvoice";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { KassenSockel } from "@/components/KassenSockel";
@@ -37,7 +38,7 @@ function Expired() {
 
 // Patientenportal: offene Rechnungen mit GiroCode, Vorschläge als Dokument.
 // Gezeigt werden nur Vorname und Praxisname, keine Kassen- oder Geburtsdaten.
-export default async function PortalPage({ params, searchParams }: { params: { token: string }; searchParams: { lang?: string } }) {
+export default async function PortalPage({ params, searchParams }: { params: { token: string }; searchParams: { lang?: string; bezahlt?: string } }) {
   if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <Expired />;
   const now = new Date();
   const patient = await prisma.patient.findUnique({
@@ -48,7 +49,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
       lastName: true,
       portalExpiresAt: true,
       portalViewedAt: true,
-      practice: { select: { name: true, accountHolder: true, iban: true, bic: true, proposalPrices: true, glaeubigerId: true } },
+      practice: { select: { name: true, accountHolder: true, iban: true, bic: true, proposalPrices: true, glaeubigerId: true, stripeAccountId: true } },
       invoices: { where: { status: { not: "STORNIERT" } }, orderBy: { dueDate: "asc" }, take: 50 },
       proposals: {
         where: { OR: [{ shareCreatedAt: { not: null } }, { status: { in: ["BESPROCHEN", "ANGENOMMEN"] } }] },
@@ -70,6 +71,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
   const { practice } = patient;
   const bank = practice.iban ? { name: practice.accountHolder || practice.name, iban: practice.iban, bic: practice.bic } : null;
 
+  const onlineAktiv = onlineZahlungStatus().aktiv;
   const open = patient.invoices.filter((i) => isOutstanding(i.status));
   const done = patient.invoices.filter((i) => i.status === "BEZAHLT").slice(0, 10);
   const openInvoices: PortalInvoiceData[] = await Promise.all(
@@ -93,6 +95,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
         qr,
         due: [String(i.dueDate.getDate()), i.dueDate.toLocaleDateString(locale, { month: "short" })] as [string, string],
         sepa: !!i.sepaMandatAt,
+        online: onlineAktiv && !!practice.stripeAccountId && i.amountCent > 0,
         mandat: practice.glaeubigerId && i.status === "OFFEN" && !i.sepaExportedAt ? mandatsText(practice.accountHolder || practice.name, practice.glaeubigerId, mandatsReferenz(i.number)) : null,
       };
     }),
@@ -162,6 +165,11 @@ export default async function PortalPage({ params, searchParams }: { params: { t
           </p>
         </section>
 
+        {searchParams.bezahlt && (
+          <p className="mb-4 rounded-xl bg-salbei-50 p-3 text-sm text-salbei-900" role="status" data-testid="online-danke">
+            {t.paidOnlineThanks}
+          </p>
+        )}
         {openInvoices.length > 0 && (
           <section className="mt-8" aria-labelledby="rechnungen">
             <h2 id="rechnungen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{t.invoices}</h2>

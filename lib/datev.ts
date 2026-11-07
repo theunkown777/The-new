@@ -145,6 +145,8 @@ export const datevSchema = z.object({
   erloeskonto: z.coerce.number().int().min(1).max(99999999).default(8100),
   /** Bank (SKR03 1200) */
   bankkonto: z.coerce.number().int().min(1).max(99999999).default(1200),
+  /** Geldtransit für Online-Zahlungen über Stripe (SKR03 1360, SKR04 1460); die Stripe-Umsätze holt der DATEV-Datenservice */
+  geldtransit: z.coerce.number().int().min(1).max(99999999).default(1360),
   /** Sammeldebitor für Patientinnen und Patienten (Personenkonto, z. B. 10000) */
   debitor: z.coerce.number().int().min(1).max(999999999).default(10000),
   /** Kürzel, das im Kopf als "Exportiert von" steht */
@@ -153,13 +155,14 @@ export const datevSchema = z.object({
   kontenrahmen: z.enum(["03", "04"]).default("03"),
 }).superRefine((e, ctx) => {
   // DATEV: Sachkonten höchstens so lang wie die Sachkontenlänge, Personenkonten genau eine Stelle länger.
-  for (const k of ["erloeskonto", "bankkonto"] as const)
-    if (String(e[k]).length > e.sachkontenlaenge) ctx.addIssue({ code: "custom", path: [k], message: `${k === "erloeskonto" ? "Erlöskonto" : "Bankkonto"}: höchstens ${e.sachkontenlaenge} Stellen` });
+  const namen = { erloeskonto: "Erlöskonto", bankkonto: "Bankkonto", geldtransit: "Geldtransitkonto" } as const;
+  for (const k of ["erloeskonto", "bankkonto", "geldtransit"] as const)
+    if (String(e[k]).length > e.sachkontenlaenge) ctx.addIssue({ code: "custom", path: [k], message: `${namen[k]}: höchstens ${e.sachkontenlaenge} Stellen` });
   if (String(e.debitor).length !== e.sachkontenlaenge + 1) ctx.addIssue({ code: "custom", path: ["debitor"], message: `Debitor: genau ${e.sachkontenlaenge + 1} Stellen (Sachkontenlänge + 1)` });
 });
 export type DatevEinstellungen = z.infer<typeof datevSchema>;
 
-export type DatevRechnung = { number: string; amountCent: number; status: string; createdAt: Date; paidAt: Date | null };
+export type DatevRechnung = { number: string; amountCent: number; status: string; createdAt: Date; paidAt: Date | null; paidVia?: string | null };
 
 const text = (s: string) => `"${s.replace(/"/g, '""')}"`;
 const betrag = (cent: number) => (cent / 100).toFixed(2).replace(".", ",");
@@ -182,8 +185,11 @@ export function datevBuchungen(rechnungen: DatevRechnung[], e: DatevEinstellunge
     if (r.amountCent <= 0) continue; // DATEV: Umsatz 0,00 ist unzulässig
     if (r.status !== "STORNIERT" && imZeitraum(r.createdAt))
       out.push({ cent: r.amountCent, sh: "S", konto: e.debitor, gegenkonto: e.erloeskonto, datum: r.createdAt, beleg: belegfeld(r.number), text: `Honorar Rg. ${r.number}` });
-    if (r.status === "BEZAHLT" && r.paidAt && imZeitraum(r.paidAt))
-      out.push({ cent: r.amountCent, sh: "S", konto: e.bankkonto, gegenkonto: e.debitor, datum: r.paidAt, beleg: belegfeld(r.number), text: `Zahlungseingang Rg. ${r.number}` });
+    if (r.status === "BEZAHLT" && r.paidAt && imZeitraum(r.paidAt)) {
+      // Online (Stripe): auf Geldtransit, die Auszahlung an die Bank bucht der DATEV-Datenservice
+      const online = r.paidVia === "ONLINE";
+      out.push({ cent: r.amountCent, sh: "S", konto: online ? e.geldtransit : e.bankkonto, gegenkonto: e.debitor, datum: r.paidAt, beleg: belegfeld(r.number), text: `${online ? "Online-Zahlung" : "Zahlungseingang"} Rg. ${r.number}` });
+    }
   }
   return out.sort((a, b) => a.datum.getTime() - b.datum.getTime());
 }

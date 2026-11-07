@@ -7,7 +7,7 @@ const bis = new Date(2026, 9, 31, 23, 59, 59);
 
 describe("DATEV-Buchungsstapel", () => {
   it("Vorgaben SKR03 und Pflichtfelder", () => {
-    expect(e).toMatchObject({ sachkontenlaenge: 4, erloeskonto: 8100, bankkonto: 1200, debitor: 10000 });
+    expect(e).toMatchObject({ sachkontenlaenge: 4, erloeskonto: 8100, bankkonto: 1200, debitor: 10000, geldtransit: 1360 });
     expect(datevSchema.safeParse({ beraternummer: 12, mandantennummer: 1 }).success).toBe(false);
   });
 
@@ -64,7 +64,7 @@ describe("DATEV: Abgleich mit dem Schema der datev-Bibliothek", () => {
       { number: "2026/Ä-0002 (Kopie)", amountCent: 999_999_999, status: "OFFEN", createdAt: new Date(2026, 11, 31), paidAt: null },
       { number: "X".repeat(50), amountCent: 123456, status: "GEMELDET", createdAt: new Date(2026, 5, 15), paidAt: null },
     ];
-    const e2 = datevSchema.parse({ beraternummer: 9999999, mandantennummer: 99999, sachkontenlaenge: 8, erloeskonto: 81000000, bankkonto: 12000000, debitor: 100000000, kuerzel: "Z".repeat(25) });
+    const e2 = datevSchema.parse({ beraternummer: 9999999, mandantennummer: 99999, sachkontenlaenge: 8, erloeskonto: 81000000, bankkonto: 12000000, geldtransit: 13600000, debitor: 100000000, kuerzel: "Z".repeat(25) });
     const v = new Date(2026, 0, 1), b2 = new Date(2026, 11, 31, 23, 59, 59);
     const zeilen = datevStapel(datevBuchungen(rechnungen, e2, v, b2), e2, v, b2).split("\r\n").slice(0, -1);
     const kopf = zeilen[0].split(";");
@@ -116,7 +116,7 @@ describe("DATEV: Abgleich mit der offiziellen DATEV-Formatbeschreibung", () => {
       { number: "2026-0003", amountCent: 0, status: "OFFEN", createdAt: new Date(2026, 5, 1), paidAt: null },
       { number: "X".repeat(50), amountCent: 123456, status: "BEZAHLT", createdAt: new Date(2026, 5, 15), paidAt: new Date(2026, 6, 1) },
     ];
-    for (const einst of [{}, { sachkontenlaenge: 8, erloeskonto: 81000000, bankkonto: 12000000, debitor: 100000000, kontenrahmen: "04" }]) {
+    for (const einst of [{}, { sachkontenlaenge: 8, erloeskonto: 81000000, bankkonto: 12000000, geldtransit: 14600000, debitor: 100000000, kontenrahmen: "04" }]) {
       const e2 = datevSchema.parse({ beraternummer: 1001, mandantennummer: 1, ...einst });
       const v = new Date(2026, 0, 1), b2 = new Date(2026, 11, 31, 23, 59, 59);
       const zeilen = datevStapel(datevBuchungen(rechnungen, e2, v, b2), e2, v, b2).split("\r\n").slice(0, -1);
@@ -137,5 +137,24 @@ describe("DATEV: Abgleich mit der offiziellen DATEV-Formatbeschreibung", () => {
     expect(datevSchema.safeParse({ beraternummer: 1001, mandantennummer: 1, debitor: 1000 }).success).toBe(false);
     expect(datevSchema.safeParse({ beraternummer: 1001, mandantennummer: 1, erloeskonto: 81000 }).success).toBe(false);
     expect(datevSchema.safeParse({ beraternummer: 1001, mandantennummer: 1, kuerzel: "Max M." }).success).toBe(false);
+  });
+});
+
+
+describe("DATEV: Online-Zahlungen über Stripe", () => {
+  it("bucht Online-Zahlungen auf Geldtransit statt Bank, damit der DATEV-Datenservice nicht doppelt bucht", () => {
+    const b = datevBuchungen(
+      [
+        { number: "2026-0100", amountCent: 25000, status: "BEZAHLT", createdAt: new Date(2026, 9, 3), paidAt: new Date(2026, 9, 4), paidVia: "ONLINE" },
+        { number: "2026-0101", amountCent: 9000, status: "BEZAHLT", createdAt: new Date(2026, 9, 3), paidAt: new Date(2026, 9, 9), paidVia: null },
+      ],
+      e,
+      von,
+      bis,
+    );
+    expect(b.filter((x) => x.konto !== 10000).map((x) => [x.konto, x.gegenkonto, x.text])).toEqual([
+      [1360, 10000, "Online-Zahlung Rg. 2026-0100"],
+      [1200, 10000, "Zahlungseingang Rg. 2026-0101"],
+    ]);
   });
 });
