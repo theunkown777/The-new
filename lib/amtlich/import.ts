@@ -10,7 +10,7 @@ import { SDEBM_URL, ebmAusXml, ebmFaecher, zipEintraege } from "./ebm";
 // direkt von der KBV geladen (Lizenz vom Betreiber akzeptiert; abschaltbar mit
 // KBV_STAMMDATEN_LIZENZ=abgelehnt).
 
-export const DATEIEN = ["goae", "goz", "bema", "hebamme", "heilmittel", "hkp", "sgb11", "hilfsmittel", "apotheke", "heilpraktiker", "uvgoae", "ops"] as const;
+export const DATEIEN = ["goae", "goz", "bema", "hebamme", "heilmittel", "hkp", "sgb11", "hilfsmittel", "apotheke", "heilpraktiker", "uvgoae", "ops", "hmv_produkte"] as const;
 
 type Eintrag = { code: string; text: string; hinweis?: string | null; kapitel?: string | null; abschnitt?: string | null; abschnittTitel?: string | null; punkte?: number | null; euroCent?: number | null; faecher?: string[] };
 type Datei = { meta: { system: string; titel: string; quelle: string; stand?: string }; leistungen: Eintrag[] };
@@ -31,11 +31,28 @@ async function ersetze(prisma: PrismaClient, system: string, zeilen: Zeile[]) {
   await prisma.$transaction(ops);
 }
 
+/** Datenbankgröße in MB (Postgres). */
+export async function datenbankMb(prisma: PrismaClient): Promise<number> {
+  const r = await prisma.$queryRaw<{ b: bigint }[]>`SELECT pg_database_size(current_database()) AS b`;
+  return Math.round(Number(r[0]?.b ?? 0) / 1048576);
+}
+
+/** Große Verzeichnisse werden nur neu angelegt, solange die Datenbank unter dieser Grenze liegt (Schutz vor vollem Speicher). */
+const GROSS = 20000;
+const grenzeMb = () => Number(process.env.AMTLICH_SPEICHER_GRENZE_MB) || 400;
+
 export async function importiereAmtlich(prisma: PrismaClient, opts: { ebm?: boolean; log?: (s: string) => void; heute?: Date } = {}) {
   const log = opts.log ?? (() => {});
   const ergebnis: Record<string, number> = {};
   for (const name of DATEIEN) {
     const d = ladeDatei(name);
+    if (d.leistungen.length > GROSS && !(await prisma.amtlicheLeistung.count({ where: { system: d.meta.system } }))) {
+      const mb = await datenbankMb(prisma);
+      if (mb > grenzeMb()) {
+        log(`${d.meta.system}: übersprungen, Datenbank hat ${mb} MB (Grenze ${grenzeMb()} MB, AMTLICH_SPEICHER_GRENZE_MB)`);
+        continue;
+      }
+    }
     const zeilen: Zeile[] = d.leistungen.map((l) => ({
       system: d.meta.system,
       code: l.code,

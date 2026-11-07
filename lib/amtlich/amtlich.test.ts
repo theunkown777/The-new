@@ -38,6 +38,11 @@ describe("Amtliche Leistungsverzeichnisse", () => {
     const ops = Object.fromEntries(nach("OPS").map((l) => [l.code, l]));
     expect(ops["5-820.00"]).toMatchObject({ text: "Implantation einer Endoprothese am Hüftgelenk: Totalendoprothese: Nicht zementiert" });
     expect(ops["5-820.00"].faecher).toContain("ortho");
+    // Einzelprodukte: Anzahl ändert sich mit jedem Abruf, jede gehört zu einer gelisteten Produktart
+    const produkte = nach("HMV_PRODUKT");
+    expect(produkte.length).toBeGreaterThan(40000);
+    const arten = new Set(nach("HMV").map((l) => l.code));
+    expect(produkte.every((l) => arten.has(l.code.slice(0, 10)))).toBe(true);
   });
 
   it("jede Fachrichtung hat amtliche Leistungen (EBM kommt per Import dazu)", () => {

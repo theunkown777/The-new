@@ -1,6 +1,7 @@
 import { teamEmailsRaw } from "@/lib/supportTeam";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { datenbankMb } from "@/lib/amtlich/import";
 import { redisStatus } from "@/lib/rateLimit";
 import { databaseLocation } from "@/lib/hostingRegion";
 import { resolveDatabaseUrls } from "@/lib/databaseUrl";
@@ -43,6 +44,13 @@ export async function GET(req: Request) {
     checks.Leistungsvorlagen = templates > 0
       ? { ok: true, info: `${templates} vorhanden` }
       : { ok: false, info: "keine: Seed (tsx prisma/seed.ts) ist beim Deploy nicht gelaufen" };
+    const amtlich = await prisma.amtlicheLeistung.groupBy({ by: ["system"], _count: true, orderBy: { system: "asc" } });
+    const summe = amtlich.reduce((a, x) => a + x._count, 0);
+    checks["Amtliche Leistungen"] = summe > 0
+      ? { ok: true, info: `${summe.toLocaleString("de-DE")} (${amtlich.map((x) => `${x.system} ${x._count}`).join(", ")})` }
+      : { ok: false, info: "keine: Seed ist beim Deploy nicht gelaufen" };
+    const mb = await datenbankMb(prisma);
+    checks.Speicher = mb < 450 ? { ok: true, info: `Datenbank ${mb} MB` } : { ok: false, info: `Datenbank ${mb} MB: Speichergrenze des Neon-Tarifs prüfen` };
   } catch (err) {
     const code = (err as { code?: string }).code;
     checks.Datenbank = { ok: false, info: `nicht erreichbar${code ? ` (${code})` : ""}: DATABASE_URL prüfen` };
