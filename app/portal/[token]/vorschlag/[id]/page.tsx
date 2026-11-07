@@ -6,6 +6,7 @@ import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
 import { empfehlungJe, hasTranslation, pickLang } from "@/lib/patientI18n";
+import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
 import { isDental, specialty } from "@/lib/specialties";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 
@@ -40,6 +41,8 @@ export default async function PortalProposal({ params, searchParams }: { params:
   const patientChoices = choicesSchema.safeParse(proposal.patientChoices);
   const items = buildProposal(input.data, resolvePrices(proposal.practice.proposalPrices)).filter((i) => i.options.length > 0);
   const dental = isDental(input.data.fach);
+  const texte = items.flatMap((i) => [i.title, ...i.options.map((o) => o.name)]);
+  const zweitmeinungen = await prisma.zweitmeinung.findMany({ where: { proposalId: proposal.id }, orderBy: { createdAt: "asc" } });
   const translatable = dental && items.every((i) => [i.title, i.where, ...i.options.flatMap((o) => [o.name, ...o.benefits])].every(hasTranslation));
   const now = new Date();
   const decided = proposal.status === "ANGENOMMEN" || proposal.status === "ABGELEHNT";
@@ -64,6 +67,13 @@ export default async function PortalProposal({ params, searchParams }: { params:
       translatable={translatable}
       dental={dental}
       arztDativ={specialty(input.data.fach)?.arztDativ}
+      zweitmeinung={{
+        apiUrl: `/api/portal/${params.token}/vorschlag/${proposal.id}/zweitmeinung`,
+        eintraege: zweitmeinungen.map(alsEintrag),
+        hinweis: zweitmeinungHinweis(texte, dental),
+        anspruch: !!anspruchAufZweitmeinung(texte),
+        fragen: vergleichsFragen(dental),
+      }}
     />
   );
 }

@@ -12,6 +12,7 @@ import {
 } from "@/lib/proposals";
 import { installmentOffer, type Installments } from "@/lib/installments";
 import { UI, euro, tr, type PatientLang } from "@/lib/patientI18n";
+import { ZweitmeinungVergleich, type ZweitmeinungProps } from "@/components/ZweitmeinungVergleich";
 
 type Props = {
   token: string;
@@ -37,6 +38,8 @@ type Props = {
   dental?: boolean;
   /** Sprachumschalter nur, wenn alle Texte übersetzt sind. */
   translatable?: boolean;
+  /** Zweitmeinung zum Vergleich (Patienten-Link und Portal). */
+  zweitmeinung?: ZweitmeinungProps;
 };
 
 export function PatientProposalView(props: Props) {
@@ -305,6 +308,17 @@ export function PatientProposalView(props: Props) {
           </>
         )}
       </section>
+
+      {props.zweitmeinung && (
+        <ZweitmeinungVergleich
+          {...props.zweitmeinung}
+          hier={[
+            { label: "Ihre Auswahl", cent: offen.length ? null : Math.round(sum.netto * 100) },
+            { label: "wie empfohlen", cent: Math.round(recSum * 100) },
+            { label: "geringster Eigenanteil", cent: Math.round(lowSum * 100) },
+          ]}
+        />
+      )}
 
       <p className="mt-6 text-xs leading-relaxed text-slate-500">
         {props.dental === false ? t.fineMed(until) : t.fine(gkv, until)}

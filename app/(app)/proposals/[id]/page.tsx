@@ -19,6 +19,8 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
       patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true, externalId: true, geschlecht: true } },
       author: { select: { name: true } },
       practice: { select: { name: true, proposalPrices: true } },
+      // Nur, was die Patientin bzw. der Patient ausdrücklich geteilt hat.
+      zweitmeinungen: { where: { geteiltAt: { not: null } }, orderBy: { createdAt: "asc" } },
     },
   });
   if (!proposal) notFound();
@@ -71,6 +73,31 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
       <div className="mt-6">
         {input.success && <PatientLinkPanel proposalId={proposal.id} state={linkState} firstName={p.firstName} />}
       </div>
+
+      {proposal.zweitmeinungen.length > 0 && (
+        <section className="card mt-6" data-testid="zweitmeinung-praxis">
+          <h2 className="font-display text-2xl text-slate-900">Zweitmeinung, vom Patienten geteilt</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            {p.firstName} hat ein anderes Angebot neben diesen Vorschlag gelegt und mit Ihnen geteilt. Ein guter Anlass für ein kurzes Gespräch über Umfang, Material und
+            Nachsorge, nicht nur über den Preis.
+          </p>
+          <ul className="mt-3 divide-y divide-slate-100 text-sm">
+            {proposal.zweitmeinungen.map((z) => (
+              <li key={z.id} className="flex flex-wrap items-start justify-between gap-3 py-2">
+                <span>
+                  <span className="block text-slate-900">{z.praxis || "Andere Praxis"}: {z.leistung}</span>
+                  {z.notiz && <span className="block text-xs italic text-slate-500">„{z.notiz}“</span>}
+                  <span className="block text-xs text-slate-400">geteilt am {z.geteiltAt!.toLocaleDateString("de-DE")}</span>
+                </span>
+                <span className="text-right tabular-nums">
+                  <span className="block font-medium text-slate-900">Eigenanteil {(z.eigenanteilCent / 100).toLocaleString("de-DE", { maximumFractionDigits: 0 })} €</span>
+                  {z.gesamtCent != null && <span className="block text-xs text-slate-500">gesamt {(z.gesamtCent / 100).toLocaleString("de-DE", { maximumFractionDigits: 0 })} €</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {proposal.agreedAt && (
         <section className="card mt-6 border-salbei-200 bg-salbei-50" data-testid="einverstaendnis">

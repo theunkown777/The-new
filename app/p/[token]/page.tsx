@@ -7,6 +7,7 @@ import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
 import { empfehlungJe, hasTranslation, pickLang } from "@/lib/patientI18n";
+import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
 import { isDental, specialty } from "@/lib/specialties";
 
 export const dynamic = "force-dynamic";
@@ -58,6 +59,8 @@ export default async function PatientLinkPage({
 
   const items = buildProposal(input.data, resolvePrices(proposal.practice.proposalPrices)).filter((i) => i.options.length > 0);
   const dental = isDental(input.data.fach);
+  const texte = items.flatMap((i) => [i.title, ...i.options.map((o) => o.name)]);
+  const zweitmeinungen = await prisma.zweitmeinung.findMany({ where: { proposalId: proposal.id }, orderBy: { createdAt: "asc" } });
   // Fach-Texte gibt es bisher nur auf Deutsch; dann keine halb übersetzte Ansicht anbieten.
   const translatable = dental && items.every((i) => [i.title, i.where, ...i.options.flatMap((o) => [o.name, ...o.benefits])].every(hasTranslation));
   const patientChoices = choicesSchema.safeParse(proposal.patientChoices);
@@ -81,6 +84,13 @@ export default async function PatientLinkPage({
       translatable={translatable}
       dental={dental}
       arztDativ={specialty(input.data.fach)?.arztDativ}
+      zweitmeinung={{
+        apiUrl: `/api/p/${params.token}/zweitmeinung`,
+        eintraege: zweitmeinungen.map(alsEintrag),
+        hinweis: zweitmeinungHinweis(texte, dental),
+        anspruch: !!anspruchAufZweitmeinung(texte),
+        fragen: vergleichsFragen(dental),
+      }}
     />
   );
 }
