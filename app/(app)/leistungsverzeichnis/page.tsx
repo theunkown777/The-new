@@ -7,6 +7,7 @@ import { praxisFach } from "@/lib/katalogScope";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { KATALOG_SYSTEM, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog";
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
+import { LeistungenImport } from "@/components/LeistungenImport";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Leistungsverzeichnis" };
@@ -147,6 +148,7 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
           </div>
         )}
       </section>
+      {admin && <LeistungenImport />}
       <p className="text-xs text-slate-500">
         Quellen: GOÄ, GOZ, SGB XI und BBhV (gesetze-im-internet.de), EBM (KBV-Stammdatei nach Lizenzvereinbarung der KBV), BEMA (KZBV), Heilmittel und Hebammenhilfe
         (Verträge des GKV-Spitzenverbands), Häusliche Krankenpflege (G-BA-Richtlinie), Hilfsmittelverzeichnis (GKV-Spitzenverband), UV-GOÄ (DGUV, Stand 01.07.2026, Betrag für die allgemeine Heilbehandlung). EBM-Beträge mit dem Orientierungswert
