@@ -55,8 +55,9 @@ const ANSPRUCH: [RegExp, string][] = [
 
 /** Welcher Eingriff mit Anspruch auf Zweitmeinung steckt in diesen Texten (Titel, Optionen)? */
 export function anspruchAufZweitmeinung(texte: string[]): string | null {
-  const t = texte.join(" · ");
-  return ANSPRUCH.find(([re]) => re.test(t))?.[1] ?? null;
+  // Jeder Text für sich: Vorsorge ("Prostatakrebs-Früherkennung") ist kein Eingriff.
+  const eingriffe = texte.filter((t) => !/früherkennung|vorsorge|screening|beratung|check/i.test(t));
+  return ANSPRUCH.find(([re]) => eingriffe.some((t) => re.test(t)))?.[1] ?? null;
 }
 
 /** Hinweistext für die Patientenansicht, je nach Anspruch und Fach. */

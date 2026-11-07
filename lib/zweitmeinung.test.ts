@@ -9,6 +9,9 @@ describe("Zweitmeinung", () => {
     expect(anspruchAufZweitmeinung(["Bandscheiben-OP"])).toMatch(/Wirbelsäule/);
     expect(anspruchAufZweitmeinung(["Katheterablation bei Vorhofflimmern"])).toMatch(/Ablation/);
     expect(anspruchAufZweitmeinung(["Professionelle Zahnreinigung", "Krone"])).toBeNull();
+    // Vorsorge ist kein Eingriff, und Texte verschiedener Positionen werden nicht verbunden
+    expect(anspruchAufZweitmeinung(["Prostatakrebs-Früherkennung", "Weitere Behandlung"])).toBeNull();
+    expect(anspruchAufZweitmeinung(["Prostatakrebs-Behandlung"])).toMatch(/Prostatakarzinom/);
   });
   it("Hinweis je nach Anspruch und Fach", () => {
     expect(zweitmeinungHinweis(["Künstliches Hüftgelenk"], false).text).toMatch(/§ 27b SGB V/);

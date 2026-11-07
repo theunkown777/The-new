@@ -51,8 +51,10 @@ export function ZweitmeinungVergleich({
   }
 
   async function teilen(id: string, geteilt: boolean) {
+    // sofort anzeigen, bei Fehler zurücknehmen
+    setEintraege((x) => x.map((z) => (z.id === id ? { ...z, geteilt } : z)));
     const res = await fetch(`${apiUrl}/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ geteilt }) }).catch(() => null);
-    if (res?.ok) setEintraege((x) => x.map((z) => (z.id === id ? { ...z, geteilt } : z)));
+    if (!res?.ok) setEintraege((x) => x.map((z) => (z.id === id ? { ...z, geteilt: !geteilt } : z)));
   }
 
   async function loeschen(id: string) {
@@ -70,51 +72,48 @@ export function ZweitmeinungVergleich({
       </div>
 
       {eintraege.length > 0 && (
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[30rem] text-sm" data-testid="zweitmeinung-tabelle">
-            <thead>
-              <tr className="text-left text-xs text-slate-500">
-                <th className="py-1 pr-3 font-normal">Angebot</th>
-                <th className="py-1 pr-3 text-right font-normal">Ihr Eigenanteil</th>
-                <th className="py-1 text-right font-normal">Unterschied</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {hier.map((h) => (
-                <tr key={h.label} className="bg-brand-50/40">
-                  <td className="py-2 pr-3 text-slate-900">Hier: {h.label}</td>
-                  <td className="py-2 pr-3 text-right tabular-nums text-slate-900">{h.cent == null ? "noch offen" : eur(h.cent)}</td>
-                  <td className="py-2 text-right text-xs text-slate-400">{h === bezug ? "Bezug" : ""}</td>
-                </tr>
-              ))}
-              {eintraege.map((z) => {
-                const diff = bezug?.cent != null ? z.eigenanteilCent - bezug.cent : null;
-                return (
-                  <tr key={z.id}>
-                    <td className="py-2 pr-3 align-top">
-                      <span className="block text-slate-900">{z.praxis || "Andere Praxis"}</span>
-                      <span className="block text-xs text-slate-600">{z.leistung}</span>
-                      {z.gesamtCent != null && <span className="block text-xs text-slate-500">Gesamt {eur(z.gesamtCent)}</span>}
-                      {z.notiz && <span className="block text-xs italic text-slate-500">„{z.notiz}“</span>}
-                      <span className="mt-1 flex flex-wrap items-center gap-3 text-xs">
-                        <label className="flex items-center gap-1 text-slate-600">
-                          <input type="checkbox" checked={z.geteilt} onChange={(e) => teilen(z.id, e.target.checked)} />
-                          mit meiner Praxis teilen
-                        </label>
-                        <button type="button" className="text-slate-400 underline" onClick={() => loeschen(z.id)}>
-                          löschen
-                        </button>
-                      </span>
-                    </td>
-                    <td className="py-2 pr-3 text-right align-top tabular-nums text-slate-900">{eur(z.eigenanteilCent)}</td>
-                    <td className="py-2 text-right align-top text-xs tabular-nums" data-testid="zweitmeinung-diff">
-                      {diff == null ? "–" : Math.abs(diff) < 100 ? "etwa gleich" : diff > 0 ? <span className="text-brand-700">{eur(diff)} mehr</span> : <span className="text-salbei-700">{eur(-diff)} weniger</span>}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="mt-4 space-y-2" data-testid="zweitmeinung-tabelle">
+          <ul className="rounded-xl bg-brand-50/50 px-3 py-2 text-sm">
+            {hier.map((h) => (
+              <li key={h.label} className="flex items-baseline justify-between gap-3 py-0.5">
+                <span className="text-slate-700">
+                  Hier: {h.label}
+                  {h === bezug && <span className="ml-1 text-xs text-slate-400">(Vergleichswert)</span>}
+                </span>
+                <span className="shrink-0 tabular-nums text-slate-900">{h.cent == null ? "noch offen" : eur(h.cent)}</span>
+              </li>
+            ))}
+          </ul>
+          {eintraege.map((z) => {
+            const diff = bezug?.cent != null ? z.eigenanteilCent - bezug.cent : null;
+            return (
+              <div key={z.id} className="rounded-xl border border-slate-200 px-3 py-2 text-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-slate-900">{z.praxis || "Andere Praxis"}</p>
+                    <p className="text-xs text-slate-600">{z.leistung}</p>
+                    {z.gesamtCent != null && <p className="text-xs text-slate-500">Gesamt {eur(z.gesamtCent)}</p>}
+                    {z.notiz && <p className="text-xs italic text-slate-500">„{z.notiz}“</p>}
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="font-medium tabular-nums text-slate-900">{eur(z.eigenanteilCent)}</p>
+                    <p className="text-xs tabular-nums" data-testid="zweitmeinung-diff">
+                      {diff == null ? "" : Math.abs(diff) < 100 ? <span className="text-slate-500">etwa gleich</span> : diff > 0 ? <span className="text-brand-700">{eur(diff)} mehr</span> : <span className="text-salbei-700">{eur(-diff)} weniger</span>}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-3 text-xs">
+                  <label className="flex items-center gap-1 text-slate-600">
+                    <input type="checkbox" checked={z.geteilt} onChange={(e) => teilen(z.id, e.target.checked)} />
+                    mit meiner Praxis teilen
+                  </label>
+                  <button type="button" className="text-slate-400 underline" onClick={() => loeschen(z.id)}>
+                    löschen
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
