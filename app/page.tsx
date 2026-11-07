@@ -103,7 +103,7 @@ export default async function Start() {
             <Link href="/demo" className="group rounded-2xl border border-slate-200 bg-white p-4 text-left hover:border-brand-600" data-testid="zugang-praxis">
               <span className="block text-xs font-semibold uppercase tracking-wide text-brand-700">Für Praxen</span>
               <span className="mt-1 block font-semibold text-slate-900">Demo-Praxis ansehen →</span>
-              <span className="mt-0.5 block text-sm text-slate-600">Das ganze System mit 1000 Beispielpatienten. Von dort öffnen Sie auch die Patientenansicht.</span>
+              <span className="mt-0.5 block text-sm text-slate-600">Das ganze System mit Beispieldaten in der Größe einer typischen Praxis Ihres Fachs. Von dort öffnen Sie auch die Patientenansicht.</span>
             </Link>
             <div className="rounded-2xl border border-dashed border-slate-300 p-4 text-left" data-testid="hinweis-patienten">
               <span className="block text-xs font-semibold uppercase tracking-wide text-slate-500">Für Patienten</span>

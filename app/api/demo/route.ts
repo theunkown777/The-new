@@ -6,7 +6,7 @@ import { aufraeumen } from "@/lib/aufraeumen";
 let letztesAufraeumen = 0;
 import { DENTAL_ID, specialty } from "@/lib/specialties";
 
-// Anlegen von rund 1000 Beispielpatienten braucht einige Sekunden.
+// Anlegen der Beispieldaten (je nach Fach bis etwa 1800 Einträge) braucht einige Sekunden.
 export const maxDuration = 60;
 
 const LIMIT = 10;

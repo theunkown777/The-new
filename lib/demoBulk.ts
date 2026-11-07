@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import type { Prisma } from "@prisma/client";
+import { demoKennzahlen } from "@/lib/demoKennzahlen";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_PRICES, buildProposal, type FindingCode, type ProposalInput } from "@/lib/proposals";
 import { computeProposal } from "@/lib/proposalSchema";
@@ -15,7 +16,8 @@ import { heuteTag, tagesGrenzen } from "@/lib/termine";
 // Stadien, Patienten-Links mit Rückmeldungen, Anamnesebögen und (Zahnmedizin)
 // Berichte. Alles in wenigen Sammelabfragen, damit der Gastzugang schnell bleibt.
 
-export const DEMO_PATIENT_COUNT = 1000;
+/** Größe des Demo-Stamms hängt vom Fach ab (lib/demoKennzahlen.ts). */
+export const demoPatientCount = (fach: string) => demoKennzahlen(fach).patienten;
 const DAY = 24 * 60 * 60 * 1000;
 
 const DENTAL_FINDINGS: [FindingCode, number][] = [
@@ -47,7 +49,8 @@ export async function seedBulkDemo(args: {
   const dental = fach === "zahn";
   const seed = parseInt(crypto.randomBytes(4).toString("hex"), 16);
   const r = rng(seed);
-  const rows = generatePatients(DEMO_PATIENT_COUNT - args.existing, fach, seed, now);
+  const kz = demoKennzahlen(fach);
+  const rows = generatePatients(Math.max(0, kz.patienten - args.existing), fach, seed, now);
 
   const reportDates: { patientId: string; at: Date }[] = [];
   const patients = await prisma.patient.createManyAndReturn({
@@ -70,7 +73,7 @@ export async function seedBulkDemo(args: {
   const anlaesseAlle = spec ? spec.anlaesse.filter((a) => !a.nurAufWunsch || fach === "aesthetik") : [];
   const proposals: Prisma.TreatmentProposalCreateManyInput[] = [];
   const shuffled = [...patients].sort(() => r() - 0.5);
-  for (const p of shuffled.slice(0, Math.round(patients.length * 0.12))) {
+  for (const p of shuffled.slice(0, Math.round(patients.length * kz.quote))) {
     const age = ageOn(p.birthDate!, now);
     const insurance = (p.insuranceType === "PKV" ? "PKV" : "GKV") as "GKV" | "PKV";
     const factors = { age, insurance, bonusYears: weighted(r, [[0, 0.3], [5, 0.25], [10, 0.45]]) as 0 | 5 | 10, haertefall: r() < 0.04, erstattungProzent: insurance === "PKV" ? 80 : r() < 0.3 ? 50 : 0 };
@@ -232,13 +235,18 @@ async function seedTermineUndAkte(a: {
   reportDates: { patientId: string; at: Date }[];
 }) {
   const { practiceId, patients, dental, r, now } = a;
-  const [haupt, zweig] = await prisma.location.createManyAndReturn({
-    data: [
-      { practiceId, name: "Hauptpraxis", address: "Musterstraße 1", rooms: 3, minutesPerDay: 510 },
-      { practiceId, name: "Zweigpraxis", address: "Am Markt 7", rooms: 1, minutesPerDay: 360 },
-    ],
-    select: { id: true },
+  // Standorte, Terminzahl und -dauer je Fach (lib/demoKennzahlen.ts)
+  const kz = demoKennzahlen(a.fach);
+  const orte = await prisma.location.createManyAndReturn({
+    data: kz.standorte.map((s) => ({ practiceId, ...s })),
+    select: { id: true, rooms: true, minutesPerDay: true },
   });
+  const haupt = orte[0];
+  const zweig = orte[1] ?? orte[0];
+  const zweigAnteil = orte[1] ? (orte[1].rooms * orte[1].minutesPerDay) / orte.reduce((x, o) => x + o.rooms * o.minutesPerDay, 0) : 0;
+  const dauer = () => kz.dauer[Math.floor(r() * kz.dauer.length)];
+  const proTag = () => kz.termine[0] + Math.floor(r() * (kz.termine[1] - kz.termine[0] + 1));
+  const tagesMinuten = haupt.minutesPerDay;
   const byId = new Map(patients.map((p) => [p.id, p]));
   const pick = () => patients[Math.floor(r() * patients.length)].id;
   // Terminanlass passend zu Fach, Geschlecht und Alter des jeweiligen Patienten
@@ -254,31 +262,33 @@ async function seedTermineUndAkte(a: {
   // Vergangenheit: in der Zahnmedizin passend zu den Berichten, sonst zufällig.
   const vergangen = dental
     ? a.reportDates.filter((x) => now.getTime() - x.at.getTime() < 60 * DAY)
-    : [...Array(240)].map(() => ({ patientId: pick(), at: at(-1 - Math.floor(r() * 60), Math.floor(r() * 18) * 30) }));
+    : [...Array(Math.round(((kz.termine[0] + kz.termine[1]) / 2) * 30))].map(() => ({ patientId: pick(), at: at(-1 - Math.floor(r() * 42), Math.floor(r() * (tagesMinuten / 15)) * 15) }));
   for (const v of vergangen) {
     const tagOffset = Math.round((tagesGrenzen(heuteTag(v.at)).von.getTime() - heute0) / DAY);
-    const start = at(tagOffset, Math.floor(r() * 18) * 30);
-    rows.push({ practiceId, patientId: v.patientId, locationId: r() < 0.8 ? haupt.id : zweig.id, start, minutes: 30, reason: grund(v.patientId), status: "ERSCHIENEN" });
+    const start = at(tagOffset, Math.floor(r() * (tagesMinuten / 15)) * 15);
+    rows.push({ practiceId, patientId: v.patientId, locationId: r() < zweigAnteil ? zweig.id : haupt.id, start, minutes: dauer(), reason: grund(v.patientId), status: "ERSCHIENEN" });
   }
   // Ausfälle und (Zahnmedizin) drei Termine ohne Dokumentation in der letzten Woche.
-  for (let i = 0; i < 18; i++) { const pid = pick(); rows.push({ practiceId, patientId: pid, locationId: haupt.id, start: at(-1 - Math.floor(r() * 55), 60 + i * 15), minutes: 30, reason: grund(pid), status: r() < 0.6 ? "NICHT_ERSCHIENEN" : "ABGESAGT" }); }
+  // Etwa 5 % Ausfälle (nicht erschienen oder abgesagt)
+  const ausfaelle = Math.max(4, Math.round(vergangen.length * 0.05));
+  for (let i = 0; i < ausfaelle; i++) { const pid = pick(); rows.push({ practiceId, patientId: pid, locationId: haupt.id, start: at(-1 - Math.floor(r() * 40), Math.floor(r() * (tagesMinuten / 15)) * 15), minutes: dauer(), reason: grund(pid), status: r() < 0.6 ? "NICHT_ERSCHIENEN" : "ABGESAGT" }); }
   if (dental) for (let i = 1; i <= 3; i++) rows.push({ practiceId, patientId: pick(), locationId: haupt.id, start: at(-i, 120 + i * 30), minutes: 45, reason: "Füllung", status: "ERSCHIENEN" });
   // Heute bis in zwei Wochen.
   for (let tag = 0; tag <= 14; tag++) {
     const wd = new Date(at(tag, 240)).getUTCDay();
     if (wd === 0 || wd === 6) continue;
-    const anzahl = tag === 0 ? 16 : 10 + Math.floor(r() * 6);
+    const anzahl = tag === 0 ? kz.termine[1] : proTag();
     for (let i = 0; i < anzahl; i++) {
-      const imHaupt = i % 4 !== 3;
+      const imHaupt = r() >= zweigAnteil;
       const pid = pick();
       rows.push({
         practiceId,
         patientId: pid,
         locationId: imHaupt ? haupt.id : zweig.id,
-        start: at(tag, Math.floor((i / anzahl) * 17) * 30),
-        minutes: [20, 30, 30, 45, 60][Math.floor(r() * 5)],
+        start: at(tag, Math.floor(((i / anzahl) * tagesMinuten) / 10) * 10),
+        minutes: dauer(),
         reason: grund(pid),
-        status: tag === 0 ? (i < 6 ? "ERSCHIENEN" : r() < 0.7 ? "BESTAETIGT" : "GEPLANT") : r() < 0.4 ? "BESTAETIGT" : "GEPLANT",
+        status: tag === 0 ? (i < Math.round(anzahl * 0.35) ? "ERSCHIENEN" : r() < 0.7 ? "BESTAETIGT" : "GEPLANT") : r() < 0.4 ? "BESTAETIGT" : "GEPLANT",
         confirmedAt: r() < 0.4 ? new Date(now.getTime() - DAY) : null,
       });
     }
