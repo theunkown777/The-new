@@ -148,7 +148,14 @@ export const datevSchema = z.object({
   /** Sammeldebitor für Patientinnen und Patienten (Personenkonto, z. B. 10000) */
   debitor: z.coerce.number().int().min(1).max(999999999).default(10000),
   /** Kürzel, das im Kopf als "Exportiert von" steht */
-  kuerzel: z.string().trim().max(25).default("Sorrida"),
+  kuerzel: z.string().trim().regex(/^\w{0,25}$/, "Kürzel: nur Buchstaben, Ziffern, Unterstrich").default("Sorrida"),
+  /** Kontenrahmen der Bewegungsdaten (Feld 27 im Kopf) */
+  kontenrahmen: z.enum(["03", "04"]).default("03"),
+}).superRefine((e, ctx) => {
+  // DATEV: Sachkonten höchstens so lang wie die Sachkontenlänge, Personenkonten genau eine Stelle länger.
+  for (const k of ["erloeskonto", "bankkonto"] as const)
+    if (String(e[k]).length > e.sachkontenlaenge) ctx.addIssue({ code: "custom", path: [k], message: `${k === "erloeskonto" ? "Erlöskonto" : "Bankkonto"}: höchstens ${e.sachkontenlaenge} Stellen` });
+  if (String(e.debitor).length !== e.sachkontenlaenge + 1) ctx.addIssue({ code: "custom", path: ["debitor"], message: `Debitor: genau ${e.sachkontenlaenge + 1} Stellen (Sachkontenlänge + 1)` });
 });
 export type DatevEinstellungen = z.infer<typeof datevSchema>;
 
@@ -172,6 +179,7 @@ export function datevBuchungen(rechnungen: DatevRechnung[], e: DatevEinstellunge
   const imZeitraum = (d: Date) => d >= von && d <= bis;
   const out: Buchung[] = [];
   for (const r of rechnungen) {
+    if (r.amountCent <= 0) continue; // DATEV: Umsatz 0,00 ist unzulässig
     if (r.status !== "STORNIERT" && imZeitraum(r.createdAt))
       out.push({ cent: r.amountCent, sh: "S", konto: e.debitor, gegenkonto: e.erloeskonto, datum: r.createdAt, beleg: belegfeld(r.number), text: `Honorar Rg. ${r.number}` });
     if (r.status === "BEZAHLT" && r.paidAt && imZeitraum(r.paidAt))
@@ -184,9 +192,12 @@ export function datevBuchungen(rechnungen: DatevRechnung[], e: DatevEinstellunge
 export function datevStapel(buchungen: Buchung[], e: DatevEinstellungen, von: Date, bis: Date, now = new Date()): string {
   const erzeugt = `${ymd(now)}${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(now.getSeconds()).padStart(2, "0")}${String(now.getMilliseconds()).padStart(3, "0")}`;
   const kopf = [
-    text("EXTF"), "700", "21", text("Buchungsstapel"), "13", erzeugt, "", text("SO"), text(e.kuerzel), "",
+    text("EXTF"), "700", "21", text("Buchungsstapel"), "13", erzeugt, "", text("SO"), text(e.kuerzel), text(""),
     String(e.beraternummer), String(e.mandantennummer), `${von.getFullYear()}0101`, String(e.sachkontenlaenge), ymd(von), ymd(bis),
-    text(`Sorrida ${ymd(von)}-${ymd(bis)}`.slice(0, 30)), "", "1", "", "0", text("EUR"), "", "", "", "", "", "", "", "", "",
+    // 17 Bezeichnung, 18 Diktatkürzel, 19 Buchungstyp, 20 Rechnungslegungszweck, 21 Festschreibung, 22 WKZ,
+    // 23 reserviert, 24 Derivatskennzeichen, 25/26 reserviert, 27 Sachkontenrahmen, 28 Branchenlösung,
+    // 29 reserviert, 30 reserviert, 31 Anwendungsinformation (Ausdrücke laut DATEV-Formatbeschreibung)
+    text(`Sorrida ${ymd(von)} bis ${ymd(bis)}`.slice(0, 30)), text(""), "1", "0", "0", text("EUR"), "", text(""), "", "", text(e.kontenrahmen), "", "", text(""), text(""),
   ];
   const leer = Array(DATEV_SPALTEN.length - 14).fill("");
   const zeilen = buchungen.map((b) =>

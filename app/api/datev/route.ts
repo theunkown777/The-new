@@ -23,7 +23,11 @@ export async function GET(req: Request) {
 
   const practice = await prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { datev: true } });
   const e = datevSchema.safeParse(practice?.datev ?? {});
-  if (!e.success) return NextResponse.json({ error: "Bitte zuerst Berater- und Mandantennummer hinterlegen." }, { status: 409 });
+  if (!e.success)
+    return NextResponse.json(
+      { error: practice?.datev ? `DATEV-Einstellungen prüfen: ${e.error.issues[0]?.message ?? "ungültig"}` : "Bitte zuerst Berater- und Mandantennummer hinterlegen." },
+      { status: 409 },
+    );
 
   const rechnungen = await prisma.invoice.findMany({
     where: { practiceId: session.user.practiceId, OR: [{ createdAt: { gte: von, lte: bis } }, { paidAt: { gte: von, lte: bis } }] },

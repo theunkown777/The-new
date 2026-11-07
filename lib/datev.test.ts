@@ -34,7 +34,7 @@ describe("DATEV-Buchungsstapel", () => {
     const b = datevBuchungen([{ number: "2026-0042", amountCent: 123456, status: "OFFEN", createdAt: new Date(2026, 9, 3), paidAt: null }], e, von, bis);
     const datei = datevStapel(b, e, von, bis, new Date(2026, 10, 7, 10, 5, 3, 7));
     const zeilen = datei.split("\r\n");
-    expect(zeilen[0]).toBe('"EXTF";700;21;"Buchungsstapel";13;20261107100503007;;"SO";"Sorrida";;1001;456;20260101;4;20261001;20261031;"Sorrida 20261001-20261031";;1;;0;"EUR";;;;;;;;;');
+    expect(zeilen[0]).toBe('"EXTF";700;21;"Buchungsstapel";13;20261107100503007;;"SO";"Sorrida";"";1001;456;20260101;4;20261001;20261031;"Sorrida 20261001 bis 20261031";"";1;0;0;"EUR";;"";;;"03";;;"";""');
     expect(zeilen[0].split(";")).toHaveLength(31);
     expect(DATEV_SPALTEN).toHaveLength(125);
     expect(zeilen[1].split(";")).toHaveLength(125);
@@ -86,5 +86,56 @@ describe("DATEV: Abgleich mit dem Schema der datev-Bibliothek", () => {
       expect(unq(f[13]).length).toBeLessThanOrEqual(60);
     }
     expect(zeilen.length).toBe(2 + 4);
+  });
+});
+
+
+// Reguläre Ausdrücke wörtlich aus der DATEV-Formatbeschreibung (developer.datev.de,
+// DATEV-Format → Formatbeschreibung → Header bzw. Buchungsstapel, abgerufen 07.11.2026).
+const DATEV_KOPF: Record<number, RegExp> = {
+  1: /^["](EXTF|DTVF)["]$/, 2: /^(700)$/, 3: /^(16|20|21|46|48|65)$/,
+  4: /^["](Buchungsstapel|Wiederkehrende Buchungen|Debitoren\/Kreditoren|Kontenbeschriftungen|Zahlungsbedingungen|Diverse Adressen)["]$/,
+  5: /^(2|4|5|13)$/,
+  6: /^([2])([0])([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])(2[0-3]|[01][0-9])([0-5][0-9])([0-5][0-9][0-9][0-9][0-9])$/,
+  7: /^$/, 8: /^["]\w{0,2}["]$/, 9: /^["]\w{0,25}["]$/, 10: /^["]\w{0,25}["]$/, 11: /^(\d{4,6}|\d{7})$/, 12: /^\d{1,5}$/,
+  13: /^([2])([0])([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$/, 14: /^[4-8]$/,
+  15: /^([2])([0])([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$/, 16: /^([2])([0])([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$/,
+  17: /^["][\w.-/ ]{0,30}["]$/, 18: /^["]([A-Z]{2}){0,2}["]$/, 19: /^[1-2]$/, 20: /^(0|30|40|50|64)$/, 21: /^(0|1)$/, 22: /^["]([A-Z]{3})["]$/,
+  23: /^$/, 24: /^["]["]$/, 25: /^$/, 26: /^$/, 27: /^["](\d{2}){0,2}["]$/, 28: /^\d{0,4}$/, 29: /^$/, 30: /^["]["]$/, 31: /^["].{0,16}["]$/,
+};
+const DATEV_BUCHUNG: Record<number, RegExp> = {
+  1: /^(?!0{1,10}\,00)\d{1,10}\,\d{2}$/, 2: /^["](S|H)["]$/, 7: /^(?!0{1,9}$)(\d{1,9})$/, 8: /^(?!0{1,9}$)(\d{1,9})$/,
+  10: /^(\d{4})$/, 11: /^(["][\w$&%*+\-\/]{0,36}["])$/, 14: /^(["].{0,60}["])$/,
+};
+
+describe("DATEV: Abgleich mit der offiziellen DATEV-Formatbeschreibung", () => {
+  it("jedes Kopffeld und jedes befüllte Buchungsfeld passt auf den Ausdruck von DATEV, alle anderen sind leer", () => {
+    const rechnungen = [
+      { number: "2026-0001", amountCent: 1, status: "BEZAHLT", createdAt: new Date(2026, 0, 2), paidAt: new Date(2026, 0, 31) },
+      { number: "2026/Ä-0002 (Kopie)", amountCent: 999_999_999, status: "OFFEN", createdAt: new Date(2026, 11, 31), paidAt: null },
+      { number: "2026-0003", amountCent: 0, status: "OFFEN", createdAt: new Date(2026, 5, 1), paidAt: null },
+      { number: "X".repeat(50), amountCent: 123456, status: "BEZAHLT", createdAt: new Date(2026, 5, 15), paidAt: new Date(2026, 6, 1) },
+    ];
+    for (const einst of [{}, { sachkontenlaenge: 8, erloeskonto: 81000000, bankkonto: 12000000, debitor: 100000000, kontenrahmen: "04" }]) {
+      const e2 = datevSchema.parse({ beraternummer: 1001, mandantennummer: 1, ...einst });
+      const v = new Date(2026, 0, 1), b2 = new Date(2026, 11, 31, 23, 59, 59);
+      const zeilen = datevStapel(datevBuchungen(rechnungen, e2, v, b2), e2, v, b2).split("\r\n").slice(0, -1);
+      const kopf = zeilen[0].split(";");
+      expect(kopf).toHaveLength(31);
+      for (const [i, re] of Object.entries(DATEV_KOPF)) expect(kopf[Number(i) - 1], `Kopf #${i}`).toMatch(re);
+      expect(zeilen).toHaveLength(2 + 5); // Umsatz 0,00 wird nicht exportiert
+      for (const z of zeilen.slice(2)) {
+        const f = z.split(";");
+        expect(f).toHaveLength(125);
+        for (const [i, re] of Object.entries(DATEV_BUCHUNG)) expect(f[Number(i) - 1], `Buchung #${i}`).toMatch(re);
+        f.forEach((x, j) => { if (!DATEV_BUCHUNG[j + 1]) expect(x, `Buchung #${j + 1} leer`).toBe(""); });
+      }
+    }
+  });
+
+  it("Kontenlängen nach DATEV: Personenkonto genau eine Stelle länger als die Sachkontenlänge", () => {
+    expect(datevSchema.safeParse({ beraternummer: 1001, mandantennummer: 1, debitor: 1000 }).success).toBe(false);
+    expect(datevSchema.safeParse({ beraternummer: 1001, mandantennummer: 1, erloeskonto: 81000 }).success).toBe(false);
+    expect(datevSchema.safeParse({ beraternummer: 1001, mandantennummer: 1, kuerzel: "Max M." }).success).toBe(false);
   });
 });

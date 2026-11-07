@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-type E = { beraternummer?: number; mandantennummer?: number; sachkontenlaenge?: number; erloeskonto?: number; bankkonto?: number; debitor?: number };
+type E = { beraternummer?: number; mandantennummer?: number; sachkontenlaenge?: number; erloeskonto?: number; bankkonto?: number; debitor?: number; kontenrahmen?: "03" | "04" };
 
 const monat = (d: Date, letzter = false) => {
   const x = letzter ? new Date(d.getFullYear(), d.getMonth() + 1, 0) : new Date(d.getFullYear(), d.getMonth(), 1);
@@ -46,7 +46,15 @@ export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | nu
           {feld("sachkontenlaenge", "Sachkontenlänge", "meist 4")}
           {feld("erloeskonto", "Erlöskonto", "SKR03 üblich: 8100 (steuerfrei)")}
           {feld("bankkonto", "Bankkonto", "SKR03 üblich: 1200")}
-          {feld("debitor", "Debitor (Sammelkonto)", "z. B. 10000")}
+          {feld("debitor", "Debitor (Sammelkonto)", "eine Stelle länger als die Sachkonten, z. B. 10000")}
+          <label className="block text-sm">
+            <span className="text-slate-600">Kontenrahmen</span>
+            <select className="input mt-1" value={e.kontenrahmen ?? "03"} onChange={(x) => setE({ ...e, kontenrahmen: x.target.value as "03" | "04" })}>
+              <option value="03">SKR03</option>
+              <option value="04">SKR04</option>
+            </select>
+            <span className="text-xs text-slate-400">bei SKR04 die Konten oben anpassen</span>
+          </label>
           <p className="text-xs text-slate-500 sm:col-span-3">
             Konten bitte mit Ihrer Steuerberatung abstimmen. Selbstzahlerleistungen mit Umsatzsteuer (z. B. Ästhetik) bucht die Steuerberatung auf ein eigenes Erlöskonto um.
           </p>
