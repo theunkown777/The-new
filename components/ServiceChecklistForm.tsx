@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { computeEffectivePerformed } from "@/lib/serviceDependency";
 import { estimateAmountCent, kassenLabel } from "@/lib/billing";
 import { MicButton } from "@/components/MicButton";
+import { LeistungsverzeichnisAuswahl } from "@/components/LeistungsverzeichnisAuswahl";
+import { FREIE_ZUSAMMENSTELLUNG } from "@/lib/amtlich/gliederung";
 
 function formatEuro(cents: number): string {
   return (cents / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
@@ -70,6 +72,7 @@ type TemplateItem = {
 
 type Template = {
   id: string;
+  practiceId: string | null;
   name: string;
   description: string | null;
   items: TemplateItem[];
@@ -144,6 +147,28 @@ export function ServiceChecklistForm({
     [templates, templateId]
   );
 
+  // Leistungen, die zur Sitzung aus dem Leistungsverzeichnis ergänzt wurden
+  const [zusatz, setZusatz] = useState<TemplateItem[]>([]);
+  const aktivItems = useMemo(() => (selectedTemplate ? [...selectedTemplate.items, ...zusatz] : []), [selectedTemplate, zusatz]);
+
+  function ergaenze(items: CatalogItem[]) {
+    const vorhanden = new Set(aktivItems.map((i) => i.catalogItemId));
+    const neu = items.filter((c) => !vorhanden.has(c.id)).map((c, k) => ({
+      catalogItemId: c.id,
+      position: 1000 + zusatz.length + k,
+      dependsOn: [] as string[],
+      catalogItem: { ...c, category: `Aus dem Leistungsverzeichnis · ${c.category}` },
+    }));
+    if (!neu.length) return;
+    setZusatz((z) => [...z, ...neu]);
+    setEntries((prev) => {
+      const next = { ...prev };
+      for (const it of neu) next[it.catalogItemId] = { performed: true, toothNumbers: "", quantity: 1, note: "", faktor: it.catalogItem.regelhoechstfaktor != null ? String(it.catalogItem.regelhoechstfaktor) : "", begruendung: "" };
+      return next;
+    });
+    setReviewConfirmed(false);
+  }
+
   const kassenart = useMemo(
     () => patients.find((p) => p.id === patientId)?.insuranceType ?? null,
     [patients, patientId]
@@ -164,6 +189,7 @@ export function ServiceChecklistForm({
       };
     }
     setEntries(next);
+    setZusatz([]);
     setOpen({});
     setReviewConfirmed(false);
   }, [selectedTemplate, kassenart]);
@@ -171,13 +197,13 @@ export function ServiceChecklistForm({
   const grouped = useMemo(() => {
     if (!selectedTemplate) return [];
     const byCategory = new Map<string, TemplateItem[]>();
-    for (const item of selectedTemplate.items) {
+    for (const item of aktivItems) {
       const list = byCategory.get(item.catalogItem.category) ?? [];
       list.push(item);
       byCategory.set(item.catalogItem.category, list);
     }
     return Array.from(byCategory.entries());
-  }, [selectedTemplate]);
+  }, [selectedTemplate, aktivItems]);
 
   // Positions with a satisfied prerequisite follow their own checkbox;
   // positions whose prerequisite was struck are forced un-performed and
@@ -188,12 +214,12 @@ export function ServiceChecklistForm({
     Object.entries(entries).forEach(([id, e]) => {
       ownPerformed[id] = e.performed;
     });
-    const dependencyItems = selectedTemplate.items.map((it) => ({
+    const dependencyItems = aktivItems.map((it) => ({
       id: it.catalogItemId,
       dependsOn: it.dependsOn,
     }));
     return computeEffectivePerformed(dependencyItems, ownPerformed);
-  }, [selectedTemplate, entries]);
+  }, [selectedTemplate, aktivItems, entries]);
 
   function isLocked(item: TemplateItem): boolean {
     if (item.dependsOn.length === 0) return false;
@@ -205,7 +231,7 @@ export function ServiceChecklistForm({
   const conflictingIds = useMemo(() => {
     const set = new Set<string>();
     if (!selectedTemplate) return set;
-    for (const item of selectedTemplate.items) {
+    for (const item of aktivItems) {
       if (!(effective[item.catalogItemId] ?? false)) continue;
       for (const otherId of item.catalogItem.ausschlussMit) {
         if (effective[otherId]) {
@@ -215,11 +241,11 @@ export function ServiceChecklistForm({
       }
     }
     return set;
-  }, [selectedTemplate, effective]);
+  }, [selectedTemplate, aktivItems, effective]);
 
-  const totalCount = selectedTemplate?.items.length ?? 0;
+  const totalCount = aktivItems.length;
   const performedCount = selectedTemplate
-    ? selectedTemplate.items.filter((it) => effective[it.catalogItemId]).length
+    ? aktivItems.filter((it) => effective[it.catalogItemId]).length
     : 0;
   const struckCount = totalCount - performedCount;
 
@@ -227,7 +253,7 @@ export function ServiceChecklistForm({
     if (!selectedTemplate) return null;
     let sum = 0;
     let any = false;
-    for (const item of selectedTemplate.items) {
+    for (const item of aktivItems) {
       if (!effective[item.catalogItemId]) continue;
       const entry = entries[item.catalogItemId];
       if (!entry) continue;
@@ -244,7 +270,7 @@ export function ServiceChecklistForm({
       }
     }
     return any ? sum : null;
-  }, [selectedTemplate, effective, entries, practicePunktwerte]);
+  }, [selectedTemplate, aktivItems, effective, entries, practicePunktwerte]);
 
   function toggleItem(catalogItemId: string) {
     setEntries((prev) => ({
@@ -261,7 +287,7 @@ export function ServiceChecklistForm({
   function titlesFor(ids: string[]): string {
     if (!selectedTemplate) return "";
     return ids
-      .map((id) => selectedTemplate.items.find((it) => it.catalogItemId === id)?.catalogItem.title)
+      .map((id) => aktivItems.find((it) => it.catalogItemId === id)?.catalogItem.title)
       .filter(Boolean)
       .join(" oder ");
   }
@@ -298,7 +324,7 @@ export function ServiceChecklistForm({
       serviceTemplateId: selectedTemplate.id,
       reviewConfirmed,
       additionalContext: additionalContext || null,
-      entries: selectedTemplate.items.map((item) => {
+      entries: aktivItems.map((item) => {
         const e = entries[item.catalogItemId];
         return {
           catalogItemId: item.catalogItemId,
@@ -384,10 +410,20 @@ export function ServiceChecklistForm({
               onChange={(e) => setTemplateId(e.target.value)}
               disabled={loadingTemplates}
             >
-              {templates.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
+              {templates.some((t) => !t.practiceId) && (
+                <optgroup label="Sitzungstypen Ihres Fachs">
+                  {templates.filter((t) => !t.practiceId).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </optgroup>
+              )}
+              {templates.some((t) => t.practiceId && t.name !== FREIE_ZUSAMMENSTELLUNG) && (
+                <optgroup label="Eigene Sitzungstypen">
+                  {templates.filter((t) => t.practiceId && t.name !== FREIE_ZUSAMMENSTELLUNG).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </optgroup>
+              )}
+              {templates.filter((t) => t.name === FREIE_ZUSAMMENSTELLUNG).map((t) => (
+                <optgroup key={t.id} label="Aus dem Leistungsverzeichnis">
+                  <option value={t.id}>{t.name}</option>
+                </optgroup>
               ))}
             </select>
           </div>
@@ -403,6 +439,13 @@ export function ServiceChecklistForm({
             </select>
           </div>
         </div>
+
+        {selectedTemplate && (
+          <LeistungsverzeichnisAuswahl
+            offenStart={selectedTemplate.name === FREIE_ZUSAMMENSTELLUNG}
+            onAdd={(items) => ergaenze(items as unknown as CatalogItem[])}
+          />
+        )}
       </div>
 
       {selectedTemplate && (

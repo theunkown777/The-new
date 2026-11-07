@@ -48,6 +48,8 @@ model Practice {
   installments      Json?
   /// Fachgebiet (lib/specialties.ts): "zahn", "augen", "haut", … oder "andere"
   specialty         String            @default("zahn")
+  /// KV-Bezirk (lib/amtlich/gliederung.ts KV_BEZIRKE), z. B. "NO"; bestimmt die regionalen KV-Ziffern im Leistungsverzeichnis
+  kvBezirk          String?
   /// Arztpraxen: Preise je Leistung und eigene Leistungen (lib/medicalProposals.ts)
   medPrices         Json?
   customOffers      Json?

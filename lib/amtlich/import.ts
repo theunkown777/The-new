@@ -2,6 +2,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import type { PrismaClient } from "@prisma/client";
 import { SDEBM_URL, ebmAusXml, ebmFaecher, zipEintraege } from "./ebm";
+import { kvFaecher } from "./gliederung";
 
 // Import der amtlichen Leistungsverzeichnisse in die Tabelle AmtlicheLeistung.
 // Die frei nutzbaren Verzeichnisse liegen als JSON unter data/amtlich (aus den
@@ -62,7 +63,7 @@ export async function importiereAmtlich(prisma: PrismaClient, opts: { ebm?: bool
       abschnitt: l.kapitel ? l.abschnitt ?? null : null,
       punkte: l.punkte ?? null,
       euroCent: l.euroCent ?? null,
-      faecher: l.faecher ?? [],
+      faecher: d.meta.system === "KV_REGIONAL" ? kvFaecher(l.text, l.abschnitt ?? null, l.faecher ?? []) : l.faecher ?? [],
       arztgruppen: [],
       gueltigAb: null,
       gueltigBis: null,

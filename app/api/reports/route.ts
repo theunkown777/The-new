@@ -81,11 +81,22 @@ export async function POST(req: Request) {
   const requiredItemIds = new Set(template.items.map((i) => i.catalogItemId));
   const submittedItemIds = new Set(entries.map((e) => e.catalogItemId));
 
-  if (requiredItemIds.size !== submittedItemIds.size) {
-    return NextResponse.json(
-      { error: "Leistungsliste ist unvollständig oder enthält unbekannte Positionen." },
-      { status: 400 }
-    );
+  if (submittedItemIds.size !== entries.length) {
+    return NextResponse.json({ error: "Eine Position ist doppelt in der Leistungsliste." }, { status: 400 });
+  }
+  // Zusätzlich zur Vorlage dürfen Positionen aus dem Katalog der Praxis ergänzt werden
+  // (z. B. aus dem Leistungsverzeichnis beim Sitzungstyp); fremde Positionen nicht.
+  const zusatzIds = Array.from(submittedItemIds).filter((id) => !requiredItemIds.has(id));
+  if (zusatzIds.length) {
+    const erlaubt = await prisma.serviceCatalogItem.count({
+      where: { id: { in: zusatzIds }, ...(await sichtbarFuer(session.user.practiceId)) },
+    });
+    if (erlaubt !== zusatzIds.length) {
+      return NextResponse.json(
+        { error: "Leistungsliste ist unvollständig oder enthält unbekannte Positionen." },
+        { status: 400 }
+      );
+    }
   }
   for (const id of requiredItemIds) {
     if (!submittedItemIds.has(id)) {
@@ -97,7 +108,7 @@ export async function POST(req: Request) {
   }
 
   const catalogItems = await prisma.serviceCatalogItem.findMany({
-    where: { id: { in: Array.from(requiredItemIds) } },
+    where: { id: { in: Array.from(submittedItemIds) } },
   });
   const catalogItemById = new Map(catalogItems.map((c) => [c.id, c]));
 
@@ -110,10 +121,10 @@ export async function POST(req: Request) {
   entries.forEach((e) => {
     ownPerformedById[e.catalogItemId] = e.performed;
   });
-  const dependencyItems = template.items.map((i) => ({
-    id: i.catalogItemId,
-    dependsOn: parseDependsOn(i.dependsOn),
-  }));
+  const dependencyItems = [
+    ...template.items.map((i) => ({ id: i.catalogItemId, dependsOn: parseDependsOn(i.dependsOn) })),
+    ...zusatzIds.map((id) => ({ id, dependsOn: [] as string[] })),
+  ];
   const effectiveById = computeEffectivePerformed(dependencyItems, ownPerformedById);
 
   const entriesWithCatalog = entries.map((e) => {

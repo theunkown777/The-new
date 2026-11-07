@@ -8,6 +8,8 @@ import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { katalogEintrag, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog";
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 import { LeistungenImport } from "@/components/LeistungenImport";
+import { KvBezirkWahl } from "@/components/KvBezirkWahl";
+import { fachFilter, sortiereSysteme } from "@/lib/amtlich/gliederung";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Leistungsverzeichnis" };
@@ -27,11 +29,13 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
   const q = (searchParams.q ?? "").trim().slice(0, 80);
   const seite = Math.max(1, Number(searchParams.seite) || 1);
 
-  const basis: Prisma.AmtlicheLeistungWhereInput = alle ? {} : { faecher: { has: fach } };
-  const proSystem = await prisma.amtlicheLeistung.groupBy({ by: ["system"], where: basis, _count: true, orderBy: { system: "asc" } });
+  const kvBezirk = (await prisma.practice.findUnique({ where: { id: practiceId }, select: { kvBezirk: true } }))?.kvBezirk ?? null;
+  // Eigenes Fach: Verzeichnisse in der Reihenfolge, die für diese Praxisart zählt; regionale Ziffern nur aus dem eigenen KV-Bezirk
+  const basis: Prisma.AmtlicheLeistungWhereInput = alle ? {} : fachFilter(fach, kvBezirk);
+  const proSystem = sortiereSysteme(fach, await prisma.amtlicheLeistung.groupBy({ by: ["system"], where: basis, _count: true }));
   const system = searchParams.system && proSystem.some((s) => s.system === searchParams.system) ? searchParams.system : null;
   const kapitelListe = system
-    ? await prisma.amtlicheLeistung.groupBy({ by: ["kapitel"], where: { ...basis, system }, _count: true, orderBy: { kapitel: "asc" } })
+    ? (await prisma.amtlicheLeistung.groupBy({ by: ["kapitel"], where: { ...basis, system }, _count: true })).sort((a, b) => (a.kapitel ?? "").localeCompare(b.kapitel ?? "", "de", { numeric: true }))
     : [];
   const kapitel = searchParams.kapitel && kapitelListe.some((k) => k.kapitel === searchParams.kapitel) ? searchParams.kapitel : null;
   const worte = q.split(/\s+/).filter(Boolean);
@@ -72,6 +76,7 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
             {alle ? "Nur mein Fach anzeigen" : "Alle Fächer anzeigen"}
           </Link>
         </p>
+        {fach !== "zahn" && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
       </div>
 
       <div className="flex flex-wrap gap-2" data-testid="systeme">

@@ -153,6 +153,8 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
       name: spec ? `${spec.kurz} am Markt (Demo)` : DEMO_PRACTICE_NAME,
       specialty: spec ? spec.id : DENTAL_ID,
       isDemo: true,
+      // Demo zeigt regionale KV-Ziffern beispielhaft für Nordrhein (in der Praxis unter Leistungsverzeichnis änderbar)
+      kvBezirk: "NO",
       // Beispiel-IBAN aus der Bankendokumentation, damit das Portal den GiroCode zeigt.
       accountHolder: spec ? `${spec.kurz} am Markt` : "Zahnarztpraxis am Markt",
       iban: "DE89370400440532013000",

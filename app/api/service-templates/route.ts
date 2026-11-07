@@ -6,10 +6,19 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseDependsOn } from "@/lib/serviceDependency";
 import { requireAdmin } from "@/lib/permissions";
+import { FREIE_ZUSAMMENSTELLUNG } from "@/lib/amtlich/gliederung";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+
+  // Jede Praxis hat einen leeren Sitzungstyp für Leistungen direkt aus dem Leistungsverzeichnis
+  const frei = await prisma.serviceTemplate.findFirst({ where: { practiceId: session.user.practiceId, name: FREIE_ZUSAMMENSTELLUNG } });
+  if (!frei) {
+    await prisma.serviceTemplate.create({
+      data: { practiceId: session.user.practiceId, name: FREIE_ZUSAMMENSTELLUNG, description: "Leistungen nach Fach und Kapitel aus den amtlichen Verzeichnissen auswählen" },
+    });
+  }
 
   const templates = await prisma.serviceTemplate.findMany({
     where: {
@@ -23,6 +32,9 @@ export async function GET() {
       },
     },
   });
+
+  const rang = (t: { practiceId: string | null; name: string }) => (t.name === FREIE_ZUSAMMENSTELLUNG ? 2 : t.practiceId ? 1 : 0);
+  templates.sort((a, b) => rang(a) - rang(b) || a.name.localeCompare(b.name, "de"));
 
   const withParsedDeps = templates.map((tpl) => ({
     ...tpl,
