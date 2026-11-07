@@ -7,7 +7,8 @@ import { SDEBM_URL, ebmAusXml, ebmFaecher, zipEintraege } from "./ebm";
 // Die frei nutzbaren Verzeichnisse liegen als JSON unter data/amtlich (aus den
 // amtlichen Quellen erzeugt, siehe meta.quelle in jeder Datei). Der EBM wird
 // wegen der KBV-Lizenz nicht im Repository gespeichert, sondern beim Import
-// direkt von der KBV geladen, und nur wenn KBV_STAMMDATEN_LIZENZ=akzeptiert.
+// direkt von der KBV geladen (Lizenz vom Betreiber akzeptiert; abschaltbar mit
+// KBV_STAMMDATEN_LIZENZ=abgelehnt).
 
 export const DATEIEN = ["goae", "goz", "bema", "hebamme", "heilmittel", "hkp", "sgb11", "hilfsmittel", "apotheke", "heilpraktiker", "uvgoae"] as const;
 

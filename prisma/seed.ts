@@ -484,12 +484,14 @@ async function main() {
   }
   console.log(`Lexikon: ${LEXIKON.length} Einträge.`);
 
-  // Amtliche Leistungsverzeichnisse (GOÄ, GOZ, BEMA, Heilmittel, Hebammen, HKP, SGB XI,
-  // Hilfsmittelverzeichnis, Apotheke). EBM nur mit bestätigter KBV-Lizenz.
-  const ebm = (process.env.KBV_STAMMDATEN_LIZENZ ?? "").trim().toLowerCase() === "akzeptiert";
+  // Amtliche Leistungsverzeichnisse (GOÄ, UV-GOÄ, GOZ, BEMA, Heilmittel, Hebammen, HKP, SGB XI,
+  // Hilfsmittelverzeichnis, Apotheke, Heilpraktiker) und EBM aus der KBV-Stammdatei.
+  // Die KBV-Lizenzvereinbarung Stammdateien hat der Betreiber am 07.11.2026 gelesen und akzeptiert.
+  // Abschalten (z. B. bei Kündigung der Lizenz): KBV_STAMMDATEN_LIZENZ=abgelehnt.
+  const ebm = (process.env.KBV_STAMMDATEN_LIZENZ ?? "akzeptiert").trim().toLowerCase() !== "abgelehnt";
   try {
     const n = await importiereAmtlich(prisma, { ebm });
-    console.log(`Amtliche Leistungen: ${Object.entries(n).map(([k, v]) => `${k} ${v}`).join(", ")}${ebm ? "" : " (EBM erst nach KBV_STAMMDATEN_LIZENZ=akzeptiert)"}.`);
+    console.log(`Amtliche Leistungen: ${Object.entries(n).map(([k, v]) => `${k} ${v}`).join(", ")}${ebm ? "" : " (EBM abgeschaltet: KBV_STAMMDATEN_LIZENZ=abgelehnt)"}.`);
   } catch (e) {
     // Ein Fehler beim EBM-Download darf den Build nicht stoppen; die übrigen Verzeichnisse sind dann schon da.
     console.error("Amtliche Leistungen: Import unvollständig:", e instanceof Error ? e.message : e);
