@@ -486,3 +486,195 @@ Telemonitoring | Telemonitoring | Herz Telemonitoring | Fernüberwachung chronis
 Pharmazeutische Dienstleistungen | pDL (Medikationsberatung, Blutdruckmessung) | Apotheke Blutdruck, Medikationsberatung | Beratungsleistungen der Apotheke. | GKV | N | 0
 Impfen in der Apotheke | Apothekenimpfung | Grippeimpfung Apotheke | Grippe- und Corona-Impfung in der Apotheke. | GKV | M | 0
 """, gebo="GKV / Privat")
+
+
+# =====================================================================
+# Ergänzung 07.11.2026 (Sorrida): fehlende Leistungen je Fachrichtung
+# (Abgleich mit den Fächern in Sorrida). Kostenangaben vorsichtig, Details
+# im Hinweis; fachlich gegenlesen lassen.
+# =====================================================================
+
+F("Augenheilkunde", "Facharzt Augenheilkunde", """
+## Augen
+Gesichtsfeldmessung | Perimetrie | Gesichtsfeld, Gesichtsfeldausfall | Prüfung, wie weit Sie zur Seite sehen. | GKV | N | 0
+Augenhintergrund-Untersuchung | Funduskopie (mit Pupillenerweiterung) | Augenspiegelung, Netzhaut ansehen | Untersuchung der Netzhaut, etwa bei Diabetes. | GKV | N | 0 | Nach Pupillenerweiterung einige Stunden nicht Auto fahren.
+Netzhaut-Laser | Laserkoagulation der Netzhaut | Netzhautloch, Netzhautriss Laser | Laser gegen Netzhautrisse oder Gefäßneubildungen. | GKV | M | 0
+Nachstar-Behandlung | YAG-Laser-Kapsulotomie | Nachstar, wieder schlechter sehen nach Grauer Star OP | Laser bei Eintrübung nach einer Grauen-Star-OP. | GKV | M | 0
+Hornhaut-Vernetzung | Corneales Crosslinking | Keratokonus, Hornhautverkrümmung | Stabilisierung der Hornhaut bei Keratokonus. | IND | M | 2
+Sehtest für den Führerschein (Augenarzt) | Augenärztliches Gutachten Fahrerlaubnis | Sehtest Führerschein Augenarzt, LKW Augen | Bescheinigung über das Sehvermögen. | SZ | N | 0
+""")
+
+F("Dermatologie (medizinisch)", "Facharzt Dermatologie", """
+## Haut
+Starkes Schwitzen | Hyperhidrose-Behandlung | Schwitzen, Leitungswasser-Iontophorese, Achselschweiß | Behandlung von übermäßigem Schwitzen. | IND | N | 0 | Leitungswasser-Iontophorese oft Kassenleistung, Botulinum meist Selbstzahler.
+Vorstufen von hellem Hautkrebs | Behandlung aktinischer Keratosen (Kryo, PDT, Creme) | aktinische Keratose, Lichtschaden | Behandlung rauer, lichtgeschädigter Hautstellen. | IND | M | 1
+Chronische Wunden | Behandlung chronischer Wunden | offenes Bein, Ulcus cruris | Versorgung schlecht heilender Wunden. | GKV | M | 0
+Gefäßlaser | Lasertherapie von Gefäßveränderungen | Feuermal, Besenreiser Gesicht, Couperose | Laser bei erweiterten Äderchen. | IND | M | 1 | Kasse vor allem bei Feuermalen; kosmetische Gründe zahlen Sie selbst.
+""")
+
+F("Kinder- & Jugendmedizin", "Facharzt Kinder- und Jugendmedizin", """
+## Kinderheilkunde
+Asthma bei Kindern | Asthmatherapie im Kindesalter | Kinder Asthma, pfeifende Atmung | Diagnose, Einstellung und Schulung. | GKV | N | 0
+ADHS bei Kindern | ADHS-Diagnostik und -Therapie im Kindesalter | ADHS Kind, Zappelphilipp, Konzentration Schule | Abklärung und Behandlung von ADHS. | GKV | N | 0
+Übergewicht bei Kindern | Adipositastherapie im Kindesalter | dickes Kind, Gewicht Kind | Beratung und Programme für Familien. | IND | N | 0
+Bettnässen | Enuresis-Behandlung | Bettnässen, Einnässen | Abklärung und Behandlung. | GKV | N | 0
+Kinder-Herzuntersuchung | Kinderkardiologische Untersuchung | Herzgeräusch Kind, Herz Ultraschall Kind | Ultraschall und EKG des Kinderherzens. | GKV | N | 0
+""")
+
+F("Urologie & Andrologie", "Facharzt Urologie", """
+## Urologie
+Prostatakrebs-Behandlung | Radikale Prostatektomie / Strahlentherapie bei Prostatakarzinom | Prostatakrebs OP, Prostata entfernen | Behandlung von Prostatakrebs. | GKV | O | 4 | Bei lokal begrenztem Prostatakarzinom Anspruch auf Zweitmeinung (§ 27b SGB V).
+Harnröhrenverengung | Urethrotomie / Harnröhrenplastik | schwacher Harnstrahl, Harnröhrenstriktur | Erweiterung einer verengten Harnröhre. | GKV | O | 2
+Botox in die Blase | Botulinumtoxin-Injektion in die Harnblase | überaktive Blase, Dranginkontinenz | Spritzen in die Blasenwand bei Reizblase. | GKV | M | 0
+Kinderurologie | Kinderurologische Eingriffe | Hodenhochstand, Vorhautverengung Kind | Behandlung urologischer Probleme bei Kindern. | GKV | O | 2
+Magnetstimulation des Beckenbodens | Extrakorporale Magnetstimulation | Beckenbodenstuhl, Magnetstuhl | Training der Beckenbodenmuskulatur im Sitzen. | SZ | N | 0
+""")
+
+F("HNO (Hals-Nasen-Ohren)", "Facharzt HNO-Heilkunde", """
+## HNO
+Hörsturz-Behandlung | Therapie des Hörsturzes | Hörsturz, plötzlich taub | Rasche Behandlung bei plötzlichem Hörverlust. | GKV | N | 0
+Riech- und Schmeckstörung | Diagnostik von Riech- und Schmeckstörungen | nichts riechen, Geruchsverlust | Abklärung und Riechtraining. | GKV | N | 0
+Nasenbluten-Behandlung | Verödung bei Nasenbluten | häufiges Nasenbluten | Verödung blutender Gefäße in der Nase. | GKV | M | 0
+Gleichgewichtsprüfung | Vestibularisdiagnostik | Drehschwindel, Gleichgewicht Ohr | Prüfung des Gleichgewichtsorgans. | GKV | N | 0
+Cochlea-Implantat | Cochlea-Implantation | Innenohr Implantat, taub | Hörimplantat bei hochgradiger Schwerhörigkeit. | GKV | O | 4
+""")
+
+F("Neurologie", "Facharzt Neurologie", """
+## Neurologie
+Restless Legs | Behandlung des Restless-Legs-Syndroms | unruhige Beine, Kribbeln Beine nachts | Behandlung unruhiger Beine. | GKV | N | 0
+Polyneuropathie | Polyneuropathie-Diagnostik | Kribbeln Füße, taube Füße | Abklärung von Nervenschäden an Händen und Füßen. | GKV | N | 0
+Botulinumtoxin bei Spastik und Dystonie | Botulinumtoxin-Therapie (neurologisch) | Spastik, Schiefhals, Lidkrampf | Spritzen gegen Muskelverkrampfungen. | GKV | M | 0
+""")
+
+F("Innere Medizin", "Facharzt Innere Medizin / Diabetologie", """
+## Endokrinologie & Diabetologie
+Glukosesensor | Kontinuierliche Glukosemessung (CGM) | Zuckersensor, Sensor am Arm | Ein Sensor misst den Zucker laufend. | IND | N | 0 | Kasse bei intensivierter Insulintherapie.
+Diabetes-Schulung | Strukturierte Diabetesschulung | Diabetes Kurs, Schulung Insulin | Kurs zum Umgang mit Diabetes. | GKV | N | 0
+""")
+
+F("Therapieberufe (Heilmittel)", "Physiotherapeut / Ergotherapeut / Logopäde / Podologe", """
+## Physiotherapie
+Atemtherapie | Atemtherapie (Physiotherapie) | Atemgymnastik, COPD Physio | Übungen für leichteres Atmen. | GKV_EA | N | 0
+Kiefergelenk-Physiotherapie | Physiotherapie bei CMD | Kiefer, Zähneknirschen, CMD | Behandlung von Kiefergelenk und Kaumuskeln. | GKV_EA | N | 0 | Verordnung auch durch Zahnärzte.
+Physiotherapie als Hausbesuch | Physiotherapie im Hausbesuch | Physio zu Hause | Behandlung zu Hause, wenn der Weg nicht möglich ist. | GKV_EA | N | 0
+## Ergotherapie
+Hirnleistungstraining | Hirnleistungstraining (Ergotherapie) | Gedächtnistraining, Konzentrationstraining | Training nach Schlaganfall oder bei Demenz. | GKV_EA | N | 0
+Sensorische Integration | Ergotherapie bei Kindern (Sensorische Integration) | Ergo Kind, Wahrnehmung | Förderung von Wahrnehmung und Bewegung bei Kindern. | GKV_EA | N | 0
+## Logopädie
+Stimmtraining für Sprechberufe | Stimmbildung / Stimmtraining | Stimme Lehrer, Sprechtraining | Training für eine belastbare Stimme. | SZ | N | 0
+Myofunktionelle Therapie | Myofunktionelle Therapie | Zungenfehlstellung, Lispeln, offener Mund | Training von Zunge und Mundmuskulatur. | GKV_EA | N | 0
+## Podologie
+Hühneraugen und Hornhaut | Entfernung von Hühneraugen und Schwielen | Hühnerauge, Hornhaut | Schonende Entfernung, ohne Verordnung. | SZ | N | 0
+Nagelprothetik | Nagelprothetik | Nagel aufbauen, Nagelersatz | Kunstnagel nach Nagelverlust oder Pilz. | SZ | N | 0
+Kosmetische Fußpflege | Fußpflege ohne Verordnung | Fußpflege, Pediküre | Pflege von Nägeln und Haut. | SZ | N | 0
+""", gebo="Heilmittel-Richtlinie (GKV) / Privat")
+
+F("Hebammenhilfe", "Hebamme", """
+## Hebamme
+Hilfe bei Beschwerden in der Schwangerschaft | Hebammenhilfe bei Schwangerschaftsbeschwerden | Übelkeit Schwangerschaft, Wehen, Rückenschmerzen Schwangerschaft | Beratung und Hilfe durch die Hebamme. | GKV | N | 0
+Hausgeburt oder Geburtshaus | Außerklinische Geburtshilfe | Hausgeburt, Geburtshaus | Geburt mit Hebamme außerhalb der Klinik. | GKV_EA | N | 1 | Die Rufbereitschaft zahlen Eltern oft selbst; manche Kassen erstatten sie.
+Beleggeburt | Geburt mit Beleghebamme | Beleghebamme, eigene Hebamme Klinik | Ihre Hebamme begleitet Sie in der Klinik. | GKV_EA | N | 1 | Rufbereitschaft oft privat.
+Babymassage und Babykurse | Kurse für Eltern mit Säugling | Babymassage, Babykurs | Kurse im ersten Lebensjahr. | SZ | N | 0
+Akupunktur zur Geburtsvorbereitung | Geburtsvorbereitende Akupunktur | Akupunktur Schwangerschaft | Nadeln in den letzten Schwangerschaftswochen. | SZ | M | 0
+""", gebo="Hebammenhilfevertrag (GKV) / Privat")
+
+F("Pflege", "Pflegedienst / Pflegeeinrichtung", """
+## Pflege
+Verhinderungspflege | Verhinderungspflege (§ 39 SGB XI) | Ersatzpflege, Urlaub pflegende Angehörige | Vertretung, wenn Angehörige verhindert sind. | GKV | N | 0 | Ab Pflegegrad 2; gemeinsamer Jahresbetrag mit der Kurzzeitpflege.
+Entlastungsbetrag | Angebote zur Unterstützung im Alltag (§ 45b SGB XI) | Haushaltshilfe, Betreuung, Alltagsbegleitung | Betreuung und Hilfe im Haushalt. | GKV | N | 0 | 131 € im Monat ab Pflegegrad 1.
+Beratungsbesuch für Pflegegeld | Beratungseinsatz (§ 37 Abs. 3 SGB XI) | Pflichtberatung Pflegegeld | Pflichtbesuch für Pflegegeldbezieher. | GKV | N | 0 | Pflegegrad 2 und 3 halbjährlich, 4 und 5 vierteljährlich.
+Hausnotruf | Hausnotrufsystem | Notrufknopf, Notrufarmband | Hilfe per Knopfdruck. | GKV_EA | N | 0 | Die Pflegekasse zahlt einen Zuschuss ab Pflegegrad 1.
+Wohnraumanpassung | Wohnumfeldverbessernde Maßnahmen (§ 40 Abs. 4 SGB XI) | Badumbau, Treppenlift, Türen verbreitern | Umbauten für die Pflege zu Hause. | GKV_EA | N | 0 | Zuschuss je Maßnahme.
+Pflegehilfsmittel zum Verbrauch | Pflegehilfsmittel nach § 40 SGB XI | Handschuhe, Desinfektion, Bettschutz | Monatliche Versorgung für die Pflege zu Hause. | GKV | N | 0 | Bis 42 € im Monat ab Pflegegrad 1.
+24-Stunden-Betreuung | Betreuung im Haushalt rund um die Uhr | 24h Pflege, Betreuungskraft | Eine Betreuungskraft lebt im Haushalt. | SZ | N | 0
+""", gebo="Pflegeversicherung (SGB XI) / SGB V")
+
+F("Digitale Gesundheit & Apotheke", "Apotheke", """
+## Apotheke
+Medikationsberatung bei vielen Arzneimitteln | Erweiterte Medikationsberatung bei Polymedikation (pDL) | Wechselwirkungen prüfen, fünf Medikamente | Prüfung aller Dauermedikamente auf Wechselwirkungen und Doppelungen. | GKV | N | 0 | Ab fünf Dauermedikamenten, in der Regel einmal in zwölf Monaten.
+Blutdruckmessung in der Apotheke | Standardisierte Risikoerfassung hoher Blutdruck (pDL) | Blutdruck messen Apotheke | Messung nach Standard bei Blutdruckmedikamenten. | GKV | N | 0
+Inhalationsschulung | Erweiterte Einweisung in die korrekte Arzneimittelanwendung mit Übung der Inhalationstechnik (pDL) | Asthmaspray richtig anwenden, Inhalator | Üben mit dem Inhalator bei Asthma oder COPD. | GKV | N | 0
+Betreuung nach Organtransplantation | Pharmazeutische Betreuung von Organtransplantierten (pDL) | Transplantation Medikamente | Medikationsberatung nach einer Transplantation. | GKV | N | 0
+Betreuung bei Krebstherapie mit Tabletten | Pharmazeutische Betreuung bei oraler Antitumortherapie (pDL) | Krebs Tabletten Beratung | Begleitung bei Krebstherapie zum Einnehmen. | GKV | N | 0
+Arzneimittel auf Rezept | Abgabe verschreibungspflichtiger Arzneimittel | Rezept einlösen, Medikamente holen | Abgabe mit Beratung. | GKV_EA | N | 0 | Zuzahlung 10 %, mindestens 5 €, höchstens 10 € je Mittel.
+Rezeptfreie Arzneimittel | Beratung in der Selbstmedikation | rezeptfrei, Erkältungsmittel, Schmerzmittel | Beratung und Verkauf ohne Rezept. | SZ | N | 0
+Botendienst | Arzneimittel-Botendienst | Lieferung nach Hause, Medikamente bringen | Lieferung von Arzneimitteln nach Hause. | GKV | N | 0 | Für Rezeptarzneimittel trägt die Kasse die Botendienstpauschale; für Rezeptfreies kann eine Gebühr anfallen.
+Wochenblister | Patientenindividuelle Verblisterung | Tablettenbox, Medikamente stellen | Arzneimittel nach Einnahmezeit verpackt. | SZ | N | 0
+Kompressionsstrümpfe anmessen | Maßnehmen für medizinische Kompressionsstrümpfe | Stützstrümpfe Apotheke | Messen und Anpassen auf Rezept. | GKV_EA | N | 0
+Blutzucker- und Cholesterintest | Gesundheitscheck in der Apotheke | Blutzucker messen, Cholesterin Schnelltest | Schnelltest aus einem Tropfen Blut. | SZ | N | 0
+Rezepturen | Herstellung individueller Rezepturen | Salbe anrühren, Kapseln herstellen | Arzneimittel nach ärztlicher Verordnung hergestellt. | GKV_EA | N | 0
+""", gebo="Arzneimittelpreisverordnung / pDL-Vereinbarung / Privat")
+
+F("Hilfsmittel & Gesundheitshandwerk", "Augenoptiker/in", """
+## Augenoptik
+Sehtest beim Optiker | Augenglasbestimmung | Sehtest, Sehstärke messen | Bestimmung der Sehstärke für Brille oder Kontaktlinsen. | SZ | N | 0 | Ersetzt keine augenärztliche Untersuchung.
+Kinderbrille | Brillengläser bis 18 Jahre | Brille Kind | Gläser für Kinder und Jugendliche. | GKV_EA | N | 0 | Kasse zahlt Gläser bis 18 Jahre bis zum Festbetrag; die Fassung zahlen Sie selbst.
+Kontaktlinsenanpassung | Anpassung von Kontaktlinsen | Linsen anpassen, Probelinsen | Ausmessen, Probetragen und Kontrolle. | SZ | N | 0 | Kasse nur bei bestimmten Augenerkrankungen.
+Sportbrille und Schutzbrille | Sport- und Arbeitsschutzbrille mit Sehstärke | Sportbrille, Schutzbrille | Brille für Sport oder Beruf. | SZ | N | 0 | Arbeitsschutzbrillen zahlt oft der Arbeitgeber.
+Vergrößernde Sehhilfen | Versorgung mit vergrößernden Sehhilfen | Lupe, Lupenbrille, Bildschirmlesegerät | Hilfen bei starker Sehschwäche. | GKV_EA | N | 0
+""", gebo="Hilfsmittelverzeichnis (GKV) / Privat")
+
+F("Hilfsmittel & Gesundheitshandwerk", "Hörakustiker/in", """
+## Hörakustik
+Hörtest beim Hörakustiker | Ton- und Sprachaudiometrie | Hörtest kostenlos | Hörtest ohne Rezept. | SZ | N | 0 | Für eine Versorgung über die Kasse braucht es eine ärztliche Verordnung.
+Gehörschutz nach Maß | Individueller Gehörschutz (Otoplastik) | Musiker Gehörschutz, Schlafen, Lärm | Angepasster Schutz aus einem Ohrabdruck. | SZ | N | 0
+Tinnitus-Versorgung | Hörsystem mit Rauschgenerator | Tinnitus Gerät, Noiser | Geräte gegen Ohrgeräusche. | GKV_EA | N | 0
+Hörgeräte-Service | Nachsorge und Reparatur von Hörsystemen | Hörgerät reparieren, reinigen | Reinigung, Kontrolle und Reparatur. | GKV | N | 0 | Bei Kassenversorgung meist in der Versorgungspauschale enthalten.
+""", gebo="Hilfsmittelverzeichnis (GKV) / Privat")
+
+F("Hilfsmittel & Gesundheitshandwerk", "Sanitätshaus / Orthopädietechnik", """
+## Sanitätshaus
+Bandagen | Bandagenversorgung | Kniebandage, Sprunggelenk Bandage | Stützende Bandagen auf Rezept. | GKV_EA | N | 0
+Pflegebett | Pflegebett für zu Hause | Pflegebett mieten | Pflegebett, meist leihweise. | GKV | N | 0 | Kostenträger je nach Fall Kranken- oder Pflegekasse.
+Brustprothetik | Brustprothesen und Spezial-BH | Brustprothese nach Krebs | Versorgung nach einer Brustoperation. | GKV_EA | N | 0
+Stomaversorgung | Stoma-Hilfsmittel | Stoma, künstlicher Darmausgang | Beutel, Platten und Beratung. | GKV_EA | N | 0
+Inkontinenzhilfen | Aufsaugende Inkontinenzhilfsmittel | Inkontinenzeinlagen, Windeln Erwachsene | Versorgung bei Blasenschwäche. | GKV_EA | N | 0
+Milchpumpe | Elektrische Milchpumpe (Miete) | Milchpumpe leihen | Milchpumpe auf Rezept. | GKV | N | 0
+Hilfen für Bad und Wohnung | Hilfsmittel für Bad und Toilette | Badewannenlift, Toilettensitzerhöhung, Duschhocker | Hilfen für einen sicheren Alltag. | GKV_EA | N | 0
+""", gebo="Hilfsmittelverzeichnis (GKV) / Privat")
+
+F("Naturheilkunde & Komplementärmedizin", "Heilpraktiker / Arzt mit Zusatzbezeichnung", """
+## Komplementär
+Erstgespräch beim Heilpraktiker | Ausführliche Anamnese | Heilpraktiker Termin | Ausführliches Gespräch und Untersuchung. | SZ | N | 0 | Private Zusatzversicherungen erstatten teilweise.
+Fußreflexzonenmassage | Reflexzonentherapie am Fuß | Reflexzonen | Massage bestimmter Zonen am Fuß. | SZ | N | 0 | Wirksamkeit wissenschaftlich nicht belegt – keine Heilversprechen.
+Craniosacrale Behandlung | Craniosacrale Therapie | Cranio, sanfte Osteopathie | Sanfte manuelle Behandlung an Kopf und Rücken. | SZ | N | 0 | Wirksamkeit wissenschaftlich nicht belegt – keine Heilversprechen.
+""")
+
+F("Krankenhaus & Wahlleistungen", "Krankenhaus", """
+## Krankenhaus
+Stationäre Behandlung | Krankenhausbehandlung | Krankenhaus, stationär, Aufnahme | Behandlung mit Übernachtung im Krankenhaus. | GKV_EA | N | 0 | Zuzahlung 10 € pro Tag, höchstens 28 Tage im Kalenderjahr.
+Ambulante Operation im Krankenhaus | Ambulantes Operieren im Krankenhaus | ambulante OP Klinik | Eingriff ohne Übernachtung. | GKV | O | 1
+Übergangspflege | Übergangspflege im Krankenhaus | Pflege nach dem Krankenhaus | Pflege in der Klinik, wenn sie zu Hause noch nicht möglich ist. | GKV | N | 0
+## Wahlleistungen
+Einbettzimmer | Wahlleistung Unterkunft (Einbettzimmer) | Einzelzimmer Krankenhaus | Eigenes Zimmer gegen Aufpreis. | PKV | N | 0 | Zahlen viele private Zusatzversicherungen.
+Zweibettzimmer | Wahlleistung Unterkunft (Zweibettzimmer) | Doppelzimmer Krankenhaus | Zimmer mit höchstens einer weiteren Person. | PKV | N | 0
+Chefarztbehandlung | Wahlärztliche Leistungen | Chefarzt, Privatbehandlung Krankenhaus | Behandlung durch die Chefärztin oder den Chefarzt. | PKV | N | 0 | Abrechnung nach GOÄ; vorher schriftlich vereinbaren.
+Begleitperson | Mitaufnahme einer Begleitperson | Rooming-in, Eltern im Krankenhaus | Eine Begleitperson übernachtet mit. | IND | N | 0 | Kasse zahlt, wenn medizinisch nötig, etwa bei kleinen Kindern.
+""", gebo="DRG / Wahlleistungsvereinbarung (GOÄ)")
+
+F("Therapieberufe (Heilmittel)", "Ergotherapeut / Logopäde / Podologe", """
+## Ergotherapie
+Motorisch-funktionelle Ergotherapie | Motorisch-funktionelle Behandlung | Feinmotorik, Beweglichkeit Hände | Training von Bewegung und Geschicklichkeit im Alltag. | GKV_EA | N | 0
+Psychisch-funktionelle Ergotherapie | Psychisch-funktionelle Behandlung | Ergotherapie Depression, Tagesstruktur | Hilfe bei Antrieb, Tagesstruktur und Belastbarkeit. | GKV_EA | N | 0
+Ergotherapie als Hausbesuch | Ergotherapie im Hausbesuch | Ergo zu Hause | Behandlung zu Hause, wenn der Weg nicht möglich ist. | GKV_EA | N | 0
+## Logopädie
+Stottertherapie | Redeflusstherapie | Stottern, Poltern | Therapie bei Stottern und Poltern. | GKV_EA | N | 0
+Aphasietherapie | Sprachtherapie nach Schlaganfall | Aphasie, Sprache nach Schlaganfall | Wiedererlernen von Sprechen und Verstehen. | GKV_EA | N | 0
+Stimmtherapie | Therapie bei Stimmstörungen | Heiserkeit, Stimmstörung | Therapie bei kranker oder überlasteter Stimme auf Rezept. | GKV_EA | N | 0
+Logopädie als Hausbesuch | Logopädie im Hausbesuch | Logopädie zu Hause | Behandlung zu Hause, wenn der Weg nicht möglich ist. | GKV_EA | N | 0
+## Podologie
+Podologie bei Nervenschäden | Podologische Therapie bei Neuropathie oder Querschnittsyndrom | Fußpflege Neuropathie, gefühllose Füße | Fußbehandlung auf Rezept bei Nervenschäden. | GKV_EA | N | 0
+Druckentlastung am Fuß | Orthesen aus Silikon (Druckschutz) | Zehenkorrektur, Druckstelle Zeh | Angepasste Polster gegen Druckstellen. | SZ | N | 0
+""", gebo="Heilmittel-Richtlinie (GKV) / Privat")
+
+F("Hilfsmittel & Gesundheitshandwerk", "Augenoptiker/in", """
+## Augenoptik
+Bildschirmarbeitsplatzbrille | Bildschirmarbeitsplatzbrille | Computerbrille, Büro Brille | Brille für den Abstand zum Bildschirm. | SZ | N | 0 | Bei ärztlicher Bescheinigung zahlt oft der Arbeitgeber.
+Brillen-Service | Anpassung und Reparatur von Brillen | Brille richten, Brille reparieren | Nachanpassen, Reinigen und kleine Reparaturen. | SZ | N | 0
+""", gebo="Hilfsmittelverzeichnis (GKV) / Privat")
+
+F("Hilfsmittel & Gesundheitshandwerk", "Hörakustiker/in", """
+## Hörakustik
+Hörgeräte für Kinder | Kinderhörsystem-Versorgung (Pädakustik) | Hörgerät Kind | Hörversorgung für Kinder und Jugendliche. | GKV | N | 0
+Hörgeräte-Zubehör | Zubehör für Hörsysteme | Akkus, Batterien, Streamer, Ladegerät | Batterien, Akkus und Verbindungszubehör. | SZ | N | 0
+""", gebo="Hilfsmittelverzeichnis (GKV) / Privat")

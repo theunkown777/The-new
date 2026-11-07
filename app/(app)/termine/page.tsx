@@ -7,6 +7,8 @@ import {
 } from "@/lib/termine";
 import { TerminAktionen } from "@/components/TerminAktionen";
 import { TerminNeu } from "@/components/TerminNeu";
+import { leistungenFuerFach } from "@/lib/leistungskatalog";
+import { fachprofil } from "@/lib/fachprofile";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Termine" };
@@ -110,7 +112,11 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
           ))}
         </div>
         <div className="space-y-4">
-          <TerminNeu tag={tag} standorte={standorte.map((s) => ({ id: s.id, name: s.name }))} />
+          <TerminNeu
+            tag={tag}
+            standorte={standorte.map((s) => ({ id: s.id, name: s.name }))}
+            anlaesse={Array.from(new Set([...fachprofil(practice?.specialty ?? "zahn").termine, ...leistungenFuerFach(practice?.specialty ?? "zahn").map((l) => l.name)]))}
+          />
           <p className="text-xs leading-relaxed text-slate-500">
             Termine werden hier eingetragen und noch nicht aus Ihrer Praxissoftware übernommen. Bestätigungen und Erinnerungen kopieren Sie als Text in SMS,
             Messenger oder Mail; Sorrida verschickt sie noch nicht selbst.

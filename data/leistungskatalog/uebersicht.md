@@ -92,7 +92,7 @@
 
 **Reisemedizin:** Reisemedizinische Beratung, Reiseimpfungen, Malariaprophylaxe, Tauchtauglichkeit, Höhen- und Flugtauglichkeit
 
-### Innere Medizin (37)
+### Innere Medizin (39)
 
 **Kardiologie (Herz):** Herzultraschall, Belastungs-EKG, Langzeit-EKG, Herzkatheter, Herzschrittmacher, Behandlung von Herzrhythmusstörungen, Bluthochdruck-Behandlung, Herzinsuffizienz-Betreuung
 
@@ -100,7 +100,7 @@
 
 **Pneumologie (Lunge):** Große Lungenfunktion, Allergie- & Asthma-Behandlung, Schlaflabor, CPAP-Therapie, Lungenspiegelung
 
-**Endokrinologie & Diabetologie:** Diabetes-Behandlung, Schilddrüsen-Sprechstunde, Hormonsprechstunde, Osteoporose-Diagnostik, Medikamentöse Adipositastherapie
+**Endokrinologie & Diabetologie:** Diabetes-Behandlung, Schilddrüsen-Sprechstunde, Hormonsprechstunde, Osteoporose-Diagnostik, Medikamentöse Adipositastherapie, Glukosesensor, Diabetes-Schulung
 
 **Nephrologie (Niere):** Nierensprechstunde, Dialyse
 
@@ -120,9 +120,9 @@
 
 **Kinderwunsch:** Kinderwunsch-Beratung, Insemination, Künstliche Befruchtung, Eizellen einfrieren
 
-### Urologie & Andrologie (12)
+### Urologie & Andrologie (17)
 
-**Urologie:** Urologische Vorsorge, Blasenspiegelung, Nierensteine, Behandlung vergrößerter Prostata, Blasenschwäche, Blasenentzündung
+**Urologie:** Urologische Vorsorge, Blasenspiegelung, Nierensteine, Behandlung vergrößerter Prostata, Blasenschwäche, Blasenentzündung, Prostatakrebs-Behandlung, Harnröhrenverengung, Botox in die Blase, Kinderurologie, Magnetstimulation des Beckenbodens
 
 **Andrologie (Männergesundheit):** Erektionsstörungen, Stoßwellentherapie bei Erektionsstörung, Testosteron-Check, Spermiogramm, Sterilisation beim Mann, Beschneidung
 
@@ -146,29 +146,29 @@
 
 **Neurochirurgie & Herzchirurgie:** Neurochirurgische Eingriffe, Herzoperation
 
-### Neurologie (10)
+### Neurologie (13)
 
-**Neurologie:** Neurologische Untersuchung, Kopfschmerz- und Migränesprechstunde, Nervenleitungsmessung, Hirnstrommessung, Schwindel-Abklärung, Gedächtnissprechstunde, Schlaganfall-Nachsorge, MS-Sprechstunde, Parkinson-Sprechstunde, Epilepsie-Behandlung
+**Neurologie:** Neurologische Untersuchung, Kopfschmerz- und Migränesprechstunde, Nervenleitungsmessung, Hirnstrommessung, Schwindel-Abklärung, Gedächtnissprechstunde, Schlaganfall-Nachsorge, MS-Sprechstunde, Parkinson-Sprechstunde, Epilepsie-Behandlung, Restless Legs, Polyneuropathie, Botulinumtoxin bei Spastik und Dystonie
 
 ### Psychiatrie, Psychotherapie & Psychosomatik (16)
 
 **Psychische Gesundheit:** Psychotherapeutische Sprechstunde, Verhaltenstherapie, Tiefenpsychologische Therapie, Analytische Psychotherapie, Systemische Therapie, Paartherapie, Psychiatrische Behandlung, ADHS-Diagnostik, Autismus-Diagnostik, Burnout & Stress, Suchtbehandlung, Traumatherapie, Akute psychische Krise, Online-Psychotherapie, Psychosomatische Behandlung, Coaching / psychologische Beratung
 
-### Kinder- & Jugendmedizin (7)
+### Kinder- & Jugendmedizin (12)
 
-**Kinderheilkunde:** Kinderarzt-Sprechstunde, Neugeborenen-Screening, Hüftultraschall Baby, Entwicklungsdiagnostik, Kinderallergologie, Jugendgesundheit, Kinder- und Jugendpsychiatrie
+**Kinderheilkunde:** Kinderarzt-Sprechstunde, Neugeborenen-Screening, Hüftultraschall Baby, Entwicklungsdiagnostik, Kinderallergologie, Jugendgesundheit, Kinder- und Jugendpsychiatrie, Asthma bei Kindern, ADHS bei Kindern, Übergewicht bei Kindern, Bettnässen, Kinder-Herzuntersuchung
 
-### HNO (Hals-Nasen-Ohren) (12)
+### HNO (Hals-Nasen-Ohren) (17)
 
-**HNO:** HNO-Untersuchung, Hörtest, Hörgeräte-Versorgung, Tinnitus-Behandlung, Ohrenreinigung, Nasenscheidewand-OP, Nasennebenhöhlen-OP, Mandel-OP, Paukenröhrchen, Schnarch-Behandlung, Allergie-Behandlung HNO, Stimm- und Schluckstörungen
+**HNO:** HNO-Untersuchung, Hörtest, Hörgeräte-Versorgung, Tinnitus-Behandlung, Ohrenreinigung, Nasenscheidewand-OP, Nasennebenhöhlen-OP, Mandel-OP, Paukenröhrchen, Schnarch-Behandlung, Allergie-Behandlung HNO, Stimm- und Schluckstörungen, Hörsturz-Behandlung, Riech- und Schmeckstörung, Nasenbluten-Behandlung, Gleichgewichtsprüfung, Cochlea-Implantat
 
-### Augenheilkunde (9)
+### Augenheilkunde (15)
 
-**Augen:** Augenuntersuchung, Brillen- / Kontaktlinsenverordnung, Grauer Star OP, Grüner Star Behandlung, Makula-Behandlung, Netzhaut-Untersuchung (OCT), Trockene Augen, Schielbehandlung, Augen-Lid-Operationen
+**Augen:** Augenuntersuchung, Brillen- / Kontaktlinsenverordnung, Grauer Star OP, Grüner Star Behandlung, Makula-Behandlung, Netzhaut-Untersuchung (OCT), Trockene Augen, Schielbehandlung, Augen-Lid-Operationen, Gesichtsfeldmessung, Augenhintergrund-Untersuchung, Netzhaut-Laser, Nachstar-Behandlung, Hornhaut-Vernetzung, Sehtest für den Führerschein (Augenarzt)
 
-### Dermatologie (medizinisch) (11)
+### Dermatologie (medizinisch) (15)
 
-**Haut:** Hautarzt-Sprechstunde, Muttermal-Check mit Auflichtmikroskop, Neurodermitis-Behandlung, Schuppenflechte-Behandlung, Lichttherapie, Allergietest Haut, Warzenbehandlung, Nagelpilz-Behandlung, Hautkrebs-Behandlung, Rosazea-Behandlung, Haarausfall-Diagnostik
+**Haut:** Hautarzt-Sprechstunde, Muttermal-Check mit Auflichtmikroskop, Neurodermitis-Behandlung, Schuppenflechte-Behandlung, Lichttherapie, Allergietest Haut, Warzenbehandlung, Nagelpilz-Behandlung, Hautkrebs-Behandlung, Rosazea-Behandlung, Haarausfall-Diagnostik, Starkes Schwitzen, Vorstufen von hellem Hautkrebs, Chronische Wunden, Gefäßlaser
 
 ### Radiologie & Nuklearmedizin (12)
 
@@ -196,40 +196,122 @@
 
 **Arbeitsmedizin:** Arbeitsmedizinische Vorsorge, Einstellungsuntersuchung, Betriebliches Gesundheitsmanagement, Wiedereingliederung
 
-### Naturheilkunde & Komplementärmedizin (6)
+### Naturheilkunde & Komplementärmedizin (9)
 
-**Komplementär:** Akupunktur, Osteopathie, Chiropraktik / Manuelle Medizin, Homöopathie, Naturheilverfahren, Hypnosetherapie
+**Komplementär:** Akupunktur, Osteopathie, Chiropraktik / Manuelle Medizin, Homöopathie, Naturheilverfahren, Hypnosetherapie, Erstgespräch beim Heilpraktiker, Fußreflexzonenmassage, Craniosacrale Behandlung
 
-### Therapieberufe (Heilmittel) (17)
+### Therapieberufe (Heilmittel) (36)
 
-**Physiotherapie:** Krankengymnastik, Manuelle Therapie, Krankengymnastik am Gerät, Lymphdrainage, Massage, Neurologische Physiotherapie, Wärme- & Elektrotherapie, Beckenbodentraining, Sportphysiotherapie, Physiotherapie privat / Selbstzahler
+**Physiotherapie:** Krankengymnastik, Manuelle Therapie, Krankengymnastik am Gerät, Lymphdrainage, Massage, Neurologische Physiotherapie, Wärme- & Elektrotherapie, Beckenbodentraining, Sportphysiotherapie, Physiotherapie privat / Selbstzahler, Atemtherapie, Kiefergelenk-Physiotherapie, Physiotherapie als Hausbesuch
 
-**Ergotherapie:** Ergotherapie, Handtherapie
+**Ergotherapie:** Ergotherapie, Handtherapie, Hirnleistungstraining, Sensorische Integration, Motorisch-funktionelle Ergotherapie, Psychisch-funktionelle Ergotherapie, Ergotherapie als Hausbesuch
 
-**Logopädie:** Sprachtherapie, Schlucktherapie
+**Logopädie:** Sprachtherapie, Schlucktherapie, Stimmtraining für Sprechberufe, Myofunktionelle Therapie, Stottertherapie, Aphasietherapie, Stimmtherapie, Logopädie als Hausbesuch
 
-**Podologie:** Medizinische Fußpflege, Nagelkorrekturspange
+**Podologie:** Medizinische Fußpflege, Nagelkorrekturspange, Hühneraugen und Hornhaut, Nagelprothetik, Kosmetische Fußpflege, Podologie bei Nervenschäden, Druckentlastung am Fuß
 
 **Ernährung:** Ernährungsberatung
 
-### Hebammenhilfe (5)
+### Hebammenhilfe (10)
 
-**Hebamme:** Schwangerschaftsbetreuung Hebamme, Geburtsvorbereitungskurs, Wochenbettbetreuung, Rückbildungskurs, Stillberatung
+**Hebamme:** Schwangerschaftsbetreuung Hebamme, Geburtsvorbereitungskurs, Wochenbettbetreuung, Rückbildungskurs, Stillberatung, Hilfe bei Beschwerden in der Schwangerschaft, Hausgeburt oder Geburtshaus, Beleggeburt, Babymassage und Babykurse, Akupunktur zur Geburtsvorbereitung
 
 ### Rehabilitation & Kur (7)
 
 **Reha:** Anschlussheilbehandlung, Orthopädische Reha, Kardiologische Reha, Psychosomatische Reha, Mutter-/Vater-Kind-Kur, Ambulante Reha, Reha-Sport
 
-### Pflege (6)
+### Pflege (13)
 
-**Pflege:** Pflegegrad beantragen, Häusliche Krankenpflege, Ambulanter Pflegedienst, Tages- und Kurzzeitpflege, Pflegeheim, Pflegeberatung
+**Pflege:** Pflegegrad beantragen, Häusliche Krankenpflege, Ambulanter Pflegedienst, Tages- und Kurzzeitpflege, Pflegeheim, Pflegeberatung, Verhinderungspflege, Entlastungsbetrag, Beratungsbesuch für Pflegegeld, Hausnotruf, Wohnraumanpassung, Pflegehilfsmittel zum Verbrauch, 24-Stunden-Betreuung
 
-### Hilfsmittel & Gesundheitshandwerk (6)
+### Hilfsmittel & Gesundheitshandwerk (26)
 
 **Hilfsmittel:** Brillen & Kontaktlinsen, Hörgeräteanpassung, Orthopädische Einlagen & Schuhe, Prothesen & Orthesen, Kompressionsstrümpfe, Rollstuhl & Mobilitätshilfen
 
-### Digitale Gesundheit & Apotheke (7)
+### Digitale Gesundheit & Apotheke (19)
 
 **Digital:** Videosprechstunde, Gesundheits-Apps auf Rezept, E-Rezept, Elektronische Patientenakte, Telemonitoring
 
-**Apotheke:** Pharmazeutische Dienstleistungen, Impfen in der Apotheke
+**Apotheke:** Pharmazeutische Dienstleistungen, Impfen in der Apotheke, Medikationsberatung bei vielen Arzneimitteln, Blutdruckmessung in der Apotheke, Inhalationsschulung, Betreuung nach Organtransplantation, Betreuung bei Krebstherapie mit Tabletten, Arzneimittel auf Rezept, Rezeptfreie Arzneimittel, Botendienst, Wochenblister, Kompressionsstrümpfe anmessen, Blutzucker- und Cholesterintest, Rezepturen
+
+### Augenheilkunde (15)
+
+**Augen:** Augenuntersuchung, Brillen- / Kontaktlinsenverordnung, Grauer Star OP, Grüner Star Behandlung, Makula-Behandlung, Netzhaut-Untersuchung (OCT), Trockene Augen, Schielbehandlung, Augen-Lid-Operationen, Gesichtsfeldmessung, Augenhintergrund-Untersuchung, Netzhaut-Laser, Nachstar-Behandlung, Hornhaut-Vernetzung, Sehtest für den Führerschein (Augenarzt)
+
+### Dermatologie (medizinisch) (15)
+
+**Haut:** Hautarzt-Sprechstunde, Muttermal-Check mit Auflichtmikroskop, Neurodermitis-Behandlung, Schuppenflechte-Behandlung, Lichttherapie, Allergietest Haut, Warzenbehandlung, Nagelpilz-Behandlung, Hautkrebs-Behandlung, Rosazea-Behandlung, Haarausfall-Diagnostik, Starkes Schwitzen, Vorstufen von hellem Hautkrebs, Chronische Wunden, Gefäßlaser
+
+### Kinder- & Jugendmedizin (12)
+
+**Kinderheilkunde:** Kinderarzt-Sprechstunde, Neugeborenen-Screening, Hüftultraschall Baby, Entwicklungsdiagnostik, Kinderallergologie, Jugendgesundheit, Kinder- und Jugendpsychiatrie, Asthma bei Kindern, ADHS bei Kindern, Übergewicht bei Kindern, Bettnässen, Kinder-Herzuntersuchung
+
+### Urologie & Andrologie (17)
+
+**Urologie:** Urologische Vorsorge, Blasenspiegelung, Nierensteine, Behandlung vergrößerter Prostata, Blasenschwäche, Blasenentzündung, Prostatakrebs-Behandlung, Harnröhrenverengung, Botox in die Blase, Kinderurologie, Magnetstimulation des Beckenbodens
+
+### HNO (Hals-Nasen-Ohren) (17)
+
+**HNO:** HNO-Untersuchung, Hörtest, Hörgeräte-Versorgung, Tinnitus-Behandlung, Ohrenreinigung, Nasenscheidewand-OP, Nasennebenhöhlen-OP, Mandel-OP, Paukenröhrchen, Schnarch-Behandlung, Allergie-Behandlung HNO, Stimm- und Schluckstörungen, Hörsturz-Behandlung, Riech- und Schmeckstörung, Nasenbluten-Behandlung, Gleichgewichtsprüfung, Cochlea-Implantat
+
+### Neurologie (13)
+
+**Neurologie:** Neurologische Untersuchung, Kopfschmerz- und Migränesprechstunde, Nervenleitungsmessung, Hirnstrommessung, Schwindel-Abklärung, Gedächtnissprechstunde, Schlaganfall-Nachsorge, MS-Sprechstunde, Parkinson-Sprechstunde, Epilepsie-Behandlung, Restless Legs, Polyneuropathie, Botulinumtoxin bei Spastik und Dystonie
+
+### Innere Medizin (39)
+
+**Endokrinologie & Diabetologie:** Diabetes-Behandlung, Schilddrüsen-Sprechstunde, Hormonsprechstunde, Osteoporose-Diagnostik, Medikamentöse Adipositastherapie, Glukosesensor, Diabetes-Schulung
+
+### Therapieberufe (Heilmittel) (36)
+
+**Physiotherapie:** Krankengymnastik, Manuelle Therapie, Krankengymnastik am Gerät, Lymphdrainage, Massage, Neurologische Physiotherapie, Wärme- & Elektrotherapie, Beckenbodentraining, Sportphysiotherapie, Physiotherapie privat / Selbstzahler, Atemtherapie, Kiefergelenk-Physiotherapie, Physiotherapie als Hausbesuch
+
+**Ergotherapie:** Ergotherapie, Handtherapie, Hirnleistungstraining, Sensorische Integration, Motorisch-funktionelle Ergotherapie, Psychisch-funktionelle Ergotherapie, Ergotherapie als Hausbesuch
+
+**Logopädie:** Sprachtherapie, Schlucktherapie, Stimmtraining für Sprechberufe, Myofunktionelle Therapie, Stottertherapie, Aphasietherapie, Stimmtherapie, Logopädie als Hausbesuch
+
+**Podologie:** Medizinische Fußpflege, Nagelkorrekturspange, Hühneraugen und Hornhaut, Nagelprothetik, Kosmetische Fußpflege, Podologie bei Nervenschäden, Druckentlastung am Fuß
+
+### Hebammenhilfe (10)
+
+**Hebamme:** Schwangerschaftsbetreuung Hebamme, Geburtsvorbereitungskurs, Wochenbettbetreuung, Rückbildungskurs, Stillberatung, Hilfe bei Beschwerden in der Schwangerschaft, Hausgeburt oder Geburtshaus, Beleggeburt, Babymassage und Babykurse, Akupunktur zur Geburtsvorbereitung
+
+### Pflege (13)
+
+**Pflege:** Pflegegrad beantragen, Häusliche Krankenpflege, Ambulanter Pflegedienst, Tages- und Kurzzeitpflege, Pflegeheim, Pflegeberatung, Verhinderungspflege, Entlastungsbetrag, Beratungsbesuch für Pflegegeld, Hausnotruf, Wohnraumanpassung, Pflegehilfsmittel zum Verbrauch, 24-Stunden-Betreuung
+
+### Digitale Gesundheit & Apotheke (19)
+
+**Apotheke:** Pharmazeutische Dienstleistungen, Impfen in der Apotheke, Medikationsberatung bei vielen Arzneimitteln, Blutdruckmessung in der Apotheke, Inhalationsschulung, Betreuung nach Organtransplantation, Betreuung bei Krebstherapie mit Tabletten, Arzneimittel auf Rezept, Rezeptfreie Arzneimittel, Botendienst, Wochenblister, Kompressionsstrümpfe anmessen, Blutzucker- und Cholesterintest, Rezepturen
+
+### Hilfsmittel & Gesundheitshandwerk (26)
+
+**Augenoptik:** Sehtest beim Optiker, Kinderbrille, Kontaktlinsenanpassung, Sportbrille und Schutzbrille, Vergrößernde Sehhilfen, Bildschirmarbeitsplatzbrille, Brillen-Service
+
+**Hörakustik:** Hörtest beim Hörakustiker, Gehörschutz nach Maß, Tinnitus-Versorgung, Hörgeräte-Service, Hörgeräte für Kinder, Hörgeräte-Zubehör
+
+**Sanitätshaus:** Bandagen, Pflegebett, Brustprothetik, Stomaversorgung, Inkontinenzhilfen, Milchpumpe, Hilfen für Bad und Wohnung
+
+### Naturheilkunde & Komplementärmedizin (9)
+
+**Komplementär:** Akupunktur, Osteopathie, Chiropraktik / Manuelle Medizin, Homöopathie, Naturheilverfahren, Hypnosetherapie, Erstgespräch beim Heilpraktiker, Fußreflexzonenmassage, Craniosacrale Behandlung
+
+### Krankenhaus & Wahlleistungen (7)
+
+**Krankenhaus:** Stationäre Behandlung, Ambulante Operation im Krankenhaus, Übergangspflege
+
+**Wahlleistungen:** Einbettzimmer, Zweibettzimmer, Chefarztbehandlung, Begleitperson
+
+### Therapieberufe (Heilmittel) (36)
+
+**Ergotherapie:** Ergotherapie, Handtherapie, Hirnleistungstraining, Sensorische Integration, Motorisch-funktionelle Ergotherapie, Psychisch-funktionelle Ergotherapie, Ergotherapie als Hausbesuch
+
+**Logopädie:** Sprachtherapie, Schlucktherapie, Stimmtraining für Sprechberufe, Myofunktionelle Therapie, Stottertherapie, Aphasietherapie, Stimmtherapie, Logopädie als Hausbesuch
+
+**Podologie:** Medizinische Fußpflege, Nagelkorrekturspange, Hühneraugen und Hornhaut, Nagelprothetik, Kosmetische Fußpflege, Podologie bei Nervenschäden, Druckentlastung am Fuß
+
+### Hilfsmittel & Gesundheitshandwerk (26)
+
+**Augenoptik:** Sehtest beim Optiker, Kinderbrille, Kontaktlinsenanpassung, Sportbrille und Schutzbrille, Vergrößernde Sehhilfen, Bildschirmarbeitsplatzbrille, Brillen-Service
+
+**Hörakustik:** Hörtest beim Hörakustiker, Gehörschutz nach Maß, Tinnitus-Versorgung, Hörgeräte-Service, Hörgeräte für Kinder, Hörgeräte-Zubehör

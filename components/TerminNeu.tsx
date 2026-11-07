@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 type P = { id: string; firstName: string; lastName: string; birthDate: string | null };
 
-export function TerminNeu({ tag, standorte }: { tag: string; standorte: { id: string; name: string }[] }) {
+export function TerminNeu({ tag, standorte, anlaesse = [] }: { tag: string; standorte: { id: string; name: string }[]; anlaesse?: string[] }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [treffer, setTreffer] = useState<P[]>([]);
@@ -75,7 +75,12 @@ export function TerminNeu({ tag, standorte }: { tag: string; standorte: { id: st
           </select>
         </label>
       </div>
-      <input className="input w-full" placeholder="Anlass, z. B. Kontrolle, Füllung 36" value={reason} onChange={(e) => setReason(e.target.value)} aria-label="Anlass" data-testid="termin-anlass" />
+      <input className="input w-full" placeholder="Anlass, z. B. Kontrolle, Füllung 36" value={reason} onChange={(e) => setReason(e.target.value)} aria-label="Anlass" data-testid="termin-anlass" list="termin-anlaesse" />
+      <datalist id="termin-anlaesse">
+        {anlaesse.map((a) => (
+          <option key={a} value={a} />
+        ))}
+      </datalist>
       {standorte.length > 1 && (
         <select className="input w-full" value={locationId} onChange={(e) => setLocationId(e.target.value)} aria-label="Standort">
           {standorte.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}

@@ -195,41 +195,64 @@ export const INV_LABEL: Record<Leistung["invasivitaet"], string> = {
 /** Ausfallzeiten in fester Reihenfolge (für den Filter). */
 export const AUSFALLZEITEN = Object.values(KATALOG.meta.legende.ausfallzeit).filter((a) => LEISTUNGEN.some((l) => l.ausfallzeit === a));
 
-/** Welcher Katalog-Bereich gehört zu welchem Sorrida-Fach (Fachseiten verlinken dorthin). */
-export const FACH_BEREICH: Record<string, string[]> = {
+/**
+ * Welche Katalogleistungen gehören zu welchem Sorrida-Fach. Ein Eintrag ist
+ * ein Bereich ("Pflege"), eine Kategorie darin ("Innere Medizin › Kardiologie (Herz)")
+ * oder eine einzelne Leistung ("#id").
+ */
+export const FACH_LEISTUNGEN: Record<string, string[]> = {
   zahn: ["Zahnmedizin", "Ästhetische Zahnmedizin", "Kieferorthopädie", "Mund-, Kiefer- & Gesichtschirurgie"],
-  aesthetik: ["Ästhetische Medizin (minimal-invasiv)", "Plastische & Ästhetische Chirurgie", "Weitere Selbstzahler-Eingriffe"],
-  hausarzt: ["Allgemeinmedizin (Hausarzt)", "Vorsorge & Check-ups", "Impfungen & Reisemedizin"],
-  kardio: ["Innere Medizin"],
-  gastro: ["Innere Medizin"],
-  pneumo: ["Innere Medizin"],
-  endo: ["Innere Medizin"],
-  gyn: ["Gynäkologie & Geburtshilfe"],
-  uro: ["Urologie & Andrologie"],
-  ortho: ["Orthopädie & Unfallchirurgie", "Sportmedizin"],
-  chirurgie: ["Chirurgie"],
+  aesthetik: ["Ästhetische Medizin (minimal-invasiv)", "Plastische & Ästhetische Chirurgie", "Weitere Selbstzahler-Eingriffe › Kosmetik (nicht ärztlich)"],
+  hausarzt: ["Allgemeinmedizin (Hausarzt)", "Vorsorge & Check-ups", "Impfungen & Reisemedizin", "Geriatrie & Palliativmedizin › Altersmedizin", "Arbeits- & Betriebsmedizin", "Labor & Humangenetik"],
+  kardio: ["Innere Medizin › Kardiologie (Herz)", "Innere Medizin › Angiologie (Gefäße)", "#vorsorge-check-ups-herz-check", "#vorsorge-check-ups-bauchaorten-screening"],
+  gastro: ["Innere Medizin › Gastroenterologie (Magen-Darm)", "#vorsorge-check-ups-darmkrebs-vorsorge-stuhltest", "#vorsorge-check-ups-vorsorge-darmspiegelung", "#labor-humangenetik-unvertraeglichkeitstests"],
+  pneumo: ["Innere Medizin › Pneumologie (Lunge)", "#allgemeinmedizin-hausarzt-raucherentwoehnung", "#allgemeinmedizin-hausarzt-lungenfunktionstest"],
+  endo: ["Innere Medizin › Endokrinologie & Diabetologie", "Therapieberufe (Heilmittel) › Ernährung"],
+  gyn: ["Gynäkologie & Geburtshilfe", "#vorsorge-check-ups-gebaermutterhalskrebs-vorsorge", "#vorsorge-check-ups-mammographie-screening", "#vorsorge-check-ups-ultraschall-eierstoecke-gebaermutter", "#vorsorge-check-ups-ultraschall-der-brust", "#impfungen-reisemedizin-hpv-impfung"],
+  uro: ["Urologie & Andrologie", "#vorsorge-check-ups-prostatakrebs-vorsorge", "#vorsorge-check-ups-psa-test", "#radiologie-nuklearmedizin-prostata-mrt"],
+  ortho: ["Orthopädie & Unfallchirurgie", "Sportmedizin", "Schmerzmedizin & Anästhesie"],
+  chirurgie: ["Chirurgie", "Plastische & Ästhetische Chirurgie › Haut-Chirurgie"],
   neuro: ["Neurologie"],
   psych: ["Psychiatrie, Psychotherapie & Psychosomatik"],
-  kinder: ["Kinder- & Jugendmedizin"],
+  kinder: ["Kinder- & Jugendmedizin", "#vorsorge-check-ups-kinder-vorsorgeuntersuchungen", "#impfungen-reisemedizin-kinderimpfungen", "#impfungen-reisemedizin-hpv-impfung"],
   hno: ["HNO (Hals-Nasen-Ohren)"],
-  augen: ["Augenheilkunde"],
-  haut: ["Dermatologie (medizinisch)"],
-  radiologie: ["Radiologie & Nuklearmedizin"],
-  physio: ["Therapieberufe (Heilmittel)"],
-  ergo: ["Therapieberufe (Heilmittel)"],
-  logo: ["Therapieberufe (Heilmittel)"],
-  podo: ["Therapieberufe (Heilmittel)"],
+  augen: ["Augenheilkunde", "Weitere Selbstzahler-Eingriffe › Augen", "#vorsorge-check-ups-augeninnendruck-messung"],
+  haut: ["Dermatologie (medizinisch)", "Ästhetische Medizin (minimal-invasiv)", "#vorsorge-check-ups-hautkrebs-screening", "#plastische-aesthetische-chirurgie-muttermal-entfernen"],
+  radiologie: ["Radiologie & Nuklearmedizin", "#vorsorge-check-ups-mammographie-screening", "#vorsorge-check-ups-ganzkoerper-mrt"],
+  physio: ["Therapieberufe (Heilmittel) › Physiotherapie", "#rehabilitation-kur-reha-sport", "#naturheilkunde-komplementaermedizin-osteopathie"],
+  ergo: ["Therapieberufe (Heilmittel) › Ergotherapie"],
+  logo: ["Therapieberufe (Heilmittel) › Logopädie"],
+  podo: ["Therapieberufe (Heilmittel) › Podologie"],
   hebamme: ["Hebammenhilfe"],
-  pflege: ["Pflege"],
+  pflege: ["Pflege", "Geriatrie & Palliativmedizin › Palliativ"],
   apotheke: ["Digitale Gesundheit & Apotheke"],
-  optik: ["Hilfsmittel & Gesundheitshandwerk"],
-  hoerakustik: ["Hilfsmittel & Gesundheitshandwerk"],
-  sanitaetshaus: ["Hilfsmittel & Gesundheitshandwerk"],
+  optik: ["Hilfsmittel & Gesundheitshandwerk › Augenoptik", "#hilfsmittel-gesundheitshandwerk-brillen-kontaktlinsen"],
+  hoerakustik: ["Hilfsmittel & Gesundheitshandwerk › Hörakustik", "#hilfsmittel-gesundheitshandwerk-hoergeraeteanpassung"],
+  sanitaetshaus: [
+    "Hilfsmittel & Gesundheitshandwerk › Sanitätshaus",
+    "#hilfsmittel-gesundheitshandwerk-orthopaedische-einlagen-schuhe",
+    "#hilfsmittel-gesundheitshandwerk-prothesen-orthesen",
+    "#hilfsmittel-gesundheitshandwerk-kompressionsstruempfe",
+    "#hilfsmittel-gesundheitshandwerk-rollstuhl-mobilitaetshilfen",
+  ],
   heilpraktiker: ["Naturheilkunde & Komplementärmedizin"],
-  klinik: ["Rehabilitation & Kur"],
+  klinik: ["Krankenhaus & Wahlleistungen", "Rehabilitation & Kur"],
 };
 
-export const bereicheFuerFach = (fach: string) => (FACH_BEREICH[fach] ?? []).filter((b) => BEREICHE.includes(b));
+const passt = (eintrag: string, l: Leistung) => {
+  if (eintrag.startsWith("#")) return l.id === eintrag.slice(1);
+  const [bereich, kategorie] = eintrag.split(" › ");
+  return l.bereich === bereich && (!kategorie || l.kategorie === kategorie);
+};
+
+/** Alle Katalogleistungen eines Fachs, in Katalogreihenfolge. */
+export function leistungenFuerFach(fach: string): Leistung[] {
+  const e = FACH_LEISTUNGEN[fach] ?? [];
+  return LEISTUNGEN.filter((l) => e.some((x) => passt(x, l)));
+}
+
+/** Bereiche, die ein Fach (ganz oder teilweise) abdeckt; für Links auf /leistungen. */
+export const bereicheFuerFach = (fach: string) => Array.from(new Set(leistungenFuerFach(fach).map((l) => l.bereich)));
 
 // Von Hand geprüfte Zuordnung: Anlass im Vorschlag (fach:anlassId) → Katalog-Leistungen.
 // Bestehende Anlass-IDs, Vorschläge und Links bleiben unverändert; der Katalog

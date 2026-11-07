@@ -6,7 +6,7 @@ const erster = (q: string) => suchen(q)[0]?.id;
 describe("Leistungskatalog", () => {
   it("lädt, Meta stimmt, alle IDs eindeutig und als Slug", () => {
     expect(LEISTUNGEN.length).toBe(KATALOG.meta.anzahl);
-    expect(LEISTUNGEN.length).toBe(538);
+    expect(LEISTUNGEN.length).toBeGreaterThanOrEqual(538);
     const ids = LEISTUNGEN.map((l) => l.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const id of ids) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
@@ -77,9 +77,20 @@ describe("Leistungskatalog", () => {
 });
 
 describe("Fach → Katalog-Bereich", () => {
-  it("jede Zuordnung zeigt auf einen vorhandenen Bereich", async () => {
-    const { FACH_BEREICH, BEREICHE } = await import("./leistungskatalog");
-    for (const [fach, bereiche] of Object.entries(FACH_BEREICH)) for (const b of bereiche) expect(BEREICHE, fach).toContain(b);
+  it("jeder Eintrag trifft Leistungen, jedes Fach hat ein volles Angebot", async () => {
+    const { FACH_LEISTUNGEN, leistungenFuerFach, LEISTUNGEN, leistung } = await import("./leistungskatalog");
+    const { FACHPROFILE } = await import("./fachprofile");
+    for (const fach of Object.keys(FACHPROFILE)) {
+      expect(FACH_LEISTUNGEN[fach], fach).toBeTruthy();
+      for (const e of FACH_LEISTUNGEN[fach]) {
+        const n = e.startsWith("#") ? (leistung(e.slice(1)) ? 1 : 0) : LEISTUNGEN.filter((l) => l.bereich === e.split(" › ")[0] && (!e.includes(" › ") || l.kategorie === e.split(" › ")[1])).length;
+        expect(n, `${fach}: ${e}`).toBeGreaterThan(0);
+      }
+      expect(leistungenFuerFach(fach).length, fach).toBeGreaterThanOrEqual(7);
+    }
+    // keine fachfremden Leistungen
+    expect(leistungenFuerFach("kardio").some((l) => /Magen|Darm/.test(l.kategorie))).toBe(false);
+    expect(leistungenFuerFach("optik").some((l) => /Hörgerät|Rollstuhl/.test(l.name))).toBe(false);
   });
 });
 

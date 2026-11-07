@@ -18,7 +18,10 @@ const slug = (s: string) =>
     .replace(/^-|-$/g, "")
     .slice(0, 32) || "leistung";
 
-export function SpecialtySettings({ initial, readOnly = false }: { initial: Value; readOnly?: boolean }) {
+export type KatalogVorschlag = { name: string; kategorie: string; kasse: boolean; kasseWenn?: string };
+
+export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: { initial: Value; readOnly?: boolean; katalog?: KatalogVorschlag[] }) {
+  const [kq, setKq] = useState("");
   const router = useRouter();
   const [v, setV] = useState<Value>(initial);
   const [saving, setSaving] = useState(false);
@@ -121,6 +124,43 @@ export function SpecialtySettings({ initial, readOnly = false }: { initial: Valu
               Für alles, was Ihr Fach anbietet und oben fehlt. Gleicher Anlass fasst Leistungen zu einer Auswahl zusammen, die Kassenleistung
               steht dabei immer oben.
             </p>
+            {katalog.length > 0 && v.specialty === initial.specialty && (
+              <details className="rounded-lg border border-salbei-200 bg-salbei-50 p-3" data-testid="katalog-uebernehmen">
+                <summary className="cursor-pointer text-sm font-medium text-salbei-800">
+                  Aus dem Leistungskatalog übernehmen ({katalog.filter((k) => !v.customOffers.some((c) => c.name === k.name)).length} Leistungen für Ihr Fach)
+                </summary>
+                <input className="input mt-2" placeholder="Leistung suchen" aria-label="Katalog durchsuchen" value={kq} onChange={(e) => setKq(e.target.value)} />
+                <ul className="mt-2 max-h-72 space-y-1 overflow-y-auto text-sm">
+                  {katalog
+                    .filter((k) => !v.customOffers.some((c) => c.name === k.name))
+                    .filter((k) => !kq || `${k.name} ${k.kategorie}`.toLowerCase().includes(kq.toLowerCase()))
+                    .map((k) => (
+                      <li key={k.name} className="flex items-center justify-between gap-2 rounded bg-white px-2 py-1">
+                        <span>
+                          {k.name} <span className="text-xs text-slate-500">· {k.kategorie} · {k.kasse ? "Kasse" : "Selbstzahler/Indikation"}</span>
+                        </span>
+                        <button
+                          type="button"
+                          className="shrink-0 text-xs text-brand-700 underline"
+                          disabled={readOnly}
+                          onClick={() =>
+                            setV((s) => ({
+                              ...s,
+                              customOffers: [
+                                ...s.customOffers,
+                                { id: `k${Date.now().toString(36)}${s.customOffers.length}`, anlass: k.kategorie.slice(0, 80), name: k.name.slice(0, 120), price: 0, kasse: k.kasse, ...(k.kasseWenn ? { kasseWenn: k.kasseWenn.slice(0, 300) } : {}) },
+                              ],
+                            }))
+                          }
+                        >
+                          übernehmen
+                        </button>
+                      </li>
+                    ))}
+                </ul>
+                <p className="mt-2 text-xs text-slate-500">Übernommene Leistungen erscheinen unten; bitte Preis prüfen und speichern.</p>
+              </details>
+            )}
             {v.customOffers.length === 0 && <p className="text-sm text-slate-400">Noch keine eigenen Leistungen.</p>}
             {v.customOffers.map((c, i) => (
               <div key={c.id} className="space-y-2 rounded-lg border border-slate-200 p-3" data-testid="custom-offer">
