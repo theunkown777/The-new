@@ -43,6 +43,11 @@ describe("Amtliche Leistungsverzeichnisse", () => {
     expect(produkte.length).toBeGreaterThan(40000);
     const arten = new Set(nach("HMV").map((l) => l.code));
     expect(produkte.every((l) => arten.has(l.code.slice(0, 10)))).toBe(true);
+    const kv = Object.fromEntries(nach("KV_REGIONAL").map((l) => [l.code, l]));
+    expect(Object.keys(kv).length).toBeGreaterThan(3000);
+    expect(kv["BW 40190"]).toMatchObject({ euroCent: 1631 });
+    expect(kv["TH 01410H"]).toMatchObject({ text: "Besuch im Alten- oder Pflegeheim", euroCent: 2701 });
+    expect(katalogEintrag({ system: "KV_REGIONAL", code: "BW 40190", text: "x", kapitel: null, punkte: null, euroCent: 1631, hinweis: null })).toMatchObject({ system: "EBM", code: "40190", festbetragCent: 1631 });
   });
 
   it("jede Fachrichtung hat amtliche Leistungen (EBM kommt per Import dazu)", () => {

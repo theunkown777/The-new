@@ -16,6 +16,7 @@ export const KATALOG_SYSTEM: Record<string, string> = {
   UVGOAE: "UVGOAE",
   OPS: "SONSTIGES",
   HMV_PRODUKT: "HILFSMITTEL",
+  KV_REGIONAL: "EBM",
 };
 
 export const SYSTEM_TITEL: Record<string, string> = {
@@ -33,12 +34,13 @@ export const SYSTEM_TITEL: Record<string, string> = {
   UVGOAE: "UV-GOÄ (Berufsgenossenschaft)",
   OPS: "OPS (Operationen und Prozeduren, BfArM)",
   HMV_PRODUKT: "Hilfsmittel – Einzelprodukte",
+  KV_REGIONAL: "Regionale KV-Ziffern",
 };
 
 /** Kurzbezeichnung vor der Ziffer in Listen. */
 export const SYSTEM_KURZ: Record<string, string> = {
   EBM: "EBM", GOAE: "GOÄ", GOZ: "GOZ", BEMA: "BEMA", HEILMITTEL: "HM", HEBAMME: "Hebamme", HKP: "HKP", SGB_XI: "SGB XI",
-  HMV: "HMV", APOTHEKE: "Apotheke", HEILPRAKTIKER: "HP", UVGOAE: "UV-GOÄ", OPS: "OPS", HMV_PRODUKT: "HMV-Produkt",
+  HMV: "HMV", APOTHEKE: "Apotheke", HEILPRAKTIKER: "HP", UVGOAE: "UV-GOÄ", OPS: "OPS", HMV_PRODUKT: "HMV-Produkt", KV_REGIONAL: "KV",
 };
 
 /** Faktorgrenzen nach Gebührenordnung (GOÄ/GOZ: 1,0 bis 3,5; Regelhöchstsatz 2,3). */
@@ -47,7 +49,8 @@ export function katalogEintrag(a: { system: string; code: string; text: string; 
   const privat = sys === "GOAE" || sys === "GOZ";
   return {
     system: sys,
-    code: a.code.slice(0, 40),
+    // Regionale KV-Ziffern: im Praxiskatalog ohne KV-Kürzel ("BW 40190" → "40190")
+    code: (a.system === "KV_REGIONAL" ? a.code.replace(/^[A-Z]{2} /, "") : a.code).slice(0, 40),
     title: a.text.slice(0, 300),
     description: a.hinweis ? a.hinweis.slice(0, 1000) : null,
     category: (a.kapitel ?? SYSTEM_TITEL[a.system] ?? "Amtlich").slice(0, 80),

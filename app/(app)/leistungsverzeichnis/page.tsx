@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { praxisFach } from "@/lib/katalogScope";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
-import { KATALOG_SYSTEM, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog";
+import { katalogEintrag, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog";
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 import { LeistungenImport } from "@/components/LeistungenImport";
 
@@ -135,7 +135,7 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
                       {t.system === "GOAE" || t.system === "GOZ" ? " (1,0-fach)" : ""}
                     </p>
                   )}
-                  {admin && (katalogCodes.has(`${KATALOG_SYSTEM[t.system] ?? "SONSTIGES"}|${t.code.slice(0, 40)}`) ? <p className="text-xs text-salbei-700">im Katalog</p> : <LeistungUebernehmen ids={[t.id]} />)}
+                  {admin && (katalogCodes.has(`${katalogEintrag(t).system}|${katalogEintrag(t).code}`) ? <p className="text-xs text-salbei-700">im Katalog</p> : <LeistungUebernehmen ids={[t.id]} />)}
                 </div>
               </li>
             );
