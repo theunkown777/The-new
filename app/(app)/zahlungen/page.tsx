@@ -9,6 +9,7 @@ import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { BankSettings } from "@/components/BankSettings";
 import { Bankabgleich } from "@/components/Bankabgleich";
 import { SepaExport } from "@/components/SepaExport";
+import { DatevExport } from "@/components/DatevExport";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zahlungen" };
@@ -52,7 +53,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
             : {};
 
   const [practice, all, list, billable] = await Promise.all([
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, accountHolder: true, iban: true, bic: true, glaeubigerId: true } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, accountHolder: true, iban: true, bic: true, glaeubigerId: true, datev: true } }),
     prisma.invoice.findMany({ where: { practiceId }, select: { status: true, dueDate: true, amountCent: true, paidAt: true, wantsInstallments: true, sepaMandatAt: true, sepaExportedAt: true } }),
     prisma.invoice.findMany({
       where: { practiceId, ...where },
@@ -222,6 +223,11 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
               summe={formatCent(all.filter((i) => i.status === "OFFEN" && i.sepaMandatAt && !i.sepaExportedAt).reduce((a, i) => a + i.amountCent, 0))}
             />
           )}
+          <section className="card" aria-labelledby="datev-titel">
+            <h2 id="datev-titel" className="font-semibold text-slate-900">DATEV für die Steuerberatung</h2>
+            <p className="mt-1 mb-3 text-sm text-slate-600">Rechnungen und Zahlungseingänge eines Zeitraums als Buchungsstapel.</p>
+            <DatevExport einstellungen={(practice?.datev as Record<string, number> | null) ?? null} istAdmin={isAdmin} />
+          </section>
           <Bankabgleich />
           {practice?.iban && (
             <section className="card">
