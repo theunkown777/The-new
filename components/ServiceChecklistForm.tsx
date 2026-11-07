@@ -304,6 +304,10 @@ export function ServiceChecklistForm({
       setError("Bitte einen Sitzungstyp auswählen.");
       return;
     }
+    if (aktivItems.length === 0) {
+      setError("Bitte mindestens eine Leistung auswählen.");
+      return;
+    }
     if (!reviewConfirmed) {
       setError("Bitte bestätigen Sie unten, dass Sie die Liste vollständig geprüft haben.");
       return;
@@ -422,10 +426,19 @@ export function ServiceChecklistForm({
               )}
               {templates.filter((t) => t.name === FREIE_ZUSAMMENSTELLUNG).map((t) => (
                 <optgroup key={t.id} label="Aus dem Leistungsverzeichnis">
-                  <option value={t.id}>{t.name}</option>
+                  <option value={t.id}>Freie Zusammenstellung (wenn nichts passt)</option>
                 </optgroup>
               ))}
             </select>
+            {templates.some((t) => t.name === FREIE_ZUSAMMENSTELLUNG) && selectedTemplate?.name !== FREIE_ZUSAMMENSTELLUNG && (
+              <p className="mt-1.5 text-xs text-slate-500" data-testid="frei-hinweis">
+                Kein Sitzungstyp passt?{" "}
+                <button type="button" className="text-brand-700 underline"
+                  onClick={() => setTemplateId(templates.find((t) => t.name === FREIE_ZUSAMMENSTELLUNG)!.id)}>
+                  Leistungen frei zusammenstellen
+                </button>
+              </p>
+            )}
           </div>
           <div>
             <label className="label">Berichtstyp</label>
@@ -443,6 +456,7 @@ export function ServiceChecklistForm({
         {selectedTemplate && (
           <LeistungsverzeichnisAuswahl
             offenStart={selectedTemplate.name === FREIE_ZUSAMMENSTELLUNG}
+            frei={selectedTemplate.name === FREIE_ZUSAMMENSTELLUNG}
             onAdd={(items) => ergaenze(items as unknown as CatalogItem[])}
           />
         )}
@@ -469,9 +483,15 @@ export function ServiceChecklistForm({
             </div>
           </header>
 
+          {aktivItems.length === 0 ? (
+            <p className="px-5 py-4 text-sm text-slate-500 sm:px-6" data-testid="liste-leer">
+              Noch keine Leistung gewählt. Suchen Sie oben im Kasten „Leistungen auswählen“ nach Name oder Ziffer und übernehmen Sie sie mit „+“.
+            </p>
+          ) : (
           <p className="px-5 pt-3 text-sm text-slate-500 sm:px-6">
             Alles ist als erbracht vorbelegt. Tippen Sie an, was heute <strong className="font-semibold text-slate-700">nicht</strong> gemacht wurde{struckCount > 0 ? ` (${struckCount} gestrichen)` : ""}.
           </p>
+          )}
 
           <div className="space-y-5 px-3 pb-4 pt-3 sm:px-4">
             {grouped.map(([category, items]) => (
@@ -552,6 +572,13 @@ export function ServiceChecklistForm({
                               className={`shrink-0 rounded-full px-2.5 py-1 text-xs ${regionPflicht || needsBegruendung ? "bg-amber-50 text-amber-800" : "text-slate-500 hover:bg-slate-100"}`}
                             >
                               {regionPflicht ? `${regionLabel} fehlt` : needsBegruendung && !entry.begruendung ? "Begründung fehlt" : offen ? "Fertig" : "Details"}
+                            </button>
+                          )}
+                          {item.position >= 1000 && (
+                            <button type="button" className="shrink-0 rounded-full px-2 py-1 text-xs text-slate-400 hover:bg-slate-100 hover:text-red-700"
+                              aria-label={`${item.catalogItem.title} wieder entfernen`} title="Wieder entfernen"
+                              onClick={() => setZusatz((z) => z.filter((x) => x.catalogItemId !== item.catalogItemId))}>
+                              ✕
                             </button>
                           )}
                         </div>

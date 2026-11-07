@@ -10,6 +10,10 @@ import { Entlastung } from "@/components/Entlastung";
 import { PraxisFaq } from "@/components/PraxisFaq";
 import { DENTAL_SHOWCASE } from "@/lib/dentalShowcase";
 import { bereicheFuerFach, katalogFuerAnlass, slugBereich } from "@/lib/leistungskatalog";
+import { leistungenJeFach } from "@/lib/amtlich/zaehlung";
+
+// Zahl der amtlichen Leistungen kommt aus der Datenbank; einmal täglich neu berechnet.
+export const revalidate = 86400;
 
 // Zahnmedizin hat dieselbe Seite wie alle anderen Fächer (/fachgebiete/zahn).
 const fach = (id: string) => (id === "zahn" ? DENTAL_SHOWCASE : specialty(id));
@@ -26,9 +30,10 @@ export function generateMetadata({ params }: { params: { id: string } }): Metada
 
 const euro = (n: number) => (n ? `${n.toLocaleString("de-DE")} €` : "–");
 
-export default function SpecialtyPage({ params }: { params: { id: string } }) {
+export default async function SpecialtyPage({ params }: { params: { id: string } }) {
   const s = fach(params.id);
   if (!s) notFound();
+  const amtlich = await leistungenJeFach(s.id);
   const therapie = isTherapie(s);
   const dental = s.id === "zahn";
   const jsonLd = {
@@ -76,11 +81,17 @@ export default function SpecialtyPage({ params }: { params: { id: string } }) {
                 <dt className="text-[11px] text-slate-500">{dental ? "Beispiele" : "Anlässe"}</dt>
                 <dd className="text-lg font-semibold tabular-nums text-slate-900">{s.anlaesse.length}</dd>
               </div>
-              <div className="rounded-xl bg-[#F5F2EE] p-2">
+              <div className="rounded-xl bg-[#F5F2EE] p-2" data-testid="fach-leistungen">
                 <dt className="text-[11px] text-slate-500">Leistungen</dt>
-                <dd className="text-lg font-semibold tabular-nums text-slate-900">{anzahl}</dd>
+                <dd className="text-lg font-semibold tabular-nums text-slate-900">{amtlich ? amtlich.gesamt.toLocaleString("de-DE") : anzahl}</dd>
               </div>
             </dl>
+            {amtlich && amtlich.gesamt > 0 && (
+              <p className="mt-2 text-[11px] leading-snug text-slate-500" data-testid="fach-leistungen-teile">
+                Amtlich, bundesweit: {amtlich.teile.map((t) => `${t.name} ${t.anzahl.toLocaleString("de-DE")}`).join(" · ")}
+                {amtlich.regional > 0 ? ", dazu die regionalen Ziffern Ihrer KV" : ""}. Alle stehen in Sorrida zur Auswahl.
+              </p>
+            )}
             <div className="mt-4 grid gap-2">
               <a href="#pilot" className="btn-primary text-center">
                 Pilotplatz anfragen

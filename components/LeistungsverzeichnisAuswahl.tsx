@@ -12,7 +12,7 @@ const euro = (c: number) => (c / 100).toLocaleString("de-DE", { style: "currency
  * Leistungen aus dem amtlichen Leistungsverzeichnis zur Sitzung ergänzen, geordnet
  * nach dem Fach der Praxis: Verzeichnis (wichtigstes zuerst) → Kapitel → Leistung.
  */
-export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false }: { onAdd: (items: never[]) => void; offenStart?: boolean }) {
+export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = false }: { onAdd: (items: never[]) => void; offenStart?: boolean; frei?: boolean }) {
   const [offen, setOffen] = useState(offenStart);
   const [gliederung, setGliederung] = useState<Gliederung[] | null>(null);
   const [kv, setKv] = useState<string | null>(null);
@@ -26,6 +26,12 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false }: { onA
   const [fehler, setFehler] = useState<string | null>(null);
 
   useEffect(() => { setOffen(offenStart); }, [offenStart]);
+
+  // Suche beim Tippen: kurz warten, dann ab 2 Zeichen suchen
+  useEffect(() => {
+    const t = setTimeout(() => setSuche(q.trim().length >= 2 ? q.trim() : ""), 300);
+    return () => clearTimeout(t);
+  }, [q]);
 
   useEffect(() => {
     if (!offen || gliederung) return;
@@ -67,8 +73,8 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false }: { onA
     <div className="rounded-xl border border-slate-200 bg-white" data-testid="leistungsverzeichnis-auswahl">
       <button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left text-sm" onClick={() => setOffen((o) => !o)} aria-expanded={offen}>
         <span>
-          <span className="font-medium text-slate-900">Leistung aus dem Leistungsverzeichnis ergänzen</span>
-          <span className="block text-xs text-slate-500">Alle amtlichen Leistungen Ihres Fachs, geordnet nach Verzeichnis und Kapitel</span>
+          <span className="font-medium text-slate-900">{frei ? "Leistungen auswählen" : "Fehlt eine Leistung? Hier suchen und ergänzen"}</span>
+          <span className="block text-xs text-slate-500">Alle amtlichen Leistungen Ihres Fachs: Name oder Ziffer eintippen, mit „+“ übernehmen</span>
         </span>
         <span className="text-slate-400">{offen ? "–" : "+"}</span>
       </button>
@@ -80,7 +86,8 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false }: { onA
           ) : (
             <>
               <input className="input" value={q} placeholder="Suchen: Text oder Ziffer, z. B. Wundversorgung, 03000, Sonographie" aria-label="Leistung im Verzeichnis suchen"
-                onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); setSuche(q.trim()); } }} onBlur={() => setSuche(q.trim())} />
+                onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); setSuche(q.trim()); } }} autoFocus={frei} />
+              {!suche && <p className="text-xs text-slate-500">oder stöbern: erst das Verzeichnis, dann das Kapitel wählen</p>}
               {!suche && (
                 <>
                   <div className="flex flex-wrap gap-1.5" data-testid="auswahl-verzeichnisse">
@@ -112,6 +119,12 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false }: { onA
               {laedt && <p className="text-xs text-slate-500">Lädt …</p>}
               {liste && !laedt && (
                 <div>
+                  {liste.anzahl === 0 && (
+                    <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900" data-testid="auswahl-nichts">
+                      Nichts gefunden für „{suche}“. Tipps: ein kürzeres Wort (z. B. „Wund“ statt „Wundversorgung“), die Ziffer selbst (z. B. 03000) oder ein anderes Wort (z. B. „Sono“ für Ultraschall).
+                      Fehlt eine Praxisleistung ganz, legen Sie sie unter <a className="underline" href="/settings/catalog">Einstellungen → Leistungskatalog</a> als eigene Leistung an.
+                    </div>
+                  )}
                   <p className="mb-1 text-xs text-slate-500" data-testid="auswahl-treffer">{liste.anzahl.toLocaleString("de-DE")} Leistungen{liste.anzahl > liste.leistungen.length ? `, die ersten ${liste.leistungen.length}` : ""}</p>
                   <ul className="max-h-80 divide-y divide-slate-100 overflow-y-auto">
                     {liste.leistungen.map((l) => (

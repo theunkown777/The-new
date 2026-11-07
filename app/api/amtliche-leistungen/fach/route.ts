@@ -43,8 +43,12 @@ export async function GET(req: Request) {
   };
   const [anzahl, leistungen] = await Promise.all([
     prisma.amtlicheLeistung.count({ where }),
-    prisma.amtlicheLeistung.findMany({ where, take: 80, orderBy: [{ system: "asc" }, { code: "asc" }], select: { id: true, system: true, code: true, text: true, kapitel: true, abschnitt: true, punkte: true, euroCent: true } }),
+    prisma.amtlicheLeistung.findMany({ where, take: q ? 400 : 80, orderBy: [{ system: "asc" }, { code: "asc" }], select: { id: true, system: true, code: true, text: true, kapitel: true, abschnitt: true, punkte: true, euroCent: true } }),
   ]);
-  leistungen.sort((a, b) => (a.system === b.system ? natuerlich(a.code, b.code) : 0));
-  return NextResponse.json({ anzahl, leistungen: sortiereSysteme(fach, leistungen) });
+  // Bei der Suche zuerst: genaue Ziffer, dann Texte, die mit dem Suchwort beginnen; danach Verzeichnis-Reihenfolge des Fachs
+  const ql = q.toLowerCase();
+  const rang = (l: { code: string; text: string }) => (!q ? 0 : l.code.toLowerCase() === ql ? 0 : l.text.toLowerCase().startsWith(ql) ? 1 : l.text.toLowerCase().split(/[\s,(/-]+/).some((w) => w.startsWith(ql)) ? 2 : 3);
+  const sortiert = sortiereSysteme(fach, leistungen.sort((a, b) => (a.system === b.system ? natuerlich(a.code, b.code) : 0)));
+  const ergebnis = sortiert.map((l, i) => ({ l, i })).sort((a, b) => rang(a.l) - rang(b.l) || a.i - b.i).map((x) => x.l).slice(0, 80);
+  return NextResponse.json({ anzahl, leistungen: ergebnis });
 }
