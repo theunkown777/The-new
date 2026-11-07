@@ -51,6 +51,8 @@ model Practice {
   /// Arztpraxen: Preise je Leistung und eigene Leistungen (lib/medicalProposals.ts)
   medPrices         Json?
   customOffers      Json?
+  /// DATEV-Export: Berater-/Mandantennummer, Sachkontenlänge, Konten (mit der Steuerberatung abgestimmt)
+  datev             Json?
   // Gastzugang: Demo-Praxis mit Beispieldaten, die nach Ablauf automatisch
   // gelöscht wird (lib/demo.ts).
   isDemo            Boolean           @default(false)
@@ -88,6 +90,10 @@ model User {
   practice     Practice @relation(fields: [practiceId], references: [id])
   reports      Report[]
   proposals    TreatmentProposal[]
+  /// Eigenes Passwort für "Mein Bereich" (bcrypt), von der Person selbst vergeben
+  bereichPinHash        String?
+  bereichPinFehlversuche Int      @default(0)
+  bereichPinGesperrtBis DateTime?
   /// Patienten, für die dieses Konto Stammbehandler/in ist (Seite "Mein Bereich")
   stammPatienten Patient[] @relation("Stammbehandler")
   // TOTP-Zweitfaktor (RFC 6238). totpSecret wird beim Einrichten gesetzt,
@@ -454,6 +460,7 @@ model TreatmentProposal {
   @@index([practiceId])
   @@index([patientId])
   @@index([reportId])
+  zweitmeinungen  Zweitmeinung[]
 }
 
 // Schlüssel, mit dem der Sorrida-Connector auf einem Praxis-PC Patienten aus
@@ -664,4 +671,22 @@ model Appointment {
 
   @@index([practiceId, start])
   @@index([patientId])
+}
+
+/// Zweitmeinung, die eine Patientin oder ein Patient im Portal neben den
+/// Vorschlag legt. Privat, bis sie bzw. er sie ausdrücklich mit der Praxis teilt.
+model Zweitmeinung {
+  id              String            @id @default(cuid())
+  practiceId      String
+  proposalId      String
+  proposal        TreatmentProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  praxis          String?
+  leistung        String
+  eigenanteilCent Int
+  gesamtCent      Int?
+  notiz           String?
+  geteiltAt       DateTime?
+  createdAt       DateTime          @default(now())
+
+  @@index([proposalId])
 }

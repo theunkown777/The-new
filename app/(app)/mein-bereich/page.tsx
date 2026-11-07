@@ -8,6 +8,9 @@ import { formatCent } from "@/lib/invoices";
 import { PROPOSAL_STATUS_LABELS, ageFromBirthDate } from "@/lib/proposals";
 import { meineKennzahlen, meinePatientenWhere, meineRechnungenWhere } from "@/lib/meinBereich";
 import { tagesGrenzen, heuteTag, uhrzeit, STATUS_LABEL, type TerminStatus } from "@/lib/termine";
+import { cookies } from "next/headers";
+import { BEREICH_COOKIE, bereichTokenGueltig } from "@/lib/bereichSchutz";
+import { BereichAktionen, BereichSchloss } from "@/components/BereichSchloss";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Mein Bereich" };
@@ -17,6 +20,11 @@ const eur = (c: number) => `${Math.round(c / 100).toLocaleString("de-DE")} €`;
 export default async function MeinBereichPage({ searchParams }: { searchParams: { q?: string } }) {
   const session = await getServerSession(authOptions);
   const { practiceId, id: userId } = session!.user;
+  // Eigenes Bereichs-Passwort: ohne gültige Freigabe werden keine Zahlen geladen.
+  const schutz = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, bereichPinHash: true, practice: { select: { isDemo: true } } } });
+  if (!schutz?.bereichPinHash || !bereichTokenGueltig(cookies().get(BEREICH_COOKIE)?.value, userId)) {
+    return <BereichSchloss start={schutz?.bereichPinHash ? "entsperren" : "setzen"} demo={!!schutz?.practice.isDemo} name={schutz?.name ?? ""} />;
+  }
   const P = fachprofil(await praxisFach(practiceId)).person;
   const q = (searchParams.q ?? "").trim().slice(0, 60);
   const words = q.replace(",", " ").split(/\s+/).filter(Boolean);
@@ -77,11 +85,14 @@ export default async function MeinBereichPage({ searchParams }: { searchParams: 
 
   return (
     <div className="space-y-6" data-testid="mein-bereich">
-      <div>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
         <h1 className="font-display text-3xl text-slate-900">Mein Bereich</h1>
         <p className="mt-1 text-sm text-slate-500">
-          {me?.name}: nur Ihre {P.pl} und Ihre Zahlen. Kolleginnen und Kollegen sehen hier ihre eigenen.
+          {me?.name}: nur Ihre {P.pl} und Ihre Zahlen. Kolleginnen und Kollegen sehen hier ihre eigenen. Geschützt mit Ihrem Bereichs-Passwort.
         </p>
+        </div>
+        <BereichAktionen />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

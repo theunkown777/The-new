@@ -25,6 +25,9 @@ export const AUDIT_ACTIONS = {
   "standort": "Standort geändert",
   "nachricht": "Nachricht per E-Mail verschickt",
   "schnittstelle.export": "An die Praxissoftware übergeben",
+  "bereich.passwort": "Passwort für Mein Bereich gesetzt oder geändert",
+  "bereich.gesperrt": "Mein Bereich nach Fehlversuchen gesperrt",
+  "datev.export": "DATEV-Buchungsstapel exportiert",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;
