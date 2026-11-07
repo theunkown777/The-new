@@ -1,0 +1,145 @@
+{
+"meta": {
+"system": "APOTHEKE",
+"titel": "Leistungen der Apotheke",
+"quelle": "SGB V, Apothekenbetriebsordnung, Arzneimittelpreisverordnung; pharmazeutische Dienstleistungen laut Schiedsstellenentscheid nach § 129 Abs. 5e SGB V",
+"stand": "2026"
+},
+"leistungen": [
+{
+"code": "pDL-1",
+"text": "Erweiterte Medikationsberatung bei Polymedikation",
+"hinweis": "Pharmazeutische Dienstleistung nach § 129 Abs. 5e SGB V; ab fünf systemisch wirkenden Dauermedikamenten",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "pDL-2",
+"text": "Pharmazeutische Betreuung von Organtransplantierten",
+"hinweis": "Pharmazeutische Dienstleistung nach § 129 Abs. 5e SGB V",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "pDL-3",
+"text": "Pharmazeutische Betreuung bei oraler Antitumortherapie",
+"hinweis": "Pharmazeutische Dienstleistung nach § 129 Abs. 5e SGB V",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "pDL-4",
+"text": "Erweiterte Einweisung in die korrekte Arzneimittelanwendung mit Üben der Inhalationstechnik",
+"hinweis": "Pharmazeutische Dienstleistung nach § 129 Abs. 5e SGB V",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "pDL-5",
+"text": "Standardisierte Risikoerfassung hoher Blutdruck",
+"hinweis": "Pharmazeutische Dienstleistung nach § 129 Abs. 5e SGB V",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-RX",
+"text": "Abgabe verschreibungspflichtiger Arzneimittel mit Beratung",
+"hinweis": "Arzneimittelpreisverordnung; Zuzahlung nach § 61 SGB V",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-OTC",
+"text": "Beratung und Abgabe nicht verschreibungspflichtiger Arzneimittel (Selbstmedikation)",
+"hinweis": "Apothekenbetriebsordnung § 20",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-REZ",
+"text": "Herstellung von Rezepturen",
+"hinweis": "Arzneimittelpreisverordnung §§ 4, 5",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-BOTE",
+"text": "Botendienst",
+"hinweis": "§ 17 Abs. 2 Apothekenbetriebsordnung; Botendienstzuschlag nach § 129 Abs. 5g SGB V",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-IMPF-GRIPPE",
+"text": "Grippeschutzimpfung in der Apotheke",
+"hinweis": "§ 132e Abs. 1a SGB V",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-IMPF-COVID",
+"text": "COVID-19-Schutzimpfung in der Apotheke",
+"hinweis": "§ 20b Infektionsschutzgesetz",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-NOTDIENST",
+"text": "Apotheken-Notdienst",
+"hinweis": "§ 23 Apothekenbetriebsordnung",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-MEDPLAN",
+"text": "Aktualisierung des Medikationsplans",
+"hinweis": "§ 31a SGB V",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-HM",
+"text": "Abgabe von Hilfsmitteln und Pflegehilfsmitteln",
+"hinweis": "Verträge nach §§ 127 SGB V und 78 SGB XI",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+},
+{
+"code": "APO-BLISTER",
+"text": "Patientenindividuelles Stellen oder Verblistern",
+"hinweis": "§ 34 Apothekenbetriebsordnung",
+"kapitel": "Apotheke",
+"faecher": [
+"apotheke"
+]
+}
+]
+}

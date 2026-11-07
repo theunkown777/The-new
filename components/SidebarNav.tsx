@@ -51,6 +51,7 @@ export function SidebarNav({ dental, team = false, analyse = false, personPl = "
     [
       "Praxis",
       [
+        ["/leistungsverzeichnis", "Leistungsverzeichnis", "abrechnung"],
         ["/settings", "Einstellungen", "settings"],
         ...(team ? ([["/anfragen", "Anfragen (Team)", "anfragen"]] as L[]) : []),
         ["/", "Fachauswahl und Website", "start"],

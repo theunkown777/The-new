@@ -696,3 +696,30 @@ model Zweitmeinung {
 
   @@index([proposalId])
 }
+
+/// Amtliche Leistungsverzeichnisse (EBM, GOÄ, GOZ, BEMA, Heilmittel, Hebammenhilfe,
+/// Pflege, pharmazeutische Dienstleistungen, Hilfsmittelverzeichnis, OPS).
+/// Praxisübergreifend und schreibgeschützt; Praxen übernehmen daraus Positionen
+/// in ihren eigenen Katalog.
+model AmtlicheLeistung {
+  id          String   @id @default(cuid())
+  system      String
+  code        String
+  text        String
+  hinweis     String?
+  kapitel     String?
+  abschnitt   String?
+  punkte      Int?
+  euroCent    Int?
+  /// Sorrida-Fächer, die die Leistung erbringen bzw. abrechnen dürfen
+  faecher     String[]
+  /// Arztgruppen laut Quelle (z. B. Codes nach Bundesarztregister beim EBM)
+  arztgruppen String[]
+  gueltigAb   DateTime?
+  gueltigBis  DateTime?
+  stand       String?
+  updatedAt   DateTime @updatedAt
+
+  @@unique([system, code])
+  @@index([system])
+}

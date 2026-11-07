@@ -1,0 +1,244 @@
+{
+"meta": {
+"system": "SGB_XI",
+"titel": "Leistungen der Pflegeversicherung (SGB XI)",
+"quelle": "Sozialgesetzbuch XI, gesetze-im-internet.de (amtliches Werk)",
+"stand": "aktuelle Fassung"
+},
+"leistungen": [
+{
+"code": "§ 7a SGB XI",
+"text": "Pflegeberatung",
+"hinweis": "Gesetzestitel: Pflegeberatung",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 18 SGB XI",
+"text": "Begutachtung zur Feststellung der Pflegebedürftigkeit (Pflegegrad)",
+"hinweis": "Gesetzestitel: Beauftragung der Begutachtung",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 28a SGB XI",
+"text": "Leistungen bei Pflegegrad 1",
+"hinweis": "Gesetzestitel: Leistungen bei Pflegegrad 1",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 36 SGB XI",
+"text": "Pflegesachleistung (ambulanter Pflegedienst)",
+"hinweis": "Gesetzestitel: Pflegesachleistung",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 37 SGB XI",
+"text": "Pflegegeld für selbst beschaffte Pflegehilfen",
+"hinweis": "Gesetzestitel: Pflegegeld für selbst beschaffte Pflegehilfen",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 38 SGB XI",
+"text": "Kombinationsleistung (Geld- und Sachleistung)",
+"hinweis": "Gesetzestitel: Kombination von Geldleistung und Sachleistung (Kombinationsleistung)",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 37 Abs. 3 SGB XI",
+"text": "Beratungsbesuch bei Pflegegeldbezug",
+"hinweis": "Pflegegrad 2 und 3 halbjährlich, 4 und 5 vierteljährlich",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 39 SGB XI",
+"text": "Verhinderungspflege",
+"hinweis": "Gesetzestitel: Verhinderungspflege",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 39a SGB XI",
+"text": "Ergänzende Unterstützung bei Nutzung digitaler Pflegeanwendungen",
+"hinweis": "Gesetzestitel: Ergänzende Unterstützung bei Nutzung von digitalen Pflegeanwendungen",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 40 SGB XI",
+"text": "Pflegehilfsmittel und wohnumfeldverbessernde Maßnahmen",
+"hinweis": "Gesetzestitel: Pflegehilfsmittel und wohnumfeldverbessernde Maßnahmen",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 40a SGB XI",
+"text": "Digitale Pflegeanwendungen (DiPA)",
+"hinweis": "Gesetzestitel: Digitale Pflegeanwendungen",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 41 SGB XI",
+"text": "Tagespflege und Nachtpflege",
+"hinweis": "Gesetzestitel: Tagespflege und Nachtpflege",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 42 SGB XI",
+"text": "Kurzzeitpflege",
+"hinweis": "Gesetzestitel: Kurzzeitpflege",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 42a SGB XI",
+"text": "Gemeinsamer Jahresbetrag (Verhinderungs- und Kurzzeitpflege)",
+"hinweis": "Gesetzestitel: Gemeinsamer Jahresbetrag",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 42b SGB XI",
+"text": "Versorgung Pflegebedürftiger während Vorsorge oder Reha der Pflegeperson",
+"hinweis": "Gesetzestitel: Versorgung Pflegebedürftiger bei Inanspruchnahme von Vorsorge- oder Rehabilitationsleistungen durch die Pflegeperson",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 43 SGB XI",
+"text": "Vollstationäre Pflege",
+"hinweis": "Gesetzestitel: Inhalt der Leistung",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 43a SGB XI",
+"text": "Pflege in Einrichtungen der Eingliederungshilfe",
+"hinweis": "Gesetzestitel: Inhalt der Leistung",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 43b SGB XI",
+"text": "Zusätzliche Betreuung und Aktivierung in stationären Pflegeeinrichtungen",
+"hinweis": "Gesetzestitel: Inhalt der Leistung",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 43c SGB XI",
+"text": "Leistungszuschlag zur Begrenzung des Eigenanteils (stationär)",
+"hinweis": "Gesetzestitel: Begrenzung des Eigenanteils an den pflegebedingten Aufwendungen",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 44 SGB XI",
+"text": "Soziale Sicherung der Pflegepersonen",
+"hinweis": "Gesetzestitel: Leistungen zur sozialen Sicherung der Pflegepersonen",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 44a SGB XI",
+"text": "Pflegeunterstützungsgeld und Leistungen bei Pflegezeit",
+"hinweis": "Gesetzestitel: Zusätzliche Leistungen bei Pflegezeit und kurzzeitiger Arbeitsverhinderung",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 45 SGB XI",
+"text": "Pflegekurse für Angehörige und ehrenamtliche Pflegepersonen",
+"hinweis": "Gesetzestitel: Pflegekurse für Angehörige und ehrenamtliche Pflegepersonen",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 45a SGB XI",
+"text": "Angebote zur Unterstützung im Alltag (Umwandlungsanspruch)",
+"hinweis": "Gesetzestitel: Angebote zur Unterstützung im Alltag, Umwandlung des ambulanten Sachleistungsbetrags (Umwandlungsanspruch), Verordnungsermächtigung",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 45b SGB XI",
+"text": "Entlastungsbetrag",
+"hinweis": "Gesetzestitel: Entlastungsbetrag",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 45f SGB XI",
+"text": "Wohngruppenzuschlag (ambulant betreute Wohngruppen)",
+"hinweis": "Gesetzestitel: Zusätzliche Leistungen für Pflegebedürftige in ambulant betreuten Wohngruppen",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "§ 45h SGB XI",
+"text": "Leistungen in gemeinschaftlichen Wohnformen",
+"hinweis": "Gesetzestitel: Leistungen in gemeinschaftlichen Wohnformen mit Verträgen zur pflegerischen Versorgung gemäß § 92c",
+"kapitel": "Soziale Pflegeversicherung (SGB XI)",
+"faecher": [
+"pflege"
+]
+}
+]
+}

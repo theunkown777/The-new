@@ -46,6 +46,8 @@ export const config = {
     "/termine/:path*",
     "/abrechnungspruefung/:path*",
     "/abrechnung/:path*",
+    "/mein-bereich/:path*",
+    "/leistungsverzeichnis/:path*",
     "/embed/:path*",
     "/api/:path*",
   ],

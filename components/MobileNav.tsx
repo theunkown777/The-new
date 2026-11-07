@@ -8,6 +8,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 const LINKS = [
   { href: "/dashboard", label: "Übersicht" },
   { href: "/mein-bereich", label: "Mein Bereich" },
+  { href: "/leistungsverzeichnis", label: "Leistungsverzeichnis" },
   { href: "/termine", label: "Termine" },
   { href: "/praxismanager", label: "Praxismanager" },
   { href: "/vorsorge", label: "Vorsorge fällig" },

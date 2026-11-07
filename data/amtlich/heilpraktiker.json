@@ -1,0 +1,1481 @@
+{
+"meta": {
+"system": "HEILPRAKTIKER",
+"titel": "Heilpraktikerleistungen (Höchstbeträge nach Bundesbeihilfeverordnung, Anlage 2)",
+"quelle": "BBhV Anlage 2, gesetze-im-internet.de (amtliches Werk); Nummern entsprechen dem Gebührenverzeichnis für Heilpraktiker (GebüH)",
+"stand": "aktuelle Fassung",
+"hinweisBetrag": "beihilfefähiger Höchstbetrag; das Honorar vereinbart die Praxis frei"
+},
+"leistungen": [
+{
+"code": "HP 1",
+"text": "Für die eingehende, das gewöhnliche Maß übersteigende Untersuchung",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 1250,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 2a",
+"text": "Erhebung der homöopathischen Erstanamnese mit einer Mindestdauer von einer Stunde je Behandlungsfall",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 8000,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 2b",
+"text": "Durchführung des vollständigen Krankenexamens mit Repertorisation nach den Regeln der klassischen Homöopathie",
+"hinweis": "Anmerkung: Die Leistung nach Nummer 2b ist in einer Sitzung nur einmal und innerhalb von sechs Monaten höchstens dreimal berechnungsfähig.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 3500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 3",
+"text": "Kurze Information, auch mittels Fernsprecher, oder Ausstellung einer Wiederholungsverordnung, als einzige Leistung pro Inanspruchnahme der Heilpraktikerin/des Heilpraktikers",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 4",
+"text": "Eingehende Beratung, die das gewöhnliche Maß übersteigt, von mindestens 15 Minuten Dauer, gegebenenfalls einschließlich einer Untersuchung",
+"hinweis": "Anmerkung: Eine Leistung nach Nummer 4 ist nur als alleinige Leistung oder im Zusammenhang mit einer Leistung nach Nummer 1 oder Nummer 17.1 beihilfefähig.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 1850,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 5",
+"text": "Beratung, auch mittels Fernsprecher, gegebenenfalls, einschließlich einer kurzen Untersuchung",
+"hinweis": "Anmerkung: Eine Leistung nach Nummer 5 ist nur einmal pro Behandlungsfall neben einer anderen Leistung beihilfefähig.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 900,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 6",
+"text": "Für die gleichen Leistungen wie unter Nummer 5, jedoch außerhalb der normalen Sprechstundenzeit",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 1300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 7",
+"text": "Für die gleichen Leistungen wie unter Nummer 5, jedoch bei Nacht, zwischen 20 und 7 Uhr",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 1800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 8",
+"text": "Für die gleichen Leistungen wie unter Nummer 5, jedoch sonn- und feiertags",
+"hinweis": "Anmerkung: Als allgemeine Sprechstunde gilt die durch Aushang festgesetzte Zeit, selbst wenn sie nach 20 Uhr festgesetzt ist. Eine Berechnung des Honorars nach den Nummern 6 bis 8 kann also nur dann erfolgen, wenn die Beratung außerhalb der festgesetzten Zeiten stattfand und der Patient nicht schon vor Ablauf derselben im Wartezimmer anwesend war. Ebenso können für Sonn- und Feiertage nicht die dafür vorgesehenen erhöhten Honorare zur Berechnung kommen, wenn der Heilpraktiker gewohnheitsmäßig an Sonn- und Feiertagen Sprechstunden hält.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 2000,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 9",
+"text": "Hausbesuch einschließlich Beratung",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 9.1",
+"text": "bei Tag",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 2400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 9.2",
+"text": "in dringenden Fällen (Eilbesuch, sofort ausgeführt)",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 2600,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 9.3",
+"text": "bei Nacht und an Sonn- und Feiertagen",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 2900,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 10",
+"text": "Nebengebühren für Hausbesuche",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 10.1",
+"text": "für jede angefangene Stunde bei Tag bis zu 2 km Entfernung zwischen Praxis- und Besuchsort",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 10.2",
+"text": "für jede angefangene Stunde bei Nacht bis zu 2 km Entfernung zwischen Praxis- und Besuchsort",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 10.5",
+"text": "für jeden zurückgelegten km bei Tag von 2 bis 25 km Entfernung zwischen Praxis- und Besuchsort",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 100,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 10.6",
+"text": "für jeden zurückgelegten km bei Nacht von 2 bis 25 km Entfernung zwischen Praxis- und Besuchsort",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 200,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 10.7",
+"text": "Handelt es sich um einen Fernbesuch von über 25 km Entfernung zwischen Praxis- und Besuchsort, so können pro Kilometer an Reisekosten in Anrechnung gebracht werden.",
+"hinweis": "Anmerkung: Die Wegkilometer werden nach dem jeweils günstigsten benutzbaren Fahrtweg berechnet. Besucht der Heilpraktiker mehrere Patienten bei einer Besuchsfahrt, werden die Fahrtkosten entsprechend aufgeteilt.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 20,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 10.8",
+"text": "Handelt es sich bei einem Krankenbesuch um eine Reise, welche länger als 6 Stunden dauert, so kann die Heilpraktikerin/der Heilpraktiker anstelle des Wegegeldes die tatsächlich entstandenen Reisekosten in Abrechnung bringen und außerdem für den Zeitaufwand pro Stunde Reisezeit berechnen. Die Patientin bzw. der Patient ist hiervon vorher in Kenntnis zu setzen.",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 1600,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 11",
+"text": "Schriftliche Auslassungen und Krankheitsbescheinigungen",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 11.1",
+"text": "Kurze Krankheitsbescheinigung oder Brief im Interesse der Patientin/des Patienten",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 11.2",
+"text": "Ausführlicher Krankheitsbericht oder Gutachten(DIN A4 engzeilig maschinengeschrieben)",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 11.3",
+"text": "Individuell angefertigter schriftlicher Diätplan bei Ernährungs- und Stoffwechselerkrankungen",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12",
+"text": "Chemisch-physikalische Untersuchungen",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.1",
+"text": "Harnuntersuchungen qualitativ mittels Verwendung eines Mehrfachreagenzträgers (Teststreifen) durch visuellen Farbvergleich",
+"hinweis": "Anmerkung: Die einfache qualitative Untersuchung auf Zucker und Eiweiß sowie die Bestimmung des ph-Wertes und des spezifischen Gewichtes sind nicht berechnungsfähig.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.2",
+"text": "Harnuntersuchung quantitativ (es ist anzugeben, auf welchen Stoff untersucht wurde, zum Beispiel Zucker usw.)",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.4",
+"text": "Harnuntersuchung, nur Sediment",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.7",
+"text": "Blutstatus (nicht neben den Nummern 12.9, 12.10, 12.11)",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 1000,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.8",
+"text": "Blutzuckerbestimmung",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 200,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.9",
+"text": "Hämoglobinbestimmung",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.10",
+"text": "Differenzierung des gefärbten Blutausstriches",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 600,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.11",
+"text": "Zählung der Leuko- und Erythrozyten",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.12",
+"text": "Blutkörperchen-Senkungsgeschwindigkeit einschl. Blutentnahme",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.13",
+"text": "Einfache mikroskopische und/oder chemische Untersuchungen von Körperflüssigkeiten und Ausscheidungen auch mit einfachen oder schwierigen Färbeverfahren sowie Dunkelfeld, pro Untersuchung",
+"hinweis": "Anmerkung: Die Art der Untersuchung ist anzugeben.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 600,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 12.14",
+"text": "Aufwendige Chemogramme von Körperflüssigkeiten und Ausscheidungen je nach Umfang pro Einzeluntersuchung",
+"hinweis": "Anmerkung: Die Art der Untersuchung ist anzugeben.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 700,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 13",
+"text": "Sonstige Untersuchungen",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 13.1",
+"text": "Sonstige Untersuchungen unter Zuhilfenahme spezieller Apparaturen oder Färbeverfahren besonders schwieriger Art, zum Beispiel ph-Messungen im strömenden Blut oder Untersuchungen nach v. Bremer, Enderlein usw.",
+"hinweis": "Anmerkung: Die Art der Untersuchung ist anzugeben.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 600,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14",
+"text": "Spezielle Untersuchungen",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.1",
+"text": "Binokulare mikroskopische Untersuchung des Augenvordergrundes",
+"hinweis": "Anmerkung: Eine Leistung nach Nummer 14.1 kann nicht neben einer Leistung nach Nummer 1 oder Nummer 4 berechnet werden. Leistungen nach den Nummern 14.1 und 14.2 können nicht nebeneinander berechnet werden.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.2",
+"text": "Binokulare Spiegelung des Augenhintergrundes",
+"hinweis": "Anmerkung: Eine Leistung nach Nummer 14.1 kann nicht neben einer Leistung nach Nummer 1 oder Nummer 4 berechnet werden. Leistungen nach den Nummern 14.1 und 14.2 können nicht nebeneinander berechnet werden.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.3",
+"text": "Grundumsatzbestimmung nach Read",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.4",
+"text": "Grundumsatzbestimmung mit Hilfe der Atemgasuntersuchung",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 2000,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.5",
+"text": "Prüfung der Lungenkapazität (Spirometrische Untersuchung)",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 700,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.6",
+"text": "Elektrokardiogramm mit Phonokardiogramm und Ergometrie, vollständiges Programm",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 4100,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.7",
+"text": "Elektrokardiogramm mit Standardableitungen, Goldbergerableitungen, Nehbsche Ableitungen, Brustwandableitungen",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 1400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.8",
+"text": "Oszillogramm-Methoden",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 1100,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.9",
+"text": "Spezielle Herz-Kreislauf-Untersuchungen",
+"hinweis": "Anmerkung: Nicht neben Nummer 1 oder Nummer 4 berechenbar.",
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 14.10",
+"text": "Ultraschall-Gefäßdoppler-Untersuchung zu peripheren Venendruck-/ oder Strömungsmessungen",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 900,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 17",
+"text": "Neurologische Untersuchungen",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 17.1",
+"text": "Neurologische Untersuchung",
+"hinweis": null,
+"kapitel": "Allgemeine Leistungen",
+"euroCent": 2100,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 20",
+"text": "Atemtherapie, Massagen",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 20.1",
+"text": "Atemtherapeutische Behandlungsverfahren",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 20.2",
+"text": "Nervenpunktmassage nach Cornelius, Aurelius u. a., Spezialnervenmassage",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 600,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 20.3",
+"text": "Bindegewebsmassage",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 600,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 20.4",
+"text": "Teilmassage (Massage einzelner Körperteile)",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 20.5",
+"text": "Großmassage",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 600,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 20.6",
+"text": "Sondermassagen",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 20.7",
+"text": "Behandlung mit physikalischen oder medicomechanischen Apparaten",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 600,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 20.8",
+"text": "Einreibungen zu therapeutischen Zwecken in die Haut",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 21",
+"text": "Akupunktur",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 21.1",
+"text": "Akupunktur einschließlich Pulsdiagnose",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 2300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 21.2",
+"text": "Moxibustionen, Injektionen und Quaddelungen in Akupunkturpunkte",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 700,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 22",
+"text": "Inhalationen",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 22.1",
+"text": "Inhalationen, soweit sie von der Heilpraktikerin/dem Heilpraktiker mit den verschiedenen Apparaten in der Sprechstunde ausgeführt werden",
+"hinweis": null,
+"kapitel": "Spezielle Behandlungen",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 24",
+"text": "Eigenblut, Eigenharn",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 24.1",
+"text": "Eigenblutinjektion",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1100,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 25",
+"text": "Injektionen, Infusionen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 25.1",
+"text": "Injektion, subkutan",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 25.2",
+"text": "Injektion, intramuskulär",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 25.3",
+"text": "Injektion, intravenös, intraarteriell",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 700,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 25.4",
+"text": "Intrakutane Reiztherapie (Quaddelbehandlung), pro Sitzung",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 700,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 25.5",
+"text": "Injektion, intraartikulär",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1150,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 25.6",
+"text": "Neural- oder segmentgezielte Injektionen nach Hunecke",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1150,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 25.7",
+"text": "Infusion",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 25.8",
+"text": "Dauertropfeninfusion",
+"hinweis": "Anmerkung: Die Beihilfefähigkeit der mit der Infusion eingebrachten Medikamente richtet sich nach dem Beihilferecht des jeweiligen Beihilfeträgers.",
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1250,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 26",
+"text": "Blutentnahmen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 26.1",
+"text": "Blutentnahme",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 26.2",
+"text": "Aderlass",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1200,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27",
+"text": "Hautableitungsverfahren, Hautreizverfahren",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.1",
+"text": "Setzen von Blutegeln, ggf. einschl. Verband",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.2",
+"text": "Skarifikation der Haut",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.3",
+"text": "Setzen von Schröpfköpfen, unblutig",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.4",
+"text": "Setzen von Schröpfköpfen, blutig",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.5",
+"text": "Schröpfkopfmassage einschl. Gleitmittel",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.6",
+"text": "Anwendung großer Saugapparate für ganze Extremitäten",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.7",
+"text": "Setzen von Fontanellen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.8",
+"text": "Setzen von Cantharidenblasen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.9",
+"text": "Reinjektion des Blaseninhaltes (aus Nummer 27.8)",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.10",
+"text": "Anwendung von Pustulantien",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 27.12",
+"text": "Biersche Stauung",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 28",
+"text": "Infiltrationen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 28.1",
+"text": "Behandlung mittels paravertebraler Infiltration, einmalig",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 900,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 28.2",
+"text": "Behandlung mittels paravertebraler Infiltration, mehrmalig",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 29",
+"text": "Roedersches Verfahren",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 29.1",
+"text": "Roedersches Behandlungs- und Mandelabsaugverfahren",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 30",
+"text": "Sonstiges",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 30.1",
+"text": "Spülung des Ohres",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 31",
+"text": "Wundversorgung, Verbände und Verwandtes",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 31.1",
+"text": "Eröffnung eines oberflächlichen Abszesses",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 900,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 31.2",
+"text": "Entfernung von Aknepusteln pro Sitzung",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 32",
+"text": "Versorgung einer frischen Wunde",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 32.1",
+"text": "bei einer kleinen Wunde",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 32.2",
+"text": "bei einer größeren und verunreinigten Wunde",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 33",
+"text": "Verbände (außer zur Wundbehandlung)",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 33.1",
+"text": "Verbände, jedes Mal",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 33.2",
+"text": "Elastische Stütz- und Pflasterverbände",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 700,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 33.3",
+"text": "Kompressions- oder Zinkleimverband",
+"hinweis": "Anmerkung: Die Beihilfefähigkeit des für den Verband verbrauchten Materials richtet sich nach dem Beihilferecht des jeweiligen Beihilfeträgers.",
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1000,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 34",
+"text": "Gelenk- und Wirbelsäulenbehandlung",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 34.1",
+"text": "Chiropraktische Behandlung",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 34.2",
+"text": "Gezielter chiropraktischer Eingriff an der Wirbelsäule",
+"hinweis": "Anmerkung: Die Leistung nach Nummer 34.2 ist nur einmal je Sitzung berechnungsfähig.",
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1700,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 35",
+"text": "Osteopathische Behandlung",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 35.1",
+"text": "des Unterkiefers",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1100,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 35.2",
+"text": "des Schultergelenkes und der Wirbelsäule",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 2100,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 35.3",
+"text": "der Handgelenke, des Oberschenkels, des Unterschenkels, des Vorderarmes und der Fußgelenke",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 2100,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 35.4",
+"text": "des Schlüsselbeins und der Kniegelenke",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1200,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 35.5",
+"text": "des Daumens",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1000,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 35.6",
+"text": "einzelner Finger und Zehen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1000,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 36",
+"text": "Hydro- und Elektrotherapie, Medizinische Bäder und sonstige hydrotherapeutische Anwendungen",
+"hinweis": "Anmerkung: Alle nicht aufgeführten Bäder sind nicht beihilfefähig.",
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 36.1",
+"text": "Leitung eines ansteigenden Vollbades",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 700,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 36.2",
+"text": "Leitung eines ansteigenden Teilbades",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 36.3",
+"text": "Spezialdarmbad (subaquales Darmbad)",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 1300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 36.4",
+"text": "Kneippsche Güsse",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 37",
+"text": "Elektrische Bäder und Heißluftbäder",
+"hinweis": "Anmerkung: Alle nicht aufgeführten Bäder sind nicht beihilfefähig.",
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 37.1",
+"text": "Teilheißluftbad, zum Beispiel Kopf oder Arm",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 37.2",
+"text": "Ganzheißluftbad, zum Beispiel Rumpf oder Beine",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 37.3",
+"text": "Heißluftbad im geschlossenen Kasten",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 500,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 37.4",
+"text": "Elektrisches Vierzellenbad",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 37.5",
+"text": "Elektrisches Vollbad (Stangerbad)",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 38",
+"text": "Spezialpackungen",
+"hinweis": "Anmerkung: Alle nicht aufgeführten Packungen sind nicht beihilfefähig.",
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 38.1",
+"text": "Fangopackungen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 38.2",
+"text": "Paraffinpackungen, örtliche",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 38.3",
+"text": "Paraffinganzpackungen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 38.4",
+"text": "Kneippsche Wickel- und Ganzpackungen, Prießnitz- und Schlenzpackungen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39",
+"text": "Elektro-physikalische Heilmethoden",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": null,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.1",
+"text": "Einfache oder örtliche Lichtbestrahlungen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.2",
+"text": "Ganzbestrahlungen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.4",
+"text": "Faradisation, Galvanisation und verwandte Verfahren (Schwellstromgeräte)",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.5",
+"text": "Anwendung der Influenzmaschine",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.6",
+"text": "Anwendung von Heizsonnen (Infrarot)",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.7",
+"text": "Verschorfung mit heißer Luft und heißen Dämpfen",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 800,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.8",
+"text": "Behandlung mit hochgespannten Strömen, Hochfrequenzströmen in Verbindung mit verschiedenen Apparaten",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.9",
+"text": "Langwellenbehandlung (Diathermie), Kurzwellen- und Mikrowellenbehandlung",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 300,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.10",
+"text": "Magnetfeldtherapie mit besonderen Spezialapparaten",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.11",
+"text": "Elektromechanische und elektrothermische Behandlung (je nach Aufwand und Dauer)",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.12",
+"text": "Niederfrequente Reizstromtherapie, zum Beispiel Jono-Modulator",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+},
+{
+"code": "HP 39.13",
+"text": "Ultraschall-Behandlung",
+"hinweis": null,
+"kapitel": "Blutentnahmen – Injektionen – Infusionen – Hautableitungsverfahren",
+"euroCent": 400,
+"faecher": [
+"heilpraktiker"
+]
+}
+]
+}

@@ -1,0 +1,1678 @@
+{
+"meta": {
+"system": "HEILMITTEL",
+"titel": "Heilmittel-Positionsnummern (Verträge nach § 125 Abs. 1 SGB V, Anlage 2 Vergütung)",
+"quelle": "GKV-Spitzenverband: Physiotherapie (Lesefassung ab 01.01.2026), Ergotherapie (29.06.2026), Stimm-/Sprech-/Sprach-/Schlucktherapie (12.02.2026, gültig ab 01.07.2026), Podologie (01.07.2025), Ernährungstherapie (28.05.2025)",
+"stand": "2026",
+"hinweisBetrag": "Preise für zugelassene Leistungserbringer (ZL), brutto; Zuzahlung der Versicherten 10 % zzgl. 10 € je Verordnung"
+},
+"leistungen": [
+{
+"code": "X0102",
+"text": "Unterwasserdruckstrahlmassage (Regelbehandlungszeit 15 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 3375,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0106",
+"text": "Klassische Massagetherapie (KMT) (Regelbehandlungszeit 15 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2163,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0107",
+"text": "Bindegewebsmassage (BGM) (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2598,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0108",
+"text": "Segment-, Periost-, Colonmassage (Regelbehandlungszeit 15 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2163,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0201",
+"text": "Manuelle Lymphdrainage MLD - 45 Minuten (Großbehandlung) (Regelbehandlungszeit 45 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 5394,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0202",
+"text": "Manuelle Lymphdrainage MLD - 60 Minuten (Ganzbehandlung) (Regelbehandlungszeit 60 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 7194,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0204",
+"text": "Kompressionsbandagierung einer Extremität",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2292,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0205",
+"text": "Manuelle Lymphdrainage MLD - 30 Minuten (Teilbehandlung) (Regelbehandlungszeit 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 3597,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0301",
+"text": "Übungsbehandlung: Einzelbehandlung (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1368,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0305",
+"text": "Übungsbehandlung im Bewegungsbad: Einzelbehandlung (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 3288,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0306",
+"text": "Chirogymnastik (Funktionelle Wirbelsäulengymnastik): Einzelbehandlung (Regelbehandlungszeit 15 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2043,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0401",
+"text": "Übungsbehandlung: Gruppenbehandlung (2 - 5 Patienten) (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 843,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0402",
+"text": "Übungsbehandlung im Bewegungsbad: Gruppenbehandlung mit 2 - 3 Patienten (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2400,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0405",
+"text": "Übungsbehandlung im Bewegungsbad: Gruppenbehandlung mit 4 - 5 Patienten (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1628,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0501",
+"text": "Allgemeine Krankengymnastik (KG) (auch auf neurophysiologischer Grundlage): Einzelbehandlung (Regelbehandlungszeit 15 bis 25 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2963,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0521",
+"text": "Allgemeine Krankengymnastik (KG) (auch auf neurophysiologischer Grundlage): Einzelbehandlung als telemedizinische Leistung (Regelbehandlungszeit 15 bis 25 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2963,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0507",
+"text": "Gerätegestützte Krankengymnastik (KG-Gerät): Parallele Einzelbehandlung bis zu 3 Patienten (Regelbehandlungszeit 60 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 5581,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0601",
+"text": "Allgemeine Krankengymnastik (KG) (auch auf neurophysiologischer Grundlage): Gruppenbehandlung (2 - 5 Patienten) (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1326,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0621",
+"text": "Allgemeine Krankengymnastik (KG) (auch auf neurophysiologischer Grundlage): Gruppenbehandlung (2 - 5 Patienten) als telemedizinische Leistung (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1326,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0702",
+"text": "Krankengymnastik zur Behandlung schwerer Erkrankungen der Atmungsorgane (insbesondere bei Mukoviszidose oder bei Lungenerkrankungen, die der Mukoviszidose vergleichbare pulmonale Schädigungen aufweisen) - KG-Muko: Einzelbehandlung (Regelbehandlungszeit 60 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 8894,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0722",
+"text": "Krankengymnastik zur Behandlung schwerer Erkrankungen der Atmungsorgane (insbesondere bei Mukoviszidose oder bei Lungenerkrankungen, die der Mukoviszidose vergleichbare pulmonale Schädigungen aufweisen) - KG-Muko: Einzelbehandlung als telemedizinische Leistung (Regelbehandlungszeit 60 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 8894,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0708",
+"text": "Krankengymnastik zur Behandlung von zentralen Bewegungsstörungen bis zur Vollendung des 18. Lebensjahres nach Bobath als Einzelbehandlung (KG- ZNS-Kinder nach Bobath) (Regelbehandlungszeit 30 bis 45 Minuten) 58,83 -",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0728",
+"text": "Krankengymnastik zur Behandlung von zentralen Bewegungsstörungen bis zur Vollendung des 18. Lebensjahres nach Bobath als Einzelbehandlung (KG- ZNS-Kinder nach Bobath) als telemedizinische Leistung (Regelbehandlungszeit 30 bis 45 Minuten) 58,83 -",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0709",
+"text": "Krankengymnastik zur Behandlung von zentralen Bewegungsstörungen bis zur Vollendung des 18. Lebensjahres nach Vojta als Einzelbehandlung (KG- ZNS-Kinder nach Vojta) (Regelbehandlungszeit 30 bis 45 Minuten) 58,83 -",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0710",
+"text": "Krankengymnastik zur Behandlung von zentralen Bewegungsstörungen nach Vollendung des 18. Lebensjahres nach Bobath als Einzelbehandlung (KG- ZNS nach Bobath) (Regelbehandlungszeit 25 bis 35 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 4706,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0720",
+"text": "Krankengymnastik zur Behandlung von zentralen Bewegungsstörungen nach Vollendung des 18. Lebensjahres nach Bobath als Einzelbehandlung (KG- ZNS nach Bobath) als telemedizinische Leistung (Regelbehandlungszeit 25 bis 35 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 4706,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0711",
+"text": "Krankengymnastik zur Behandlung von zentralen Bewegungsstörungen nach Vollendung des 18. Lebensjahres nach Vojta als Einzelbehandlung (KG-ZNS nach Vojta) (Regelbehandlungszeit 25 bis 35 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 4706,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0712",
+"text": "Krankengymnastik zur Behandlung von zentralen Bewegungsstörungen nach Vollendung des 18. Lebensjahres nach PNF als Einzelbehandlung (KG-ZNS PNF) (Regelbehandlungszeit 25 bis 35 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 4706,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0805",
+"text": "Krankengymnastik in der Gruppe bei cerebral bedingten Schädigungen für Kinder bis zur Vollendung des 14. Lebensjahres (2 - 4 Kinder) (Regelbehandlungszeit 20 bis 30 Minuten) 16,57 -",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X0902",
+"text": "Krankengymnastik im Bewegungsbad: Einzelbehandlung (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 3387,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1004",
+"text": "Krankengymnastik im Bewegungsbad: Gruppenbehandlung mit 2 - 3 Patienten (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2416,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1005",
+"text": "Krankengymnastik im Bewegungsbad: Gruppenbehandlung mit 4 - 5 Patienten (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1597,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1104",
+"text": "Traktionsbehandlung mit Gerät: Einzelbehandlung (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 863,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1201",
+"text": "Manuelle Therapie: Einzelbehandlung (Regelbehandlungszeit 15 bis 25 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 3559,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1221",
+"text": "Manuelle Therapie: Einzelbehandlung als telemedizinische Leistung (Regelbehandlungszeit 15 bis 25 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 3559,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1302",
+"text": "Elektrotherapie: Einzelbehandlung (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 843,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1303",
+"text": "Elektrostimulation bei Paresen: Einzelbehandlung (Regelbehandlungszeit je Muskelnerveinheit 5 bis 10 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1870,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1310",
+"text": "Hydroelektrisches Teilbad (Zwei-/Vierzellenbad): Einzelbehandlung (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1448,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1312",
+"text": "Hydroelektrisches Vollbad (z. B. Stangerbad): Einzelbehandlung (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2761,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1501",
+"text": "Warmpackung (einzelner oder mehrerer Körperteile): Einzelbehandlung (Regelbehandlungszeit 20 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1616,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1517",
+"text": "Wärmetherapie mittels Heißluft: Einzelbehandlung (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 743,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1530",
+"text": "Heiße Rolle: Einzelbehandlung (Regelbehandlungszeit 10 bis 15 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1347,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1531",
+"text": "Ultraschall-Wärmetherapie: Einzelbehandlung (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1466,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1532",
+"text": "Bäder (Volloder Teilbäder) mit Peloiden: Vollbad (Regelbehandlungszeit 15 bis 45 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 5539,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1533",
+"text": "Bäder (Volloder Teilbäder) mit Peloiden: Teilbad (Regelbehandlungszeit 15 bis 45 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 4284,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1534",
+"text": "Kältetherapie bei einem oder mehreren Körperteil(en): Einzelbehandlung (Regelbehandlungszeit 5 bis 10 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1195,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1714",
+"text": "Kohlensäurebad: Einzelbehandlung (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2772,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1732",
+"text": "Kohlensäuregasbad (CO2-Trockenbad) als Voll-, Dreivierteloder Halbbad: Einzelbehandlung (Regelbehandlungszeit 10 bis 20 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2630,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1733",
+"text": "Kohlensäuregasbad (CO2-Trockenbad) als Teilbad: Einzelbehandlung (Regelbehandlungszeit 45 bis 60 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2630,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1801",
+"text": "Inhalationstherapie: Einzelbehandlung (Regelbehandlungszeit 5 bis 30 Minuten)",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1234,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X2001",
+"text": "Standardisierte Kombination von Maßnahmen der Physiotherapie (Standardisierte Heilmittelkombination gem. §§ 12 Absatz 5 und 25 HeilM-RL): D1 Einzelbehandlung (Regelbehandlungszeit 60 Minuten)",
+"hinweis": "Voraussetzung: Die Leistung X2001 kann bei nicht näher speziﬁzierten Verordnungen abgegeben werden, wenn der zugelassene Leistungserbringer über die fachlichen, sächlichen und räumlichen Anforderungen zur Abgabe sämtlicher der in der verordneten standarisierten Heilmittelkombination erst genannten obligatorischen Maßnahmen (KG, KG-Gerät, MT, KMT, Wärme- /Kältetherapie, Elektrotherapie) verfügt. Erfolgt eine Speziﬁzierung kann die Leistung X2001 abgegeben werden, wenn der zugelassene Leistungserbringer über die fachlichen sächlichen und räumlichen Anforderungen zur Abgabe der speziﬁzierten Heilmittel verfügt.",
+"kapitel": "Physiotherapie",
+"euroCent": 7045,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X9701",
+"text": "Übermittlungsgebühr für Mitteilung/Bericht an die Ärztin oder den Arzt 1,40 -",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X9950",
+"text": "Hausbesuch inklusive Wegegeld (Einsatzpauschale)",
+"hinweis": "Die Positionen X9950 und X9951 sind für eine Behandlung nicht zusammen abrechenbar und können je Versicherte oder je Versicherten in der Regel nur einmal täglich in Ansatz gebracht werden. Hinweis: zum 01.01.2026 wurde die Positionsnummer",
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X9933",
+"text": "in X9950 umbenannt",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2278,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X9951",
+"text": "Hausbesuch in einer sozialen Einrichtung/Gemeinschaft inklusive Wegegeld (Einsatzpauschale)",
+"hinweis": "Die Position X9951 ist auch beim Besuch nur einer einzelnen Person abzurechnen. Der Begriﬀ „soziale Einrichtung“ in der Beschreibung zu Position X9951 bezeichnet Einrichtungen, die zur Pﬂege und Betreuung älterer, pﬂegebedürftiger Personen oder von Personen mit Behinderung dienen. Dies sind insbesondere Alten-, Pﬂege- und Behinderteneinrichtungen. Weiter sind dies Wohnformen, die auf die medizinische, soziale und therapeutische Betreuung schwerkranker und/oder älterer und/oder pﬂegebedürftiger Personen ausgelegt sind, dazu gehören u.a. auch Hospize und Unterkünfte für Ordensschwestern. Ausgenommen hiervon sind Personen in Einrichtungen des betreuten Wohnens. Hinweis: zum 01.01.2026 wurde die Positionsnummer",
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X9934",
+"text": "in X9951 umbenannt",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 1309,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X9922",
+"text": "Hausbesuch in Kurzzeit-, Verhinderungsund Tagespﬂege Für Patienten, die sich in Kurzzeitoder Verhinderungspﬂege i.S. des § 42 Absatz 1-3 SGB XI beﬁnden oder im Rahmen der Tagespﬂege i.S. des § 41 Absatz 1 SGB XI oder in einer Einrichtung des betreuten Wohnens behandelt werden, ist die Position X9922 abzurechnen.",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": 2278,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X1906",
+"text": "Physiotherapeutischer Bericht auf schriftliche Anforderung der zuständigen gesetzlichen Krankenkasse oder der behandelnden Ärztin oder des behandelnden Arztes sowie des Medizinischen Dienstes der Krankenkassen Ein Kreuz auf der Verordnung ist hier nicht ausreichend. Die schriftliche Anforderung ist der Abrechnung beizufügen. 67,69 - Vergütung von Leistungen außerhalb der Heilmittelerbringung, die ab dem 01.01.2026 durchgeführt werden:",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "21901",
+"text": "Geburtsvorbereitung in der Gruppe Bis zu 10 Schwangere je Gruppe und maximal 14 Einheiten, für jede Schwangere je Einheit (60 Minuten) 11,40 -",
+"hinweis": null,
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "21904",
+"text": "Rückbildungsgymnastik in der Gruppe Bis zu 10 Teilnehmerinnen je Gruppe und max. 10 Einheiten, für jede Teilnehmerin je Einheit (60 Minuten) 11,40 - B. Abrechnung der Leistungen und Laufzeit der Vereinbarung (1) Der Umfang der vergüteten Leistung besteht aus a) der Durchführung der Maßnahmen mit der oder dem Versicherten (Pos.-Nr. X0102 – X2001) (= Therapiezeit) und b) der Vorund Nachbereitung (inkl. Dokumentation). Die in der Vergütungsliste angegebenen Vergütungssätze gelten je behandelte Versicherte oder je behandelten Versicherten. An die Versicherten dürfen ausschließlich die auf der Verordnung verordneten Leistungen abgegeben werden. Die Durchführung einer Therapie darf nur wie in der Leistungsbeschreibung (Anlage 1) oder in der HeilM-RL beschriebenen Form erfolgen (vgl. Vertrag § 8 Absatz 7). Nicht in Anspruch genommene Leistungen dürfen nicht und vorzeitig beendete Verordnungen dürfen nur in dem tatsächlich erbrachten Umfang abgerechnet werden. (2) Mit den in der Vergütungsliste angegebenen Vergütungssätzen für die Positionen X0102 – X2001 sind die in Anlage 1 (Leistungsbeschreibung) Teil 1 Ziﬀer 2., 3. und 4. vereinbarten Leistungen des Leistungserbringers abgegolten (Endpreis). (3) Für die Übermittlungsgebühr für Mitteilung/Bericht an die Ärztin oder den Arzt (X9701), für den Bericht auf schriftliche Anforderung (X1906), sowie für die Geburtsvorbereitung in der Gruppe (21901) und die Rückbildungsgymnastik in der Gruppe (21904) werden keine Zuzahlungen erhoben. (4) Die Aufwendungen für verordnete Hausbesuche werden in Form von Pauschalen vergütet. Für Hausbesuche im häuslichen Umfeld der oder des Versicherten kann die Gebührenposition X9950 und für Hausbesuche bei Patienten, die sich in Kurzzeitoder Verhinderungspﬂege oder der Tagespﬂege beﬁnden, kann die Gebührenposition X9922 abgerechnet werden. Bei Hausbesuch in einer sozialen Einrichtung/Gemeinschaft ist die Gebührenposition X9951 abrechnungsfähig. (5)",
+"hinweis": "Die Positionen X9922, X9950 und X9951 sind für eine Behandlung nicht zusammen abrechenbar und können je Versicherte oder je Versicherten in der Regel nur einmal täglich in Ansatz gebracht werden. Sofern der Praxissitz des zugelassenen Leistungserbringers und der Ort der Leistungserbringung identisch sind (z.B. innerhalb einer sozialen Einrichtung/einer Einrichtung des Betreuten Wohnens), ist ein Hausbesuch nicht abrechnungsfähig. Die Durchführung des Hausbesuchs (HB) ist auf dem Verordnungsblatt unter Angabe des Datums der Ausführung, zusammen mit der durchgeführten Leistung zu bestätigen. (6) Die Vergütungssätze ab dem 01.01.2026 gelten für Behandlungen, die ab dem 01.01.2026 durchgeführt werden. Diese Leistungen umfassen auch die im Einzelfall ggf. anfallende Umsatzsteuer. (7) Diese Vergütungsvereinbarung tritt am 01.01.2026 in Kraft. Ihre Laufzeit ist nicht befristet und sie kann mit einer Frist von 3 Monaten, frühestens jedoch zum 31.12.2026 schriftlich gekündigt werden. Diese Anlage kann durch den GKV-Spitzenverband einerseits oder andererseits durch alle leistungserbringerseitigen Vertragspartner gemeinsam gekündigt werden. (8) Die Kündigung der Vergütungsvereinbarung berührt nicht die weitere Wirksamkeit des Vertrages nach § 125 SGB V. (9) Nach Kündigung dieser Anlage gelten die vereinbarten Preise fort, bis eine neue Anlage in Kraft tritt. (10)Vergütungsanpassungen für die unter Teil A genannten Positionen X0102 – X2001 gelten nicht für die Positionen 21901 (Geburtsvorbereitung in der Gruppe) sowie 21904 (Rückbildungsgymnastik in der Gruppe). Für diese Positionen sind die entsprechenden Regelungen zum Vertrag über die Versorgung mit Hebammenhilfe nach § 134a SGB V in der jeweils gültigen Fassung (Hebammenhilfevertrag) ausschlaggebend (siehe insbesondere Vertragsanlage1.1 Abschnitt 2 Nr. 4 des zum 01.11.2025 in Kraft getretenen Hebammenhilfevertrages). Zur Abrechnung dieser Leistungen müssen die Angaben gemäß Anhang 1 zur Anlage 2 dieses Vertrages vollständig beigefügt werden. Die Vertragsparteien vereinbaren folgenden Mechanismus zur Anpassung der Vergütung: a) Die Vergütung dieser Leistungen entspricht der auf 60 Minuten umgerechneten Vergütung der entsprechenden Positionen im jeweils gültigen Hebammenhilfevertrag nach § 134a SGB V (derzeit „4010X Geburtsvorbereitung in der Gruppe“ und „4030X Rückbildung in der Gruppe“). Maßgeblich ist die dort festgelegte Vergütungsstruktur für eine sogenannte Live-Einheit. b) Zukünftige Anpassungen der Vergütung erfolgen auf gemeinsames Verlangen der maßgeblichen Leistungserbringerverbände der Physiotherapie. Die Vergütungsanpassung entspricht dem jeweils aktuellen Hebammenhilfevertrag nach § 134a SGB V und erfolgt in derselben prozentualen Höhe, in der die beiden vorgenannten Positionen angepasst werden. Eine wirksame Erklärung ist gegenüber dem GKV-Spitzenverband schriftlich darzulegen und muss diesem mindestens 21 Kalendertage vor dem begehrten Zeitpunkt der Vergütungsanpassung zugehen. Die Anpassung erfolgt mit Wirkung zum Ablauf des 21. auf den Zugang der wirksamen Erklärung folgenden Kalendertages, jedoch nicht vor dem Inkrafttreten der Vergütungsanpassung der entsprechenden Positionen im Hebammenhilfevertrag. Nach- oder Diﬀerenzberechnungen für bereits erbrachte Leistungen sind ausgeschlossen.",
+"kapitel": "Physiotherapie",
+"euroCent": null,
+"faecher": [
+"physio"
+]
+},
+{
+"code": "X4002",
+"text": "Analyse des ergotherapeutischen Bedarfs",
+"hinweis": "(Diese Position ist je Verordnungsfall bei Therapiebeginn im Rahmen der ersten Verordnung einmal zusätzlich ohne gesonderte Verordnung abrechenbar.)",
+"kapitel": "Ergotherapie",
+"euroCent": 4316,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4102",
+"text": "Motorisch-funktionelle Behandlung: Einzelbehandlung (Regelleistungszeit 45 Minuten, davon 30 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 5927,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4122",
+"text": "Motorisch-funktionelle Behandlung: Einzelbehandlung als telemedizinische Leistung (Regelleistungszeit 45 Minuten, davon 30 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 5927,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4103",
+"text": "Sensomotorisch-perzeptive Behandlung: Einzelbehandlung (Regelleistungszeit 60 Minuten, davon 45 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 7903,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4123",
+"text": "Sensomotorisch-perzeptive Behandlung: Einzelbehandlung als telemedizinische Leistung (Regelleistungszeit 60 Minuten, davon 45 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 7903,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4104",
+"text": "Ergoth. Hirnleistungstraining: Einzelbehandlung (Regelleistungszeit 45 Minuten, davon mind. 30 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 5927,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4124",
+"text": "Ergoth. Hirnleistungstraining: Einzelbehandlung als telemedizinische Leistung (Regelleistungszeit 45 Minuten, davon mind. 30 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 5927,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4105",
+"text": "Psychisch-funktionelle Behandlung: Einzelbehandlung (Regelleistungszeit 75 Minuten, davon 60 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 9879,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4125",
+"text": "Psychisch-funktionelle Behandlung: Einzelbehandlung als telemedizinische Leistung (Regelleistungszeit 75 Minuten, davon 60 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 9879,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4107",
+"text": "Motorisch-funktionelle Behandlung: Einzelbehandlung bei Beratung zur Integration in das häusliche und soziale Umfeld (Regelleistungszeit 120 Minuten, davon 105 Minuten Therapiezeit) Die Beratung zur Integration in das häusliche und soziale Umfeld kann einmal pro Verordnungsfall oder orientierender Behandlungsmenge als Einzeltherapie erbracht werden und erfordert keine gesonderte Verordnung. Diese Leistungsposition ist in der Anzahl der verordneten Therapien enthalten.",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 15805,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4127",
+"text": "Motorisch-funktionelle Behandlung: Einzelbehandlung bei Beratung zur Integration in das häusliche und soziale Umfeld als telemedizinische Leistung (Regelleistungszeit 120 Minuten, davon 105 Minuten Therapiezeit) Die Beratung zur Integration in das häusliche und soziale Umfeld kann einmal pro Verordnungsfall oder orientierender Behandlungsmenge als Einzeltherapie erbracht werden und erfordert keine gesonderte Verordnung. Diese Leistungsposition ist in der Anzahl der verordneten Therapien enthalten.",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 15805,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4108",
+"text": "Sensomotorisch-perzeptive Behandlung: Einzelbehandlung bei Beratung zur Integration in das häusliche und soziale Umfeld (Regelleistungszeit 120 Minuten, davon 105 Minuten Therapiezeit) Die Beratung zur Integration in das häusliche und soziale Umfeld kann einmal pro Verordnungsfall oder orientierender Behandlungsmenge als Einzeltherapie erbracht werden und erfordert keine gesonderte Verordnung. Diese Leistungsposition ist in der Anzahl der verordneten Therapien enthalten.",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 18251,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4128",
+"text": "Sensomotorisch-perzeptive Behandlung: Einzelbehandlung bei Beratung zur Integration in das häusliche und soziale Umfeld als telemedizinische Leistung (Regelleistungszeit 120 Minuten, davon 105 Minuten Therapiezeit) Die Beratung zur Integration in das häusliche und soziale Umfeld kann einmal pro Verordnungsfall oder orientierender Behandlungsmenge als Einzeltherapie erbracht werden und erfordert keine gesonderte Verordnung. Diese Leistungsposition ist in der Anzahl der verordneten Therapien enthalten.",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 18251,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4109",
+"text": "Psychisch-funktionelle Behandlung: Einzelbehandlung bei Beratung zur Integration in das häusliche und soziale Umfeld (Regelleistungszeit 120 Minuten, davon 105 Minuten Therapiezeit) Die Beratung zur Integration in das häusliche und soziale Umfeld kann einmal pro Verordnungsfall oder orientierender Behandlungsmenge als Einzeltherapie erbracht werden und erfordert keine gesonderte Verordnung. Diese Leistungsposition ist in der Anzahl der verordneten Therapien enthalten.",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 15805,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4129",
+"text": "Psychisch-funktionelle Behandlung: Einzelbehandlung bei Beratung zur Integration in das häusliche und soziale Umfeld als telemedizinische Leistung (Regelleistungszeit 120 Minuten, davon 105 Minuten Therapiezeit) Die Beratung zur Integration in das häusliche und soziale Umfeld kann einmal pro Verordnungsfall oder orientierender Behandlungsmenge als Einzeltherapie erbracht werden und erfordert keine gesonderte Verordnung. Diese Leistungsposition ist in der Anzahl der verordneten Therapien enthalten.",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 15805,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4112",
+"text": "Ergoth. Hirnleistungstraining: Einzelbehandlung bei Beratung zur Integration in das häusliche und soziale Umfeld (Regelleistungszeit 120 Minuten, davon mind. 105 Minuten Therapiezeit) Die Beratung zur Integration in das häusliche und soziale Umfeld kann einmal pro Verordnungsfall oder orientierender Behandlungsmenge als Einzeltherapie erbracht werden und erfordert keine gesonderte Verordnung. Diese Leistungsposition ist in der Anzahl der verordneten Therapien enthalten.",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 15805,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4132",
+"text": "Ergoth. Hirnleistungstraining: Einzelbehandlung bei Beratung zur Integration in das häusliche und soziale Umfeld als telemedizinische Leistung (Regelleistungszeit 120 Minuten, davon mind. 105 Minuten Therapiezeit) Die Beratung zur Integration in das häusliche und soziale Umfeld kann einmal pro Verordnungsfall oder orientierender Behandlungsmenge als Einzeltherapie erbracht werden und erfordert keine gesonderte Verordnung. Diese Leistungsposition ist in der Anzahl der verordneten Therapien enthalten.",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 15805,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4205",
+"text": "Motorisch-funktionelle Behandlung: Parallelbehandlung bei gleichzeitiger Anwesenheit von zwei Patienten (Regelleistungszeit 45 Minuten, davon 30 Minuten Therapiezeit; es ist die Leistungsbeschreibung Teil 1 Pkt. 6 zu beachten)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 4742,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4225",
+"text": "Motorisch-funktionelle Behandlung: Parallelbehandlung bei gleichzeitiger Anwesenheit von zwei Patienten als telemedizinische Leistung (Regelleistungszeit 45 Minuten, davon 30 Minuten Therapiezeit; es ist die Leistungsbeschreibung Teil 1 Pkt. 6 zu beachten)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 4742,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4206",
+"text": "Sensomotorisch-perzeptive Behandlung: Parallelbehandlung bei gleichzeitiger Anwesenheit von zwei Patienten (Regelleistungszeit 60 Minuten, davon 45 Minuten Therapiezeit; es ist die Leistungsbeschreibung Teil 1 Pkt. 6 zu beachten)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 6323,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4226",
+"text": "Sensomotorisch-perzeptive Behandlung: Parallelbehandlung bei gleichzeitiger Anwesenheit von zwei Patienten als telemedizinische Leistung (Regelleistungszeit 60 Minuten, davon 45 Minuten Therapiezeit; es ist die Leistungsbeschreibung Teil 1 Pkt. 6 zu beachten)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 6323,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4207",
+"text": "Ergoth. Hirnleistungstraining: Parallelbehandlung bei gleichzeitiger Anwesenheit von zwei Patienten (Regelleistungszeit 45 Minuten, davon mind. 30 Minuten Therapiezeit; es ist die Leistungsbeschreibung Teil 1 Pkt. 6 zu beachten)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 4742,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4227",
+"text": "Ergoth. Hirnleistungstraining: Parallelbehandlung bei gleichzeitiger Anwesenheit von zwei Patienten als telemedizinische Leistung (Regelleistungszeit 45 Minuten, davon mind. 30 Minuten Therapiezeit; es ist die Leistungsbeschreibung Teil 1 Pkt. 6 zu beachten)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 4742,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4208",
+"text": "Psychisch-funktionelle Behandlung: Parallelbehandlung bei gleichzeitiger Anwesenheit von zwei Patienten (Regelleistungszeit 75 Minuten, davon 60 Minuten Therapiezeit; es ist die Leistungsbeschreibung Teil 1 Pkt. 6 zu beachten)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 7903,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4228",
+"text": "Psychisch-funktionelle Behandlung: Parallelbehandlung bei gleichzeitiger Anwesenheit von zwei Patienten als telemedizinische Leistung (Regelleistungszeit 75 Minuten, davon 60 Minuten Therapiezeit; es ist die Leistungsbeschreibung Teil 1 Pkt. 6 zu beachten)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 7903,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4209",
+"text": "Motorisch-funktionelle Behandlung: Gruppenbehandlung (3 - 6 Patienten) (Regelleistungszeit 45 Minuten, davon 30 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 2075,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4229",
+"text": "Motorisch-funktionelle Behandlung: Gruppenbehandlung (3 - 6 Patienten) als telemedizinische Leistung (Regelleistungszeit 45 Minuten, davon 30 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 2075,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4210",
+"text": "Sensomotorisch-perzeptive Behandlung: Gruppenbehandlung (3 - 6 Patienten) (Regelleistungszeit 60 Minuten, davon 45 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 2766,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4230",
+"text": "Sensomotorisch-perzeptive Behandlung: Gruppenbehandlung (3 – 6 Patienten) als telemedizinische Leistung (Regelleistungszeit 60 Minuten, davon 45 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 2766,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4211",
+"text": "Ergoth. Hirnleistungstraining: Gruppenbehandlung (3 – 6 Patienten) (Regelleistungszeit 60 Minuten, davon 45 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 2766,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4231",
+"text": "Ergoth. Hirnleistungstraining: Gruppenbehandlung (3 - 6 Patienten) als telemedizinische Leistung (Regelleistungszeit 60 Minuten, davon 45 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 2766,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4212",
+"text": "Psychisch-funktionelle Behandlung: Gruppenbehandlung (3 - 6 Patienten) (Regelleistungszeit 105 Minuten, davon 90 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 4841,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4232",
+"text": "Psychisch-funktionelle Behandlung: Gruppenbehandlung (3 - 6 Patienten) als telemedizinische Leistung (Regelleistungszeit 105 Minuten, davon 90 Minuten Therapiezeit)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 4841,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4301",
+"text": "Thermische Anwendung (Wärme oder Kälte)",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 886,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4405",
+"text": "Ergotherapeutische temporäre Schiene: Herstellung, Anpassung und Korrektur temporärer Schienen ohne Kostenvoranschlag bis",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 40000,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X4406",
+"text": "Ergotherapeutische temporäre Schiene: Herstellung, Anpassung und Korrektur temporärer Schienen nach Kostenvoranschlag ab",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 40001,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X9702",
+"text": "Übermittlungsgebühr für Mitteilung/Bericht an die Verordnende oder den Verordnenden",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 125,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X9932",
+"text": "Mehraufwand für die Beratung zur Integration in das häusliche und soziale Umfeld Eine Abrechnung ist nur in Kombination mit den Positionsnummern X4107, X4108, X4109, X4112 möglich. Sofern die ergotherapeutische Einzelbehandlung als Hausbesuch verordnet wurde, kann die Position X9932 nicht abgerechnet werden.",
+"hinweis": null,
+"kapitel": "Ergotherapie",
+"euroCent": 2869,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X9952",
+"text": "Hausbesuch inclusive Wegegeld (Einsatzpauschale)",
+"hinweis": "Die Position X9952 kann je Versicherte oder je Versicherten nur einmal je Tag in Ansatz gebracht werden.",
+"kapitel": "Ergotherapie",
+"euroCent": 2869,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "X9953",
+"text": "Hausbesuch in einer sozialen Einrichtung/Gemeinschaft inclusive Wegegeld (Einsatzpauschale)",
+"hinweis": "Die Position X9953 ist auch beim Besuch nur einer einzelnen Person abzurechnen. Der Begriﬀ „soziale Einrichtung“ in der Beschreibung zu Position X9953 bezeichnet Einrichtungen, die zur Pﬂege und Betreuung älterer, pﬂegebedürftiger Personen oder von Personen mit Behinderung dienen. Dies sind insbesondere Alten-, Pﬂege- und Behinderteneinrichtungen, Einrichtungen für die Kurzzeit- und Tagespﬂege. Weiter sind dies Wohnformen, die auf die medizinische, soziale und therapeutische Betreuung schwerkranker und/oder älterer und/oder pﬂegebedürftiger Personen ausgelegt sind, dazu gehören u. a. auch Hospize, Unterkünfte für Ordensschwestern.",
+"kapitel": "Ergotherapie",
+"euroCent": 1871,
+"faecher": [
+"ergo"
+]
+},
+{
+"code": "33010",
+"text": "Erstdiagnostik",
+"hinweis": "Die Erstdiagnostik erfolgt vor der ersten Therapie im Rahmen der ersten Verordnung eines Verordnungsfalles. Regelbehandlungszeit: 60 Minuten Erstdiagnostik und Therapie erfolgen nicht am selben Tag. Wechselt die Patientin oder der Patient innerhalb eines Verordnungsfalles den zugelassenen Leistungserbringer, kann dieser ebenfalls eine Erstdiagnostik durchführen. Je Kalenderjahr können insgesamt bis zu 2 Einheiten Diagnostik (entweder 1x Erstdiagnostik + 1x Bedarfsdiagnostik oder 2x Bedarfsdiagnostik) erbracht werden.",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 12086,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33011",
+"text": "Bedarfsdiagnostik",
+"hinweis": "Die Bedarfsdiagnostik kann, soweit es im Rahmen des Verlaufs der Behandlung erforderlich ist, in einem Verordnungsfall ab der zweiten Verordnung zusätzlich erfolgen. Regelbehandlungszeit: 30 Minuten Bedarfsdiagnostik und Therapie erfolgen nicht am selben Tag. Je Kalenderjahr können insgesamt bis zu 2 Einheiten Diagnostik (entweder 1x Erstdiagnostik + 1x Bedarfsdiagnostik oder 2x Bedarfsdiagnostik) erbracht werden.",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 6043,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33102",
+"text": "Einzel-Therapie",
+"hinweis": "Regelbehandlungszeit: 30 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 45 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 5706,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33122",
+"text": "Einzel-Therapie (telemedizinische Leistungserbringung)",
+"hinweis": "Regelbehandlungszeit: 30 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 45 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 5706,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33103",
+"text": "Einzel-Therapie",
+"hinweis": "Regelbehandlungszeit: 45 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 60 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 7606,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33123",
+"text": "Einzel-Therapie (telemedizinische Leistungserbringung)",
+"hinweis": "Regelbehandlungszeit: 45 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 60 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 7606,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33104",
+"text": "Einzel-Therapie",
+"hinweis": "Regelbehandlungszeit: 60 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 75 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 9510,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33124",
+"text": "Einzel-Therapie (telemedizinische Leistungserbringung)",
+"hinweis": "Regelbehandlungszeit: 60 Minuten Vor- Nachbereitung und Dokumentation: 15Minuten Regelleistungszeit: 75 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 9510,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33220",
+"text": "Gruppen-Therapie 2 Patientinnen und/oder Patienten, je Patientin oder Patient",
+"hinweis": "Regelbehandlungszeit: 45 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 60 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 6845,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33240",
+"text": "Gruppen-Therapie 2 Patientinnen und/oder Patienten, je Patientin oder Patient (telemedizinische Leistungserbringung)",
+"hinweis": "Regelbehandlungszeit: 45 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 60 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 6845,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33223",
+"text": "Gruppen-Therapie 2 Patientinnen und/oder Patienten, je Patientin oder Patient",
+"hinweis": "Regelbehandlungszeit: 90 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 105 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 11983,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33243",
+"text": "Gruppen-Therapie 2 Patientinnen und/oder Patienten, je Patientin oder Patient (telemedizinische Leistungserbringung)",
+"hinweis": "Regelbehandlungszeit: 90 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 105 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 11983,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33222",
+"text": "Gruppen-Therapie 3-5 Patientinnen und/oder Patienten, je Patientin oder Patient",
+"hinweis": "Regelbehandlungszeit: 45 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 60 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 3424,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33242",
+"text": "Gruppen-Therapie 3-5 Patientinnen und/oder Patienten, je Patientin oder Patient (telemedizinische Leistungserbringung)",
+"hinweis": "Regelbehandlungszeit: 45 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 60 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 3424,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33224",
+"text": "KB 83224 Gruppen-Therapie 3-5 Patientinnen und/oder Patienten, je Patientin oder Patient",
+"hinweis": "Regelbehandlungszeit: 90 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 105 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 5991,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33244",
+"text": "Gruppen-Therapie 3-5 Patientinnen und/oder Patienten, je Patientin oder Patient (telemedizinische Leistungserbringung)",
+"hinweis": "Regelbehandlungszeit: 90 Minuten Vor- Nachbereitung und Dokumentation: 15 Minuten Regelleistungszeit: 105 Minuten",
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 5991,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "39901",
+"text": "Ärztlich verordneter Hausbesuch einer Patientin oder eines Patienten in deren oder dessen Privathaushalt (einschl. Einrichtungen des „Betreuten Wohnens“), in einer Kurzzeitpﬂege i. S. des § 42 SGB XI oder in einer sozialen Einrichtung (die zur Pﬂege und Betreuung älterer, pﬂegebedürftiger oder behinderter Personen dient, insbesondere Alten-, Pﬂegeund Behinderteneinrichtungen). Einsatzpauschale inkl. Wegegeld",
+"hinweis": null,
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": 2306,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33302",
+"text": "Bericht des Leistungserbringers an die verordnende Ärztin oder den verordnenden Arzt Der Bericht des Leistungserbringers an die verordnende Ärztin oder den verordnenden Arzt wird von der Vertragsärztin oder dem Vertragsarzt über das Verordnungsformular angefordert (Bericht i. S. § 13 Absatz 2 lit. d, § 16 Absatz 7 HeilM-RL oder § 11 Absatz 2 lit. c, § 15 Absatz 5 HeilM-RL ZÄ). Für diesen Bericht ist ausschließlich Anhang A zur Leistungsbeschreibung zu verwenden. 6,72 -",
+"hinweis": null,
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": null,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "33303",
+"text": "Bericht auf besondere Anforderung Der Bericht auf besondere Anforderung (kein Bericht i. S. § 13 Absatz 2 lit. d, § 16 Absatz 7 HeilM-RL oder § 11 Absatz 2 lit. c, § 15 Absatz 5 HeilM-RL ZÄ) kann von der Vertragsärztin oder dem Vertragsarzt oder dem Medizinischen Dienst beim Leistungserbringer ausschließlich mittels Anhang B zur Leitungsbeschreibung angefordert werden. Für den Bericht auf besondere Anforderung ist ausschließlich Anhang C zur Leistungsbeschreibung zu verwenden. 120,86 -",
+"hinweis": null,
+"kapitel": "Stimm-, Sprech-, Sprach- und Schlucktherapie",
+"euroCent": null,
+"faecher": [
+"logo"
+]
+},
+{
+"code": "78010",
+"text": "Podologische Behandlung (klein)",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 3516,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78020",
+"text": "Podologische Behandlung (groß)",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 5055,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78030",
+"text": "Podologische Befundung",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 347,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78040",
+"text": "Eingangsbefundung",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 2248,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78210",
+"text": "Anpassung einer einteiligen unilateralen und bilateralen Nagelkorrekturspange, z.B. nach Ross Fraser",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 9904,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78220",
+"text": "Fertigung einer einteiligen unilateralen und bilateralen Nagelkorrekturspange, z. B. nach Ross Fraser 54,24 -",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": null,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78230",
+"text": "Nachregulierung der einteiligen unilateralen und bilateralen Nagelkorrekturspange, z. B. nach Ross Fraser",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 4964,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78300",
+"text": "Vorbereitung des Nagels, Anpassung und Aufsetzen einer mehrteiligen bilateralen Nagelkorrekturspange",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 9764,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78400",
+"text": "Vorbereitung des Nagels, Anpassung und Aufsetzen einer einteiligen Kunststoffoder Metall- Nagelkorrekturspange",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 5389,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78610",
+"text": "Nagelspangenbehandlung",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 5590,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78620",
+"text": "Aufschlag für besonderen Aufwand",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 1686,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78100",
+"text": "Erstbefundung groß",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 5600,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78110",
+"text": "Erstbefundung klein",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 2790,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78510",
+"text": "indikationsspezifische Kontrolle auf Sitzund Passgenauigkeit",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 1721,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78520",
+"text": "Behandlungsabschluss / Entfernung der Nagelkorrekturspange",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 2591,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "78530",
+"text": "Therapiebericht UI 2",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 1686,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "79933",
+"text": "Hausbesuch, ärztlich verordnet, inkl. Wegegeld",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 2361,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "79934",
+"text": "Hausbesuch in soz. Einrichtung, inkl. Wegegeld",
+"hinweis": null,
+"kapitel": "Podologie",
+"euroCent": 1360,
+"faecher": [
+"podo"
+]
+},
+{
+"code": "X5001",
+"text": "Ernährungstherapeutische Anamnese (Regelleistungszeit 60 Minuten, davon mind. 30 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 7966,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5021",
+"text": "Ernährungstherapeutische Anamnese per Videoübertragung gemäß § 7a Absatz 6 (Regelleistungszeit 60 Minuten, davon mind. 30 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 7966,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5031",
+"text": "Ernährungstherapeutische Anamnese als telefonische Beratung gemäß § 7a Absatz 6 (Regelleistungszeit 60 Minuten, davon einmalig maximal 30 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 7966,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5002",
+"text": "Ernährungstherapeutische Anamnese (Regelleistungszeit 30 Minuten, davon mind. 15 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 3982,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5022",
+"text": "Ernährungstherapeutische Anamnese per Videoübertragung gemäß § 7a Absatz 6 (Regelleistungszeit 30 Minuten, davon mind. 15 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 3982,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5032",
+"text": "Ernährungstherapeutische Anamnese als telefonische Beratung gemäß § 7a Absatz 6 (Regelleistungszeit 30 Minuten, davon einmalig mind. 15 bis max. 30 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 3982,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5003",
+"text": "Ernährungstherapeutische Intervention - Einzelbehandlung (Regelleistungszeit 60 Minuten, davon mind. 30 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 7966,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5023",
+"text": "Ernährungstherapeutische Intervention - Einzelbehandlung per Videoübertragung gemäß § 7a Absatz 6 (Regelleistungszeit 60 Minuten, davon mind. 30 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 7966,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5033",
+"text": "Ernährungstherapeutische Intervention - Einzelbehandlung als telefonische Beratung gemäß § 7a Absatz 6 (Regelleistungszeit 60 Minuten, davon einmalig max.30 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 7966,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5004",
+"text": "Ernährungstherapeutische Intervention - Einzelbehandlung (Regelleistungszeit 30 Minuten, davon mind. 15 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 3982,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5024",
+"text": "Ernährungstherapeutische Intervention - Einzelbehandlung per Videoübertragung gemäß § 7a Absatz 6 (Regelleistungszeit 30 Minuten, davon mind. 15 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 3982,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5034",
+"text": "Ernährungstherapeutische Intervention - Einzelbehandlung als telefonische Beratung gemäß § 7a Absatz 6 (Regelleistungszeit 30 Minuten, davon einmalig mind. 15 und max. 30 Minuten mit zu behandelnder Person)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 3982,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5005",
+"text": "Ernährungstherapeutische Intervention - Einzelbehandlung im häuslichen o. sozialen Umfeld (Regelleistungszeit 60 Minuten, davon mind. 30 Minuten mit zu behandelnder Person; bis zu 4x je Kalenderjahr sind bis zu 4x 60 Minuten",
+"hinweis": "Regelleistungszeit je Verordnung abrechnungsfähig)",
+"kapitel": "Ernährungstherapie",
+"euroCent": 7966,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5025",
+"text": "Ernährungstherapeutische Intervention - Einzelbehandlung im häuslichen o. sozialen Umfeld per Videoübertragung gemäß § 7a Absatz 6 (Regelleistungszeit 60 Minuten, davon mind. 30 Minuten mit zu behandelnder Person; bis zu 4x je Kalenderjahr sind bis zu 4x 60 Minuten",
+"hinweis": "Regelleistungszeit je Verordnung abrechnungsfähig)",
+"kapitel": "Ernährungstherapie",
+"euroCent": 7966,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5035",
+"text": "Ernährungstherapeutische Intervention - Einzelbehandlung im häuslichen o. sozialen Umfeld als telefonische Beratung gemäß § 7a Absatz 6 (Regelleistungszeit 60 Minuten, davon einmalig max. 30 Minuten mit zu behandelnder Person; bis zu 4x je Kalenderjahr sind bis zu 4x 60 Minuten",
+"hinweis": "Regelleistungszeit je Verordnung abrechnungsfähig)",
+"kapitel": "Ernährungstherapie",
+"euroCent": 7966,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5006",
+"text": "Ernährungstherapeutische Intervention – Gruppenbehandlung (Regelleistungszeit 60 Minuten, davon mind. 30 Minuten mit zu behandelnden Personen)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 5576,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5026",
+"text": "Ernährungstherapeutische Intervention – Gruppenbehandlung per Videoübertragung gemäß § 7a Absatz 6 (Regelleistungszeit 60 Minuten, davon mind. 30 Minuten mit zu behandelnden Personen)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 5576,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5036",
+"text": "Ernährungstherapeutische Intervention – Gruppenbehandlung als telefonische Beratung gemäß § 7a Absatz 6 (Regelleistungszeit 60 Minuten, davon einmalig max. 30 Minuten mit zu behandelnden Personen)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 5576,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5007",
+"text": "Ernährungstherapeutische Intervention – Gruppenbehandlung (Regelleistungszeit 30 Minuten, davon mind. 15 Minuten mit zu behandelnden Personen)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 2788,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5027",
+"text": "Ernährungstherapeutische Intervention – Gruppenbehandlung per Videoübertragung gemäß § 7a Absatz 6 (Regelleistungszeit 30 Minuten, davon mind. 15 Minuten mit zu behandelnden Personen)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 2788,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5037",
+"text": "Ernährungstherapeutische Intervention – Gruppenbehandlung als telefonische Beratung gemäß § 7a Absatz 6 (Regelleistungszeit 30 Minuten, davon einmalig mind. 15 und max.30 Minuten mit zu behandelnden Personen)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 2788,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5008",
+"text": "Berechnung und Auswertung von Ernährungsprotokollen und Entwicklung entsprechender individueller Empfehlungen (Regelleistungszeit 60 Minuten.",
+"hinweis": "Die Leistung ist nicht Bestandteil des ärztlich verordneten Zeitkontingents. Die Leistung kann zweimal je Verordnung - jedoch maximal 8x je Kalenderjahr- abgerechnet werden.)",
+"kapitel": "Ernährungstherapie",
+"euroCent": 6518,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X5009",
+"text": "Notwendige Abstimmung der Therapie mit einer dritten Partei (Die Leistung ist nicht Bestandteil des ärztlich verordneten Zeitkontingents und kann einmal je Verordnung - jedoch maximal 4x je Kalenderjahrabgerechnet werden.)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 6518,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X9937",
+"text": "Ärztlich verordneter Hausbesuch – Wegegeld je Kilometer bis einschließlich 40 km (Eine Abrechnung ist nur in Verbindung mit der Pos.-Nr. X5001, X5002, X5003 und X5004 möglich",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 31,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X9941",
+"text": "Ärztlich verordneter Hausbesuch – Wegegeld je Kilometer ab dem 41. km (Eine Abrechnung ist nur in Verbindung der Pos.-Nr. X5001, X5002, X5003 und",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": null,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X9942",
+"text": "Hausbesuch bei der Beratung im häuslichen und sozialen Umfeld - Wegegeld je Kilometer bis einschließlich 40 km (Eine Abrechnung ist nur in Verbindung mit der Pos.-Nr. X5005 möglich)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 31,
+"faecher": [
+"endo",
+"hausarzt"
+]
+},
+{
+"code": "X9943",
+"text": "Hausbesuch bei der Beratung im häuslichen und sozialen Umfeld - Wegegeld je Kilometer ab dem 41. Km (Eine Abrechnung ist nur in Verbindung mit der Pos.- Nr. X5005 möglich)",
+"hinweis": null,
+"kapitel": "Ernährungstherapie",
+"euroCent": 88,
+"faecher": [
+"endo",
+"hausarzt"
+]
+}
+]
+}

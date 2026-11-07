@@ -1,0 +1,361 @@
+{
+"meta": {
+"system": "HKP",
+"titel": "Häusliche Krankenpflege, Leistungsverzeichnis",
+"quelle": "G-BA Häusliche Krankenpflege-Richtlinie (HKP-RL), Anlage Leistungsverzeichnis, in Kraft seit 12.12.2025",
+"stand": "12.12.2025"
+},
+"leistungen": [
+{
+"code": "HKP 1",
+"text": "Anleitung bei der Grundpflege in der Häuslichkeit",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 2",
+"text": "Ausscheidungen",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 3",
+"text": "Ernährung",
+"hinweis": null,
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 4",
+"text": "Körperpflege",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 5",
+"text": "Hauswirtschaftliche Versorgung",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 6",
+"text": "Absaugen",
+"hinweis": null,
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 7",
+"text": "Anleitung bei der Behandlungspflege",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 8",
+"text": "Beatmungsgerät, Bedienung und Überwachung",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 9",
+"text": "Blasenspülung Blasenspülungen sind nur verordnungsfähig bei durchflussbehinderten Dauerkathetern infolge Pyurie oder Blutkoageln. Bis zu 3 Tage",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 10",
+"text": "Blutdruckmessung 24-h-Blutdruckmessungen mittels Dauermessgerät sind keine Leistung der häuslichen Krankenpflege.",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 11",
+"text": "Blutzuckermessung Routinemäßige Dauermessungen sind nur zur Fortsetzung der sog. Intensivierten Insulintherapie verordnungsfähig",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 11a",
+"text": "Interstitielle Glukosemessung",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 12",
+"text": "Positionswechsel zur Dekubitusbehandlung",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 13",
+"text": "Drainagen, Überprüfen, Versorgen",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 14",
+"text": "Einlauf/Klistier/Klysma/digitale Enddarmausräumung",
+"hinweis": null,
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 15",
+"text": "Flüssigkeitsbilanzierung",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 16",
+"text": "Infusionen, i. v.",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 16a",
+"text": "Infusionen, S.c. Auf der Verordnung ist der Infusionstyp, die Menge und die Dauer der Infusion anzugeben. Bis zu 7 Tage",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 17",
+"text": "Inhalation",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 18",
+"text": "Injektionen",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 19",
+"text": "Injektion, Richten von",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 20",
+"text": "Instillation Bei Blaseninstillationen sind Blasenspülungen Bestandteil der Leistung und nicht gesondert verordnungsfähig.",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 21",
+"text": "Kälteträger, Auflegen von",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 22",
+"text": "Katheter, Versorgung eines suprapubischen siehe Ausscheidung (Nr. 2) nach Neuanlage für bis zu 14 Tage",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 23",
+"text": "Katheterisierung der Harnblase zur Ableitung des Urins",
+"hinweis": null,
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 24a",
+"text": "Symptomkontrolle bei Palliativpatientinnen oder Palliativpatienten",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 25",
+"text": "Magensonde, Legen und Wechseln",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 26",
+"text": "Medikamente (außer Injektionen, Infusionen, Instillationen, Inhalationen)",
+"hinweis": null,
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 26a",
+"text": "Durchführen der Sanierung von MRSA-Trägern mit gesicherter Diagnose",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 27",
+"text": "Perkutane endoskopische Gastrostomie (PEG), Versorgung bei",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 27a",
+"text": "Psychiatrische häusliche Krankenpflege",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 28",
+"text": "Stomabehandlung",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 29",
+"text": "Trachealkanüle, Wechsel und Pflege der",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 30",
+"text": "Venenkatheter, Pflege des zentralen",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 31",
+"text": "Wundversorgung einer akuten Wunde",
+"hinweis": "Häufigkeit und Dauer kann die Pflegefachkraft festlegen",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 31a",
+"text": "Wundversorgung einer chronischen und schwer heilenden Wunde",
+"hinweis": "Häufigkeit und Dauer legt die Ärztin oder der Arzt fest",
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 31b",
+"text": "An- oder Ausziehen von ärztlich verordneten Kompressionsstrümpfen/-strumpfhosen der Kompressionsklassen I bis IV",
+"hinweis": null,
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 31c",
+"text": "An- oder Ablegen von stützenden und stabilisierenden Verbänden zur unterstützenden Funktionssicherung der Gelenke z. B. bei Distorsion, Kontusion, Erguss",
+"hinweis": null,
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+},
+{
+"code": "HKP 31d",
+"text": "An- oder Ablegen von ärztlich verordneten Bandagen und Orthesen im Rahmen der Krankenbehandlung",
+"hinweis": null,
+"kapitel": "Häusliche Krankenpflege (§ 37 SGB V)",
+"faecher": [
+"pflege"
+]
+}
+]
+}

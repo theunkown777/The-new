@@ -1,0 +1,860 @@
+{
+"meta": {
+"system": "HEBAMME",
+"titel": "Hebammenhilfevertrag, Anlage 1.1 Abschnitt 2 Vergütungsverzeichnis",
+"quelle": "Vertrag nach § 134a SGB V, Vergütungsverzeichnis gültig ab 01.04.2026 (Veröffentlichung GKV-Spitzenverband/AOK)",
+"stand": "01.04.2026"
+},
+"leistungen": [
+{
+"code": "101XX",
+"text": "Hilfeleistung in der Schwangerschaft",
+"hinweis": "Vergütung je Einheit 6,19 €, mit Zuschlag 7,24 €",
+"kapitel": "Schwangerschaft",
+"euroCent": 619,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "1020X",
+"text": "Vorsorgeuntersuchung der Schwangeren",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "1030X",
+"text": "Spezifisches Aufklärungsgespräch zum gewählten Geburtsort",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "1040X",
+"text": "Individuelle Stillvorbereitung",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "105XX",
+"text": "Hilfeleistung bei einer frühen außerklinischen Fehlgeburt bis 11+6 SSW",
+"hinweis": "Vergütung je Einheit 6,19 €, mit Zuschlag 7,24 €",
+"kapitel": "Schwangerschaft",
+"euroCent": 619,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "106XX",
+"text": "Hilfeleistung bei einer späten außerklinischen Fehlgeburt ab 12+0",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10601",
+"text": "Hilfeleistung bei einer späten außerklinischen Fehlgeburt ab 12+0 – im häuslichen Umfeld",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10602",
+"text": "Hilfeleistung bei einer späten außerklinischen Fehlgeburt ab 12+0 – in einer von Hebammen geleiteten Einrichtung",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10611",
+"text": "Hilfeleistung bei einer späten außerklinischen Fehlgeburt ab 12+0 – im häuslichen Umfeld mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Schwangerschaft",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10612",
+"text": "Hilfeleistung bei einer späten außerklinischen Fehlgeburt ab 12+0 – in einer von Hebammen geleiteten Einrichtung mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Schwangerschaft",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10705",
+"text": "im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": 495,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10715",
+"text": "im Krankenhaus als Beleghebamme mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Schwangerschaft",
+"euroCent": 579,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10805",
+"text": "im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": 186,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10815",
+"text": "im Krankenhaus als Beleghebamme mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Schwangerschaft",
+"euroCent": 217,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10905",
+"text": "im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": 495,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "10915",
+"text": "im Krankenhaus als Beleghebamme mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Schwangerschaft",
+"euroCent": 579,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "11005",
+"text": "im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Schwangerschaft",
+"euroCent": 186,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "11015",
+"text": "im Krankenhaus als Beleghebamme mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Schwangerschaft",
+"euroCent": 217,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "201XX",
+"text": "Hilfeleistung bei Wehen und einer Geburt",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20101",
+"text": "Hilfeleistung bei Wehen und einer Geburt – im häuslichen Umfeld",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20102",
+"text": "Hilfeleistung bei Wehen und einer Geburt – in einer von Hebammen geleiteten Einrichtung",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20105",
+"text": "Hilfeleistung bei Wehen und einer Geburt – im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": 495,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20111",
+"text": "Hilfeleistung bei Wehen und einer Geburt – im häuslichen Umfeld mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20112",
+"text": "Hilfeleistung bei Wehen und einer Geburt – in einer von Hebammen geleiteten Einrichtung mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20115",
+"text": "Hilfeleistung bei Wehen und einer Geburt – im Krankenhaus als Beleghebamme mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": 579,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "202XX",
+"text": "Grundpauschale für eine außerklinische und eine Begleit-Beleggeburt",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20201",
+"text": "Grundpauschale für eine außerklinische und eine Begleit-Beleggeburt – im häuslichen Umfeld",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": 73875,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20202",
+"text": "Grundpauschale für eine außerklinische und eine Begleit-Beleggeburt – in einer von Hebammen geleiteten Einrichtung",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": 62638,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20205",
+"text": "Grundpauschale für eine außerklinische und eine Begleit-Beleggeburt – bei einer Begleit-Beleggeburt",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": 23770,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20211",
+"text": "Grundpauschale für eine außerklinische und eine Begleit-Beleggeburt – im häuslichen Umfeld mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": 86434,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20212",
+"text": "Grundpauschale für eine außerklinische und eine Begleit-Beleggeburt – in einer von Hebammen geleiteten Einrichtung mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": 73286,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20215",
+"text": "Grundpauschale für eine außerklinische und eine Begleit-Beleggeburt – bei einer Begleit-Beleggeburt mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": 27810,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20305",
+"text": "im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": 217,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20315",
+"text": "im Krankenhaus als Beleghebamme mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": 253,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20505",
+"text": "im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": 186,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20515",
+"text": "im Krankenhaus als Beleghebamme mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": 217,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "2060X",
+"text": "Zuschlag für Mehrlingsgeburt",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20601",
+"text": "Zuschlag für Mehrlingsgeburt – im häuslichen Umfeld",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20602",
+"text": "Zuschlag für Mehrlingsgeburt – in einer von Hebammen geleiteten Einrichtung",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20605",
+"text": "Zuschlag für Mehrlingsgeburt – im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "207XX",
+"text": "Hilfeleistung bei einer nicht vollendeten außerklinischen Geburt",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20701",
+"text": "Hilfeleistung bei einer nicht vollendeten außerklinischen Geburt – im häuslichen Umfeld",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20702",
+"text": "Hilfeleistung bei einer nicht vollendeten außerklinischen Geburt – in einer von Hebammen geleiteten Einrichtung",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20711",
+"text": "Hilfeleistung bei einer nicht vollendeten außerklinischen Geburt – im häuslichen Umfeld mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20712",
+"text": "Hilfeleistung bei einer nicht vollendeten außerklinischen Geburt – in einer von Hebammen geleiteten Einrichtung mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "208XX",
+"text": "Hilfeleistung bei einer Geburt durch eine zweite Hebamme",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20801",
+"text": "Hilfeleistung bei einer Geburt durch eine zweite Hebamme – im häuslichen Umfeld",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20802",
+"text": "Hilfeleistung bei einer Geburt durch eine zweite Hebamme – in einer von Hebammen geleiteten Einrichtung",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20805",
+"text": "Hilfeleistung bei einer Geburt durch eine zweite Hebamme – im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Geburt",
+"euroCent": 495,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20811",
+"text": "Hilfeleistung bei einer Geburt durch eine zweite Hebamme – im häuslichen Umfeld mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20812",
+"text": "Hilfeleistung bei einer Geburt durch eine zweite Hebamme – in einer von Hebammen geleiteten Einrichtung mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "20815",
+"text": "Hilfeleistung bei einer Geburt durch eine zweite Hebamme – im Krankenhaus als Beleghebamme mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Geburt",
+"euroCent": 579,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "301XX",
+"text": "Hilfeleistung im frühen Wochenbett",
+"hinweis": "Vergütung je Einheit 6,19 €, mit Zuschlag 7,24 €",
+"kapitel": "Wochenbett",
+"euroCent": 619,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "30205",
+"text": "im Krankenhaus als Beleghebamme",
+"hinweis": null,
+"kapitel": "Wochenbett",
+"euroCent": 495,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "30215",
+"text": "im Krankenhaus als Beleghebamme mit Zuschlag",
+"hinweis": "mit Zuschlag nach § 3",
+"kapitel": "Wochenbett",
+"euroCent": 579,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "303XX",
+"text": "Hilfeleistung im späten Wochenbett",
+"hinweis": "Vergütung je Einheit 6,19 €, mit Zuschlag 7,24 €",
+"kapitel": "Wochenbett",
+"euroCent": 619,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "304XX",
+"text": "Hilfeleistung beim Kind im frühen Wochenbett bei Abwesenheit der Mutter",
+"hinweis": "Vergütung je Einheit 6,19 €, mit Zuschlag 7,24 €",
+"kapitel": "Wochenbett",
+"euroCent": 619,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "305XX",
+"text": "Hilfeleistung beim Kind im späten Wochenbett bei Abwesenheit der Mutter",
+"hinweis": "Vergütung je Einheit 6,19 €, mit Zuschlag 7,24 €",
+"kapitel": "Wochenbett",
+"euroCent": 619,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "306XX",
+"text": "Hilfeleistung bei Stillund Ernährungsschwierigkeiten des Kindes",
+"hinweis": "Vergütung je Einheit 6,19 €, mit Zuschlag 7,24 €",
+"kapitel": "Wochenbett",
+"euroCent": 619,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "4010X",
+"text": "Geburtsvorbereitung in der Gruppe",
+"hinweis": null,
+"kapitel": "Kurse",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "4020X",
+"text": "Geburtsvorbereitung in Einzelunterweisung",
+"hinweis": null,
+"kapitel": "Kurse",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "4030X",
+"text": "Rückbildung in der Gruppe",
+"hinweis": null,
+"kapitel": "Kurse",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "4040X",
+"text": "Rückbildung in Einzelunterweisung",
+"hinweis": null,
+"kapitel": "Kurse",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "50100",
+"text": "Wegegeld je km",
+"hinweis": null,
+"kapitel": "Wegegeld",
+"euroCent": 97,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "50200",
+"text": "anteiliges Wegegeld je km",
+"hinweis": null,
+"kapitel": "Wegegeld",
+"euroCent": 97,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "50300",
+"text": "Benutzung von Mautstraßen und Fähren sowie Begleitfahrt nach",
+"hinweis": null,
+"kapitel": "Wegegeld",
+"euroCent": null,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "50400",
+"text": "Benutzung öffentlicher Verkehrsmittel",
+"hinweis": null,
+"kapitel": "Wegegeld",
+"euroCent": 337,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "60100",
+"text": "Materialpauschale Schwangerschaft",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 284,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "60200",
+"text": "Materialpauschale Vorsorgeuntersuchung",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 386,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "60300",
+"text": "Materialpauschale Entnahme von Körpermaterial (Frau)",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 227,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "60400",
+"text": "Materialpauschale GDM-Screening",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 444,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "60500",
+"text": "Materialpauschale CTG",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 1033,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "60600",
+"text": "Materialpauschale Individuelle Stillvorbereitung",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 230,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "60700",
+"text": "Materialpauschale Abklärung Blasensprung",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 1156,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "60800",
+"text": "Materialpauschale Fehlgeburt",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 3580,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "60900",
+"text": "Materialpauschale Geburt",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 8006,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "61000",
+"text": "Materialpauschale Versorgung einer Naht bei Geburtsverletzung",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 5774,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "61100",
+"text": "Materialpauschale Pulsoxymetrie",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 787,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "61200",
+"text": "Materialpauschale Wochenbett lang",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 3517,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "61300",
+"text": "Materialpauschale Wochenbett kurz",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 2179,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "61400",
+"text": "Materialpauschale Neugeborenen-Screening",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 405,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "61500",
+"text": "Materialpauschale Entnahme von Körpermaterial (Kind)",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 405,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "61600",
+"text": "Materialpauschale Fäden ziehen Dammnaht",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 969,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "61700",
+"text": "Materialpauschale Fäden und Klammern entfernen Sectionaht",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 756,
+"faecher": [
+"hebamme"
+]
+},
+{
+"code": "61800",
+"text": "Perinatalerhebung",
+"hinweis": null,
+"kapitel": "Material",
+"euroCent": 1206,
+"faecher": [
+"hebamme"
+]
+}
+]
+}

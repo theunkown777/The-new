@@ -1,0 +1,2971 @@
+{
+"meta": {
+"system": "BEMA",
+"titel": "Bewertungsmaßstab zahnärztlicher Leistungen (BEMA)",
+"quelle": "KZBV, BEMA Kurzfassung, Stand 01.01.2026 (kzbv.de)",
+"stand": "01.01.2026",
+"hinweisBetrag": "Bewertungszahl × Punktwert der jeweiligen KZV"
+},
+"leistungen": [
+{
+"code": "Ä 1",
+"text": "Beratung eines Kranken, auch fernmündlich",
+"hinweis": "Abkürzung: Ber",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 9,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "01",
+"text": "Eingehende Untersuchung zur Feststellung von Zahn-, Mund- und Kieferkrankheiten einschließlich Beratung",
+"hinweis": "Abkürzung: U",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 18,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "01k",
+"text": "Kieferorthopädische Untersuchung zur Klärung von Indikation und Zeitpunkt kieferorthopädisch-therapeutischer Maßnahmen",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 28,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "02",
+"text": "Hilfeleistung bei Ohnmacht oder Kollaps",
+"hinweis": "Abkürzung: Ohn",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 20,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "03",
+"text": "Zuschlag für Leistungen außerhalb der Sprechstunde, bei Nacht (20 Uhr bis Uhr) oder an Sonn- und Feiertagen",
+"hinweis": "Abkürzung: Zu",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 8,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "04",
+"text": "Erhebung Parodontaler Screening-Index",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 12,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "05",
+"text": "Gewinnung von Zellmaterial aus der Mundhöhle und Aufbereitung zur zytologischen Untersuchung, einschließlich Materialkosten",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 20,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 161",
+"text": "Eröffnung eines oberflächlichen, unmittelbar unter der Haut oder Schleimhaut gelegenen Abszesses",
+"hinweis": "Abkürzung: Inz1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 15,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 925",
+"text": "Röntgendiagnostik der Zähne",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 925 a",
+"text": "bis zwei Aufnahmen",
+"hinweis": "Abkürzung: Rö2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 12,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 925 b",
+"text": "bis fünf Aufnahmen",
+"hinweis": "Abkürzung: Rö5",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 19,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 925 c",
+"text": "bis acht Aufnahmen",
+"hinweis": "Abkürzung: Rö8",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 27,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 925 d",
+"text": "Status bei mehr als acht Aufnahmen",
+"hinweis": "Abkürzung: Stat",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 34,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 928",
+"text": "Röntgenaufnahme der Hand",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 30,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 934",
+"text": "Aufnahme des Schädels",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 934 a",
+"text": "eine Aufnahme (auch Fernröntgenaufnahme)",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 19,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 934 b",
+"text": "zwei Aufnahmen",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 30,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 934 c",
+"text": "mehr als zwei Aufnahmen",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 36,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 935",
+"text": "Teilaufnahme des Schädels (auch in Spezialprojektion), auch Nebenhöhlen, Unterkiefer, Panoramaaufnahme der Zähne eines Kiefers bzw. der Zähne des Oberund Unterkiefers derselben Seite",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 935 a",
+"text": "eine Aufnahme",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 21,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 935 b",
+"text": "zwei Aufnahmen",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 25,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 935 c",
+"text": "mehr als zwei Aufnahmen",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 31,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "Ä 935 d",
+"text": "Orthopantomogramm sowie Panoramaaufnahmen oder Halbseitenaufnahmen aller Zähne des Ober- und Unterkiefers",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 36,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8",
+"text": "Sensibilitätsprüfung der Zähne",
+"hinweis": "Abkürzung: ViPr",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 6,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "10",
+"text": "Behandlung überempfindlicher Zähne, für jede Sitzung",
+"hinweis": "Abkürzung: üZ",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 6,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "11",
+"text": "Exkavieren und provisorischer Verschluss einer Kavität als alleinige Leistung, auch unvollendete Füllung",
+"hinweis": "Abkürzung: pV",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 19,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "12",
+"text": "Besondere Maßnahmen beim Präparieren oder Füllen (Separieren, Beseitigen störenden Zahnfleisches, Anlegen von Spanngummi, Stillung einer übermäßigen Papillenblutung), je Sitzung, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": "Abkürzung: bMF",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 10,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "13",
+"text": "Präparieren einer Kavität, Füllen mit plastischem Füllmaterial einschließlich einer erforderlichen Unterfüllung, dem Anlegen einer Matrize oder der Benutzung anderer Hilfsmittel zur Formung der Füllung sowie dem Polieren",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "13 a",
+"text": "einflächig",
+"hinweis": "Abkürzung: F1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 33,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "13 b",
+"text": "zweiflächig",
+"hinweis": "Abkürzung: F2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 41,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "13 c",
+"text": "dreiflächig",
+"hinweis": "Abkürzung: F3",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 53,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "13 d",
+"text": "mehr als dreiflächig oder Eckenaufbau im Frontzahnbereich unter Einbeziehung der Schneidekante",
+"hinweis": "Abkürzung: F4",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 63,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "14",
+"text": "Konfektionierte Krone (im Seitenzahnbereich in der Regel aus Metall) einschließlich Material- und Laboratoriumskosten in der pädiatrischen Zahnheilkunde",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 50,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "16",
+"text": "Stiftverankerung einer Füllung (zusätzlich zu den Nrn. 13 c, d), je Zahn, einschließlich Materialkosten",
+"hinweis": "Abkürzung: St",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 20,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "23",
+"text": "Entfernen einer Krone bzw. eines Brückenankers oder eines abgebrochenen Wurzelstiftes bzw. das Abtrennen eines Brückengliedes oder Steges, je Trennstelle",
+"hinweis": "Abkürzung: Ekr",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 17,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "25",
+"text": "Indirekte Überkappung zur Erhaltung der gefährdeten Pulpa, ggf. einschließlich des provisorischen oder temporären Verschlusses der Kavität",
+"hinweis": "Abkürzung: Cp",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 6,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "26",
+"text": "Direkte Überkappung, je Zahn",
+"hinweis": "Abkürzung: P",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 6,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "27",
+"text": "Pulpotomie",
+"hinweis": "Abkürzung: Pulp",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 29,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "28",
+"text": "Exstirpation der vitalen Pulpa, je Kanal",
+"hinweis": "Abkürzung: VitE",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 18,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "29",
+"text": "Devitalisieren einer Pulpa einschließlich des Verschlusses der Kavität, je Zahn",
+"hinweis": "Abkürzung: Dev",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 11,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "31",
+"text": "Trep1 Trepanation eines pulpatoten Zahnes",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 11,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "32",
+"text": "Aufbereiten des Wurzelkanalsystems, je Kanal",
+"hinweis": "Abkürzung: WK",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 29,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "34",
+"text": "Medikamentöse Einlage in Verbindung mit Maßnahmen nach den Nrn. 28, 29 und 32, ggf. einschließlich eines provisorischen Verschlusses, je Zahn und Sitzung",
+"hinweis": "Abkürzung: Med",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 15,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "35",
+"text": "Wurzelkanalfüllung inkl. eines evtl. provisorischen Verschlusses, je Kanal",
+"hinweis": "Abkürzung: WF",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 17,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "36",
+"text": "Stillung einer übermäßigen Blutung",
+"hinweis": "Abkürzung: Nbl1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 15,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "37",
+"text": "Stillung einer übermäßigen Blutung durch Abbinden oder Umstechen eines Gefäßes oder durch Knochenbolzung",
+"hinweis": "Abkürzung: Nbl2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 29,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "38",
+"text": "Nachbehandlung nach chirurgischem Eingriff oder Tamponieren oder dergleichen, je Kieferhälfte oder Frontzahnbereich, als selbständige Leistung, je Sitzung",
+"hinweis": "Abkürzung: N",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 10,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "40",
+"text": "Infiltrationsanästhesie",
+"hinweis": "Abkürzung: I",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 8,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "41 a",
+"text": "Leitungsanästhesie, intraoral",
+"hinweis": "Abkürzung: L1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 12,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "41 b",
+"text": "Leitungsanästhesie, extraoral",
+"hinweis": "Abkürzung: L2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "43",
+"text": "Entfernen eines einwurzeligen Zahnes einschließlich Wundversorgung",
+"hinweis": "Abkürzung: X1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 10,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "44",
+"text": "Entfernen eines mehrwurzeligen Zahnes einschließlich Wundversorgung",
+"hinweis": "Abkürzung: X2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 15,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "45",
+"text": "Entfernen eines tieffrakturierten Zahnes einschließlich Wundversorgung",
+"hinweis": "Abkürzung: X3",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 40,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "46",
+"text": "Chirurgische Wundrevision (Glätten des Knochens, Auskratzen, Naht) als selbständige Leistung in einer besonderen Sitzung je Kieferhälfte oder Frontzahnbereich",
+"hinweis": "Abkürzung: XN",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 21,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "47a",
+"text": "Entfernen eines Zahnes durch Osteotomie einschließlich Wundversorgung",
+"hinweis": "Abkürzung: Ost1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 58,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "47b",
+"text": "Hemisektion und Teilextraktion eines mehrwurzeligen Zahnes",
+"hinweis": "Abkürzung: Hem",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 72,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "48",
+"text": "Entfernen eines verlagerten und/oder retinierten Zahnes, Zahnkeimes oder impaktierten Wurzelrestes durch Osteotomie einschließlich Wundversorgung",
+"hinweis": "Abkürzung: Ost2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 78,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "49",
+"text": "Exzision von Mundschleimhaut oder Granulationsgewebe für das Gebiet eines Zahnes",
+"hinweis": "Abkürzung: Exz1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 10,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "50",
+"text": "Exzision einer Schleimhautwucherung (z. B. lappiges Fibrom, Epulis)",
+"hinweis": "Abkürzung: Exz2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 37,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "51a",
+"text": "Plastischer Verschluss einer eröffneten Kieferhöhle durch Zahnfleischplastik als selbständige Leistung oder in Verbindung mit einer Extraktion",
+"hinweis": "Abkürzung: Pla1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 80,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "51b",
+"text": "Plastischer Verschluss einer eröffneten Kieferhöhle in Verbindung mit Osteotomie",
+"hinweis": "Abkürzung: Pla0",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 40,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "52",
+"text": "Trep2 Trepanation des Kieferknochens",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 24,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "53",
+"text": "Sequestrotomie bei Osteomyelitis der Kiefer",
+"hinweis": "Abkürzung: Ost3",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 72,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "54",
+"text": "Wurzelspitzenresektion",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "54 a",
+"text": "an einem Frontzahn",
+"hinweis": "Abkürzung: WR1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 72,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "54 b",
+"text": "an einem Seitenzahn, einschließlich der ersten resezierten Wurzelspitze",
+"hinweis": "Abkürzung: WR2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 96,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "54 c",
+"text": "am selben Seitenzahn, sofern durch denselben Zugang erreichbar, je weitere Wurzelspitze",
+"hinweis": "Abkürzung: WR3",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 48,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "55",
+"text": "Reimplantation eines Zahnes, ggf. einschließlich einfacher Fixation an den benachbarten Zähnen",
+"hinweis": "Abkürzung: RI",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 72,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "56",
+"text": "Operation einer Zyste",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "56 a",
+"text": "durch Zystektomie",
+"hinweis": "Abkürzung: Zy1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 120,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "56 b",
+"text": "durch orale Zystostomie",
+"hinweis": "Abkürzung: Zy2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 72,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "56 c",
+"text": "durch Zystektomie i.V.m. mit einer Osteotomie oder Wurzelspitzenresektion",
+"hinweis": "Abkürzung: Zy3",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 48,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "56 d",
+"text": "durch orale Zystostomie i.V.m. einer Osteotomie oder Wurzelspitzenresektion",
+"hinweis": "Abkürzung: Zy4",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 48,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "57",
+"text": "Beseitigen störender Schleimhautbänder, Muskelansätze oder eines Schlotterkammes im Frontzahnbereich oder in einer Kieferhälfte, je Sitzung",
+"hinweis": "Abkürzung: SMS",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 48,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "58",
+"text": "Knochenresektion am Alveolarfortsatz zur Formung des Prothesenlagers im Frontzahnbereich oder in einer Kieferhälfte als selbständige Leistung, je Sitzung",
+"hinweis": "Abkürzung: KnR",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 48,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "59",
+"text": "Mundboden- oder Vestibulumplastik im Frontzahnbereich oder in einer Kieferhälfte",
+"hinweis": "Abkürzung: Pla2",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 120,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "60",
+"text": "Tuberplastik, einseitig",
+"hinweis": "Abkürzung: Pla3",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 80,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "61",
+"text": "Korrektur des Lippenbändchens bei echtem Diastema mediale",
+"hinweis": "Abkürzung: Dia",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 72,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "62",
+"text": "Alveolotomie",
+"hinweis": "Abkürzung: Alv",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 36,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "63",
+"text": "Freilegung eines retinierten und/oder verlagerten Zahnes zur kieferorthopädischen Einstellung",
+"hinweis": "Abkürzung: FI",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 80,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "105",
+"text": "Lokale medikamentöse Behandlung von Schleimhauterkrankungen, Aufbringung von auf der Mundschleimhaut haftenden Medikamenten oder Behandlung von Prothesendruckstellen, je Sitzung",
+"hinweis": "Abkürzung: Mu",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 8,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "106",
+"text": "Beseitigen scharfer Zahnkanten oder störender Prothesenränder oder Ähnliches, je Sitzung",
+"hinweis": "Abkürzung: sK",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 10,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "107",
+"text": "Entfernen harter Zahnbeläge, je Sitzung",
+"hinweis": "Abkürzung: Zst",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "107a",
+"text": "Entfernen harter Zahnbeläge bei Versicherten, die einem Pflegegrad nach § SGB XI zugeordnet sind oder Eingliederungshilfe nach § 53 SGB XII erhalten, je Sitzung",
+"hinweis": "Abkürzung: PBZst",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 15,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "151",
+"text": "Besuch eines Versicherten, einschl. Beratung und eingehende Untersuchung",
+"hinweis": "Abkürzung: Bs1",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 38,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "152 a",
+"text": "Besuch je weiteren Versicherten in derselben häuslichen Gemeinschaft in unmittelbarem zeitlichen Zusammenhang mit einer Leistung nach Nr. 151 – einschließlich Beratung und eingehende Untersuchung",
+"hinweis": "Abkürzung: Bs2a",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 34,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "152 b",
+"text": "Besuch je weiteren Versicherten in derselben Einrichtung in unmittelbarem zeitlichen Zusammenhang mit einer Leistung nach Nummer 151 – einschließlich Beratung und eingehende Untersuchung",
+"hinweis": "Abkürzung: Bs2b",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 26,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "153 a",
+"text": "Besuch eines Versicherten in einer Einrichtung zu vorher vereinbarten Zeiten und bei regelmäßiger Tätigkeit in der Einrichtung einschließlich Beratung und eingehende Untersuchung, ohne Vorliegen eines Kooperationsvertrags nach § 119b Abs. 1 SGB V, welcher den verbindlichen Anforderungen der Vereinbarung nach § 119b Abs. 2 SGB V entspricht",
+"hinweis": "Abkürzung: Bs3a",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 30,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "153 b",
+"text": "Besuch je weiteren Versicherten in derselben Einrichtung in unmittelbarem zeitlichen Zusammenhang mit einer Leistung nach Nummer 153a zu vorher vereinbarten Zeiten und bei regelmäßiger Tätigkeit in der Einrichtung einschließlich Beratung und eingehende Untersuchung, ohne Vorliegen eines Kooperationsvertrags nach § 119b Abs. 1 SGB V, welcher den verbindlichen Anforderungen der Vereinbarung nach § 119b Abs. 2 SGB V entspricht",
+"hinweis": "Abkürzung: Bs3b",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 26,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "154",
+"text": "Besuch eines pflegebedürftigen Versicherten in einer stationären Pflegeeinrichtung (§ 71 Abs. 2 SGB XI) im Rahmen eines Kooperationsvertrags nach § 119b Abs. 1 SGB V, einschließlich Beratung und eingehende Untersuchung",
+"hinweis": "Abkürzung: Bs4",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 30,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "155",
+"text": "Besuch je weiteren pflegebedürftigen Versicherten in derselben stationären Pflegeeinrichtung (§ 71 Abs. 2 SGB XI) im Rahmen eines Kooperationsvertrags nach § 119b Abs. 1 SGB V, in unmittelbarem zeitlichen Zusammenhang mit einer Leistung nach Nr. 154 – einschließlich Beratung und eingehende Untersuchung",
+"hinweis": "Abkürzung: Bs5",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 26,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "161",
+"text": "Zuschläge für Besuche nach den Nrn. 151 und",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 154,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "161 a",
+"text": "ZBs1a Zuschlag für dringend angeforderte und unverzüglich durchgeführte Besuche",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 18,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "161 b",
+"text": "Zuschlag für Montag bis Freitag in der Zeit von 20 bis 22 Uhr oder 6 bis 8 Uhr durchgeführte Besuche",
+"hinweis": "Abkürzung: ZBs1b",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 29,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "161 c",
+"text": "Zuschlag für Montag bis Freitag in der Zeit zwischen 22 und 6 Uhr durchgeführte Besuche",
+"hinweis": "Abkürzung: ZBs1c",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 50,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "161 d",
+"text": "Zuschlag für an Samstagen, Sonn- oder Feiertagen in der Zeit zwischen 8 und Uhr durchgeführte Besuche",
+"hinweis": "Abkürzung: ZBs1d",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 20,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "161 e",
+"text": "Zuschlag für an Samstagen, Sonn- oder Feiertagen in der Zeit von 20 bis 22 Uhr oder 6 bis 8 Uhr durchgeführte Besuche",
+"hinweis": "Abkürzung: ZBs1e",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 67,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "161 f",
+"text": "Zuschlag für an Samstagen, Sonn- oder Feiertagen in der Zeit zwischen 22 und",
+"hinweis": "Abkürzung: ZBs1f",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6",
+"text": "durchgeführte Besuche",
+"hinweis": "Abkürzung: Uhr",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "162",
+"text": "Zuschläge für Besuche nach den Nrn. 152 a, 152 b und",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 155,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "162 a",
+"text": "ZBs2a Zuschlag für dringend angeforderte und unverzüglich durchgeführte Besuche",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 9,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "162 b",
+"text": "Zuschlag für Montag bis Freitag in der Zeit von 20 bis 22 Uhr oder 6 bis 8 Uhr durchgeführte Besuche",
+"hinweis": "Abkürzung: ZBs2b",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 15,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "162 c",
+"text": "Zuschlag für Montag bis Freitag in der Zeit zwischen 22 und 6 Uhr durchgeführte Besuche",
+"hinweis": "Abkürzung: ZBs2c",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 25,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "162 d",
+"text": "Zuschlag für an Samstagen, Sonn- oder Feiertagen in der Zeit zwischen 8 und Uhr durchgeführte Besuche",
+"hinweis": "Abkürzung: ZBs2d",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 20,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "162 e",
+"text": "Zuschlag für an Samstagen, Sonn- oder Feiertagen in der Zeit von 20 bis 22 Uhr oder 6 bis 8 Uhr durchgeführte Besuche",
+"hinweis": "Abkürzung: ZBs2e",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 34,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "162 f",
+"text": "Zuschlag für an Samstagen, Sonn- oder Feiertagen in der Zeit zwischen 22 und",
+"hinweis": "Abkürzung: ZBs2f",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "165",
+"text": "Zuschlag zu den Leistungen nach den Nrn. 151, 152 a, 152 b, 153 a, 153 b, und 155 bei Kindern bis zum vollendeten vierten Lebensjahr",
+"hinweis": "Abkürzung: ZKi",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 154,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "171",
+"text": "Zuschlag für Besuche nach Nrn. 151,",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 152,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "171 a",
+"text": "Zuschlag für das Aufsuchen von Versicherten, die einem Pflegegrad nach § SGB XI zugeordnet sind oder Eingliederungshilfe nach § 53 SGB XII erhalten",
+"hinweis": "Abkürzung: PBA1a",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 15,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "171 b",
+"text": "Zuschlag für das Aufsuchen je weiteren Versicherten, der einem Pflegegrad nach § 15 SGB XI zugeordnet ist oder Eingliederungshilfe nach § 53 SGB XII erhält, in derselben häuslichen Gemeinschaft oder Einrichtung in unmittelbarem zeitlichen Zusammenhang mit einer Leistung nach Nummer 171 a",
+"hinweis": "Abkürzung: PBA1b",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 30,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "172",
+"text": "Zuschlag nach § 87 Abs. 2j SGB V für die kooperative und koordinierte zahnärztliche und pflegerische Versorgung von pflegebedürftigen Versicherten in stationären Pflegeeinrichtungen im Rahmen eines Kooperationsvertrags nach § 119b Abs. 1 SGB V",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "172 a",
+"text": "Zuschlag für das Aufsuchen eines pflegebedürftigen Versicherten in einer stationären Pflegeeinrichtung",
+"hinweis": "Abkürzung: SP1a",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 40,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "172 b",
+"text": "Zuschlag für das Aufsuchen je weiteren pflegebedürftigen Versicherten in derselben stationären Pflegeeinrichtung in unmittelbarem zeitlichen Zusammenhang mit einer Leistung nach Nr. 172 a",
+"hinweis": "Abkürzung: SP1b",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 32,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "173",
+"text": "Zuschlag für Besuche nach Nr.",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 153,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "173 a",
+"text": "Zuschlag für das Aufsuchen nach Nr. 153 a von Versicherten, die einem Pflegegrad nach § 15 SGB XI zugeordnet sind oder Eingliederungshilfe nach § 53 SGB XII erhalten",
+"hinweis": "Abkürzung: ZBs3a",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 32,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "173 b",
+"text": "Zuschlag für das Aufsuchen nach Nr. 153 b je weiteren Versicherten, der einem Pflegegrad nach § 15 SGB XI zugeordnet ist oder Eingliederungshilfe nach § SGB XII erhält, in derselben Einrichtung in unmittelbarem zeitlichen Zusammenhang mit einer Leistung nach Nummer 173 a",
+"hinweis": "Abkürzung: ZBs3b",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 53,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "174",
+"text": "Präventive zahnärztliche Leistungen nach § 22a SGB V zur Verhütung von Zahnerkrankungen bei Versicherten, die einem Pflegegrad nach § 15 SGB XI zugeordnet sind oder Eingliederungshilfe nach § 53 SGB XII erhalten",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "174 a",
+"text": "Mundgesundheitsstatus und individueller Mundgesundheitsplan",
+"hinweis": "Abkürzung: PBa",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 20,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "174 b",
+"text": "Mundgesundheitsaufklärung",
+"hinweis": "Abkürzung: PBb",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 26,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "181",
+"text": "Konsiliarische Erörterung mit Ärzten und Zahnärzten",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "181 a",
+"text": "persönlich oder fernmündlich",
+"hinweis": "Abkürzung: Ksla",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 14,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "181 b",
+"text": "im Rahmen eines Telekonsils",
+"hinweis": "Abkürzung: Kslb",
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "182",
+"text": "Konsiliarische Erörterung mit Ärzten und Zahnärzten im Rahmen eines Kooperationsvertrags nach § 119b Abs. 1 SGB V",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "182 a",
+"text": "KslKa persönlich oder fernmündlich",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 14,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "182 b",
+"text": "KslKb im Rahmen eines Telekonsils",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "VS",
+"text": "Videosprechstunde",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "VFK",
+"text": "Videofallkonferenz mit an der Versorgung des Versicherten beteiligten Pflegeund Unterstützungspersonen",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "VFK a",
+"text": "bezüglich eines Versicherten",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 12,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "VFK b",
+"text": "bezüglich jedes weiteren Versicherten in unmittelbarem zeitlichen Zusammenhang",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 6,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "TZ",
+"text": "Technikzuschlag für Videosprechstunde, Videofallkonferenz oder Videokonsil eMP Aktualisierung elektronischer Medikationsplan 3",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "NFD",
+"text": "Aktualisierung Notfalldatensatz",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 6,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5",
+"text": "ePA1 Erstbefüllung einer elektronischen Patientenakte ePA2 Aktualisierung einer elektronischen Patientenakte 2",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 4,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "IP 1",
+"text": "Mundhygienestatus",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 20,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "IP 2",
+"text": "Mundgesundheitsaufklärung bei Kindern und Jugendlichen",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 17,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "IP 4",
+"text": "Lokale Fluoridierung der Zähne",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 12,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "IP 5",
+"text": "Versiegelung von kariesfreien Fissuren und Grübchen der bleibenden Molaren (Zähne 6 und 7) mit aushärtenden Kunststoffen, je Zahn",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "FU1",
+"text": "Zahnärztliche Früherkennungsuntersuchung eines Kindes vom 6. bis zum vollendeten 33. Lebensmonat",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 28,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "FU Pr",
+"text": "Praktische Anleitung der Betreuungspersonen zur Mundhygiene beim Kind",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 10,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "FU2",
+"text": "Zahnärztliche Früherkennungsuntersuchung eines Kindes vom 34. bis zum vollendeten 72. Lebensmonat",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 26,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "FLA",
+"text": "Fluoridlackanwendung zur Zahnschmelzhärtung",
+"hinweis": null,
+"kapitel": "Teil 1 – Konservierende und chirurgische Leistungen und Röntgenleistungen",
+"punkte": 14,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2",
+"text": "Schriftliche Niederlegung eines Heil- und Kostenplanes",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 20,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7",
+"text": "Vorbereitende Maßnahmen",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7 a",
+"text": "Abformung, Bissnahme in habitueller Okklusion für das Erstellen von dreidimensional orientierten Modellen des Ober- und Unterkiefers zur diagnostischen Auswertung und Planung sowie schriftliche Niederlegung",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 19,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7 b",
+"text": "Abformung, Bissnahme für das Erstellen von Modellen des Ober- und Unterkiefers zur diagnostischen Auswertung und Planung sowie schriftliche Niederlegung",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 19,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "K1",
+"text": "Eingliedern eines Aufbissbehelfs mit adjustierter Oberfläche",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 106,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "K2",
+"text": "Eingliedern eines Aufbissbehelfs zur Unterbrechung der Okklusionskontakte ohne adjustierte Oberfläche",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 45,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "K3",
+"text": "Umarbeitung einer vorhandenen Prothese zum Aufbissbehelf zur Unterbrechung der Okklusionskontakte mit adjustierter Oberfläche",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 61,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "K4",
+"text": "Semipermanente Schienung unter Anwendung der Ätztechnik, je Interdentalraum",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 11,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "K6",
+"text": "Wiederherstellung und/oder Unterfütterung eines Aufbissbehelfs",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 30,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "K7",
+"text": "Kontrollbehandlung, ggf. mit einfachen Korrekturen des Aufbissbehelfs oder der Fixierung",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 6,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "K8",
+"text": "Kontrollbehandlung mit Einschleifen des Aufbissbehelfs oder der Schienung (subtraktive Methode)",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 12,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "K9",
+"text": "Kontrollbehandlung mit Aufbau einer neuen adjustierten Oberfläche (additive Methode)",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 35,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP1",
+"text": "Untersuchung zur Versorgung mit einer Unterkieferprotrusionsschiene einschließlich Beratung",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 27,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP2",
+"text": "Abformung und dreidimensionale Registrierung der Startprotrusionsposition",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 49,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP3",
+"text": "Eingliedern einer Unterkieferprotrusionsschiene",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 223,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP4",
+"text": "Nachadaption des Protrusionsgrads",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 10,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP5",
+"text": "Kontrollbehandlung",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP5 a",
+"text": "ggf. mit einfachen Korrekturen der UP",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 8,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP5 b",
+"text": "mit Einschleifen der Stütz- und Gleitzonen einer UP (subtraktive Methode)",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 12,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP5 c",
+"text": "mit Aufbau der Stütz- und Gleitzone einer UP (additive Methode)",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 35,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP6",
+"text": "Maßnahmen zum Wiederherstellen der Funktion oder zur Erweiterung einer Unterkieferprotrusionsschiene",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP6 a",
+"text": "kleinen Umfanges (ohne Abformung)",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 25,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP6 b",
+"text": "größeren Umfanges (mit Abformung)",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 42,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP6 c",
+"text": "Teilunterfütterung einer Unterkieferprotrusionsschiene",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 37,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP6 d",
+"text": "Wiederherstellung eines einzelnen oder mehrerer Halte- oder Stützvorrichtungen",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 19,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UP6 e",
+"text": "Wiederherstellung eines einzelnen oder mehrerer Protrusionselemente",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 19,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "101",
+"text": "Maßnahmen zur Weichteilstützung zum Ausgleich oder zum Verschluss von Defekten im Bereich des Kiefers",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "101 a",
+"text": "bei vorhandenem Restgebiss",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 80,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "101 b",
+"text": "bei zahnlosem Kiefer",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 120,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "102",
+"text": "Eingliedern eines Obturators zum Verschluss von Defekten des weichen Gaumens",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 240,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "103",
+"text": "Resektionsprothesen:",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "103 a",
+"text": "Eingliedern einer temporären Verschlussprothese nach Resektion oder bei großen Defekten des Oberkiefers",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 160,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "103 b",
+"text": "Ergänzungsmaßnahmen im Anschluss an Leistungen nach Buchstabe a)",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 80,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "103 c",
+"text": "Eingliedern einer Dauerprothese",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 300,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "104",
+"text": "Eingliedern einer Prothese oder Epithese zum Verschluss extraoraler Weichteildefekte oder zum Ersatz fehlender Gesichtsteile",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "104 a",
+"text": "kleineren Umfanges",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 300,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "104 b",
+"text": "größeren Umfanges",
+"hinweis": null,
+"kapitel": "Teil 2 – Kieferbruch, Kiefergelenkserkrankungen, Unterkieferprotrusionsschiene",
+"punkte": 500,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "116",
+"text": "Fotografie",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 15,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "117",
+"text": "Modellanalyse",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 35,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "118",
+"text": "Kephalometrische Auswertung",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 29,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "119",
+"text": "Maßnahmen zur Umformung eines Kiefers einschließlich Retention",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "119 a",
+"text": "einfach durchführbarer Art",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 132,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "119 b",
+"text": "mittelschwer durchführbarer Art",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 204,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "119 c",
+"text": "schwierig durchführbarer Art",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 276,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "119 d",
+"text": "besonders schwierig durchführbarer Art",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 336,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "120",
+"text": "Maßnahmen zur Einstellung des Unterkiefers in den Regelbiss in sagittaler oder lateraler Richtung einschließlich Retention",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "120 a",
+"text": "einfach durchführbarer Art",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 204,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "120 b",
+"text": "mittelschwer durchführbarer Art",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 228,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "120 c",
+"text": "schwierig durchführbarer Art",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 276,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "120 d",
+"text": "besonders schwierig durchführbarer Art",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 336,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "121",
+"text": "Beseitigung von Habits bei einem habituellen Distalbiss oder bei einem habituell offenen Biss, je Sitzung",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 17,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "122",
+"text": "Kieferorthopädische Verrichtungen als alleinige Leistung",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "122 a",
+"text": "Kontrolle des Behandlungsverlaufs einschließlich kleiner Änderungen für Behandlungsmittel, für jede Sitzung",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 21,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "122 b",
+"text": "Vorbereitende Maßnahmen zur Herstellung von kieferorthopädischen Behandlungsmitteln, je Kiefer",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 43,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "122 c",
+"text": "Einfügen von kieferorthopädischen Behandlungsmitteln, je Kiefer",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 27,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "123a",
+"text": "Kieferorthopädische Maßnahmen mit herausnehmbaren Geräten zum Offenhalten von Lücken infolge vorzeitigem Milchzahnverlustes, je Kiefer",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 40,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "123b",
+"text": "Kontrolle eines Lückenhalters, je Behandlungsquartal",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 14,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "124",
+"text": "Einschleifen von Milchzähnen bei Kreuz- oder Zwangsbiss, je Sitzung",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "125",
+"text": "Maßnahmen zur Wiederherstellung von Behandlungsmitteln inkl. Wiedereinfügen, je Kiefer",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 30,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "126a",
+"text": "Eingliedern eines Brackets oder eines Attachments aus Edelstahl oder nickelfreiem Metall einschließlich Material- und Laborkosten",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 18,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "126b",
+"text": "Eingliedern eines Bandes einschließlich Material- und Laborkosten",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 42,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "126c",
+"text": "Wiedereingliederung eines Bandes",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 30,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "126d",
+"text": "Entfernen eines Bandes, eines Brackets oder eines Attachments",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 6,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "127a",
+"text": "Eingliederung eines Teilbogens aus Edelstahl einschließlich Material- und Laborkosten",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 25,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "127b",
+"text": "Ausgliederung eines Teilbogens",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 7,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "128a",
+"text": "Eingliederung eines konfektionierten Vollbogens aus Edelstahl einschließlich Material- und Laborkosten",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 32,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "128b",
+"text": "Eingliederung eines individualisierten Vollbogens aus Edelstahl einschließlich Material- und Laborkosten",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 40,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "128c",
+"text": "Ausgliederung von Vollbögen, je Bogen",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 9,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "129",
+"text": "Wiedereingliederung eines Voll- oder Teilbogens",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 24,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "130",
+"text": "Eingliederung ergänzender festsitzender Apparaturen (Palatinal- oder Transversalbogen, Quadhelix, Lingualbogen, Lipbumper, Headgear über je zwei Ankerbänder) einschließlich Material- und Laborkosten",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 72,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "131a",
+"text": "Eingliederung und Ausgliederung einer Gaumennahterweiterungsapparatur",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 50,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "131b",
+"text": "Eingliederung und Ausgliederung einer festsitzenden Apparatur zur Bisslagekorrektur (Herbstscharnier) bei spätem Behandlungsbeginn, wenn der Wachstumshöhepunkt überschritten ist und die Bisslagekorrektur mit konventionellen Maßnahmen nicht erreicht werden kann, je Seite",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 50,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "131c",
+"text": "Eingliederung einer Gesichtsmaske",
+"hinweis": null,
+"kapitel": "Teil 3 – Kieferorthopädische Behandlung",
+"punkte": 50,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4",
+"text": "Befundaufnahme und Erstellen eines Parodontalstatus",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 44,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "ATG",
+"text": "Parodontologisches Aufklärungs- und Therapiegespräch",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 28,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "MHU",
+"text": "Patientenindividuelle Mundhygieneunterweisung",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 45,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "AIT",
+"text": "Antiinfektiöse Therapie",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "AIT a",
+"text": "je behandeltem einwurzeligen Zahn",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 14,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "AIT b",
+"text": "je behandeltem mehrwurzeligen Zahn",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 26,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "BEV",
+"text": "Befundevaluation",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "BEV a",
+"text": "nach AIT",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 32,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "BEV b",
+"text": "nach CPT",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 32,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "CPT",
+"text": "Chirurgische Therapie",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "CPT a",
+"text": "je behandeltem einwurzeligen Zahn",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 22,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "CPT b",
+"text": "je behandeltem mehrwurzeligen Zahn",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 34,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UPT",
+"text": "Unterstützende Parodontitistherapie",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UPT a",
+"text": "Mundhygienekontrolle",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 18,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UPT b",
+"text": "Mundhygieneunterweisung (soweit erforderlich)",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 24,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UPT c",
+"text": "Supragingivale und gingivale Reinigung aller Zähne von anhaftenden Biofilmen und Belägen, je Zahn",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 3,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UPT d",
+"text": "Messung von Sondierungstiefen und Sondierungsbluten",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 15,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UPT e",
+"text": "Subgingivale Instrumentierung bei Sondierungstiefen von 4 mm oder mehr und Sondierungsbluten sowie an allen Stellen mit einer Sondierungstiefe von 5 mm oder mehr, je einwurzeligem Zahn",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 5,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UPT f",
+"text": "Subgingivale Instrumentierung bei Sondierungstiefen von 4 mm oder mehr und Sondierungsbluten sowie an allen Stellen mit einer Sondierungstiefe von 5 mm oder mehr, je mehrwurzeligem Zahn",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 12,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "UPT g",
+"text": "Untersuchung des Parodontalzustands, die hierzu notwendige Dokumentation des klinischen Befunds umfasst die Sondierungstiefen und die Sondierungsblutung, die Zahnlockerung, den Furkationsbefall, den röntgenologischen Knochenabbau sowie die Angabe des Knochenabbaus in Relation zum Patientenalter (%/Alter). Die erhobenen Befunddaten werden mit den Befunddaten der Untersuchung nach Nr. BEV oder nach Nr. UPT d verglichen. Dem Versicherten werden die Ergebnisse erläutert und es wird mit ihm das weitere Vorgehen besprochen.",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 32,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "108",
+"text": "Einschleifen des natürlichen Gebisses zum Kauebenenausgleich und zur Entlastung, je Sitzung",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 6,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "111",
+"text": "Nachbehandlung im Rahmen der systematischen Behandlung von Parodontopathien, je Sitzung",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 10,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9",
+"text": "Leistungsbeschreibung Vorbereiten eines endodontisch behandelten Zahnes zur Aufnahme einer Krone, mit Verankerung im Wurzelkanal,",
+"hinweis": null,
+"kapitel": "Teil 4 – Systematische Behandlung von Parodontopathien",
+"punkte": 18,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "18 a",
+"text": "durch einen konfektionierten Stift- oder Schraubenaufbau, einzeitig",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 50,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "18 b",
+"text": "durch einen gegossenen Stiftaufbau, zweizeitig",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 80,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "19",
+"text": "Schutz eines beschliffenen Zahnes und Sicherung der Kaufunktion durch eine provisorische Krone oder provisorischer Ersatz eines fehlenden Zahnes durch ein Brückenglied",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 19,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "20",
+"text": "Versorgung eines Einzelzahnes durch",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "20 a",
+"text": "eine metallische Vollkrone",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 148,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "20 b",
+"text": "eine vestibulär verblendete Verblendkrone",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 158,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "20 c",
+"text": "eine metallische Teilkrone",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 187,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "21",
+"text": "Schutz eines beschliffenen Zahnes und Sicherung der Kaufunktion durch eine provisorische Krone mit Stiftverankerung",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 28,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "22",
+"text": "Teilleistungen bei nicht vollendeten Leistungen nach den Nrn. 18 und",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 20,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "24",
+"text": "Maßnahmen zur Wiederherstellung der Funktion von Kronen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "24 a",
+"text": "Wiedereinsetzen einer Krone oder dergleichen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 25,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "24 b",
+"text": "Erneuerung oder Wiedereinsetzen einer Facette, einer Verblendschale oder dergleichen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 43,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "24 c",
+"text": "Abnahme und Wiederbefestigung einer provisorischen Krone nach der Nr. 19 oder 21",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 7,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "89",
+"text": "Beseitigung grober Artikulations- und Okklusionsstörungen vor Eingliederung von Prothesen und Brücken",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "90",
+"text": "Versorgung eines Zahnes durch eine Wurzelstiftkappe mit Verankerung im Wurzelkanal mit Kugelknopfanker",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 154,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "91",
+"text": "Versorgung eines Lückengebisses durch eine Brücke, bei Verwendung von Teleskopkronen im Zusammenhang mit einer herausnehmbaren Prothese, je Pfeilerzahn",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "91 a",
+"text": "Metallische Vollkrone",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 118,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "91 b",
+"text": "Vestibulär verblendete Verblendkrone",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 128,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "91 c",
+"text": "Metallische Teilkrone",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 136,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "91 d",
+"text": "Teleskop-/Konuskrone",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 190,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "91 e",
+"text": "Verwendung eines Geschiebes bei geteilten Brücken mit disparallelen Pfeilern zusätzlich zu den Nrn. 91 a bis c",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 43,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "92",
+"text": "Versorgung eines Lückengebisses durch eine Brücke, je Spanne",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 62,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "93a",
+"text": "Adhäsivbrücke mit Metallgerüst im Frontzahnbereich mit einem Flügel einschließlich der Präparation von Retentionen an dem Pfeilerzahn, Abformung, Farbbestimmung, Bissnahme, Einprobe und adhäsive Befestigung, Kontrolle und ggf. Korrekturen der Okklusion und Artikulation",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 240,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "93b",
+"text": "Adhäsivbrücke mit Metallgerüst im Frontzahnbereich mit zwei Flügeln einschließlich der Präparation von Retentionen an den Pfeilerzähnen, Abformung, Farbbestimmung, Bissnahme, Einprobe und adhäsive Befestigung, Kontrolle und ggf. Korrekturen der Okklusion und Artikulation",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 335,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "94a",
+"text": "Teilleistungen nach den Nrn. 90 bis 92 bei nicht vollendeten Leistungen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "94b",
+"text": "Teilleistungen bei nicht vollendeten Leistungen nach den Nrn. 93a und 93b",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "95",
+"text": "Maßnahmen zum Wiederherstellen der Funktion von Brücken und provisorischen Brücken",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "95 a",
+"text": "Wiedereinsetzen einer Brücke mit 2 Ankern",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 34,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "95 b",
+"text": "Wiedereinsetzen einer Brücke mit mehr als 2 Ankern",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 50,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "95 c",
+"text": "Erneuerung oder Wiedereinsetzen einer Facette, einer Verblendschale oder dergleichen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 36,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "95 d",
+"text": "Abnahme und Wiedereinsetzen einer provisorischen Brücke",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 18,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "95 e",
+"text": "Wiedereingliederung einer einflügeligen Adhäsivbrücke",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 61,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "95 f",
+"text": "Wiedereingliederung einer zweiflügeligen Adhäsivbrücke",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 85,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "96",
+"text": "Versorgung eines Lückengebisses durch eine partielle Prothese einschließlich einfacher Haltevorrichtungen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "96 a",
+"text": "zum Ersatz von 1 bis 4 fehlenden Zähnen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 57,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "96 b",
+"text": "zum Ersatz von 5 bis 8 fehlenden Zähnen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 83,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "96 c",
+"text": "zum Ersatz von mehr als 8 fehlenden Zähnen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 115,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "97a",
+"text": "Totale Prothese/Cover-Denture-Prothese im Oberkiefer",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 250,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "97b",
+"text": "Totale Prothese/Cover-Denture-Prothese im Unterkiefer",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 290,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98a",
+"text": "Abformung mit individuellem oder individualisiertem Löffel, je Kiefer",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 29,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98b",
+"text": "Funktionsabformung mit individuellem Löffel, Oberkiefer",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 57,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98c",
+"text": "Funktionsabformung mit individuellem Löffel, Unterkiefer",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 76,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98d",
+"text": "Intraorale Stützstiftregistrierung zur Feststellung der Zentrallage",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 23,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98e",
+"text": "Verwendung einer Metallbasis in besonderen Ausnahmefällen, zu den Bewertungszahlen nach den Nrn. 97 a oder b zusätzlich",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 16,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98f",
+"text": "Verwendung doppelarmiger Halte- oder einfacher Stützvorrichtungen oder mehrarmiger gebogener Halte- und Stützvorrichtungen zu den Bewertungszahlen nach Nr. 96, zusätzlich je Prothese, nur abrechnungsfähig bei Interimsversorgung",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 22,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98g",
+"text": "Verwendung einer Metallbasis in Verbindung mit Halte- und Stützvorrichtungen - nicht bei Interimsprothesen -",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 44,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98h",
+"text": "Verwendung von gegossenen Halte- und Stützvorrichtungen, zu den Bewertungszahlen nach Nr. 96 oder Nr. 98 g zusätzlich - nicht bei Interimsprothesen -",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98 h/1",
+"text": "bei Verwendung von einer Halte- und Stützvorrichtung",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 29,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "98 h/2",
+"text": "bei Verwendung von mindestens 2 Halte- und Stützvorrichtungen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 50,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "99",
+"text": "Teilleistungen nach den Nrn. 96, 97 und 98 bei nicht vollendeten Leistungen:",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "99 a",
+"text": "Anatomischer Abdruck zur prothetischen Versorgung eines Kiefers",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 19,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "99 b",
+"text": "Maßnahmen einschließlich der Ermittlung der Bissverhältnisse",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "99 c",
+"text": "Weitergehende Maßnahmen",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "100",
+"text": "Maßnahmen zum Wiederherstellen der Funktion oder zur Erweiterung einer abnehmbaren Prothese",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": null,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "100 a",
+"text": "kleinen Umfanges (ohne Abformung)",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 30,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "100 b",
+"text": "größeren Umfanges (mit Abformung)",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 50,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "100 c",
+"text": "Teilunterfütterung einer Prothese",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 44,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "100 d",
+"text": "Vollständige Unterfütterung einer Prothese im indirekten Verfahren",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 55,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "100 e",
+"text": "Vollständige Unterfütterung einer Prothese im indirekten Verfahren einschließlich funktioneller Randgestaltung im Oberkiefer",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 81,
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "100 f",
+"text": "Vollständige Unterfütterung einer Prothese im indirekten Verfahren einschließlich funktioneller Randgestaltung im Unterkiefer",
+"hinweis": null,
+"kapitel": "Teil 5 – Versorgung mit Zahnersatz und Zahnkronen",
+"punkte": 81,
+"faecher": [
+"zahn"
+]
+}
+]
+}

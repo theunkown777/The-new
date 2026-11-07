@@ -1,0 +1,2592 @@
+{
+"meta": {
+"system": "GOZ",
+"titel": "Gebührenordnung für Zahnärzte (GOZ)",
+"quelle": "GOZ, Anlage 1 Gebührenverzeichnis, gesetze-im-internet.de (amtliches Werk nach § 5 UrhG)",
+"stand": "zuletzt geändert 5.12.2011",
+"punktwertCent": 5.62421,
+"hinweisBetrag": "Euro = Punkte × 5,62421 Cent (1,0-facher Satz)."
+},
+"leistungen": [
+{
+"code": "0010",
+"text": "Eingehende Untersuchung zur Feststellung von Zahn-, Mund- und Kiefererkrankungen einschließlich Erhebung des Parodontalbefundes sowie Aufzeichnung des Befundes",
+"hinweis": null,
+"punkte": 100,
+"euroCent": 562,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0030",
+"text": "Aufstellung eines schriftlichen Heil- und Kostenplans nach Befundaufnahme und gegebenenfalls Auswertung von Modellen",
+"hinweis": null,
+"punkte": 200,
+"euroCent": 1125,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0040",
+"text": "Aufstellung eines schriftlichen Heil- und Kostenplans bei kieferorthopädischer Behandlung oder bei funktionsanalytischen und funktionstherapeutischen Maßnahmen nach Befundaufnahme und Ausarbeitung einer Behandlungsplanung",
+"hinweis": "Die Leistungen nach den Nummern 0030 und 0040 sind nicht nebeneinander berechnungsfähig.",
+"punkte": 250,
+"euroCent": 1406,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0050",
+"text": "Abformung oder Teilabformung eines Kiefers für ein Situationsmodell einschließlich Auswertung zur Diagnose oder Planung",
+"hinweis": null,
+"punkte": 120,
+"euroCent": 675,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0060",
+"text": "Abformung beider Kiefer für Situationsmodelle und einfache Bissfixierung einschließlich Auswertung zur Diagnose oder Planung",
+"hinweis": "Die Nebeneinanderberechnung der Leistungen nach den Nummern 0050 und 0060 ist in der Rechnung zu begründen.",
+"punkte": 260,
+"euroCent": 1462,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0065",
+"text": "Optisch-elektronische Abformung einschließlich vorbereitender Maßnahmen, einfache digitale Bissregistrierung und Archivierung, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": "Neben der Leistung nach der Nummer 0065 sind konventionelle Abformungen nach diesem Gebührenverzeichnis für dieselbe Kieferhälfte oder denselben Frontzahnbereich nicht berechnungsfähig.",
+"punkte": 80,
+"euroCent": 450,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0070",
+"text": "Vitalitätsprüfung eines Zahnes oder mehrerer Zähne einschließlich Vergleichstest, je Sitzung",
+"hinweis": null,
+"punkte": 50,
+"euroCent": 281,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0080",
+"text": "Intraorale Oberflächenanästhesie, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": null,
+"punkte": 30,
+"euroCent": 169,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0090",
+"text": "Intraorale Infiltrationsanästhesie",
+"hinweis": null,
+"punkte": 60,
+"euroCent": 337,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0100",
+"text": "Intraorale Leitungsanästhesie",
+"hinweis": "Wird die Leistung nach der Nummer 0090 je Zahn mehr als einmal berechnet, ist dies in der Rechnung zu begründen.Bei den Leistungen nach den Nummern 0090 und 0100 sind die Kosten der verwendeten Anästhetika gesondert berechnungsfähig.",
+"punkte": 70,
+"euroCent": 394,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0110",
+"text": "Zuschlag für die Anwendung eines Operationsmikroskops bei den Leistungen nach den Nummern 2195, 2330, 2340, 2360, 2410, 2440, 3020, 3030, 3040, 3045, 3060, 3110, 3120, 3190, 3200, 4090, 4100, 4130, 4133, 9100, 9110, 9120, 9130 und 9170Der Zuschlag nach der Nummer 0110 ist je Behandlungstag nur einmal und nur mit dem einfachen Gebührensatz berechnungsfähig.",
+"hinweis": null,
+"punkte": 400,
+"euroCent": 2250,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0120",
+"text": "Zuschlag für die Anwendung eines Lasers bei den Leistungen nach den Nummern 2410, 3070, 3080, 3210, 3240, 4080, 4090, 4100, 4130, 4133 und 9160Der Zuschlag nach der Nummer 0120 beträgt 100 v. H. des einfachen Gebührensatzes der betreffenden Leistung, jedoch nicht mehr als 68 Euro.",
+"hinweis": "Der Zuschlag nach der Nummer 0120 ist je Behandlungstag nur einmal berechnungsfähig.",
+"punkte": null,
+"euroCent": null,
+"abschnitt": "A",
+"abschnittTitel": "Allgemeine zahnärztliche Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "1000",
+"text": "Erstellung eines Mundhygienestatus und eingehende Unterweisung zur Vorbeugung gegen Karies und parodontale Erkrankungen, Dauer mindestens 25 Minuten",
+"hinweis": null,
+"punkte": 200,
+"euroCent": 1125,
+"abschnitt": "B",
+"abschnittTitel": "Prophylaktische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "1010",
+"text": "Kontrolle des Übungserfolges einschließlich weiterer Unterweisung, Dauer mindestens 15 Minuten",
+"hinweis": null,
+"punkte": 100,
+"euroCent": 562,
+"abschnitt": "B",
+"abschnittTitel": "Prophylaktische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "1020",
+"text": "Lokale Fluoridierung zur Verbesserung der Zahnhartsubstanz, zur Kariesvorbeugung und -behandlung, mit Lack oder Gel, je Sitzung",
+"hinweis": "Die Leistung nach der Nummer 1000 ist innerhalb eines Jahres einmal, die Leistung nach der Nummer 1010 innerhalb eines Jahres dreimal berechnungsfähig.Die Leistungen umfassen die Erhebung von Mundhygiene-Indizes, das Anfärben der Zähne, die praktische Unterweisung mit individuellen Übungen und die Motivierung des Patienten.Im Zusammenhang mit den Leistungen nach den Nummern 1000 und 1010 sind Leistungen nach den Nummern 0010, 4000 und 8000 sowie Beratungen und Untersuchungen nach der Gebührenordnung für Ärzte nur dann berechnungsfähig, wenn diese Leistungen anderen Zwecken dienen und dies in der Rechnung begründet wird.Die Leistung nach der Nummer 1020 ist innerhalb eines Jahres höchstens viermal berechnungsfähig.",
+"punkte": 50,
+"euroCent": 281,
+"abschnitt": "B",
+"abschnittTitel": "Prophylaktische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "1030",
+"text": "Lokale Anwendung von Medikamenten zur Kariesvorbeugung oder initialen Kariesbehandlung mit einer individuell gefertigten Schiene als Medikamententräger, je Kiefer1. Die Herstellung einer individuell angefertigten Schiene als Medikamententräger (z. B. Tiefziehschiene) ist gesondert berechnungsfähig.2. Mit der Gebühr sind die Kosten für das verwendete Medikament abgegolten.3. Die Anwendung eines konfektionierten Löffels als Medikamententräger erfüllt nicht den Inhalt der Leistung nach der Nummer 1030.4. Bei Anwendung einer individuell gefertigten Schiene als Medikamententräger für Fluoridierungsmittel ist die mehr als viermalige Berechnung der Leistung nach der Nummer 1030 innerhalb eines Jahres in der Rechnung zu begründen.",
+"hinweis": null,
+"punkte": 90,
+"euroCent": 506,
+"abschnitt": "B",
+"abschnittTitel": "Prophylaktische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "1040",
+"text": "Professionelle Zahnreinigung",
+"hinweis": "Die Leistung umfasst das Entfernen der supragingivalen/gingivalen Beläge auf Zahn- und Wurzeloberflächen einschließlich Reinigung der Zahnzwischenräume, das Entfernen des Biofilms, die Oberflächenpolitur und geeignete Fluoridierungsmaßnahmen, je Zahn oder Implantat oder Brückenglied.Die Leistung nach der Nummer 1040 ist neben den Leistungen nach den Nummern 1020, 4050, 4055, 4060, 4070, 4075, 4090 und 4100 nicht berechnungsfähig.",
+"punkte": 28,
+"euroCent": 157,
+"abschnitt": "B",
+"abschnittTitel": "Prophylaktische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2000",
+"text": "Versiegelung von kariesfreien Zahnfissuren mit aushärtenden Kunststoffen, auch Glattflächenversiegelung, je Zahn",
+"hinweis": null,
+"punkte": 90,
+"euroCent": 506,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2010",
+"text": "Behandlung überempfindlicher Zahnflächen, je Kiefer",
+"hinweis": null,
+"punkte": 50,
+"euroCent": 281,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2020",
+"text": "Temporärer speicheldichter Verschluss einer Kavität",
+"hinweis": null,
+"punkte": 98,
+"euroCent": 551,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2030",
+"text": "Besondere Maßnahmen beim Präparieren oder Füllen von Kavitäten (z. B. Separieren, Beseitigen störenden Zahnfleisches, Stillung einer übermäßigen Papillenblutung), je Kieferhälfte oder Frontzahnbereich",
+"hinweis": "Die Leistung nach der Nummer 2030 ist je Sitzung für eine Kieferhälfte oder einen Frontzahnbereich höchstens einmal für besondere Maßnahmen beim Präparieren und höchstens einmal für besondere Maßnahmen beim Füllen von Kavitäten berechnungsfähig.",
+"punkte": 65,
+"euroCent": 366,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2040",
+"text": "Anlegen von Spanngummi, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": null,
+"punkte": 65,
+"euroCent": 366,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2050",
+"text": "Präparieren einer Kavität und Restauration mit plastischem Füllungsmaterial einschließlich Unterfüllung, Anlegen einer Matrize oder Benutzen anderer Hilfsmittel zur Formung der Füllung, einflächig",
+"hinweis": null,
+"punkte": 213,
+"euroCent": 1198,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2060",
+"text": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), einflächig, gegebenenfalls einschließlich Mehrschichttechnik, einschließlich Polieren, gegebenenfalls einschließlich Verwendung von Inserts",
+"hinweis": null,
+"punkte": 527,
+"euroCent": 2964,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2070",
+"text": "Präparieren einer Kavität und Restauration mit plastischem Füllungsmaterial einschließlich Unterfüllung, Anlegen einer Matrize oder Benutzen anderer Hilfsmittel zur Formung der Füllung, zweiflächig",
+"hinweis": null,
+"punkte": 242,
+"euroCent": 1361,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2080",
+"text": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), zweiflächig, gegebenenfalls einschließlich Mehrschichttechnik, einschließlich Polieren, gegebenenfalls einschließlich Verwendung von Inserts",
+"hinweis": null,
+"punkte": 556,
+"euroCent": 3127,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2090",
+"text": "Präparieren einer Kavität und Restauration mit plastischem Füllungsmaterial einschließlich Unterfüllung, Anlegen einer Matrize oder Benutzen anderer Hilfsmittel zur Formung der Füllung, dreiflächig",
+"hinweis": null,
+"punkte": 297,
+"euroCent": 1670,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2100",
+"text": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), dreiflächig, gegebenenfalls einschließlich Mehrschichttechnik, einschließlich Polieren, gegebenenfalls einschließlich Verwendung von Inserts",
+"hinweis": null,
+"punkte": 642,
+"euroCent": 3611,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2110",
+"text": "Präparieren einer Kavität und Restauration mit plastischem Füllungsmaterial einschließlich Unterfüllung, Anlegen einer Matrize oder Benutzen anderer Hilfsmittel zur Formung der Füllung, mehr als dreiflächig",
+"hinweis": null,
+"punkte": 319,
+"euroCent": 1794,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2120",
+"text": "Präparieren einer Kavität und Restauration mit Kompositmaterialien, in Adhäsivtechnik (Konditionieren), mehr als dreiflächig, gegebenenfalls einschließlich Mehrschichttechnik, einschließlich Polieren, gegebenenfalls einschließlich Verwendung von Inserts",
+"hinweis": null,
+"punkte": 770,
+"euroCent": 4331,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2130",
+"text": "Kontrolle, Finieren/Polieren einer Restauration in separater Sitzung, auch Nachpolieren einer vorhandenen Restauration",
+"hinweis": null,
+"punkte": 104,
+"euroCent": 585,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2150",
+"text": "Einlagefüllung, einflächig",
+"hinweis": null,
+"punkte": 1141,
+"euroCent": 6417,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2160",
+"text": "Einlagefüllung, zweiflächig",
+"hinweis": null,
+"punkte": 1356,
+"euroCent": 7626,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2170",
+"text": "Einlagefüllung, mehr als zweiflächig",
+"hinweis": null,
+"punkte": 1709,
+"euroCent": 9612,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2180",
+"text": "Vorbereitung eines zerstörten Zahnes mit plastischem Aufbaumaterial zur Aufnahme einer Krone",
+"hinweis": null,
+"punkte": 150,
+"euroCent": 844,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2190",
+"text": "Vorbereitung eines zerstörten Zahnes durch gegossenen Aufbau mit Stiftverankerung zur Aufnahme einer Krone",
+"hinweis": null,
+"punkte": 450,
+"euroCent": 2531,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2195",
+"text": "Vorbereitung eines zerstörten Zahnes durch einen Schraubenaufbau oder Glasfaserstift o. Ä. zur Aufnahme einer Krone",
+"hinweis": "Die Leistungen nach den Nummern 2180, 2190 oder 2195 sind neben den Leistungen nach den Nummern 2150 bis 2170 nicht berechnungsfähig.Die Leistung nach der Nummer 2180 ist neben der Leistung nach der Nummer 2190 nicht berechnungsfähig.Die Leistung nach der Nummer 2195 ist neben der Leistung nach der Nummer 2180 berechnungsfähig.Die Leistungen nach den Nummern 2180, 2190 und/oder die Leistung nach der Nummer 2195 ist je Zahn nur jeweils einmal berechnungsfähig.Die Kosten für die Verankerungselemente sind gesondert berechnungsfähig.",
+"punkte": 300,
+"euroCent": 1687,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2197",
+"text": "Adhäsive Befestigung (plastischer Aufbau, Stift, Inlay, Krone, Teilkrone, Veneer etc.)",
+"hinweis": null,
+"punkte": 130,
+"euroCent": 731,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2200",
+"text": "Versorgung eines Zahnes oder Implantats durch eine Vollkrone (Tangentialpräparation)",
+"hinweis": null,
+"punkte": 1322,
+"euroCent": 7435,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2210",
+"text": "Versorgung eines Zahnes durch eine Vollkrone (Hohlkehl- oder Stufenpräparation)",
+"hinweis": null,
+"punkte": 1678,
+"euroCent": 9437,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2220",
+"text": "Versorgung eines Zahnes durch eine Teilkrone mit Retentionsrillen oder -kästen oder mit Pinledges einschließlich Rekonstruktion der gesamten Kaufläche, auch Versorgung eines Zahnes durch ein Veneer",
+"hinweis": "Neben den Leistungen nach den Nummern 2200 bis 2220 sind die Leistungen nach den Nummern 2050 bis 2130 nicht berechnungsfähig.Die Leistung nach der Nummer 2210 ist im Zusammenhang mit Implantaten nicht berechnungsfähig.Durch die Leistungen nach den Nummern 2150 bis 2170 und 2200 bis 2220 sind folgende zahnärztliche Leistungen abgegolten: Präparieren des Zahnes oder Implantats, Relationsbestimmung, Abformungen, Einproben, provisorisches Eingliedern, festes Einfügen der Einlagefüllung oder der Krone oder der Teilkrone oder des Veneers, Nachkontrolle und Korrekturen.Die Leistung nach der Nummer 2200 umfasst auch die Verschraubung und Abdeckung mit Füllungsmaterial.Zu den Kronen nach den Nummern 22 Teilleistungen nach den Nummern 2200 bis 2220:",
+"punkte": 2067,
+"euroCent": 11625,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2230",
+"text": "Enden die Leistungen mit der Präparation eines Zahnes oder der Abdrucknahme beim Implantat, so ist die Hälfte der jeweiligen Gebühr berechnungsfähig.",
+"hinweis": null,
+"punkte": null,
+"euroCent": null,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2240",
+"text": "Sind darüber hinaus weitere Maßnahmen erfolgt, so sind drei Viertel der jeweiligen Gebühr berechnungsfähig.",
+"hinweis": "Die Leistungen nach den Nummern 2230 oder 2240 sind nur berechnungsfähig, wenn es dem Zahnarzt objektiv auf Dauer unmöglich war, die Behandlung fortzusetzen oder eine Fortsetzung aus medizinischen Gründen nicht indiziert war.",
+"punkte": null,
+"euroCent": null,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2250",
+"text": "Eingliederung einer konfektionierten Krone in der pädiatrischen Zahnheilkunde",
+"hinweis": "Die Kosten für konfektionierte Kronen sind gesondert berechnungsfähig.",
+"punkte": 210,
+"euroCent": 1181,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2260",
+"text": "Provisorium im direkten Verfahren ohne Abformung, je Zahn oder Implantat, einschließlich Entfernung",
+"hinweis": null,
+"punkte": 100,
+"euroCent": 562,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2270",
+"text": "Provisorium im direkten Verfahren mit Abformung, je Zahn oder Implantat, einschließlich Entfernung",
+"hinweis": "Bei Verwendung eines konfektionierten Provisoriums sind die Kosten hierfür gesondert berechnungsfähig.Das Wiedereingliedern desselben Provisoriums, gegebenenfalls auch mehrmals, einschließlich Entfernung, ist mit der Gebühr nach der Nummer 2260 oder 2270 abgegolten.",
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2290",
+"text": "Entfernung einer Einlagefüllung, einer Krone, eines Brückenankers, Abtrennen eines Brückengliedes oder Steges oder Ähnliches",
+"hinweis": null,
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2300",
+"text": "Entfernung eines Wurzelstiftes",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2310",
+"text": "Wiedereingliederung einer Einlagefüllung, einer Teilkrone, eines Veneers oder einer Krone oder Wiederherstellung einer Verblendschale an herausnehmbarem Zahnersatz",
+"hinweis": null,
+"punkte": 145,
+"euroCent": 816,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2320",
+"text": "Wiederherstellung einer Krone, einer Teilkrone, eines Veneers, eines Brückenankers, einer Verblendschale oder einer Verblendung an festsitzendem Zahnersatz, gegebenenfalls einschließlich Wiedereingliederung und Abformung",
+"hinweis": null,
+"punkte": 350,
+"euroCent": 1968,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2330",
+"text": "Maßnahmen zur Erhaltung der vitalen Pulpa bei Caries profunda (Exkavieren, indirekte Überkappung), je Kavität",
+"hinweis": null,
+"punkte": 110,
+"euroCent": 619,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2340",
+"text": "Maßnahmen zur Erhaltung der freiliegenden vitalen Pulpa (Exkavieren, direkte Überkappung), je Kavität",
+"hinweis": null,
+"punkte": 200,
+"euroCent": 1125,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2350",
+"text": "Amputation und Versorgung der vitalen Pulpa einschließlich Exkavieren",
+"hinweis": null,
+"punkte": 290,
+"euroCent": 1631,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2360",
+"text": "Exstirpation der vitalen Pulpa einschließlich Exkavieren, je Kanal",
+"hinweis": null,
+"punkte": 110,
+"euroCent": 619,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2380",
+"text": "Amputation und endgültige Versorgung der avitalen Milchzahnpulpa",
+"hinweis": null,
+"punkte": 160,
+"euroCent": 900,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2390",
+"text": "Trepanation eines Zahnes, als selbstständige Leistung",
+"hinweis": null,
+"punkte": 65,
+"euroCent": 366,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2400",
+"text": "Elektrometrische Längenbestimmung eines Wurzelkanals",
+"hinweis": "Die Leistung nach der Nummer 2400 ist je Wurzelkanal höchstens zweimal je Sitzung berechnungsfähig.",
+"punkte": 70,
+"euroCent": 394,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2410",
+"text": "Aufbereitung eines Wurzelkanals auch retrograd, je Kanal, gegebenenfalls in mehreren Sitzungen",
+"hinweis": "Die Leistung nach der Nummer 2410 ist für denselben Wurzelkanal nur dann erneut berechnungsfähig, wenn der Wurzelkanal nach der ersten Aufbereitung definitiv versorgt worden ist.Wenn auf Grund anatomischer Besonderheiten eine Aufbereitung in einer Sitzung nicht erfolgen kann, ist die Leistung nach der Nummer 2410 für denselben Wurzelkanal erneut berechnungsfähig. Dies ist in der Rechnung zu begründen. Je Aufbereitung eines Wurzelkanals ist die Leistung in diesem Fall höchstens zweimal berechnungsfähig.",
+"punkte": 392,
+"euroCent": 2205,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2420",
+"text": "Zusätzliche Anwendung elektrophysikalisch-chemischer Methoden, je Kanal",
+"hinweis": null,
+"punkte": 70,
+"euroCent": 394,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2430",
+"text": "Medikamentöse Einlage in Verbindung mit Maßnahmen nach den Nummern 2360, 2380 und 2410, je Zahn und Sitzung",
+"hinweis": null,
+"punkte": 204,
+"euroCent": 1147,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "2440",
+"text": "Füllung eines Wurzelkanals",
+"hinweis": null,
+"punkte": 258,
+"euroCent": 1451,
+"abschnitt": "C",
+"abschnittTitel": "Konservierende Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3000",
+"text": "Entfernung eines einwurzeligen Zahnes oder eines enossalen Implantats",
+"hinweis": null,
+"punkte": 70,
+"euroCent": 394,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3010",
+"text": "Entfernung eines mehrwurzeligen Zahnes",
+"hinweis": null,
+"punkte": 110,
+"euroCent": 619,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3020",
+"text": "Entfernung eines tief frakturierten oder tief zerstörten Zahnes",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3030",
+"text": "Entfernung eines Zahnes oder eines enossalen Implantats durch Osteotomie",
+"hinweis": null,
+"punkte": 350,
+"euroCent": 1968,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3040",
+"text": "Entfernung eines retinierten, impaktierten oder verlagerten Zahnes durch Osteotomie",
+"hinweis": null,
+"punkte": 540,
+"euroCent": 3037,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3045",
+"text": "Entfernen eines extrem verlagerten und/oder extrem retinierten Zahnes durch umfangreiche Osteotomie bei gefährdeten anatomischen Nachbarstrukturen",
+"hinweis": null,
+"punkte": 767,
+"euroCent": 4314,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3050",
+"text": "Stillung einer übermäßigen Blutung im Mund- und/oder Kieferbereich, als selbstständige Leistung",
+"hinweis": null,
+"punkte": 110,
+"euroCent": 619,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3060",
+"text": "Stillung einer Blutung durch Abbinden oder Umstechen des Gefäßes oder durch Knochenbolzung",
+"hinweis": null,
+"punkte": 140,
+"euroCent": 787,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3070",
+"text": "Exzision von Schleimhaut oder Granulationsgewebe, als selbstständige Leistung",
+"hinweis": null,
+"punkte": 45,
+"euroCent": 253,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3080",
+"text": "Exzision einer Schleimhautwucherung größeren Umfangs (z. B. lappiges Fibrom, Epulis)",
+"hinweis": null,
+"punkte": 150,
+"euroCent": 844,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3090",
+"text": "Plastischer Verschluss einer eröffneten Kieferhöhle",
+"hinweis": null,
+"punkte": 370,
+"euroCent": 2081,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3100",
+"text": "Plastische Deckung im Rahmen einer Wundversorgung einschließlich einer Periostschlitzung, je Operationsgebiet (Raum einer zusammenhängenden Schnittführung)",
+"hinweis": "Die Leistung nach der Nummer 3100 ist für dasselbe Operationsgebiet nicht neben der Leistung nach der Nummer 3090 berechnungsfähig.",
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3110",
+"text": "Resektion einer Wurzelspitze an einem Frontzahn",
+"hinweis": null,
+"punkte": 460,
+"euroCent": 2587,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3120",
+"text": "Resektion einer Wurzelspitze an einem Seitenzahn",
+"hinweis": "Die Kosten für konfektionierte apikale Stiftsysteme sind gesondert berechnungsfähig.",
+"punkte": 580,
+"euroCent": 3262,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3130",
+"text": "Hemisektion und Teilextraktion eines mehrwurzeligen Zahnes",
+"hinweis": null,
+"punkte": 280,
+"euroCent": 1575,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3140",
+"text": "Reimplantation eines Zahnes einschließlich einfacher Fixation",
+"hinweis": null,
+"punkte": 550,
+"euroCent": 3093,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3160",
+"text": "Transplantation eines Zahnes einschließlich operativer Schaffung des Knochenbettes",
+"hinweis": null,
+"punkte": 650,
+"euroCent": 3656,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3190",
+"text": "Operation einer Zyste durch Zystektomie in Verbindung mit einer Osteotomie oder Wurzelspitzenresektion",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3200",
+"text": "Operation einer Zyste durch Zystektomie, als selbstständige Leistung",
+"hinweis": "Das Auskratzen von Granulationsgewebe oder kleinen Zysten in Verbindung mit Extraktionen, Osteotomien oder Wurzelspitzenresektionen kann nicht nach den Nummern 3190 bis 3200 sowie 3310 berechnet werden.",
+"punkte": 500,
+"euroCent": 2812,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3210",
+"text": "Beseitigung störender Schleimhautbänder, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": null,
+"punkte": 140,
+"euroCent": 787,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3230",
+"text": "Knochenresektion am Alveolarfortsatz zur Formung des Prothesenlagers, als selbstständige Leistung, je Kiefer",
+"hinweis": null,
+"punkte": 440,
+"euroCent": 2475,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3240",
+"text": "Vestibulumplastik oder Mundbodenplastik kleineren Umfangs auch Gingivaextensionsplastik, je Kieferhälfte oder Frontzahnbereich, für einen Bereich bis zu zwei nebeneinander liegenden Zähnen, gegebenenfalls auch am zahnlosen Kieferabschnitt",
+"hinweis": null,
+"punkte": 550,
+"euroCent": 3093,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3250",
+"text": "Tuberplastik, einseitig",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3260",
+"text": "Freilegen eines retinierten oder verlagerten Zahnes zur orthopädischen Einstellung",
+"hinweis": null,
+"punkte": 550,
+"euroCent": 3093,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3270",
+"text": "Germektomie",
+"hinweis": null,
+"punkte": 590,
+"euroCent": 3318,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3280",
+"text": "Lösen, Verlegen und Fixieren des Lippenbändchens und Durchtrennen des Septums bei echtem Diastema",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3290",
+"text": "Kontrolle nach chirurgischem Eingriff, als selbstständige Leistung, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": null,
+"punkte": 55,
+"euroCent": 309,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3300",
+"text": "Nachbehandlung nach chirurgischem Eingriff (z. B. Tamponieren), als selbstständige Leistung, je Operationsgebiet (Raum einer zusammenhängenden Schnittführung)",
+"hinweis": "Die Leistung nach der Nummer 3300 ist höchstens zweimal je Kieferhälfte oder Frontzahnbereich berechnungsfähig.Neben der Leistung nach der Nummer 3300 sind die Leistungen nach den Nummern 3060 oder 3310 nicht berechnungsfähig.",
+"punkte": 65,
+"euroCent": 366,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "3310",
+"text": "Chirurgische Wundrevision (z. B. Glätten des Knochens, Auskratzen, Naht), je Operationsgebiet (Raum einer zusammenhängenden Schnittführung)",
+"hinweis": "Die Leistung nach der Nummer 3310 ist höchstens zweimal je Kieferhälfte oder Frontzahnbereich berechnungsfähig.Neben der Leistung nach der Nummer 3310 sind die Leistungen nach den Nummern 3060 oder 3300 nicht berechnungsfähig.",
+"punkte": 100,
+"euroCent": 562,
+"abschnitt": "D",
+"abschnittTitel": "Chirurgische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4000",
+"text": "Erstellen und Dokumentieren eines Parodontalstatus",
+"hinweis": "Die Leistung nach der Nummer 4000 ist innerhalb eines Jahres höchstens zweimal berechnungsfähig.",
+"punkte": 160,
+"euroCent": 900,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4005",
+"text": "Erhebung mindestens eines Gingivalindex und/oder eines Parodontalindex (z. B. des Parodontalen Screening-Index PSI)",
+"hinweis": "Die Leistung nach der Nummer 4005 ist innerhalb eines Jahres höchstens zweimal berechnungsfähig.",
+"punkte": 80,
+"euroCent": 450,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4020",
+"text": "Lokalbehandlung von Mundschleimhauterkrankungen, gegebenenfalls einschließlich Taschenspülungen, je Sitzung",
+"hinweis": null,
+"punkte": 45,
+"euroCent": 253,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4025",
+"text": "Subgingivale medikamentöse antibakterielle Lokalapplikation, je Zahn",
+"hinweis": "Die verwendeten antibakteriellen Materialien sind gesondert berechnungsfähig.",
+"punkte": 15,
+"euroCent": 84,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4030",
+"text": "Beseitigung von scharfen Zahnkanten, störenden Prothesenrändern und Fremdreizen am Parodontium, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": null,
+"punkte": 35,
+"euroCent": 197,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4040",
+"text": "Beseitigung grober Vorkontakte der Okklusion und Artikulation durch Einschleifen des natürlichen Gebisses oder bereits vorhandenen Zahnersatzes, je Sitzung",
+"hinweis": null,
+"punkte": 45,
+"euroCent": 253,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4050",
+"text": "Entfernung harter und weicher Zahnbeläge, gegebenenfalls einschließlich Polieren an einem einwurzeligen Zahn oder Implantat, auch Brückenglied",
+"hinweis": null,
+"punkte": 10,
+"euroCent": 56,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4055",
+"text": "Entfernung harter und weicher Zahnbeläge, gegebenenfalls einschließlich Polieren an einem mehrwurzeligen Zahn",
+"hinweis": "Die Leistungen nach den Nummern 4050 und 4055 sind für denselben Zahn innerhalb von 30 Tagen nur einmal berechnungsfähig.",
+"punkte": 13,
+"euroCent": 73,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4060",
+"text": "Kontrolle nach Entfernung harter und weicher Zahnbeläge oder professioneller Zahnreinigung nach der Nummer 1040 mit Nachreinigung einschließlich Polieren, je Zahn, oder Implantat, auch Brückenglied",
+"hinweis": "Die Leistung nach der Nummer 4060 ist neben den Leistungen nach den Nummern 1040, 4050 und 4055 nicht berechnungsfähig.",
+"punkte": 7,
+"euroCent": 39,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4070",
+"text": "Parodontalchirurgische Therapie (insbesondere Entfernung subgingivaler Konkremente und Wurzelglättung) an einem einwurzeligen Zahn oder Implantat, geschlossenes Vorgehen",
+"hinweis": null,
+"punkte": 100,
+"euroCent": 562,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4075",
+"text": "Parodontalchirurgische Therapie (insbesondere Entfernung subgingivaler Konkremente und Wurzelglättung) an einem mehrwurzeligen Zahn, geschlossenes Vorgehen",
+"hinweis": null,
+"punkte": 130,
+"euroCent": 731,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4080",
+"text": "Gingivektomie, Gingivoplastik, je Parodontium",
+"hinweis": null,
+"punkte": 45,
+"euroCent": 253,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4090",
+"text": "Lappenoperation, offene Kürettage einschließlich Osteoplastik an einem Frontzahn, je Parodontium",
+"hinweis": null,
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4100",
+"text": "Lappenoperation, offene Kürettage einschließlich Osteoplastik an einem Seitenzahn, je Parodontium",
+"hinweis": "Neben den Leistungen nach den Nummern 4090 und 4100 sind Leistungen nach den Nummern 4050 bis 4080 in der gleichen Sitzung nicht berechnungsfähig.",
+"punkte": 275,
+"euroCent": 1547,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4110",
+"text": "Auffüllen von parodontalen Knochendefekten mit Aufbaumaterial (Knochen- und/oder Knochenersatzmaterial), auch Einbringen von Proteinen, zur regenerativen Behandlung parodontaler Defekte, gegebenenfalls einschließlich Materialentnahme im Aufbaugebiet, je Zahn oder Parodontium oder Implantat",
+"hinweis": "Die Leistung nach der Nummer 4110 ist auch im Rahmen einer chirurgischen Behandlung berechnungsfähig.Die Kosten eines einmal verwendbaren Knochenkollektors oder -schabers sind gesondert berechnungsfähig.",
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4120",
+"text": "Verlegen eines gestielten Schleimhautlappens, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": null,
+"punkte": 275,
+"euroCent": 1547,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4130",
+"text": "Gewinnung und Transplantation von Schleimhaut, gegebenenfalls einschließlich Versorgung der Entnahmestelle, je Transplantat",
+"hinweis": null,
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4133",
+"text": "Gewinnung und Transplantation von Bindegewebe einschließlich Versorgung der Entnahmestelle, je Zahnzwischenraum",
+"hinweis": null,
+"punkte": 880,
+"euroCent": 4949,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4136",
+"text": "Osteoplastik auch Kronenverlängerung, Tunnelierung oder Ähnliches je Zahn oder Parodontium, auch Implantat, als selbstständige Leistung",
+"hinweis": null,
+"punkte": 200,
+"euroCent": 1125,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4138",
+"text": "Verwendung einer Membran zur Behandlung eines Knochendefektes einschließlich Fixierung, je Zahn, je Implantat",
+"hinweis": null,
+"punkte": 220,
+"euroCent": 1237,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "4150",
+"text": "Kontrolle/Nachbehandlung nach parodontalchirurgischen Maßnahmen, je Zahn, Implantat oder Parodontium",
+"hinweis": null,
+"punkte": 7,
+"euroCent": 39,
+"abschnitt": "E",
+"abschnittTitel": "Leistungen bei Erkrankungen der Mundschleimhaut und des Parodontiums",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5000",
+"text": "Versorgung eines Lückengebisses durch eine Brücke oder Prothese: je Pfeilerzahn oder Implantat als Brücken- oder Prothesenanker mit einer Vollkrone (Tangentialpräparation)",
+"hinweis": null,
+"punkte": 1016,
+"euroCent": 5714,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5010",
+"text": "Versorgung eines Lückengebisses durch eine Brücke oder Prothese: je Pfeilerzahn als Brücken- oder Prothesenanker mit einer Vollkrone (Hohlkehl- und Stufenpräparation) oder Einlagefüllung",
+"hinweis": null,
+"punkte": 1483,
+"euroCent": 8341,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5020",
+"text": "Versorgung eines Lückengebisses durch eine Brücke oder Prothese: je Pfeilerzahn als Brücken- oder Prothesenanker mit einer Teilkrone mit Retentionsrillen oder -kasten oder mit Pinledges einschließlich Rekonstruktion der Kaufläche",
+"hinweis": null,
+"punkte": 1997,
+"euroCent": 11232,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5030",
+"text": "Versorgung eines Lückengebisses durch eine Brücke oder Prothese: je Pfeilerzahn oder Implantat als Brücken- oder Prothesenanker mit einer Wurzelkappe mit Stift, gegebenenfalls zur Aufnahme einer Verbindungsvorrichtung oder anderer Verbindungselemente",
+"hinweis": null,
+"punkte": 1483,
+"euroCent": 8341,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5040",
+"text": "Versorgung eines Lückengebisses durch eine Brücke oder Prothese: je Pfeilerzahn oder Implantat als Brücken- oder Prothesenanker mit einer Teleskopkrone, auch Konuskrone",
+"hinweis": "Die Leistung nach der Nummer 5040 ist neben der Leistung nach der Nummer 5080 nicht berechnungsfähig.Durch die Leistungen nach den Nummern 5000 bis 5040 sind folgende zahnärztliche Leistungen abgegolten: Präparieren des Zahnes oder Implantats, Relationsbestimmung, Abformungen, Einproben, provisorisches Eingliedern, festes Einfügen der Krone, der Einlagefüllung, der Teilkrone o. a., Nachkontrolle und KorrekturenDie Leistungen nach den Nummern 5000 und 5030 umfassen auch die Verschraubung und Abdeckung mit Füllungsmaterial.Zu den Leistungen nach den Nummern 5000 bis 5040 gehören Brücken- oder Prothesenanker mit Verbindungselementen jeder Ausführung.Die Leistungen nach den Nummern 5010 und 5020 sind im Zusammenhang mit Implan Teilleistungen nach den Nummern 5000 bis 5040:",
+"punkte": 2605,
+"euroCent": 14651,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5050",
+"text": "Enden die Leistungen mit der Präparation der Brückenpfeiler oder Prothesenanker mit Verbindungselementen oder der Abdrucknahme beim Implantat, so ist die Hälfte der jeweiligen Gebühr berechnungsfähig.",
+"hinweis": null,
+"punkte": null,
+"euroCent": null,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5060",
+"text": "Sind darüber hinaus weitere Maßnahmen erfolgt, so sind drei Viertel der jeweiligen Gebühr berechnungsfähig.",
+"hinweis": "Die Leistungen nach den Nummern 5050 oder 5060 sind nur berechnungsfähig, wenn es dem Zahnarzt objektiv auf Dauer unmöglich war, die Behandlung fortzusetzen, oder eine Fortsetzung aus medizinischen Gründen nicht indiziert war.",
+"punkte": null,
+"euroCent": null,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5070",
+"text": "Versorgung eines Lückengebisses durch eine Brücke oder Prothese: Verbindung von Kronen oder Einlagefüllungen durch Brückenglieder, Prothesenspannen oder Stege, je zu überbrückende Spanne oder Freiendsattel",
+"hinweis": null,
+"punkte": 400,
+"euroCent": 2250,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5080",
+"text": "Versorgung eines Lückengebisses durch eine zusammengesetzte Brücke oder Prothese, je VerbindungselementMatrize und Patrize gelten als ein Verbindungselement. Die Leistung nach der Nummer 5080 ist neben der Leistung nach der Nummer 5040 nicht berechnungsfähig.",
+"hinweis": null,
+"punkte": 230,
+"euroCent": 1294,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5090",
+"text": "Wiederherstellung der Funktion eines Verbindungselements nach der Nummer 5080",
+"hinweis": null,
+"punkte": 110,
+"euroCent": 619,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5100",
+"text": "Erneuern des Sekundärteils einer Teleskopkrone einschließlich Abformung",
+"hinweis": null,
+"punkte": 450,
+"euroCent": 2531,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5110",
+"text": "Wiedereingliederung einer endgültigen Brücke nach Wiederherstellung der Funktion",
+"hinweis": null,
+"punkte": 360,
+"euroCent": 2025,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5120",
+"text": "Provisorische Brücke im direkten Verfahren mit Abformung, je Zahn oder Implantat, einschließlich Entfernung",
+"hinweis": null,
+"punkte": 240,
+"euroCent": 1350,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5140",
+"text": "Provisorische Brücke im direkten Verfahren mit Abformung, je Brückenspanne oder Freiendsattel, einschließlich Entfernung",
+"hinweis": "Das Wiedereingliedern derselben provisorischen Brücke, gegebenenfalls auch mehrmals, einschließlich Entfernung ist mit den Gebühren nach den Nummern 5120 bis 5140 abgegolten.",
+"punkte": 80,
+"euroCent": 450,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5150",
+"text": "Versorgung eines Lückengebisses mit Hilfe einer durch Adhäsivtechnik befestigten Brücke, für die erste zu überbrückende Spanne",
+"hinweis": null,
+"punkte": 730,
+"euroCent": 4106,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5160",
+"text": "Versorgung eines Lückengebisses nach der Nummer 5150, für jede weitere zu überbrückende Spanne",
+"hinweis": null,
+"punkte": 360,
+"euroCent": 2025,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5170",
+"text": "Anatomische Abformung des Kiefers mit individuellem Löffel bei ungünstigen Zahnbogen- und Kieferformen und/oder tief ansetzenden Bändern oder spezielle Abformung zur Remontage, je Kiefer",
+"hinweis": null,
+"punkte": 250,
+"euroCent": 1406,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5180",
+"text": "Funktionelle Abformung des Oberkiefers mit individuellem Löffel",
+"hinweis": null,
+"punkte": 450,
+"euroCent": 2531,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5190",
+"text": "Funktionelle Abformung des Unterkiefers mit individuellem Löffel",
+"hinweis": null,
+"punkte": 540,
+"euroCent": 3037,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5200",
+"text": "Versorgung eines teilbezahnten Kiefers durch eine Teilprothese mit einfachen, gebogenen Haftelementen einschließlich Einschleifen der Auflagen",
+"hinweis": null,
+"punkte": 700,
+"euroCent": 3937,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5210",
+"text": "Versorgung eines teilbezahnten Kiefers durch eine Modellgussprothese mit gegossenen Halte- und Stützelementen einschließlich Einschleifen der Auflagen",
+"hinweis": null,
+"punkte": 1400,
+"euroCent": 7874,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5220",
+"text": "Versorgung eines zahnlosen Kiefers durch eine totale Prothese oder Deckprothese bei Verwendung einer Kunststoff- oder Metallbasis, im Oberkiefer",
+"hinweis": "Eine Deckprothese setzt eine Basisgestaltung wie bei einer totalen Prothese voraus.",
+"punkte": 1850,
+"euroCent": 10405,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5230",
+"text": "Versorgung eines zahnlosen Kiefers durch eine totale Prothese oder Deckprothese bei Verwendung einer Kunststoff- oder Metallbasis, im Unterkiefer",
+"hinweis": "Eine Deckprothese setzt eine Basisgestaltung wie bei einer totalen Prothese voraus.Durch die Leistungen nach den Nummern 5200 bis 5230 sind folgende Leistungen abgegolten:Anatomische Abformungen (auch des Gegenkiefers), Bestimmung der Kieferrelation, Einproben, Einpassen bzw. Einfügen, Nachkontrolle und Korrekturen.",
+"punkte": 2200,
+"euroCent": 12373,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5240",
+"text": "Teilleistungen nach den Nummern 5200 und 5230:Für Maßnahmen bis einschließlich Bestimmung der Kieferrelation ist die Hälfte der jeweiligen Gebühr berechnungsfähig; bei weitergehenden Maßnahmen sind drei Viertel der jeweiligen Gebühr berechnungsfähig.",
+"hinweis": null,
+"punkte": null,
+"euroCent": null,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5250",
+"text": "Maßnahmen zur Wiederherstellung der Funktion oder zur Erweiterung einer abnehmbaren Prothese (ohne Abformung)",
+"hinweis": null,
+"punkte": 140,
+"euroCent": 787,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5260",
+"text": "Maßnahmen zur Wiederherstellung der Funktion oder zur Erweiterung einer abnehmbaren Prothese (mit Abformung) einschließlich Halte- und Stützvorrichtungen",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5270",
+"text": "Teilunterfütterung einer Prothese",
+"hinweis": null,
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5280",
+"text": "Vollständige Unterfütterung einer Prothese",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5290",
+"text": "Vollständige Unterfütterung einer Prothese einschließlich funktioneller Randgestaltung, im Oberkiefer",
+"hinweis": null,
+"punkte": 450,
+"euroCent": 2531,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5300",
+"text": "Vollständige Unterfütterung einer Prothese einschließlich funktioneller Randgestaltung, im Unterkiefer",
+"hinweis": null,
+"punkte": 540,
+"euroCent": 3037,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5310",
+"text": "Vollständige Unterfütterung bei einer Defektprothese einschließlich funktioneller Randgestaltung",
+"hinweis": "Im Zusammenhang mit Leistungen nach den Nummern 5270 bis 5310 dürfen Leistungen nach den Nummern 5250 und 5260 nur berechnet werden, wenn es sich um zeitlich getrennte Verrichtungen handelt.Leistungen nach den Nummern 5270 bis 5310 sind nur als Maßnahmen zur Wiederherstellung der Funktion einer abnehmbaren Prothese berechnungsfähig.",
+"punkte": 730,
+"euroCent": 4106,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5320",
+"text": "Eingliederung eines Obturators zum Verschluss von Defekten des Gaumens",
+"hinweis": null,
+"punkte": 2200,
+"euroCent": 12373,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5330",
+"text": "Eingliederung einer Resektionsprothese zum Verschluss und zum Ausgleich von Defekten der Kiefer",
+"hinweis": null,
+"punkte": 2800,
+"euroCent": 15748,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "5340",
+"text": "Eingliederung einer Prothese oder Epithese zum Verschluss extraoraler Weichteildefekte oder zum Ersatz fehlender Gesichtsteile einschließlich Stütz-, Halte- oder HilfsvorrichtungenMaßnahmen zur Weichteilstützung sind mit den Leistungen nach den Nummern 5200 bis 5340 abgegolten.",
+"hinweis": null,
+"punkte": 7300,
+"euroCent": 41057,
+"abschnitt": "F",
+"abschnittTitel": "Prothetische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6000",
+"text": "Profil- oder Enfacefotografie einschließlich kieferorthopädischer Auswertung",
+"hinweis": "Eine mehr als viermalige Berechnung der Leistung nach der Nummer 6000 im Verlauf einer kieferorthopädischen Behandlung ist in der Rechnung zu begründen.",
+"punkte": 80,
+"euroCent": 450,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6010",
+"text": "Anwendung von Methoden zur Analyse von Kiefermodellen (dreidimensionale, graphische oder metrische Analysen, Diagramme), je Leistung nach der Nummer 0060",
+"hinweis": null,
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6020",
+"text": "Anwendung von Methoden zur Untersuchung des Gesichtsschädels (zeichnerische Auswertung von Röntgenaufnahmen des Schädels, Wachstumsanalysen)",
+"hinweis": null,
+"punkte": 360,
+"euroCent": 2025,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6030",
+"text": "Maßnahmen zur Umformung eines Kiefers einschließlich Retention, geringer Umfang",
+"hinweis": null,
+"punkte": 1350,
+"euroCent": 7593,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6040",
+"text": "Maßnahmen zur Umformung eines Kiefers einschließlich Retention, mittlerer Umfang",
+"hinweis": null,
+"punkte": 2100,
+"euroCent": 11811,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6050",
+"text": "Maßnahmen zur Umformung eines Kiefers einschließlich Retention, hoher Umfang",
+"hinweis": "Bei Maßnahmen von mittlerem Umfang nach der Nummer 6040 müssen mindestens drei, bei Maßnahmen von hohem Umfang mindestens vier der Kriterien nach den Buchstaben a bis e erfüllt sein:a) Zahl der bewegten Zahngruppen: zwei und mehr Zahngruppen,b) Ausmaß der Zahnbewegung: mehr als 2 Millimeter,c) Art der Zahnbewegung: körperlich mehr als 2 Millimeter, kontrollierte Wurzelbewegung, direkte Veränderung der Bisshöhe, Zahndrehung mehr als 30 Grad,d) Richtung der Zahnbewegung: entgegen Wanderungstendenz,e) Verankerung: mit zusätzlichen intra- oder extraoralen Maßnahmen.",
+"punkte": 3600,
+"euroCent": 20247,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6060",
+"text": "Maßnahmen zur Einstellung der Kiefer in den Regelbiss während der Wachstumsphase einschließlich Retention, geringer Umfang",
+"hinweis": null,
+"punkte": 1800,
+"euroCent": 10124,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6070",
+"text": "Maßnahmen zur Einstellung der Kiefer in den Regelbiss während der Wachstumsphase einschließlich Retention, mittlerer Umfang",
+"hinweis": null,
+"punkte": 2600,
+"euroCent": 14623,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6080",
+"text": "Maßnahmen zur Einstellung der Kiefer in den Regelbiss während der Wachstumsphase einschließlich Retention, hoher Umfang",
+"hinweis": "Bei Maßnahmen von mittlerem Umfang muss mindestens ein Kriterium nach den Buchstaben a bis c, bei Maßnahmen von hohem Umfang müssen mindestens zwei der Kriterien erfüllt sein:a) Ausmaß der Bissverschiebung: mehr als 4 Millimeter,b) Richtung der durchzuführenden Bissverschiebung, Unterkiefer relativ zum Oberkiefer: dorsal,c) Skelettale Bedingungen: ungünstige Wachstumsvoraussetzungen.Die Leistungen nach den Nummern 6030 bis 6080 umfassen alle im Behandlungsplan festgelegten Maßnahmen innerhalb eines Zeitraumes von bis zu vier Jahren.Die Maßnahmen im Sinne der Nummern 6030 bis 6080 umfassen alle Leistungen zur Kieferumformung und Retention bzw. zur Einstellung des Unterkiefers in den Regelbiss innerhalb eines Zeitraumes von bis zu vier Jahren, unabhängig von den angewandte",
+"punkte": 3600,
+"euroCent": 20247,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6090",
+"text": "Maßnahmen zur Einstellung der Okklusion durch alveolären Ausgleich bei abgeschlossener Wachstumsphase einschließlich Retention, je Kiefer",
+"hinweis": null,
+"punkte": 700,
+"euroCent": 3937,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6100",
+"text": "Eingliederung eines Klebebrackets zur Aufnahme orthodontischer Hilfsmittel",
+"hinweis": null,
+"punkte": 165,
+"euroCent": 928,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6110",
+"text": "Entfernung eines Klebebrackets einschließlich Polieren und gegebenenfalls Versiegelung des Zahnes",
+"hinweis": null,
+"punkte": 70,
+"euroCent": 394,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6120",
+"text": "Eingliederung eines Bandes zur Aufnahme orthodontischer Hilfsmittel",
+"hinweis": null,
+"punkte": 230,
+"euroCent": 1294,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6130",
+"text": "Entfernung eines Bandes einschließlich Polieren und gegebenenfalls Versiegelung des Zahnes",
+"hinweis": null,
+"punkte": 20,
+"euroCent": 112,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6140",
+"text": "Eingliederung eines Teilbogens",
+"hinweis": null,
+"punkte": 210,
+"euroCent": 1181,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6150",
+"text": "Eingliederung eines ungeteilten Bogens, alle Zahngruppen umfassend, je Kiefer",
+"hinweis": null,
+"punkte": 500,
+"euroCent": 2812,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6160",
+"text": "Eingliederung einer intra-/extraoralen Verankerung (z. B. Headgear).",
+"hinweis": null,
+"punkte": 370,
+"euroCent": 2081,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6170",
+"text": "Eingliederung einer Kopf-Kinn-Kappe.",
+"hinweis": "Die Kosten für die eingegliederten Hilfsmittel nach den Nummern 6160 und 6170 sind gesondert berechnungsfähig.",
+"punkte": 500,
+"euroCent": 2812,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6180",
+"text": "Maßnahmen zur Wiederherstellung der Funktionsfähigkeit und/oder Erweiterung von herausnehmbaren Behandlungsgeräten einschließlich Abformung und Wiedereinfügen, je Kiefer und je Sitzung einmal berechnungsfähig",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6190",
+"text": "Beratendes und belehrendes Gespräch mit Anweisungen zur Beseitigung von schädlichen Gewohnheiten und Dysfunktionen",
+"hinweis": "Neben der Leistung nach der Nummer 6190 ist die Leistung nach der Nummer 0010 in derselben Sitzung nicht berechnungsfähig.",
+"punkte": 140,
+"euroCent": 787,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6200",
+"text": "Eingliedern von Hilfsmitteln zur Beseitigung von Funktionsstörungen (z. B. Mundvorhofplatte) einschließlich Anweisung zum Gebrauch und Kontrollen",
+"hinweis": null,
+"punkte": 450,
+"euroCent": 2531,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6210",
+"text": "Kontrolle des Behandlungsverlaufs oder Weiterführung der Retention einschließlich kleiner Änderungen der Behandlungs- oder Retentionsgeräte, Therapiekontrolle der gesteuerten Extraktion, je Sitzung",
+"hinweis": null,
+"punkte": 90,
+"euroCent": 506,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6220",
+"text": "Vorbereitende Maßnahmen zur Herstellung von kieferorthopädischen Behandlungsmitteln (z. B. Abformung, Bissnahme), je Kiefer",
+"hinweis": null,
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6230",
+"text": "Eingliederung von kieferorthopädischen Behandlungsmitteln, je Kiefer",
+"hinweis": null,
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6240",
+"text": "Maßnahmen zur Verhütung von Folgen vorzeitigen Zahnverlustes (Offenhalten einer Lücke)",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6250",
+"text": "Beseitigung des Diastemas, als selbstständige Leistung",
+"hinweis": null,
+"punkte": 450,
+"euroCent": 2531,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "6260",
+"text": "Maßnahmen zur Einordnung eines verlagerten Zahnes in den Zahnbogen, als selbstständige Leistung",
+"hinweis": null,
+"punkte": 1100,
+"euroCent": 6187,
+"abschnitt": "G",
+"abschnittTitel": "Kieferorthopädische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7000",
+"text": "Eingliederung eines Aufbissbehelfs ohne adjustierte Oberfläche",
+"hinweis": null,
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7010",
+"text": "Eingliederung eines Aufbissbehelfs mit adjustierter Oberfläche",
+"hinweis": null,
+"punkte": 800,
+"euroCent": 4499,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7020",
+"text": "Umarbeitung einer vorhandenen Prothese zum Aufbissbehelf",
+"hinweis": null,
+"punkte": 450,
+"euroCent": 2531,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7030",
+"text": "Wiederherstellung der Funktion eines Aufbissbehelfs, z. B. durch Unterfütterung",
+"hinweis": null,
+"punkte": 370,
+"euroCent": 2081,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7040",
+"text": "Kontrolle eines Aufbissbehelfs",
+"hinweis": null,
+"punkte": 65,
+"euroCent": 366,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7050",
+"text": "Kontrolle eines Aufbissbehelfs mit adjustierter Oberfläche: subtraktive Maßnahmen, je Sitzung",
+"hinweis": null,
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7060",
+"text": "Kontrolle eines Aufbissbehelfs mit adjustierter Oberfläche: additive Maßnahmen, je Sitzung",
+"hinweis": null,
+"punkte": 410,
+"euroCent": 2306,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7070",
+"text": "Semipermanente Schiene unter Anwendung der Ätztechnik, je Interdentalraum",
+"hinweis": null,
+"punkte": 90,
+"euroCent": 506,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7080",
+"text": "Versorgung eines Kiefers mit einem festsitzenden laborgefertigten Provisorium (einschließlich Vorpräparation) im indirekten Verfahren, je Zahn oder je Implantat, einschließlich Entfernung",
+"hinweis": null,
+"punkte": 600,
+"euroCent": 3375,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7090",
+"text": "Versorgung eines Kiefers mit einem laborgefertigten Provisorium im indirekten Verfahren, je Brückenglied, einschließlich Entfernung",
+"hinweis": "Die Berechnung der Leistungen nach den Nummern 7080 und 7090 setzt voraus, dass es sich bei dem festsitzenden laborgefertigten Provisorium um ein Langzeitprovisorium mit einer Tragezeit von mindestens drei Monaten handelt. Beträgt die Tragezeit des festsitzenden laborgefertigten Provisoriums unter drei Monaten, sind anstelle der Leistungen nach den Nummern 7080 und 7090 die Leistungen nach den Nummern 2260, 2270 oder 5120 und 5140 berechnungsfähig.Im Zusammenhang mit den Leistungen nach den Nummern 7080 oder 7090 sind die Leistungen nach den Nummern 2230, 2240, 5050 oder 5060 nicht berechnungsfähig.",
+"punkte": 270,
+"euroCent": 1519,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "7100",
+"text": "Maßnahmen zur Wiederherstellung der Funktion eines Langzeitprovisoriums, je Krone, Spanne oder Freiendbrückenglied",
+"hinweis": "Die Wiedereingliederung desselben festsitzenden laborgefertigten Provisoriums nach den Nummern 7080 oder 7090, gegebenenfalls auch mehrmals, einschließlich Entfernung, ist mit den Gebühren nach den Nummern 7080 bis 7100 abgegolten.",
+"punkte": 200,
+"euroCent": 1125,
+"abschnitt": "H",
+"abschnittTitel": "Eingliederung von Aufbissbehelfen und Schienen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8000",
+"text": "Klinische Funktionsanalyse einschließlich Dokumentation",
+"hinweis": "Die Leistung nach der Nummer 8000 umfasst auch folgende zahnärztliche Leistungen: prophylaktische, prothetische, parodontologische und okklusale Befunderhebung, funktionsdiagnostische Auswertung von Röntgenaufnahmen des Schädels und der Halswirbelsäule, klinische Reaktionstests (z. B. Resilienztest, Provokationstest).",
+"punkte": 500,
+"euroCent": 2812,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8010",
+"text": "Registrieren der gelenkbezüglichen Zentrallage des Unterkiefers, auch Stützstiftregistrierung, je Registrat",
+"hinweis": "Die Leistung nach der Nummer 8010 ist je Sitzung höchstens zweimal berechnungsfähig.Neben der Leistung nach der Nummer 8010 sind die Material- und Laborkosten für die Bissnahme und die Lieferung und Anbringung des Stützstiftbestecks gesondert berechnungsfähig.",
+"punkte": 180,
+"euroCent": 1012,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8020",
+"text": "Arbiträre Scharnierachsenbestimmung (eingeschlossen sind die arbiträre Scharnierachsenbestimmung, das Anlegen eines Übertragungsbogens, das Koordinieren eines Übertragungsbogens mit einem Artikulator)",
+"hinweis": null,
+"punkte": 300,
+"euroCent": 1687,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8030",
+"text": "Kinematische Scharnierachsenbestimmung (eingeschlossen sind die kinematische Scharnierachsenbestimmung, das definitive Markieren der Referenzpunkte, das Anlegen eines Übertragungsbogens, das Koordinieren eines Übertragungsbogens mit einem Artikulator)",
+"hinweis": null,
+"punkte": 550,
+"euroCent": 3093,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8035",
+"text": "Kinematische Scharnierachsenbestimmung mittels elektronischer Aufzeichnung (eingeschlossen sind die kinematische Scharnierachsenbestimmung, das definitive Markieren der Referenzpunkte, gegebenenfalls das Anlegen eines Übertragungsbogens, gegebenenfalls das Koordinieren eines Übertragungsbogens mit einem Artikulator)",
+"hinweis": "Neben den Leistungen nach den Nummern 8020 bis 8035 sind die Material- und Laborkosten für die Artikulation des Ober- und Unterkiefermodells im (halb) individuellen Artikulator gesondert berechnungsfähig.",
+"punkte": 550,
+"euroCent": 3093,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8050",
+"text": "Registrieren von Unterkieferbewegungen zur Einstellung halbindividueller Artikulatoren und Einstellung nach den gemessenen Werten, je Sitzung",
+"hinweis": null,
+"punkte": 500,
+"euroCent": 2812,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8060",
+"text": "Registrieren von Unterkieferbewegungen zur Einstellung voll adjustierbarer Artikulatoren und Einstellung nach den gemessenen Werten, je Sitzung",
+"hinweis": null,
+"punkte": 750,
+"euroCent": 4218,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8065",
+"text": "Registrieren von Unterkieferbewegungen mittels elektronischer Aufzeichnung zur Einstellung voll adjustierbarer Artikulatoren und Einstellung nach den gemessenen Werten, je Sitzung",
+"hinweis": "Neben den Leistungen nach den Nummern 8050 bis 8065 sind Material- und Laborkosten für die Einstellung des (halb) individuellen Artikulators nach den gemessenen Werten gesondert berechnungsfähig.",
+"punkte": 850,
+"euroCent": 4781,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8080",
+"text": "Diagnostische Maßnahmen an Modellen im Artikulator einschließlich subtraktiver oder additiver Korrekturen, Befundauswertung und Behandlungsplanung, je Sitzung",
+"hinweis": null,
+"punkte": 250,
+"euroCent": 1406,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8090",
+"text": "Diagnostischer Aufbau von Funktionsflächen am natürlichen Gebiss, am festsitzenden und/oder herausnehmbaren Zahnersatz, je Sitzung",
+"hinweis": null,
+"punkte": 250,
+"euroCent": 1406,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "8100",
+"text": "Systematische subtraktive Maßnahmen am natürlichen Gebiss, am festsitzenden und/oder herausnehmbaren Zahnersatz, je Zahnpaar",
+"hinweis": null,
+"punkte": 20,
+"euroCent": 112,
+"abschnitt": "J",
+"abschnittTitel": "Funktionsanalytische und funktionstherapeutische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9000",
+"text": "Implantatbezogene Analyse und Vermessung des Alveolarfortsatzes, des Kieferkörpers und der angrenzenden knöchernen Strukturen sowie der Schleimhaut, einschließlich metrischer Auswertung von radiologischen Befundunterlagen, Modellen und Fotos zur Feststellung der Implantatposition, gegebenenfalls mit Hilfe einer individuellen Schablone zur Diagnostik, einschließlich Implantatauswahl, je Kiefer.",
+"hinweis": "Bei Verwendung einer Röntgenmessschablone sind die Material- und Laborkosten gesondert berechnungsfähig.",
+"punkte": 884,
+"euroCent": 4972,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9003",
+"text": "Verwenden einer Orientierungsschablone/Positionierungsschablone zur Implantation, je Kiefer",
+"hinweis": "Bei Verwendung einer Orientierungsschablone sind die Material- und Laborkosten gesondert berechnungsfähig.",
+"punkte": 100,
+"euroCent": 562,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9005",
+"text": "Verwenden einer auf dreidimensionale Daten gestützten Navigationsschablone/chirurgischen Führungsschablone zur Implantation, gegebenenfalls einschließlich Fixierung, je Kiefer",
+"hinweis": "Die verwendeten Fixierungselemente sowie die Material- und Laborkosten der Navigationsschablone sind gesondert berechnungsfähig.",
+"punkte": 300,
+"euroCent": 1687,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9010",
+"text": "Implantatinsertion, je Implantat Präparieren einer Knochenkavität für ein enossales Implantat, Einsetzen einer Implantatschablone zur Überprüfung der Knochenkavität (z. B. Tiefenlehre), gegebenenfalls einschließlich Knochenkondensation, Knochenglättung im Bereich des Implantats, Einbringen eines enossalen Implantats einschließlich Verschlussschraube und gegebenenfalls Einbringen von Aufbauelementen bei offener Einheilung sowie Wundverschluss",
+"hinweis": null,
+"punkte": 1545,
+"euroCent": 8689,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9020",
+"text": "Insertion eines Implantats zum temporären Verbleib, auch orthodontisches Implantat",
+"hinweis": null,
+"punkte": 515,
+"euroCent": 2896,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9040",
+"text": "Freilegen eines Implantats, und Einfügen eines oder mehrerer Aufbauelemente (z. B. eines Gingivaformers) bei einem zweiphasigen Implantatsystem",
+"hinweis": null,
+"punkte": 626,
+"euroCent": 3521,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9050",
+"text": "Entfernen und Wiedereinsetzen sowie Auswechseln eines oder mehrerer Aufbauelemente bei einem zweiphasigen Implantatsystem während der rekonstruktiven Phase1. Die Leistung nach der Nummer 9050 ist nicht neben den Leistungen nach den Nummern 9010 und 9040 berechnungsfähig.2. Die Leistung nach der Nummer 9050 ist je Implantat höchstens dreimal und höchstens einmal je Sitzung berechnungsfähig.",
+"hinweis": null,
+"punkte": 313,
+"euroCent": 1760,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9060",
+"text": "Auswechseln von Aufbauelementen (Sekundärteilen) im Reparaturfall",
+"hinweis": "Die Leistung nach der Nummer 9060 ist für ein Implantat höchstens einmal je Sitzung berechnungsfähig.",
+"punkte": 313,
+"euroCent": 1760,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9090",
+"text": "Knochengewinnung (z. B. Knochenkollektor oder Knochenschaber), Knochenaufbereitung und -implantation, auch zur Weichteilunterfütterung",
+"hinweis": "Die Kosten eines einmal verwendbaren Knochenkollektors oder -schabers sind gesondert berechnungsfähig.",
+"punkte": 400,
+"euroCent": 2250,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9100",
+"text": "Aufbau des Alveolarfortsatzes durch Augmentation ohne zusätzliche Stabilisierungsmaßnahmen, je Kieferhälfte oder Frontzahnbereich Mit der Leistung nach der Nummer 9100 sind folgende Leistungen abgegolten: Lagerbildung, Glättung des Alveolarfortsatzes, gegebenenfalls Entnahme von Knochen innerhalb des Aufbaugebietes, Einbringung von Aufbaumaterial (Knochen und/oder Knochenersatzmaterial) und Wundverschluss mit vollständiger Schleimhautabdeckung, gegebenenfalls einschließlich Einbringung und Fixierung resorbierbarer oder nicht resorbierbarer Barrieren1. Die Leistung nach der Nummer 9100 ist für die Glättung des Alveolarfortsatzes im Bereich des Implantatbettes nicht berechnungsfähig.2. Neben der Leistung nach der Nummer 9100 sind die Leistungen nach der Nummer 9130 nicht berechnungsfähig.3. Wird die Leistung nach der Nummer 9100 in derselben Kieferhälfte neben der Leistung nach der Nummer ",
+"hinweis": null,
+"punkte": 2694,
+"euroCent": 15152,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9110",
+"text": "Geschlossene Sinusbodenelevation vom Kieferkamm aus (interner Sinuslift) Mit einer Leistung nach der Nummer 9110 sind folgende Leistungen abgegolten: Schaffung des Zugangs durch die Alveole oder das Implantatfach, Anhebung des Kieferhöhlenbodens durch knochenverdrängende oder knochenverdichtende Maßnahmen und der Kieferhöhlenmembran, Entnahme von Knochenspänen innerhalb des Aufbaugebietes des Implantatfaches und Einbringen von Aufbaumaterial (Knochen und/oder Knochenersatzmaterial)",
+"hinweis": "Die Leistung nach der Nummer 9110 ist für dieselbe Implantatkavität nicht neben den Leistungen nach den Nummern 9120 und 9130 berechnungsfähig.",
+"punkte": 1500,
+"euroCent": 8436,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9120",
+"text": "Sinusbodenelevation durch externe Knochenfensterung (externer Sinuslift), je Kieferhälfte Mit einer Leistung nach der Nummer 9120 sind folgende Leistungen abgegolten: Schaffung des Zugangs zur Kieferhöhle durch Knochenfensterung (auch Knochendeckel), Präparation der Kieferhöhlenmembran, Anhebung des Kieferhöhlenbodens und der Kieferhöhlenmembran, Lagerbildung, gegebenenfalls Entnahme von Knochenspänen innerhalb des Aufbaugebietes, Einbringung von Aufbaumaterial (Knochen und/oder Knochenersatzmaterial), gegebenenfalls Einbringung resorbierbarer oder nicht resorbierbarer Barrieren – einschließlich Fixierung –, gegebenenfalls Reposition des Knochendeckels, Verschluss der Kieferhöhle und Wundverschluss",
+"hinweis": null,
+"punkte": 3000,
+"euroCent": 16873,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9130",
+"text": "Spaltung und Spreizung von Knochensegmenten (Bone Splitting), gegebenenfalls mit Auffüllung der Spalträume mittels Knochen oder Knochenersatzmaterial, gegebenenfalls einschließlich zusätzlicher Osteosynthesemaßnahmen, gegebenenfalls einschließlich Einbringung resorbierbarer oder nicht resorbierbarer Barrieren und deren Fixierung je Kieferhälfte oder Frontzahnbereich, oder vertikale Distraktion des Alveolarfortsatzes einschließlich Fixierung, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": "Neben der Leistung nach der Nummer 9130 ist die Leistung nach der Nummer 9100 nicht berechnungsfähig.",
+"punkte": 1540,
+"euroCent": 8661,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9140",
+"text": "Intraorale Entnahme von Knochen außerhalb des Aufbaugebietes gegebenenfalls einschließlich Aufbereitung des Knochenmaterials und/oder der Aufnahmeregion, einschließlich der notwendigen Versorgung der Entnahmestelle, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": "Bei Entnahme von einem oder mehreren Knochenblöcken ist das Doppelte der Gebühr nach der Nummer 9140 berechnungsfähig. Von einem Knochenblock im Sinne dieser Abrechnungsbestimmung ist auszugehen, wenn dieser bei der Implantation eigenständig fixiert werden muss.",
+"punkte": 650,
+"euroCent": 3656,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9150",
+"text": "Fixation oder Stabilisierung des Augmentates durch Osteosynthesemaßnahmen (z. B. Schrauben- oder Plattenosteosynthese oder Titannetze), zusätzlich zu der Leistung nach der Nummer 9100, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": null,
+"punkte": 675,
+"euroCent": 3796,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9160",
+"text": "Entfernung unter der Schleimhaut liegender Materialien (z. B. Barrieren – einschließlich Fixierung –, Osteosynthesematerial), je Kieferhälfte oder Frontzahnbereich",
+"hinweis": null,
+"punkte": 330,
+"euroCent": 1856,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "9170",
+"text": "Entfernung im Knochen liegender Materialien durch Osteotomie (z. B. Osteosynthesematerial, Knochenschrauben) oder Entfernung eines subperiostalen Gerüstimplantats, je Kieferhälfte oder Frontzahnbereich",
+"hinweis": "Die Entfernung eines Implantats ist mit der Gebühr für die Leistungen nach den Nummern 3000 und 3030 abgegolten.",
+"punkte": 500,
+"euroCent": 2812,
+"abschnitt": "K",
+"abschnittTitel": "Implantologische Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0500",
+"text": "Zuschlag bei nichtstationärer Durchführung von zahnärztlich-chirurgischen Leistungen, die mit Punktzahlen von 250 bis 499 Punkten bewertet sind, oder zu den Leistungen nach den Nummern 4090 oder 4130Der Zuschlag nach der Nummer 0500 ist je Behandlungstag nur einmal berechnungsfähig. Der Zuschlag nach der Nummer 0500 ist neben den Zuschlägen nach den Nummern 0510 bis 0530 nicht berechnungsfähig.",
+"hinweis": null,
+"punkte": 400,
+"euroCent": 2250,
+"abschnitt": "L",
+"abschnittTitel": "Zuschläge zu bestimmten zahnärztlich-chirurgischen Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0510",
+"text": "Zuschlag bei nichtstationärer Durchführung von zahnärztlich-chirurgischen Leistungen, die mit Punktzahlen von 500 bis 799 Punkten bewertet sind",
+"hinweis": "Der Zuschlag nach der Nummer 0510 ist je Behandlungstag nur einmal berechnungsfähig. Der Zuschlag nach der Nummer 0510 ist neben den Zuschlägen nach den Nummern 0500, 0520 und/oder 0530 nicht berechnungsfähig.",
+"punkte": 750,
+"euroCent": 4218,
+"abschnitt": "L",
+"abschnittTitel": "Zuschläge zu bestimmten zahnärztlich-chirurgischen Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0520",
+"text": "Zuschlag bei nichtstationärer Durchführung von zahnärztlich-chirurgischen Leistungen, die mit Punktzahlen von 800 bis 1199 Punkten bewertet sind",
+"hinweis": "Der Zuschlag nach der Nummer 0520 ist je Behandlungstag nur einmal berechnungsfähig. Der Zuschlag nach der Nummer 0520 ist neben den Zuschlägen nach den Nummern 0500, 0510 und/oder 0530 nicht berechnungsfähig.",
+"punkte": 1300,
+"euroCent": 7311,
+"abschnitt": "L",
+"abschnittTitel": "Zuschläge zu bestimmten zahnärztlich-chirurgischen Leistungen",
+"faecher": [
+"zahn"
+]
+},
+{
+"code": "0530",
+"text": "Zuschlag bei nichtstationärer Durchführung von zahnärztlich-chirurgischen Leistungen, die mit Punktzahlen von 1200 und mehr Punkten bewertet sind",
+"hinweis": "Der Zuschlag nach der Nummer 0530 ist je Behandlungstag nur einmal berechnungsfähig. Der Zuschlag nach der Nummer 0530 ist neben den Zuschlägen nach den Nummern 0500 bis 0520 nicht berechnungsfähig.",
+"punkte": 2200,
+"euroCent": 12373,
+"abschnitt": "L",
+"abschnittTitel": "Zuschläge zu bestimmten zahnärztlich-chirurgischen Leistungen",
+"faecher": [
+"zahn"
+]
+}
+]
+}

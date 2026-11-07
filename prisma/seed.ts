@@ -1,3 +1,4 @@
+import { importiereAmtlich } from "../lib/amtlich/import";
 import { PrismaClient } from "@prisma/client";
 import { serializeDependsOn } from "../lib/serviceDependency";
 import { FACHPROFILE } from "../lib/fachprofile";
@@ -482,6 +483,17 @@ async function main() {
     }
   }
   console.log(`Lexikon: ${LEXIKON.length} Einträge.`);
+
+  // Amtliche Leistungsverzeichnisse (GOÄ, GOZ, BEMA, Heilmittel, Hebammen, HKP, SGB XI,
+  // Hilfsmittelverzeichnis, Apotheke). EBM nur mit bestätigter KBV-Lizenz.
+  const ebm = (process.env.KBV_STAMMDATEN_LIZENZ ?? "").trim().toLowerCase() === "akzeptiert";
+  try {
+    const n = await importiereAmtlich(prisma, { ebm });
+    console.log(`Amtliche Leistungen: ${Object.entries(n).map(([k, v]) => `${k} ${v}`).join(", ")}${ebm ? "" : " (EBM erst nach KBV_STAMMDATEN_LIZENZ=akzeptiert)"}.`);
+  } catch (e) {
+    // Ein Fehler beim EBM-Download darf den Build nicht stoppen; die übrigen Verzeichnisse sind dann schon da.
+    console.error("Amtliche Leistungen: Import unvollständig:", e instanceof Error ? e.message : e);
+  }
 
   console.log("Fertig.");
 }
