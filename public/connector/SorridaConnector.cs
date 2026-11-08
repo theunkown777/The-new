@@ -166,9 +166,7 @@ internal static class SorridaConnector
             // Reihenfolge laut VDDS-media: READY=1 immer als letzte Aktion.
             try
             {
-                WriteIni(handover, "PATIENT", "ERRORLEVEL", errorLevel.ToString());
-                WriteIni(handover, "PATIENT", "ERRORTEXT", errorText);
-                WriteIni(handover, "PATIENT", "READY", "1");
+                WriteVddsResult(handover, errorLevel, errorText);
             }
             catch (Exception ex) { Log("Rückmeldung an die Praxissoftware nicht geschrieben: " + ex.Message); }
         }
@@ -510,16 +508,27 @@ internal static class SorridaConnector
         return result;
     }
 
-    // Auf Windows über die Windows-Funktion (behält Zeichensatz und Aufbau der Datei bei),
-    // sonst (Tests) mit einem einfachen Schreiber.
-    private static void WriteIni(string path, string section, string key, string value)
+    // Rückmeldung an die Praxissoftware: ERRORLEVEL, ERRORTEXT und zuletzt READY=1 im ersten
+    // [PATIENT]-Abschnitt. ANSI-Dateien (laut VDDS-media üblich) über die Windows-Funktion.
+    // UTF-8-Dateien (mit oder ohne BOM) erkennt die Windows-Funktion nicht richtig: Sie übersieht
+    // den Abschnitt hinter dem BOM und hängt einen zweiten an. Diese schreibt der Connector
+    // selbst und behält Zeichensatz, BOM und Zeilenenden bei.
+    internal static void WriteVddsResult(string path, int errorLevel, string errorText)
     {
-        if (IsWindows)
+        byte[] bytes = File.ReadAllBytes(path);
+        bool bom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+        bool utf8 = bom || IsUtf8WithHighBytes(bytes);
+        if (IsWindows && !utf8)
         {
-            if (!WritePrivateProfileString(section, key, value, path)) throw new IOException("Fehler " + Marshal.GetLastWin32Error());
+            foreach (var kv in new[] { new[] { "ERRORLEVEL", errorLevel.ToString() }, new[] { "ERRORTEXT", errorText }, new[] { "READY", "1" } })
+                if (!WritePrivateProfileString("PATIENT", kv[0], kv[1], path)) throw new IOException("Fehler " + Marshal.GetLastWin32Error());
             return;
         }
-        var lines = new List<string>(File.ReadAllLines(path, Encoding.GetEncoding(1252)));
+        Encoding enc = utf8 ? (Encoding)new UTF8Encoding(bom) : Encoding.GetEncoding(1252);
+        string text = utf8 ? new UTF8Encoding(false).GetString(bytes, bom ? 3 : 0, bytes.Length - (bom ? 3 : 0)) : enc.GetString(bytes);
+        string nl = text.Contains("\r\n") ? "\r\n" : "\n";
+        var lines = new List<string>(Regex.Split(text, "\r\n|\r|\n"));
+        if (lines.Count > 0 && lines[lines.Count - 1].Length == 0) lines.RemoveAt(lines.Count - 1);
         int sec = -1, end = lines.Count;
         for (int i = 0; i < lines.Count; i++)
         {
@@ -527,22 +536,32 @@ internal static class SorridaConnector
             if (l.StartsWith("[") && l.EndsWith("]"))
             {
                 if (sec >= 0) { end = i; break; }
-                if (string.Equals(l.Substring(1, l.Length - 2).Trim(), section, StringComparison.OrdinalIgnoreCase)) sec = i;
+                if (string.Equals(l.Substring(1, l.Length - 2).Trim(), "PATIENT", StringComparison.OrdinalIgnoreCase)) sec = i;
             }
         }
-        if (sec < 0) { lines.Add("[" + section + "]"); sec = lines.Count - 1; end = lines.Count; }
-        for (int i = sec + 1; i < end; i++)
+        if (sec < 0) { lines.Add("[PATIENT]"); sec = lines.Count - 1; end = lines.Count; }
+        // Vorhandene Einträge entfernen und in fester Reihenfolge ans Ende des Abschnitts schreiben (READY zuletzt).
+        for (int i = end - 1; i > sec; i--)
         {
             int eq = lines[i].IndexOf('=');
-            if (eq > 0 && string.Equals(lines[i].Substring(0, eq).Trim(), key, StringComparison.OrdinalIgnoreCase))
+            string k = eq > 0 ? lines[i].Substring(0, eq).Trim() : "";
+            if (k.Equals("ERRORLEVEL", StringComparison.OrdinalIgnoreCase) || k.Equals("ERRORTEXT", StringComparison.OrdinalIgnoreCase) || k.Equals("READY", StringComparison.OrdinalIgnoreCase))
             {
-                lines[i] = key + "=" + value;
-                File.WriteAllLines(path, lines.ToArray(), Encoding.GetEncoding(1252));
-                return;
+                lines.RemoveAt(i);
+                end--;
             }
         }
-        lines.Insert(end, key + "=" + value);
-        File.WriteAllLines(path, lines.ToArray(), Encoding.GetEncoding(1252));
+        while (end - 1 > sec && lines[end - 1].Trim().Length == 0) end--;
+        lines.InsertRange(end, new[] { "ERRORLEVEL=" + errorLevel, "ERRORTEXT=" + errorText, "READY=1" });
+        byte[] body = enc.GetBytes(string.Join(nl, lines.ToArray()) + nl);
+        if (bom)
+        {
+            byte[] withBom = new byte[body.Length + 3];
+            withBom[0] = 0xEF; withBom[1] = 0xBB; withBom[2] = 0xBF;
+            Buffer.BlockCopy(body, 0, withBom, 3, body.Length);
+            body = withBom;
+        }
+        File.WriteAllBytes(path, body);
     }
 
     private static void TryDelete(string path)

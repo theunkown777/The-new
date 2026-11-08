@@ -213,3 +213,6 @@ export function extractGdtPatient(text: string): { data?: VddsPatient; error?: s
 export function extractHandoverPatient(text: string): { data?: VddsPatient; error?: string; format: "VDDS" | "GDT"; sorridaKennung?: string } {
   return isGdt(text) ? { ...extractGdtPatient(text), format: "GDT" } : { ...extractVddsPatient(text), format: "VDDS" };
 }
+
+
+export { kennungenLesen, kennungMerken } from "@/lib/kennungen";

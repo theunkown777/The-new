@@ -118,7 +118,10 @@ jobs:
               Copy-Item $f.FullName $ziel -Force; (Get-Item $ziel).LastWriteTime = Get-Date
               $p = Start-Process $exe -ArgumentList "`"$ziel`"" -Wait -PassThru
               $ini = Get-Content $ziel
-              $ok = ($p.ExitCode -eq 0) -and ($ini -contains "ERRORLEVEL=0") -and ($ini -contains "READY=1")
+              # Genau ein [PATIENT]-Abschnitt, genau einmal READY=1 (auch bei UTF-8 mit BOM)
+              $ready = @($ini | Where-Object { $_ -match '^READY=' })
+              $abschnitte = @($ini | Where-Object { $_ -match '\[PATIENT\]' })
+              $ok = ($p.ExitCode -eq 0) -and ($ini -contains "ERRORLEVEL=0") -and ($ready.Count -eq 1) -and ($ready[0] -eq "READY=1") -and ($abschnitte.Count -eq 1)
               "{0,-34} Exit {1} · {2}" -f $f.Name, $p.ExitCode, (($ini | Select-String '^(ERRORLEVEL|READY)=') -join ' ')
             }
             if (-not $ok) { $fehler++ }
@@ -148,7 +151,8 @@ jobs:
           $p = Start-Process $exe -ArgumentList "`"$ziel`"" -Wait -PassThru
           $ini = Get-Content $ziel -Encoding Default
           "Exit $($p.ExitCode)"; $ini | Select-String '^(ERRORLEVEL|ERRORTEXT|READY)='
-          if ($p.ExitCode -ne 1 -or -not ($ini -contains "ERRORLEVEL=1") -or -not ($ini -match "^ERRORTEXT=.*veraltet")) { throw "Veraltete Datei nicht abgelehnt" }
+          if ($p.ExitCode -ne 1 -or -not ($ini -contains "ERRORLEVEL=1") -or -not ($ini -match "^ERRORTEXT=.*veraltet") -or @($ini | Where-Object { $_ -match '^READY=' }).Count -ne 1) { throw "Veraltete Datei nicht abgelehnt" }
+          if (-not ($ini -match "Übergabedatei ist veraltet")) { throw "Umlaute in ERRORTEXT falsch" }
 
       - name: Rückweg (GDT 6310 über die Windows-Aufgabe)
         run: |

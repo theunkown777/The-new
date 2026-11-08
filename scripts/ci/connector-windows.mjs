@@ -35,7 +35,9 @@ if (cmd === "vorbereiten") {
   }
   if (pats.length !== Object.keys(erwartet).length) fehler(`${pats.length} Patienten statt ${Object.keys(erwartet).length}`);
   const key = await prisma.connectorKey.findFirstOrThrow({ where: { practiceId: practice.id } });
-  console.log("Connector meldet:", key.connectorInfo, "· GDT-Kennung:", key.gdtKennung);
+  console.log("Connector meldet:", key.connectorInfo, "· GDT-Kennungen:", key.gdtKennung);
+  const kennungen = JSON.parse(key.gdtKennung ?? "{}");
+  if (kennungen["GDT-MEDISTAR"] !== "SORRIDA" || kennungen["GDT-XISYNET"] !== "SORR01") fehler("GDT-Kennungen nicht je Praxissoftware gemerkt");
   if (!key.connectorInfo?.startsWith("SorridaConnector/2.")) fehler("Connector-Version nicht gemeldet");
 } else if (cmd === "bericht") {
   const practice = await prisma.practice.findFirstOrThrow({ where: { name: PRAXIS } });

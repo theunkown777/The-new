@@ -101,9 +101,13 @@ Vorschau-Cookie tauscht.
 
 ## Zahnarztpraxen: Rückweg
 
-VDDS-media sieht keinen Textrückweg in die Karteikarte vor. Ergebnisse
-bleiben in Sorrida (PDF/Text kopieren); `ERRORLEVEL/READY` melden nur den
-Erfolg des Aufrufs.
+VDDS-media sieht keinen Textrückweg in die Karteikarte vor. Mit `ABLAGE`
+(`install.ps1 -Ablage`) legt der Connector freigegebene Berichte als PDF in
+einen Ordner, Dateiname `Patientennummer_Name_Datum_Bericht_….pdf`, genau
+einmal je Bericht (gleiches Verfahren wie bei GDT, Art `bericht-pdf`). Die
+Praxis bindet den Ordner in ihre Dokumentenablage ein. Ob die jeweilige
+Praxissoftware Dateien automatisch nach Patientennummer zuordnet, ist
+herstellerabhängig.
 
 ## Diagnose
 
@@ -116,7 +120,22 @@ Erfolg des Aufrufs.
   bzw. TLS-prüfende Virenscanner, falsche Adresse (404) und Zeitüberschreitung;
   ein Netzfehler wird einmal wiederholt.
 
-## Getestet
+## Getestet auf Windows (GitHub Actions, `.github/workflows/connector-windows.yml`)
+
+Echter Windows-Rechner, echter Sorrida-Server mit Test-Datenbank:
+`install.ps1` in Windows PowerShell 5.1 mit dem .NET-4-Compiler →
+VDDS_MMI.INI-Eintrag → Windows-Aufgabe → Verbindungstest → Aufruf mit allen
+Beispieldateien (VDDS mit Pfad, GDT über `GDTFILE`) → Patienten und Umlaute
+in der Datenbank → Start-Adresse mit Passierschein → veraltete Datei
+abgelehnt → Rückweg GDT 6310 und PDF-Ablage → nichts doppelt →
+`uninstall.ps1` räumt vollständig auf. Läuft bei jeder Änderung am Connector.
+
+Gefunden und behoben dadurch: `install.ps1` brach unter Windows PowerShell
+5.1 sofort ab (`$PSScriptRoot` ist im Parameterblock leer); der
+.NET-4-Compiler hätte die Meldungen ohne `/codepage:65001` als Zeichensalat
+übersetzt.
+
+## Getestet unter Linux
 
 - `lib/connector.test.ts`, `lib/gdtExport.test.ts`, `lib/vorschau.test.ts`.
 - Beispieldateien je Praxissoftware in `lib/__fixtures__/pvs/` (DS-Win

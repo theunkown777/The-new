@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { buildGdt6310, latin1 } from "@/lib/gdtExport";
 import { buildReportPdf } from "@/lib/pdf";
+import { kennungenLesen } from "@/lib/connector";
 
 // Ergebnisse, die als GDT-Datei (6310) in die Arzt-Praxissoftware zurückgehen:
 // freigegebene Berichte und angenommene Vorschläge von Patienten, die aus der
@@ -14,14 +15,15 @@ type Fehler = { fehler: string; status: number };
 
 const patSel = { select: { id: true, firstName: true, lastName: true, birthDate: true, externalSource: true, externalId: true } } as const;
 
-/** Kennung, unter der die Praxissoftware Sorrida führt (zuletzt vom Connector gemeldet). */
-async function sorridaKennung(practiceId: string, keyKennung?: string | null) {
-  if (keyKennung) return keyKennung;
-  const k = await prisma.connectorKey.findFirst({ where: { practiceId, revokedAt: null, gdtKennung: { not: null } }, orderBy: { lastUsedAt: "desc" }, select: { gdtKennung: true } });
-  return k?.gdtKennung ?? undefined;
+/** Kennung, unter der genau diese Praxissoftware (Quelle des Patienten) Sorrida führt, aus allen Schlüsseln der Praxis. */
+async function sorridaKennung(practiceId: string, quelle: string | null) {
+  const keys = await prisma.connectorKey.findMany({ where: { practiceId, revokedAt: null, gdtKennung: { not: null } }, orderBy: { lastUsedAt: "desc" }, select: { gdtKennung: true } });
+  for (const k of keys) { const m = kennungenLesen(k.gdtKennung); if (quelle && m[quelle]) return m[quelle]; }
+  for (const k of keys) { const m = kennungenLesen(k.gdtKennung); if (m["*"]) return m["*"]; }
+  return undefined;
 }
 
-export async function gdtErgebnis(practiceId: string, art: GdtArt, id: string, keyKennung?: string | null): Promise<GdtErgebnis | Fehler> {
+export async function gdtErgebnis(practiceId: string, art: GdtArt, id: string): Promise<GdtErgebnis | Fehler> {
   let patient, titel: string, text: string, datum: Date;
   if (art === "bericht") {
     const r = await prisma.report.findFirst({ where: { id, practiceId }, include: { patient: patSel } });
@@ -49,7 +51,7 @@ export async function gdtErgebnis(practiceId: string, art: GdtArt, id: string, k
     return { fehler: "Dieser Patient wurde nicht aus der Praxissoftware geöffnet; Sorrida kennt seine Patientennummer dort nicht. Bitte einmal aus der Praxissoftware heraus öffnen.", status: 409 };
   }
   const receiver = (patient.externalSource ?? "").replace(/^GDT-/, "").replace(/[^A-Za-z0-9]/g, "").slice(0, 8) || "PVS";
-  const inhalt = buildGdt6310({ patId: patient.externalId, lastName: patient.lastName, firstName: patient.firstName, birthDate: patient.birthDate, receiver, sender: await sorridaKennung(practiceId, keyKennung), datum, titel, text });
+  const inhalt = buildGdt6310({ patId: patient.externalId, lastName: patient.lastName, firstName: patient.firstName, birthDate: patient.birthDate, receiver, sender: await sorridaKennung(practiceId, patient.externalSource), datum, titel, text });
   const nr = patient.externalId.replace(/[^A-Za-z0-9]/g, "");
   return { art, refId: id, dateiname: `SORRIDA_${nr}_${art === "bericht" ? "B" : "V"}${id.slice(-6)}.gdt`, inhalt, zeit: datum };
 }
@@ -84,7 +86,7 @@ const MAX_JE_ABRUF = 20;
  * gdt: Arztpraxis (GDT-Patienten, 6310 in den Importordner); pdf: Zahnarztpraxis (VDDS-Patienten,
  * freigegebene Berichte als PDF in den Ablageordner).
  */
-export async function offeneErgebnisseReservieren(practiceId: string, keyId: string, keyKennung: string | null, wege: { gdt: boolean; pdf: boolean } = { gdt: true, pdf: false }, jetzt = new Date()): Promise<Lieferung[]> {
+export async function offeneErgebnisseReservieren(practiceId: string, keyId: string, wege: { gdt: boolean; pdf: boolean } = { gdt: true, pdf: false }, jetzt = new Date()): Promise<Lieferung[]> {
   const ersterKey = await prisma.connectorKey.findFirst({ where: { practiceId }, orderBy: { createdAt: "asc" }, select: { createdAt: true } });
   if (!ersterKey) return [];
   const ab = ersterKey.createdAt;
@@ -121,7 +123,7 @@ export async function offeneErgebnisseReservieren(practiceId: string, keyId: str
       if (l) out.push(l);
       continue;
     }
-    const e = await gdtErgebnis(practiceId, k.art, k.refId, keyKennung);
+    const e = await gdtErgebnis(practiceId, k.art, k.refId);
     if ("fehler" in e) continue;
     out.push({ art: e.art, refId: e.refId, dateiname: e.dateiname, bytes: Buffer.from(latin1(e.inhalt)), zeit: e.zeit });
   }

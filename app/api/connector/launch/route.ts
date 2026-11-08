@@ -6,6 +6,7 @@ import {
   EMBED_VIEWS,
   LAUNCH_TOKEN_TTL_MS,
   extractHandoverPatient,
+  kennungMerken,
   vddsToPatientFields,
   type EmbedView,
 } from "@/lib/connector";
@@ -58,7 +59,8 @@ export async function POST(req: Request) {
   const info = connectorInfoAus(req);
   await prisma.connectorKey.update({
     where: { id: key.id },
-    data: { lastUsedAt: new Date(), ...(sorridaKennung ? { gdtKennung: sorridaKennung } : {}), ...(info ? { connectorInfo: info } : {}) },
+    // Kennung je Praxissoftware merken: Die Rückgabe (6310) muss den Absender tragen, unter dem genau diese Software Sorrida führt.
+    data: { lastUsedAt: new Date(), ...(sorridaKennung ? { gdtKennung: kennungMerken(key.gdtKennung, data.PVS.toUpperCase(), sorridaKennung) } : {}), ...(info ? { connectorInfo: info } : {}) },
   });
 
   // INFO=1: PVS meldet nur Stammdatenänderungen, ohne dass ein Fenster aufgeht.

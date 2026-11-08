@@ -149,3 +149,14 @@ describe("GDT-Varianten der Arzt-Praxissoftware", () => {
     expect(r.data?.BIRTHDAY).toBeUndefined();
   });
 });
+
+import { kennungenLesen, kennungMerken } from "./kennungen";
+describe("GDT-Kennung je Praxissoftware", () => {
+  it("merkt sich die Kennung getrennt je Software, ältere Einzelwerte bleiben lesbar", () => {
+    let w = kennungMerken(null, "GDT-MEDISTAR", "SORRIDA");
+    w = kennungMerken(w, "GDT-XISYNET", "SORR01");
+    expect(kennungenLesen(w)).toEqual({ "GDT-MEDISTAR": "SORRIDA", "GDT-XISYNET": "SORR01" });
+    expect(kennungenLesen("SORRIDA")).toEqual({ "*": "SORRIDA" });
+    expect(kennungenLesen(kennungMerken("ALT", "GDT-ALBIS", "S1"))).toEqual({ "GDT-ALBIS": "S1" });
+  });
+});

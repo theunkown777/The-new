@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   // Welche Wege der Connector eingerichtet hat: gdt=1 (GDT-Importordner), pdf=1 (Ablageordner). Ohne Angabe nur GDT.
   const q = new URL(req.url).searchParams;
   const wege = q.has("gdt") || q.has("pdf") ? { gdt: q.get("gdt") === "1", pdf: q.get("pdf") === "1" } : { gdt: true, pdf: false };
-  const liste = await offeneErgebnisseReservieren(a.key.practiceId, a.key.id, a.key.gdtKennung, wege);
+  const liste = await offeneErgebnisseReservieren(a.key.practiceId, a.key.id, wege);
   const zeilen = ["SORRIDA-ERGEBNISSE 1", ...liste.map((e) => [e.art, e.refId, e.dateiname, e.bytes.toString("base64")].join("\t"))];
   return new NextResponse(zeilen.join("\r\n") + "\r\n", { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
 }

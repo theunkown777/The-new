@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { kennungenLesen } from "@/lib/kennungen";
 
 type Key = {
   id: string;
@@ -21,7 +22,8 @@ function status(k: Key): { text: string; warnung: boolean } | null {
   const rueckweg = /rueckweg=1/.test(k.connectorInfo ?? "");
   const ablage = /ablage=1/.test(k.connectorInfo ?? "");
   const weg = rueckweg ? "Rückweg in die Praxissoftware (GDT) aktiv" : ablage ? "Berichte als PDF in den Ablageordner aktiv" : "Rückweg nicht eingerichtet";
-  return { text: `Connector ${v} · ${weg}${k.gdtKennung ? ` · GDT-Kennung ${k.gdtKennung}` : ""}`, warnung: false };
+  const kennungen = Object.entries(kennungenLesen(k.gdtKennung)).map(([q, ken]) => (q === "*" ? ken : `${q.replace(/^GDT-/, "")}: ${ken}`)).join(", ");
+  return { text: `Connector ${v} · ${weg}${kennungen ? ` · GDT-Kennung ${kennungen}` : ""}`, warnung: false };
 }
 
 const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString("de-DE") : "nie");
