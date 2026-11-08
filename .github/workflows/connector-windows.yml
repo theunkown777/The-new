@@ -194,7 +194,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "uninstall.ps1 fehlgeschlagen" }
           if (Test-Path "$env:ProgramFiles\Sorrida") { throw "Programm noch da" }
           if (Get-ScheduledTask -TaskName "Sorrida Ergebnisse" -ErrorAction SilentlyContinue) { throw "Aufgabe noch da" }
-          if ((Get-Content "$env:WINDIR\VDDS_MMI.INI") -match 'SORRIDA') { throw "VDDS-Eintrag noch da" }
+          $mmi = Get-Content "$env:WINDIR\VDDS_MMI.INI"
+          "--- VDDS_MMI.INI nach dem Entfernen"; $mmi
+          if ($mmi -match 'SORRIDA|PATDATIMPORT') { throw "VDDS-Eintrag noch da" }
           "Sauber entfernt"
 
       - name: Protokolle bei Fehlern

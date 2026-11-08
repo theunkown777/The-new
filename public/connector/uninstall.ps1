@@ -15,9 +15,12 @@ if (Test-Path $mmi) {
     $sb = New-Object System.Text.StringBuilder 256
     [void][Sorrida.Ini]::GetPrivateProfileString("BVS", "NAME$i", "", $sb, 256, $mmi)
     # Nur den eigenen Eintrag löschen; Lücken in der Nummerierung sind laut Spezifikation zulässig.
-    if ($sb.ToString() -eq "SORRIDA") { [void][Sorrida.Ini]::WritePrivateProfileString("BVS", "NAME$i", $null, $mmi) }
+    # [NullString]::Value statt $null: PowerShell macht aus $null sonst einen leeren Text, und Windows
+    # würde "NAMEn=" stehen lassen statt den Eintrag zu löschen.
+    if ($sb.ToString() -eq "SORRIDA") { [void][Sorrida.Ini]::WritePrivateProfileString("BVS", "NAME$i", [NullString]::Value, $mmi) }
   }
-  [void][Sorrida.Ini]::WritePrivateProfileString("SORRIDA", $null, $null, $mmi)
+  # Ganzen Abschnitt [SORRIDA] löschen (Schlüssel = null)
+  [void][Sorrida.Ini]::WritePrivateProfileString("SORRIDA", [NullString]::Value, [NullString]::Value, $mmi)
 }
 Unregister-ScheduledTask -TaskName "Sorrida Ergebnisse" -Confirm:$false -ErrorAction SilentlyContinue
 # Läuft gerade ein Abholvorgang, ist das Programm gesperrt: beenden und mehrmals versuchen
