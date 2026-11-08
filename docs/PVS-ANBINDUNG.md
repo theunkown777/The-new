@@ -130,10 +130,19 @@ in der Datenbank → Start-Adresse mit Passierschein → veraltete Datei
 abgelehnt → Rückweg GDT 6310 und PDF-Ablage → nichts doppelt →
 `uninstall.ps1` räumt vollständig auf. Läuft bei jeder Änderung am Connector.
 
-Gefunden und behoben dadurch: `install.ps1` brach unter Windows PowerShell
-5.1 sofort ab (`$PSScriptRoot` ist im Parameterblock leer); der
-.NET-4-Compiler hätte die Meldungen ohne `/codepage:65001` als Zeichensalat
-übersetzt.
+Gefunden und behoben dadurch:
+- `install.ps1` brach unter Windows PowerShell 5.1 sofort ab (`$PSScriptRoot`
+  ist im Parameterblock leer).
+- Der .NET-4-Compiler hätte die Meldungen ohne `/codepage:65001` als
+  Zeichensalat übersetzt.
+- Übergabedateien in UTF-8 mit BOM: Die Windows-Funktion übersah `[PATIENT]`
+  und hängte einen zweiten Abschnitt an. Jetzt schreibt der Connector die
+  Rückmeldung selbst, mit gleichem Zeichensatz, BOM und gleichen Zeilenenden.
+- GDT-Absenderkennung galt je PC statt je Praxissoftware (falsche Kennung,
+  wenn eine Praxis zwei Programme nutzt).
+- `uninstall.ps1` ließ den VDDS-Eintrag stehen (PowerShell übergibt `$null`
+  als leeren Text, daher `[NullString]::Value`) und meldete gesperrte
+  Dateien nicht.
 
 ## Getestet unter Linux
 
@@ -148,9 +157,10 @@ Gefunden und behoben dadurch: `install.ps1` brach unter Windows PowerShell
   Bericht freigegeben → `--abholen` → gültige 6310-Datei (Zeilenlängen und
   8100 geprüft) → zweiter Abruf liefert nichts doppelt.
 
-**Noch nicht getestet:** echter Aufruf aus DS-Win, Z1, charly, EVIDENT,
-Medistar, TURBOMED, ALBIS usw. auf einem Windows-PC; `install.ps1` und die
-Windows-Aufgabe unter Windows (PowerShell war in der Entwicklungsumgebung
-nicht verfügbar); Einlesen der 6310-Datei durch die jeweilige Praxissoftware.
+**Noch nicht getestet:** der Aufruf aus der Oberfläche der echten
+Programme (DS-Win, Z1, charly, EVIDENT, Medistar, TURBOMED, ALBIS usw.) und
+das Einlesen der 6310-Datei bzw. der PDF durch die jeweilige
+Praxissoftware. Diese Programme sind lizenzpflichtig und lassen sich nicht
+automatisiert testen. Alles auf Sorrida-Seite ist auf Windows geprüft.
 Vor dem ersten Kunden einmal mit einer Demo-Installation der jeweiligen
 Praxissoftware durchspielen.
