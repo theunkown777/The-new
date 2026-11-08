@@ -1,4 +1,4 @@
-<#
+﻿<#
   Sorrida-Connector installieren (einmal je Praxis-PC, als Administrator).
 
   Beispiel:
@@ -41,7 +41,7 @@ $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
   throw "Bitte PowerShell als Administrator starten."
 }
-if ($Server -notmatch '^https://') { throw "Server muss mit https:// beginnen." }
+if ($Server -notmatch '^(https://|http://localhost(:\d+)?(/|$))') { throw "Server muss mit https:// beginnen." }
 if ($Key -notmatch '^sor_conn_[0-9a-f]{64}$') { throw "Der Schlüssel sieht nicht wie ein Sorrida-Connector-Schlüssel aus (sor_conn_...)." }
 if (-not (Test-Path $Source)) { throw "SorridaConnector.cs nicht gefunden: $Source" }
 
@@ -64,7 +64,8 @@ $exe = Join-Path $installDir "SorridaConnector.exe"
 $csc = Join-Path $env:WINDIR "Microsoft.NET\Framework64\v4.0.30319\csc.exe"
 if (-not (Test-Path $csc)) { $csc = Join-Path $env:WINDIR "Microsoft.NET\Framework\v4.0.30319\csc.exe" }
 if (-not (Test-Path $csc)) { throw ".NET Framework 4 (csc.exe) nicht gefunden." }
-& $csc /nologo /target:winexe /optimize+ "/out:$exe" $Source
+# /codepage:65001: Quelltext ist UTF-8 (sonst liest der Compiler ihn als ANSI und die Meldungen werden unlesbar).
+& $csc /nologo /target:winexe /optimize+ /codepage:65001 "/out:$exe" $Source
 if ($LASTEXITCODE -ne 0) { throw "Übersetzen fehlgeschlagen." }
 
 # 2. Konfiguration

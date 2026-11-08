@@ -1,0 +1,188 @@
+name: Connector unter Windows
+
+# Prüft den Sorrida-Connector auf einem echten Windows-Rechner gegen einen echten
+# Sorrida-Server (gleicher Rechner, Test-Datenbank): Installation mit install.ps1
+# (Windows PowerShell 5.1, .NET-4-Compiler), Eintrag in VDDS_MMI.INI, Windows-Aufgabe,
+# Aufruf mit Beispieldateien je Praxissoftware, Vorschau-Passierschein, Rückweg (GDT 6310),
+# Schutz vor veralteten Dateien, Deinstallation. Nicht geprüft werden kann hier die
+# Praxissoftware selbst (DS-Win, Medistar usw.).
+
+on:
+  push:
+    branches: [claude/klarplan-vorschlaege]
+    paths:
+      - public/connector/**
+      - lib/connector*.ts
+      - lib/gdt*.ts
+      - lib/vorschau.ts
+      - lib/__fixtures__/pvs/**
+      - app/api/connector/**
+      - middleware.ts
+      - scripts/ci/connector-windows.mjs
+      - .github/workflows/connector-windows.yml
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      DATABASE_URL: postgresql://postgres:root@localhost:5432/sorrida_ci
+      NEXTAUTH_SECRET: ci-only-secret-not-used-in-production
+      NEXTAUTH_URL: http://localhost:3000
+      ANTHROPIC_API_KEY: dummy-key-for-build
+      ANTHROPIC_MODEL: claude-sonnet-5
+      # Vorschau-Modus an, damit der Weg durch das Vorschau-Schloss mitgeprüft wird
+      VORSCHAU_HOSTS: localhost
+      VORSCHAU_BENUTZER: ci
+      VORSCHAU_PASSWORT: ci-passwort-nur-fuer-den-test
+      # Connector ohne Meldefenster (niemand sitzt vor dem Rechner)
+      SORRIDA_CONNECTOR_STILL: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: PostgreSQL starten
+        run: |
+          $pg = Get-Service -Name "postgresql*" | Select-Object -First 1
+          Set-Service -InputObject $pg -Status running -StartupType automatic
+          $env:PGPASSWORD = "root"
+          & "$env:PGBIN\createdb.exe" -U postgres sorrida_ci
+
+      - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: npm run build
+
+      - name: Sorrida starten
+        run: |
+          Start-Process -FilePath cmd.exe -ArgumentList "/c npx next start -p 3000 > server.log 2>&1" -WindowStyle Hidden
+          for ($i = 0; $i -lt 90; $i++) {
+            try { $r = Invoke-WebRequest http://localhost:3000/api/connector/ping -SkipHttpErrorCheck; if ($r.StatusCode -eq 401) { "Server läuft"; exit 0 } } catch {}
+            Start-Sleep 2
+          }
+          Get-Content server.log; throw "Server startet nicht"
+
+      - name: Connector installieren (install.ps1 in Windows PowerShell 5.1, als Administrator)
+        run: |
+          $key = node scripts/ci/connector-windows.mjs vorbereiten
+          New-Item -ItemType Directory -Force C:\sorrida-ci | Out-Null
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File public/connector/install.ps1 -Server http://localhost:3000 -Key $key -GdtFile C:\sorrida-ci\SORRIDA.GDT -GdtImport C:\sorrida-ci\import
+          if ($LASTEXITCODE -ne 0) { throw "install.ps1 fehlgeschlagen ($LASTEXITCODE)" }
+
+      - name: Installation prüfen
+        run: |
+          $exe = "$env:ProgramFiles\Sorrida\SorridaConnector.exe"
+          if (-not (Test-Path $exe)) { throw "Programm fehlt" }
+          "Programm: $exe ($((Get-Item $exe).Length) Bytes)"
+          "--- connector.ini (ohne Schlüssel)"
+          Get-Content "$env:ProgramData\Sorrida\connector.ini" | Where-Object { $_ -notmatch '^KEY=' }
+          "--- VDDS_MMI.INI"
+          $mmi = Get-Content "$env:WINDIR\VDDS_MMI.INI"
+          $mmi
+          if (-not ($mmi -match '^NAME\d+=SORRIDA$')) { throw "Sorrida fehlt in [BVS]" }
+          if (-not ($mmi -match '^PATDATIMPORT=.*SorridaConnector\.exe$')) { throw "PATDATIMPORT fehlt" }
+          "--- Windows-Aufgabe"
+          $task = Get-ScheduledTask -TaskName "Sorrida Ergebnisse"
+          $task | Format-List TaskName, State
+          $task.Triggers | Format-List Repetition
+          "--- Verbindungstest aus der Installation (Protokoll)"
+          $log = Get-Content "$env:LOCALAPPDATA\Sorrida\connector.log" -Encoding UTF8
+          $log
+          if (-not ($log -match 'Verbindungstest: ok')) { throw "Verbindungstest nicht ok" }
+          if (-not ($log -match 'Übergabedatei|Verbindung zu')) { throw "Meldungstexte kaputt (Zeichensatz beim Übersetzen)" }
+
+      - name: Browser durch Aufzeichnung ersetzen (Start-Adressen mitschreiben)
+        run: |
+          Set-Content -Path C:\sorrida-ci\browser.cmd -Value '@echo %* >> C:\sorrida-ci\urls.txt' -Encoding ascii
+          Add-Content -Path "$env:ProgramData\Sorrida\connector.ini" -Value "BROWSER=C:\sorrida-ci\browser.cmd"
+
+      - name: Aufruf mit allen Beispieldateien (wie aus der Praxissoftware)
+        run: |
+          $exe = "$env:ProgramFiles\Sorrida\SorridaConnector.exe"
+          $fehler = 0
+          foreach ($f in Get-ChildItem lib/__fixtures__/pvs) {
+            if ($f.Extension -eq ".gdt") {
+              # GDT: Praxissoftware schreibt in die feste Datei und startet den Connector ohne Pfad
+              $ziel = "C:\sorrida-ci\SORRIDA.GDT"
+              Copy-Item $f.FullName $ziel -Force; (Get-Item $ziel).LastWriteTime = Get-Date
+              $p = Start-Process $exe -Wait -PassThru
+              $ok = ($p.ExitCode -eq 0) -and -not (Test-Path $ziel)
+              "{0,-34} Exit {1} · Anforderung gelöscht: {2}" -f $f.Name, $p.ExitCode, (-not (Test-Path $ziel))
+            } else {
+              # VDDS: Praxissoftware übergibt den Pfad der Übergabedatei
+              $ziel = "C:\sorrida-ci\$($f.Name)"
+              Copy-Item $f.FullName $ziel -Force; (Get-Item $ziel).LastWriteTime = Get-Date
+              $p = Start-Process $exe -ArgumentList "`"$ziel`"" -Wait -PassThru
+              $ini = Get-Content $ziel
+              $ok = ($p.ExitCode -eq 0) -and ($ini -contains "ERRORLEVEL=0") -and ($ini -contains "READY=1")
+              "{0,-34} Exit {1} · {2}" -f $f.Name, $p.ExitCode, (($ini | Select-String '^(ERRORLEVEL|READY)=') -join ' ')
+            }
+            if (-not $ok) { $fehler++ }
+          }
+          Get-Content "$env:LOCALAPPDATA\Sorrida\connector.log" -Encoding UTF8 -Tail 12
+          if ($fehler) { throw "$fehler Aufruf(e) fehlgeschlagen" }
+
+      - name: Patienten in Sorrida prüfen (Umlaute, Zuordnung)
+        run: node scripts/ci/connector-windows.mjs patienten
+
+      - name: Start-Adressen prüfen (Fenster, Vorschau-Passierschein)
+        run: |
+          $urls = Get-Content C:\sorrida-ci\urls.txt
+          "$($urls.Count) Fenster geöffnet (erwartet 9, Infomodus ohne Fenster)"
+          if ($urls.Count -ne 9) { throw "Anzahl Fenster falsch" }
+          if (-not ($urls[0] -match '--app="([^"]+)" --window-size=1200,900')) { throw "Aufruf des App-Fensters falsch: $($urls[0])" }
+          $antwort = curl.exe -s -o NUL -D - $Matches[1]
+          $antwort | Select-String '^(HTTP|location|set-cookie)' | ForEach-Object { $_ -replace 't=[0-9a-f]+', 't=…' -replace 'sorrida_vorschau=[^;]+', 'sorrida_vorschau=…' }
+          if (-not ($antwort -match 'sorrida_vorschau=')) { throw "Passierschein wurde nicht gegen das Vorschau-Cookie getauscht" }
+
+      - name: Veraltete Übergabedatei wird abgelehnt
+        run: |
+          $exe = "$env:ProgramFiles\Sorrida\SorridaConnector.exe"
+          $ziel = "C:\sorrida-ci\alt.ini"
+          Copy-Item lib/__fixtures__/pvs/vdds_dswin_cp1252.ini $ziel -Force
+          (Get-Item $ziel).LastWriteTime = (Get-Date).AddHours(-1)
+          $p = Start-Process $exe -ArgumentList "`"$ziel`"" -Wait -PassThru
+          $ini = Get-Content $ziel -Encoding Default
+          "Exit $($p.ExitCode)"; $ini | Select-String '^(ERRORLEVEL|ERRORTEXT|READY)='
+          if ($p.ExitCode -ne 1 -or -not ($ini -contains "ERRORLEVEL=1") -or -not ($ini -match "^ERRORTEXT=.*veraltet")) { throw "Veraltete Datei nicht abgelehnt" }
+
+      - name: Rückweg (GDT 6310 über die Windows-Aufgabe)
+        run: |
+          node scripts/ci/connector-windows.mjs bericht
+          Start-ScheduledTask -TaskName "Sorrida Ergebnisse"
+          $datei = $null
+          for ($i = 0; $i -lt 30 -and -not $datei; $i++) { Start-Sleep 2; $datei = Get-ChildItem C:\sorrida-ci\import\*.gdt -ErrorAction SilentlyContinue | Select-Object -First 1 }
+          Get-ScheduledTaskInfo -TaskName "Sorrida Ergebnisse" | Format-List LastRunTime, LastTaskResult
+          if (-not $datei) {
+            "::warning::Die Windows-Aufgabe hat auf dem Runner nichts geliefert (Aufgabe für angemeldete Benutzer). Abholen wird direkt geprüft."
+            $p = Start-Process "$env:ProgramFiles\Sorrida\SorridaConnector.exe" -ArgumentList "--abholen" -Wait -PassThru
+            $datei = Get-ChildItem C:\sorrida-ci\import\*.gdt | Select-Object -First 1
+            if (-not $datei) { throw "Kein Ergebnis im Importordner" }
+          } else { "Die Windows-Aufgabe hat die Datei abgelegt: $($datei.Name)" }
+          node scripts/ci/connector-windows.mjs gdt $datei.FullName
+          if ($LASTEXITCODE) { throw "GDT-Datei fehlerhaft" }
+          node scripts/ci/connector-windows.mjs geliefert
+          if ($LASTEXITCODE) { throw "Lieferung nicht bestätigt" }
+          Remove-Item C:\sorrida-ci\import\*.gdt
+          Start-Process "$env:ProgramFiles\Sorrida\SorridaConnector.exe" -ArgumentList "--abholen" -Wait
+          if (Get-ChildItem C:\sorrida-ci\import\*.gdt -ErrorAction SilentlyContinue) { throw "Ergebnis doppelt geliefert" }
+          "Zweiter Abruf: nichts doppelt"
+
+      - name: Deinstallieren
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File public/connector/uninstall.ps1
+          if ($LASTEXITCODE -ne 0) { throw "uninstall.ps1 fehlgeschlagen" }
+          if (Test-Path "$env:ProgramFiles\Sorrida") { throw "Programm noch da" }
+          if (Get-ScheduledTask -TaskName "Sorrida Ergebnisse" -ErrorAction SilentlyContinue) { throw "Aufgabe noch da" }
+          if ((Get-Content "$env:WINDIR\VDDS_MMI.INI") -match 'SORRIDA') { throw "VDDS-Eintrag noch da" }
+          "Sauber entfernt"
+
+      - name: Protokolle bei Fehlern
+        if: failure()
+        run: |
+          Get-Content server.log -Tail 80 -ErrorAction SilentlyContinue
+          Get-Content "$env:LOCALAPPDATA\Sorrida\connector.log" -Encoding UTF8 -ErrorAction SilentlyContinue

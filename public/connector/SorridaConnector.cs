@@ -40,7 +40,7 @@
 // Protokoll ohne Patientendaten: %LOCALAPPDATA%\Sorrida\connector.log
 //
 // Übersetzen (macht install.ps1 automatisch), C# 5 / .NET Framework 4:
-//   %WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe
+//   %WINDIR%\Microsoft.NET\Framework64\v4.0.30319\csc.exe /target:winexe /codepage:65001
 //     /out:SorridaConnector.exe SorridaConnector.cs
 
 using System;
@@ -79,6 +79,8 @@ internal static class SorridaConnector
     private static int Main(string[] args)
     {
         string first = args.Length > 0 ? args[0].Trim().Trim('"') : "";
+        // Ohne Meldefenster (automatische Tests auf Windows-Rechnern ohne Bediener).
+        if (Environment.GetEnvironmentVariable("SORRIDA_CONNECTOR_STILL") == "1") silent = true;
         if (first == "--version") { Show("Sorrida-Connector " + Version, false); return 0; }
         Dictionary<string, string> config = ReadSection(ConfigPath(), "SORRIDA");
         if (first == "--test") return Test(config);
