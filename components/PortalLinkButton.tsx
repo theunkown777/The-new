@@ -43,10 +43,10 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
 
   return (
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm" data-testid="portal-link">
-      <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-wrap gap-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={state.qr} alt="QR-Code zum Behandlungsweg" className="h-32 w-32 shrink-0 rounded-lg bg-white p-1" />
-        <div className="min-w-0 flex-1 space-y-2">
+        <div className="min-w-[15rem] flex-1 space-y-2">
           <p className="font-medium text-slate-900">Link zum Behandlungsweg für {firstName} (60 Tage gültig)</p>
           <p className="text-xs text-slate-600 [overflow-wrap:anywhere]">{state.url}</p>
           <div className="flex flex-wrap gap-2">
