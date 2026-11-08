@@ -149,7 +149,7 @@ jobs:
           Copy-Item lib/__fixtures__/pvs/vdds_dswin_cp1252.ini $ziel -Force
           (Get-Item $ziel).LastWriteTime = (Get-Date).AddHours(-1)
           $p = Start-Process $exe -ArgumentList "`"$ziel`"" -Wait -PassThru
-          $ini = Get-Content $ziel -Encoding Default
+          $ini = Get-Content $ziel -Encoding 1252   # VDDS-Dateien sind ANSI (Windows-1252)
           "Exit $($p.ExitCode)"; $ini | Select-String '^(ERRORLEVEL|ERRORTEXT|READY)='
           if ($p.ExitCode -ne 1 -or -not ($ini -contains "ERRORLEVEL=1") -or -not ($ini -match "^ERRORTEXT=.*veraltet") -or @($ini | Where-Object { $_ -match '^READY=' }).Count -ne 1) { throw "Veraltete Datei nicht abgelehnt" }
           if (-not ($ini -match "Übergabedatei ist veraltet")) { throw "Umlaute in ERRORTEXT falsch" }
