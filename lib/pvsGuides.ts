@@ -43,6 +43,16 @@ export const PVS_GUIDES = [
     source: "EVIDENT, Schnittstellen VDDS; Medit-Support zur VDDS-Einrichtung in EVIDENT",
   },
   {
+    name: "Berichte zurück in die Zahnarzt-Software",
+    share: "",
+    steps: [
+      "VDDS-media überträgt keine Texte zurück in die Karteikarte. Deshalb legt Sorrida freigegebene Berichte als PDF in einen Ordner (Installationsbefehl mit -Ablage).",
+      "Der Dateiname beginnt mit der Patientennummer aus Ihrer Praxissoftware, dann Name und Datum, z. B. 4711_Müller_2026-11-08_Bericht.pdf.",
+      "Diesen Ordner als Eingangs- oder Importordner Ihrer Dokumentenablage eintragen oder die PDF in die Patientenakte ziehen. Ob Ihre Software Dateien automatisch nach Patientennummer zuordnet, sagt der Support Ihrer Praxissoftware.",
+    ],
+    source: "VDDS-media 1.4 (kein Textrückweg vorgesehen)",
+  },
+  {
     name: "Andere Systeme mit VDDS-media (z. B. LinuDent)",
     share: "",
     steps: [

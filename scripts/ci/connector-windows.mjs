@@ -40,7 +40,7 @@ if (cmd === "vorbereiten") {
 } else if (cmd === "bericht") {
   const practice = await prisma.practice.findFirstOrThrow({ where: { name: PRAXIS } });
   const user = await prisma.user.findFirstOrThrow({ where: { practiceId: practice.id } });
-  const pat = await prisma.patient.findFirstOrThrow({ where: { practiceId: practice.id, externalSource: "GDT-MEDISTAR" } });
+  const pat = await prisma.patient.findFirstOrThrow({ where: { practiceId: practice.id, externalSource: process.argv[3] ?? "GDT-MEDISTAR" } });
   const r = await prisma.report.create({ data: { practiceId: practice.id, patientId: pat.id, authorId: user.id, type: "BEFUND", serviceSummary: "CI", status: "FINAL", generatedText: "Befund: Wundversorgung am Unterschenkel, Verband gewechselt. Kontrolle in 3 Tagen.", approvedAt: new Date(), approvedByName: "Dr. Müller", treatmentDate: new Date() } });
   console.log("Bericht freigegeben:", r.id);
 } else if (cmd === "gdt") {
@@ -56,8 +56,14 @@ if (cmd === "vorbereiten") {
   if (f["8315"] !== "MEDISTAR" || f["8316"] !== "SORRIDA") fehler(`Kennungen falsch: 8315=${f["8315"]} 8316=${f["8316"]}`);
   if (!t.includes("Müller")) fehler("Umlaut im Text falsch kodiert");
 } else if (cmd === "geliefert") {
-  const n = await prisma.gdtAuslieferung.count({ where: { geliefertAt: { not: null }, weg: "connector" } });
-  console.log("geliefert:", n);
+  const art = process.argv[3] ?? "bericht";
+  const n = await prisma.gdtAuslieferung.count({ where: { art, geliefertAt: { not: null }, weg: "connector" } });
+  console.log(`geliefert (${art}):`, n);
   if (n !== 1) fehler(`${n} Lieferungen statt 1`);
+} else if (cmd === "pdf") {
+  const b = fs.readFileSync(process.argv[3]);
+  console.log(process.argv[3].split(/[\\/]/).pop(), b.length, "Bytes");
+  if (b.subarray(0, 5).toString() !== "%PDF-") fehler("keine PDF-Datei");
+  if (!/^4711_Müller-Lüdenscheidt_\d{4}-\d{2}-\d{2}_Bericht_\w{6}\.pdf$/.test(process.argv[3].split(/[\\/]/).pop())) fehler("Dateiname ohne Patientennummer/Name");
 } else fehler("unbekannter Befehl " + cmd);
 await prisma.$disconnect();

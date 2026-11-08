@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { buildGdt6310 } from "@/lib/gdtExport";
+import { buildGdt6310, latin1 } from "@/lib/gdtExport";
+import { buildReportPdf } from "@/lib/pdf";
 
 // Ergebnisse, die als GDT-Datei (6310) in die Arzt-Praxissoftware zurückgehen:
 // freigegebene Berichte und angenommene Vorschläge von Patienten, die aus der
@@ -7,6 +8,8 @@ import { buildGdt6310 } from "@/lib/gdtExport";
 
 export type GdtArt = "bericht" | "vorschlag";
 export type GdtErgebnis = { art: GdtArt; refId: string; dateiname: string; inhalt: string; zeit: Date };
+/** Eine Datei für den Connector: GDT (Arztpraxis) oder PDF für den Ablageordner (Zahnarztpraxis). */
+export type Lieferung = { art: GdtArt | "bericht-pdf"; refId: string; dateiname: string; bytes: Buffer; zeit: Date };
 type Fehler = { fehler: string; status: number };
 
 const patSel = { select: { id: true, firstName: true, lastName: true, birthDate: true, externalSource: true, externalId: true } } as const;
@@ -51,6 +54,26 @@ export async function gdtErgebnis(practiceId: string, art: GdtArt, id: string, k
   return { art, refId: id, dateiname: `SORRIDA_${nr}_${art === "bericht" ? "B" : "V"}${id.slice(-6)}.gdt`, inhalt, zeit: datum };
 }
 
+/** Freigegebener Bericht als PDF, Dateiname mit Patientennummer und Name, damit die Praxis ihn zuordnen kann. */
+export async function pdfLieferung(practiceId: string, id: string): Promise<Lieferung | null> {
+  const r = await prisma.report.findFirst({ where: { id, practiceId, status: "FINAL" }, include: { patient: true, author: { select: { name: true } }, practice: { select: { name: true } } } });
+  if (!r || !r.patient.externalId) return null;
+  const d = (x: Date) => x.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" });
+  const bytes = await buildReportPdf({
+    practiceName: r.practice.name,
+    authorName: r.author.name,
+    patientName: `${r.patient.firstName} ${r.patient.lastName}`,
+    patientBirthDate: r.patient.birthDate ? r.patient.birthDate.toLocaleDateString("de-DE", { timeZone: "UTC" }) : null,
+    reportType: r.type,
+    treatmentDate: r.treatmentDate ? d(r.treatmentDate) : null,
+    createdAt: d(r.createdAt),
+    text: `${r.editedText ?? r.generatedText ?? ""}\n\nFreigegeben von ${r.approvedByName ?? "unbekannt"}${r.approvedAt ? ` am ${r.approvedAt.toLocaleString("de-DE", { timeZone: "Europe/Berlin" })}` : ""}.`,
+  });
+  const sauber = (t: string) => t.replace(/[^A-Za-z0-9ÄÖÜäöüß-]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 40);
+  const tag = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Berlin" }).format(r.treatmentDate ?? r.createdAt);
+  return { art: "bericht-pdf", refId: id, dateiname: `${sauber(r.patient.externalId)}_${sauber(r.patient.lastName)}_${tag}_Bericht_${id.slice(-6)}.pdf`, bytes, zeit: r.approvedAt ?? r.updatedAt };
+}
+
 export const RESERVIERUNG_MS = 5 * 60_000;
 const MAX_JE_ABRUF = 20;
 
@@ -58,15 +81,19 @@ const MAX_JE_ABRUF = 20;
  * Offene Ergebnisse für den Rückweg reservieren. Berücksichtigt wird nur, was nach dem Einrichten
  * des ersten Connectors der Praxis freigegeben wurde, damit kein alter Bestand auf einmal ankommt.
  * Jedes Ergebnis wird genau einmal geliefert; eine Reservierung ohne Bestätigung wird nach 5 Minuten frei.
+ * gdt: Arztpraxis (GDT-Patienten, 6310 in den Importordner); pdf: Zahnarztpraxis (VDDS-Patienten,
+ * freigegebene Berichte als PDF in den Ablageordner).
  */
-export async function offeneErgebnisseReservieren(practiceId: string, keyId: string, keyKennung: string | null, jetzt = new Date()): Promise<GdtErgebnis[]> {
+export async function offeneErgebnisseReservieren(practiceId: string, keyId: string, keyKennung: string | null, wege: { gdt: boolean; pdf: boolean } = { gdt: true, pdf: false }, jetzt = new Date()): Promise<Lieferung[]> {
   const ersterKey = await prisma.connectorKey.findFirst({ where: { practiceId }, orderBy: { createdAt: "asc" }, select: { createdAt: true } });
   if (!ersterKey) return [];
   const ab = ersterKey.createdAt;
   const gdtPatient = { externalSource: { startsWith: "GDT-" }, externalId: { not: null } };
-  const [berichte, vorschlaege, vorhanden] = await Promise.all([
-    prisma.report.findMany({ where: { practiceId, status: "FINAL", approvedAt: { gte: ab }, patient: gdtPatient }, select: { id: true, approvedAt: true }, orderBy: { approvedAt: "asc" }, take: 200 }),
-    prisma.treatmentProposal.findMany({ where: { practiceId, status: "ANGENOMMEN", updatedAt: { gte: ab }, patient: gdtPatient }, select: { id: true, agreedAt: true, updatedAt: true }, orderBy: { updatedAt: "asc" }, take: 200 }),
+  const vddsPatient = { externalId: { not: null }, NOT: { externalSource: { startsWith: "GDT-" } } };
+  const [berichte, vorschlaege, pdfBerichte, vorhanden] = await Promise.all([
+    wege.gdt ? prisma.report.findMany({ where: { practiceId, status: "FINAL", approvedAt: { gte: ab }, patient: gdtPatient }, select: { id: true, approvedAt: true }, orderBy: { approvedAt: "asc" }, take: 200 }) : [],
+    wege.gdt ? prisma.treatmentProposal.findMany({ where: { practiceId, status: "ANGENOMMEN", updatedAt: { gte: ab }, patient: gdtPatient }, select: { id: true, agreedAt: true, updatedAt: true }, orderBy: { updatedAt: "asc" }, take: 200 }) : [],
+    wege.pdf ? prisma.report.findMany({ where: { practiceId, status: "FINAL", approvedAt: { gte: ab }, patient: vddsPatient }, select: { id: true, approvedAt: true }, orderBy: { approvedAt: "asc" }, take: 200 }) : [],
     prisma.gdtAuslieferung.findMany({ where: { practiceId }, select: { art: true, refId: true, geliefertAt: true, reserviertAt: true } }),
   ]);
   const frei = new Date(jetzt.getTime() - RESERVIERUNG_MS);
@@ -74,9 +101,10 @@ export async function offeneErgebnisseReservieren(practiceId: string, keyId: str
   const kandidaten = [
     ...berichte.map((b) => ({ art: "bericht" as const, refId: b.id, zeit: b.approvedAt! })),
     ...vorschlaege.map((v) => ({ art: "vorschlag" as const, refId: v.id, zeit: v.agreedAt ?? v.updatedAt })),
+    ...pdfBerichte.map((b) => ({ art: "bericht-pdf" as const, refId: b.id, zeit: b.approvedAt! })),
   ].filter((k) => !belegt.has(`${k.art}:${k.refId}`)).sort((a, b) => a.zeit.getTime() - b.zeit.getTime()).slice(0, MAX_JE_ABRUF);
 
-  const out: GdtErgebnis[] = [];
+  const out: Lieferung[] = [];
   for (const k of kandidaten) {
     // Reservieren: neu anlegen oder eine abgelaufene, unbestätigte Reservierung übernehmen.
     let meins = false;
@@ -88,9 +116,14 @@ export async function offeneErgebnisseReservieren(practiceId: string, keyId: str
       meins = r.count === 1;
     }
     if (!meins) continue;
+    if (k.art === "bericht-pdf") {
+      const l = await pdfLieferung(practiceId, k.refId);
+      if (l) out.push(l);
+      continue;
+    }
     const e = await gdtErgebnis(practiceId, k.art, k.refId, keyKennung);
     if ("fehler" in e) continue;
-    out.push(e);
+    out.push({ art: e.art, refId: e.refId, dateiname: e.dateiname, bytes: Buffer.from(latin1(e.inhalt)), zeit: e.zeit });
   }
   return out;
 }

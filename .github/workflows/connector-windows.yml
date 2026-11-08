@@ -70,7 +70,7 @@ jobs:
         run: |
           $key = node scripts/ci/connector-windows.mjs vorbereiten
           New-Item -ItemType Directory -Force C:\sorrida-ci | Out-Null
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File public/connector/install.ps1 -Server http://localhost:3000 -Key $key -GdtFile C:\sorrida-ci\SORRIDA.GDT -GdtImport C:\sorrida-ci\import
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File public/connector/install.ps1 -Server http://localhost:3000 -Key $key -GdtFile C:\sorrida-ci\SORRIDA.GDT -GdtImport C:\sorrida-ci\import -Ablage C:\sorrida-ci\ablage
           if ($LASTEXITCODE -ne 0) { throw "install.ps1 fehlgeschlagen ($LASTEXITCODE)" }
 
       - name: Installation prüfen
@@ -171,6 +171,18 @@ jobs:
           Start-Process "$env:ProgramFiles\Sorrida\SorridaConnector.exe" -ArgumentList "--abholen" -Wait
           if (Get-ChildItem C:\sorrida-ci\import\*.gdt -ErrorAction SilentlyContinue) { throw "Ergebnis doppelt geliefert" }
           "Zweiter Abruf: nichts doppelt"
+
+      - name: Zahnarztpraxis - Bericht als PDF in den Ablageordner
+        run: |
+          node scripts/ci/connector-windows.mjs bericht DSWIN
+          Start-Process "$env:ProgramFiles\Sorrida\SorridaConnector.exe" -ArgumentList "--abholen" -Wait
+          $pdf = Get-ChildItem C:\sorrida-ci\ablage\*.pdf | Select-Object -First 1
+          if (-not $pdf) { Get-Content "$env:LOCALAPPDATA\Sorrida\connector.log" -Encoding UTF8 -Tail 5; throw "Keine PDF im Ablageordner" }
+          node scripts/ci/connector-windows.mjs pdf $pdf.FullName
+          if ($LASTEXITCODE) { throw "PDF fehlerhaft" }
+          node scripts/ci/connector-windows.mjs geliefert bericht-pdf
+          if ($LASTEXITCODE) { throw "PDF-Lieferung nicht bestätigt" }
+          if (Get-ChildItem C:\sorrida-ci\import\*.gdt -ErrorAction SilentlyContinue) { throw "Zahnarzt-Bericht fälschlich als GDT geliefert" }
 
       - name: Deinstallieren
         run: |

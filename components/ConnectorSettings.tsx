@@ -19,7 +19,9 @@ function status(k: Key): { text: string; warnung: boolean } | null {
   const v = k.connectorInfo?.match(/SorridaConnector\/([\d.]+)/)?.[1];
   if (!v) return { text: "Ältere Connector-Version: bitte mit dem aktuellen install.ps1 neu installieren", warnung: true };
   const rueckweg = /rueckweg=1/.test(k.connectorInfo ?? "");
-  return { text: `Connector ${v} · Rückweg in die Praxissoftware ${rueckweg ? "aktiv" : "nicht eingerichtet"}${k.gdtKennung ? ` · GDT-Kennung ${k.gdtKennung}` : ""}`, warnung: false };
+  const ablage = /ablage=1/.test(k.connectorInfo ?? "");
+  const weg = rueckweg ? "Rückweg in die Praxissoftware (GDT) aktiv" : ablage ? "Berichte als PDF in den Ablageordner aktiv" : "Rückweg nicht eingerichtet";
+  return { text: `Connector ${v} · ${weg}${k.gdtKennung ? ` · GDT-Kennung ${k.gdtKennung}` : ""}`, warnung: false };
 }
 
 const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString("de-DE") : "nie");
@@ -43,7 +45,7 @@ export function ConnectorSettings({
   const [art, setArt] = useState<"vdds" | "gdt">("vdds");
   const command = secret
     ? `powershell -ExecutionPolicy Bypass -File install.ps1 -Server ${server || "https://ihre-sorrida-adresse.de"} -Key ${secret}` +
-      (art === "gdt" ? ` -GdtFile C:\\GDT\\SORRIDA.GDT -GdtImport C:\\GDT\\IMPORT` : "")
+      (art === "gdt" ? ` -GdtFile C:\\GDT\\SORRIDA.GDT -GdtImport C:\\GDT\\IMPORT` : ` -Ablage C:\\Sorrida\\Berichte`)
     : "";
 
   async function create(e: React.FormEvent) {

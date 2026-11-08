@@ -29,6 +29,8 @@
 //   WINDOW=1200,900
 //   GDTFILE=C:\GDT\SORRIDA.GDT     feste Anforderungsdatei, falls kein Pfad übergeben wird
 //   GDTIMPORT=C:\GDT\IMPORT         Ordner, aus dem die Praxissoftware Ergebnisse einliest
+//   ABLAGE=C:\Sorrida\Berichte     Zahnarztpraxis: freigegebene Berichte als PDF hierher
+//                                   (Dateiname: Patientennummer_Name_Datum_Bericht_….pdf)
 //   GDTNAME=                        leer: eigene Datei je Ergebnis; sonst fester Dateiname
 //                                   (dann erst schreiben, wenn die Praxissoftware die
 //                                   vorige Datei eingelesen und gelöscht hat)
@@ -175,7 +177,7 @@ internal static class SorridaConnector
             Log("Fehler " + errorLevel + ": " + errorText);
             Show(errorText, true);
         }
-        else if (Get(config, "GDTIMPORT").Length > 0)
+        else if (HasReturnPath(config))
         {
             // Bei der Gelegenheit fertige Ergebnisse gleich mitnehmen (Fehler nur ins Protokoll).
             silent = true;
@@ -184,14 +186,22 @@ internal static class SorridaConnector
         return errorLevel;
     }
 
-    // ---------------------------------------------------------------- Rückweg (GDT 6310)
+    // ---------------------------------------------------------------- Rückweg (GDT 6310 / PDF-Ablage)
+
+    // Arztpraxis: GDTIMPORT (6310-Dateien für die Karteikarte). Zahnarztpraxis: ABLAGE
+    // (freigegebene Berichte als PDF, Dateiname mit Patientennummer und Name).
+    private static bool HasReturnPath(Dictionary<string, string> config)
+    {
+        return Get(config, "GDTIMPORT").Length > 0 || Get(config, "ABLAGE").Length > 0;
+    }
 
     private static int Abholen(Dictionary<string, string> config, bool explicitCall)
     {
-        string dir = Get(config, "GDTIMPORT");
-        if (dir.Length == 0)
+        string gdtDir = Get(config, "GDTIMPORT");
+        string pdfDir = Get(config, "ABLAGE");
+        if (!HasReturnPath(config))
         {
-            if (explicitCall) Log("Abholen: GDTIMPORT ist nicht eingerichtet.");
+            if (explicitCall) Log("Abholen: weder GDTIMPORT noch ABLAGE ist eingerichtet.");
             return explicitCall ? 1 : 0;
         }
         bool created;
@@ -202,24 +212,29 @@ internal static class SorridaConnector
             {
                 string server, key;
                 ServerAndKey(config, out server, out key);
-                if (!Directory.Exists(dir)) throw new ConnectorException("GDT-Importordner nicht gefunden: " + dir);
-                string list = Request("GET", server + "/api/connector/ergebnisse", key, null, config);
+                if (gdtDir.Length > 0 && !Directory.Exists(gdtDir)) throw new ConnectorException("GDT-Importordner nicht gefunden: " + gdtDir);
+                if (pdfDir.Length > 0 && !Directory.Exists(pdfDir)) throw new ConnectorException("Ablageordner nicht gefunden: " + pdfDir);
+                string list = Request("GET", server + "/api/connector/ergebnisse?gdt=" + (gdtDir.Length > 0 ? "1" : "0") + "&pdf=" + (pdfDir.Length > 0 ? "1" : "0"), key, null, config);
                 string[] lines = Regex.Split(list.Trim(), "\r\n|\n");
                 if (lines.Length == 0 || !lines[0].StartsWith("SORRIDA-ERGEBNISSE")) throw new ConnectorException("Unerwartete Antwort von Sorrida.");
                 string fixedName = Get(config, "GDTNAME");
                 var done = new StringBuilder();
                 int written = 0;
+                bool gdtBlocked = false;
                 for (int i = 1; i < lines.Length; i++)
                 {
                     string[] t = lines[i].Split('\t');
                     if (t.Length != 4) continue;
-                    string name = fixedName.Length > 0 ? fixedName : Path.GetFileName(t[2]);
+                    bool pdf = t[0] == "bericht-pdf";
+                    string dir = pdf ? pdfDir : gdtDir;
+                    if (dir.Length == 0 || (!pdf && gdtBlocked)) continue;
+                    string name = !pdf && fixedName.Length > 0 ? fixedName : Path.GetFileName(t[2]);
                     if (name.Length == 0 || name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) continue;
                     string target = Path.Combine(dir, name);
                     if (File.Exists(target))
                     {
                         // Fester Name: Die Praxissoftware hat die vorige Datei noch nicht eingelesen. Später weiter.
-                        if (fixedName.Length > 0) break;
+                        if (!pdf && fixedName.Length > 0) { gdtBlocked = true; continue; }
                         done.Append(t[0]).Append('\t').Append(t[1]).Append("\r\n"); // schon abgelegt
                         continue;
                     }
@@ -281,6 +296,13 @@ internal static class SorridaConnector
             if (!exists) ok = false;
             report.Append(exists ? "✓ GDT-Anforderung: Ordner " + d + " vorhanden\n" : "✗ GDT-Anforderung: Ordner " + d + " fehlt\n");
         }
+        string ablage = Get(config, "ABLAGE");
+        if (ablage.Length > 0)
+        {
+            bool w = CanWrite(ablage);
+            if (!w) ok = false;
+            report.Append(w ? "✓ Ablage: freigegebene Berichte (PDF) gehen nach " + ablage + "\n" : "✗ Ablage: In " + ablage + " kann nicht geschrieben werden\n");
+        }
         string import = Get(config, "GDTIMPORT");
         if (import.Length > 0)
         {
@@ -296,13 +318,25 @@ internal static class SorridaConnector
             if (!writable) ok = false;
             report.Append(writable ? "✓ Rückweg: Ergebnisse gehen nach " + import + "\n" : "✗ Rückweg: In " + import + " kann nicht geschrieben werden\n");
         }
-        else report.Append("• Rückweg: kein GDT-Importordner eingestellt (Ergebnisse von Hand übernehmen)\n");
+        else if (ablage.Length == 0) report.Append("• Rückweg: weder GDT-Importordner noch Ablage eingestellt (Ergebnisse von Hand übernehmen)\n");
         Log("Verbindungstest: " + (ok ? "ok" : "Fehler") + " – " + report.ToString().Replace("\n", " | "));
         Show((ok ? "Sorrida-Connector " + Version + " ist bereit.\n\n" : "Sorrida-Connector " + Version + ": bitte prüfen.\n\n") + report, !ok);
         return ok ? 0 : 1;
     }
 
     // ---------------------------------------------------------------- Dateien lesen
+
+    private static bool CanWrite(string dir)
+    {
+        try
+        {
+            string probe = Path.Combine(dir, "sorrida_test_" + Guid.NewGuid().ToString("N") + ".tmp");
+            File.WriteAllText(probe, "test");
+            File.Delete(probe);
+            return true;
+        }
+        catch { return false; }
+    }
 
     private static string ConfigPath()
     {
@@ -539,7 +573,7 @@ internal static class SorridaConnector
         var request = (HttpWebRequest)WebRequest.Create(endpoint);
         request.Method = method;
         request.Headers[HttpRequestHeader.Authorization] = "Bearer " + key;
-        request.Headers["X-Sorrida-Connector"] = "SorridaConnector/" + Version + "; rueckweg=" + (Get(config, "GDTIMPORT").Length > 0 ? "1" : "0");
+        request.Headers["X-Sorrida-Connector"] = "SorridaConnector/" + Version + "; rueckweg=" + (Get(config, "GDTIMPORT").Length > 0 ? "1" : "0") + "; ablage=" + (Get(config, "ABLAGE").Length > 0 ? "1" : "0");
         request.UserAgent = "SorridaConnector/" + Version;
         request.Timeout = 20000;
         request.ReadWriteTimeout = 20000;
