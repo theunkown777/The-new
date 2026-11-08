@@ -137,14 +137,17 @@ const TYPE_HEADING: Record<ReportType, string> = {
 // erfinden. Deutlich als Testmodus gekennzeichnet, damit ein so entstandener
 // Text nicht mit einem echten KI-Entwurf verwechselt und ungeprüft
 // weiterverwendet wird.
-function buildTemplateReportText(input: GenerateReportInput): string {
+function buildTemplateReportText(input: GenerateReportInput, grund?: string): string {
   const { patient } = input;
   const lines: string[] = [];
 
   lines.push(
-    "[TESTMODUS – automatisch aus den erfassten Daten zusammengestellt, ohne KI-Formulierung. " +
-      "Kein fertiger Fließtext; vor Verwendung entsprechend ausformulieren und prüfen. " +
-      "Für echte KI-generierte Berichte einen Anthropic-API-Key hinterlegen.]"
+    grund
+      ? `[OHNE KI ERSTELLT – ${grund} Der Bericht ist aus den erfassten Daten zusammengestellt. ` +
+          "Mit „Neu erzeugen“ formuliert die KI ihn aus, sobald sie wieder erreichbar ist. Vor Verwendung prüfen.]"
+      : "[TESTMODUS – automatisch aus den erfassten Daten zusammengestellt, ohne KI-Formulierung. " +
+          "Kein fertiger Fließtext; vor Verwendung entsprechend ausformulieren und prüfen. " +
+          "Für echte KI-generierte Berichte einen Anthropic-API-Key hinterlegen.]"
   );
   lines.push("");
   lines.push(TYPE_HEADING[input.reportType]);
@@ -172,10 +175,25 @@ function buildTemplateReportText(input: GenerateReportInput): string {
   return lines.join("\n");
 }
 
-export async function generateReportText(input: GenerateReportInput): Promise<string> {
+/**
+ * Berichtstext erzeugen. Ist die KI nicht erreichbar (Schlüssel ungültig, Störung, Guthaben leer),
+ * wird der Bericht trotzdem gespeichert: mit dem regelbasierten Text und einem klaren Hinweis.
+ * Mit ausweichen: false (z. B. beim „Neu erzeugen“) wird der Fehler weitergegeben.
+ */
+export async function generateReportText(input: GenerateReportInput, opts: { ausweichen?: boolean } = {}): Promise<string> {
   if (!HAS_REAL_KEY) {
     return buildTemplateReportText(input);
   }
+  try {
+    return await generateReportTextKi(input);
+  } catch (e) {
+    if (opts.ausweichen === false) throw e;
+    console.error("KI nicht erreichbar, Bericht ohne KI erstellt:", e);
+    return buildTemplateReportText(input, kiFehlerGrund(e));
+  }
+}
+
+async function generateReportTextKi(input: GenerateReportInput): Promise<string> {
 
   const profil = fachprofil(input.fach || "zahn");
   const systemPrompt = `Du unterstützt eine Einrichtung (${profil.einrichtung}, Fach: ${SPECIALTY_LABELS[input.fach || "zahn"] ?? "Medizin"}) dabei, professionelle schriftliche Berichte zu
@@ -246,15 +264,17 @@ Zeilen mit ACHTUNG gehören in den ersten Satz. Platzhalter in eckigen Klammern 
  * ohne Schlüssel oder Inhalte preiszugeben.
  */
 export function kiFehlerGrund(e: unknown): string {
-  if (e instanceof Anthropic.APIError) {
+  // Fehler der KI-Schnittstelle erkennen wir am HTTP-Status (robust auch ohne die SDK-Klasse)
+  const status = typeof e === "object" && e !== null && typeof (e as { status?: unknown }).status === "number" ? (e as { status: number }).status : null;
+  if (status !== null) {
     const msg = String((e as { message?: string }).message ?? "").toLowerCase();
-    if (e.status === 401) return "Der KI-Schlüssel ist ungültig (in Vercel prüfen).";
-    if (e.status === 403) return "Der KI-Schlüssel hat keine Berechtigung für dieses Modell.";
-    if (e.status === 404) return `Das eingestellte Modell ist nicht verfügbar (${MODEL}).`;
-    if (e.status === 400 && msg.includes("credit")) return "Das Guthaben beim KI-Anbieter ist aufgebraucht.";
-    if (e.status === 429) return "Der KI-Dienst ist gerade ausgelastet. Bitte gleich noch einmal versuchen.";
-    if (e.status && e.status >= 500) return "Der KI-Dienst hat gerade eine Störung.";
-    return `Der KI-Dienst hat die Anfrage abgelehnt (Status ${e.status ?? "unbekannt"}).`;
+    if (status === 401) return "Der KI-Schlüssel ist ungültig (in Vercel prüfen).";
+    if (status === 403) return "Der KI-Schlüssel hat keine Berechtigung für dieses Modell.";
+    if (status === 404) return `Das eingestellte Modell ist nicht verfügbar (${MODEL}).`;
+    if (status === 400 && msg.includes("credit")) return "Das Guthaben beim KI-Anbieter ist aufgebraucht.";
+    if (status === 429) return "Der KI-Dienst ist gerade ausgelastet. Bitte gleich noch einmal versuchen.";
+    if (status >= 500) return "Der KI-Dienst hat gerade eine Störung.";
+    return `Der KI-Dienst hat die Anfrage abgelehnt (Status ${status}).`;
   }
   return "Der KI-Dienst ist nicht erreichbar.";
 }

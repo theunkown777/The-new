@@ -43,7 +43,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         : null,
       serviceSummary: existing.serviceSummary,
       additionalContext: additionalContext ?? existing.additionalContext,
-    });
+    }, { ausweichen: false });
   } catch (err) {
     console.error("Fehler bei der Berichtsgenerierung:", err);
     return NextResponse.json(

@@ -136,7 +136,7 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
                     .filter((k) => !kq || `${k.name} ${k.kategorie}`.toLowerCase().includes(kq.toLowerCase()))
                     .map((k) => (
                       <li key={k.name} className="flex items-center justify-between gap-2 rounded bg-white px-2 py-1">
-                        <span>
+                        <span className="min-w-0 [overflow-wrap:anywhere]">
                           {k.name} <span className="text-xs text-slate-500">· {k.kategorie} · {k.kasse ? "Kasse" : "Selbstzahler/Indikation"}</span>
                         </span>
                         <button

@@ -278,9 +278,9 @@ export default async function DashboardPage() {
             <Link
               key={r.id}
               href={`/reports/${r.id}`}
-              className="flex items-center justify-between px-6 py-4 hover:bg-slate-50"
+              className="flex items-center justify-between gap-3 px-4 py-4 hover:bg-slate-50 sm:px-6"
             >
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium text-slate-900">
                   {r.patient.firstName} {r.patient.lastName} · {REPORT_TYPE_LABELS[r.type]}
                 </p>
@@ -289,8 +289,8 @@ export default async function DashboardPage() {
               <span
                 className={
                   r.status === "FINAL"
-                    ? "rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700"
-                    : "rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700"
+                    ? "shrink-0 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700"
+                    : "shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700"
                 }
               >
                 {REPORT_STATUS_LABELS[r.status]}

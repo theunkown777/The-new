@@ -63,4 +63,20 @@ describe("generateReportText", () => {
     expect(text).toBe("Echter KI-Text");
     expect(create).toHaveBeenCalledOnce();
   });
+
+  it("speichert den Bericht ohne KI, wenn der Schlüssel ungültig ist; beim Neu-Erzeugen kommt der Fehler", async () => {
+    vi.resetModules();
+    process.env.ANTHROPIC_API_KEY = "sk-ant-abgelaufen";
+    const create = vi.fn().mockRejectedValue(new Error("401 invalid x-api-key"));
+    class FakeAnthropic {
+      messages = { create };
+    }
+    vi.doMock("@anthropic-ai/sdk", () => ({ default: FakeAnthropic }));
+
+    const { generateReportText } = await import("@/lib/anthropic");
+    const text = await generateReportText(testInput);
+    expect(text).toContain("[OHNE KI ERSTELLT");
+    expect(text).toContain("Kontrolle (GOZ 0110)");
+    await expect(generateReportText(testInput, { ausweichen: false })).rejects.toThrow();
+  });
 });

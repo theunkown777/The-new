@@ -42,13 +42,13 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
     );
 
   return (
-    <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm" data-testid="portal-link">
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm" data-testid="portal-link">
       <div className="flex flex-col gap-4 sm:flex-row">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={state.qr} alt="QR-Code zum Behandlungsweg" className="h-32 w-32 shrink-0 rounded-lg bg-white p-1" />
-        <div className="min-w-0 space-y-2">
+        <div className="min-w-0 flex-1 space-y-2">
           <p className="font-medium text-slate-900">Link zum Behandlungsweg für {firstName} (60 Tage gültig)</p>
-          <p className="break-all text-xs text-slate-600">{state.url}</p>
+          <p className="text-xs text-slate-600 [overflow-wrap:anywhere]">{state.url}</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -67,7 +67,7 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
             </button>
             <a className="btn-secondary" href={state.url} target="_blank" rel="noreferrer">Ansehen</a>
           </div>
-          <p className="whitespace-pre-wrap rounded-lg bg-white p-2 text-xs text-slate-600" data-testid="nachricht-text">{text}</p>
+          <p className="whitespace-pre-wrap rounded-lg bg-white p-2 text-xs text-slate-600 [overflow-wrap:anywhere]" data-testid="nachricht-text">{text}</p>
           <p className="text-xs text-slate-500">Der Link ersetzt einen früheren Link dieses Patienten.</p>
         </div>
       </div>

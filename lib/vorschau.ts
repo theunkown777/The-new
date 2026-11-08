@@ -1,0 +1,57 @@
+// Vorschau-Schloss für die eigene Domain, solange Sorrida noch nicht öffentlich ist.
+// Auf den Hosts in VORSCHAU_HOSTS (z. B. "sorrida.de,www.sorrida.de") sehen Besucher nur die
+// Seite „Demnächst“ mit Anmeldefeld. Wer VORSCHAU_BENUTZER und VORSCHAU_PASSWORT kennt,
+// bekommt ein signiertes Cookie und sieht danach die ganze Seite. Läuft in der Middleware (Edge),
+// deshalb nur Web-Crypto.
+
+export const VORSCHAU_COOKIE = "sorrida_vorschau";
+export const VORSCHAU_TAGE = 30;
+
+export function vorschauHosts(env: Record<string, string | undefined> = process.env): string[] {
+  return (env.VORSCHAU_HOSTS ?? "").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean);
+}
+
+export function istVorschauHost(host: string | null, env: Record<string, string | undefined> = process.env): boolean {
+  if (!host) return false;
+  const h = host.toLowerCase().split(":")[0];
+  return vorschauHosts(env).includes(h);
+}
+
+const b64url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...Array.from(new Uint8Array(buf)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+
+async function hmac(text: string, secret: string): Promise<string> {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return b64url(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(text)));
+}
+
+const geheimnis = (env: Record<string, string | undefined>) => `vorschau:${env.NEXTAUTH_SECRET || "dev-secret-nur-lokal"}:${env.VORSCHAU_PASSWORT ?? ""}`;
+
+/** Cookie-Wert "<ablauf>.<signatur>"; ändert sich das Passwort, werden alte Cookies ungültig. */
+export async function vorschauCookie(now = Date.now(), env: Record<string, string | undefined> = process.env): Promise<string> {
+  const ablauf = now + VORSCHAU_TAGE * 86_400_000;
+  return `${ablauf}.${await hmac(String(ablauf), geheimnis(env))}`;
+}
+
+export async function vorschauCookieGueltig(wert: string | undefined, now = Date.now(), env: Record<string, string | undefined> = process.env): Promise<boolean> {
+  if (!wert) return false;
+  const [ablauf, sig] = wert.split(".");
+  if (!ablauf || !sig || Number(ablauf) < now) return false;
+  const soll = await hmac(ablauf, geheimnis(env));
+  if (soll.length !== sig.length) return false;
+  let diff = 0;
+  for (let i = 0; i < soll.length; i++) diff |= soll.charCodeAt(i) ^ sig.charCodeAt(i);
+  return diff === 0;
+}
+
+/** Zugangsdaten vergleichen, ohne die Länge oder Position eines Unterschieds zu verraten. */
+export async function zugangPasst(benutzer: string, passwort: string, env: Record<string, string | undefined> = process.env): Promise<boolean> {
+  const sollB = env.VORSCHAU_BENUTZER, sollP = env.VORSCHAU_PASSWORT;
+  if (!sollB || !sollP) return false;
+  const [a, b, c, d] = await Promise.all([hmac(benutzer, "b"), hmac(sollB, "b"), hmac(passwort, "p"), hmac(sollP, "p")]);
+  return (a === b) && (c === d);
+}
+
+/** Pfade, die auch ohne Zugang erreichbar sein müssen (die Demnächst-Seite selbst und ihre Bausteine). */
+export function freiOhneZugang(pfad: string): boolean {
+  return pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
+}

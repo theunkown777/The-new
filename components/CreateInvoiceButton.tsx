@@ -43,26 +43,26 @@ export function CreateInvoiceButton({ patientId, proposalId, title, amountEur, l
       </button>
     );
   return (
-    <form onSubmit={create} className="mt-2 grid w-full gap-2 rounded-xl border border-slate-200 bg-white p-3 text-left text-sm sm:grid-cols-[minmax(0,1fr)_7rem_6rem_auto]">
-      <label className="block">
+    <form onSubmit={create} className="mt-2 grid w-full min-w-0 grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left text-sm" data-testid="invoice-form">
+      <label className="col-span-2 block min-w-0">
         <span className="text-xs text-slate-500">Bezeichnung</span>
-        <input className="input mt-0.5" value={t} onChange={(e) => setT(e.target.value)} required minLength={2} maxLength={120} />
+        <input className="input mt-1 w-full" value={t} onChange={(e) => setT(e.target.value)} required minLength={2} maxLength={120} />
       </label>
-      <label className="block">
+      <label className="block min-w-0">
         <span className="text-xs text-slate-500">Betrag (€)</span>
-        <input className="input mt-0.5" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} required pattern="[0-9.]*,?[0-9]{0,2}" />
+        <input className="input mt-1 w-full" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} required pattern="[0-9.]*,?[0-9]{0,2}" />
       </label>
-      <label className="block">
+      <label className="block min-w-0">
         <span className="text-xs text-slate-500">Zahlbar in</span>
-        <select className="input mt-0.5" value={days} onChange={(e) => setDays(Number(e.target.value))}>
+        <select className="input mt-1 w-full" value={days} onChange={(e) => setDays(Number(e.target.value))}>
           {[7, 14, 30].map((d) => <option key={d} value={d}>{d} Tagen</option>)}
         </select>
       </label>
-      <div className="flex items-end gap-2">
-        <button className="btn-primary" disabled={busy}>{busy ? "…" : "Anlegen"}</button>
+      {error && <p className="col-span-2 text-red-700">{error}</p>}
+      <div className="col-span-2 flex flex-wrap justify-end gap-2">
         <button type="button" className="btn-secondary" onClick={() => setOpen(false)}>Abbrechen</button>
+        <button className="btn-primary" disabled={busy}>{busy ? "…" : "Rechnung anlegen"}</button>
       </div>
-      {error && <p className="text-red-700 sm:col-span-4">{error}</p>}
     </form>
   );
 }

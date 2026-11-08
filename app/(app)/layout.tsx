@@ -42,7 +42,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
       {/* Desktop: feste Seitenleiste */}
-      <aside className="sticky top-0 hidden h-screen flex-col overflow-y-auto border-r border-[#E9E2DA] bg-[#F5F2EE] px-4 py-5 lg:flex" data-testid="app-sidebar">
+      <aside className="sticky top-0 hidden h-screen flex-col overflow-y-auto border-r border-[#E9E2DA] bg-[#F5F2EE] px-4 py-5 lg:flex [&>*]:shrink-0" data-testid="app-sidebar">
         <Link href="/dashboard" className="flex items-center gap-2 px-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/sorrida-mark.svg" alt="" className="h-10 w-10" />

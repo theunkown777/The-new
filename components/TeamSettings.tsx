@@ -119,13 +119,13 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
         <div className="divide-y divide-slate-100">
           {users.map((u) => (
             <div key={u.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-              <div>
+              <div className="min-w-0">
                 <div className="text-sm font-medium text-slate-900">
                   {u.name} {u.id === currentUserId && <span className="text-xs text-slate-400">(Sie)</span>}
                 </div>
-                <div className="text-xs text-slate-400">{u.email}</div>
+                <div className="text-xs text-slate-400 [overflow-wrap:anywhere]">{u.email}</div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
                 <span
                   className={
                     u.role === "admin"
@@ -172,7 +172,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
           </h2>
           <div className="divide-y divide-slate-100">
             {invites.map((inv) => (
-              <div key={inv.id} className="flex items-center justify-between px-4 py-3 text-sm">
+              <div key={inv.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
                 <div>
                   <div className="font-medium text-slate-900">{inv.email}</div>
                   <div className="text-xs text-slate-400">
