@@ -43,6 +43,28 @@ export async function vorschauCookieGueltig(wert: string | undefined, now = Date
   return diff === 0;
 }
 
+/**
+ * Kurzlebiger Passierschein für das Fenster, das der Sorrida-Connector aus der Praxissoftware öffnet.
+ * Der Connector meldet sich mit seinem Praxis-Schlüssel an, kennt aber das Vorschau-Passwort nicht.
+ * /api/connector/launch hängt diesen Schein an die Start-Adresse; die Middleware prüft ihn und
+ * setzt dann das normale Vorschau-Cookie. Signiert, 10 Minuten gültig, anders getrennt als das Cookie.
+ */
+export const VORSCHAU_PASS_MINUTEN = 10;
+export async function vorschauPass(now = Date.now(), env: Record<string, string | undefined> = process.env): Promise<string> {
+  const ablauf = now + VORSCHAU_PASS_MINUTEN * 60_000;
+  return `${ablauf}.${await hmac(`pass:${ablauf}`, geheimnis(env))}`;
+}
+export async function vorschauPassGueltig(wert: string | null | undefined, now = Date.now(), env: Record<string, string | undefined> = process.env): Promise<boolean> {
+  if (!wert) return false;
+  const [ablauf, sig] = wert.split(".");
+  if (!ablauf || !sig || !/^\d+$/.test(ablauf) || Number(ablauf) < now || Number(ablauf) > now + VORSCHAU_PASS_MINUTEN * 60_000 + 60_000) return false;
+  const soll = await hmac(`pass:${ablauf}`, geheimnis(env));
+  if (soll.length !== sig.length) return false;
+  let diff = 0;
+  for (let i = 0; i < soll.length; i++) diff |= soll.charCodeAt(i) ^ sig.charCodeAt(i);
+  return diff === 0;
+}
+
 /** Zugangsdaten vergleichen, ohne die Länge oder Position eines Unterschieds zu verraten. */
 export async function zugangPasst(benutzer: string, passwort: string, env: Record<string, string | undefined> = process.env): Promise<boolean> {
   const sollB = env.VORSCHAU_BENUTZER, sollP = env.VORSCHAU_PASSWORT;
@@ -51,7 +73,10 @@ export async function zugangPasst(benutzer: string, passwort: string, env: Recor
   return (a === b) && (c === d);
 }
 
-/** Pfade, die auch ohne Zugang erreichbar sein müssen (die Demnächst-Seite selbst und ihre Bausteine). */
+/**
+ * Pfade, die auch ohne Zugang erreichbar sein müssen: die Demnächst-Seite und ihre Bausteine
+ * sowie die Schnittstelle des Sorrida-Connectors (eigene Anmeldung mit Praxis-Schlüssel).
+ */
 export function freiOhneZugang(pfad: string): boolean {
-  return pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
+  return pfad.startsWith("/api/connector/") || pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
 }

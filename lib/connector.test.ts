@@ -52,8 +52,22 @@ describe("extractVddsPatient", () => {
   it("rejects files without a [PATIENT] section", () => {
     expect(extractVddsPatient("[FOO]\nA=1").error).toMatch(/PATIENT/);
   });
-  it("rejects a PATID longer than twelve characters", () => {
-    expect(extractVddsPatient(SAMPLE.replace("PATID=1234", "PATID=1234567890123")).error).toBeDefined();
+  it("akzeptiert längere Patientennummern, lehnt aber überlange und Sonderzeichen ab", () => {
+    expect(extractVddsPatient(SAMPLE.replace("PATID=1234", "PATID=2024/000123.7")).data?.PATID).toBe("2024/000123.7");
+    expect(extractVddsPatient(SAMPLE.replace("PATID=1234", "PATID=" + "1".repeat(41))).error).toBeDefined();
+    expect(extractVddsPatient(SAMPLE.replace("PATID=1234", "PATID=12 34;")).error).toBeDefined();
+  });
+  it("lehnt nicht ab, wenn Zusatzangaben ungewohnt geschrieben sind", () => {
+    const r = extractVddsPatient(SAMPLE.replace("SEX=M", "SEX=x").replace("BIRTHDAY=19800312", "BIRTHDAY=12.03.1980").replace("INSURANCESTATUS=M", "INSURANCESTATUS=9").replace("TITLE=Dr.", "TITLE=" + "Prof. ".repeat(20)));
+    expect(r.error).toBeUndefined();
+    expect(r.data).toMatchObject({ SEX: "D", BIRTHDAY: "19800312" });
+    expect(r.data?.INSURANCESTATUS).toBeUndefined();
+    expect(r.data?.TITLE?.length).toBeLessThanOrEqual(40);
+  });
+  it("lässt ein unmögliches Geburtsdatum weg statt den Aufruf abzulehnen", () => {
+    const r = extractVddsPatient(SAMPLE.replace("BIRTHDAY=19800312", "BIRTHDAY=00000000"));
+    expect(r.error).toBeUndefined();
+    expect(r.data?.BIRTHDAY).toBeUndefined();
   });
   it("requires the name of the calling PVS", () => {
     expect(extractVddsPatient(SAMPLE.replace("PVS=DSWIN", "")).error).toMatch(/PVS/);
@@ -114,5 +128,24 @@ describe("GDT (Arzt-Praxissoftware)", () => {
   });
   it("VDDS-media bleibt unverändert", () => {
     expect(extractHandoverPatient("[PATIENT]\nPVS=DSWIN\nPATID=4711\nLASTNAME=Weber\nFIRSTNAME=Martina").format).toBe("VDDS");
+  });
+});
+
+describe("GDT-Varianten der Arzt-Praxissoftware", () => {
+  it("GDT 3.0: Geschlecht als Buchstabe, Kennung von Sorrida (8315) wird gemerkt", () => {
+    const r = extractHandoverPatient(["01380006302", "0148315SORR01", "0158316XISYNET", "01092063", "014921803.00", "0123000778899", "0123101Weiß", "0113102Zoë", "017310329021984", "0103110W"].join("\r\n"));
+    expect(r.data).toMatchObject({ PVS: "GDT-XISYNET", PATID: "778899", SEX: "W", BIRTHDAY: "19840229" });
+    expect(r.sorridaKennung).toBe("SORR01");
+  });
+  it("verträgt nur LF, nur CR und Leerzeichen am Zeilenanfang", () => {
+    for (const nl of ["\n", "\r"]) {
+      const r = extractHandoverPatient(["01380006302", " 0143000A12345", "0163101Krüger", "0133102Anna"].join(nl));
+      expect(r.data).toMatchObject({ PATID: "A12345", LASTNAME: "Krüger" });
+    }
+  });
+  it("lässt ein falsches Geburtsdatum weg, statt den Patienten nicht zu öffnen", () => {
+    const r = extractHandoverPatient(["01380006302", "0143000A12345", "0163101Krüger", "0133102Anna", "017310331021975"].join("\r\n"));
+    expect(r.error).toBeUndefined();
+    expect(r.data?.BIRTHDAY).toBeUndefined();
   });
 });

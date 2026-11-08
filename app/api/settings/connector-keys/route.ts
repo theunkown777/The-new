@@ -14,7 +14,7 @@ export async function GET() {
   const keys = await prisma.connectorKey.findMany({
     where: { practiceId: session.user.practiceId },
     orderBy: { createdAt: "desc" },
-    select: { id: true, name: true, keyPrefix: true, createdAt: true, lastUsedAt: true, revokedAt: true },
+    select: { id: true, name: true, keyPrefix: true, createdAt: true, lastUsedAt: true, revokedAt: true, gdtKennung: true, connectorInfo: true },
   });
   return NextResponse.json({ keys });
 }
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       keyHash: hashConnectorKey(key),
       keyPrefix: connectorKeyPrefix(key),
     },
-    select: { id: true, name: true, keyPrefix: true, createdAt: true, lastUsedAt: true, revokedAt: true },
+    select: { id: true, name: true, keyPrefix: true, createdAt: true, lastUsedAt: true, revokedAt: true, gdtKennung: true, connectorInfo: true },
   });
 
   await auditFromSession(session, "schnittstelle.schluessel", { entityType: "Schlüssel", entityId: created.id, summary: "angelegt" });

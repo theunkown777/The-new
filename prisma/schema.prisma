@@ -8,9 +8,9 @@ datasource db {
 }
 
 model Practice {
-  id               String            @id @default(cuid())
+  id               String               @id @default(cuid())
   name             String
-  createdAt        DateTime          @default(now())
+  createdAt        DateTime             @default(now())
   users            User[]
   patients         Patient[]
   reports          Report[]
@@ -29,6 +29,7 @@ model Practice {
   invites           StaffInvite[]
   proposals         TreatmentProposal[]
   connectorKeys     ConnectorKey[]
+  gdtAuslieferungen GdtAuslieferung[]
   launchTokens      LaunchToken[]
   anamnesisForms    AnamnesisForm[]
   invoices          Invoice[]
@@ -47,7 +48,7 @@ model Practice {
   /// Ratenzahlung im Patienten-Link (lib/installments.ts)
   installments      Json?
   /// Fachgebiet (lib/specialties.ts): "zahn", "augen", "haut", … oder "andere"
-  specialty         String            @default("zahn")
+  specialty         String              @default("zahn")
   /// KV-Bezirk (lib/amtlich/gliederung.ts KV_BEZIRKE), z. B. "NO"; bestimmt die regionalen KV-Ziffern im Leistungsverzeichnis
   kvBezirk          String?
   /// Arztpraxen: Preise je Leistung und eigene Leistungen (lib/medicalProposals.ts)
@@ -56,12 +57,12 @@ model Practice {
   /// DATEV-Export: Berater-/Mandantennummer, Sachkontenlänge, Konten (mit der Steuerberatung abgestimmt)
   datev             Json?
   /// Verbundenes Stripe-Konto der Praxis (Stripe Connect); Online-Zahlungen gehen direkt an die Praxis
-  stripeAccountId   String?  @unique
+  stripeAccountId   String?             @unique
   // Gastzugang: Demo-Praxis mit Beispieldaten, die nach Ablauf automatisch
   // gelöscht wird (lib/demo.ts).
-  isDemo            Boolean           @default(false)
+  isDemo            Boolean             @default(false)
   /// Zwei-Faktor-Anmeldung auch für Mitarbeitende verlangen (für Admins immer Pflicht)
-  require2faAll     Boolean           @default(false)
+  require2faAll     Boolean             @default(false)
   demoExpiresAt     DateTime?
 
   @@index([isDemo, demoExpiresAt])
@@ -83,51 +84,51 @@ model ApiClient {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String
-  role         String   @default("staff") // "admin" | "staff"
+  id                     String                   @id @default(cuid())
+  email                  String                   @unique
+  passwordHash           String
+  name                   String
+  role                   String                   @default("staff") // "admin" | "staff"
   /// Analyse (/analyse) für Mitarbeitende freigegeben; Admins (Geschäftsführung) sehen sie immer
-  canSeeAnalytics Boolean @default(false)
-  practiceId   String
-  practice     Practice @relation(fields: [practiceId], references: [id])
-  reports      Report[]
-  proposals    TreatmentProposal[]
+  canSeeAnalytics        Boolean                  @default(false)
+  practiceId             String
+  practice               Practice                 @relation(fields: [practiceId], references: [id])
+  reports                Report[]
+  proposals              TreatmentProposal[]
   /// Eigenes Passwort für "Mein Bereich" (bcrypt), von der Person selbst vergeben
-  bereichPinHash        String?
-  bereichPinFehlversuche Int      @default(0)
-  bereichPinGesperrtBis DateTime?
+  bereichPinHash         String?
+  bereichPinFehlversuche Int                      @default(0)
+  bereichPinGesperrtBis  DateTime?
   /// Patienten, für die dieses Konto Stammbehandler/in ist (Seite "Mein Bereich")
-  stammPatienten Patient[] @relation("Stammbehandler")
+  stammPatienten         Patient[]                @relation("Stammbehandler")
   // TOTP-Zweitfaktor (RFC 6238). totpSecret wird beim Einrichten gesetzt,
   // aber erst nach erfolgreicher Verifikation ist totpEnabled=true und der
   // Login verlangt zusätzlich zum Passwort einen gültigen Code.
-  totpSecret      String?
-  totpEnabled     Boolean  @default(false)
+  totpSecret             String?
+  totpEnabled            Boolean                  @default(false)
   // Gehashte Einmal-Backup-Codes für den Fall, dass der Zugriff auf die
   // Authenticator-App verloren geht. Comma-separated bcrypt-Hashes; ein
   // Code wird beim Verbrauch aus der Liste entfernt.
-  totpBackupCodes String?
-  reportRevisions ReportRevision[]
-  resetTokens     PasswordResetToken[]
-  verificationTokens EmailVerificationToken[]
+  totpBackupCodes        String?
+  reportRevisions        ReportRevision[]
+  resetTokens            PasswordResetToken[]
+  verificationTokens     EmailVerificationToken[]
   // Nicht blockierend: unverifizierte Konten können sich weiterhin anmelden
   // und die App nutzen (kein zusätzliches Hindernis im Praxisalltag), sehen
   // aber einen Hinweis, bis die Adresse bestätigt wurde.
-  emailVerifiedAt DateTime?
-  createdAt    DateTime @default(now())
+  emailVerifiedAt        DateTime?
+  createdAt              DateTime                 @default(now())
 }
 
 // Einmal-Token zur Bestätigung der E-Mail-Adresse nach der Registrierung.
 model EmailVerificationToken {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tokenHash String   @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   @@index([userId])
 }
@@ -137,13 +138,13 @@ model EmailVerificationToken {
 // ab und wird nach Verwendung markiert, damit derselbe Link nicht zweimal
 // nutzbar ist.
 model PasswordResetToken {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tokenHash String   @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   @@index([userId])
 }
@@ -167,50 +168,50 @@ model StaffInvite {
 }
 
 model Patient {
-  id              String   @id @default(cuid())
-  practiceId      String
-  practice        Practice @relation(fields: [practiceId], references: [id])
-  firstName       String
-  lastName        String
-  birthDate       DateTime?
+  id               String              @id @default(cuid())
+  practiceId       String
+  practice         Practice            @relation(fields: [practiceId], references: [id])
+  firstName        String
+  lastName         String
+  birthDate        DateTime?
   /// "W" | "M" | "D" (divers); steuert geschlechtsbezogene Angebote und Befunde
-  geschlecht      String?
+  geschlecht       String?
   /// Stammbehandler/in (meist Ärztin oder Arzt); bestimmt, wessen "Mein Bereich" den Patienten zeigt
-  behandlerId     String?
-  behandler       User?    @relation("Stammbehandler", fields: [behandlerId], references: [id], onDelete: SetNull)
+  behandlerId      String?
+  behandler        User?               @relation("Stammbehandler", fields: [behandlerId], references: [id], onDelete: SetNull)
   // "GKV" (gesetzlich) | "PKV" (privat) - bestimmt, welches Gebührenwerk
   // (BEMA vs. GOZ/GOÄ) für diesen Patienten grundsätzlich greift.
-  insuranceType   String?
-  insuranceName   String?
-  insuranceNumber String?
+  insuranceType    String?
+  insuranceName    String?
+  insuranceNumber  String?
   /// Kontakt für Terminbestätigungen, Erinnerungen und Zahlungserinnerungen
-  email           String?
-  phone           String?
+  email            String?
+  phone            String?
   /// Einwilligung in Nachrichten per E-Mail (Zeitpunkt, null = keine)
   contactConsentAt DateTime?
-  notes           String?
-  createdAt       DateTime @default(now())
-  reports         Report[]
-  proposals       TreatmentProposal[]
-  launchTokens    LaunchToken[]
-  anamnesisForms  AnamnesisForm[]
-  invoices        Invoice[]
-  entries         PatientEntry[]
-  documents       PatientDocument[]
-  appointments    Appointment[]
+  notes            String?
+  createdAt        DateTime            @default(now())
+  reports          Report[]
+  proposals        TreatmentProposal[]
+  launchTokens     LaunchToken[]
+  anamnesisForms   AnamnesisForm[]
+  invoices         Invoice[]
+  entries          PatientEntry[]
+  documents        PatientDocument[]
+  appointments     Appointment[]
   // Patientenportal (/portal/<token>): offene Rechnungen und Dokumente auf
   // dem eigenen Handy. Gespeichert wird nur der Hash des Tokens.
-  portalTokenHash String?   @unique
-  portalExpiresAt DateTime?
-  portalViewedAt  DateTime?
+  portalTokenHash  String?             @unique
+  portalExpiresAt  DateTime?
+  portalViewedAt   DateTime?
   /// Zuletzt an Vorsorge erinnert (Seite /vorsorge)
-  recallSentAt    DateTime?
+  recallSentAt     DateTime?
   // Herkunft aus einer Praxissoftware (VDDS-media): Sektionsname der PVS
   // (z. B. "DSWIN", "Z1") und deren Patientennummer (PATID). Gemeinsam
   // eindeutig je Praxis, damit derselbe PVS-Patient beim nächsten Aufruf
   // wiedergefunden statt doppelt angelegt wird.
-  externalSource  String?
-  externalId      String?
+  externalSource   String?
+  externalId       String?
 
   @@unique([practiceId, externalSource, externalId])
   @@index([practiceId])
@@ -220,25 +221,25 @@ model Patient {
 // SQLite has no native enum support; these are constrained to
 // "BEFUND" | "KRANKENKASSE" and "ENTWURF" | "FINAL" in application code.
 model Report {
-  id                String            @id @default(cuid())
+  id                String               @id @default(cuid())
   practiceId        String
-  practice          Practice          @relation(fields: [practiceId], references: [id])
+  practice          Practice             @relation(fields: [practiceId], references: [id])
   patientId         String
-  patient           Patient           @relation(fields: [patientId], references: [id])
+  patient           Patient              @relation(fields: [patientId], references: [id])
   authorId          String
-  author            User              @relation(fields: [authorId], references: [id])
+  author            User                 @relation(fields: [authorId], references: [id])
   type              String
-  status            String            @default("ENTWURF")
+  status            String               @default("ENTWURF")
   treatmentDate     DateTime?
   serviceTemplateId String?
-  serviceTemplate   ServiceTemplate?  @relation(fields: [serviceTemplateId], references: [id])
+  serviceTemplate   ServiceTemplate?     @relation(fields: [serviceTemplateId], references: [id])
   serviceEntries    ReportServiceEntry[]
   // Server-generated summary of the reviewed service list, used as the
   // structured basis for the AI report text (replaces free-text input).
   serviceSummary    String
   // Set once staff has explicitly confirmed the full checklist was reviewed
   // (nothing left unreviewed) before generation is allowed.
-  reviewConfirmed   Boolean           @default(false)
+  reviewConfirmed   Boolean              @default(false)
   additionalContext String?
   generatedText     String?
   editedText        String?
@@ -249,8 +250,8 @@ model Report {
   approvedAt        DateTime?
   revisions         ReportRevision[]
   proposals         TreatmentProposal[]
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
 
   @@index([practiceId])
   @@index([patientId])
@@ -279,42 +280,42 @@ model ReportRevision {
 // werden. practiceId = null bedeutet: globale Standardposition, für alle
 // Praxen sichtbar; gesetzt = praxiseigene Zusatzposition.
 model ServiceCatalogItem {
-  id           String              @id @default(cuid())
+  id            String    @id @default(cuid())
   /// Fach der globalen Position; eigene Positionen der Praxis haben keins
-  fach         String?
-  practiceId   String?
-  practice     Practice?           @relation(fields: [practiceId], references: [id])
-  system       String // "GOZ" | "BEMA" | "GOAE" | "BEL_II" | "SONSTIGES"
-  code         String
-  title        String
-  description  String?
-  category     String
+  fach          String?
+  practiceId    String?
+  practice      Practice? @relation(fields: [practiceId], references: [id])
+  system        String // "GOZ" | "BEMA" | "GOAE" | "BEL_II" | "SONSTIGES"
+  code          String
+  title         String
+  description   String?
+  category      String
   // Ob "Zahn/Region" bei dieser Position sinnvoll abfragbar ist (z. B. bei
   // einer Füllung ja, bei "Eingehende Untersuchung" nein). Steuert nur, ob
   // das Feld standardmäßig ein- oder ausgeblendet ist - es lässt sich in
   // der Erfassung immer manuell einblenden.
-  toothRelevant Boolean            @default(true)
+  toothRelevant Boolean   @default(true)
 
   // Abrechnungsdetails - bewusst optional/unbefüllt im Beispielkatalog
   // (siehe Kommentar oben), aber vom Modell her vorgesehen. Der Punktwert
   // (Cent pro Punkt) steht bewusst NICHT hier, sondern auf Practice, da er
   // system-/regionweit gilt und nicht je Katalogposition unterschiedlich
   // ist - siehe Practice.gozPunktwertCent/bemaPunktwertCent.
-  punktzahl                   Float?    // GOZ/GOÄ/BEMA, amtliche Punktzahl der Ziffer
-  festbetragCent                Int?    // BEMA/BEL II Festbetrag in Cent (Pauschale statt Punktzahl×Punktwert)
-  faktorMin                     Float?  // GOZ/GOÄ, i. d. R. 1.0
-  faktorMax                     Float?  // GOZ/GOÄ, i. d. R. 3.5
-  regelhoechstfaktor            Float?  // GOZ i. d. R. 2.3
-  begruendungspflichtAbFaktor   Float?  // ab diesem Faktor ist eine schriftliche Begründung Pflicht (§5 GOZ)
+  punktzahl                   Float? // GOZ/GOÄ/BEMA, amtliche Punktzahl der Ziffer
+  festbetragCent              Int? // BEMA/BEL II Festbetrag in Cent (Pauschale statt Punktzahl×Punktwert)
+  faktorMin                   Float? // GOZ/GOÄ, i. d. R. 1.0
+  faktorMax                   Float? // GOZ/GOÄ, i. d. R. 3.5
+  regelhoechstfaktor          Float? // GOZ i. d. R. 2.3
+  begruendungspflichtAbFaktor Float? // ab diesem Faktor ist eine schriftliche Begründung Pflicht (§5 GOZ)
   // Comma-separated catalogItemIds nicht gleichzeitig abrechenbarer
   // Positionen (z. B. zwei verschiedene Füllungsarten am selben Zahn).
-  ausschlussMit                 String?
-  frequenzlimitAnzahl           Int?    // z. B. 2x
-  frequenzlimitZeitraumTage     Int?    // z. B. je 365 Tage
-  gueltigAb                     DateTime?
-  gueltigBis                    DateTime?
+  ausschlussMit               String?
+  frequenzlimitAnzahl         Int? // z. B. 2x
+  frequenzlimitZeitraumTage   Int? // z. B. je 365 Tage
+  gueltigAb                   DateTime?
+  gueltigBis                  DateTime?
 
-  createdAt    DateTime            @default(now())
+  createdAt     DateTime              @default(now())
   templateItems ServiceTemplateItem[]
   reportEntries ReportServiceEntry[]
 
@@ -343,18 +344,18 @@ model ServiceTemplate {
 }
 
 model ServiceTemplateItem {
-  id             String             @id @default(cuid())
-  templateId     String
-  template       ServiceTemplate    @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  catalogItemId  String
-  catalogItem    ServiceCatalogItem @relation(fields: [catalogItemId], references: [id])
-  position       Int                @default(0)
+  id            String             @id @default(cuid())
+  templateId    String
+  template      ServiceTemplate    @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  catalogItemId String
+  catalogItem   ServiceCatalogItem @relation(fields: [catalogItemId], references: [id])
+  position      Int                @default(0)
   // Comma-separated catalogItemIds of OTHER items in the same template that
   // must be effectively performed for this item to be possible at all
   // (OR semantics — any one is enough). Lets a branch "aufeinander
   // aufbauen": striking a prerequisite auto-strikes and locks everything
   // that logically follows it. Null/empty = no dependency.
-  dependsOn      String?
+  dependsOn     String?
 
   @@unique([templateId, catalogItemId])
   @@index([templateId])
@@ -394,16 +395,16 @@ model ReportServiceEntry {
 // ServiceCatalogItem, damit hieraus technisch kein "für Patient X
 // vorgeschlagen"-Flow entstehen kann.
 model LexikonEntry {
-  id                  String   @id @default(cuid())
-  category            String
-  title               String
+  id                 String @id @default(cuid())
+  category           String
+  title              String
   // Sachliche, knappe Einordnung: was deckt die GKV hier typischerweise ab
   // bzw. wo liegen die üblichen Grenzen (Häufigkeit, Ausführung, Material).
-  gkvEinordnung        String
+  gkvEinordnung      String
   // Sachliche, knappe Beschreibung der Selbstzahler-Option und wann sie
   // in Betracht gezogen werden könnte - bewusst ohne Werbesprache.
-  selbstzahlerOption   String
-  position             Int      @default(0)
+  selbstzahlerOption String
+  position           Int    @default(0)
 
   @@index([category])
 }
@@ -416,55 +417,55 @@ model LexikonEntry {
 // Speicherns, damit Auswertung und Aufklärungsnachweis (§ 630c Abs. 3 BGB)
 // stabil bleiben, auch wenn sich Preise später ändern.
 model TreatmentProposal {
-  id              String   @id @default(cuid())
-  practiceId      String
-  practice        Practice @relation(fields: [practiceId], references: [id])
-  patientId       String
-  patient         Patient  @relation(fields: [patientId], references: [id])
-  authorId        String
-  author          User     @relation(fields: [authorId], references: [id])
+  id                       String         @id @default(cuid())
+  practiceId               String
+  practice                 Practice       @relation(fields: [practiceId], references: [id])
+  patientId                String
+  patient                  Patient        @relation(fields: [patientId], references: [id])
+  authorId                 String
+  author                   User           @relation(fields: [authorId], references: [id])
   // Gesetzt, wenn der Vorschlag im Abschluss-Schritt zusammen mit dem
   // Bericht derselben Behandlung entstanden ist.
-  reportId        String?
-  report          Report?  @relation(fields: [reportId], references: [id], onDelete: SetNull)
+  reportId                 String?
+  report                   Report?        @relation(fields: [reportId], references: [id], onDelete: SetNull)
   // "ENTWURF" | "BESPROCHEN" | "ANGENOMMEN" | "ABGELEHNT"
-  status          String   @default("ENTWURF")
-  input           Json
-  choices         Json
-  baseTotalCent   Int
-  planTotalCent   Int
-  eigenanteilCent Int
-  letterText      String
+  status                   String         @default("ENTWURF")
+  input                    Json
+  choices                  Json
+  baseTotalCent            Int
+  planTotalCent            Int
+  eigenanteilCent          Int
+  letterText               String
   // Patienten-Link: Der Patient sieht seinen Vorschlag auf dem eigenen
   // Gerät (/p/<token>) und meldet Interesse oder Rückrufwunsch zurück.
   // Gespeichert wird nur der Hash des Tokens.
-  shareTokenHash     String?   @unique
-  shareExpiresAt     DateTime?
-  patientViewedAt    DateTime?
+  shareTokenHash           String?        @unique
+  shareExpiresAt           DateTime?
+  patientViewedAt          DateTime?
   // "INTERESSE" | "RUECKRUF"
-  patientResponse    String?
+  patientResponse          String?
   // Vom Patienten bevorzugte Option je Befund, z. B. {"t36":"impl"}
-  patientChoices     Json?
-  patientNote        String?
-  patientRespondedAt DateTime?
+  patientChoices           Json?
+  patientNote              String?
+  patientRespondedAt       DateTime?
   /// Erster Versand eines Patienten-Links (bleibt beim Sperren erhalten, für die Auswertung)
-  shareCreatedAt     DateTime?
-  patientWantsInstallments Boolean @default(false)
+  shareCreatedAt           DateTime?
+  patientWantsInstallments Boolean        @default(false)
   /// Digitales Einverständnis im Patientenportal (Name, Unterschrift als PNG-Data-URL, Zeitpunkt)
-  agreedAt        DateTime?
-  agreedName      String?
-  agreedSignature String?
-  agreedChoices   Json?
+  agreedAt                 DateTime?
+  agreedName               String?
+  agreedSignature          String?
+  agreedChoices            Json?
   /// Erklärungstext, wie er beim Unterschreiben angezeigt wurde
-  agreedText      String?
-  invoices        Invoice[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  agreedText               String?
+  invoices                 Invoice[]
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+  zweitmeinungen           Zweitmeinung[]
 
   @@index([practiceId])
   @@index([patientId])
   @@index([reportId])
-  zweitmeinungen  Zweitmeinung[]
 }
 
 // Schlüssel, mit dem der Sorrida-Connector auf einem Praxis-PC Patienten aus
@@ -472,16 +473,40 @@ model TreatmentProposal {
 // Der Schlüssel darf ausschließlich Patienten anlegen/aktualisieren und
 // Start-Tokens erzeugen - lesen kann er nichts.
 model ConnectorKey {
-  id         String    @id @default(cuid())
-  practiceId String
-  practice   Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
-  name       String
-  keyHash    String    @unique
-  keyPrefix  String
-  createdAt  DateTime  @default(now())
-  lastUsedAt DateTime?
-  revokedAt  DateTime?
+  id            String    @id @default(cuid())
+  practiceId    String
+  practice      Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  name          String
+  keyHash       String    @unique
+  keyPrefix     String
+  createdAt     DateTime  @default(now())
+  lastUsedAt    DateTime?
+  revokedAt     DateTime?
+  /// GDT-Kennung, unter der die Arzt-Praxissoftware Sorrida eingerichtet hat (Feld 8315 des Aufrufs)
+  gdtKennung    String?
+  /// Letzte Rückmeldung des Connectors (Verbindungstest oder Abholen): Version und ob der Rückweg eingerichtet ist
+  connectorInfo String?
 
+  @@index([practiceId])
+}
+
+// Rückweg in die Arzt-Praxissoftware: Jeder freigegebene Bericht und jeder
+// angenommene Vorschlag geht genau einmal als GDT-Datei (6310) an die Praxis.
+// Ein Connector reserviert, schreibt die Datei in den GDT-Importordner und
+// bestätigt; unbestätigte Reservierungen werden nach 5 Minuten wieder frei.
+model GdtAuslieferung {
+  id           String    @id @default(cuid())
+  practiceId   String
+  practice     Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  art          String // "bericht" | "vorschlag"
+  refId        String
+  keyId        String?
+  reserviertAt DateTime  @default(now())
+  geliefertAt  DateTime?
+  /// "connector" (automatisch) oder "download" (von Hand geladen)
+  weg          String?
+
+  @@unique([art, refId])
   @@index([practiceId])
 }
 
@@ -506,7 +531,7 @@ model LaunchToken {
 // Anfrage über die öffentliche Website (Pilotplatz/Demo). Gehört zu keiner
 // Praxis; nur der Betreiber sieht sie (E-Mail-Benachrichtigung, Datenbank).
 model Lead {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   practiceName String
   contactName  String
   dentists     String
@@ -515,11 +540,11 @@ model Lead {
   callbackTime String?
   specialty    String?
   /// "pilot" (Pilotplatz) | "hilfe" (Fachrichtung nicht gefunden, Support)
-  kind         String   @default("pilot")
+  kind         String    @default("pilot")
   message      String?
   /// Vom Sorrida-Team im Postfach (/anfragen) als erledigt markiert
   handledAt    DateTime?
-  createdAt    DateTime @default(now())
+  createdAt    DateTime  @default(now())
 
   @@index([kind, createdAt])
 }
@@ -548,36 +573,36 @@ model AnamnesisForm {
 /// Überweisung (GiroCode). Status: "OFFEN" | "GEMELDET" (Patient hat
 /// Zahlung gemeldet) | "BEZAHLT" | "STORNIERT". Logik in lib/invoices.ts.
 model Invoice {
-  id             String             @id @default(cuid())
-  practiceId     String
-  practice       Practice           @relation(fields: [practiceId], references: [id], onDelete: Cascade)
-  patientId      String
-  patient        Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  proposalId     String?
-  proposal       TreatmentProposal? @relation(fields: [proposalId], references: [id], onDelete: SetNull)
-  number         String
-  title          String
-  amountCent     Int
-  dueDate        DateTime
-  status         String             @default("OFFEN")
+  id                String             @id @default(cuid())
+  practiceId        String
+  practice          Practice           @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  patientId         String
+  patient           Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  proposalId        String?
+  proposal          TreatmentProposal? @relation(fields: [proposalId], references: [id], onDelete: SetNull)
+  number            String
+  title             String
+  amountCent        Int
+  dueDate           DateTime
+  status            String             @default("OFFEN")
   /// Patient möchte in Raten zahlen (Anfrage aus dem Portal)
-  wantsInstallments Boolean         @default(false)
-  reportedPaidAt DateTime?
-  paidAt         DateTime?
-  remindedAt     DateTime?
+  wantsInstallments Boolean            @default(false)
+  reportedPaidAt    DateTime?
+  paidAt            DateTime?
+  remindedAt        DateTime?
   /// Mahnstufe: 0 = noch nicht erinnert, 1 = Erinnerung, 2 = 2. Erinnerung, 3 = letzte Mahnung
-  reminderLevel  Int                @default(0)
+  reminderLevel     Int                @default(0)
   /// SEPA-Lastschriftmandat aus dem Portal (Einzelmandat für diese Rechnung)
-  sepaIban       String?
-  sepaName       String?
-  sepaMandatAt   DateTime?
+  sepaIban          String?
+  sepaName          String?
+  sepaMandatAt      DateTime?
   /// In eine pain.008-Datei übernommen (nicht doppelt einziehen)
-  sepaExportedAt DateTime?
+  sepaExportedAt    DateTime?
   /// Wie bezahlt wurde: UEBERWEISUNG | LASTSCHRIFT | ONLINE (für DATEV: Online über Geldtransit)
-  paidVia        String?
+  paidVia           String?
   /// Stripe-Checkout-Sitzung der Online-Zahlung
-  stripeSessionId String?          @unique
-  createdAt      DateTime           @default(now())
+  stripeSessionId   String?            @unique
+  createdAt         DateTime           @default(now())
 
   @@unique([practiceId, number])
   @@index([practiceId, status])
@@ -628,16 +653,16 @@ model PatientEntry {
 // Für den Pilotbetrieb in der Datenbank; vor größeren Mengen in einen
 // verschlüsselten Objektspeicher in der EU auslagern.
 model PatientDocument {
-  id          String   @id @default(cuid())
-  practiceId  String
-  patientId   String
-  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  name        String
-  mime        String
-  size        Int
-  data        Bytes
-  createdBy   String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  practiceId String
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  name       String
+  mime       String
+  size       Int
+  data       Bytes
+  createdBy  String?
+  createdAt  DateTime @default(now())
 
   @@index([practiceId, patientId])
 }
@@ -704,7 +729,7 @@ model Zweitmeinung {
 /// Praxisübergreifend und schreibgeschützt; Praxen übernehmen daraus Positionen
 /// in ihren eigenen Katalog.
 model AmtlicheLeistung {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   system      String
   code        String
   text        String
@@ -720,7 +745,7 @@ model AmtlicheLeistung {
   gueltigAb   DateTime?
   gueltigBis  DateTime?
   stand       String?
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime  @updatedAt
 
   @@unique([system, code])
   @@index([system])

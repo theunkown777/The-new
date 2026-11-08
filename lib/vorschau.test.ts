@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { freiOhneZugang, istVorschauHost, vorschauCookie, vorschauCookieGueltig, zugangPasst } from "./vorschau";
+import { freiOhneZugang, istVorschauHost, vorschauCookie, vorschauCookieGueltig, vorschauPass, vorschauPassGueltig, zugangPasst } from "./vorschau";
 
 const env = { VORSCHAU_HOSTS: "sorrida.de, www.sorrida.de", VORSCHAU_BENUTZER: "partner", VORSCHAU_PASSWORT: "geheim-123", NEXTAUTH_SECRET: "s" };
 
@@ -29,5 +29,22 @@ describe("Vorschau-Schloss für die eigene Domain", () => {
     expect(freiOhneZugang("/brand/sorrida-mark-hell.svg")).toBe(true);
     expect(freiOhneZugang("/login")).toBe(false);
     expect(freiOhneZugang("/api/auth/session")).toBe(false);
+  });
+  it("Connector aus der Praxissoftware kommt auch im Vorschau-Modus durch", () => {
+    expect(freiOhneZugang("/api/connector/launch")).toBe(true);
+    expect(freiOhneZugang("/api/connector/ergebnisse")).toBe(true);
+    expect(freiOhneZugang("/embed/launch")).toBe(false);
+    expect(freiOhneZugang("/api/patients")).toBe(false);
+  });
+  it("Passierschein für das Connector-Fenster: signiert, kurzlebig, nicht mit dem Cookie austauschbar", async () => {
+    const jetzt = 1_800_000_000_000;
+    const p = await vorschauPass(jetzt, env);
+    expect(await vorschauPassGueltig(p, jetzt + 60_000, env)).toBe(true);
+    expect(await vorschauPassGueltig(p, jetzt + 11 * 60_000, env)).toBe(false);
+    expect(await vorschauPassGueltig(p, jetzt, { ...env, VORSCHAU_PASSWORT: "neu" })).toBe(false);
+    expect(await vorschauPassGueltig("9999999999999.abc", jetzt, env)).toBe(false);
+    const c = await vorschauCookie(jetzt, env);
+    expect(await vorschauPassGueltig(c, jetzt, env)).toBe(false);
+    expect(await vorschauCookieGueltig(p, jetzt, env)).toBe(false);
   });
 });

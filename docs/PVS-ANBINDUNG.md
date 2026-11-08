@@ -1,4 +1,4 @@
-# Anbindung an die Praxissoftware (VDDS-media)
+# Anbindung an die Praxissoftware (VDDS-media und GDT)
 
 Sorrida öffnet sich als eigenes Fenster aus der Praxissoftware (PVS) heraus –
 mit dem dort gewählten Patienten und den Reitern **Neuer Bericht**,
@@ -71,17 +71,67 @@ SorridaConnector schreibt ERRORLEVEL, ERRORTEXT und zuletzt READY=1 in die Über
 
 Entfernen: `uninstall.ps1` als Administrator.
 
+## Arztpraxen (GDT 2.1 / 3.0)
+
+- Die Praxissoftware schreibt eine GDT-Anforderung (6301/6302) und startet
+  `SorridaConnector.exe` (mit Pfad oder über `GDTFILE`).
+- Zeichensatz nach Feld 9206 (1 = DIN 66003, 2 = CP437, 3 = ISO 8859-1,
+  4 = ISO 8859-15); fehlt 9206, wird zwischen UTF-8, CP437 und Windows-1252
+  anhand der Umlaute unterschieden.
+- Weitergegeben werden nur 8000, 8315, 8316, 9206, 9218, 3000, 3101, 3102,
+  3103, 3110. Geschlecht als 1/2 (GDT 2.1) oder M/W/D/X (GDT 3.0).
+- Die Anforderungsdatei wird nach dem Lesen gelöscht (GDT-Regel); Dateien
+  älter als 5 Minuten (`MAXALTER`) werden abgelehnt. So öffnet eine alte Datei
+  nie einen falschen Patienten.
+- **Rückweg:** Mit `GDTIMPORT` holt der Connector freigegebene Berichte und
+  angenommene Vorschläge (`GET /api/connector/ergebnisse`), legt sie als
+  6310-Datei in den Importordner (erst `.tmp`, dann umbenannt) und bestätigt
+  sie (`POST`). Jede Datei wird genau einmal geliefert (`GdtAuslieferung`,
+  Reservierung 5 Minuten). Eine Windows-Aufgabe ruft `--abholen` alle
+  2 Minuten auf. Absender (8316) ist die Kennung, unter der die
+  Praxissoftware Sorrida führt (8315 des Aufrufs). Von Hand heruntergeladene
+  Dateien zählen als geliefert.
+
+## Eigene Domain im Vorschau-Modus
+
+`/api/connector/*` ist vom Vorschau-Schloss ausgenommen (eigene Anmeldung
+mit Praxis-Schlüssel). Die Start-Adresse trägt einen signierten,
+10 Minuten gültigen Passierschein (`vp`), den die Middleware gegen das
+Vorschau-Cookie tauscht.
+
+## Zahnarztpraxen: Rückweg
+
+VDDS-media sieht keinen Textrückweg in die Karteikarte vor. Ergebnisse
+bleiben in Sorrida (PDF/Text kopieren); `ERRORLEVEL/READY` melden nur den
+Erfolg des Aufrufs.
+
+## Diagnose
+
+- `SorridaConnector.exe --test`: Verbindung, Schlüssel, Edge, VDDS-Eintrag,
+  GDT-Ordner; läuft am Ende von `install.ps1`.
+- Protokoll ohne Patientendaten: `%LOCALAPPDATA%\Sorrida\connector.log`.
+- In Sorrida je Schlüssel: zuletzt verbunden, Connector-Version, Rückweg
+  aktiv, GDT-Kennung.
+- Verständliche Meldungen für Firewall, Proxy (407, `PROXY=`), Zertifikat
+  bzw. TLS-prüfende Virenscanner, falsche Adresse (404) und Zeitüberschreitung;
+  ein Netzfehler wird einmal wiederholt.
+
 ## Getestet
 
-- `lib/connector.test.ts`: INI-Parser, Feldfilter, Pflichtfelder, Datum,
-  Kassenart, Schlüssel, Rücksprung-Schutz.
-- Ende-zu-Ende (Linux, Mono statt Windows-APIs): Schlüssel über die
-  Oberfläche erzeugt → Connector mit VDDS-Übergabedatei → Fenster mit
-  Patient, Vorschlag gespeichert → Token-Wiederverwendung abgelehnt →
-  INFO=1 ohne Fenster → Login-Rücksprung → Fehlerfälle (fehlende PATID,
-  falscher Schlüssel) mit ERRORLEVEL/ERRORTEXT/READY.
+- `lib/connector.test.ts`, `lib/gdtExport.test.ts`, `lib/vorschau.test.ts`.
+- Beispieldateien je Praxissoftware in `lib/__fixtures__/pvs/` (DS-Win
+  CP1252, Z1 UTF-8 mit BOM, charly nur LF, EVIDENT Kleinschreibung, INFO=1,
+  Medistar CP437, TURBOMED ISO 8859-1, ALBIS ohne 9206, x.isynet GDT 3.0,
+  CGM M1 nur LF). Aufbau nach Spezifikation, keine Herstellerdateien.
+- Ende-zu-Ende mit dem echten Connector (unter Mono übersetzt, C# 5 wie
+  `csc.exe` von .NET 4): alle zehn Dateien → Patienten mit richtigen
+  Umlauten → Fenster über die Vorschau-Domain → Anmeldung → Patientenfenster;
+  Bericht freigegeben → `--abholen` → gültige 6310-Datei (Zeilenlängen und
+  8100 geprüft) → zweiter Abruf liefert nichts doppelt.
 
-**Noch nicht getestet:** echter Aufruf aus DS-Win, Z1, charly oder EVIDENT
-auf einem Windows-PC, `install.ps1` unter Windows (PowerShell war in der
-Entwicklungsumgebung nicht verfügbar). Vor dem ersten Kunden einmal mit einer
-Demo-Installation der jeweiligen PVS durchspielen.
+**Noch nicht getestet:** echter Aufruf aus DS-Win, Z1, charly, EVIDENT,
+Medistar, TURBOMED, ALBIS usw. auf einem Windows-PC; `install.ps1` und die
+Windows-Aufgabe unter Windows (PowerShell war in der Entwicklungsumgebung
+nicht verfügbar); Einlesen der 6310-Datei durch die jeweilige Praxissoftware.
+Vor dem ersten Kunden einmal mit einer Demo-Installation der jeweiligen
+Praxissoftware durchspielen.

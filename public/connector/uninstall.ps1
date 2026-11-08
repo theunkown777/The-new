@@ -1,6 +1,6 @@
 <#
   Sorrida-Connector entfernen (als Administrator).
-  Entfernt den VDDS-Eintrag, das Programm und die Konfiguration.
+  Entfernt den VDDS-Eintrag, die Aufgabe für den Rückweg, das Programm und die Konfiguration.
 #>
 $ErrorActionPreference = "Stop"
 Add-Type -Namespace Sorrida -Name Ini -MemberDefinition @'
@@ -19,6 +19,7 @@ if (Test-Path $mmi) {
   }
   [void][Sorrida.Ini]::WritePrivateProfileString("SORRIDA", $null, $null, $mmi)
 }
+Unregister-ScheduledTask -TaskName "Sorrida Ergebnisse" -Confirm:$false -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force (Join-Path $env:ProgramFiles "Sorrida") -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force (Join-Path $env:ProgramData "Sorrida") -ErrorAction SilentlyContinue
 Write-Host "Sorrida-Connector entfernt." -ForegroundColor Green

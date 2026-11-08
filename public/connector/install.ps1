@@ -12,6 +12,14 @@
     3. Sorrida trägt sich nach VDDS-media 1.4 als Bild-/Multimediasystem
        (BVS) in die VDDS_MMI.INI im Windows-Verzeichnis ein. Danach bietet
        die Praxissoftware "Sorrida" in ihrer VDDS-Auswahl an.
+    4. Mit -GdtImport (Arztpraxis): Eine Windows-Aufgabe holt alle 2 Minuten
+       freigegebene Berichte und Vorschläge als GDT-Dateien in diesen Ordner;
+       die Praxissoftware liest sie von dort in die Karteikarte ein.
+       Bitte nur an EINEM Praxis-PC einrichten (Empfang oder Server).
+    5. Zum Schluss prüft ein Verbindungstest Adresse, Schlüssel und Ordner.
+
+  Arztpraxis (GDT), Beispiel:
+    install.ps1 -Server https://www.sorrida.com -Key sor_conn_... -GdtFile C:\GDT\SORRIDA.GDT -GdtImport C:\GDT\IMPORT
 #>
 param(
   [Parameter(Mandatory = $true)][string]$Server,
@@ -19,7 +27,13 @@ param(
   [ValidateSet("abschluss", "bericht", "vorschlag", "verlauf")][string]$View = "abschluss",
   [string]$Source = (Join-Path $PSScriptRoot "SorridaConnector.cs"),
   # Arzt-Praxissoftware (GDT): fest eingestellte Übergabedatei, falls die Software den Pfad nicht mitgibt.
-  [string]$GdtFile = ""
+  [string]$GdtFile = "",
+  # Arzt-Praxissoftware (GDT): Ordner, aus dem die Software Ergebnisse (Satzart 6310) einliest.
+  [string]$GdtImport = "",
+  # Fester Dateiname, falls die Praxissoftware nur eine bestimmte Datei einliest (z. B. SORRMEDI.GDT).
+  [string]$GdtName = "",
+  # Proxy der Praxis, falls der Windows-Proxy nicht reicht (z. B. http://proxy:8080).
+  [string]$Proxy = ""
 )
 $ErrorActionPreference = "Stop"
 
@@ -59,6 +73,12 @@ New-Item -ItemType Directory -Force -Path $configDir | Out-Null
 $config = Join-Path $configDir "connector.ini"
 $lines = @("[SORRIDA]", "SERVER=$($Server.TrimEnd('/'))", "KEY=$Key", "VIEW=$View", "WINDOW=1200,900")
 if ($GdtFile) { $lines += "GDTFILE=$GdtFile" }
+if ($GdtImport) {
+  if (-not (Test-Path $GdtImport)) { New-Item -ItemType Directory -Force -Path $GdtImport | Out-Null }
+  $lines += "GDTIMPORT=$GdtImport"
+}
+if ($GdtName) { $lines += "GDTNAME=$GdtName" }
+if ($Proxy) { $lines += "PROXY=$Proxy" }
 $lines | Set-Content -Path $config -Encoding Default
 # Lesen dürfen alle Nutzer des PCs (der Connector läuft im Kontext der Praxissoftware), ändern nur Administratoren.
 icacls $config /inheritance:r /grant:r "*S-1-5-32-544:F" "*S-1-5-18:F" "*S-1-5-32-545:R" | Out-Null
@@ -89,8 +109,26 @@ $values = [ordered]@{
 }
 foreach ($k in $values.Keys) { [void][Sorrida.Ini]::WritePrivateProfileString($section, $k, $values[$k], $mmi) }
 
+# 4. Rückweg: Aufgabe "Sorrida Ergebnisse" für alle angemeldeten Nutzer, alle 2 Minuten
+$taskName = "Sorrida Ergebnisse"
+Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue
+if ($GdtImport) {
+  $action = New-ScheduledTaskAction -Execute $exe -Argument "--abholen"
+  $trigger = New-ScheduledTaskTrigger -AtLogOn
+  $trigger.Repetition = (New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 2)).Repetition
+  $principal = New-ScheduledTaskPrincipal -GroupId "S-1-5-32-545" -RunLevel Limited
+  $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 1)
+  Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings | Out-Null
+}
+
 Write-Host "Sorrida-Connector installiert:" -ForegroundColor Green
 Write-Host "  Programm:      $exe"
 Write-Host "  Konfiguration: $config"
 Write-Host "  VDDS:          [$section] in $mmi"
 Write-Host "Jetzt in der Praxissoftware unter den VDDS-Einstellungen 'Sorrida (Bericht & Vorschlag)' aktivieren."
+if ($GdtImport) { Write-Host "  Rückweg:       alle 2 Minuten nach $GdtImport (Aufgabe '$taskName')" }
+
+# 5. Verbindungstest (zeigt das Ergebnis in einem Fenster)
+$test = Start-Process -FilePath $exe -ArgumentList "--test" -Wait -PassThru
+if ($test.ExitCode -eq 0) { Write-Host "Verbindungstest: in Ordnung." -ForegroundColor Green }
+else { Write-Host "Verbindungstest: bitte die Meldung im Fenster beachten. Protokoll: %LOCALAPPDATA%\Sorrida\connector.log" -ForegroundColor Yellow }

@@ -1,7 +1,7 @@
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { withAuth, type NextRequestWithAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
-import { VORSCHAU_COOKIE, freiOhneZugang, istVorschauHost, vorschauCookieGueltig } from "@/lib/vorschau";
+import { VORSCHAU_COOKIE, VORSCHAU_TAGE, freiOhneZugang, istVorschauHost, vorschauCookie, vorschauCookieGueltig, vorschauPassGueltig } from "@/lib/vorschau";
 
 // Website und App sind eins: Unter "/" sehen Besucher ohne Anmeldung die
 // Startseite mit Fachauswahl, angemeldete Nutzer landen in ihrer Übersicht. Alle anderen geschützten Bereiche laufen über next-auth.
@@ -19,6 +19,17 @@ export default async function middleware(req: NextRequest, event: NextFetchEvent
   // Eigene Domain im Vorschau-Modus: ohne Zugangs-Cookie nur die Seite „Demnächst“
   if (istVorschauHost(req.headers.get("host"))) {
     const pfad = req.nextUrl.pathname;
+    // Fenster aus der Praxissoftware: Passierschein aus /api/connector/launch gegen das Vorschau-Cookie tauschen.
+    const pass = req.nextUrl.searchParams.get("vp");
+    if (pfad === "/embed/launch" && pass && (await vorschauPassGueltig(pass))) {
+      const ziel = req.nextUrl.clone();
+      ziel.searchParams.delete("vp");
+      const res = NextResponse.redirect(ziel);
+      const sicher = req.nextUrl.protocol === "https:" || req.headers.get("x-forwarded-proto") === "https";
+      res.cookies.set(VORSCHAU_COOKIE, await vorschauCookie(), { httpOnly: true, secure: sicher, sameSite: "lax", path: "/", maxAge: VORSCHAU_TAGE * 86_400 });
+      res.headers.set("X-Robots-Tag", "noindex, nofollow");
+      return res;
+    }
     if (!freiOhneZugang(pfad) && !(await vorschauCookieGueltig(req.cookies.get(VORSCHAU_COOKIE)?.value))) {
       if (pfad.startsWith("/api/")) return NextResponse.json({ error: "Noch nicht veröffentlicht" }, { status: 403, headers: { "X-Robots-Tag": "noindex, nofollow" } });
       const ziel = req.nextUrl.clone();

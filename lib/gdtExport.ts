@@ -12,14 +12,20 @@ export interface GdtExportInput {
   birthDate: Date | null;
   /** Kürzel des empfangenden Systems (8315), z. B. aus dem Startaufruf; sonst „PVS“. */
   receiver?: string;
+  /** Kennung, unter der die Praxissoftware Sorrida eingerichtet hat (8315 des Aufrufs); sonst „SORRIDA“. */
+  sender?: string;
   datum: Date;
   titel: string;
   text: string;
 }
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
-const ttmmjjjj = (d: Date) => `${pad2(d.getDate())}${pad2(d.getMonth() + 1)}${d.getFullYear()}`;
-const hhmmss = (d: Date) => `${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+// Datum und Uhrzeit der Untersuchung in deutscher Zeit (der Server läuft in UTC).
+const teile = (d: Date) => Object.fromEntries(new Intl.DateTimeFormat("de-DE", { timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).formatToParts(d).map((p) => [p.type, p.value]));
+const ttmmjjjj = (d: Date) => { const t = teile(d); return `${t.day}${t.month}${t.year}`; };
+const hhmmss = (d: Date) => { const t = teile(d); return `${t.hour}${t.minute}${t.second}`; };
+// Geburtsdatum ist als UTC-Mitternacht gespeichert.
+const geburt = (d: Date) => `${pad2(d.getUTCDate())}${pad2(d.getUTCMonth() + 1)}${d.getUTCFullYear()}`;
 
 /** Länge einer Zeile in Bytes (ISO 8859-1: ein Byte je Zeichen). */
 export function gdtZeile(feld: string, inhalt: string): string {
@@ -54,13 +60,13 @@ export function buildGdt6310(i: GdtExportInput): string {
     gdtZeile("8000", "6310"),
     gdtZeile("8100", "00000"),
     gdtZeile("8315", (i.receiver || "PVS").slice(0, 8)),
-    gdtZeile("8316", "SORRIDA"),
+    gdtZeile("8316", (i.sender || "SORRIDA").slice(0, 8)),
     gdtZeile("9206", "3"),
     gdtZeile("9218", "02.10"),
     gdtZeile("3000", i.patId),
     gdtZeile("3101", i.lastName),
     gdtZeile("3102", i.firstName),
-    ...(i.birthDate ? [gdtZeile("3103", ttmmjjjj(i.birthDate))] : []),
+    ...(i.birthDate ? [gdtZeile("3103", geburt(i.birthDate))] : []),
     gdtZeile("6200", ttmmjjjj(i.datum)),
     gdtZeile("6201", hhmmss(i.datum)),
     gdtZeile("8402", "ALLG00"),

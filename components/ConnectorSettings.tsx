@@ -9,7 +9,18 @@ type Key = {
   createdAt: string;
   lastUsedAt: string | null;
   revokedAt: string | null;
+  gdtKennung?: string | null;
+  connectorInfo?: string | null;
 };
+
+/** Rückmeldung des Connectors lesbar machen: Version und ob der Rückweg in die Praxissoftware läuft. */
+function status(k: Key): { text: string; warnung: boolean } | null {
+  if (!k.lastUsedAt || k.revokedAt) return null;
+  const v = k.connectorInfo?.match(/SorridaConnector\/([\d.]+)/)?.[1];
+  if (!v) return { text: "Ältere Connector-Version: bitte mit dem aktuellen install.ps1 neu installieren", warnung: true };
+  const rueckweg = /rueckweg=1/.test(k.connectorInfo ?? "");
+  return { text: `Connector ${v} · Rückweg in die Praxissoftware ${rueckweg ? "aktiv" : "nicht eingerichtet"}${k.gdtKennung ? ` · GDT-Kennung ${k.gdtKennung}` : ""}`, warnung: false };
+}
 
 const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString("de-DE") : "nie");
 
@@ -29,8 +40,10 @@ export function ConnectorSettings({
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const [art, setArt] = useState<"vdds" | "gdt">("vdds");
   const command = secret
-    ? `powershell -ExecutionPolicy Bypass -File install.ps1 -Server ${server || "https://ihre-sorrida-adresse.de"} -Key ${secret}`
+    ? `powershell -ExecutionPolicy Bypass -File install.ps1 -Server ${server || "https://ihre-sorrida-adresse.de"} -Key ${secret}` +
+      (art === "gdt" ? ` -GdtFile C:\\GDT\\SORRIDA.GDT -GdtImport C:\\GDT\\IMPORT` : "")
     : "";
 
   async function create(e: React.FormEvent) {
@@ -102,6 +115,14 @@ export function ConnectorSettings({
           <p className="text-sm font-medium text-green-800">
             Schlüssel erzeugt. Er wird nur jetzt angezeigt. Installationsbefehl für diesen PC:
           </p>
+          <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Art der Praxissoftware">
+            {([["vdds", "Zahnarztpraxis (VDDS-media)"], ["gdt", "Arztpraxis (GDT)"]] as const).map(([wert, label]) => (
+              <button key={wert} type="button" role="radio" aria-checked={art === wert} onClick={() => setArt(wert)}
+                className={`rounded-full px-3 py-1 text-xs ${art === wert ? "bg-brand-600 text-white" : "bg-white text-slate-700 ring-1 ring-slate-200"}`}>
+                {label}
+              </button>
+            ))}
+          </div>
           <pre className="overflow-x-auto whitespace-pre-wrap break-all rounded bg-white p-2 text-xs text-slate-800">{command}</pre>
           <button type="button" onClick={copy} className="btn-secondary">
             {copied ? "Kopiert" : "Befehl kopieren"}
@@ -118,8 +139,11 @@ export function ConnectorSettings({
                   {k.name} <span className="font-mono text-xs text-slate-400">{k.keyPrefix}…</span>
                 </p>
                 <p className="text-xs text-slate-500">
-                  erstellt {fmt(k.createdAt)} · zuletzt genutzt {fmt(k.lastUsedAt)}
+                  erstellt {fmt(k.createdAt)} · zuletzt verbunden {fmt(k.lastUsedAt)}
                 </p>
+                {status(k) && (
+                  <p className={`text-xs ${status(k)!.warnung ? "text-amber-700" : "text-salbei-700"}`} data-testid="connector-status">{status(k)!.text}</p>
+                )}
               </div>
               {k.revokedAt ? (
                 <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-500">widerrufen</span>

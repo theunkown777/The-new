@@ -9,7 +9,7 @@ export default async function ConnectorSettingsPage() {
   const keys = await prisma.connectorKey.findMany({
     where: { practiceId: session!.user.practiceId },
     orderBy: { createdAt: "desc" },
-    select: { id: true, name: true, keyPrefix: true, createdAt: true, lastUsedAt: true, revokedAt: true },
+    select: { id: true, name: true, keyPrefix: true, createdAt: true, lastUsedAt: true, revokedAt: true, gdtKennung: true, connectorInfo: true },
   });
   const server = process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? "";
 
@@ -20,8 +20,9 @@ export default async function ConnectorSettingsPage() {
         <p className="mt-1 text-sm text-slate-500">
           Sorrida öffnet sich als eigenes Fenster direkt aus Ihrer Praxissoftware, mit dem gerade
           gewählten Patienten: Bericht schreiben, Behandlungsvorschlag erstellen, Verlauf ansehen.
-          Die Anbindung nutzt den Branchenstandard VDDS-media, den DS-Win, CGM Z1, charly, EVIDENT
-          und viele weitere Systeme unterstützen.
+          Zahnarztpraxen werden über den Branchenstandard VDDS-media angebunden (DS-Win, CGM Z1, charly,
+          EVIDENT und viele weitere), Arztpraxen über GDT (Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS
+          u. a.). Bei GDT kommen freigegebene Berichte automatisch zurück in die Karteikarte.
         </p>
       </div>
 
@@ -57,6 +58,12 @@ export default async function ConnectorSettingsPage() {
             <a className="btn-secondary" href="/connector/install.ps1" download>install.ps1</a>
             <a className="btn-secondary" href="/connector/uninstall.ps1" download>uninstall.ps1</a>
           </div>
+          <p className="text-sm text-slate-600">
+            Am Ende prüft die Installation die Verbindung und zeigt das Ergebnis an. Den Test können Sie
+            jederzeit wiederholen: <code className="rounded bg-slate-100 px-1 text-xs">&quot;C:\Program Files\Sorrida\SorridaConnector.exe&quot; --test</code>.
+            Hier oben sehen Sie danach „zuletzt verbunden“ und ob der Rückweg aktiv ist. Bei Problemen hilft das
+            Protokoll <code className="rounded bg-slate-100 px-1 text-xs">%LOCALAPPDATA%\Sorrida\connector.log</code> (ohne Patientendaten).
+          </p>
           <p className="text-xs text-slate-400">
             Übertragen werden nur PVS-Name, Patientennummer, Name, Titel, Geburtsdatum, Geschlecht,
             Versicherungsstatus und Kasse. Adresse, Telefon und Versichertennummer verlassen den PC nicht.

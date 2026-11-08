@@ -24,3 +24,14 @@ describe("GDT-Export 6310", () => {
     expect(g.split("\r\n").filter((l) => l.slice(3, 7) === "6220")).toHaveLength(2);
   });
 });
+
+describe("GDT 6310: Absender und deutsche Zeit", () => {
+  it("trägt die Kennung ein, unter der die Praxissoftware Sorrida führt, und nutzt Berliner Zeit", () => {
+    const g = buildGdt6310({ patId: "1", lastName: "A", firstName: "B", birthDate: new Date(Date.UTC(1980, 0, 1)), receiver: "MEDISTAR", sender: "SORR01", datum: new Date(Date.UTC(2026, 10, 7, 23, 30, 0)), titel: "T", text: "x" });
+    expect(g).toContain("0178315MEDISTAR\r\n");
+    expect(g).toContain("0158316SORR01\r\n");
+    expect(g).toContain("017620008112026\r\n"); // 23:30 UTC = 00:30 am 08.11. in Berlin
+    expect(g).toContain("0156201003000\r\n");
+    expect(g).toContain("017310301011980\r\n");
+  });
+});

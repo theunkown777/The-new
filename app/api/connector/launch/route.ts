@@ -1,18 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
+import { connectorAnmelden, connectorInfoAus } from "@/lib/connectorAuth";
 import { generateToken } from "@/lib/tokens";
 import {
   EMBED_VIEWS,
   LAUNCH_TOKEN_TTL_MS,
   extractHandoverPatient,
-  hashConnectorKey,
   vddsToPatientFields,
   type EmbedView,
 } from "@/lib/connector";
+import { istVorschauHost, vorschauPass } from "@/lib/vorschau";
 
-const RATE_LIMIT = 60;
-const RATE_WINDOW_MS = 60 * 1000;
 const MAX_BODY_BYTES = 16 * 1024;
 
 // Vom Sorrida-Connector aufgerufen, wenn die Praxissoftware über VDDS-media
@@ -20,29 +18,15 @@ const MAX_BODY_BYTES = 16 * 1024;
 // Übergabedatei als Text. Antwort: eine Start-URL mit Einmal-Token für das
 // Fenster - Patientendaten stehen nie in der URL.
 export async function POST(req: Request) {
-  const match = (req.headers.get("authorization") ?? "").match(/^Bearer\s+(.+)$/i);
-  if (!match) return NextResponse.json({ error: "Connector-Schlüssel fehlt." }, { status: 401 });
-
-  const keyHash = hashConnectorKey(match[1].trim());
-  const rateKey = `connector:${keyHash.slice(0, 16)}`;
-  if (await isRateLimited(rateKey, RATE_LIMIT, RATE_WINDOW_MS)) {
-    return NextResponse.json({ error: "Zu viele Aufrufe. Bitte kurz warten." }, { status: 429 });
-  }
-  await recordAttempt(rateKey, RATE_WINDOW_MS);
-
-  const key = await prisma.connectorKey.findUnique({ where: { keyHash } });
-  if (!key || key.revokedAt) {
-    return NextResponse.json(
-      { error: "Connector-Schlüssel ungültig oder widerrufen. Bitte in Sorrida unter Einstellungen → Praxissoftware einen neuen erzeugen." },
-      { status: 401 }
-    );
-  }
+  const anmeldung = await connectorAnmelden(req);
+  if ("fehler" in anmeldung) return anmeldung.fehler;
+  const key = anmeldung.key;
 
   const text = await req.text();
   if (Buffer.byteLength(text, "utf8") > MAX_BODY_BYTES) {
     return NextResponse.json({ error: "Übergabedatei zu groß." }, { status: 413 });
   }
-  const { data, error } = extractHandoverPatient(text);
+  const { data, error, sorridaKennung } = extractHandoverPatient(text);
   if (!data) return NextResponse.json({ error }, { status: 400 });
 
   const url = new URL(req.url);
@@ -71,7 +55,11 @@ export async function POST(req: Request) {
     select: { id: true },
   });
 
-  await prisma.connectorKey.update({ where: { id: key.id }, data: { lastUsedAt: new Date() } });
+  const info = connectorInfoAus(req);
+  await prisma.connectorKey.update({
+    where: { id: key.id },
+    data: { lastUsedAt: new Date(), ...(sorridaKennung ? { gdtKennung: sorridaKennung } : {}), ...(info ? { connectorInfo: info } : {}) },
+  });
 
   // INFO=1: PVS meldet nur Stammdatenänderungen, ohne dass ein Fenster aufgeht.
   if (data.INFO === "1") return NextResponse.json({ ok: true, info: true });
@@ -87,6 +75,8 @@ export async function POST(req: Request) {
     },
   });
 
-  const base = process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? url.origin;
-  return NextResponse.json({ ok: true, url: `${base}/embed/launch?t=${raw}` });
+  const base = process.env.NEXTAUTH_URL?.replace(/\/$/, "") || url.origin;
+  // Eigene Domain noch im Vorschau-Modus: Passierschein mitgeben, sonst zeigt das Fenster nur „Demnächst“.
+  const pass = istVorschauHost(new URL(base).host) ? `&vp=${encodeURIComponent(await vorschauPass())}` : "";
+  return NextResponse.json({ ok: true, url: `${base}/embed/launch?t=${raw}${pass}` });
 }

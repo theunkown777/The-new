@@ -55,11 +55,12 @@ export const PVS_GUIDES = [
     name: "Arztpraxen mit GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS)",
     share: "",
     steps: [
-      "Installationsbefehl wie oben ausführen und zusätzlich -GdtFile \"C:\\GDT\\SORR.GDT\" anhängen (Pfad frei wählbar).",
-      "In der Geräte- bzw. GDT-Verwaltung Ihrer Praxissoftware ein neues Gerät „Sorrida“ anlegen: Programm „C:\\Program Files\\Sorrida\\SorridaConnector.exe“, Übergabedatei wie oben, Satzart „Stammdaten übermitteln“ (6311).",
-      "Aus der Patientenakte das Gerät „Sorrida“ aufrufen. Übernommen werden nur Patientennummer, Name, Geburtsdatum und Geschlecht; Adresse und Versichertendaten werden verworfen.",
+      "Den Installationsbefehl für Arztpraxen (GDT) ausführen. -GdtFile ist die Datei, in die Ihre Praxissoftware den Patienten schreibt, -GdtImport der Ordner, aus dem sie Ergebnisse einliest. Beide Pfade sind frei wählbar. Den Rückweg (-GdtImport) nur an einem PC einrichten.",
+      "In der Geräte- bzw. GDT-Verwaltung Ihrer Praxissoftware ein Gerät „Sorrida“ anlegen. Programm: „C:\\Program Files\\Sorrida\\SorridaConnector.exe“. Übergabedatei: wie bei -GdtFile. Satzart: „Neue Untersuchung anfordern“ (6302) oder „Stammdaten übermitteln“ (6301). GDT-Kennung des Geräts: z. B. SORRIDA.",
+      "Als Importordner für Ergebnisse dieses Geräts den Ordner von -GdtImport eintragen. Freigegebene Berichte und angenommene Vorschläge kommen dann innerhalb von 2 Minuten als Eintrag (Satzart 6310) in die Karteikarte. Liest Ihre Praxissoftware nur einen festen Dateinamen, diesen mit -GdtName angeben.",
+      "Aus der Patientenakte das Gerät „Sorrida“ aufrufen. Übernommen werden nur Patientennummer, Name, Geburtsdatum und Geschlecht; Adresse und Versichertendaten werden verworfen. Die Anforderungsdatei wird nach dem Lesen gelöscht, damit nie ein alter Patient geöffnet wird.",
       "Den genauen Menüpunkt für GDT-Geräte nennt der Support Ihrer Praxissoftware.",
     ],
-    source: "GDT 2.1 (Qualitätsring Medizinische Software)",
+    source: "GDT 2.1 und 3.0 (Qualitätsring Medizinische Software)",
   },
 ] as const;
