@@ -28,7 +28,10 @@ export async function GET(req: Request) {
       ? { ok: !!process.env.VERCEL_URL, info: process.env.VERCEL_URL ? "nicht gesetzt (Vercel-Adresse wird automatisch genutzt)" : "fehlt" }
       : nextauthHost === requestHost
         ? { ok: true, info: nextauthHost }
-        : { ok: false, info: `zeigt auf ${nextauthHost}, geöffnet ist aber ${requestHost}: auf https://${requestHost} ändern oder die Seite unter ${nextauthHost} öffnen` },
+        : requestHost?.endsWith(".vercel.app") && !nextauthHost.endsWith(".vercel.app")
+          // Eigene Domain ist eingestellt, geöffnet wurde nur die technische Vercel-Adresse: richtig so
+          ? { ok: true, info: `${nextauthHost} (eigene Domain; Anmeldung führt dorthin)` }
+          : { ok: false, info: `zeigt auf ${nextauthHost}, geöffnet ist aber ${requestHost}: auf https://${requestHost} ändern oder die Seite unter ${nextauthHost} öffnen` },
   };
 
   try {
