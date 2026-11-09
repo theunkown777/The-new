@@ -7,8 +7,13 @@ describe("Vorschau-Schloss für die eigene Domain", () => {
   it("greift nur auf den eingetragenen Hosts", () => {
     expect(istVorschauHost("sorrida.de", env)).toBe(true);
     expect(istVorschauHost("WWW.Sorrida.de:443", env)).toBe(true);
-    expect(istVorschauHost("zahnarzt-berichte.vercel.app", env)).toBe(false);
+    expect(istVorschauHost("zahnarzt-berichte.vercel.app", env)).toBe(true);
+    expect(istVorschauHost("sorrida-gmufub2sm-777-08e6.vercel.app", env)).toBe(true);
+    expect(istVorschauHost("andere-seite.de", env)).toBe(false);
+    expect(istVorschauHost("localhost:3000", env)).toBe(false);
     expect(istVorschauHost("sorrida.de", {})).toBe(false);
+    // Vorschau-Modus aus (VORSCHAU_HOSTS leer): auch die Vercel-Adressen sind offen
+    expect(istVorschauHost("zahnarzt-berichte.vercel.app", {})).toBe(false);
   });
   it("Zugangsdaten müssen genau stimmen", async () => {
     expect(await zugangPasst("partner", "geheim-123", env)).toBe(true);
@@ -35,6 +40,13 @@ describe("Vorschau-Schloss für die eigene Domain", () => {
     expect(freiOhneZugang("/api/connector/ergebnisse")).toBe(true);
     expect(freiOhneZugang("/embed/launch")).toBe(false);
     expect(freiOhneZugang("/api/patients")).toBe(false);
+  });
+  it("Zugänge mit eigener Absicherung bleiben erreichbar, die Website nicht", () => {
+    const token = "a".repeat(43);
+    for (const p of ["/api/cron/aufraeumen", "/api/stripe/webhook", "/api/v1/catalog", `/p/${token}`, `/portal/${token}`, `/a/${token}`, `/api/portal/${token}/rechnung/x/online`, `/api/p/${token}`])
+      expect(freiOhneZugang(p), p).toBe(true);
+    for (const p of ["/", "/p", "/portal", "/a/kurz", "/fachgebiete/hausarzt", "/demo", "/api/stripe/verbinden", "/api/status", "/api/leads", "/api/demo"])
+      expect(freiOhneZugang(p), p).toBe(false);
   });
   it("Passierschein für das Connector-Fenster: signiert, kurzlebig, nicht mit dem Cookie austauschbar", async () => {
     const jetzt = 1_800_000_000_000;

@@ -11,10 +11,17 @@ export function vorschauHosts(env: Record<string, string | undefined> = process.
   return (env.VORSCHAU_HOSTS ?? "").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean);
 }
 
+/**
+ * Gilt das Vorschau-Schloss für diesen Host? Die eingetragenen Hosts und, solange der Vorschau-Modus
+ * aktiv ist, auch jede *.vercel.app-Adresse (Projekt- und Deployment-Adressen). Sonst wäre die Seite
+ * über die Vercel-Adresse ohne Zugangsdaten zu sehen.
+ */
 export function istVorschauHost(host: string | null, env: Record<string, string | undefined> = process.env): boolean {
   if (!host) return false;
   const h = host.toLowerCase().split(":")[0];
-  return vorschauHosts(env).includes(h);
+  const hosts = vorschauHosts(env);
+  if (!hosts.length) return false;
+  return hosts.includes(h) || h.endsWith(".vercel.app");
 }
 
 const b64url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...Array.from(new Uint8Array(buf)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -74,9 +81,13 @@ export async function zugangPasst(benutzer: string, passwort: string, env: Recor
 }
 
 /**
- * Pfade, die auch ohne Zugang erreichbar sein müssen: die Demnächst-Seite und ihre Bausteine
- * sowie die Schnittstelle des Sorrida-Connectors (eigene Anmeldung mit Praxis-Schlüssel).
+ * Pfade, die auch ohne Zugang erreichbar sein müssen: die Demnächst-Seite und ihre Bausteine sowie
+ * Zugänge mit eigener Absicherung, die keine Website-Inhalte zeigen:
+ * Sorrida-Connector (Praxis-Schlüssel), nächtliche Aufgabe (CRON_SECRET), Stripe (Signatur),
+ * Schnittstelle v1 (API-Schlüssel) und Patientenlinks (geheimer Link je Patient, nur dessen Daten).
  */
+const EIGENE_ABSICHERUNG = ["/api/connector/", "/api/cron/", "/api/stripe/webhook", "/api/v1/"];
+const PATIENTENLINK = /^\/(api\/)?(p|portal|a)\/[^/]{16,}(\/|$)/;
 export function freiOhneZugang(pfad: string): boolean {
-  return pfad.startsWith("/api/connector/") || pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
+  return EIGENE_ABSICHERUNG.some((p) => pfad.startsWith(p)) || PATIENTENLINK.test(pfad) || pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
 }
