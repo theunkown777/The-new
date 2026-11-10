@@ -110,7 +110,7 @@ export default async function DashboardPage() {
         <Link href="/abschluss/new" className="btn-primary">{abschlussWort(practice?.specialty)} abschließen</Link>
       </div>
 
-      <section className="mb-8 grid gap-4 lg:grid-cols-[1fr_22rem]" data-testid="heute">
+      <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]" data-testid="heute">
         <div className="card p-0">
           <div className="flex items-baseline justify-between px-5 pt-4">
             <h2 className="font-semibold text-slate-900">Termine heute</h2>
@@ -247,11 +247,11 @@ export default async function DashboardPage() {
               </p>
             ) : (
               recentProposals.map((r) => (
-                <Link key={r.id} href={`/proposals/${r.id}`} className="flex items-center justify-between px-6 py-3 hover:bg-slate-50">
-                  <span className="font-medium text-slate-900">
+                <Link key={r.id} href={`/proposals/${r.id}`} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50 sm:px-6">
+                  <span className="min-w-0 truncate font-medium text-slate-900">
                     {r.patient.firstName} {r.patient.lastName}
                   </span>
-                  <span className="text-sm text-slate-500">
+                  <span className="shrink-0 text-right text-sm text-slate-500">
                     {PROPOSAL_STATUS_LABELS[r.status]} · {r.createdAt.toLocaleDateString("de-DE")}
                   </span>
                 </Link>

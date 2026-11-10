@@ -533,7 +533,7 @@ export function ServiceChecklistForm({
                         className={`rounded-lg transition ${eff ? "bg-white" : "bg-slate-50"} ${offen ? "ring-1 ring-slate-200" : ""} ${item.dependsOn.length ? "ml-5" : ""}`}
                         data-testid="position"
                       >
-                        <div className="flex items-center gap-3 px-2 py-2">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-2 py-2">
                           <button
                             type="button"
                             role="checkbox"
@@ -541,7 +541,7 @@ export function ServiceChecklistForm({
                             aria-label={`${item.catalogItem.title}: ${eff ? "erbracht" : "nicht erbracht"}`}
                             disabled={locked}
                             onClick={() => toggleItem(item.catalogItemId)}
-                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition disabled:cursor-not-allowed ${
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition disabled:cursor-not-allowed sm:h-6 sm:w-6 ${
                               eff ? "border-salbei-600 bg-salbei-600 text-white" : "border-slate-300 bg-white text-transparent"
                             }`}
                           >
@@ -549,11 +549,11 @@ export function ServiceChecklistForm({
                           </button>
                           <button
                             type="button"
-                            className="min-w-0 flex-1 text-left"
+                            className="min-w-[9.5rem] flex-1 text-left"
                             disabled={locked}
                             onClick={() => toggleItem(item.catalogItemId)}
                           >
-                            <span className={`block text-[15px] ${eff ? "text-slate-900" : "text-slate-400 line-through"}`}>{item.catalogItem.title}</span>
+                            <span className={`block hyphens-auto text-[15px] [overflow-wrap:anywhere] ${eff ? "text-slate-900" : "text-slate-400 line-through"}`}>{item.catalogItem.title}</span>
                             <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-slate-400">
                               <span className={`inline-flex items-center gap-1 ${eff ? art.cls : ""}`} title={badge.text}>
                                 <span className={`h-1.5 w-1.5 rounded-full ${eff ? art.dot : "bg-slate-300"}`} />
@@ -569,7 +569,7 @@ export function ServiceChecklistForm({
                               type="button"
                               onClick={() => setOpen((o) => ({ ...o, [item.catalogItemId]: !o[item.catalogItemId] }))}
                               aria-expanded={offen}
-                              className={`shrink-0 rounded-full px-2.5 py-1 text-xs ${regionPflicht || needsBegruendung ? "bg-amber-50 text-amber-800" : "text-slate-500 hover:bg-slate-100"}`}
+                              className={`ml-9 shrink-0 rounded-full px-3 py-1.5 text-xs sm:ml-0 ${regionPflicht || needsBegruendung ? "bg-amber-50 text-amber-800" : "text-slate-500 hover:bg-slate-100"}`}
                             >
                               {regionPflicht ? `${regionLabel} fehlt` : needsBegruendung && !entry.begruendung ? "Begründung fehlt" : offen ? "Fertig" : "Details"}
                             </button>

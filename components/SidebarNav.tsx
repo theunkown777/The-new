@@ -22,6 +22,7 @@ const ICONS: Record<string, string> = {
   termine: "M4 5h16v15H4zM4 10h16M8 3v4M16 3v4",
   pruefung: "M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9",
   analyse: "M4 20V10M10 20V4M16 20v-7M22 20H2",
+  modelle: "M12 3c-3 0-5 2-5 5 0 2 1 3 1 5s-.5 3 0 5c.4 1.6 1.6 3 2.4 3 1 0 1-3 1.6-3s.6 3 1.6 3c.8 0 2-1.4 2.4-3 .5-2 0-3 0-5s1-3 1-5c0-3-2-5-5-5Z",
   mein: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1",
 };
 
@@ -42,6 +43,7 @@ export function SidebarNav({ dental, team = false, analyse = false, personPl = "
       personPl,
       [
         ["/patients", `${personPl} und Wege`, "patients"],
+        ["/modelle", "Modelle", "modelle"],
         ["/abschluss/new", `${abschluss} abschließen`, "wrapup"],
         ["/proposals", "Vorschläge", "proposals"],
         ...(dental ? ([["/reports", "Berichte", "reports"]] as L[]) : []),

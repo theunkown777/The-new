@@ -24,46 +24,47 @@ model Practice {
   // Praxis vorbelegt; BEMA verhandelt jede KZV regional mit den
   // Krankenkassen ihres Bundeslands, es gibt keinen bundeseinheitlichen
   // Wert - die Praxis muss ihn selbst eintragen.
-  gozPunktwertCent  Float?
-  bemaPunktwertCent Float?
-  invites           StaffInvite[]
-  proposals         TreatmentProposal[]
-  connectorKeys     ConnectorKey[]
-  gdtAuslieferungen GdtAuslieferung[]
-  launchTokens      LaunchToken[]
-  anamnesisForms    AnamnesisForm[]
-  invoices          Invoice[]
-  locations         Location[]
-  appointments      Appointment[]
+  gozPunktwertCent   Float?
+  bemaPunktwertCent  Float?
+  invites            StaffInvite[]
+  proposals          TreatmentProposal[]
+  connectorKeys      ConnectorKey[]
+  gdtAuslieferungen  GdtAuslieferung[]
+  modellMarkierungen ModellMarkierung[]
+  launchTokens       LaunchToken[]
+  anamnesisForms     AnamnesisForm[]
+  invoices           Invoice[]
+  locations          Location[]
+  appointments       Appointment[]
   /// Bankverbindung für den GiroCode im Patientenportal (lib/invoices.ts)
-  accountHolder     String?
-  iban              String?
-  bic               String?
+  accountHolder      String?
+  iban               String?
+  bic                String?
   /// Gläubiger-Identifikationsnummer (Bundesbank) für SEPA-Lastschriften
-  glaeubigerId      String?
+  glaeubigerId       String?
   // Praxiseigene Preise für Behandlungsvorschläge (Euro je Preisschlüssel
   // aus lib/proposals.ts PRICE_DEFS). Null bzw. fehlende Schlüssel = die
   // dort hinterlegten Beispielwerte.
-  proposalPrices    Json?
+  proposalPrices     Json?
   /// Ratenzahlung im Patienten-Link (lib/installments.ts)
-  installments      Json?
+  installments       Json?
   /// Fachgebiet (lib/specialties.ts): "zahn", "augen", "haut", … oder "andere"
-  specialty         String              @default("zahn")
+  specialty          String              @default("zahn")
   /// KV-Bezirk (lib/amtlich/gliederung.ts KV_BEZIRKE), z. B. "NO"; bestimmt die regionalen KV-Ziffern im Leistungsverzeichnis
-  kvBezirk          String?
+  kvBezirk           String?
   /// Arztpraxen: Preise je Leistung und eigene Leistungen (lib/medicalProposals.ts)
-  medPrices         Json?
-  customOffers      Json?
+  medPrices          Json?
+  customOffers       Json?
   /// DATEV-Export: Berater-/Mandantennummer, Sachkontenlänge, Konten (mit der Steuerberatung abgestimmt)
-  datev             Json?
+  datev              Json?
   /// Verbundenes Stripe-Konto der Praxis (Stripe Connect); Online-Zahlungen gehen direkt an die Praxis
-  stripeAccountId   String?             @unique
+  stripeAccountId    String?             @unique
   // Gastzugang: Demo-Praxis mit Beispieldaten, die nach Ablauf automatisch
   // gelöscht wird (lib/demo.ts).
-  isDemo            Boolean             @default(false)
+  isDemo             Boolean             @default(false)
   /// Zwei-Faktor-Anmeldung auch für Mitarbeitende verlangen (für Admins immer Pflicht)
-  require2faAll     Boolean             @default(false)
-  demoExpiresAt     DateTime?
+  require2faAll      Boolean             @default(false)
+  demoExpiresAt      DateTime?
 
   @@index([isDemo, demoExpiresAt])
 }
@@ -168,50 +169,51 @@ model StaffInvite {
 }
 
 model Patient {
-  id               String              @id @default(cuid())
-  practiceId       String
-  practice         Practice            @relation(fields: [practiceId], references: [id])
-  firstName        String
-  lastName         String
-  birthDate        DateTime?
+  id                 String              @id @default(cuid())
+  practiceId         String
+  practice           Practice            @relation(fields: [practiceId], references: [id])
+  firstName          String
+  lastName           String
+  birthDate          DateTime?
   /// "W" | "M" | "D" (divers); steuert geschlechtsbezogene Angebote und Befunde
-  geschlecht       String?
+  geschlecht         String?
   /// Stammbehandler/in (meist Ärztin oder Arzt); bestimmt, wessen "Mein Bereich" den Patienten zeigt
-  behandlerId      String?
-  behandler        User?               @relation("Stammbehandler", fields: [behandlerId], references: [id], onDelete: SetNull)
+  behandlerId        String?
+  behandler          User?               @relation("Stammbehandler", fields: [behandlerId], references: [id], onDelete: SetNull)
   // "GKV" (gesetzlich) | "PKV" (privat) - bestimmt, welches Gebührenwerk
   // (BEMA vs. GOZ/GOÄ) für diesen Patienten grundsätzlich greift.
-  insuranceType    String?
-  insuranceName    String?
-  insuranceNumber  String?
+  insuranceType      String?
+  insuranceName      String?
+  insuranceNumber    String?
   /// Kontakt für Terminbestätigungen, Erinnerungen und Zahlungserinnerungen
-  email            String?
-  phone            String?
+  email              String?
+  phone              String?
   /// Einwilligung in Nachrichten per E-Mail (Zeitpunkt, null = keine)
-  contactConsentAt DateTime?
-  notes            String?
-  createdAt        DateTime            @default(now())
-  reports          Report[]
-  proposals        TreatmentProposal[]
-  launchTokens     LaunchToken[]
-  anamnesisForms   AnamnesisForm[]
-  invoices         Invoice[]
-  entries          PatientEntry[]
-  documents        PatientDocument[]
-  appointments     Appointment[]
+  contactConsentAt   DateTime?
+  notes              String?
+  createdAt          DateTime            @default(now())
+  reports            Report[]
+  proposals          TreatmentProposal[]
+  launchTokens       LaunchToken[]
+  anamnesisForms     AnamnesisForm[]
+  invoices           Invoice[]
+  entries            PatientEntry[]
+  modellMarkierungen ModellMarkierung[]
+  documents          PatientDocument[]
+  appointments       Appointment[]
   // Patientenportal (/portal/<token>): offene Rechnungen und Dokumente auf
   // dem eigenen Handy. Gespeichert wird nur der Hash des Tokens.
-  portalTokenHash  String?             @unique
-  portalExpiresAt  DateTime?
-  portalViewedAt   DateTime?
+  portalTokenHash    String?             @unique
+  portalExpiresAt    DateTime?
+  portalViewedAt     DateTime?
   /// Zuletzt an Vorsorge erinnert (Seite /vorsorge)
-  recallSentAt     DateTime?
+  recallSentAt       DateTime?
   // Herkunft aus einer Praxissoftware (VDDS-media): Sektionsname der PVS
   // (z. B. "DSWIN", "Z1") und deren Patientennummer (PATID). Gemeinsam
   // eindeutig je Praxis, damit derselbe PVS-Patient beim nächsten Aufruf
   // wiedergefunden statt doppelt angelegt wird.
-  externalSource   String?
-  externalId       String?
+  externalSource     String?
+  externalId         String?
 
   @@unique([practiceId, externalSource, externalId])
   @@index([practiceId])
@@ -749,4 +751,25 @@ model AmtlicheLeistung {
 
   @@unique([system, code])
   @@index([system])
+}
+
+// Anatomie-Modelle (Gebiss, Körper): Die Praxis markiert für einen Patienten Stellen und
+// schreibt einen kurzen Hinweis dazu; der Patient sieht beides in seinem Patientenlink.
+model ModellMarkierung {
+  id          String   @id @default(cuid())
+  practiceId  String
+  practice    Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  /// "gebiss" | "koerper"
+  modell      String
+  /// Gebiss: FDI-Nummer ("36"); Körper: Struktur und Seite ("patellasehne:L")
+  teil        String
+  notiz       String   @default("")
+  erstelltVon String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([patientId, modell, teil])
+  @@index([practiceId])
 }

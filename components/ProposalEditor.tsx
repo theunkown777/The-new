@@ -196,7 +196,7 @@ export function ProposalEditor({
 
   const tooth = (n: number, lower: boolean) => {
     const f = teeth[String(n)];
-    const base = "aspect-[3/4] w-full border text-[10px] font-medium tabular-nums transition-colors disabled:cursor-default";
+    const base = "aspect-[4/5] w-full border text-xs font-medium tabular-nums transition-colors disabled:cursor-default sm:aspect-[3/4] sm:text-[11px]";
     const shape = lower ? "rounded-b-lg rounded-t" : "rounded-t-lg rounded-b";
     const color =
       f === "fehlt"
@@ -348,10 +348,13 @@ export function ProposalEditor({
 
           <div className="card space-y-3">
             <h2 className="font-medium text-slate-900">Zahnschema (FDI)</h2>
-            <div className="flex justify-between text-[11px] text-slate-400"><span>rechts</span><span>Oberkiefer</span><span>links</span></div>
-            <div className="grid grid-cols-[repeat(16,minmax(0,1fr))] gap-0.5">{UPPER_TEETH.map((n) => tooth(n, false))}</div>
-            <div className="grid grid-cols-[repeat(16,minmax(0,1fr))] gap-0.5">{LOWER_TEETH.map((n) => tooth(n, true))}</div>
-            <div className="flex justify-between text-[11px] text-slate-400"><span>rechts</span><span>Unterkiefer</span><span>links</span></div>
+            {/* Handy: je Kiefer zwei Reihen (erst die rechte, dann die linke Seite), damit jeder Zahn groß genug zum Antippen ist */}
+            <div className="hidden justify-between text-[11px] text-slate-400 sm:flex"><span>rechts</span><span>Oberkiefer</span><span>links</span></div>
+            <p className="text-xs text-slate-500 sm:hidden">Oberkiefer: erste Reihe rechte Seite (18–11), zweite Reihe linke Seite (21–28)</p>
+            <div className="grid grid-cols-8 gap-1 sm:grid-cols-[repeat(16,minmax(0,1fr))] sm:gap-0.5" data-testid="zahnschema-oben">{UPPER_TEETH.map((n) => tooth(n, false))}</div>
+            <p className="pt-1 text-xs text-slate-500 sm:hidden">Unterkiefer: erste Reihe rechte Seite (48–41), zweite Reihe linke Seite (31–38)</p>
+            <div className="grid grid-cols-8 gap-1 sm:grid-cols-[repeat(16,minmax(0,1fr))] sm:gap-0.5" data-testid="zahnschema-unten">{LOWER_TEETH.map((n) => tooth(n, true))}</div>
+            <div className="hidden justify-between text-[11px] text-slate-400 sm:flex"><span>rechts</span><span>Unterkiefer</span><span>links</span></div>
             <div className="rounded-lg bg-slate-50 p-3">
               <label className="label" htmlFor="proposal-finding">Befund an Zahn {selected}</label>
               <select
@@ -481,7 +484,7 @@ export function ProposalEditor({
                             >
                               <span className="flex flex-wrap items-center justify-between gap-1">
                                 <span
-                                  className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${o.type === "kasse" || o.type === "regel" ? "border-green-600 text-green-700" : "border-slate-300 text-slate-500"}`}
+                                  className={`rounded border px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${o.type === "kasse" || o.type === "regel" ? "border-green-600 text-green-700" : "border-slate-300 text-slate-500"}`}
                                 >
                                   {typeLabelOf(o, factors.insurance)}
                                 </span>

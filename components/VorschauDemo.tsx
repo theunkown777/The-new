@@ -119,7 +119,7 @@ export function VorschauDemo() {
                 type="button"
                 onClick={() => setRecOpen(!recOpen)}
                 aria-expanded={recOpen}
-                className="rounded-full border border-salbei-300 bg-salbei-50 px-2 py-1 text-[11px] text-salbei-800"
+                className="rounded-full border border-salbei-300 bg-salbei-50 px-3 py-2 text-xs text-salbei-800"
               >
                 Hier sehen Sie unsere Empfehlung
               </button>

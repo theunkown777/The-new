@@ -13,6 +13,7 @@ const LINKS = [
   { href: "/praxismanager", label: "Praxismanager" },
   { href: "/vorsorge", label: "Vorsorge fällig" },
   { href: "/patients", label: "Patienten" },
+  { href: "/modelle", label: "Modelle" },
   { href: "/abschluss/new", label: "Behandlung abschließen" },
   { href: "/proposals", label: "Vorschläge" },
   { href: "/reports", label: "Berichte" },

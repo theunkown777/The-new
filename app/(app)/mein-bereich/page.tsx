@@ -113,7 +113,7 @@ export default async function MeinBereichPage({ searchParams }: { searchParams: 
             <div className="mt-4 flex h-32 items-end gap-2" data-testid="umsatz-monate">
               {k.monate.map((m) => (
                 <div key={m.label} className="flex flex-1 flex-col items-center gap-1">
-                  <span className="text-[10px] tabular-nums text-slate-500">{m.cent ? eur(m.cent) : ""}</span>
+                  <span className="text-[11px] tabular-nums text-slate-500">{m.cent ? eur(m.cent) : ""}</span>
                   <div className="w-full rounded-t bg-brand-600/80" style={{ height: `${Math.max(2, (m.cent / maxMonat) * 88)}px` }} title={formatCent(m.cent)} />
                   <span className="text-xs text-slate-500">{m.label}</span>
                 </div>

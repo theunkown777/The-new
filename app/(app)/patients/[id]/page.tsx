@@ -18,6 +18,9 @@ import { TerminUeberblick } from "@/components/TerminUeberblick";
 import { loadBriefing } from "@/lib/briefingLoad";
 import { kiVerfuegbar } from "@/lib/anthropic";
 import { BehandlerWahl } from "@/components/BehandlerWahl";
+import { isDental } from "@/lib/specialties";
+import { GebissModell } from "@/components/modelle/GebissModell";
+import { KoerperModell } from "@/components/modelle/KoerperModell";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -52,6 +55,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     prisma.user.findMany({ where: { practiceId }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
   const fach = praxis?.specialty ?? "hausarzt";
+  const modellMarken = await prisma.modellMarkierung.findMany({ where: { practiceId, patientId: patient.id }, select: { modell: true, teil: true, notiz: true }, orderBy: { createdAt: "asc" } });
 
   return (
     <div>
@@ -102,6 +106,16 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           vorhanden={entries.filter((e) => !e.inaktiv && e.code).map((e) => e.code!)}
         />
       </div>}
+
+      <section className="mb-8" aria-labelledby="am-modell" data-testid="patient-modell">
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="am-modell" className="text-sm font-semibold uppercase tracking-wide text-slate-500">Am Modell zeigen</h2>
+          <span className="text-xs text-slate-500">Stelle antippen, erklären und für den Patientenlink markieren</span>
+        </div>
+        {isDental(fach)
+          ? <GebissModell patientId={patient.id} markierungen={modellMarken.filter((m) => m.modell === "gebiss")} />
+          : <KoerperModell patientId={patient.id} markierungen={modellMarken.filter((m) => m.modell === "koerper")} />}
+      </section>
 
       <div className="mb-8">
         <PatientKontakt patientId={patient.id} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} />

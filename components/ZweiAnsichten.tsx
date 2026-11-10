@@ -111,12 +111,12 @@ export function ZweiAnsichten() {
                 <p className="text-xs text-slate-600">Hautarztpraxis am Markt</p>
               </div>
               <div className="rounded-[1.6rem] bg-salbei-50 px-4 pb-4 pt-4 text-center">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-salbei-700">Ihr Behandlungsweg</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-salbei-700">Ihr Behandlungsweg</p>
                 <div className="mt-3"><Behandlungsweg erreicht={2} aktuell={2} size="gross" animate /></div>
                 <p className="font-display mt-1 text-[1.9rem] leading-tight text-slate-900">Guten Tag, Martina</p>
                 <div className="mt-3 flex items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-[0_10px_30px_-22px_rgba(52,72,50,.9)]">
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[10px] font-semibold uppercase tracking-wide text-salbei-700">Als Nächstes</span>
+                    <span className="block text-[11px] font-semibold uppercase tracking-wide text-salbei-700">Als Nächstes</span>
                     <span className="block text-base leading-snug text-slate-900">Ihren Vorschlag ansehen und wählen.</span>
                   </span>
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-salbei-600 text-white">→</span>

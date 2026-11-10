@@ -54,7 +54,7 @@ export function LeistungenImport() {
           </label>
           <label className="text-xs text-slate-600">
             CSV-Datei
-            <input type="file" accept=".csv,.txt,text/csv,text/plain" className="mt-1 block text-xs" aria-label="CSV-Datei"
+            <input type="file" accept=".csv,.txt,text/csv,text/plain" className="mt-1 block w-full max-w-full text-xs" aria-label="CSV-Datei"
               onChange={async (e) => { const f = e.target.files?.[0]; if (f) setCsv(await f.text()); }} />
           </label>
         </div>

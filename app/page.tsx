@@ -62,6 +62,9 @@ export default async function Start() {
           <span className="font-brand hidden text-lg text-brand-700 min-[420px]:inline">SORRIDA</span>
         </Link>
         <nav className="flex items-center gap-3 text-sm sm:gap-4">
+          <Link href="/anatomie" className="hidden text-slate-600 hover:text-slate-900 sm:inline" data-testid="nav-modelle">
+            Modelle
+          </Link>
           <Link href="/ratgeber" className="hidden text-slate-600 hover:text-slate-900 sm:inline">
             Ratgeber
           </Link>

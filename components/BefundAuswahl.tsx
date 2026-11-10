@@ -47,7 +47,7 @@ export function BefundAuswahl({ patientId, regionen, fachName, vorhanden }: { pa
           const schon = vorhanden.includes(b.icd);
           return (
             <li key={b.icd} className="flex flex-wrap items-start justify-between gap-3 py-2.5" data-testid="befund">
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 basis-full sm:basis-0">
                 <p className="text-sm text-slate-900">{b.text} <span className="ml-1 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">{b.icd}</span></p>
                 {b.abrechnung && <p className="mt-0.5 text-xs text-amber-900">Abrechnung: {b.abrechnung}</p>}
               </div>

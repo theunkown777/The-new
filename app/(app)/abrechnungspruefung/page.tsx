@@ -38,7 +38,7 @@ export default async function AbrechnungsPruefungPage() {
             <div className="card divide-y divide-slate-100 p-0">
               {list.slice(0, 50).map((b, i) => (
                 <div key={i} className="flex flex-wrap items-center justify-between gap-3 p-4 text-sm">
-                  <p className="min-w-0 flex-1 text-slate-800">
+                  <p className="min-w-0 flex-1 basis-full text-slate-800 sm:basis-0">
                     <span className={`mr-2 inline-block h-2 w-2 rounded-full ${b.schwere === "hoch" ? "bg-red-600" : "bg-amber-500"}`} aria-hidden="true" />
                     {b.text}
                   </p>

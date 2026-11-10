@@ -1,0 +1,96 @@
+import { describe, expect, it } from "vitest";
+import { EBENEN, STRUKTUREN, seiteImBild, teilKennung, teilLesen, teilName } from "./koerper";
+import { KOERPER_TEXTE } from "./koerperTexte";
+import { INSTRUMENTE, SCHICHTEN, ZAEHNE, zahnNach } from "./gebiss";
+import { rahmen } from "./formen";
+import { markierungSchema, teilBezeichnung, teilGueltig } from "./markierung";
+
+describe("Körpermodell", () => {
+  it("jede Struktur hat Namen, Erklärung, Beschwerden und mindestens eine Ansicht", () => {
+    expect(STRUKTUREN.length).toBeGreaterThanOrEqual(80);
+    for (const s of STRUKTUREN) {
+      expect(s.name.length, s.id).toBeGreaterThan(2);
+      expect(s.was.length, s.id).toBeGreaterThan(40);
+      expect(s.beschwerden.length, s.id).toBeGreaterThan(40);
+      expect(!!(s.vorn?.length || s.hinten?.length), s.id).toBe(true);
+    }
+    expect(new Set(STRUKTUREN.map((s) => s.id)).size).toBe(STRUKTUREN.length);
+    expect(Object.keys(KOERPER_TEXTE).sort()).toEqual(STRUKTUREN.map((s) => s.id).sort());
+  });
+  it("alle drei Ebenen sind gut gefüllt: Knochen, Muskeln, Sehnen/Bänder/Gelenke", () => {
+    for (const e of EBENEN) expect(STRUKTUREN.filter((s) => s.ebene === e.id).length, e.id).toBeGreaterThanOrEqual(20);
+  });
+  it("Formen liegen in der Zeichenfläche und ergeben gültige Pfade", () => {
+    for (const s of STRUKTUREN) for (const formen of [s.vorn, s.hinten]) {
+      if (!formen) continue;
+      for (const f of formen) expect(f.d, s.id).toMatch(/^M[\d. -]+[CAL]/);
+      expect(f(formen), s.id).not.toContain("NaN");
+      const r = rahmen(formen);
+      expect(r.x, s.id).toBeGreaterThanOrEqual(0);
+      expect(r.x + r.b, s.id).toBeLessThanOrEqual(400);
+      expect(r.y + r.h, s.id).toBeLessThanOrEqual(880);
+    }
+  });
+  it("Körperseite: von vorn liegt die rechte Körperseite links im Bild, von hinten umgekehrt", () => {
+    expect(seiteImBild("vorn", "links")).toBe("R");
+    expect(seiteImBild("vorn", "rechts")).toBe("L");
+    expect(seiteImBild("hinten", "links")).toBe("L");
+  });
+  it("Teil-Kennung mit Seite; paarige Strukturen brauchen eine Seite, einzelne nicht", () => {
+    expect(teilName(teilKennung("patellasehne", "L"))).toBe("Patellasehne links");
+    expect(teilName("lws:M")).toBe("Lendenwirbelsäule");
+    expect(teilLesen("patellasehne:M")).toBeNull();
+    expect(teilLesen("lws:L")).toBeNull();
+    expect(teilLesen("gibtesnicht:L")).toBeNull();
+  });
+});
+const f = (formen: { d: string }[]) => formen.map((x) => x.d).join(" ");
+
+describe("Gebiss-Modell", () => {
+  it("32 Zähne nach FDI-Schema, je Quadrant 1 bis 8", () => {
+    expect(ZAEHNE).toHaveLength(32);
+    expect(ZAEHNE.map((z) => z.fdi)).toEqual([1, 2, 3, 4].flatMap((q) => [1, 2, 3, 4, 5, 6, 7, 8].map((n) => q * 10 + n)));
+    expect(zahnNach(16)?.name).toBe("Oberer rechter erster großer Backenzahn");
+    expect(zahnNach(31)?.name).toBe("Unterer linker mittlerer Schneidezahn");
+    expect(zahnNach(48)?.art).toBe("weisheitszahn");
+  });
+  it("rechte Seite des Patienten liegt links im Bild, Oberkiefer oben", () => {
+    expect(zahnNach(18)!.mitte[0]).toBeLessThan(200);
+    expect(zahnNach(28)!.mitte[0]).toBeGreaterThan(200);
+    expect(zahnNach(11)!.mitte[1]).toBeLessThan(zahnNach(41)!.mitte[1]);
+    expect(zahnNach(11)!.mitte[1]).toBeLessThan(zahnNach(18)!.mitte[1]); // Schneidezähne am Scheitel des Bogens
+  });
+  it("Zähne überlappen nicht (Abstand der Mittelpunkte) und liegen im Bild", () => {
+    for (const kiefer of ["oben", "unten"] as const) for (const seite of ["rechts", "links"] as const) {
+      const reihe = ZAEHNE.filter((z) => z.kiefer === kiefer && z.seite === seite).sort((a, b) => a.pos - b.pos);
+      for (let i = 1; i < reihe.length; i++) expect(Math.hypot(reihe[i].mitte[0] - reihe[i - 1].mitte[0], reihe[i].mitte[1] - reihe[i - 1].mitte[1]), `${reihe[i].fdi}`).toBeGreaterThan(14);
+    }
+    for (const z of ZAEHNE) { const r = rahmen([z.form]); expect(r.x, `${z.fdi}`).toBeGreaterThan(0); expect(r.x + r.b, `${z.fdi}`).toBeLessThan(400); expect(r.y, `${z.fdi}`).toBeGreaterThan(0); expect(r.y + r.h, `${z.fdi}`).toBeLessThan(560); expect(z.form.d).not.toContain("NaN"); }
+  });
+  it("Schichten und Instrumente sind erklärt; Instrumente verweisen nur auf vorhandene Schichten", () => {
+    expect(SCHICHTEN.map((s) => s.id)).toEqual(expect.arrayContaining(["schmelz", "dentin", "pulpa", "wurzelkanal", "zahnfleisch", "wurzelhaut", "kieferknochen"]));
+    expect(INSTRUMENTE.length).toBeGreaterThanOrEqual(12);
+    for (const i of INSTRUMENTE) {
+      expect(i.wofuer.length, i.id).toBeGreaterThan(60);
+      expect(i.gefuehl.length, i.id).toBeGreaterThan(30);
+      if (i.schicht) expect(SCHICHTEN.some((s) => s.id === i.schicht), i.id).toBe(true);
+    }
+  });
+});
+
+describe("Markierungen der Praxis", () => {
+  it("nimmt nur Teile an, die es im Modell gibt", () => {
+    expect(teilGueltig("gebiss", "36")).toBe(true);
+    expect(teilGueltig("gebiss", "49")).toBe(false);
+    expect(teilGueltig("gebiss", "patellasehne:L")).toBe(false);
+    expect(teilGueltig("koerper", "achillessehne:R")).toBe(true);
+    expect(teilGueltig("koerper", "36")).toBe(false);
+    expect(markierungSchema.safeParse({ modell: "koerper", teil: "lws:M", notiz: "  Hier   sitzt es. " }).data?.notiz).toBe("Hier sitzt es.");
+    expect(markierungSchema.safeParse({ modell: "gebiss", teil: "99" }).success).toBe(false);
+    expect(markierungSchema.safeParse({ modell: "gebiss", teil: "36", notiz: "x".repeat(301) }).success).toBe(false);
+  });
+  it("benennt Teile für Patienten lesbar", () => {
+    expect(teilBezeichnung("gebiss", "36")).toBe("Zahn 36 (Unterer linker erster großer Backenzahn)");
+    expect(teilBezeichnung("koerper", "achillessehne:R")).toBe("Achillessehne rechts");
+  });
+});

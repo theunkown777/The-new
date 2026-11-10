@@ -88,16 +88,16 @@ export default async function ProtokollPage({ searchParams }: { searchParams: { 
         ) : (
           <table className="w-full text-left text-sm">
             <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
-              <tr><th className="px-4 py-2">Zeitpunkt</th><th className="px-4 py-2">Person</th><th className="px-4 py-2">Vorgang</th></tr>
+              <tr><th className="px-2.5 py-2 sm:px-4">Zeitpunkt</th><th className="px-2.5 py-2 sm:px-4">Person</th><th className="px-2.5 py-2 sm:px-4">Vorgang</th></tr>
             </thead>
             <tbody>
               {entries.map((e) => (
                 <tr key={e.id} className="border-b border-slate-100 last:border-0" data-testid="protokoll-eintrag">
-                  <td className="whitespace-nowrap px-4 py-2 tabular-nums text-slate-600">
+                  <td className="whitespace-nowrap px-2.5 py-2 sm:px-4 tabular-nums text-slate-600">
                     {e.createdAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Berlin" })}
                   </td>
-                  <td className="px-4 py-2 text-slate-800">{e.userName ?? "–"}</td>
-                  <td className={`px-4 py-2 ${e.action === "login.fehlgeschlagen" || e.action === "patient.geloescht" ? "text-red-800" : "text-slate-800"}`}>
+                  <td className="px-2.5 py-2 sm:px-4 text-slate-800">{e.userName ?? "–"}</td>
+                  <td className={`px-2.5 py-2 sm:px-4 ${e.action === "login.fehlgeschlagen" || e.action === "patient.geloescht" ? "text-red-800" : "text-slate-800"}`}>
                     {e.summary}
                     {e.entityId && e.entityType === "Bericht" && (
                       <Link href={`/reports/${e.entityId}`} className="ml-2 text-xs text-brand-700 underline">ansehen</Link>
@@ -128,10 +128,15 @@ export default async function ProtokollPage({ searchParams }: { searchParams: { 
         <p className="mt-1 text-sm text-slate-600">Das löscht Sorrida täglich selbst:</p>
         <div className="mt-3 overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="text-xs uppercase tracking-wide text-slate-500"><tr><th className="py-1 pr-4">Daten</th><th className="py-1 pr-4">Frist</th><th className="py-1">Grund</th></tr></thead>
+            <thead className="text-xs uppercase tracking-wide text-slate-500"><tr><th className="py-1 pr-4">Daten</th><th className="py-1 pr-4">Frist</th><th className="hidden py-1 sm:table-cell">Grund</th></tr></thead>
             <tbody>
               {LOESCHFRISTEN.map((f) => (
-                <tr key={f.id} className="border-t border-slate-100 align-top"><td className="py-2 pr-4 text-slate-800">{f.daten}</td><td className="whitespace-nowrap py-2 pr-4 text-slate-800">{f.frist}</td><td className="py-2 text-slate-600">{f.grund}</td></tr>
+                <tr key={f.id} className="border-t border-slate-100 align-top">
+                  {/* Handy: Der Grund steht unter den Daten, damit keine Spalte rechts abgeschnitten wird */}
+                  <td className="py-2 pr-4 text-slate-800">{f.daten}<span className="mt-0.5 block text-xs text-slate-500 sm:hidden">{f.grund}</span></td>
+                  <td className="py-2 pr-0 text-slate-800 sm:whitespace-nowrap sm:pr-4">{f.frist}</td>
+                  <td className="hidden py-2 text-slate-600 sm:table-cell">{f.grund}</td>
+                </tr>
               ))}
             </tbody>
           </table>

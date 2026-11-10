@@ -60,9 +60,9 @@ export default async function ConnectorSettingsPage() {
           </div>
           <p className="text-sm text-slate-600">
             Am Ende prüft die Installation die Verbindung und zeigt das Ergebnis an. Den Test können Sie
-            jederzeit wiederholen: <code className="rounded bg-slate-100 px-1 text-xs">&quot;C:\Program Files\Sorrida\SorridaConnector.exe&quot; --test</code>.
+            jederzeit wiederholen: <code className="break-all rounded bg-slate-100 px-1 text-xs">&quot;C:\Program Files\Sorrida\SorridaConnector.exe&quot; --test</code>.
             Hier oben sehen Sie danach „zuletzt verbunden“ und ob der Rückweg aktiv ist. Bei Problemen hilft das
-            Protokoll <code className="rounded bg-slate-100 px-1 text-xs">%LOCALAPPDATA%\Sorrida\connector.log</code> (ohne Patientendaten).
+            Protokoll <code className="break-all rounded bg-slate-100 px-1 text-xs">%LOCALAPPDATA%\Sorrida\connector.log</code> (ohne Patientendaten).
           </p>
           <p className="text-xs text-slate-400">
             Übertragen werden nur PVS-Name, Patientennummer, Name, Titel, Geburtsdatum, Geschlecht,

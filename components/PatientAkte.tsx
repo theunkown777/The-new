@@ -111,12 +111,12 @@ export function PatientAkte({ patientId, entries, documents, isAdmin }: { patien
           </select>
           <input className="input w-full" placeholder="z. B. Penicillin, Diabetes Typ 2, Metformin 1000" value={text} onChange={(e) => setText(e.target.value)} aria-label="Text" data-testid="akte-text" />
         </div>
-        <div className="grid grid-cols-[7rem_minmax(0,11rem)_1fr] items-center gap-2">
+        <div className="grid grid-cols-2 items-center gap-2 sm:grid-cols-[7rem_minmax(0,11rem)_1fr]">
           {art === "DIAGNOSE" ? (
             <input className="input w-full" placeholder="ICD-10" value={code} onChange={(e) => setCode(e.target.value)} aria-label="ICD-10-Code" data-testid="akte-code" />
           ) : <span />}
           <input type="date" className="input w-full" value={datum} onChange={(e) => setDatum(e.target.value)} aria-label="Datum" />
-          <button className="btn-primary justify-self-end" disabled={busy || text.trim().length < 2}>Eintragen</button>
+          <button className="btn-primary col-span-2 sm:col-span-1 sm:justify-self-end" disabled={busy || text.trim().length < 2}>Eintragen</button>
         </div>
       </form>
 

@@ -88,3 +88,40 @@ h1 {
   min-height: 24px;
   align-items: center;
 }
+
+/* Handy: Eingabefelder brauchen mindestens 16 px Schrift, sonst zoomt das iPhone beim Antippen in die
+   Seite hinein und alles wirkt verschoben. */
+@media (max-width: 639px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+/* Karten und Rasterzellen dürfen schmaler werden als ihr Inhalt; sonst dehnt eine lange Zeile die Seite
+   über die Bildschirmbreite und das Handy verkleinert alles. */
+.card {
+  min-width: 0;
+}
+/* Finger statt Maus: Textknöpfe und eigenständige Links bekommen eine größere Tippfläche. */
+@media (pointer: coarse) {
+  .ziel {
+    min-height: 36px;
+  }
+  /* Alle Knöpfe mindestens 36 px hoch; ausgenommen sind Knöpfe mit fester Größe (Symbole, Zähne im Zahnschema). */
+  button:not([role="checkbox"]):not([class*=" h-"]):not([class^="h-"]):not([class*="aspect-"]) {
+    min-height: 36px;
+  }
+}
+
+/* Anatomie-Modelle: Das gewählte Instrument bewegt sich leicht an seinem Einsatzort. */
+@keyframes modell-arbeiten {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(0.8px, -2.2px); }
+}
+.modell-instrument {
+  animation: modell-arbeiten 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .modell-instrument { animation: none; }
+}
