@@ -43,6 +43,13 @@ const GRUPPEN: { titel: string; kacheln: FachKachel[] }[] = [
   },
 ];
 
+const FUER_PATIENTEN: [string, string, string | null][] = [
+  ["Am Modell zeigen", "Gebiss, Körper mit Organen, Auge, Ohr oder Haut, passend zu Ihrem Fach. Sie markieren die Stelle, der Patient sieht sie zu Hause mit Erklärung wieder.", "/anatomie"],
+  ["Termine ohne Telefon", "Sie übertragen Ihren vorhandenen Kalender. Patienten sehen nur Zeiten, die wirklich frei sind, und buchen selbst.", null],
+  ["Nachricht per WhatsApp", "Terminbestätigung, Erinnerung und der persönliche Link mit einem Klick, nur mit Einwilligung und ohne Befunde im Text.", null],
+  ["Alles in einem Eingang", "Gemeldete Zahlungen, abgeschickte Anamnesebögen und gebuchte Termine stehen für die Praxis gesammelt auf einer Seite.", null],
+];
+
 const SCHRITTE = [
   ["Aus der Praxissoftware öffnen", "Ein Klick in der Patientenakte. Zahnärzte über VDDS-media, Arztpraxen über GDT."],
   ["Befund oder Anlass wählen", "Sorrida zeigt die Kassenleistung zuerst und sinnvolle Alternativen mit Eigenanteil."],
@@ -165,6 +172,19 @@ export default async function Start() {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className="mt-20" data-testid="fuer-patienten">
+          <h2 className="font-display text-4xl">Was Ihre Patienten davon haben</h2>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {FUER_PATIENTEN.map(([t, d, href]) => (
+              <li key={t} className="rounded-2xl border border-slate-200 bg-white p-4">
+                <h3 className="font-semibold">{t}</h3>
+                <p className="mt-1 text-sm text-slate-600">{d}</p>
+                {href && <Link href={href} className="mt-2 inline-block text-sm font-medium text-brand-700 hover:underline">Modelle ansehen →</Link>}
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="mt-20 grid gap-6 rounded-3xl bg-white p-6 sm:grid-cols-3 sm:p-10">
