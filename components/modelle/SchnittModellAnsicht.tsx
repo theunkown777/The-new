@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { rahmen } from "@/lib/modelle/formen";
 import { SCHNITTMODELLE, type SchnittId } from "@/lib/modelle/schnitt";
 import { useZoom } from "./useZoom";
 import { useT } from "./Sprache";
+import { Modell3D, type Modell3DGriff } from "./drei/Modell3D";
+import { scheibeBauplan } from "./drei/scheibeBau";
+import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
 /** Auge, Ohr oder Haut im Querschnitt: Teil antippen, Erklärung lesen, als Praxis für den Patienten markieren. */
@@ -15,20 +18,27 @@ export function SchnittModellAnsicht({ modell, markierungen = [], patientId, ein
   const [gewaehlt, setGewaehlt] = useState<string | null>(markierungen[0]?.teil ?? null);
   const [basis] = useState(() => ({ x: 0, y: 0, w: m.breite, h: m.hoehe }));
   const zoom = useZoom(basis, 6);
+  const [raum, setRaum] = useState(true);
+  const griff = useRef<Modell3DGriff | null>(null);
+  const plan = useCallback((T: Parameters<typeof scheibeBauplan>[0]) => scheibeBauplan(T, m.teile.map((x) => ({ id: x.id, farbe: x.farbe, formen: x.formen })), m.breite, m.hoehe), [m]);
+  const immer = useCallback(() => true, []);
   const teil = m.teile.find((y) => y.id === gewaehlt) ?? null;
   const waehlen = (id: string, hinzoomen = false) => {
     setGewaehlt(id);
     const ziel = m.teile.find((y) => y.id === id);
-    if (hinzoomen && ziel) zoom.zoomAuf(rahmen(ziel.formen), 2.2);
+    if (hinzoomen && ziel && raum) window.setTimeout(() => griff.current?.fliegeZu(id), 80);
+    else if (hinzoomen && ziel) zoom.zoomAuf(rahmen(ziel.formen), 2.2);
   };
 
   return (
     <div className={`grid gap-4 ${einspaltig ? "" : "lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]"}`} data-testid={`schnittmodell-${modell}`}>
       <div>
-        <div className="relative overflow-hidden rounded-2xl bg-[#FBF7F1] ring-1 ring-[#E9E2DA]">
-          <ZoomTasten zoom={zoom} />
+        <div className={`relative overflow-hidden rounded-2xl ring-1 ring-[#E9E2DA] ${raum ? "modell-buehne" : "bg-[#FBF7F1]"}`}>
+          <DreiSchalter raum={raum} setRaum={setRaum} />
+          <ZoomTasten zoom={raum ? { vergroessern: () => griff.current?.zoom(0.72), verkleinern: () => griff.current?.zoom(1.38), zuruecksetzen: () => griff.current?.zuruecksetzen(), gezoomt: true } : zoom} />
           {teil && <GewaehltLeiste titel={t(teil.name)} zielId={`${modell}-erklaerung`} />}
-          <svg ref={zoom.svgRef} viewBox={zoom.viewBox} {...zoom.ereignisse} className="mx-auto block h-[min(60vh,32rem)] w-full select-none" style={{ touchAction: zoom.touchAction }} role="group" aria-label={`${t(m.titel)}: ${t(m.ansicht)}`} data-testid="schnitt-svg">
+          {raum && <Modell3D ref={griff} plan={plan} schluessel={modell} beschriftung={t(m.titel)} hoehe="h-[min(60vh,32rem)]" gewaehlt={gewaehlt ? [gewaehlt] : []} markiert={marken.liste.map((x) => x.teil)} sichtbar={immer} sichtbarSchluessel="alle" onWahl={(k) => waehlen(k)} ohne3D={() => setRaum(false)} />}
+          {!raum && <svg ref={zoom.svgRef} viewBox={zoom.viewBox} {...zoom.ereignisse} className="mx-auto block h-[min(60vh,32rem)] w-full select-none" style={{ touchAction: zoom.touchAction }} role="group" aria-label={`${t(m.titel)}: ${t(m.ansicht)}`} data-testid="schnitt-svg">
             {m.teile.map((x) => {
               const an = gewaehlt === x.id, markiert = marken.istMarkiert(x.id);
               const c = markiert ? { flaeche: FARBE_MARKIERT.flaeche, rand: an ? "#5A1D1D" : FARBE_MARKIERT.rand } : an ? { flaeche: FARBE_GEWAEHLT.flaeche, rand: FARBE_GEWAEHLT.rand } : { flaeche: x.farbe, rand: x.rand };
@@ -44,9 +54,9 @@ export function SchnittModellAnsicht({ modell, markierungen = [], patientId, ein
             <g aria-hidden="true" fontSize={11} fill="#8b8378" textAnchor="middle" pointerEvents="none">
               {m.hinweise.map((h) => <text key={h.text} x={h.bei[0]} y={h.bei[1]}>{t(h.text)}</text>)}
             </g>
-          </svg>
+          </svg>}
         </div>
-        <p className="mt-1.5 text-xs text-slate-500">{t(m.ansicht)}. {t("Antippen für die Erklärung, vergrößern mit + und − oder zwei Fingern.")}</p>
+        <p className="mt-1.5 text-xs text-slate-500">{t(m.ansicht)}. {raum ? t(DREI_HINWEIS) : t("Antippen für die Erklärung, vergrößern mit + und − oder zwei Fingern.")}</p>
       </div>
       <div className="min-w-0">
         {marken.liste.length > 0 && (

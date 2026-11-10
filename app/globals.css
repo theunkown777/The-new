@@ -135,3 +135,6 @@ h1 {
 .kurz-regler::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 34px; height: 34px; border-radius: 999px; background: #fff; border: 3px solid #6B2A24; box-shadow: 0 2px 6px rgba(0,0,0,.25); cursor: pointer; }
 .kurz-regler::-moz-range-thumb { width: 30px; height: 30px; border-radius: 999px; background: #fff; border: 3px solid #6B2A24; box-shadow: 0 2px 6px rgba(0,0,0,.25); cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .kurz-ein, .kurz-puls { animation: none; } }
+
+/* Räumliche Modelle: ruhiger Hintergrund mit Lichtschein, damit die Formen plastisch wirken */
+.modell-buehne { background: radial-gradient(110% 85% at 50% 22%, #f6f1ea 0%, #e6ddd1 48%, #c9bcab 100%); }

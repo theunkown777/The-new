@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { rahmen } from "@/lib/modelle/formen";
 import { DEKOR, EBENEN, KOERPER_BREITE, KOERPER_HOEHE, STRUKTUREN, UMRISS, seiteImBild, seitenName, strukturNach, teilKennung, teilLesen, teilName, type Ansicht, type Ebene, type Seite, type Struktur } from "@/lib/modelle/koerper";
 import { useZoom } from "./useZoom";
 import { useT } from "./Sprache";
+import { Modell3D, type Modell3DGriff } from "./drei/Modell3D";
+import { koerperBauplan } from "./drei/koerperBau";
+import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
 const BASIS = { x: 0, y: 0, w: KOERPER_BREITE, h: KOERPER_HOEHE };
@@ -43,6 +46,12 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
 
   const sichtbar = useMemo(() => STRUKTUREN.filter((s) => ebenen.includes(s.ebene) && s[ansicht] && (!s.geschlecht || s.geschlecht === geschlecht)), [ebenen, ansicht, geschlecht]);
 
+  // Räumliche Darstellung (360 Grad drehbar); ohne WebGL oder auf Wunsch die flache Schemazeichnung
+  const [raum, setRaum] = useState(true);
+  const griff = useRef<Modell3DGriff | null>(null);
+  const plan = useCallback((T: Parameters<typeof koerperBauplan>[0]) => koerperBauplan(T, (x) => (x.farbe ?? FARBE[x.ebene]).flaeche), []);
+  const sichtbar3D = useCallback((d: Record<string, unknown>) => d.gruppe === "haut" || (ebenen.includes(d.gruppe as Ebene) && (!d.geschlecht || d.geschlecht === geschlecht)), [ebenen, geschlecht]);
+
   // Mehrere Stellen auf einmal markieren (nur Praxisansicht)
   const [mehrfach, setMehrfach] = useState(false);
   const [mehrere, setMehrere] = useState<string[]>([]);
@@ -54,7 +63,11 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
     if (!ebenen.includes(s.ebene)) setEbenen((e) => [...e, s.ebene]);
     const a: Ansicht = s[ziel] ? ziel : s.vorn ? "vorn" : "hinten";
     if (a !== ansicht) setAnsicht(a);
-    if (hinzoomen) {
+    if (hinzoomen && raum) {
+      svgBereich.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      const k = teilKennung(s.id, seite);
+      window.setTimeout(() => griff.current?.fliegeZu(k), 80);
+    } else if (hinzoomen) {
       svgBereich.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       const r = rahmen(s[a] ?? []);
       // paarige Struktur auf der rechten Bildhälfte: Rahmen spiegeln
@@ -115,7 +128,7 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <div className="inline-flex rounded-full bg-slate-100 p-1 text-sm" role="tablist" aria-label={t("Ansicht")}>
             {(["vorn", "hinten"] as Ansicht[]).map((a) => (
-              <button key={a} type="button" role="tab" aria-selected={ansicht === a} onClick={() => setAnsicht(a)} data-testid={`koerper-ansicht-${a}`}
+              <button key={a} type="button" role="tab" aria-selected={ansicht === a} onClick={() => { setAnsicht(a); if (raum) griff.current?.blick(a === "vorn" ? 0 : Math.PI); }} data-testid={`koerper-ansicht-${a}`}
                 className={`rounded-full px-3.5 py-1.5 ${ansicht === a ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>
                 {a === "vorn" ? t("Von vorn") : t("Von hinten")}
               </button>
@@ -142,10 +155,17 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
             </div>
           )}
         </div>
-        <div ref={svgBereich} className="relative scroll-mt-4 overflow-hidden rounded-2xl bg-[#FBF7F1] ring-1 ring-[#E9E2DA]">
-          <ZoomTasten zoom={zoom} />
+        <div ref={svgBereich} className={`relative scroll-mt-4 overflow-hidden rounded-2xl ring-1 ring-[#E9E2DA] ${raum ? "modell-buehne" : "bg-[#FBF7F1]"}`}>
+          <DreiSchalter raum={raum} setRaum={setRaum} />
+          <ZoomTasten zoom={raum ? { vergroessern: () => griff.current?.zoom(0.72), verkleinern: () => griff.current?.zoom(1.38), zuruecksetzen: () => griff.current?.zuruecksetzen(), gezoomt: true } : zoom} />
           {kennung && !mehrfach && <GewaehltLeiste titel={name_(kennung)} zielId="koerper-erklaerung" />}
-          <svg ref={zoom.svgRef} viewBox={zoom.viewBox} {...zoom.ereignisse} className="mx-auto block h-[min(72vh,46rem)] w-full select-none" style={{ touchAction: zoom.touchAction }}
+          {raum && (
+            <Modell3D ref={griff} plan={plan} schluessel="koerper" beschriftung={t("Körper")} hoehe="h-[min(72vh,46rem)]"
+              gewaehlt={mehrfach ? mehrere : kennung ? [kennung] : []} markiert={marken.liste.map((m) => m.teil)}
+              sichtbar={sichtbar3D} sichtbarSchluessel={`${ebenen.join(",")}|${geschlecht}`}
+              onWahl={(k) => { const x = teilLesen(k); if (x) waehlen(x.struktur, x.seite); }} ohne3D={() => setRaum(false)} />
+          )}
+          {!raum && <svg ref={zoom.svgRef} viewBox={zoom.viewBox} {...zoom.ereignisse} className="mx-auto block h-[min(72vh,46rem)] w-full select-none" style={{ touchAction: zoom.touchAction }}
             role="group" aria-label={`${t("Körper")}: ${ansicht === "vorn" ? t("Von vorn") : t("Von hinten")}`} data-testid="koerper-svg">
             <g aria-hidden="true">
               {UMRISS.map((u, i) => <path key={i} d={u.d} stroke="#F0E5DA" strokeWidth={u.breite} strokeLinecap="round" fill="none" />)}
@@ -157,9 +177,9 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
             {geordnet.filter((s) => s.ebene !== "knochen" && s.tief).flatMap((s) => zeichne(s, true, "bild"))}
             <text x={18} y={KOERPER_HOEHE - 14} fontSize={11} fill="#8b8378" aria-hidden="true">{ansicht === "vorn" ? "rechts" : "links"}</text>
             <text x={KOERPER_BREITE - 18} y={KOERPER_HOEHE - 14} fontSize={11} fill="#8b8378" textAnchor="end" aria-hidden="true">{ansicht === "vorn" ? "links" : "rechts"}</text>
-          </svg>
+          </svg>}
         </div>
-        <p className="mt-1.5 text-xs text-slate-500">{t("Antippen für die Erklärung. Vergrößern mit + und −, mit zwei Fingern oder per Doppelklick.")}</p>
+        <p className="mt-1.5 text-xs text-slate-500">{raum ? t(DREI_HINWEIS) : t("Antippen für die Erklärung. Vergrößern mit + und −, mit zwei Fingern oder per Doppelklick.")}</p>
       </div>
 
       <div className="min-w-0">

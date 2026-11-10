@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { rahmen } from "@/lib/modelle/formen";
 import { GEBISS_BREITE, GEBISS_HOEHE, INSTRUMENTE, MILCHZAEHNE, MILCHZAHN_HINWEIS, SCHICHTEN, SCHNITT, ZAEHNE, ZAHNARTEN, zahnKennung, zahnNach, zahnTitel, type Material } from "@/lib/modelle/gebiss";
 import { useZoom } from "./useZoom";
 import { useT } from "./Sprache";
+import { Modell3D, type Modell3DGriff } from "./drei/Modell3D";
+import { gebissBauplan } from "./drei/gebissBau";
+import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
 const BASIS_BOGEN = { x: 0, y: 0, w: GEBISS_BREITE, h: GEBISS_HOEHE };
@@ -37,6 +40,14 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
   const zoomBogen = useZoom(BASIS_BOGEN, 6);
   const zoomSchnitt = useZoom(BASIS_SCHNITT, 5);
   const zahn = fdi ? zahnNach(fdi) : null;
+  // Räumliches Gebiss (360 Grad drehbar, Mund öffnen und schließen); ohne WebGL die Schemazeichnung
+  const [raum, setRaum] = useState(true);
+  const [offen, setOffen] = useState(true);
+  const [wurzeln, setWurzeln] = useState(false);
+  const griff = useRef<Modell3DGriff | null>(null);
+  const plan = useCallback((T: Parameters<typeof gebissBauplan>[0], h: { verbinde: Parameters<typeof gebissBauplan>[1] }) => gebissBauplan(T, h.verbinde), []);
+  const sichtbar3D = useCallback((d: Record<string, unknown>) => (d.gruppe !== (milch ? "milch" : "bleibend") ? false : d.fleisch && wurzeln ? 0.22 : true), [milch, wurzeln]);
+
   // Mehrere Zähne auf einmal markieren (nur Praxisansicht)
   const [mehrfach, setMehrfach] = useState(false);
   const [auswahl, setAuswahl] = useState<number[]>([]);
@@ -50,7 +61,8 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
     setFdi(nr);
     const z = zahnNach(nr);
     if (z && !!z.milch !== milch) setMilch(!!z.milch);
-    if (hinzoomen && z) zoomBogen.zoomAuf(rahmen([z.form]), 4);
+    if (hinzoomen && z && raum) window.setTimeout(() => griff.current?.fliegeZu(zahnKennung(nr)), 80);
+    else if (hinzoomen && z) zoomBogen.zoomAuf(rahmen([z.form]), 4);
   }
 
   const querschnitt = (mitInstrument: boolean) => {
@@ -101,10 +113,23 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                   className={`rounded-full px-3.5 py-1.5 ${milch === wert ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>{t(name)}</button>
               ))}
             </div>
-            <div className="relative overflow-hidden rounded-2xl bg-[#FBF7F1] ring-1 ring-[#E9E2DA]">
-              <ZoomTasten zoom={zoomBogen} />
+            <div className={`relative overflow-hidden rounded-2xl ring-1 ring-[#E9E2DA] ${raum ? "modell-buehne" : "bg-[#FBF7F1]"}`}>
+              <DreiSchalter raum={raum} setRaum={setRaum} />
+              <ZoomTasten zoom={raum ? { vergroessern: () => griff.current?.zoom(0.72), verkleinern: () => griff.current?.zoom(1.38), zuruecksetzen: () => griff.current?.zuruecksetzen(), gezoomt: true } : zoomBogen} />
               {zahn && !mehrfach && <GewaehltLeiste titel={`${t("Zahn {nr}", { nr: zahn.fdi })}: ${t(zahn.name)}`} zielId="gebiss-erklaerung" />}
-              <svg ref={zoomBogen.svgRef} viewBox={zoomBogen.viewBox} {...zoomBogen.ereignisse} className="mx-auto block h-[min(70vh,40rem)] w-full select-none" style={{ touchAction: zoomBogen.touchAction }}
+              {raum && (
+                <>
+                  <Modell3D ref={griff} plan={plan} schluessel="gebiss" beschriftung={t("Gebiss")} hoehe="h-[min(70vh,40rem)]"
+                    gewaehlt={mehrfach ? auswahl.map(zahnKennung) : fdi ? [zahnKennung(fdi)] : []} markiert={marken.liste.map((m) => m.teil)}
+                    sichtbar={sichtbar3D} sichtbarSchluessel={`${milch}|${wurzeln}`}
+                    onWahl={(k) => zahnWaehlen(Number(k))} ohne3D={() => setRaum(false)} />
+                  <div className="absolute left-2 top-12 z-10 flex flex-col items-start gap-1.5 text-xs">
+                    <button type="button" className="rounded-full bg-white/90 px-3 py-1.5 text-slate-700 shadow ring-1 ring-slate-200" aria-pressed={offen} onClick={() => { griff.current?.klappen(offen ? 0 : 0.3); setOffen(!offen); }} data-testid="gebiss-mund">{offen ? t("Mund schließen") : t("Mund öffnen")}</button>
+                    <button type="button" className="rounded-full bg-white/90 px-3 py-1.5 text-slate-700 shadow ring-1 ring-slate-200" aria-pressed={wurzeln} onClick={() => setWurzeln(!wurzeln)} data-testid="gebiss-wurzeln">{wurzeln ? t("Zahnfleisch zeigen") : t("Wurzeln zeigen")}</button>
+                  </div>
+                </>
+              )}
+              {!raum && <svg ref={zoomBogen.svgRef} viewBox={zoomBogen.viewBox} {...zoomBogen.ereignisse} className="mx-auto block h-[min(70vh,40rem)] w-full select-none" style={{ touchAction: zoomBogen.touchAction }}
                 role="group" aria-label={t("Gebiss von oben gesehen, Oberkiefer oben, Unterkiefer unten")} data-testid="gebiss-svg">
                 <g aria-hidden="true" fontSize={12} fill="#8b8378" textAnchor="middle">
                   <text x={200} y={236}>{t("Oberkiefer")}</text>
@@ -128,9 +153,9 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                     </g>
                   );
                 })}
-              </svg>
+              </svg>}
             </div>
-            <p className="mt-1.5 text-xs text-slate-500">{t("Zahn antippen für die Erklärung. Die Nummern folgen dem Zahnschema der Praxis: Wie beim Blick in den Mund liegt Ihre rechte Seite links im Bild.")}</p>
+            <p className="mt-1.5 text-xs text-slate-500">{raum ? t(DREI_HINWEIS) : t("Zahn antippen für die Erklärung. Die Nummern folgen dem Zahnschema der Praxis: Wie beim Blick in den Mund liegt Ihre rechte Seite links im Bild.")}</p>
           </div>
           <div className="min-w-0">
             {marken.liste.length > 0 && (

@@ -12,11 +12,12 @@ export function sammleModellTexte(): { alle: Record<string, string>; teile: Reco
   const add = (g: string, ...t: (string | null | undefined)[]) => { for (const x of t) if (x && x.trim()) gruppen[g].push(x); };
 
   // Oberfläche: alle t("…")- und uebersetze(x, "…")-Aufrufe mit festem Text
-  const DATEIEN = ["components/modelle/KoerperModell.tsx", "components/modelle/GebissModell.tsx", "components/modelle/SchnittModellAnsicht.tsx", "components/modelle/ModellTeile.tsx", "components/modelle/ModellWahl.tsx", "app/portal/[token]/modell/page.tsx"];
+  const DATEIEN = ["components/modelle/KoerperModell.tsx", "components/modelle/GebissModell.tsx", "components/modelle/SchnittModellAnsicht.tsx", "components/modelle/ModellTeile.tsx", "components/modelle/ModellWahl.tsx", "components/modelle/drei/Modell3D.tsx", "components/modelle/drei/Schalter.tsx", "app/portal/[token]/modell/page.tsx"];
   for (const d of DATEIEN) {
     const q = readFileSync(d, "utf8");
     for (const m of q.matchAll(/\bt\(\s*"((?:[^"\\]|\\.)+)"/g)) add("oberflaeche", JSON.parse(`"${m[1]}"`));
   }
+  add("oberflaeche", "Mit dem Finger oder der Maus drehen, mit zwei Fingern oder dem Mausrad vergrößern. Antippen für die Erklärung.", "Schema");
   add("oberflaeche", "Vereinfachte Darstellung zur Erklärung. Sie ersetzt keine Untersuchung und ist keine Diagnose.", "rechts", "links", "weiblich", "männlich", "Alle Zähne", "Aufbau eines Zahns", "Instrumente", "Bleibende Zähne (32)", "Milchzähne (20)", ...Object.values(MODELL_NAMEN));
   for (const e of EBENEN) add("oberflaeche", e.name, e.kurz);
 
