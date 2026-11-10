@@ -84,9 +84,10 @@ export async function zugangPasst(benutzer: string, passwort: string, env: Recor
  * Pfade, die auch ohne Zugang erreichbar sein müssen: die Demnächst-Seite und ihre Bausteine sowie
  * Zugänge mit eigener Absicherung, die keine Website-Inhalte zeigen:
  * Sorrida-Connector (Praxis-Schlüssel), nächtliche Aufgabe (CRON_SECRET), Stripe (Signatur),
- * Schnittstelle v1 (API-Schlüssel) und Patientenlinks (geheimer Link je Patient, nur dessen Daten).
+ * Schnittstelle v1 (API-Schlüssel), Kalender-Abo der Praxis (geheimer Link, ohne Patientennamen) und
+ * Patientenlinks (geheimer Link je Patient, nur dessen Daten).
  */
-const EIGENE_ABSICHERUNG = ["/api/connector/", "/api/cron/", "/api/stripe/webhook", "/api/v1/"];
+const EIGENE_ABSICHERUNG = ["/api/connector/", "/api/cron/", "/api/stripe/webhook", "/api/v1/", "/api/kalender/"];
 const PATIENTENLINK = /^\/(api\/)?(p|portal|a)\/[^/]{16,}(\/|$)/;
 export function freiOhneZugang(pfad: string): boolean {
   return EIGENE_ABSICHERUNG.some((p) => pfad.startsWith(p)) || PATIENTENLINK.test(pfad) || pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";

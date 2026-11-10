@@ -47,6 +47,11 @@ const CARDS = [
     description: "Nachschlagewerk zu gängigen Selbstzahlerleistungen – nicht patientenbezogen.",
   },
   {
+    href: "/settings/termine",
+    title: "Online-Termine und Kalender",
+    description: "Patienten buchen selbst und sehen nur freie Zeiten. Kalender der Praxis übertragen (Google, Outlook, Praxisprogramm).",
+  },
+  {
     href: "/settings/standorte",
     title: "Standorte",
     description: "Hauptpraxis und Zweigpraxen mit Behandlungsplätzen und Sprechzeit, für Termine und Auslastung je Standort.",

@@ -97,6 +97,7 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
                   <Link href={`/patients/${t.patient.id}`} className="ziel font-medium text-slate-900 hover:text-brand-700">{t.patient.lastName}, {t.patient.firstName}</Link>
                   <p className="text-sm text-slate-600">{t.reason}{t.location && standorte.length > 1 ? ` · ${t.location.name}` : ""}</p>
                   <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs ${STATUS_CLS[t.status as TerminStatus]}`}>{STATUS_LABEL[t.status as TerminStatus]}</span>
+                  {t.quelle === "PATIENT" && <span className="ml-1 mt-1 inline-block rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-800" data-testid="termin-online">online gebucht</span>}
                 </div>
               </div>
               <div className="sm:pl-[4.5rem]"><TerminAktionen

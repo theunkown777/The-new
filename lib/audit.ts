@@ -28,6 +28,9 @@ export const AUDIT_ACTIONS = {
   "bereich.passwort": "Passwort für Mein Bereich gesetzt oder geändert",
   "bereich.gesperrt": "Mein Bereich nach Fehlversuchen gesperrt",
   "datev.export": "DATEV-Buchungsstapel exportiert",
+  "kalender": "Kalender oder Online-Termine geändert",
+  "termin.online": "Termin vom Patienten online gebucht oder abgesagt",
+  "nachricht.whatsapp": "Nachricht per WhatsApp",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

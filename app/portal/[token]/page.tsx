@@ -51,7 +51,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
       lastName: true,
       portalExpiresAt: true,
       portalViewedAt: true,
-      practice: { select: { name: true, specialty: true, accountHolder: true, iban: true, bic: true, proposalPrices: true, glaeubigerId: true, stripeAccountId: true } },
+      practice: { select: { name: true, specialty: true, buchungAktiv: true, accountHolder: true, iban: true, bic: true, proposalPrices: true, glaeubigerId: true, stripeAccountId: true } },
       invoices: { where: { status: { not: "STORNIERT" } }, orderBy: { dueDate: "asc" }, take: 50 },
       proposals: {
         where: { OR: [{ shareCreatedAt: { not: null } }, { status: { in: ["BESPROCHEN", "ANGENOMMEN"] } }] },
@@ -61,6 +61,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
       },
       anamnesisForms: { where: { submittedAt: null, expiresAt: { gt: now } }, select: { id: true }, take: 1 },
       modellMarkierungen: { select: { modell: true, teil: true, notiz: true }, orderBy: { createdAt: "asc" } },
+      appointments: { where: { start: { gte: now }, status: { in: ["GEPLANT", "BESTAETIGT"] } }, orderBy: { start: "asc" }, take: 1, select: { start: true, minutes: true } },
     },
   });
   if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < now) return <Expired />;
@@ -125,6 +126,8 @@ export default async function PortalPage({ params, searchParams }: { params: { t
   const modellArt = hauptModell(practice.specialty);
   const modellMarken = patient.modellMarkierungen.filter((m): m is typeof m & { modell: Modell } => (MODELLE as readonly string[]).includes(m.modell));
 
+  const naechsterTermin = patient.appointments[0] ?? null;
+
   // Wohin der Knopf "Als Nächstes" führt: Rechnung, Vorschlag, Fragebogen oder Unterlagen.
   const openProposal = patient.proposals.find((p) => (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse);
   const nextHref = open.length
@@ -177,6 +180,18 @@ export default async function PortalPage({ params, searchParams }: { params: { t
             {t.paidOnlineThanks}
           </p>
         )}
+        {(practice.buchungAktiv || naechsterTermin) && (
+          <section className="mt-8" aria-labelledby="termin" data-testid="portal-termin-hinweis">
+            <h2 id="termin" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />Ihr Termin</h2>
+            <div className="mt-3 rounded-2xl bg-white p-4">
+              {naechsterTermin
+                ? <p className="text-sm text-slate-800">Nächster Termin: <b>{naechsterTermin.start.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Berlin" })}, {naechsterTermin.start.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" })} Uhr</b></p>
+                : <p className="text-sm text-slate-600">Buchen Sie Ihren nächsten Termin selbst. Sie sehen nur Zeiten, die wirklich frei sind.</p>}
+              {practice.buchungAktiv && <a href={`/portal/${params.token}/termin`} className="btn-primary mt-3 inline-block" data-testid="portal-termin-link">{naechsterTermin ? "Termine ansehen oder weiteren buchen" : "Termin buchen"}</a>}
+            </div>
+          </section>
+        )}
+
         <section className="mt-8" aria-labelledby="modell" data-testid="portal-modell-hinweis">
           <h2 id="modell" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{modellMarken.length ? "Von Ihrer Praxis im Modell markiert" : modellArt === "gebiss" ? "Ihr Gebiss im Modell" : "Im Modell ansehen und verstehen"}</h2>
           <div className="mt-3 rounded-2xl bg-white p-4">

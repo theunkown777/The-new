@@ -30,6 +30,20 @@ model Practice {
   proposals          TreatmentProposal[]
   connectorKeys      ConnectorKey[]
   gdtAuslieferungen  GdtAuslieferung[]
+  kalenderBelegungen KalenderBelegung[]
+  /// Online-Terminbuchung im Patientenportal
+  buchungAktiv       Boolean             @default(false)
+  /// Sprechzeiten je Wochentag: { "1": [["08:00","12:00"]], … } (1 = Montag)
+  sprechzeiten       Json?
+  buchungMinuten     Int                 @default(20)
+  buchungVorlaufStd  Int                 @default(24)
+  buchungTageVoraus  Int                 @default(28)
+  /// Kalender-Abo der Praxis (ICS-Adresse aus Google, Outlook, Praxisprogramm); nur belegte Zeiten werden gelesen
+  kalenderUrl        String?
+  kalenderSyncAt     DateTime?
+  kalenderSyncFehler String?
+  /// Geheimer Link, über den die Praxis Sorrida-Termine in ihrem Kalender abonniert (nur als Hash gespeichert)
+  kalenderFeedHash   String?             @unique
   modellMarkierungen ModellMarkierung[]
   launchTokens       LaunchToken[]
   anamnesisForms     AnamnesisForm[]
@@ -702,6 +716,8 @@ model Appointment {
   status      String    @default("GEPLANT")
   confirmedAt DateTime?
   remindedAt  DateTime?
+  /// "PRAXIS" (in Sorrida eingetragen) oder "PATIENT" (online im Patientenportal gebucht)
+  quelle      String    @default("PRAXIS")
   createdAt   DateTime  @default(now())
 
   @@index([practiceId, start])
@@ -772,4 +788,19 @@ model ModellMarkierung {
 
   @@unique([patientId, modell, teil])
   @@index([practiceId])
+}
+
+// Belegte Zeiten aus dem Kalender der Praxis. Gespeichert werden nur Beginn und Ende,
+// keine Titel, Namen oder Notizen. quelle: "abo" (Kalender-Adresse) oder "datei" (hochgeladen).
+model KalenderBelegung {
+  id         String   @id @default(cuid())
+  practiceId String
+  practice   Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  start      DateTime
+  ende       DateTime
+  ganztag    Boolean  @default(false)
+  quelle     String   @default("abo")
+  createdAt  DateTime @default(now())
+
+  @@index([practiceId, start])
 }
