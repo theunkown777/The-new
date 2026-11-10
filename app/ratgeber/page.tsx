@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RATGEBER } from "@/lib/ratgeber";
+import { JournalRahmen } from "@/components/start/JournalKopf";
 
 export const metadata: Metadata = {
   title: "Ratgeber für Praxisteams – Sorrida",
@@ -9,26 +10,29 @@ export const metadata: Metadata = {
 
 export default function RatgeberIndex() {
   return (
-    <main className="mx-auto max-w-2xl px-4 py-10">
-      <Link href="/" className="mb-8 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/sorrida-mark.svg" alt="" className="h-10 w-auto" />
-        <span className="font-brand text-brand-700">SORRIDA</span>
-      </Link>
-      <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Ratgeber für Praxisteams</h1>
-      <p className="mt-3 text-slate-600">
-        Kurze, sachliche Erklärungen zu Themen, über die Patienten am Empfang am häufigsten stolpern.
-      </p>
-      <ul className="mt-8 space-y-4">
-        {RATGEBER.map((a) => (
-          <li key={a.slug} className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-brand-300">
-            <Link href={`/ratgeber/${a.slug}`} className="block">
-              <h2 className="font-semibold text-slate-900">{a.title}</h2>
-              <p className="mt-1 text-sm text-slate-600">{a.description}</p>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </main>
+    <JournalRahmen>
+      <main className="mx-auto max-w-3xl px-5 py-14 sm:px-8 sm:py-20">
+        <h1 className="j-schau text-[clamp(2.8rem,7vw,4.6rem)]">
+          Ratgeber <em>für Praxisteams</em>
+        </h1>
+        <p className="j-text mt-5 max-w-xl text-lg">
+          Kurze, sachliche Erklärungen zu Themen, über die Patienten am Empfang am häufigsten stolpern.
+        </p>
+        <ol className="mt-12 border-t border-tinte">
+          {RATGEBER.map((a, i) => (
+            <li key={a.slug} className="border-b border-linie">
+              <Link href={`/ratgeber/${a.slug}`} className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-baseline gap-4 py-6">
+                <span className="j-ziffer text-2xl">{i + 1}</span>
+                <span>
+                  <span className="j-titel block text-[1.7rem] text-tinte group-hover:text-brand-700">{a.title}</span>
+                  <span className="mt-1 block text-[15px] text-tinte-2">{a.description}</span>
+                </span>
+                <span className="j-pfeil text-tinte-2 group-hover:text-brand-700" aria-hidden="true">→</span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </main>
+    </JournalRahmen>
   );
 }

@@ -51,7 +51,7 @@ h1 {
 /* Sorrida-Designsprache: Überschriften in der Serifenschrift der Wortmarke,
    ohne Sperrung. Fließtext bleibt Open Sans. */
 .font-display {
-  font-family: "Cormorant Garamond", Georgia, serif;
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
   font-weight: 500;
   letter-spacing: -0.005em;
 }
@@ -138,3 +138,119 @@ h1 {
 
 /* Räumliche Modelle: ruhiger Hintergrund mit Lichtschein, damit die Formen plastisch wirken */
 .modell-buehne { background: radial-gradient(110% 85% at 50% 22%, #f6f1ea 0%, #e6ddd1 48%, #c9bcab 100%); }
+
+
+/* ------------------------------------------------------------------------------------------------
+   Website als Fachjournal (Startseite, später alle öffentlichen Seiten)
+   Papier #F5F2EE, Tinte #24201F, Bordeaux als einziger Akzent, Salbei nur für Kasse.
+   Formen: 6 px für Knöpfe und Felder, keine Kästen um Fließtext, Haarlinien statt Karten.
+   ------------------------------------------------------------------------------------------------ */
+.journal {
+  background-color: #F5F2EE;
+  color: #24201F;
+  /* feine Papierstruktur, kaum sichtbar */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .2 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  overflow-x: clip;
+  font-size: 17px;
+  line-height: 1.6;
+}
+.journal ::selection { background: #5A1D1D; color: #F5F2EE; }
+.j-schau {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+.j-schau em { font-style: italic; font-weight: 400; color: #5A1D1D; }
+.j-titel {
+  font-family: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+.j-titel em { font-style: italic; font-weight: 400; }
+.j-text { text-wrap: pretty; color: #5E5650; }
+.j-ziffer {
+  /* Zahlen in der klaren Grotesk statt in der Serife: gleich hohe, gleich breite Ziffern */
+  font-family: var(--font-open-sans), "Open Sans", system-ui, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.04em;
+  line-height: 0.8;
+  color: #5A1D1D;
+}
+/* Beträge und Messwerte in Überschriften: gleiche Schrift wie .j-ziffer, Farbe vom Umfeld */
+.j-zahl {
+  font-family: var(--font-open-sans), "Open Sans", system-ui, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.035em;
+}
+.j-marke {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5E5650;
+}
+.j-knopf {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  min-height: 48px; padding: 0 1.4rem; border-radius: 6px;
+  font-size: 15px; font-weight: 600; letter-spacing: .01em;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.j-knopf:active { transform: translateY(1px); }
+.j-knopf:focus-visible, .j-link:focus-visible { outline: 2px solid #5A1D1D; outline-offset: 3px; }
+.j-knopf-voll { background: #5A1D1D; color: #F5F2EE; }
+.j-knopf-voll:hover { background: #431515; }
+.j-knopf-linie { border: 1px solid #C4B6A6; color: #24201F; }
+.j-knopf-linie:hover { border-color: #5A1D1D; color: #5A1D1D; }
+.j-knopf-hell { background: #F5F2EE; color: #5A1D1D; }
+.j-knopf-hell:hover { background: #fff; }
+.j-link {
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px;
+  text-decoration-color: #C4B6A6; transition: text-decoration-color .2s ease, color .2s ease;
+}
+.j-link:hover { text-decoration-color: currentColor; color: #5A1D1D; }
+.j-pfeil { transition: transform .25s ease; }
+a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
+.j-blatt {
+  /* echte Produktansicht wie ein Blatt Papier auf dem Tisch */
+  box-shadow: 0 1px 0 rgba(36,32,31,.04), 0 30px 60px -32px rgba(60,40,30,.45), 0 12px 24px -18px rgba(60,40,30,.25);
+}
+
+/* Auftakt: Zeilen erscheinen nacheinander */
+@keyframes j-auftakt { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.j-auftakt > * { animation: j-auftakt .9s cubic-bezier(.2,.7,.2,1) both; }
+.j-auftakt > *:nth-child(2) { animation-delay: .08s; }
+.j-auftakt > *:nth-child(3) { animation-delay: .16s; }
+.j-auftakt > *:nth-child(4) { animation-delay: .24s; }
+.j-auftakt > *:nth-child(5) { animation-delay: .32s; }
+@keyframes j-blatt-ein { from { opacity: 0; transform: translateY(28px) rotate(1.5deg); } to { opacity: 1; transform: rotate(-1.2deg); } }
+.j-blatt-ein { animation: j-blatt-ein 1.1s .25s cubic-bezier(.2,.7,.2,1) both; }
+
+/* Abschnitte blenden beim Scrollen weich ein (nur wo der Browser es kann; sonst sofort sichtbar) */
+@keyframes j-ein { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@supports (animation-timeline: view()) {
+  .j-ein { animation: j-ein linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .j-auftakt > *, .j-blatt-ein, .j-ein { animation: none !important; }
+  .j-blatt-ein { transform: rotate(-1.2deg); }
+}
+
+/* Schieberegler im Zeitrechner */
+.j-regler { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; }
+.j-regler::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(90deg, #5A1D1D var(--wert, 50%), #C4B6A6 var(--wert, 50%)); }
+.j-regler::-moz-range-track { height: 2px; background: #C4B6A6; }
+.j-regler::-moz-range-progress { height: 2px; background: #5A1D1D; }
+.j-regler::-webkit-slider-thumb { -webkit-appearance: none; margin-top: -11px; width: 24px; height: 24px; border-radius: 50%; background: #F5F2EE; border: 2px solid #5A1D1D; cursor: grab; transition: transform .15s ease; }
+.j-regler::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #F5F2EE; border: 2px solid #5A1D1D; cursor: grab; }
+.j-regler:active::-webkit-slider-thumb { transform: scale(1.12); cursor: grabbing; }
+.j-regler:focus-visible { outline: 2px solid #5A1D1D; outline-offset: 4px; }
+/* Serifen-Überschriften: gleich hohe Ziffern (Jahreszahlen, Paragraphen) statt Mediävalziffern */
+.font-display, .j-schau, .j-titel { font-variant-numeric: lining-nums; }

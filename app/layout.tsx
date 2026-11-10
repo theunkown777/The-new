@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import { Cormorant_Garamond, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { WegAnimationen } from "@/components/WegAnimationen";
 
@@ -7,6 +7,16 @@ const openSans = Open_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "600", "700"],
   variable: "--font-open-sans",
+  display: "swap",
+});
+
+// Überschriften der Website: Cormorant in mehreren Schnitten und kursiv (wird beim Bauen geladen und
+// von Sorrida selbst ausgeliefert, beim Besuch keine Verbindung zu Google).
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
   display: "swap",
 });
 
@@ -18,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className={openSans.variable}>
+    <html lang="de" className={`${openSans.variable} ${cormorant.variable}`}>
       <body>
         {children}
         <WegAnimationen />

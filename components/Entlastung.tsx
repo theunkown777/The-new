@@ -7,7 +7,7 @@ const QUELLEN = {
   kbv: "https://www.kbv.de/infothek/zahlen-und-fakten/studien-und-berichte/praxisbarometer-digitalisierung",
 };
 
-export function Entlastung({ therapie = false }: { therapie?: boolean }) {
+export function Entlastung({ therapie = false, journal = false }: { therapie?: boolean; journal?: boolean }) {
   const karten = [
     {
       titel: "Weniger Bürokratie",
@@ -40,6 +40,42 @@ export function Entlastung({ therapie = false }: { therapie?: boolean }) {
         : "Öffnet sich aus Ihrer Praxissoftware (VDDS-media oder GDT) mit dem aktuellen Patienten. Ihre Abrechnung bleibt, wo sie ist.",
     },
   ];
+  if (journal)
+    return (
+      <section aria-labelledby="entlastung" data-testid="entlastung">
+        <h2 id="entlastung" className="j-schau max-w-4xl text-[clamp(2.4rem,4.6vw,3.8rem)]">
+          Was Praxen heute belastet, <em>und was Sorrida abnimmt.</em>
+        </h2>
+        <div className="mt-14 border-t border-tinte">
+          <div className="hidden grid-cols-12 gap-8 border-b border-linie py-3 md:grid" aria-hidden="true">
+            <p className="j-marke col-span-6">Was belastet</p>
+            <p className="j-marke col-span-5 col-start-8 text-brand-700">Was Sorrida abnimmt</p>
+          </div>
+          {karten.map((k) => (
+            <div key={k.titel} className="j-ein grid gap-4 border-b border-linie py-9 md:grid-cols-12 md:gap-8">
+              <div className="md:col-span-6">
+                <h3 className="j-titel text-[1.9rem] text-tinte">{k.titel}</h3>
+                <p className="j-text mt-3 text-[15px]">
+                  {k.fakt}
+                  {k.quelle && (
+                    <>
+                      {" "}
+                      <a href={k.quelle} className="j-link whitespace-nowrap" rel="noopener" target="_blank">
+                        Quelle
+                      </a>
+                    </>
+                  )}
+                </p>
+              </div>
+              <p className="text-tinte md:col-span-5 md:col-start-8">
+                <span className="mb-1 block text-[13px] font-semibold text-brand-700 md:hidden">Was Sorrida abnimmt</span>
+                {k.sorrida}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
   return (
     <section className="mt-14" aria-labelledby="entlastung">
       <h2 id="entlastung" className="font-display text-4xl text-slate-900">

@@ -31,7 +31,12 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-open-sans)", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        serif: ["var(--font-cormorant)", "Cormorant Garamond", "Georgia", "serif"],
       },
+      // Website (Fachjournal auf warmem Papier): Papier, dunklere Papierfläche, Tinte, Haarlinie
+      textColor: { tinte: "#24201F", "tinte-2": "#5E5650" },
+      backgroundColor: { papier: "#F5F2EE", "papier-2": "#ECE5DC", tinte: "#24201F" },
+      borderColor: { linie: "#DCD2C6", "linie-stark": "#C4B6A6" },
     },
   },
   plugins: [],
