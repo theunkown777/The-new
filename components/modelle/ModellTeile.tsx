@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Form } from "@/lib/modelle/formen";
 
-export type Markierung = { teil: string; notiz: string };
+export type Markierung = { teil: string; notiz: string; befund?: string | null };
 
 /** Farben für gewählte und von der Praxis markierte Teile (in beiden Modellen gleich). */
 export const FARBE_GEWAEHLT = { flaeche: "#F9D56B", rand: "#8A6410" };
@@ -17,14 +17,20 @@ export function useMarkierungen(modell: "gebiss" | "koerper" | "auge" | "ohr" | 
   const notizVon = (teil: string) => liste.find((m) => m.teil === teil)?.notiz;
   const istMarkiert = (teil: string) => liste.some((m) => m.teil === teil);
 
-  async function speichern(teil: string, notiz: string) {
-    if (!patientId) return;
+  /** Eine oder mehrere Stellen mit demselben Hinweis markieren. befund: undefined = unverändert lassen, null = entfernen. */
+  async function speichernViele(teile: string[], notiz: string, befund?: string | null): Promise<boolean> {
+    if (!patientId || !teile.length) return false;
     setLaeuft(true); setFehler(null);
-    const res = await fetch(`/api/patients/${patientId}/modell`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modell, teil, notiz }) }).catch(() => null);
+    const res = await fetch(`/api/patients/${patientId}/modell`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modell, teile, notiz, ...(befund !== undefined ? { befund } : {}) }) }).catch(() => null);
     setLaeuft(false);
-    if (!res?.ok) { setFehler((await res?.json().catch(() => null))?.error ?? "Speichern fehlgeschlagen."); return; }
-    setListe((l) => [...l.filter((m) => m.teil !== teil), { teil, notiz: notiz.trim() }]);
+    const d = await res?.json().catch(() => null);
+    if (!res?.ok) { setFehler(d?.error ?? "Speichern fehlgeschlagen."); return false; }
+    const neu: Markierung[] = d?.markierungen ?? teile.map((teil) => ({ teil, notiz: notiz.trim(), befund: befund ?? null }));
+    setListe((l) => [...l.filter((m) => !teile.includes(m.teil)), ...neu]);
+    return true;
   }
+  const speichern = (teil: string, notiz: string, befund?: string | null) => speichernViele([teil], notiz, befund);
+  const befundVon = (teil: string) => liste.find((m) => m.teil === teil)?.befund ?? null;
   async function entfernen(teil: string) {
     if (!patientId) return;
     setLaeuft(true); setFehler(null);
@@ -33,7 +39,7 @@ export function useMarkierungen(modell: "gebiss" | "koerper" | "auge" | "ohr" | 
     if (!res?.ok) { setFehler("Entfernen fehlgeschlagen."); return; }
     setListe((l) => l.filter((m) => m.teil !== teil));
   }
-  return { liste, notizVon, istMarkiert, speichern, entfernen, laeuft, fehler, bearbeitbar: !!patientId };
+  return { liste, notizVon, befundVon, istMarkiert, speichern, speichernViele, entfernen, laeuft, fehler, bearbeitbar: !!patientId };
 }
 
 /** Eine Form zeichnen: Fläche oder Strich. Striche bekommen einen dunkleren Rand darunter, damit sie sich abheben. */
@@ -73,26 +79,77 @@ export function ZoomTasten({ zoom }: { zoom: { vergroessern: () => void; verklei
   );
 }
 
-/** Praxisansicht: Teil für den Patienten markieren, mit kurzem Hinweis. */
-export function MarkierFeld({ teil, marken, platzhalter }: { teil: string; marken: ReturnType<typeof useMarkierungen>; platzhalter: string }) {
+/** Praxisansicht: Teil für den Patienten markieren, mit kurzem Hinweis. Mit `befunde` (Gebiss) lässt sich der Befund für den Behandlungsvorschlag wählen. */
+export function MarkierFeld({ teil, marken, platzhalter, befunde }: { teil: string; marken: ReturnType<typeof useMarkierungen>; platzhalter: string; befunde?: Record<string, string> }) {
   const vorhanden = marken.notizVon(teil);
   const [notiz, setNotiz] = useState(vorhanden ?? "");
+  const [befund, setBefund] = useState(marken.befundVon(teil) ?? "");
   if (!marken.bearbeitbar) return null;
   return (
     <div className="mt-3 rounded-xl bg-brand-50 p-3" data-testid="modell-markieren">
       <label className="block text-xs font-medium text-brand-800" htmlFor={`notiz-${teil}`}>Für die Patientin oder den Patienten markieren</label>
       <textarea id={`notiz-${teil}`} className="input mt-1.5 text-sm" rows={2} maxLength={300} value={notiz} onChange={(e) => setNotiz(e.target.value)} placeholder={platzhalter} />
+      {befunde && (
+        <label className="mt-2 block text-xs font-medium text-brand-800">
+          Befund für den Behandlungsvorschlag (sieht nur die Praxis)
+          <select className="input mt-1.5 text-sm" value={befund} onChange={(e) => setBefund(e.target.value)} data-testid="modell-befund">
+            <option value="">kein Befund</option>
+            {Object.entries(befunde).map(([k, name]) => <option key={k} value={k}>{name}</option>)}
+          </select>
+        </label>
+      )}
       <div className="mt-2 flex flex-wrap gap-2">
-        <button type="button" className="btn-primary text-sm" disabled={marken.laeuft} onClick={() => marken.speichern(teil, notiz)} data-testid="modell-markieren-speichern">
-          {vorhanden !== undefined ? "Hinweis ändern" : "Markieren"}
+        <button type="button" className="btn-primary text-sm" disabled={marken.laeuft} onClick={() => marken.speichern(teil, notiz, befunde ? befund || null : undefined)} data-testid="modell-markieren-speichern">
+          {vorhanden !== undefined ? (befunde ? "Änderung speichern" : "Hinweis ändern") : "Markieren"}
         </button>
         {vorhanden !== undefined && (
-          <button type="button" className="btn-secondary text-sm" disabled={marken.laeuft} onClick={() => { marken.entfernen(teil); setNotiz(""); }} data-testid="modell-markierung-entfernen">Markierung entfernen</button>
+          <button type="button" className="btn-secondary text-sm" disabled={marken.laeuft} onClick={() => { marken.entfernen(teil); setNotiz(""); setBefund(""); }} data-testid="modell-markierung-entfernen">Markierung entfernen</button>
         )}
       </div>
       <p className="mt-2 text-xs text-slate-500">Markierung und Hinweis erscheinen im Patientenlink (Patientenportal).</p>
       {marken.fehler && <p className="mt-1 text-xs text-red-700" role="alert">{marken.fehler}</p>}
     </div>
+  );
+}
+
+/** Praxisansicht: mehrere Stellen auf einmal markieren. `gewaehlt` sind die im Modell angetippten Stellen. */
+export function MehrfachFeld({ gewaehlt, marken, onFertig, onEntfernen, platzhalter, befunde, wort = "Stellen" }: {
+  gewaehlt: { teil: string; name: string }[]; marken: ReturnType<typeof useMarkierungen>; onFertig: () => void; onEntfernen: (teil: string) => void; platzhalter: string;
+  /** Befund-Auswahl, wenn sie für alle gewählten Stellen möglich ist (bleibende Zähne) */
+  befunde?: Record<string, string>; wort?: string;
+}) {
+  const [notiz, setNotiz] = useState("");
+  const [befund, setBefund] = useState("");
+  return (
+    <section className="card" data-testid="modell-mehrfach">
+      <h3 className="text-lg font-semibold text-slate-900">Mehrere {wort} markieren</h3>
+      <p className="mt-1 text-sm text-slate-600">Tippen Sie im Modell nacheinander alle {wort} an, die denselben Hinweis bekommen sollen. Noch einmal antippen nimmt eine Stelle wieder heraus.</p>
+      <div className="mt-3 flex flex-wrap gap-1.5" data-testid="modell-mehrfach-auswahl">
+        {gewaehlt.length === 0 && <span className="text-sm text-slate-500">Noch nichts gewählt.</span>}
+        {gewaehlt.map((g) => (
+          <button key={g.teil} type="button" onClick={() => onEntfernen(g.teil)} className="rounded-full bg-amber-100 px-3 py-1.5 text-sm text-amber-950 ring-1 ring-amber-300" aria-label={`${g.name} aus der Auswahl nehmen`}>{g.name} ✕</button>
+        ))}
+      </div>
+      <label className="mt-3 block text-xs font-medium text-brand-800" htmlFor="notiz-mehrfach">Hinweis für alle gewählten {wort}</label>
+      <textarea id="notiz-mehrfach" className="input mt-1.5 text-sm" rows={2} maxLength={300} value={notiz} onChange={(e) => setNotiz(e.target.value)} placeholder={platzhalter} />
+      {befunde && (
+        <label className="mt-2 block text-xs font-medium text-brand-800">
+          Befund für den Behandlungsvorschlag (sieht nur die Praxis)
+          <select className="input mt-1.5 text-sm" value={befund} onChange={(e) => setBefund(e.target.value)} data-testid="modell-mehrfach-befund">
+            <option value="">kein Befund</option>
+            {Object.entries(befunde).map(([k, name]) => <option key={k} value={k}>{name}</option>)}
+          </select>
+        </label>
+      )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" className="btn-primary text-sm" disabled={marken.laeuft || gewaehlt.length === 0} data-testid="modell-mehrfach-speichern"
+          onClick={async () => { if (await marken.speichernViele(gewaehlt.map((g) => g.teil), notiz, befunde ? befund || null : undefined)) onFertig(); }}>
+          {gewaehlt.length > 1 ? `Alle ${gewaehlt.length} markieren` : "Markieren"}
+        </button>
+        <button type="button" className="btn-secondary text-sm" onClick={onFertig}>Abbrechen</button>
+      </div>
+      {marken.fehler && <p className="mt-2 text-xs text-red-700" role="alert">{marken.fehler}</p>}
+    </section>
   );
 }
 

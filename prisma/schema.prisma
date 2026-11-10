@@ -786,6 +786,8 @@ model ModellMarkierung {
   /// Gebiss: FDI-Nummer ("36"); Körper: Struktur und Seite ("patellasehne:L")
   teil        String
   notiz       String   @default("")
+  /// Nur Gebiss: Befund des Zahns für den Behandlungsvorschlag (Schlüssel aus FINDINGS); der Patient sieht ihn nicht
+  befund      String?
   erstelltVon String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

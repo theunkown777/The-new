@@ -6,14 +6,16 @@ import { GebissModell } from "./GebissModell";
 import { KoerperModell } from "./KoerperModell";
 import { SchnittModellAnsicht } from "./SchnittModellAnsicht";
 
-type Marke = { modell: string; teil: string; notiz: string };
+type Marke = { modell: string; teil: string; notiz: string; befund?: string | null };
 
 /**
  * Die Modelle einer Praxis: zuerst das Modell des Fachs (Zahnarzt: Gebiss, Augenarzt: Auge,
  * Kardiologie: Körper mit Organen ...), daneben weitere passende. Modelle mit Markierungen
  * für den Patienten erscheinen immer.
  */
-export function ModellWahl({ fach, markierungen = [], patientId, geschlecht, einspaltig = false, alle = false, start }: {
+export function ModellWahl({ fach, markierungen = [], patientId, geschlecht, einspaltig = false, alle = false, start, befunde }: {
+  /** Praxisansicht Gebiss: wählbare Befunde für den Behandlungsvorschlag */
+  befunde?: Record<string, string>;
   fach: string | null | undefined; markierungen?: Marke[]; patientId?: string; geschlecht?: "W" | "M" | null; einspaltig?: boolean;
   /** Alle fünf Modelle anbieten (Menü „Modelle“), sonst nur die des Fachs */
   alle?: boolean; start?: ModellId;
@@ -23,7 +25,7 @@ export function ModellWahl({ fach, markierungen = [], patientId, geschlecht, ein
   const liste = Array.from(new Set<ModellId>([...f.modelle, ...mitMarken, ...(alle ? MODELL_IDS : [])]));
   // Im Patientenportal zuerst das Modell zeigen, in dem die Praxis etwas markiert hat
   const [aktiv, setAktiv] = useState<ModellId>(start && liste.includes(start) ? start : !patientId && mitMarken.length && !mitMarken.includes(liste[0]) ? mitMarken[0] : liste[0]);
-  const marken = markierungen.filter((x) => x.modell === aktiv).map((x) => ({ teil: x.teil, notiz: x.notiz }));
+  const marken = markierungen.filter((x) => x.modell === aktiv).map((x) => ({ teil: x.teil, notiz: x.notiz, befund: x.befund ?? null }));
   return (
     <div data-testid="modellwahl" data-modell={aktiv}>
       {liste.length > 1 && (
@@ -40,7 +42,7 @@ export function ModellWahl({ fach, markierungen = [], patientId, geschlecht, ein
           })}
         </div>
       )}
-      {aktiv === "gebiss" ? <GebissModell key="gebiss" markierungen={marken} patientId={patientId} einspaltig={einspaltig} />
+      {aktiv === "gebiss" ? <GebissModell key="gebiss" markierungen={marken} patientId={patientId} einspaltig={einspaltig} befunde={befunde} />
         : aktiv === "koerper" ? <KoerperModell key="koerper" markierungen={marken} patientId={patientId} einspaltig={einspaltig} startEbenen={f.ebenen} geschlecht={geschlecht ?? f.geschlecht} />
         : <SchnittModellAnsicht key={aktiv} modell={aktiv} markierungen={marken} patientId={patientId} einspaltig={einspaltig} />}
     </div>

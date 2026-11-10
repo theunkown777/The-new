@@ -20,6 +20,7 @@ import { loadBriefing } from "@/lib/briefingLoad";
 import { kiVerfuegbar } from "@/lib/anthropic";
 import { BehandlerWahl } from "@/components/BehandlerWahl";
 import { ModellWahl } from "@/components/modelle/ModellWahl";
+import { MODELL_BEFUNDE } from "@/lib/modelle/markierung";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -54,7 +55,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     prisma.user.findMany({ where: { practiceId }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
   const fach = praxis?.specialty ?? "hausarzt";
-  const modellMarken = await prisma.modellMarkierung.findMany({ where: { practiceId, patientId: patient.id }, select: { modell: true, teil: true, notiz: true }, orderBy: { createdAt: "asc" } });
+  const modellMarken = await prisma.modellMarkierung.findMany({ where: { practiceId, patientId: patient.id }, select: { modell: true, teil: true, notiz: true, befund: true }, orderBy: { createdAt: "asc" } });
 
   return (
     <div>
@@ -111,7 +112,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           <h2 id="am-modell" className="text-sm font-semibold uppercase tracking-wide text-slate-500">Am Modell zeigen</h2>
           <span className="text-xs text-slate-500">Stelle antippen, erklären und für den Patientenlink markieren</span>
         </div>
-        <ModellWahl fach={fach} patientId={patient.id} markierungen={modellMarken} geschlecht={patient.geschlecht === "M" ? "M" : patient.geschlecht === "W" ? "W" : null} />
+        <ModellWahl fach={fach} patientId={patient.id} markierungen={modellMarken} befunde={MODELL_BEFUNDE} geschlecht={patient.geschlecht === "M" ? "M" : patient.geschlecht === "W" ? "W" : null} />
       </section>
 
       <div className="mb-8">

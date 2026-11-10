@@ -67,6 +67,7 @@ export function ProposalEditor({
   patients,
   initialPatientId,
   initialGlobals,
+  ausModell = [],
   prices,
   practiceName,
   existing,
@@ -80,6 +81,8 @@ export function ProposalEditor({
   initialPatientId?: string;
   /** Allgemeine Befunde aus der Anamnese (z. B. Raucher), nur für neue Vorschläge. */
   initialGlobals?: GlobalCode[];
+  /** Im Anatomie-Modell markierte Stellen des Patienten (nur neue Vorschläge): Zähne mit Befund füllen das Zahnschema vor. */
+  ausModell?: { name: string; notiz: string; zahn: number | null; befund: string | null }[];
   prices: Prices;
   practiceName: string;
   existing?: ExistingProposal;
@@ -97,7 +100,10 @@ export function ProposalEditor({
   const [patientId, setPatientId] = useState(existing?.patientId ?? initialPatientId ?? "");
   const patient = patients.find((p) => p.id === patientId);
   const [factors, setFactors] = useState<PatientFactors>(existing?.input.patient ?? defaultFactors(patient));
-  const [teeth, setTeeth] = useState<Partial<Record<string, FindingCode>>>(existing?.input.teeth ?? {});
+  const modellZaehne = existing ? [] : ausModell.filter((m) => m.zahn != null);
+  const [teeth, setTeeth] = useState<Partial<Record<string, FindingCode>>>(
+    existing?.input.teeth ?? Object.fromEntries(modellZaehne.filter((m) => m.befund && m.befund in FINDINGS).map((m) => [String(m.zahn), m.befund as FindingCode])),
+  );
   const [globals, setGlobals] = useState<Partial<Record<GlobalCode, boolean>>>(
     existing?.input.globals ?? Object.fromEntries((initialGlobals ?? []).map((k) => [k, true])),
   );
@@ -107,7 +113,7 @@ export function ProposalEditor({
   const spec = specialty(fach);
   const medData = existing?.input.med ?? practiceMed ?? {};
   const [anlaesse, setAnlaesse] = useState<string[]>(existing?.input.anlaesse ?? []);
-  const [selected, setSelected] = useState<number>(16);
+  const [selected, setSelected] = useState<number>(modellZaehne[0]?.zahn ?? 16);
   const [tab, setTab] = useState<"praxis" | "patient">("praxis");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -213,7 +219,8 @@ export function ProposalEditor({
         onClick={() => setSelected(n)}
         aria-pressed={selected === n}
         aria-label={`Zahn ${n}${f ? `, ${FINDINGS[f]}` : ""}`}
-        className={`${base} ${shape} ${color} ${selected === n ? "ring-2 ring-slate-900 ring-offset-1" : ""} ${n === 21 || n === 31 ? "ml-1" : ""}`}
+        data-aus-modell={modellZaehne.some((m) => m.zahn === n) || undefined}
+        className={`${base} ${shape} ${color} ${selected === n ? "ring-2 ring-slate-900 ring-offset-1" : !f && modellZaehne.some((m) => m.zahn === n) ? "ring-2 ring-orange-400" : ""} ${n === 21 || n === 31 ? "ml-1" : ""}`}
       >
         {n}
       </button>
@@ -336,6 +343,32 @@ export function ProposalEditor({
               />
             </div>
           </div>
+
+          {!existing && ausModell.length > 0 && (
+            <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-950" data-testid="aus-modell">
+              <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">Im Modell markiert</p>
+              <ul className="mt-2 space-y-1.5">
+                {ausModell.map((m) => (
+                  <li key={m.name} className="flex flex-wrap items-baseline gap-x-2">
+                    {dental && m.zahn != null ? (
+                      <button type="button" className="text-left font-medium underline" onClick={() => setSelected(m.zahn!)} data-testid="aus-modell-zahn">{m.name}</button>
+                    ) : (
+                      <span className="font-medium">{m.name}</span>
+                    )}
+                    {dental && m.zahn != null && (
+                      <span className="text-xs">{teeth[String(m.zahn)] ? `Befund: ${FINDINGS[teeth[String(m.zahn)]!]}` : "noch kein Befund gewählt"}</span>
+                    )}
+                    {m.notiz && <span className="text-orange-900/80">„{m.notiz}“</span>}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-orange-900/80">
+                {dental
+                  ? "Zähne mit Befund sind schon im Zahnschema eingetragen. Zähne ohne Befund sind orange umrandet: antippen und den Befund wählen."
+                  : "Diese Stellen hat die Praxis im Modell für den Patienten markiert. Wählen Sie unten den passenden Anlass."}
+              </p>
+            </div>
+          )}
 
           {!dental && (
             <AnlassPicker spec={spec} custom={medData.custom ?? []} value={anlaesse} onChange={setAnlaesse} person={patient ? { geschlecht: patient.geschlecht ?? null, alter: ageFromBirthDate(patient.birthDate) } : undefined} />

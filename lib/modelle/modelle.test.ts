@@ -6,7 +6,7 @@ import { SCHNITTMODELLE } from "./schnitt";
 import { FACH_MODELLE, MODELL_IDS, hauptModell, modelleFuerFach } from "./fach";
 import { SPECIALTIES } from "../specialties";
 import { rahmen } from "./formen";
-import { markierungSchema, teilBezeichnung, teilGueltig } from "./markierung";
+import { MODELL_BEFUNDE, istBleibenderZahn, markierungSchema, teilBezeichnung, teilGueltig } from "./markierung";
 
 describe("Körpermodell", () => {
   it("jede Struktur hat Namen, Erklärung, Beschwerden und mindestens eine Ansicht", () => {
@@ -96,6 +96,25 @@ describe("Markierungen der Praxis", () => {
     expect(markierungSchema.safeParse({ modell: "koerper", teil: "lws:M", notiz: "  Hier   sitzt es. " }).data?.notiz).toBe("Hier sitzt es.");
     expect(markierungSchema.safeParse({ modell: "gebiss", teil: "99" }).success).toBe(false);
     expect(markierungSchema.safeParse({ modell: "gebiss", teil: "36", notiz: "x".repeat(301) }).success).toBe(false);
+  });
+  it("markiert mehrere Stellen auf einmal und nimmt einen Befund nur für bleibende Zähne an", () => {
+    const viele = markierungSchema.safeParse({ modell: "gebiss", teile: ["16", "26", "16"], notiz: "Füllungen geplant", befund: "karies_klein" });
+    expect(viele.success && viele.data.teile).toEqual(["16", "26"]);
+    expect(viele.success && viele.data.befund).toBe("karies_klein");
+    expect(viele.success && viele.data.befundGesetzt).toBe(true);
+    const einzeln = markierungSchema.safeParse({ modell: "gebiss", teil: "36" });
+    expect(einzeln.success && einzeln.data.teile).toEqual(["36"]);
+    expect(einzeln.success && einzeln.data.befundGesetzt).toBe(false);
+    expect(markierungSchema.safeParse({ modell: "gebiss", teile: [] }).success).toBe(false);
+    expect(markierungSchema.safeParse({ modell: "gebiss" }).success).toBe(false);
+    expect(markierungSchema.safeParse({ modell: "gebiss", teile: ["16", "99"] }).success).toBe(false);
+    expect(markierungSchema.safeParse({ modell: "gebiss", teil: "16", befund: "gibtsnicht" }).success).toBe(false);
+    expect(markierungSchema.safeParse({ modell: "gebiss", teil: "55", befund: "karies_klein" }).success).toBe(false); // Milchzahn
+    expect(markierungSchema.safeParse({ modell: "koerper", teil: "lws:M", befund: "karies_klein" }).success).toBe(false);
+    expect(markierungSchema.safeParse({ modell: "koerper", teile: ["lws:M", "achillessehne:R"] }).success).toBe(true);
+    expect(istBleibenderZahn("48")).toBe(true);
+    expect(istBleibenderZahn("51")).toBe(false);
+    expect(Object.keys(MODELL_BEFUNDE).length).toBeGreaterThan(3);
   });
   it("benennt Teile für Patienten lesbar", () => {
     expect(teilBezeichnung("gebiss", "36")).toBe("Zahn 36 (Unterer linker erster großer Backenzahn)");

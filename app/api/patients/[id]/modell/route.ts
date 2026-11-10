@@ -11,18 +11,25 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   if (error) return error;
   const parsed = markierungSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Ungültige Eingabe" }, { status: 400 });
-  const { modell, teil, notiz } = parsed.data;
-  const anzahl = await prisma.modellMarkierung.count({ where: { patientId: patient.id, modell } });
-  const vorhanden = await prisma.modellMarkierung.findUnique({ where: { patientId_modell_teil: { patientId: patient.id, modell, teil } }, select: { id: true } });
-  if (!vorhanden && anzahl >= 40) return NextResponse.json({ error: "Höchstens 40 Markierungen je Patient." }, { status: 409 });
-  const markierung = await prisma.modellMarkierung.upsert({
-    where: { patientId_modell_teil: { patientId: patient.id, modell, teil } },
-    create: { practiceId: session.user.practiceId, patientId: patient.id, modell, teil, notiz, erstelltVon: session.user.name ?? null },
-    update: { notiz, erstelltVon: session.user.name ?? null },
-    select: { teil: true, notiz: true },
-  });
-  await auditFromSession(session, "akte.eintrag", { entityType: "Patient", entityId: patient.id, summary: `Im Modell markiert: ${teilBezeichnung(modell, teil)}` });
-  return NextResponse.json({ markierung }, { status: vorhanden ? 200 : 201 });
+  const { modell, teile, notiz, befund, befundGesetzt } = parsed.data;
+  const vorhanden = await prisma.modellMarkierung.findMany({ where: { patientId: patient.id, modell }, select: { teil: true } });
+  const schon = new Set(vorhanden.map((v) => v.teil));
+  const neu = teile.filter((t) => !schon.has(t)).length;
+  if (vorhanden.length + neu > 40) return NextResponse.json({ error: "Höchstens 40 Markierungen je Patient." }, { status: 409 });
+  const von = session.user.name ?? null;
+  const markierungen = await prisma.$transaction(
+    teile.map((teil) =>
+      prisma.modellMarkierung.upsert({
+        where: { patientId_modell_teil: { patientId: patient.id, modell, teil } },
+        create: { practiceId: session.user.practiceId, patientId: patient.id, modell, teil, notiz, befund, erstelltVon: von },
+        // Ohne Angabe bleibt ein früher gewählter Befund stehen.
+        update: { notiz, erstelltVon: von, ...(befundGesetzt ? { befund } : {}) },
+        select: { teil: true, notiz: true, befund: true },
+      }),
+    ),
+  );
+  await auditFromSession(session, "akte.eintrag", { entityType: "Patient", entityId: patient.id, summary: `Im Modell markiert: ${teile.slice(0, 6).map((t) => teilBezeichnung(modell, t)).join(", ")}${teile.length > 6 ? ` und ${teile.length - 6} weitere` : ""}` });
+  return NextResponse.json({ markierung: markierungen[0], markierungen }, { status: neu ? 201 : 200 });
 }
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {

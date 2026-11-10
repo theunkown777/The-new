@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { rahmen } from "@/lib/modelle/formen";
 import { DEKOR, EBENEN, KOERPER_BREITE, KOERPER_HOEHE, STRUKTUREN, UMRISS, seiteImBild, seitenName, strukturNach, teilKennung, teilLesen, teilName, type Ansicht, type Ebene, type Seite, type Struktur } from "@/lib/modelle/koerper";
 import { useZoom } from "./useZoom";
-import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
+import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
 const BASIS = { x: 0, y: 0, w: KOERPER_BREITE, h: KOERPER_HOEHE };
 const FARBE: Record<Ebene, { flaeche: string; rand: string }> = {
@@ -38,7 +38,12 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
 
   const sichtbar = useMemo(() => STRUKTUREN.filter((s) => ebenen.includes(s.ebene) && s[ansicht] && (!s.geschlecht || s.geschlecht === geschlecht)), [ebenen, ansicht, geschlecht]);
 
+  // Mehrere Stellen auf einmal markieren (nur Praxisansicht)
+  const [mehrfach, setMehrfach] = useState(false);
+  const [mehrere, setMehrere] = useState<string[]>([]);
+
   function waehlen(s: Struktur, seite: Seite, hinzoomen = false, ziel: Ansicht = ansicht) {
+    if (mehrfach && !hinzoomen) { const k = teilKennung(s.id, seite); setMehrere((a) => (a.includes(k) ? a.filter((x) => x !== k) : [...a, k])); return; }
     setAuswahl({ id: s.id, seite });
     if (s.geschlecht && s.geschlecht !== geschlecht) setGeschlecht(s.geschlecht);
     if (!ebenen.includes(s.ebene)) setEbenen((e) => [...e, s.ebene]);
@@ -62,7 +67,7 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
       : [{ seite: "M", gespiegelt: false }];
     return haelften.map(({ seite, gespiegelt }) => {
       const k = teilKennung(s.id, seite);
-      const istGewaehlt = kennung === k;
+      const istGewaehlt = mehrfach ? mehrere.includes(k) : kennung === k;
       const istMarkiert = marken.istMarkiert(k);
       // Markiertes bleibt orange, auch wenn es gerade gewählt ist (dann mit kräftigem Rand)
       const c = istMarkiert ? { ...FARBE_MARKIERT, rand: istGewaehlt ? "#5A1D1D" : FARBE_MARKIERT.rand } : istGewaehlt ? FARBE_GEWAEHLT : s.farbe ?? FARBE[s.ebene];
@@ -134,7 +139,7 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
         </div>
         <div ref={svgBereich} className="relative scroll-mt-4 overflow-hidden rounded-2xl bg-[#FBF7F1] ring-1 ring-[#E9E2DA]">
           <ZoomTasten zoom={zoom} />
-          {kennung && <GewaehltLeiste titel={teilName(kennung)} zielId="koerper-erklaerung" />}
+          {kennung && !mehrfach && <GewaehltLeiste titel={teilName(kennung)} zielId="koerper-erklaerung" />}
           <svg ref={zoom.svgRef} viewBox={zoom.viewBox} {...zoom.ereignisse} className="mx-auto block h-[min(72vh,46rem)] w-full select-none" style={{ touchAction: zoom.touchAction }}
             role="group" aria-label={`Körpermodell ${ansicht === "vorn" ? "von vorn" : "von hinten"}`} data-testid="koerper-svg">
             <g aria-hidden="true">
@@ -166,7 +171,20 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
           </div>
         )}
 
-        {gewaehlt && auswahl && kennung ? (
+        {marken.bearbeitbar && !mehrfach && (
+          <div className="mb-3">
+            <button type="button" className="btn-secondary text-sm" onClick={() => { setMehrfach(true); setMehrere([]); }} data-testid="modell-mehrfach-start">Mehrere Stellen auf einmal markieren</button>
+          </div>
+        )}
+        {mehrfach ? (
+          <MehrfachFeld
+            gewaehlt={mehrere.map((k) => ({ teil: k, name: teilName(k) }))}
+            marken={marken}
+            platzhalter="Hinweis, z. B. „Diese Muskeln bitte täglich dehnen.“"
+            onEntfernen={(teil) => setMehrere((a) => a.filter((x) => x !== teil))}
+            onFertig={() => { setMehrfach(false); setMehrere([]); }}
+          />
+        ) : gewaehlt && auswahl && kennung ? (
           <section id="koerper-erklaerung" className="card scroll-mt-4" aria-live="polite" data-testid="modell-erklaerung">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">

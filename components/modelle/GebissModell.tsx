@@ -4,7 +4,7 @@ import { useState } from "react";
 import { rahmen } from "@/lib/modelle/formen";
 import { GEBISS_BREITE, GEBISS_HOEHE, INSTRUMENTE, MILCHZAEHNE, MILCHZAHN_HINWEIS, SCHICHTEN, SCHNITT, ZAEHNE, ZAHNARTEN, zahnKennung, zahnNach, zahnTitel, type Material } from "@/lib/modelle/gebiss";
 import { useZoom } from "./useZoom";
-import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
+import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
 const BASIS_BOGEN = { x: 0, y: 0, w: GEBISS_BREITE, h: GEBISS_HOEHE };
 const BASIS_SCHNITT = { x: SCHNITT.x, y: SCHNITT.y, w: SCHNITT.b, h: SCHNITT.h };
@@ -23,7 +23,7 @@ type Reiter = "zaehne" | "aufbau" | "instrumente";
  * Gebiss-Modell: alle Zähne im Bogen, der Aufbau eines Zahns und die Instrumente der Praxis.
  * Mit patientId kann die Praxis Zähne für den Patienten markieren.
  */
-export function GebissModell({ markierungen = [], patientId, start = "zaehne", einspaltig = false }: { markierungen?: Markierung[]; patientId?: string; start?: Reiter; einspaltig?: boolean }) {
+export function GebissModell({ markierungen = [], patientId, start = "zaehne", einspaltig = false, befunde }: { markierungen?: Markierung[]; patientId?: string; start?: Reiter; einspaltig?: boolean; befunde?: Record<string, string> }) {
   const marken = useMarkierungen("gebiss", markierungen, patientId);
   const [reiter, setReiter] = useState<Reiter>(start);
   const [fdi, setFdi] = useState<number | null>(markierungen[0] ? Number(markierungen[0].teil) : null);
@@ -35,10 +35,16 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
   const zoomBogen = useZoom(BASIS_BOGEN, 6);
   const zoomSchnitt = useZoom(BASIS_SCHNITT, 5);
   const zahn = fdi ? zahnNach(fdi) : null;
+  // Mehrere Zähne auf einmal markieren (nur Praxisansicht)
+  const [mehrfach, setMehrfach] = useState(false);
+  const [auswahl, setAuswahl] = useState<number[]>([]);
+  const bleibend = (nr: number) => nr < 50;
+  const zumVorschlag = marken.liste.filter((m) => bleibend(Number(m.teil)));
   const gewaehlteSchicht = SCHICHTEN.find((s) => s.id === schicht) ?? SCHICHTEN[0];
   const gewaehltesInstrument = INSTRUMENTE.find((i) => i.id === instrument) ?? INSTRUMENTE[0];
 
   function zahnWaehlen(nr: number, hinzoomen = false) {
+    if (mehrfach && !hinzoomen) { setAuswahl((a) => (a.includes(nr) ? a.filter((x) => x !== nr) : [...a, nr])); return; }
     setFdi(nr);
     const z = zahnNach(nr);
     if (z && !!z.milch !== milch) setMilch(!!z.milch);
@@ -89,13 +95,13 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
           <div>
             <div className="mb-2 inline-flex rounded-full bg-slate-100 p-1 text-sm" role="group" aria-label="Gebiss">
               {([[false, "Bleibende Zähne (32)"], [true, "Milchzähne (20)"]] as const).map(([wert, name]) => (
-                <button key={name} type="button" aria-pressed={milch === wert} onClick={() => { setMilch(wert); setFdi(null); zoomBogen.zuruecksetzen(); }} data-testid={wert ? "gebiss-milch" : "gebiss-bleibend"}
+                <button key={name} type="button" aria-pressed={milch === wert} onClick={() => { setMilch(wert); setFdi(null); setAuswahl([]); zoomBogen.zuruecksetzen(); }} data-testid={wert ? "gebiss-milch" : "gebiss-bleibend"}
                   className={`rounded-full px-3.5 py-1.5 ${milch === wert ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>{name}</button>
               ))}
             </div>
             <div className="relative overflow-hidden rounded-2xl bg-[#FBF7F1] ring-1 ring-[#E9E2DA]">
               <ZoomTasten zoom={zoomBogen} />
-              {zahn && <GewaehltLeiste titel={`Zahn ${zahn.fdi}: ${zahn.name}`} zielId="gebiss-erklaerung" />}
+              {zahn && !mehrfach && <GewaehltLeiste titel={`Zahn ${zahn.fdi}: ${zahn.name}`} zielId="gebiss-erklaerung" />}
               <svg ref={zoomBogen.svgRef} viewBox={zoomBogen.viewBox} {...zoomBogen.ereignisse} className="mx-auto block h-[min(70vh,40rem)] w-full select-none" style={{ touchAction: zoomBogen.touchAction }}
                 role="group" aria-label="Gebiss von oben gesehen, Oberkiefer oben, Unterkiefer unten" data-testid="gebiss-svg">
                 <g aria-hidden="true" fontSize={12} fill="#8b8378" textAnchor="middle">
@@ -106,11 +112,11 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                 </g>
                 {zaehne.map((z) => {
                   const k = zahnKennung(z.fdi);
-                  const an = fdi === z.fdi, markiert = marken.istMarkiert(k);
+                  const an = mehrfach ? auswahl.includes(z.fdi) : fdi === z.fdi, markiert = marken.istMarkiert(k);
                   const c = markiert ? { ...FARBE_MARKIERT, rand: an ? "#5A1D1D" : FARBE_MARKIERT.rand } : an ? FARBE_GEWAEHLT : { flaeche: "#FFFDF6", rand: "#A2946F" };
                   return (
                     <g key={z.fdi} role="button" tabIndex={0} aria-label={`Zahn ${z.fdi}, ${z.name}${markiert ? ", markiert" : ""}`} aria-pressed={an} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#1d4ed8]"
-                      data-zahn={z.fdi} data-markiert={markiert || undefined}
+                      data-zahn={z.fdi} data-markiert={markiert || undefined} data-gewaehlt={(mehrfach && an) || undefined}
                       onClick={() => { if (zoomBogen.warKlick()) zahnWaehlen(z.fdi); }}
                       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zahnWaehlen(z.fdi, true); } }}>
                       <FormPfad form={z.form} flaeche={c.flaeche} rand={c.rand} randStaerke={an && markiert ? 3 : an || markiert ? 2 : 1.2} />
@@ -135,7 +141,27 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                 </div>
               </div>
             )}
-            {zahn ? (
+            {marken.bearbeitbar && !mehrfach && (
+              <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                <button type="button" className="btn-secondary text-sm" onClick={() => { setMehrfach(true); setAuswahl([]); }} data-testid="modell-mehrfach-start">Mehrere Zähne auf einmal markieren</button>
+                {zumVorschlag.length > 0 && (
+                  <a href={`/proposals/new?patientId=${patientId}&modell=1`} className="font-medium text-brand-700 hover:underline" data-testid="modell-zum-vorschlag">
+                    Behandlungsvorschlag aus {zumVorschlag.length === 1 ? "dem markierten Zahn" : `den ${zumVorschlag.length} markierten Zähnen`} →
+                  </a>
+                )}
+              </div>
+            )}
+            {mehrfach ? (
+              <MehrfachFeld
+                wort="Zähne"
+                gewaehlt={[...auswahl].sort((a, b) => a - b).map((nr) => ({ teil: zahnKennung(nr), name: `Zahn ${nr}` }))}
+                marken={marken}
+                befunde={befunde && auswahl.every(bleibend) ? befunde : undefined}
+                platzhalter="Hinweis, z. B. „Hier sind die Füllungen geplant.“"
+                onEntfernen={(teil) => setAuswahl((a) => a.filter((x) => zahnKennung(x) !== teil))}
+                onFertig={() => { setMehrfach(false); setAuswahl([]); }}
+              />
+            ) : zahn ? (
               <section id="gebiss-erklaerung" className="card scroll-mt-4" aria-live="polite" data-testid="modell-erklaerung">
                 <h3 className="text-lg font-semibold text-slate-900">Zahn {zahn.fdi}</h3>
                 <p className="text-sm text-slate-600">{zahn.name}</p>
@@ -149,7 +175,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                 <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{zahn.milch ? "Gut zu wissen" : "Häufige Probleme und Behandlungen"}</h4>
                 <p className="mt-1 text-sm leading-relaxed text-slate-800">{zahn.milch ? MILCHZAHN_HINWEIS : ZAHNARTEN[zahn.art].typisch}</p>
                 {!marken.bearbeitbar && <PraxisHinweis notiz={marken.notizVon(zahnKennung(zahn.fdi))} />}
-                <MarkierFeld key={zahn.fdi} teil={zahnKennung(zahn.fdi)} marken={marken} platzhalter="Hinweis, z. B. „Hier ist die Füllung geplant.“" />
+                <MarkierFeld key={zahn.fdi} teil={zahnKennung(zahn.fdi)} marken={marken} befunde={bleibend(zahn.fdi) ? befunde : undefined} platzhalter="Hinweis, z. B. „Hier ist die Füllung geplant.“" />
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button type="button" className="btn-secondary text-sm" onClick={() => zahnWaehlen(zahn.fdi, true)}>Im Modell zeigen</button>
                   <button type="button" className="btn-secondary text-sm" onClick={() => setReiter("aufbau")}>Aufbau eines Zahns ansehen</button>
