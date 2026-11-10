@@ -192,6 +192,17 @@ export default async function PortalPage({ params, searchParams }: { params: { t
           </section>
         )}
 
+        <section className="mt-8" aria-labelledby="fragen" data-testid="portal-fragen-hinweis">
+          <h2 id="fragen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />Vor Ihrem Termin</h2>
+          <a href={`/portal/${params.token}/fragen`} className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-salbei-50" data-testid="portal-fragen-link">
+            <span>
+              <span className="block font-medium text-slate-900">Fünf kurze Fragen</span>
+              <span className="text-sm text-slate-600">Zeigen Sie am Bild, wo es Beschwerden gibt. Dauert etwa eine Minute.</span>
+            </span>
+            <span className="shrink-0 rounded-full bg-salbei-600 px-3 py-1 text-sm font-medium text-white">Starten</span>
+          </a>
+        </section>
+
         <section className="mt-8" aria-labelledby="modell" data-testid="portal-modell-hinweis">
           <h2 id="modell" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{modellMarken.length ? "Von Ihrer Praxis im Modell markiert" : modellArt === "gebiss" ? "Ihr Gebiss im Modell" : "Im Modell ansehen und verstehen"}</h2>
           <div className="mt-3 rounded-2xl bg-white p-4">

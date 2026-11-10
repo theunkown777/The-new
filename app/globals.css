@@ -125,3 +125,13 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   .modell-instrument { animation: none; }
 }
+
+/* Kurz-Fragebogen: weiches Einblenden je Frage, pulsierender Ring an gewählten Stellen, farbiger Regler */
+@keyframes kurz-ein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.kurz-ein { animation: kurz-ein .28s ease-out both; }
+@keyframes kurz-puls { 0%, 100% { opacity: .18; } 50% { opacity: .38; } }
+.kurz-puls { animation: kurz-puls 1.6s ease-in-out infinite; }
+.kurz-regler { -webkit-appearance: none; appearance: none; height: 14px; border-radius: 999px; background: linear-gradient(90deg, #4D7C5F 0%, #C58A1B 50%, #C2410C 78%, #9F1239 100%); outline-offset: 4px; }
+.kurz-regler::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 34px; height: 34px; border-radius: 999px; background: #fff; border: 3px solid #6B2A24; box-shadow: 0 2px 6px rgba(0,0,0,.25); cursor: pointer; }
+.kurz-regler::-moz-range-thumb { width: 30px; height: 30px; border-radius: 999px; background: #fff; border: 3px solid #6B2A24; box-shadow: 0 2px 6px rgba(0,0,0,.25); cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .kurz-ein, .kurz-puls { animation: none; } }

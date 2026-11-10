@@ -21,6 +21,7 @@ import { kiVerfuegbar } from "@/lib/anthropic";
 import { BehandlerWahl } from "@/components/BehandlerWahl";
 import { ModellWahl } from "@/components/modelle/ModellWahl";
 import { MODELL_BEFUNDE } from "@/lib/modelle/markierung";
+import { KurzcheckKarte } from "@/components/kurzcheck/KurzcheckKarte";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -55,6 +56,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     prisma.user.findMany({ where: { practiceId }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
   const fach = praxis?.specialty ?? "hausarzt";
+  const kurzchecks = await prisma.kurzcheck.findMany({ where: { practiceId, patientId: patient.id }, orderBy: { createdAt: "desc" }, take: 5, select: { id: true, antworten: true, createdAt: true } });
   const modellMarken = await prisma.modellMarkierung.findMany({ where: { practiceId, patientId: patient.id }, select: { modell: true, teil: true, notiz: true, befund: true }, orderBy: { createdAt: "asc" } });
 
   return (
@@ -117,6 +119,10 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
       <div className="mb-8">
         <PatientKontakt patientId={patient.id} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} whatsappAm={patient.whatsappConsentAt ? de(patient.whatsappConsentAt) : null} whatsappDirekt={whatsappApiAktiv()} />
+      </div>
+
+      <div className="mb-8">
+        <KurzcheckKarte eintraege={kurzchecks} />
       </div>
 
       <div className="mb-8">

@@ -80,6 +80,7 @@ model Practice {
   require2faAll      Boolean             @default(false)
   demoExpiresAt      DateTime?
   eingaenge          Eingang[]
+  kurzchecks         Kurzcheck[]
 
   @@index([isDemo, demoExpiresAt])
 }
@@ -232,6 +233,7 @@ model Patient {
   externalSource     String?
   externalId         String?
   eingaenge          Eingang[]
+  kurzchecks         Kurzcheck[]
 
   @@unique([practiceId, externalSource, externalId])
   @@index([practiceId])
@@ -829,4 +831,18 @@ model Eingang {
 
   @@index([practiceId, erledigtAt, createdAt])
   @@index([patientId])
+}
+
+/// Kurz-Fragebogen vor dem Termin (höchstens fünf Fragen mit Bildern). antworten: siehe lib/kurzcheck.ts.
+model Kurzcheck {
+  id         String   @id @default(cuid())
+  practiceId String
+  practice   Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  antworten  Json
+  createdAt  DateTime @default(now())
+
+  @@index([patientId, createdAt])
+  @@index([practiceId])
 }

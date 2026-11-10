@@ -10,6 +10,7 @@ export const EINGANG_ARTEN = {
   RATEN: { titel: "Ratenzahlung gewünscht", tun: "Patient anrufen und Raten vereinbaren.", gruppe: "Geld" },
   LASTSCHRIFT: { titel: "Lastschriftmandat erteilt", tun: "Unter Zahlungen in die nächste Lastschrift-Datei übernehmen.", gruppe: "Geld" },
   ANAMNESE: { titel: "Anamnesebogen abgeschickt", tun: "Vor dem Termin in der Akte ansehen.", gruppe: "Unterlagen" },
+  KURZCHECK: { titel: "Kurz-Fragebogen ausgefüllt", tun: "Vor dem Termin in der Akte ansehen: wo, wie stark, seit wann.", gruppe: "Unterlagen" },
   VORSCHLAG_INTERESSE: { titel: "Interesse am Vorschlag", tun: "Termin anbieten oder den Vorschlag als angenommen eintragen.", gruppe: "Vorschläge" },
   VORSCHLAG_RUECKRUF: { titel: "Rückruf zum Vorschlag gewünscht", tun: "Patient anrufen.", gruppe: "Vorschläge" },
   VEREINBARUNG: { titel: "Vereinbarung unterschrieben", tun: "Vorschlag als angenommen eintragen und Termin planen.", gruppe: "Vorschläge" },
@@ -27,6 +28,7 @@ export function eingangZiel(e: { art: string; entityId: string | null; patientId
     case "ZAHLUNG_GEMELDET": return "/zahlungen?f=gemeldet";
     case "ZAHLUNG_ONLINE": case "RATEN": case "LASTSCHRIFT": return "/zahlungen";
     case "ANAMNESE": return `/patients/${e.patientId}#anamnese`;
+    case "KURZCHECK": return `/patients/${e.patientId}#kurzcheck`;
     case "VORSCHLAG_INTERESSE": case "VORSCHLAG_RUECKRUF": case "VEREINBARUNG": case "ZWEITMEINUNG":
       return e.entityId ? `/proposals/${e.entityId}` : `/patients/${e.patientId}`;
     case "TERMIN_GEBUCHT": case "TERMIN_ABGESAGT": return e.tag ? `/termine?tag=${e.tag}` : "/termine";
