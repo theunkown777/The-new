@@ -10,12 +10,12 @@ import { rohr, stoff } from "./werkzeug";
 
 export interface ScheibenTeil { id: string; farbe: string; formen: Form[] }
 
-export function scheibeBauplan(T: Drei, teile: ScheibenTeil[], breite: number, hoehe: number): Bauplan {
-  const mx = breite / 2, my = hoehe / 2, dicke = Math.min(breite, hoehe) * 0.2;
+export function scheibeBauplan(T: Drei, teile: ScheibenTeil[], breite: number, hoehe: number, ursprung: [number, number] = [0, 0]): Bauplan {
+  const mx = ursprung[0] + breite / 2, my = ursprung[1] + hoehe / 2, dicke = Math.min(breite, hoehe) * 0.13;
   const auftraege = teile.map((teil, rang) => () => {
     const meshes: DREI.Mesh[] = [];
     // Spätere Teile der Zeichnung liegen obenauf: Sie treten etwas weiter hervor.
-    const vor = dicke * (0.55 + 0.45 * (rang / Math.max(1, teile.length - 1)));
+    const vor = dicke * (0.82 + 0.18 * (rang / Math.max(1, teile.length - 1)));
     for (const f of teil.formen) for (const t of pfadPunkte(f.d, 2.5)) {
       let g: DREI.BufferGeometry;
       if (f.strich || !t.geschlossen) {

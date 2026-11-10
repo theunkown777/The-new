@@ -7,6 +7,7 @@ import { useZoom } from "./useZoom";
 import { useT } from "./Sprache";
 import { Modell3D, type Modell3DGriff } from "./drei/Modell3D";
 import { gebissBauplan } from "./drei/gebissBau";
+import { scheibeBauplan } from "./drei/scheibeBau";
 import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
@@ -46,6 +47,10 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
   const [wurzeln, setWurzeln] = useState(false);
   const griff = useRef<Modell3DGriff | null>(null);
   const plan = useCallback((T: Parameters<typeof gebissBauplan>[0], h: { verbinde: Parameters<typeof gebissBauplan>[1] }) => gebissBauplan(T, h.verbinde), []);
+  const [raumSchnitt, setRaumSchnitt] = useState(true);
+  const griffSchnitt = useRef<Modell3DGriff | null>(null);
+  const planSchnitt = useCallback((T: Parameters<typeof scheibeBauplan>[0]) => scheibeBauplan(T, SCHICHTEN.map((x) => ({ id: x.id, farbe: x.farbe, formen: x.formen })), SCHNITT.b, SCHNITT.h, [SCHNITT.x, SCHNITT.y]), []);
+  const immer = useCallback(() => true, []);
   const sichtbar3D = useCallback((d: Record<string, unknown>) => (d.gruppe !== (milch ? "milch" : "bleibend") ? false : d.fleisch && wurzeln ? 0.22 : true), [milch, wurzeln]);
 
   // Mehrere Zähne auf einmal markieren (nur Praxisansicht)
@@ -222,7 +227,18 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
       {reiter === "aufbau" && (
         <div className={`grid gap-4 ${einspaltig ? "" : "lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]"}`}>
           <div>
-            {querschnitt(false)}
+            {raumSchnitt ? (
+              <div className="relative overflow-hidden rounded-2xl ring-1 ring-[#E9E2DA] modell-buehne">
+                <DreiSchalter raum={raumSchnitt} setRaum={setRaumSchnitt} />
+                <ZoomTasten zoom={{ vergroessern: () => griffSchnitt.current?.zoom(0.72), verkleinern: () => griffSchnitt.current?.zoom(1.38), zuruecksetzen: () => griffSchnitt.current?.zuruecksetzen(), gezoomt: true }} />
+                <Modell3D ref={griffSchnitt} plan={planSchnitt} schluessel="zahnschnitt" beschriftung={t("Zahn im Querschnitt")} hoehe="h-[min(64vh,34rem)]" gewaehlt={[schicht]} markiert={[]} sichtbar={immer} sichtbarSchluessel="alle" onWahl={(k) => setSchicht(k)} ohne3D={() => setRaumSchnitt(false)} />
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="absolute left-0 top-0 z-20"><DreiSchalter raum={raumSchnitt} setRaum={setRaumSchnitt} /></div>
+                {querschnitt(false)}
+              </div>
+            )}
             <p className="mt-1.5 text-xs text-slate-500">{t("Backenzahn im Längsschnitt. Schicht antippen für die Erklärung.")}</p>
           </div>
           <div className="min-w-0">
