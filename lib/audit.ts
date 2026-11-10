@@ -31,6 +31,7 @@ export const AUDIT_ACTIONS = {
   "kalender": "Kalender oder Online-Termine geändert",
   "termin.online": "Termin vom Patienten online gebucht oder abgesagt",
   "nachricht.whatsapp": "Nachricht per WhatsApp",
+  "katalog.eigen": "Eigene Leistung angelegt",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

@@ -8,6 +8,7 @@ import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { katalogEintrag, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog";
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 import { LeistungenImport } from "@/components/LeistungenImport";
+import { LeistungSchnell } from "@/components/LeistungSchnell";
 import { KvBezirkWahl } from "@/components/KvBezirkWahl";
 import { fachFilter, sortiereSysteme } from "@/lib/amtlich/gliederung";
 
@@ -77,6 +78,10 @@ export default async function LeistungsverzeichnisPage({ searchParams }: { searc
           </Link>
         </p>
         {fach !== "zahn" && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
+      </div>
+
+      <div data-testid="eigene-leistung">
+        <LeistungSchnell titel="Leistung nicht dabei? Eigene Leistung anlegen (nur Name und Preis)" />
       </div>
 
       <div className="flex flex-wrap gap-2" data-testid="systeme">

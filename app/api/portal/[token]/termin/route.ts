@@ -5,6 +5,7 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { buchenSchema, istFrei } from "@/lib/buchung";
 import { buchungsLage } from "@/lib/buchungLoad";
 import { audit } from "@/lib/audit";
+import { eingangErledigen, eingangMelden } from "@/lib/eingang";
 
 export const dynamic = "force-dynamic";
 const MAX_OFFEN = 2;
@@ -15,6 +16,7 @@ async function patientVon(token: string) {
   const p = await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(token) }, select: { id: true, practiceId: true, firstName: true, lastName: true, portalExpiresAt: true } });
   return p && p.portalExpiresAt && p.portalExpiresAt > new Date() ? p : null;
 }
+const terminHinweis = (d: Date) => d.toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" }) + " Uhr";
 const abgelaufen = () => NextResponse.json({ error: "Dieser Link ist abgelaufen. Bitte wenden Sie sich an Ihre Praxis." }, { status: 404 });
 
 // Patientenportal: freie Termine ansehen. Angeboten wird nur, was nach Sprechzeiten, Sorrida-Terminen
@@ -61,6 +63,7 @@ export async function POST(req: Request, { params }: { params: { token: string }
     return NextResponse.json({ error: "Dieser Termin ist gerade vergeben worden. Bitte wählen Sie einen anderen.", vergeben: true }, { status: 409 });
   }
   await audit({ practiceId: patient.practiceId, userName: `${patient.firstName} ${patient.lastName} (Patient)`, action: "termin.online", entityType: "Patient", entityId: patient.id, summary: "gebucht" });
+  await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: "TERMIN_GEBUCHT", entityId: termin.id, hinweis: terminHinweis(termin.start) });
   return NextResponse.json({ termin }, { status: 201 });
 }
 
@@ -74,5 +77,7 @@ export async function DELETE(req: Request, { params }: { params: { token: string
   if (termin.start.getTime() - Date.now() < ABSAGE_BIS_STD * 3600e3) return NextResponse.json({ error: "Kurzfristige Absagen bitte telefonisch in der Praxis." }, { status: 409 });
   await prisma.appointment.update({ where: { id: termin.id }, data: { status: "ABGESAGT" } });
   await audit({ practiceId: patient.practiceId, userName: `${patient.firstName} ${patient.lastName} (Patient)`, action: "termin.online", entityType: "Patient", entityId: patient.id, summary: "abgesagt" });
+  await eingangErledigen(patient.practiceId, ["TERMIN_GEBUCHT"], termin.id, "Patient (abgesagt)");
+  await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: "TERMIN_ABGESAGT", entityId: termin.id, hinweis: terminHinweis(termin.start) });
   return NextResponse.json({ ok: true });
 }

@@ -12,6 +12,7 @@ import { uhrzeit, STATUS_LABEL, type TerminStatus } from "@/lib/termine";
 import { canSeeAnalytics } from "@/lib/permissions";
 import { formatCent } from "@/lib/invoices";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
+import { eingangOffen } from "@/lib/eingang";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -97,6 +98,7 @@ export default async function DashboardPage() {
     if (j.praxis.tone === "achtung") heute++;
   }
 
+  const eingangZahl = await eingangOffen(session!.user.practiceId).catch(() => 0);
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -109,6 +111,13 @@ export default async function DashboardPage() {
         </div>
         <Link href="/abschluss/new" className="btn-primary">{abschlussWort(practice?.specialty)} abschließen</Link>
       </div>
+
+      {eingangZahl > 0 && (
+        <Link href="/eingang" className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900 hover:border-brand-400" data-testid="eingang-hinweis">
+          <span><b>{eingangZahl} {eingangZahl === 1 ? "neue Rückmeldung" : "neue Rückmeldungen"}</b> von {P.pl} im Eingang (Zahlungen, Anamnese, Vorschläge, Termine)</span>
+          <span aria-hidden="true">Ansehen →</span>
+        </Link>
+      )}
 
       <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]" data-testid="heute">
         <div className="card p-0">

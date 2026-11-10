@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { anamnesisSchema } from "@/lib/anamnesis";
+import { eingangMelden } from "@/lib/eingang";
 
 // Ausgefüllter Anamnesebogen (öffentlich, ohne Login). Nach dem Absenden
 // ist der Link verbraucht, damit niemand die Angaben nachträglich ändert.
@@ -26,5 +27,6 @@ export async function POST(req: Request, { params }: { params: { token: string }
     where: { id: form.id },
     data: { answers: parsed.data as unknown as Prisma.InputJsonValue, submittedAt: new Date(), tokenHash: null },
   });
+  await eingangMelden({ practiceId: form.practiceId, patientId: form.patientId, art: "ANAMNESE", entityId: form.id });
   return NextResponse.json({ ok: true });
 }

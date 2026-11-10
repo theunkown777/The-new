@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { invoiceActionSchema } from "@/lib/invoices";
+import { eingangErledigen } from "@/lib/eingang";
 
 // Status einer Rechnung ändern: bezahlt, storniert, wieder offen oder Erinnerung vermerken.
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
@@ -32,5 +33,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const res = await prisma.invoice.updateMany({ where: { id: params.id, practiceId: session.user.practiceId }, data });
   if (res.count === 0) return NextResponse.json({ error: "Rechnung nicht gefunden" }, { status: 404 });
   await auditFromSession(session, "rechnung.status", { entityType: "Rechnung", entityId: params.id, summary: parsed.data.action });
+  if (parsed.data.action === "bezahlt" || parsed.data.action === "storniert")
+    await eingangErledigen(session.user.practiceId, ["ZAHLUNG_GEMELDET", "RATEN", "LASTSCHRIFT"], params.id, session.user.name ?? "Praxis");
   return NextResponse.json({ ok: true });
 }

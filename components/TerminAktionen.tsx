@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { TerminStatus } from "@/lib/termine";
 import { MailSenden } from "@/components/MailSenden";
+import { WhatsappSenden } from "@/components/WhatsappSenden";
 
 // Status setzen und Bestätigung/Erinnerung als Text kopieren. Sorrida
 // verschickt nichts selbst; „kopiert“ wird als „verschickt am“ gemerkt.
-export function TerminAktionen({ id, status, bestaetigung, erinnerung, confirmedAt, remindedAt, mail = false }: {
-  id: string; status: TerminStatus; bestaetigung: string; erinnerung: string; confirmedAt: string | null; remindedAt: string | null; mail?: boolean;
+export function TerminAktionen({ id, status, bestaetigung, erinnerung, confirmedAt, remindedAt, mail = false, whatsapp = false, whatsappDirekt = false }: {
+  id: string; status: TerminStatus; bestaetigung: string; erinnerung: string; confirmedAt: string | null; remindedAt: string | null; mail?: boolean; whatsapp?: boolean; whatsappDirekt?: boolean;
 }) {
   const router = useRouter();
   const [hinweis, setHinweis] = useState<string | null>(null);
@@ -41,6 +42,9 @@ export function TerminAktionen({ id, status, bestaetigung, erinnerung, confirmed
             )}
             {mail && (
               <MailSenden art={confirmedAt ? "termin-erinnerung" : "termin-bestaetigung"} id={id} label={confirmedAt ? "Erinnerung per E-Mail" : "Bestätigung per E-Mail"} className={chip} />
+            )}
+            {whatsapp && (
+              <WhatsappSenden art={confirmedAt ? "termin-erinnerung" : "termin-bestaetigung"} id={id} label={confirmedAt ? "Erinnerung per WhatsApp" : "Bestätigung per WhatsApp"} className={chip} direkt={whatsappDirekt} />
             )}
             <details className="w-full sm:relative sm:w-auto">
               <summary className={`${chip} inline-flex cursor-pointer list-none text-slate-600`} data-testid="termin-mehr">Mehr</summary>

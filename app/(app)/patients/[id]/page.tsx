@@ -11,6 +11,7 @@ import { AnamnesisPanel } from "@/components/AnamnesisPanel";
 import { PatientDatenschutz } from "@/components/PatientDatenschutz";
 import { PatientAkte } from "@/components/PatientAkte";
 import { PatientKontakt } from "@/components/PatientKontakt";
+import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { BefundAuswahl } from "@/components/BefundAuswahl";
 import { befundmodell } from "@/lib/befundmodelle";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
@@ -114,7 +115,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
       </section>
 
       <div className="mb-8">
-        <PatientKontakt patientId={patient.id} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} />
+        <PatientKontakt patientId={patient.id} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} whatsappAm={patient.whatsappConsentAt ? de(patient.whatsappConsentAt) : null} whatsappDirekt={whatsappApiAktiv()} />
       </div>
 
       <div className="mb-8">

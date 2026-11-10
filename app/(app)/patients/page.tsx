@@ -9,6 +9,8 @@ import { PROPOSAL_STATUS_LABELS, ageFromBirthDate } from "@/lib/proposals";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 import { TONE_CLASSES, formatCent, invoiceView } from "@/lib/invoices";
 import { PortalLinkButton } from "@/components/PortalLinkButton";
+import { WhatsappSenden } from "@/components/WhatsappSenden";
+import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { journey, TONE_STYLE } from "@/lib/journey";
@@ -270,6 +272,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
           </ul>
           <div className="mt-3 flex flex-wrap gap-2">
             <PortalLinkButton patientId={selected.id} firstName={selected.firstName} practiceName={session!.user.practiceName ?? ""} label="Behandlungsweg senden" />
+            {selected.phone && selected.whatsappConsentAt && <WhatsappSenden art="portal-link" id={selected.id} label="Link per WhatsApp" className="btn-secondary" direkt={whatsappApiAktiv()} />}
             <CreateInvoiceButton patientId={selected.id} title="Selbstzahlerleistung" label="Rechnung" free />
           </div>
 

@@ -79,6 +79,7 @@ model Practice {
   /// Zwei-Faktor-Anmeldung auch für Mitarbeitende verlangen (für Admins immer Pflicht)
   require2faAll      Boolean             @default(false)
   demoExpiresAt      DateTime?
+  eingaenge          Eingang[]
 
   @@index([isDemo, demoExpiresAt])
 }
@@ -204,6 +205,8 @@ model Patient {
   phone              String?
   /// Einwilligung in Nachrichten per E-Mail (Zeitpunkt, null = keine)
   contactConsentAt   DateTime?
+  /// Einwilligung in Nachrichten per WhatsApp (eigene Einwilligung, weil WhatsApp ein Dienst von Meta ist)
+  whatsappConsentAt  DateTime?
   notes              String?
   createdAt          DateTime            @default(now())
   reports            Report[]
@@ -228,6 +231,7 @@ model Patient {
   // wiedergefunden statt doppelt angelegt wird.
   externalSource     String?
   externalId         String?
+  eingaenge          Eingang[]
 
   @@unique([practiceId, externalSource, externalId])
   @@index([practiceId])
@@ -803,4 +807,24 @@ model KalenderBelegung {
   createdAt  DateTime @default(now())
 
   @@index([practiceId, start])
+}
+
+/// Eingang: alles, was Patienten von sich aus auslösen (Zahlung gemeldet, Anamnese abgeschickt,
+/// Termin gebucht …). Die Praxis sieht es gesammelt unter /eingang und hakt es ab.
+/// art: siehe lib/eingang.ts. hinweis enthält keine Gesundheitsangaben.
+model Eingang {
+  id          String    @id @default(cuid())
+  practiceId  String
+  practice    Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  art         String
+  entityId    String?
+  hinweis     String?
+  createdAt   DateTime  @default(now())
+  erledigtAt  DateTime?
+  erledigtVon String?
+
+  @@index([practiceId, erledigtAt, createdAt])
+  @@index([patientId])
 }

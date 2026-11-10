@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
+import { eingangErledigen, eingangMelden } from "@/lib/eingang";
 import { MAX_ZWEITMEINUNGEN, alsEintrag, zweitmeinungSchema, zweitmeinungTeilenSchema } from "@/lib/zweitmeinung";
 
 // Gemeinsame Logik für Patienten-Link (/p/<token>) und Portal (/portal/<token>):
@@ -52,7 +53,14 @@ export async function aendern(req: Request, v: Vorschlag | null, zid: string) {
   const parsed = zweitmeinungTeilenSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Ungültige Angaben" }, { status: 400 });
   const r = await prisma.zweitmeinung.updateMany({ where: { id: zid, proposalId: v.id }, data: { geteiltAt: parsed.data.geteilt ? new Date() : null } });
-  return r.count ? NextResponse.json({ ok: true }) : weg();
+  if (!r.count) return weg();
+  if (parsed.data.geteilt) {
+    const vp = await prisma.treatmentProposal.findUnique({ where: { id: v.id }, select: { patientId: true } });
+    if (vp) await eingangMelden({ practiceId: v.practiceId, patientId: vp.patientId, art: "ZWEITMEINUNG", entityId: v.id });
+  } else if ((await prisma.zweitmeinung.count({ where: { proposalId: v.id, geteiltAt: { not: null } } })) === 0) {
+    await eingangErledigen(v.practiceId, ["ZWEITMEINUNG"], v.id, "Patient (nicht mehr geteilt)");
+  }
+  return NextResponse.json({ ok: true });
 }
 
 export async function loeschen(req: Request, v: Vorschlag | null, zid: string) {

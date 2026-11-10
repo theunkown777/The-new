@@ -4,6 +4,7 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 import { agreementSchema } from "@/lib/agreement";
 import { agreementContext } from "@/lib/agreementContext";
+import { eingangMelden } from "@/lib/eingang";
 
 // Digitales Einverständnis aus dem Patientenportal speichern. Einmalig:
 // danach ist es fest (Änderungen nur über die Praxis).
@@ -38,5 +39,6 @@ export async function POST(req: Request, { params }: { params: { token: string; 
       ...(proposal.patientResponse ? {} : { patientResponse: "INTERESSE", patientRespondedAt: now }),
     },
   });
+  await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: "VEREINBARUNG", entityId: proposal.id });
   return NextResponse.json({ ok: true });
 }

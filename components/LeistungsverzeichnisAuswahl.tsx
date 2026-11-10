@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LeistungSchnell } from "@/components/LeistungSchnell";
 
 type Gliederung = { system: string; titel: string; anzahl: number; kapitel: { name: string; anzahl: number }[] };
 type Leistung = { id: string; system: string; code: string; text: string; kapitel: string | null; abschnitt: string | null; punkte: number | null; euroCent: number | null };
@@ -122,7 +123,8 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
                   {liste.anzahl === 0 && (
                     <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900" data-testid="auswahl-nichts">
                       Nichts gefunden für „{suche}“. Tipps: ein kürzeres Wort (z. B. „Wund“ statt „Wundversorgung“), die Ziffer selbst (z. B. 03000) oder ein anderes Wort (z. B. „Sono“ für Ultraschall).
-                      Fehlt eine Praxisleistung ganz, legen Sie sie unter <a className="underline" href="/settings/catalog">Einstellungen → Leistungskatalog</a> als eigene Leistung an.
+                      Fehlt eine Praxisleistung ganz, legen Sie sie gleich hier als eigene Leistung an:
+                      <div className="mt-2"><LeistungSchnell offen vorgabe={suche} titel={`„${suche}“ als eigene Leistung anlegen`} knopf="Anlegen und übernehmen" onCreated={(it) => onAdd([it])} /></div>
                     </div>
                   )}
                   <p className="mb-1 text-xs text-slate-500" data-testid="auswahl-treffer">{liste.anzahl.toLocaleString("de-DE")} Leistungen{liste.anzahl > liste.leistungen.length ? `, die ersten ${liste.leistungen.length}` : ""}</p>
@@ -143,6 +145,11 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+              {!(liste && !laedt && liste.anzahl === 0) && (
+                <div className="border-t border-slate-100 pt-3">
+                  <LeistungSchnell titel="Eigene Leistung anlegen (nur Name und Preis)" knopf="Anlegen und übernehmen" onCreated={(it) => onAdd([it])} />
                 </div>
               )}
             </>

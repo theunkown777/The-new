@@ -4,10 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PortalLinkButton } from "@/components/PortalLinkButton";
 import { MailSenden } from "@/components/MailSenden";
+import { WhatsappSenden } from "@/components/WhatsappSenden";
 import { REMINDER_LABELS, nextReminderLevel, reminderText } from "@/lib/invoices";
 
-export function InvoiceActions({ id, status, patientId, firstName, practiceName, level = 0, number = "", amountCent = 0, dueDate, mail = false }: {
+export function InvoiceActions({ id, status, patientId, firstName, practiceName, level = 0, number = "", amountCent = 0, dueDate, mail = false, whatsapp = false, whatsappDirekt = false }: {
   mail?: boolean;
+  whatsapp?: boolean;
+  whatsappDirekt?: boolean;
   id: string;
   status: string;
   patientId: string;
@@ -66,9 +69,10 @@ export function InvoiceActions({ id, status, patientId, firstName, practiceName,
             message={(url) => reminderText({ level: next, firstName, practiceName, number, amountCent, dueDate: dueDate ? new Date(dueDate) : new Date(), url })}
             onCreated={() => act("erinnert", next)}
           />
-          {mail && (
-            <div className="mt-2">
-              <MailSenden art="zahlungserinnerung" id={id} label={`${REMINDER_LABELS[next]} per E-Mail senden`} className="btn-secondary" />
+          {(mail || whatsapp) && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {mail && <MailSenden art="zahlungserinnerung" id={id} label={`${REMINDER_LABELS[next]} per E-Mail senden`} className="btn-secondary" />}
+              {whatsapp && <WhatsappSenden art="zahlungserinnerung" id={id} label={`${REMINDER_LABELS[next]} per WhatsApp`} className="btn-secondary" direkt={whatsappDirekt} />}
             </div>
           )}
         </div>

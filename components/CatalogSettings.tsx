@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { LeistungSchnell } from "@/components/LeistungSchnell";
 
 type CatalogItem = {
   id: string;
@@ -44,8 +45,9 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
   const [createError, setCreateError] = useState<string | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
 
-  function load() {
-    setLoading(true);
+  function load(still = false) {
+    // still: Liste im Hintergrund auffrischen, ohne die Seite kurz zu leeren
+    if (!still) setLoading(true);
     fetch("/api/catalog-items")
       .then((res) => res.json())
       .then((data) => {
@@ -66,7 +68,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
       .finally(() => setLoading(false));
   }
 
-  useEffect(load, []);
+  useEffect(() => load(), []);
 
   const grouped = useMemo(() => {
     const byCategory = new Map<string, CatalogItem[]>();
@@ -146,6 +148,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
 
   return (
     <div className="space-y-6">
+      <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" onCreated={() => load(true)} />
       <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
         Punktzahl und Festbetrag sind objektive Werte aus dem offiziellen Gebührenverzeichnis
         (GOZ/BEMA/BEL-II) und daher für alle Praxen geteilt, die diesen Referenzkatalog nutzen –
@@ -239,7 +242,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
         <div className="card">
           {!showNewForm ? (
             <button type="button" className="btn-secondary" onClick={() => setShowNewForm(true)}>
-              + Neue Katalogposition
+              + Neue Katalogposition mit allen Angaben (Verzeichnis, Ziffer, Kategorie)
             </button>
           ) : (
             <form onSubmit={createItem} className="space-y-3">

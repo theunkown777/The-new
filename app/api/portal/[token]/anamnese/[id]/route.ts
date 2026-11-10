@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { anamnesisSchema } from "@/lib/anamnesis";
 import { portalPatient } from "@/lib/portalAuth";
+import { eingangMelden } from "@/lib/eingang";
 
 // Anamnesebogen aus dem Patientenportal absenden. Danach ist er gesperrt.
 export async function POST(req: Request, { params }: { params: { token: string; id: string } }) {
@@ -21,5 +22,6 @@ export async function POST(req: Request, { params }: { params: { token: string; 
     data: { answers: parsed.data as unknown as Prisma.InputJsonValue, submittedAt: new Date(), tokenHash: null },
   });
   if (res.count === 0) return NextResponse.json({ error: "Dieser Bogen ist nicht mehr offen." }, { status: 404 });
+  await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: "ANAMNESE", entityId: params.id });
   return NextResponse.json({ ok: true });
 }

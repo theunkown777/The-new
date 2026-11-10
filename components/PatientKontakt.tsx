@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { WhatsappSenden } from "@/components/WhatsappSenden";
 
-export function PatientKontakt({ patientId, email, phone, einwilligungAm, geschlecht = null }: { patientId: string; email: string | null; phone: string | null; einwilligungAm: string | null; geschlecht?: string | null }) {
+export function PatientKontakt({ patientId, email, phone, einwilligungAm, whatsappAm = null, whatsappDirekt = false, geschlecht = null }: { whatsappDirekt?: boolean; patientId: string; email: string | null; phone: string | null; einwilligungAm: string | null; whatsappAm?: string | null; geschlecht?: string | null }) {
   const router = useRouter();
-  const [f, setF] = useState({ email: email ?? "", phone: phone ?? "", einwilligung: !!einwilligungAm, geschlecht: geschlecht ?? "" });
+  const [f, setF] = useState({ email: email ?? "", phone: phone ?? "", einwilligung: !!einwilligungAm, whatsapp: !!whatsappAm, geschlecht: geschlecht ?? "" });
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   async function save(e: React.FormEvent) {
@@ -36,8 +37,19 @@ export function PatientKontakt({ patientId, email, phone, einwilligungAm, geschl
           {einwilligungAm && <span className="block text-xs text-slate-500">Einwilligung dokumentiert am {einwilligungAm}. Abhaken entfernen = Widerruf.</span>}
         </span>
       </label>
-      <div className="flex items-center gap-3">
+      <label className="flex items-start gap-2 text-sm text-slate-700">
+        <input type="checkbox" className="mt-1 h-4 w-4" checked={f.whatsapp} onChange={(e) => setF({ ...f, whatsapp: e.target.checked })} data-testid="kontakt-whatsapp" />
+        <span>
+          Der Patient willigt ein, Terminnachrichten, seinen persönlichen Link und Zahlungserinnerungen per WhatsApp an die Mobilnummer zu erhalten.
+          <span className="block text-xs text-slate-500">
+            {whatsappAm ? `Einwilligung dokumentiert am ${whatsappAm}. Abhaken entfernen = Widerruf. ` : ""}
+            In den Nachrichten stehen keine Befunde und keine Beträge, nur Termin oder Link.
+          </span>
+        </span>
+      </label>
+      <div className="flex flex-wrap items-start gap-3">
         <button className="btn-secondary" disabled={busy}>Speichern</button>
+        {whatsappAm && phone && <WhatsappSenden art="portal-link" id={patientId} label="Persönlichen Link per WhatsApp senden" className="btn-secondary" direkt={whatsappDirekt} />}
         {msg && <span className={`text-sm ${msg.ok ? "text-emerald-700" : "text-red-700"}`} data-testid="kontakt-meldung">{msg.text}</span>}
       </div>
     </form>

@@ -6,6 +6,7 @@ import {
   STATUS_CLS, STATUS_LABEL, auslastung, ausfallquote, bestaetigungText, erinnerungText, heuteTag, tagesGrenzen, uhrzeit, type TerminStatus,
 } from "@/lib/termine";
 import { TerminAktionen } from "@/components/TerminAktionen";
+import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { TerminNeu } from "@/components/TerminNeu";
 import { leistungenFuerFach } from "@/lib/leistungskatalog";
 import { fachprofil } from "@/lib/fachprofile";
@@ -30,7 +31,7 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
     prisma.appointment.findMany({
       where: { practiceId, start: { gte: von, lt: bis }, ...(ort ? { locationId: ort } : {}) },
       orderBy: { start: "asc" },
-      include: { patient: { select: { id: true, firstName: true, lastName: true, email: true, contactConsentAt: true } }, location: { select: { name: true } } },
+      include: { patient: { select: { id: true, firstName: true, lastName: true, email: true, contactConsentAt: true, phone: true, whatsappConsentAt: true } }, location: { select: { name: true } } },
     }),
     prisma.appointment.findMany({ where: { practiceId, start: { gte: new Date(Date.now() - 60 * 864e5), lt: new Date() } }, select: { status: true } }),
     prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, specialty: true } }),
@@ -104,6 +105,8 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
                 id={t.id}
                 status={t.status as TerminStatus}
                 mail={!!t.patient.email && !!t.patient.contactConsentAt}
+                whatsapp={!!t.patient.phone && !!t.patient.whatsappConsentAt}
+                whatsappDirekt={whatsappApiAktiv()}
                 confirmedAt={t.confirmedAt ? kurz(t.confirmedAt) : null}
                 remindedAt={t.remindedAt ? kurz(t.remindedAt) : null}
                 bestaetigung={bestaetigungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, reason: t.reason })}

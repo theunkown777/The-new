@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { patientResponseSchema } from "@/lib/patientLink";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
+import { eingangMelden } from "@/lib/eingang";
 
 // Rückmeldung zu einem Vorschlag aus dem Patientenportal.
 export async function POST(req: Request, { params }: { params: { token: string; id: string } }) {
@@ -26,5 +27,6 @@ export async function POST(req: Request, { params }: { params: { token: string; 
     },
   });
   if (res.count === 0) return NextResponse.json({ error: "Vorschlag nicht gefunden" }, { status: 404 });
+  await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: parsed.data.response === "RUECKRUF" ? "VORSCHLAG_RUECKRUF" : "VORSCHLAG_INTERESSE", entityId: params.id, hinweis: parsed.data.wantsInstallments ? "möchte in Raten zahlen" : null });
   return NextResponse.json({ ok: true });
 }

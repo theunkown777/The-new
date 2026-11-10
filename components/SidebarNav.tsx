@@ -23,6 +23,7 @@ const ICONS: Record<string, string> = {
   pruefung: "M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9",
   analyse: "M4 20V10M10 20V4M16 20v-7M22 20H2",
   modelle: "M12 3c-3 0-5 2-5 5 0 2 1 3 1 5s-.5 3 0 5c.4 1.6 1.6 3 2.4 3 1 0 1-3 1.6-3s.6 3 1.6 3c.8 0 2-1.4 2.4-3 .5-2 0-3 0-5s1-3 1-5c0-3-2-5-5-5Z",
+  eingang: "M3 13l3-8h12l3 8v6H3zM3 13h5l1.5 3h5L16 13h5",
   mein: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1",
 };
 
@@ -34,11 +35,11 @@ function Icon({ name }: { name: string }) {
   );
 }
 
-export function SidebarNav({ dental, team = false, analyse = false, personPl = "Patienten", abschluss = "Behandlung" }: { dental: boolean; team?: boolean; analyse?: boolean; personPl?: string; abschluss?: string }) {
+export function SidebarNav({ dental, team = false, analyse = false, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; dental: boolean; team?: boolean; analyse?: boolean; personPl?: string; abschluss?: string }) {
   const path = usePathname();
   type L = [string, string, string];
   const gruppen: [string, L[]][] = [
-    ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/mein-bereich", "Mein Bereich", "mein"], ["/termine", "Termine", "termine"], ["/praxismanager", "Praxismanager", "manager"], ["/vorsorge", "Vorsorge fällig", "vorsorge"]]],
+    ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/eingang", "Eingang", "eingang"], ["/mein-bereich", "Mein Bereich", "mein"], ["/termine", "Termine", "termine"], ["/praxismanager", "Praxismanager", "manager"], ["/vorsorge", "Vorsorge fällig", "vorsorge"]]],
     [
       personPl,
       [
@@ -72,6 +73,7 @@ export function SidebarNav({ dental, team = false, analyse = false, personPl = "
       >
         <Icon name={icon} />
         {label}
+        {href === "/eingang" && eingang > 0 && <span className="ml-auto rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white" data-testid="eingang-zahl">{eingang > 99 ? "99+" : eingang}</span>}
         {active && (
           <svg viewBox="0 0 40 8" className="absolute bottom-1 left-10 h-1.5 w-8 text-brand-600" aria-hidden="true">
             <path d="M2 2 Q20 10 38 2" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" />

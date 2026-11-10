@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { isValidIban, normalizeIban } from "@/lib/invoices";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
+import { eingangMelden } from "@/lib/eingang";
 
 const schema = z.object({
   invoiceId: z.string().min(1).max(40),
@@ -12,6 +13,11 @@ const schema = z.object({
   name: z.string().trim().max(70).optional(),
   zustimmung: z.boolean().optional(),
 });
+
+const rechnungHinweis = async (id: string) => {
+  const r = await prisma.invoice.findUnique({ where: { id }, select: { number: true } });
+  return r ? `Rechnung ${r.number}` : null;
+};
 
 // Patientenportal (öffentlich, ohne Login): Zahlung melden oder Ratenzahlung anfragen.
 export async function POST(req: Request, { params }: { params: { token: string } }) {
@@ -24,7 +30,7 @@ export async function POST(req: Request, { params }: { params: { token: string }
 
   const patient = await prisma.patient.findUnique({
     where: { portalTokenHash: hashToken(params.token) },
-    select: { id: true, portalExpiresAt: true },
+    select: { id: true, practiceId: true, portalExpiresAt: true },
   });
   if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < new Date()) {
     return NextResponse.json({ error: "Dieser Link ist abgelaufen. Bitte wenden Sie sich an Ihre Praxis." }, { status: 404 });
@@ -43,6 +49,7 @@ export async function POST(req: Request, { params }: { params: { token: string }
       data: { sepaIban: iban, sepaName: parsed.data.name, sepaMandatAt: new Date() },
     });
     if (r.count === 0) return NextResponse.json({ error: "Lastschrift für diese Rechnung nicht möglich." }, { status: 409 });
+    await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: "LASTSCHRIFT", entityId: parsed.data.invoiceId, hinweis: await rechnungHinweis(parsed.data.invoiceId) });
     return NextResponse.json({ ok: true });
   }
 
@@ -51,5 +58,6 @@ export async function POST(req: Request, { params }: { params: { token: string }
     data: parsed.data.action === "gezahlt" ? { status: "GEMELDET", reportedPaidAt: new Date() } : { wantsInstallments: true },
   });
   if (res.count === 0) return NextResponse.json({ error: "Rechnung nicht gefunden" }, { status: 404 });
+  await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: parsed.data.action === "gezahlt" ? "ZAHLUNG_GEMELDET" : "RATEN", entityId: parsed.data.invoiceId, hinweis: await rechnungHinweis(parsed.data.invoiceId) });
   return NextResponse.json({ ok: true });
 }

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { BuchungSettings } from "@/components/BuchungSettings";
 import { buchungsLage } from "@/lib/buchungLoad";
 import { freieZeiten, tagName, uhr } from "@/lib/buchung";
+import { whatsappApiAktiv } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,15 @@ export default async function TermineOnlinePage() {
           vorschau={tage.map((t) => ({ tag: t.tag, name: tagName(t.tag), zeiten: t.zeiten.map(uhr) }))}
         />
       </div>
+      <section className="card mt-5 space-y-2 text-sm text-slate-700" data-testid="whatsapp-status">
+        <h2 className="font-semibold text-slate-900">Nachrichten per WhatsApp</h2>
+        {whatsappApiAktiv() ? (
+          <p>WhatsApp Business ist verbunden: Sorrida verschickt Terminnachrichten, den persönlichen Link und Zahlungserinnerungen direkt, sobald Sie auf „Per WhatsApp“ klicken.</p>
+        ) : (
+          <p>Ein Klick auf „Per WhatsApp“ öffnet WhatsApp auf diesem Gerät (App oder WhatsApp Web) mit dem Patienten als Empfänger und fertigem Text. Sie tippen dort nur noch auf „Senden“; Absender ist das WhatsApp Ihrer Praxis.</p>
+        )}
+        <p className="text-slate-600">Der Knopf erscheint bei Terminen, Zahlungserinnerungen und in der Patientenakte, sobald beim Patienten eine Mobilnummer und die Einwilligung für WhatsApp eingetragen sind (Akte → Kontakt und Stammdaten). In den Nachrichten stehen keine Befunde und keine Beträge.</p>
+      </section>
     </div>
   );
 }

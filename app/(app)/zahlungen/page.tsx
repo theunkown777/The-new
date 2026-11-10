@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REMINDER_LABELS, formatCent, formatIban, invoiceTotals, invoiceView } from "@/lib/invoices";
 import { InvoiceActions } from "@/components/InvoiceActions";
+import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { BankSettings } from "@/components/BankSettings";
 import { Bankabgleich } from "@/components/Bankabgleich";
@@ -61,7 +62,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
       where: { practiceId, ...where },
       orderBy: f === "bezahlt" ? { paidAt: "desc" } : { dueDate: "asc" },
       take: 100,
-      include: { patient: { select: { id: true, firstName: true, lastName: true, portalViewedAt: true, portalExpiresAt: true, email: true, contactConsentAt: true } } },
+      include: { patient: { select: { id: true, firstName: true, lastName: true, portalViewedAt: true, portalExpiresAt: true, email: true, contactConsentAt: true, phone: true, whatsappConsentAt: true } } },
     }),
     // Angenommene Vorschläge mit Eigenanteil, für die es noch keine Rechnung gibt.
     prisma.treatmentProposal.findMany({
@@ -146,7 +147,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <Status tone={v.tone} label={v.label} />
-                      <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} />
+                      <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} whatsapp={!!i.patient.phone && !!i.patient.whatsappConsentAt} whatsappDirekt={whatsappApiAktiv()} />
                     </div>
                   </li>
                 );
@@ -186,7 +187,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                           <Status tone={v.tone} label={v.label} />
                         </td>
                         <td className="px-4 py-3">
-                          <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} />
+                          <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} whatsapp={!!i.patient.phone && !!i.patient.whatsappConsentAt} whatsappDirekt={whatsappApiAktiv()} />
                         </td>
                       </tr>
                     );
