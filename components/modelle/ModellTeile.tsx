@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Form } from "@/lib/modelle/formen";
+import { useT } from "./Sprache";
 
 export type Markierung = { teil: string; notiz: string; befund?: string | null };
 
@@ -67,12 +68,13 @@ export function Treffer({ formen, mindest = 14 }: { formen: Form[]; mindest?: nu
 }
 
 export function ZoomTasten({ zoom }: { zoom: { vergroessern: () => void; verkleinern: () => void; zuruecksetzen: () => void; gezoomt: boolean } }) {
+  const t = useT();
   const taste = "flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg text-slate-700 shadow ring-1 ring-slate-200 hover:text-brand-700 disabled:opacity-40";
   return (
     <div className="absolute right-2 top-2 z-10 flex flex-col gap-1.5" data-testid="modell-zoom">
-      <button type="button" className={taste} onClick={zoom.vergroessern} aria-label="Vergrößern">+</button>
-      <button type="button" className={taste} onClick={zoom.verkleinern} disabled={!zoom.gezoomt} aria-label="Verkleinern">−</button>
-      <button type="button" className={`${taste} text-sm`} onClick={zoom.zuruecksetzen} disabled={!zoom.gezoomt} aria-label="Ganz zeigen" title="Ganz zeigen">
+      <button type="button" className={taste} onClick={zoom.vergroessern} aria-label={t("Vergrößern")}>+</button>
+      <button type="button" className={taste} onClick={zoom.verkleinern} disabled={!zoom.gezoomt} aria-label={t("Verkleinern")}>−</button>
+      <button type="button" className={`${taste} text-sm`} onClick={zoom.zuruecksetzen} disabled={!zoom.gezoomt} aria-label={t("Ganz zeigen")} title={t("Ganz zeigen")}>
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
       </button>
     </div>
@@ -155,11 +157,12 @@ export function MehrfachFeld({ gewaehlt, marken, onFertig, onEntfernen, platzhal
 
 /** Patientenansicht: Hinweis der Praxis zu einem markierten Teil. */
 export function PraxisHinweis({ notiz }: { notiz: string | undefined }) {
+  const t = useT();
   if (notiz === undefined) return null;
   return (
     <div className="mt-3 rounded-xl border border-orange-200 bg-orange-50 p-3 text-sm text-orange-950" data-testid="modell-praxishinweis">
-      <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">Von Ihrer Praxis markiert</p>
-      <p className="mt-1">{notiz || "Ihre Praxis hat diese Stelle für Sie markiert. Fragen Sie beim nächsten Termin gern nach."}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{t("Von Ihrer Praxis markiert")}</p>
+      <p className="mt-1">{notiz || t("Ihre Praxis hat diese Stelle für Sie markiert. Fragen Sie beim nächsten Termin gern nach.")}</p>
     </div>
   );
 }
@@ -168,12 +171,13 @@ export const MODELL_HINWEIS = "Vereinfachte Darstellung zur Erklärung. Sie erse
 
 /** Am Handy steht die Erklärung unter dem Modell: Name des gewählten Teils im Bild einblenden, mit Sprung zur Erklärung. */
 export function GewaehltLeiste({ titel, zielId }: { titel: string; zielId: string }) {
+  const t = useT();
   return (
     <div className="pointer-events-none absolute inset-x-2 bottom-2 z-10 flex justify-center lg:hidden" data-testid="modell-gewaehlt-leiste">
       <button type="button" onClick={() => document.getElementById(zielId)?.scrollIntoView({ behavior: "smooth", block: "start" })}
         className="pointer-events-auto flex max-w-full items-center gap-2 rounded-full bg-white/95 py-2 pl-4 pr-3 text-sm shadow-lg ring-1 ring-slate-200">
         <span className="truncate font-medium text-slate-900">{titel}</span>
-        <span className="shrink-0 rounded-full bg-brand-600 px-2.5 py-1 text-xs font-medium text-white">Erklärung ↓</span>
+        <span className="shrink-0 rounded-full bg-brand-600 px-2.5 py-1 text-xs font-medium text-white">{t("Erklärung")} ↓</span>
       </button>
     </div>
   );

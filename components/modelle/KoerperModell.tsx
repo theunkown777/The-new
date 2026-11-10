@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { rahmen } from "@/lib/modelle/formen";
 import { DEKOR, EBENEN, KOERPER_BREITE, KOERPER_HOEHE, STRUKTUREN, UMRISS, seiteImBild, seitenName, strukturNach, teilKennung, teilLesen, teilName, type Ansicht, type Ebene, type Seite, type Struktur } from "@/lib/modelle/koerper";
 import { useZoom } from "./useZoom";
+import { useT } from "./Sprache";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
 const BASIS = { x: 0, y: 0, w: KOERPER_BREITE, h: KOERPER_HOEHE };
@@ -24,6 +25,10 @@ type Auswahl = { id: string; seite: Seite };
  */
 export function KoerperModell({ markierungen = [], patientId, startEbenen = ["knochen", "muskeln"], einspaltig = false, geschlecht: startGeschlecht }: { markierungen?: Markierung[]; patientId?: string; startEbenen?: Ebene[]; einspaltig?: boolean; geschlecht?: "W" | "M" | null }) {
   const marken = useMarkierungen("koerper", markierungen, patientId);
+  const t = useT();
+  // Name mit Seite in der gewählten Sprache
+  const seite_ = (x: Seite) => (x === "M" ? "" : t(seitenName(x)));
+  const name_ = (k: string) => { const x = teilLesen(k); return x ? `${t(x.struktur.name)}${x.seite === "M" ? "" : ` ${seite_(x.seite)}`}` : k; };
   const ersteMarke = markierungen[0] ? teilLesen(markierungen[0].teil) : null;
   const [ansicht, setAnsicht] = useState<Ansicht>(ersteMarke && !ersteMarke.struktur.vorn ? "hinten" : "vorn");
   const [ebenen, setEbenen] = useState<Ebene[]>(() => Array.from(new Set([...startEbenen, ...markierungen.map((m) => teilLesen(m.teil)?.struktur.ebene).filter((e): e is Ebene => !!e)])));
@@ -86,7 +91,7 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
         );
       }
       return (
-        <g key={k} role="button" tabIndex={0} aria-label={teilName(k)} aria-pressed={istGewaehlt} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#1d4ed8]"
+        <g key={k} role="button" tabIndex={0} aria-label={name_(k)} aria-pressed={istGewaehlt} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#1d4ed8]"
           data-teil={k} data-markiert={teil === "alles" ? istMarkiert || undefined : undefined}
           onClick={() => { if (zoom.warKlick()) waehlen(s, seite); }}
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); waehlen(s, seite, true); } }}>
@@ -108,40 +113,40 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
     <div className={`grid gap-4 ${einspaltig ? "" : "lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]"}`} data-testid="koerpermodell">
       <div>
         <div className="mb-2 flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-full bg-slate-100 p-1 text-sm" role="tablist" aria-label="Ansicht">
+          <div className="inline-flex rounded-full bg-slate-100 p-1 text-sm" role="tablist" aria-label={t("Ansicht")}>
             {(["vorn", "hinten"] as Ansicht[]).map((a) => (
               <button key={a} type="button" role="tab" aria-selected={ansicht === a} onClick={() => setAnsicht(a)} data-testid={`koerper-ansicht-${a}`}
                 className={`rounded-full px-3.5 py-1.5 ${ansicht === a ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>
-                {a === "vorn" ? "Von vorn" : "Von hinten"}
+                {a === "vorn" ? t("Von vorn") : t("Von hinten")}
               </button>
             ))}
           </div>
-          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Ebenen">
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("Ebenen")}>
             {EBENEN.map((e) => {
               const an = ebenen.includes(e.id);
               return (
                 <button key={e.id} type="button" aria-pressed={an} onClick={() => setEbenen((l) => (an ? l.filter((x) => x !== e.id) : [...l, e.id]))} data-testid={`koerper-ebene-${e.id}`}
                   className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm ring-1 ${an ? "bg-white text-slate-900 ring-slate-300" : "bg-slate-50 text-slate-400 ring-slate-200"}`}>
                   <span className="h-3 w-3 rounded-full ring-1 ring-black/10" style={{ background: an ? FARBE[e.id].flaeche : "#e5e7eb" }} />
-                  {e.kurz}
+                  {t(e.kurz)}
                 </button>
               );
             })}
           </div>
           {ebenen.includes("organe") && (
-            <div className="inline-flex rounded-full bg-slate-100 p-1 text-sm" role="group" aria-label="Körper">
+            <div className="inline-flex rounded-full bg-slate-100 p-1 text-sm" role="group" aria-label={t("Körper")}>
               {([["W", "weiblich"], ["M", "männlich"]] as const).map(([g, name]) => (
                 <button key={g} type="button" aria-pressed={geschlecht === g} onClick={() => setGeschlecht(g)} data-testid={`koerper-geschlecht-${g}`}
-                  className={`rounded-full px-3 py-1.5 ${geschlecht === g ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>{name}</button>
+                  className={`rounded-full px-3 py-1.5 ${geschlecht === g ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>{t(name)}</button>
               ))}
             </div>
           )}
         </div>
         <div ref={svgBereich} className="relative scroll-mt-4 overflow-hidden rounded-2xl bg-[#FBF7F1] ring-1 ring-[#E9E2DA]">
           <ZoomTasten zoom={zoom} />
-          {kennung && !mehrfach && <GewaehltLeiste titel={teilName(kennung)} zielId="koerper-erklaerung" />}
+          {kennung && !mehrfach && <GewaehltLeiste titel={name_(kennung)} zielId="koerper-erklaerung" />}
           <svg ref={zoom.svgRef} viewBox={zoom.viewBox} {...zoom.ereignisse} className="mx-auto block h-[min(72vh,46rem)] w-full select-none" style={{ touchAction: zoom.touchAction }}
-            role="group" aria-label={`Körpermodell ${ansicht === "vorn" ? "von vorn" : "von hinten"}`} data-testid="koerper-svg">
+            role="group" aria-label={`${t("Körper")}: ${ansicht === "vorn" ? t("Von vorn") : t("Von hinten")}`} data-testid="koerper-svg">
             <g aria-hidden="true">
               {UMRISS.map((u, i) => <path key={i} d={u.d} stroke="#F0E5DA" strokeWidth={u.breite} strokeLinecap="round" fill="none" />)}
             </g>
@@ -154,18 +159,18 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
             <text x={KOERPER_BREITE - 18} y={KOERPER_HOEHE - 14} fontSize={11} fill="#8b8378" textAnchor="end" aria-hidden="true">{ansicht === "vorn" ? "links" : "rechts"}</text>
           </svg>
         </div>
-        <p className="mt-1.5 text-xs text-slate-500">Antippen für die Erklärung. Vergrößern mit + und −, mit zwei Fingern oder per Doppelklick.</p>
+        <p className="mt-1.5 text-xs text-slate-500">{t("Antippen für die Erklärung. Vergrößern mit + und −, mit zwei Fingern oder per Doppelklick.")}</p>
       </div>
 
       <div className="min-w-0">
         {marken.liste.length > 0 && (
           <div className="mb-3 rounded-xl border border-orange-200 bg-orange-50 p-3" data-testid="modell-markierte">
-            <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? "Für diesen Patienten markiert" : "Von Ihrer Praxis markiert"}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? "Für diesen Patienten markiert" : t("Von Ihrer Praxis markiert")}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {marken.liste.map((m) => {
                 const t = teilLesen(m.teil);
                 if (!t) return null;
-                return <button key={m.teil} type="button" onClick={() => waehlen(t.struktur, t.seite, true)} className="rounded-full bg-white px-3 py-1.5 text-sm text-orange-950 ring-1 ring-orange-300 hover:bg-orange-100" data-testid="modell-marke">{teilName(m.teil)}</button>;
+                return <button key={m.teil} type="button" onClick={() => waehlen(t.struktur, t.seite, true)} className="rounded-full bg-white px-3 py-1.5 text-sm text-orange-950 ring-1 ring-orange-300 hover:bg-orange-100" data-testid="modell-marke">{name_(m.teil)}</button>;
               })}
             </div>
           </div>
@@ -178,7 +183,7 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
         )}
         {mehrfach ? (
           <MehrfachFeld
-            gewaehlt={mehrere.map((k) => ({ teil: k, name: teilName(k) }))}
+            gewaehlt={mehrere.map((k) => ({ teil: k, name: name_(k) }))}
             marken={marken}
             platzhalter="Hinweis, z. B. „Diese Muskeln bitte täglich dehnen.“"
             onEntfernen={(teil) => setMehrere((a) => a.filter((x) => x !== teil))}
@@ -188,47 +193,47 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
           <section id="koerper-erklaerung" className="card scroll-mt-4" aria-live="polite" data-testid="modell-erklaerung">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
-                <h3 className="text-lg font-semibold text-slate-900">{gewaehlt.name}{auswahl.seite !== "M" && <span className="font-normal text-slate-500"> {seitenName(auswahl.seite)}</span>}</h3>
+                <h3 className="text-lg font-semibold text-slate-900">{t(gewaehlt.name)}{auswahl.seite !== "M" && <span className="font-normal text-slate-500"> {seite_(auswahl.seite)}</span>}</h3>
                 {gewaehlt.latein && <p className="text-sm italic text-slate-500">{gewaehlt.latein}</p>}
               </div>
-              <span className="rounded-full px-2.5 py-1 text-xs ring-1 ring-black/10" style={{ background: FARBE[gewaehlt.ebene].flaeche, color: gewaehlt.ebene === "muskeln" || gewaehlt.ebene === "organe" ? "#fff" : "#3f3a33" }}>{EBENEN.find((e) => e.id === gewaehlt.ebene)!.name}</span>
+              <span className="rounded-full px-2.5 py-1 text-xs ring-1 ring-black/10" style={{ background: FARBE[gewaehlt.ebene].flaeche, color: gewaehlt.ebene === "muskeln" || gewaehlt.ebene === "organe" ? "#fff" : "#3f3a33" }}>{t(EBENEN.find((e) => e.id === gewaehlt.ebene)!.name)}</span>
             </div>
             {gewaehlt.lage === "paarig" && (
-              <div className="mt-2 inline-flex rounded-full bg-slate-100 p-0.5 text-xs" role="group" aria-label="Körperseite">
+              <div className="mt-2 inline-flex rounded-full bg-slate-100 p-0.5 text-xs" role="group" aria-label={t("Körperseite")}>
                 {(["R", "L"] as Seite[]).map((s) => (
-                  <button key={s} type="button" aria-pressed={auswahl.seite === s} onClick={() => waehlen(gewaehlt, s, true)} className={`rounded-full px-3 py-1 ${auswahl.seite === s ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>{seitenName(s)}</button>
+                  <button key={s} type="button" aria-pressed={auswahl.seite === s} onClick={() => waehlen(gewaehlt, s, true)} className={`rounded-full px-3 py-1 ${auswahl.seite === s ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>{seite_(s)}</button>
                 ))}
               </div>
             )}
-            <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Was ist das?</h4>
-            <p className="mt-1 text-sm leading-relaxed text-slate-800">{gewaehlt.was}</p>
-            <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Häufige Beschwerden</h4>
-            <p className="mt-1 text-sm leading-relaxed text-slate-800">{gewaehlt.beschwerden}</p>
+            <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("Was ist das?")}</h4>
+            <p className="mt-1 text-sm leading-relaxed text-slate-800">{t(gewaehlt.was)}</p>
+            <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("Häufige Beschwerden")}</h4>
+            <p className="mt-1 text-sm leading-relaxed text-slate-800">{t(gewaehlt.beschwerden)}</p>
             {!marken.bearbeitbar && <PraxisHinweis notiz={marken.notizVon(kennung)} />}
             <MarkierFeld key={kennung} teil={kennung} marken={marken} platzhalter="Hinweis, z. B. „Hier sitzt die Reizung. Bitte zweimal täglich dehnen.“" />
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" className="btn-secondary text-sm" onClick={() => waehlen(gewaehlt, auswahl.seite, true)}>Im Modell zeigen</button>
-              {gewaehlt.vorn && gewaehlt.hinten && <button type="button" className="btn-secondary text-sm" onClick={() => waehlen(gewaehlt, auswahl.seite, true, ansicht === "vorn" ? "hinten" : "vorn")}>{ansicht === "vorn" ? "Von hinten ansehen" : "Von vorn ansehen"}</button>}
+              <button type="button" className="btn-secondary text-sm" onClick={() => waehlen(gewaehlt, auswahl.seite, true)}>{t("Im Modell zeigen")}</button>
+              {gewaehlt.vorn && gewaehlt.hinten && <button type="button" className="btn-secondary text-sm" onClick={() => waehlen(gewaehlt, auswahl.seite, true, ansicht === "vorn" ? "hinten" : "vorn")}>{ansicht === "vorn" ? t("Von hinten ansehen") : t("Von vorn ansehen")}</button>}
             </div>
           </section>
         ) : (
           <section className="card text-sm text-slate-600" data-testid="modell-erklaerung-leer">
-            <h3 className="text-base font-semibold text-slate-900">So funktioniert das Modell</h3>
-            <p className="mt-1">Tippen Sie auf ein Organ, einen Knochen, einen Muskel, eine Sehne oder einen Nerv. Sie sehen dann, was das ist und welche Beschwerden dort häufig vorkommen. Über die Tasten oben blenden Sie Ebenen ein und aus.</p>
+            <h3 className="text-base font-semibold text-slate-900">{t("So funktioniert das Modell")}</h3>
+            <p className="mt-1">{t("Tippen Sie auf ein Organ, einen Knochen, einen Muskel, eine Sehne oder einen Nerv. Sie sehen dann, was das ist und welche Beschwerden dort häufig vorkommen. Über die Tasten oben blenden Sie Ebenen ein und aus.")}</p>
           </section>
         )}
 
         <details className="mt-3 rounded-2xl bg-white ring-1 ring-slate-200" data-testid="modell-liste">
-          <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-slate-900">Alle {STRUKTUREN.length} Strukturen als Liste</summary>
+          <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-slate-900">{t("Alle {n} Strukturen als Liste", { n: STRUKTUREN.length })}</summary>
           <div className="space-y-3 border-t border-slate-100 px-4 py-3">
             {EBENEN.map((e) => (
               <div key={e.id}>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{e.name}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t(e.name)}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {STRUKTUREN.filter((s) => s.ebene === e.id && passt(s)).map((s) => (
                     <button key={s.id} type="button" onClick={() => waehlen(s, s.lage === "paarig" ? (auswahl?.seite && auswahl.seite !== "M" ? auswahl.seite : "R") : "M", true)}
                       className={`rounded-full px-3 py-2 text-sm ring-1 sm:px-2.5 sm:py-1 sm:text-xs ${auswahl?.id === s.id ? "bg-brand-600 text-white ring-brand-600" : "bg-slate-50 text-slate-700 ring-slate-200 hover:text-brand-700"}`}>
-                      {s.name}
+                      {t(s.name)}
                     </button>
                   ))}
                 </div>
@@ -236,7 +241,7 @@ export function KoerperModell({ markierungen = [], patientId, startEbenen = ["kn
             ))}
           </div>
         </details>
-        <p className="mt-3 text-xs text-slate-500">{MODELL_HINWEIS}</p>
+        <p className="mt-3 text-xs text-slate-500">{t(MODELL_HINWEIS)}</p>
       </div>
     </div>
   );

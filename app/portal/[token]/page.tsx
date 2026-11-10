@@ -210,7 +210,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
             ) : (
               <p className="text-sm text-slate-600">Sehen Sie im Modell, wo etwas sitzt und was dort gemacht wird, mit verständlicher Erklärung.</p>
             )}
-            <a href={`/portal/${params.token}/modell`} className="btn-primary mt-3 inline-block" data-testid="portal-modell-link">Im Modell ansehen</a>
+            <a href={`/portal/${params.token}/modell${lang === "de" ? "" : `?lang=${lang}`}`} className="btn-primary mt-3 inline-block" data-testid="portal-modell-link">Im Modell ansehen</a>
           </div>
         </section>
         {openInvoices.length > 0 && (
