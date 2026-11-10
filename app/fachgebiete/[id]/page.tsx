@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { MODELL_WERBUNG, hauptModell } from "@/lib/modelle/fach";
 import { PRICE_SHORT } from "@/lib/pricing";
 import { notFound } from "next/navigation";
 import { SPECIALTIES, isTherapie, specialty } from "@/lib/specialties";
@@ -211,17 +212,13 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
             </div>
           </section>
 
-          <section className="mt-14 flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-white p-6 ring-1 ring-[#E9E2DA]" data-testid="fach-modell">
+          <section className="mt-14 flex flex-wrap items-center justify-between gap-4 rounded-3xl bg-white p-6 ring-1 ring-[#E9E2DA]" data-testid="fach-modell" data-modell={hauptModell(params.id)}>
             <div className="min-w-0 max-w-2xl">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">Sehen, wo es sitzt</p>
-              <h2 className="mt-1 font-display text-2xl text-slate-900">{params.id === "zahn" ? "Das Gebiss als Modell" : "Der Körper als Modell"}</h2>
-              <p className="mt-2 text-sm text-slate-600">
-                {params.id === "zahn"
-                  ? "Alle Zähne, der Aufbau eines Zahns und die Instrumente der Praxis. Sie zeigen am Bildschirm, was gemacht wird, und markieren den Zahn für den Patientenlink."
-                  : "Knochen, Muskeln, Sehnen und Gelenke zum Hineinzoomen. Sie zeigen am Bildschirm, wo das Problem sitzt, und markieren die Stelle für den Patientenlink."}
-              </p>
+              <h2 className="mt-1 font-display text-2xl text-slate-900">{MODELL_WERBUNG[hauptModell(params.id)].titel}</h2>
+              <p className="mt-2 text-sm text-slate-600">{MODELL_WERBUNG[hauptModell(params.id)].text}</p>
             </div>
-            <Link href={params.id === "zahn" ? "/anatomie/gebiss" : "/anatomie/koerper"} className="rounded-full bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700">Modell ansehen</Link>
+            <Link href={`/anatomie/${hauptModell(params.id)}`} className="rounded-full bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700">Modell ansehen</Link>
           </section>
 
           <section id="automatisch" className="mt-14 grid scroll-mt-6 gap-5 lg:grid-cols-3">

@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { EBENEN, STRUKTUREN, seiteImBild, teilKennung, teilLesen, teilName } from "./koerper";
 import { KOERPER_TEXTE } from "./koerperTexte";
-import { INSTRUMENTE, SCHICHTEN, ZAEHNE, zahnNach } from "./gebiss";
+import { INSTRUMENTE, MILCHZAEHNE, SCHICHTEN, ZAEHNE, zahnNach } from "./gebiss";
+import { SCHNITTMODELLE } from "./schnitt";
+import { FACH_MODELLE, MODELL_IDS, hauptModell, modelleFuerFach } from "./fach";
+import { SPECIALTIES } from "../specialties";
 import { rahmen } from "./formen";
 import { markierungSchema, teilBezeichnung, teilGueltig } from "./markierung";
 
 describe("Körpermodell", () => {
   it("jede Struktur hat Namen, Erklärung, Beschwerden und mindestens eine Ansicht", () => {
-    expect(STRUKTUREN.length).toBeGreaterThanOrEqual(80);
+    expect(STRUKTUREN.length).toBeGreaterThanOrEqual(110);
     for (const s of STRUKTUREN) {
       expect(s.name.length, s.id).toBeGreaterThan(2);
       expect(s.was.length, s.id).toBeGreaterThan(40);
@@ -17,8 +20,13 @@ describe("Körpermodell", () => {
     expect(new Set(STRUKTUREN.map((s) => s.id)).size).toBe(STRUKTUREN.length);
     expect(Object.keys(KOERPER_TEXTE).sort()).toEqual(STRUKTUREN.map((s) => s.id).sort());
   });
-  it("alle drei Ebenen sind gut gefüllt: Knochen, Muskeln, Sehnen/Bänder/Gelenke", () => {
-    for (const e of EBENEN) expect(STRUKTUREN.filter((s) => s.ebene === e.id).length, e.id).toBeGreaterThanOrEqual(20);
+  it("alle fünf Ebenen sind gefüllt: Knochen, Organe, Muskeln, Sehnen/Bänder/Gelenke, Nerven", () => {
+    expect(EBENEN.map((e) => e.id)).toEqual(["knochen", "organe", "muskeln", "sehnen", "nerven"]);
+    for (const e of EBENEN) expect(STRUKTUREN.filter((s) => s.ebene === e.id).length, e.id).toBeGreaterThanOrEqual(e.id === "nerven" ? 10 : 20);
+    for (const id of ["herz", "lunge", "leber", "magen", "niere", "dickdarm", "gehirn", "schilddruese", "harnblase", "ischiasnerv", "mittelnerv"]) expect(STRUKTUREN.some((s) => s.id === id), id).toBe(true);
+  });
+  it("Gebärmutter und Prostata sind je einem Geschlecht zugeordnet, alles andere beiden", () => {
+    expect(STRUKTUREN.filter((s) => s.geschlecht).map((s) => `${s.id}:${s.geschlecht}`).sort()).toEqual(["gebaermutter:W", "prostata:M"]);
   });
   it("Formen liegen in der Zeichenfläche und ergeben gültige Pfade", () => {
     for (const s of STRUKTUREN) for (const formen of [s.vorn, s.hinten]) {
@@ -92,5 +100,59 @@ describe("Markierungen der Praxis", () => {
   it("benennt Teile für Patienten lesbar", () => {
     expect(teilBezeichnung("gebiss", "36")).toBe("Zahn 36 (Unterer linker erster großer Backenzahn)");
     expect(teilBezeichnung("koerper", "achillessehne:R")).toBe("Achillessehne rechts");
+  });
+});
+
+describe("Milchgebiss", () => {
+  it("20 Milchzähne in den Quadranten 5 bis 8, je fünf", () => {
+    expect(MILCHZAEHNE.map((z) => z.fdi)).toEqual([5, 6, 7, 8].flatMap((q) => [1, 2, 3, 4, 5].map((n) => q * 10 + n)));
+    expect(zahnNach(55)?.name).toBe("Oberer rechter zweiter Milchbackenzahn");
+    expect(zahnNach(71)?.milch).toBe(true);
+    expect(zahnNach(16)?.milch).toBeUndefined();
+    expect(teilGueltig("gebiss", "75")).toBe(true);
+    expect(teilGueltig("gebiss", "56")).toBe(false);
+  });
+});
+
+describe("Auge, Ohr und Haut", () => {
+  it("jedes Modell hat erklärte Teile mit gültigen Formen in der Zeichenfläche", () => {
+    for (const m of Object.values(SCHNITTMODELLE)) {
+      expect(m.teile.length, m.id).toBeGreaterThanOrEqual(10);
+      expect(new Set(m.teile.map((t) => t.id)).size, m.id).toBe(m.teile.length);
+      for (const t of m.teile) {
+        expect(t.was.length, `${m.id}.${t.id}`).toBeGreaterThan(50);
+        expect(t.beschwerden.length, `${m.id}.${t.id}`).toBeGreaterThan(50);
+        expect(f(t.formen), `${m.id}.${t.id}`).not.toContain("NaN");
+        // Der Rahmen rechnet mit den Stützpunkten der Kurven; die liegen bei eckigen Flächen etwas außerhalb der Linie
+        const r = rahmen(t.formen);
+        expect(r.x, `${m.id}.${t.id}`).toBeGreaterThanOrEqual(-60);
+        expect(r.x + r.b, `${m.id}.${t.id}`).toBeLessThanOrEqual(m.breite + 60);
+        expect(r.y + r.h, `${m.id}.${t.id}`).toBeLessThanOrEqual(m.hoehe + 60);
+      }
+    }
+    expect(teilGueltig("auge", "linse")).toBe(true);
+    expect(teilGueltig("auge", "trommelfell")).toBe(false);
+    expect(teilBezeichnung("ohr", "trommelfell")).toBe("Trommelfell (Ohr)");
+    expect(teilBezeichnung("haut", "muttermal")).toBe("Muttermal (Haut)");
+  });
+});
+
+describe("Passendes Modell je Fachrichtung", () => {
+  it("jede Fachrichtung hat ein Hauptmodell; die naheliegenden stimmen", () => {
+    for (const s of SPECIALTIES) {
+      expect(FACH_MODELLE[s.id], s.id).toBeDefined();
+      for (const m of modelleFuerFach(s.id).modelle) expect(MODELL_IDS, s.id).toContain(m);
+    }
+    expect(hauptModell("zahn")).toBe("gebiss");
+    expect(hauptModell(null)).toBe("gebiss");
+    expect(hauptModell("augen")).toBe("auge");
+    expect(hauptModell("hno")).toBe("ohr");
+    expect(hauptModell("haut")).toBe("haut");
+    expect(hauptModell("kardio")).toBe("koerper");
+    expect(modelleFuerFach("kardio").ebenen).toContain("organe");
+    expect(modelleFuerFach("ortho").ebenen).toEqual(["knochen", "muskeln", "sehnen"]);
+    expect(modelleFuerFach("neuro").ebenen).toContain("nerven");
+    expect(modelleFuerFach("gyn").geschlecht).toBe("W");
+    expect(hauptModell("gibtesnicht")).toBe("koerper");
   });
 });

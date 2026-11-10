@@ -10,7 +10,7 @@ export const FARBE_GEWAEHLT = { flaeche: "#F9D56B", rand: "#8A6410" };
 export const FARBE_MARKIERT = { flaeche: "#F28B45", rand: "#A8470E" };
 
 /** Markierungen eines Patienten laden, speichern und entfernen (nur in der Praxisansicht mit patientId). */
-export function useMarkierungen(modell: "gebiss" | "koerper", start: Markierung[], patientId?: string) {
+export function useMarkierungen(modell: "gebiss" | "koerper" | "auge" | "ohr" | "haut", start: Markierung[], patientId?: string) {
   const [liste, setListe] = useState<Markierung[]>(start);
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);

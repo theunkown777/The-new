@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { rahmen } from "@/lib/modelle/formen";
-import { GEBISS_BREITE, GEBISS_HOEHE, INSTRUMENTE, SCHICHTEN, SCHNITT, ZAEHNE, ZAHNARTEN, zahnKennung, zahnNach, zahnTitel, type Material } from "@/lib/modelle/gebiss";
+import { GEBISS_BREITE, GEBISS_HOEHE, INSTRUMENTE, MILCHZAEHNE, MILCHZAHN_HINWEIS, SCHICHTEN, SCHNITT, ZAEHNE, ZAHNARTEN, zahnKennung, zahnNach, zahnTitel, type Material } from "@/lib/modelle/gebiss";
 import { useZoom } from "./useZoom";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
@@ -27,6 +27,9 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
   const marken = useMarkierungen("gebiss", markierungen, patientId);
   const [reiter, setReiter] = useState<Reiter>(start);
   const [fdi, setFdi] = useState<number | null>(markierungen[0] ? Number(markierungen[0].teil) : null);
+  // Milchgebiss zeigen, wenn nur Milchzähne markiert sind
+  const [milch, setMilch] = useState(() => markierungen.length > 0 && markierungen.every((x) => Number(x.teil) > 50));
+  const zaehne = milch ? MILCHZAEHNE : ZAEHNE;
   const [schicht, setSchicht] = useState<string>("schmelz");
   const [instrument, setInstrument] = useState<string>(INSTRUMENTE[0].id);
   const zoomBogen = useZoom(BASIS_BOGEN, 6);
@@ -38,6 +41,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
   function zahnWaehlen(nr: number, hinzoomen = false) {
     setFdi(nr);
     const z = zahnNach(nr);
+    if (z && !!z.milch !== milch) setMilch(!!z.milch);
     if (hinzoomen && z) zoomBogen.zoomAuf(rahmen([z.form]), 4);
   }
 
@@ -83,6 +87,12 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
       {reiter === "zaehne" && (
         <div className={`grid gap-4 ${einspaltig ? "" : "lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)]"}`}>
           <div>
+            <div className="mb-2 inline-flex rounded-full bg-slate-100 p-1 text-sm" role="group" aria-label="Gebiss">
+              {([[false, "Bleibende Zähne (32)"], [true, "Milchzähne (20)"]] as const).map(([wert, name]) => (
+                <button key={name} type="button" aria-pressed={milch === wert} onClick={() => { setMilch(wert); setFdi(null); zoomBogen.zuruecksetzen(); }} data-testid={wert ? "gebiss-milch" : "gebiss-bleibend"}
+                  className={`rounded-full px-3.5 py-1.5 ${milch === wert ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>{name}</button>
+              ))}
+            </div>
             <div className="relative overflow-hidden rounded-2xl bg-[#FBF7F1] ring-1 ring-[#E9E2DA]">
               <ZoomTasten zoom={zoomBogen} />
               {zahn && <GewaehltLeiste titel={`Zahn ${zahn.fdi}: ${zahn.name}`} zielId="gebiss-erklaerung" />}
@@ -94,7 +104,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                   <text x={30} y={290} fontSize={11}>rechts</text>
                   <text x={370} y={290} fontSize={11}>links</text>
                 </g>
-                {ZAEHNE.map((z) => {
+                {zaehne.map((z) => {
                   const k = zahnKennung(z.fdi);
                   const an = fdi === z.fdi, markiert = marken.istMarkiert(k);
                   const c = markiert ? { ...FARBE_MARKIERT, rand: an ? "#5A1D1D" : FARBE_MARKIERT.rand } : an ? FARBE_GEWAEHLT : { flaeche: "#FFFDF6", rand: "#A2946F" };
@@ -129,15 +139,15 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
               <section id="gebiss-erklaerung" className="card scroll-mt-4" aria-live="polite" data-testid="modell-erklaerung">
                 <h3 className="text-lg font-semibold text-slate-900">Zahn {zahn.fdi}</h3>
                 <p className="text-sm text-slate-600">{zahn.name}</p>
-                <span className="mt-2 inline-block rounded-full bg-brand-50 px-2.5 py-1 text-xs text-brand-800">{ZAHNARTEN[zahn.art].name}</span>
+                <span className="mt-2 inline-block rounded-full bg-brand-50 px-2.5 py-1 text-xs text-brand-800">{zahn.milch ? "Milchzahn" : ZAHNARTEN[zahn.art].name}</span>
                 <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Aufgabe</h4>
                 <p className="mt-1 text-sm leading-relaxed text-slate-800">{ZAHNARTEN[zahn.art].aufgabe}</p>
                 <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
-                  <div><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Bricht durch</dt><dd className="mt-0.5 text-slate-800">{zahn.durchbruch}</dd></div>
+                  <div><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">{zahn.milch ? "Kommt und geht" : "Bricht durch"}</dt><dd className="mt-0.5 text-slate-800">{zahn.durchbruch}</dd></div>
                   <div><dt className="text-xs font-semibold uppercase tracking-wide text-slate-500">Wurzeln</dt><dd className="mt-0.5 text-slate-800">{zahn.wurzeln}</dd></div>
                 </dl>
-                <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Häufige Probleme und Behandlungen</h4>
-                <p className="mt-1 text-sm leading-relaxed text-slate-800">{ZAHNARTEN[zahn.art].typisch}</p>
+                <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{zahn.milch ? "Gut zu wissen" : "Häufige Probleme und Behandlungen"}</h4>
+                <p className="mt-1 text-sm leading-relaxed text-slate-800">{zahn.milch ? MILCHZAHN_HINWEIS : ZAHNARTEN[zahn.art].typisch}</p>
                 {!marken.bearbeitbar && <PraxisHinweis notiz={marken.notizVon(zahnKennung(zahn.fdi))} />}
                 <MarkierFeld key={zahn.fdi} teil={zahnKennung(zahn.fdi)} marken={marken} platzhalter="Hinweis, z. B. „Hier ist die Füllung geplant.“" />
                 <div className="mt-3 flex flex-wrap gap-2">

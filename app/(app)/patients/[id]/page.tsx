@@ -18,9 +18,7 @@ import { TerminUeberblick } from "@/components/TerminUeberblick";
 import { loadBriefing } from "@/lib/briefingLoad";
 import { kiVerfuegbar } from "@/lib/anthropic";
 import { BehandlerWahl } from "@/components/BehandlerWahl";
-import { isDental } from "@/lib/specialties";
-import { GebissModell } from "@/components/modelle/GebissModell";
-import { KoerperModell } from "@/components/modelle/KoerperModell";
+import { ModellWahl } from "@/components/modelle/ModellWahl";
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -112,9 +110,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           <h2 id="am-modell" className="text-sm font-semibold uppercase tracking-wide text-slate-500">Am Modell zeigen</h2>
           <span className="text-xs text-slate-500">Stelle antippen, erklären und für den Patientenlink markieren</span>
         </div>
-        {isDental(fach)
-          ? <GebissModell patientId={patient.id} markierungen={modellMarken.filter((m) => m.modell === "gebiss")} />
-          : <KoerperModell patientId={patient.id} markierungen={modellMarken.filter((m) => m.modell === "koerper")} />}
+        <ModellWahl fach={fach} patientId={patient.id} markierungen={modellMarken} geschlecht={patient.geschlecht === "M" ? "M" : patient.geschlecht === "W" ? "W" : null} />
       </section>
 
       <div className="mb-8">

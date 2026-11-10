@@ -4,8 +4,8 @@ import { mandatsReferenz, mandatsText } from "@/lib/sepa";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
-import { isDental } from "@/lib/specialties";
-import { modellFuerFach, teilBezeichnung } from "@/lib/modelle/markierung";
+import { MODELLE, teilBezeichnung, type Modell } from "@/lib/modelle/markierung";
+import { hauptModell } from "@/lib/modelle/fach";
 import { epcPayload, formatIban, invoiceView, isOutstanding, paymentReference } from "@/lib/invoices";
 import { PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, PORTAL_UI, pickPortalLang, portalStatus, reminderLabel } from "@/lib/portalI18n";
 import { onlineZahlungStatus } from "@/lib/onlineZahlung";
@@ -122,8 +122,8 @@ export default async function PortalPage({ params, searchParams }: { params: { t
   }
 
   // Anatomie-Modell: Zahnarztpraxis zeigt das Gebiss, alle anderen den Körper
-  const modellArt = modellFuerFach(isDental(practice.specialty ?? "zahn"));
-  const modellMarken = patient.modellMarkierungen.filter((m) => m.modell === modellArt);
+  const modellArt = hauptModell(practice.specialty);
+  const modellMarken = patient.modellMarkierungen.filter((m): m is typeof m & { modell: Modell } => (MODELLE as readonly string[]).includes(m.modell));
 
   // Wohin der Knopf "Als Nächstes" führt: Rechnung, Vorschlag, Fragebogen oder Unterlagen.
   const openProposal = patient.proposals.find((p) => (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse);
@@ -178,16 +178,16 @@ export default async function PortalPage({ params, searchParams }: { params: { t
           </p>
         )}
         <section className="mt-8" aria-labelledby="modell" data-testid="portal-modell-hinweis">
-          <h2 id="modell" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{modellArt === "gebiss" ? "Ihr Gebiss im Modell" : "Ihr Körper im Modell"}</h2>
+          <h2 id="modell" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{modellMarken.length ? "Von Ihrer Praxis im Modell markiert" : modellArt === "gebiss" ? "Ihr Gebiss im Modell" : "Im Modell ansehen und verstehen"}</h2>
           <div className="mt-3 rounded-2xl bg-white p-4">
             {modellMarken.length > 0 ? (
               <>
                 <p className="text-sm text-slate-700">{practice.name} hat für Sie markiert:</p>
                 <ul className="mt-2 space-y-1.5">
                   {modellMarken.map((m) => (
-                    <li key={m.teil} className="flex gap-2 text-sm">
+                    <li key={`${m.modell}-${m.teil}`} className="flex gap-2 text-sm">
                       <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-orange-500" aria-hidden="true" />
-                      <span className="min-w-0"><span className="font-medium text-slate-900">{teilBezeichnung(modellArt, m.teil)}</span>{m.notiz && <span className="text-slate-600">: {m.notiz}</span>}</span>
+                      <span className="min-w-0"><span className="font-medium text-slate-900">{teilBezeichnung(m.modell, m.teil)}</span>{m.notiz && <span className="text-slate-600">: {m.notiz}</span>}</span>
                     </li>
                   ))}
                 </ul>

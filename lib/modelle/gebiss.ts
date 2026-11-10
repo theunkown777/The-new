@@ -29,6 +29,8 @@ export interface Zahn {
   nummerBei: P;
   durchbruch: string;
   wurzeln: string;
+  /** Milchzahn (FDI-Quadranten 5 bis 8) */
+  milch?: boolean;
 }
 
 const ART: Record<number, Zahnart> = { 1: "schneidezahn", 2: "schneidezahn", 3: "eckzahn", 4: "praemolar", 5: "praemolar", 6: "molar", 7: "molar", 8: "weisheitszahn" };
@@ -89,8 +91,24 @@ function zahnForm(mitte: P, tangente: P, normal: P, breite: number, tiefe: numbe
   return { form, relief: [strich([p(-b * 0.6, 0), p(0, t * 0.08), p(b * 0.6, 0)], 1.2), strich([p(-b * 0.12, -t * quer), p(-b * 0.08, t * quer)], 1.1), strich([p(b * 0.3, -t * quer * 0.8), p(b * 0.26, t * quer * 0.8)], 1)] };
 }
 
-function bogenZaehne(kiefer: "oben" | "unten"): Zahn[] {
-  const b = BOGEN[kiefer];
+// Milchgebiss: 20 Zähne, je Quadrant zwei Schneidezähne, ein Eckzahn und zwei Milchbackenzähne
+const MILCH_ART: Record<number, Zahnart> = { 1: "schneidezahn", 2: "schneidezahn", 3: "eckzahn", 4: "molar", 5: "molar" };
+const MILCH_NAME: Record<number, string> = { 1: "mittlerer Milchschneidezahn", 2: "seitlicher Milchschneidezahn", 3: "Milcheckzahn", 4: "erster Milchbackenzahn", 5: "zweiter Milchbackenzahn" };
+const MILCH_MASS: Record<"oben" | "unten", Record<number, [number, number]>> = {
+  oben: { 1: [6.5, 5.4], 2: [5.2, 5], 3: [6.8, 6.6], 4: [7.2, 8.6], 5: [8.8, 9.6] },
+  unten: { 1: [4.2, 4.4], 2: [4.6, 4.6], 3: [5.8, 5.8], 4: [7.8, 7.2], 5: [9.8, 8.8] },
+};
+const MILCH_DURCHBRUCH: Record<number, string> = { 1: "mit 6 bis 10 Monaten", 2: "mit 8 bis 14 Monaten", 3: "mit 16 bis 22 Monaten", 4: "mit 12 bis 18 Monaten", 5: "mit 24 bis 30 Monaten" };
+const MILCH_WECHSEL: Record<number, string> = { 1: "fällt mit 6 bis 8 Jahren aus", 2: "fällt mit 7 bis 9 Jahren aus", 3: "fällt mit 9 bis 12 Jahren aus", 4: "fällt mit 9 bis 11 Jahren aus", 5: "fällt mit 10 bis 12 Jahren aus" };
+const MILCH_BOGEN: Record<"oben" | "unten", Bogen> = {
+  oben: { mx: 200, my: 250, rx: 104, ry: 150, richtung: -1 },
+  unten: { mx: 200, my: 316, rx: 94, ry: 140, richtung: 1 },
+};
+
+function bogenZaehne(kiefer: "oben" | "unten", milch = false): Zahn[] {
+  const b = (milch ? MILCH_BOGEN : BOGEN)[kiefer];
+  const masse = (milch ? MILCH_MASS : MASS)[kiefer];
+  const anzahl = milch ? 5 : 8;
   // Bogenlänge numerisch, damit die Zähne lückenlos nebeneinander stehen
   const N = 400;
   const laengen = [0];
@@ -99,7 +117,7 @@ function bogenZaehne(kiefer: "oben" | "unten"): Zahn[] {
     laengen.push(laengen[i - 1] + Math.hypot(c[0] - a[0], c[1] - a[1]));
   }
   const gesamt = laengen[N] * 0.985;
-  const summe = Object.values(MASS[kiefer]).reduce((s, [w]) => s + w, 0);
+  const summe = Object.values(masse).reduce((s, [w]) => s + w, 0);
   const k = gesamt / summe; // Bildpunkte je Millimeter
   const tBei = (strecke: number) => {
     let i = laengen.findIndex((l) => l >= strecke);
@@ -109,8 +127,8 @@ function bogenZaehne(kiefer: "oben" | "unten"): Zahn[] {
   const zaehne: Zahn[] = [];
   for (const vz of [-1, 1] as const) {
     let weg = 0;
-    for (let pos = 1; pos <= 8; pos++) {
-      const [mmB, mmT] = MASS[kiefer][pos];
+    for (let pos = 1; pos <= anzahl; pos++) {
+      const [mmB, mmT] = masse[pos];
       const breite = mmB * k, tiefe = mmT * k * 0.92;
       const t = tBei(weg + breite / 2);
       weg += breite;
@@ -122,16 +140,18 @@ function bogenZaehne(kiefer: "oben" | "unten"): Zahn[] {
       let normal: P = [-tangente[1], tangente[0]];
       const nachAussen: P = [mitte[0] - b.mx, mitte[1] - (b.my + b.richtung * b.ry * 0.35)];
       if (normal[0] * nachAussen[0] + normal[1] * nachAussen[1] < 0) normal = [-normal[0], -normal[1]];
-      const art = ART[pos];
+      const art = milch ? MILCH_ART[pos] : ART[pos];
       const { form, relief } = zahnForm(mitte, tangente, normal, breite * 0.93, tiefe, art, pos);
       const seite = vz === -1 ? "rechts" : "links";
-      const quadrant = kiefer === "oben" ? (seite === "rechts" ? 1 : 2) : seite === "links" ? 3 : 4;
+      const quadrant = (kiefer === "oben" ? (seite === "rechts" ? 1 : 2) : seite === "links" ? 3 : 4) + (milch ? 4 : 0);
       zaehne.push({
         fdi: quadrant * 10 + pos, kiefer, seite, pos, art,
-        name: `${kiefer === "oben" ? "Oberer" : "Unterer"} ${seite === "rechts" ? "rechter" : "linker"} ${POS_NAME[pos]}`,
+        name: `${kiefer === "oben" ? "Oberer" : "Unterer"} ${seite === "rechts" ? "rechter" : "linker"} ${milch ? MILCH_NAME[pos] : POS_NAME[pos]}`,
         form, relief, mitte,
         nummerBei: [mitte[0] + normal[0] * (tiefe / 2 + 11), mitte[1] + normal[1] * (tiefe / 2 + 11)],
-        durchbruch: DURCHBRUCH[kiefer][pos], wurzeln: WURZELN[kiefer][pos],
+        durchbruch: milch ? `${MILCH_DURCHBRUCH[pos]}, ${MILCH_WECHSEL[pos]}` : DURCHBRUCH[kiefer][pos],
+        wurzeln: milch ? (pos <= 3 ? "eine Wurzel, die sich vor dem Zahnwechsel auflöst" : kiefer === "oben" ? "drei gespreizte Wurzeln; dazwischen wächst der bleibende Zahn" : "zwei gespreizte Wurzeln; dazwischen wächst der bleibende Zahn") : WURZELN[kiefer][pos],
+        milch: milch || undefined,
       });
     }
   }
@@ -139,7 +159,9 @@ function bogenZaehne(kiefer: "oben" | "unten"): Zahn[] {
 }
 
 export const ZAEHNE: Zahn[] = [...bogenZaehne("oben"), ...bogenZaehne("unten")].sort((a, b) => a.fdi - b.fdi);
-export const zahnNach = (fdi: number | string) => ZAEHNE.find((z) => z.fdi === Number(fdi)) ?? null;
+export const MILCHZAEHNE: Zahn[] = [...bogenZaehne("oben", true), ...bogenZaehne("unten", true)].sort((a, b) => a.fdi - b.fdi);
+export const MILCHZAHN_HINWEIS = "Milchzähne halten den Platz für die bleibenden Zähne frei und sind wichtig für Kauen und Sprechen. Ihr Schmelz ist dünner; Karies schreitet deshalb schneller voran und sollte auch am Milchzahn behandelt werden.";
+export const zahnNach = (fdi: number | string) => [...ZAEHNE, ...MILCHZAEHNE].find((z) => z.fdi === Number(fdi)) ?? null;
 export const zahnKennung = (fdi: number) => String(fdi);
 export const zahnTitel = (kennung: string) => {
   const z = zahnNach(kennung);

@@ -12,14 +12,17 @@ import { KOERPER_TEXTE } from "./koerperTexte";
 export const KOERPER_BREITE = 400;
 export const KOERPER_HOEHE = 880;
 
-export type Ebene = "knochen" | "muskeln" | "sehnen";
+export type Ebene = "knochen" | "organe" | "muskeln" | "sehnen" | "nerven";
 export type Ansicht = "vorn" | "hinten";
 export type Seite = "R" | "L" | "M";
 
+// Reihenfolge = Zeichenreihenfolge von hinten nach vorn
 export const EBENEN: { id: Ebene; name: string; kurz: string }[] = [
   { id: "knochen", name: "Knochen", kurz: "Skelett" },
+  { id: "organe", name: "Organe und Gefäße", kurz: "Organe" },
   { id: "muskeln", name: "Muskeln", kurz: "Muskeln" },
   { id: "sehnen", name: "Sehnen, Bänder und Gelenke", kurz: "Sehnen und Gelenke" },
+  { id: "nerven", name: "Nerven", kurz: "Nerven" },
 ];
 
 export interface Struktur {
@@ -29,6 +32,10 @@ export interface Struktur {
   lage: "paarig" | "mitte" | "mitteGespiegelt";
   /** Liegt unter anderen Strukturen und wird gestrichelt darüber gezeichnet. */
   tief?: boolean;
+  /** Eigene Farbe (Organe haben je eine natürliche Farbe); sonst die Farbe der Ebene. */
+  farbe?: { flaeche: string; rand: string };
+  /** Nur bei diesem Geschlecht vorhanden (Gebärmutter, Prostata). */
+  geschlecht?: "W" | "M";
   vorn?: Form[];
   hinten?: Form[];
   name: string;
@@ -187,6 +194,50 @@ const ROH: Roh[] = [
   { id: "sprunggelenk", ebene: "sehnen", lage: "paarig", vorn: [ellipse([171, 747], 12, 5)], hinten: [ellipse([171, 748], 11, 4.4)] },
   { id: "aussenbaender-sprunggelenk", ebene: "sehnen", lage: "paarig", vorn: [strich([[158, 746], [156, 756], [160, 765]], 3.4)] },
   { id: "plantarfaszie", ebene: "sehnen", lage: "paarig", tief: true, vorn: [strich([[170, 762], [168, 782], [166, 800]], 5)] },
+
+  // ============================================================ Organe und Gefäße
+  { id: "gehirn", ebene: "organe", lage: "mitte", farbe: { flaeche: "#EBC3C0", rand: "#A9716E" },
+    vorn: [flaeche([[200, 22], [221, 27], [230, 45], [228, 60], [215, 68], [200, 69], [185, 68], [172, 60], [170, 45], [179, 27]], 0.7), strich([[200, 24], [200, 66]], 1.2)],
+    hinten: [flaeche([[200, 22], [221, 27], [230, 45], [228, 62], [214, 72], [200, 73], [186, 72], [172, 62], [170, 45], [179, 27]], 0.7), strich([[200, 24], [200, 60]], 1.2), flaeche([[184, 72], [200, 68], [216, 72], [212, 86], [200, 90], [188, 86]], 0.7)] },
+  { id: "schilddruese", ebene: "organe", lage: "mitte", farbe: { flaeche: "#D9826B", rand: "#96493A" }, vorn: [ellipse([193, 129], 5, 8, 12), ellipse([207, 129], 5, 8, -12), ellipse([200, 132], 4, 3)] },
+  { id: "luftroehre", ebene: "organe", lage: "mitte", farbe: { flaeche: "#DCE9F2", rand: "#6E93AB" }, vorn: [strich([[200, 110], [200, 140], [200, 168]], 8), strich([[200, 168], [188, 176], [180, 188]], 5.5), strich([[200, 168], [212, 176], [220, 188]], 5.5)] },
+  { id: "speiseroehre", ebene: "organe", lage: "mitte", tief: true, farbe: { flaeche: "#E8B49C", rand: "#A86F58" }, vorn: [strich([[204, 108], [205, 200], [212, 262]], 4.5)] },
+  { id: "lunge", ebene: "organe", lage: "paarig", farbe: { flaeche: "#EDB3B8", rand: "#A9636B" },
+    vorn: [flaeche([[191, 160], [174, 160], [157, 184], [148, 222], [150, 256], [174, 252], [190, 238], [193, 198]], 0.6)],
+    hinten: [flaeche([[191, 160], [174, 160], [157, 184], [148, 222], [150, 262], [176, 262], [191, 250], [193, 198]], 0.6)] },
+  { id: "herz", ebene: "organe", lage: "mitte", farbe: { flaeche: "#C8423F", rand: "#7E2220" }, vorn: [flaeche([[195, 198], [210, 190], [227, 198], [233, 218], [224, 240], [208, 252], [193, 238], [188, 216]], 0.7)] },
+  { id: "aorta", ebene: "organe", lage: "mitte", tief: true, farbe: { flaeche: "#D9534F", rand: "#8C2A27" }, vorn: [strich([[206, 198], [208, 180], [200, 172], [195, 184], [197, 262], [200, 334]], 5.5)] },
+  { id: "halsschlagader", ebene: "organe", lage: "paarig", farbe: { flaeche: "#D9534F", rand: "#8C2A27" }, vorn: [strich([[195, 168], [191, 140], [187, 110]], 3.2)] },
+  { id: "zwerchfell", ebene: "organe", lage: "mitte", farbe: { flaeche: "#B5605E", rand: "#7E3A38" }, vorn: [strich([[146, 264], [172, 252], [200, 258], [228, 252], [254, 264]], 3.4)] },
+  { id: "leber", ebene: "organe", lage: "mitte", farbe: { flaeche: "#9A4B3C", rand: "#63291E" }, vorn: [flaeche([[150, 268], [176, 260], [208, 264], [227, 274], [206, 292], [176, 302], [152, 298]], 0.6)] },
+  { id: "gallenblase", ebene: "organe", lage: "mitte", farbe: { flaeche: "#7FA35A", rand: "#4C6B30" }, vorn: [ellipse([183, 300], 5, 8.5, 20)] },
+  { id: "magen", ebene: "organe", lage: "mitte", farbe: { flaeche: "#E6A0A0", rand: "#A35C5C" }, vorn: [flaeche([[213, 268], [236, 264], [247, 282], [241, 304], [223, 314], [210, 300]], 0.7)] },
+  { id: "milz", ebene: "organe", lage: "mitte", farbe: { flaeche: "#8E4A63", rand: "#5B2A3D" }, vorn: [ellipse([251, 284], 7, 13, -20)], hinten: [ellipse([149, 284], 7, 13, 20)] },
+  { id: "bauchspeicheldruese", ebene: "organe", lage: "mitte", tief: true, farbe: { flaeche: "#E9C46A", rand: "#A2812B" }, vorn: [spindel([188, 314], [240, 300], 11, 0.3)] },
+  { id: "niere", ebene: "organe", lage: "paarig", tief: true, farbe: { flaeche: "#A04A4A", rand: "#6A2A2A" }, vorn: [ellipse([175, 324], 9, 15, 10)], hinten: [ellipse([175, 318], 10, 16, 10)] },
+  { id: "nebenniere", ebene: "organe", lage: "paarig", tief: true, farbe: { flaeche: "#E0A93B", rand: "#96701C" }, vorn: [ellipse([176, 306], 6.5, 4, 15)], hinten: [ellipse([176, 300], 6.5, 4, 15)] },
+  { id: "harnleiter", ebene: "organe", lage: "paarig", tief: true, farbe: { flaeche: "#E3C877", rand: "#A08635" }, vorn: [strich([[179, 338], [184, 366], [192, 394]], 2.4)] },
+  { id: "dickdarm", ebene: "organe", lage: "mitte", farbe: { flaeche: "#D9A08B", rand: "#99604C" }, vorn: [strich([[164, 374], [159, 344], [166, 320], [200, 314], [234, 320], [241, 344], [237, 372], [220, 386], [202, 392]], 11)] },
+  { id: "duenndarm", ebene: "organe", lage: "mitte", farbe: { flaeche: "#EDBFA6", rand: "#A87559" },
+    vorn: [flaeche([[178, 330], [222, 330], [231, 352], [222, 376], [178, 376], [169, 352]], 0.7), strich([[180, 340], [192, 334], [204, 342], [218, 336]], 1.3), strich([[178, 354], [190, 348], [204, 356], [222, 350]], 1.3), strich([[182, 368], [194, 362], [206, 370], [218, 364]], 1.3)] },
+  { id: "blinddarm", ebene: "organe", lage: "mitte", farbe: { flaeche: "#D9A08B", rand: "#99604C" }, vorn: [strich([[165, 380], [160, 392]], 4.5)] },
+  { id: "harnblase", ebene: "organe", lage: "mitte", farbe: { flaeche: "#EAD57E", rand: "#A39034" }, vorn: [ellipse([200, 398], 13, 10)] },
+  { id: "gebaermutter", ebene: "organe", lage: "mitte", geschlecht: "W", farbe: { flaeche: "#D9799B", rand: "#96405F" },
+    vorn: [flaeche([[189, 366], [211, 366], [206, 384], [200, 390], [194, 384]], 0.7), strich([[189, 368], [176, 364]], 2.4), strich([[211, 368], [224, 364]], 2.4), ellipse([172, 366], 5.5, 4), ellipse([228, 366], 5.5, 4)] },
+  { id: "prostata", ebene: "organe", lage: "mitte", geschlecht: "M", farbe: { flaeche: "#B9789B", rand: "#7A4263" }, vorn: [ellipse([200, 412], 7.5, 6)] },
+  { id: "beinvenen", ebene: "organe", lage: "paarig", farbe: { flaeche: "#6C8FC4", rand: "#3B5C92" }, vorn: [strich([[190, 400], [186, 480], [184, 566], [181, 660], [178, 740]], 3)], hinten: [strich([[172, 420], [170, 566], [171, 660], [172, 738]], 3)] },
+
+  // ============================================================ Nerven
+  { id: "rueckenmark", ebene: "nerven", lage: "mitte", vorn: [strich([[200, 104], [200, 200], [200, 276]], 3.6)], hinten: [strich([[200, 100], [200, 200], [200, 276]], 4)] },
+  { id: "trigeminus", ebene: "nerven", lage: "paarig", vorn: [strich([[176, 76], [181, 60], [186, 44]], 1.8), strich([[176, 76], [184, 76], [192, 78]], 1.8), strich([[176, 76], [182, 90], [190, 102]], 1.8)] },
+  { id: "armgeflecht", ebene: "nerven", lage: "paarig", vorn: [strich([[196, 126], [174, 142], [142, 166]], 3), strich([[196, 134], [176, 148], [146, 170]], 2.2)], hinten: [strich([[196, 126], [174, 142], [142, 166]], 3)] },
+  { id: "mittelnerv", ebene: "nerven", lage: "paarig", vorn: [strich([[138, 172], [124, 240], [110, 300], [100, 380], [88, 430], [82, 476]], 2.6)] },
+  { id: "ellennerv", ebene: "nerven", lage: "paarig", vorn: [strich([[142, 174], [130, 240], [121, 304], [112, 380], [98, 430], [98, 478]], 2.4)], hinten: [strich([[140, 176], [128, 240], [120, 306], [110, 380], [98, 430]], 2.4)] },
+  { id: "speichennerv", ebene: "nerven", lage: "paarig", hinten: [strich([[138, 172], [118, 220], [108, 262], [100, 304], [90, 380], [80, 430]], 2.6)] },
+  { id: "oberschenkelnerv", ebene: "nerven", lage: "paarig", vorn: [strich([[190, 326], [166, 384], [160, 460], [164, 540]], 3)] },
+  { id: "ischiasnerv", ebene: "nerven", lage: "paarig", hinten: [strich([[192, 336], [166, 380], [165, 470], [168, 572]], 4.4)] },
+  { id: "schienbeinnerv", ebene: "nerven", lage: "paarig", hinten: [strich([[168, 572], [170, 650], [173, 742]], 2.8)] },
+  { id: "wadenbeinnerv", ebene: "nerven", lage: "paarig", vorn: [strich([[160, 584], [152, 600], [156, 680], [160, 744]], 2.4)], hinten: [strich([[166, 574], [154, 596], [156, 690]], 2.4)] },
 ];
 
 export const STRUKTUREN: Struktur[] = ROH.map((r) => {

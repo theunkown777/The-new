@@ -13,7 +13,7 @@ export default function GebissPage() {
     <PublicShell full>
       <p className="text-sm"><Link href="/anatomie" className="text-brand-700 hover:underline">← Alle Modelle</Link></p>
       <h1 className="mt-2 font-display text-3xl text-slate-900 sm:text-4xl">Das Gebiss</h1>
-      <p className="mt-2 max-w-2xl text-slate-600">Alle Zähne, der Aufbau eines Zahns und die Instrumente, mit denen in der Zahnarztpraxis gearbeitet wird. Tippen Sie an, was Sie interessiert.</p>
+      <p className="mt-2 max-w-2xl text-slate-600">Bleibende Zähne und Milchzähne, der Aufbau eines Zahns und die Instrumente, mit denen in der Zahnarztpraxis gearbeitet wird. Tippen Sie an, was Sie interessiert.</p>
       <div className="mt-6"><GebissModell /></div>
     </PublicShell>
   );
