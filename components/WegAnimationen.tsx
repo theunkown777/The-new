@@ -13,11 +13,20 @@ export function WegAnimationen() {
     );
     const scan = () => document.querySelectorAll(".weg-anim:not(.im-blick)").forEach((el) => io.observe(el));
     scan();
-    const mo = new MutationObserver(scan);
+    // Höchstens einmal pro Bild nachsehen, nicht bei jeder einzelnen Änderung im Dokument.
+    let geplant = 0;
+    const mo = new MutationObserver(() => {
+      if (geplant) return;
+      geplant = requestAnimationFrame(() => {
+        geplant = 0;
+        scan();
+      });
+    });
     mo.observe(document.body, { childList: true, subtree: true });
     return () => {
       io.disconnect();
       mo.disconnect();
+      cancelAnimationFrame(geplant);
     };
   }, []);
   return null;

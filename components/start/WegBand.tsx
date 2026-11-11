@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { bogen, laeuferBilder, zeitplan } from "@/lib/wegBahn";
 
 // Der Behandlungsweg über die volle Breite: fünf Stationen genau über der Mitte ihrer Spalte.
 // Ein Punkt läuft den Lächelbogen ab, hält an jeder Station mittig kurz an, und die Spalte darunter
@@ -9,136 +10,125 @@ import { useEffect, useRef } from "react";
 const B = 1000, H = 120, Y0 = 26, YM = 98; // Bogen von (100,Y0) über die Mitte nach (900,Y0)
 // Quadratische Kurve mit gleich verteilten Stützpunkten in x: x(t) ist linear, Station i liegt bei t = i/4
 // und damit genau über der Mitte von Spalte i (Spaltenmitten bei 10 %, 30 %, 50 %, 70 %, 90 %).
-const P0 = [100, Y0], P1 = [500, 2 * YM - Y0], P2 = [900, Y0];
-const punkt = (t: number) => [
-  (1 - t) ** 2 * P0[0] + 2 * (1 - t) * t * P1[0] + t ** 2 * P2[0],
-  (1 - t) ** 2 * P0[1] + 2 * (1 - t) * t * P1[1] + t ** 2 * P2[1],
-];
+const P0: [number, number] = [100, Y0], P1: [number, number] = [500, 2 * YM - Y0], P2: [number, number] = [900, Y0];
+const KURVE = bogen(P0, P1, P2);
 const PFAD = `M${P0[0]} ${P0[1]} Q${P1[0]} ${P1[1]} ${P2[0]} ${P2[1]}`;
-const STATIONEN = [0, 1, 2, 3, 4].map((i) => punkt(i / 4));
-
-// Zeitplan eines Umlaufs: an jeder Station halten, dazwischen weich weiterfahren.
-const HALT = 1100, FAHRT = 900, PAUSE_ENDE = 900;
-const DAUER = 5 * HALT + 4 * FAHRT + PAUSE_ENDE;
-const einAus = (x: number) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2); // weiches Anfahren und Abbremsen
-
-function zeitplan() {
-  const halte: { von: number; bis: number }[] = [];
-  let t = 0;
-  for (let i = 0; i < 5; i++) {
-    halte.push({ von: t / DAUER, bis: (t + HALT + (i === 4 ? PAUSE_ENDE : 0)) / DAUER });
-    t += HALT + (i === 4 ? PAUSE_ENDE : 0) + FAHRT;
-  }
-  return halte;
-}
+const STATIONEN = [0, 1, 2, 3, 4].map((i) => KURVE(i / 4));
+const PLAN = zeitplan(1100, 900, 900);
 
 export function WegBand({ stationen }: { stationen: [string, string, string][] }) {
-  const svg = useRef<SVGSVGElement>(null);
-  const laeufer = useRef<SVGGElement>(null);
+  const flaeche = useRef<HTMLDivElement>(null);
+  const laeufer = useRef<HTMLSpanElement>(null);
   const spalten = useRef<(HTMLLIElement | null)[]>([]);
-  const ringe = useRef<(SVGCircleElement | null)[]>([]);
+  const ringe = useRef<(HTMLSpanElement | null)[]>([]);
 
   useEffect(() => {
-    const el = svg.current, dot = laeufer.current;
-    if (!el || !dot || typeof dot.animate !== "function") return;
+    const f = flaeche.current, dot = laeufer.current;
+    if (!f || !dot || typeof dot.animate !== "function") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const { dauer, halte } = PLAN;
+    let anims: Animation[] = [];
+    let sichtbar = false;
+    const opt: KeyframeAnimationOptions = { duration: dauer, iterations: Infinity };
 
-    const halte = zeitplan();
-    // Punkt: Schlüsselbilder entlang des Bogens. Halten = gleicher Ort, Fahrt = Zwischenpunkte mit weicher Kurve.
-    const bilder: Keyframe[] = [];
-    const pos = (t: number) => {
-      const [x, y] = punkt(t);
-      return `translate(${x}px, ${y}px)`;
-    };
-    halte.forEach((h, i) => {
-      bilder.push({ offset: h.von, transform: pos(i / 4) });
-      bilder.push({ offset: h.bis, transform: pos(i / 4) });
-      if (i < 4) {
-        const ende = halte[i + 1].von;
-        for (let k = 1; k < 16; k++) bilder.push({ offset: h.bis + ((ende - h.bis) * k) / 16, transform: pos((i + einAus(k / 16)) / 4) });
-      }
-    });
-
-    const anims: Animation[] = [];
-    anims.push(dot.animate(bilder, { duration: DAUER, iterations: Infinity }));
-    anims.push(
-      dot.animate(
-        [{ opacity: 0, offset: 0 }, { opacity: 1, offset: 0.03 }, { opacity: 1, offset: 0.96 }, { opacity: 0, offset: 1 }],
-        { duration: DAUER, iterations: Infinity },
-      ),
-    );
-    // Spalten und Ringe leuchten, solange der Punkt an ihrer Station steht.
-    halte.forEach((h, i) => {
-      const an = Math.min(h.von + 0.02, h.bis), aus = h.bis;
-      const licht: Keyframe[] = [
-        { offset: 0, opacity: 0 },
-        ...(h.von > 0 ? [{ offset: Math.max(0, h.von - 0.001), opacity: 0 }] : []),
-        { offset: an, opacity: 1 },
-        { offset: aus, opacity: 1 },
-        { offset: Math.min(1, aus + 0.04), opacity: 0 },
-        ...(aus + 0.04 < 1 ? [{ offset: 1, opacity: 0 }] : []),
+    const bauen = () => {
+      const { width, height } = f.getBoundingClientRect();
+      if (!width) return;
+      const zeit = anims[0]?.currentTime ?? 0;
+      anims.forEach((a) => a.cancel());
+      anims = [
+        dot.animate(laeuferBilder(KURVE, B, H, width, height, PLAN), opt),
+        dot.animate([{ opacity: 0, offset: 0 }, { opacity: 1, offset: 0.03 }, { opacity: 1, offset: 0.96 }, { opacity: 0, offset: 1 }], opt),
       ];
-      const sp = spalten.current[i]?.querySelector<HTMLElement>("[data-licht]");
-      if (sp) anims.push(sp.animate(licht, { duration: DAUER, iterations: Infinity, easing: "linear" }));
-      const ring = ringe.current[i];
-      if (ring)
-        anims.push(
-          ring.animate(
-            [
-              { offset: 0, opacity: 0, transform: "scale(0.6)" },
-              ...(h.von > 0 ? [{ offset: Math.max(0, h.von - 0.001), opacity: 0, transform: "scale(0.6)" }] : []),
-              { offset: an, opacity: 0.9, transform: "scale(1)" },
-              { offset: Math.min(1, an + 0.08), opacity: 0, transform: "scale(2.2)" },
-              { offset: 1, opacity: 0, transform: "scale(2.2)" },
-            ],
-            { duration: DAUER, iterations: Infinity },
-          ),
-        );
+      // Spalten und Ringe leuchten, solange der Punkt an ihrer Station steht (nur Deckkraft und transform).
+      halte.forEach((h, i) => {
+        const an = Math.min(h.von + 0.02, h.bis), aus = h.bis;
+        const licht: Keyframe[] = [
+          { offset: 0, opacity: 0 },
+          ...(h.von > 0 ? [{ offset: Math.max(0, h.von - 0.001), opacity: 0 }] : []),
+          { offset: an, opacity: 1 },
+          { offset: aus, opacity: 1 },
+          { offset: Math.min(1, aus + 0.04), opacity: 0 },
+          ...(aus + 0.04 < 1 ? [{ offset: 1, opacity: 0 }] : []),
+        ];
+        const sp = spalten.current[i]?.querySelector<HTMLElement>("[data-licht]");
+        if (sp) anims.push(sp.animate(licht, { ...opt, easing: "linear" }));
+        const ring = ringe.current[i];
+        if (ring)
+          anims.push(
+            ring.animate(
+              [
+                { offset: 0, opacity: 0, transform: "scale(0.6)" },
+                ...(h.von > 0 ? [{ offset: Math.max(0, h.von - 0.001), opacity: 0, transform: "scale(0.6)" }] : []),
+                { offset: an, opacity: 0.9, transform: "scale(1)" },
+                { offset: Math.min(1, an + 0.08), opacity: 0, transform: "scale(2.2)" },
+                { offset: 1, opacity: 0, transform: "scale(2.2)" },
+              ],
+              opt,
+            ),
+          );
+      });
+      const start = document.timeline.currentTime;
+      anims.forEach((a) => {
+        a.startTime = start;
+        a.currentTime = zeit;
+        if (!sichtbar) a.pause();
+      });
+    };
+    bauen();
+    let warte = 0;
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(warte);
+      warte = requestAnimationFrame(bauen);
     });
-    // Alle auf denselben Takt legen, dann nur laufen lassen, wenn das Band zu sehen ist.
-    const start = document.timeline.currentTime;
-    anims.forEach((a) => {
-      a.startTime = start;
-      a.pause();
-    });
-    const io = new IntersectionObserver(([e]) => anims.forEach((a) => (e.isIntersecting ? a.play() : a.pause())), { threshold: 0.3 });
-    io.observe(el);
+    ro.observe(f);
+    const io = new IntersectionObserver(
+      ([e]) => {
+        sichtbar = e.isIntersecting;
+        anims.forEach((a) => (sichtbar ? a.play() : a.pause()));
+      },
+      { threshold: 0.3 },
+    );
+    io.observe(f);
     return () => {
+      ro.disconnect();
       io.disconnect();
+      cancelAnimationFrame(warte);
       anims.forEach((a) => a.cancel());
     };
   }, []);
 
   return (
     <div data-testid="weg-band">
-      <svg ref={svg} viewBox={`0 0 ${B} ${H}`} className="hidden h-auto w-full overflow-visible md:block" aria-hidden="true">
-        <path d={PFAD} fill="none" stroke="#DCD2C6" strokeWidth={3} strokeLinecap="round" />
-        <path d={PFAD} fill="none" stroke="#5A1D1D" strokeWidth={3} strokeLinecap="round" pathLength={1} className="weg-band-strich" />
+      <div ref={flaeche} className="relative hidden md:block">
+        <svg viewBox={`0 0 ${B} ${H}`} className="block h-auto w-full overflow-visible" aria-hidden="true">
+          <path d={PFAD} fill="none" stroke="#DCD2C6" strokeWidth={3} strokeLinecap="round" />
+          <path d={PFAD} fill="none" stroke="#5A1D1D" strokeWidth={3} strokeLinecap="round" pathLength={1} className="weg-band-strich" />
+          {STATIONEN.map(([x, y], i) => (
+            <g key={i}>
+              <circle cx={x} cy={y} r={13} fill={i === 4 ? "#5E7D5A" : "#5A1D1D"} />
+              <text x={x} y={y + 4.5} textAnchor="middle" fontSize={13} fontWeight={600} fill="#F5F2EE" fontFamily="var(--font-open-sans), sans-serif">
+                {i + 1}
+              </text>
+            </g>
+          ))}
+        </svg>
+        {/* Ringe und Läufer als HTML-Ebene: bewegt per transform, ohne die Zeichnung neu zu malen */}
         {STATIONEN.map(([x, y], i) => (
-          <g key={i}>
-            <circle
-              ref={(r) => {
-                ringe.current[i] = r;
-              }}
-              cx={x}
-              cy={y}
-              r={20}
-              fill="none"
-              stroke={i === 4 ? "#5E7D5A" : "#5A1D1D"}
-              strokeWidth={2}
-              opacity={0}
-              style={{ transformBox: "fill-box", transformOrigin: "center" }}
-            />
-            <circle cx={x} cy={y} r={13} fill={i === 4 ? "#5E7D5A" : "#5A1D1D"} />
-            <text x={x} y={y + 4.5} textAnchor="middle" fontSize={13} fontWeight={600} fill="#F5F2EE" fontFamily="var(--font-open-sans), sans-serif">
-              {i + 1}
-            </text>
-          </g>
+          <span
+            key={i}
+            ref={(r) => {
+              ringe.current[i] = r;
+            }}
+            aria-hidden="true"
+            className="pointer-events-none absolute block h-10 w-10 rounded-full border-2 opacity-0"
+            style={{ left: `calc(${(x / B) * 100}% - 20px)`, top: `calc(${(y / H) * 100}% - 20px)`, borderColor: i === 4 ? "#5E7D5A" : "#5A1D1D" }}
+          />
         ))}
-        <g ref={laeufer} opacity={0}>
-          <circle r={7} fill="#F5F2EE" stroke="#5E7D5A" strokeWidth={3} />
-        </g>
-      </svg>
+        <span ref={laeufer} aria-hidden="true" className="pointer-events-none absolute left-0 top-0 block h-0 w-0 opacity-0" style={{ willChange: "transform" }}>
+          <span className="absolute -left-[8px] -top-[8px] block h-4 w-4 rounded-full border-[3px] border-[#5E7D5A] bg-[#F5F2EE]" />
+        </span>
+      </div>
       <ol className="grid border-t border-tinte md:mt-6 md:grid-cols-5 md:border-t-0">
         {stationen.map(([name, praxis, patient], i) => (
           <li

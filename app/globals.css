@@ -308,7 +308,7 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
 .mensch-zoom { transition: transform .65s var(--ease-in-out); will-change: transform; }
 .mensch-punkt { transition: opacity .2s ease; padding: 6px; }
 @keyframes mensch-puls { 0% { transform: scale(.6); opacity: .5; } 100% { transform: scale(1.7); opacity: 0; } }
-.mensch-puls { animation: mensch-puls 2.2s ease-out infinite; animation-delay: calc(var(--i) * 180ms); }
+.mensch-puls { animation: mensch-puls 1.6s ease-out 1 both; animation-delay: calc(var(--i) * 120ms + 400ms); }
 @media (prefers-reduced-motion: reduce) {
   .mensch-zoom { transition: none; }
   .mensch-puls { animation: none; opacity: 0; }
@@ -316,3 +316,12 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
 @keyframes erklaer-blatt-ein { from { transform: translateY(100%); } to { transform: none; } }
 @media (max-width: 1023px) { .erklaer-blatt { animation: erklaer-blatt-ein .3s var(--ease-drawer, cubic-bezier(0.32, 0.72, 0, 1)) both; } }
 @media (prefers-reduced-motion: reduce) { .erklaer-blatt { animation: none !important; } }
+/* Fachauswahl: Kacheln blenden beim Filtern versetzt ein */
+@keyframes fach-ein { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+.fach-ein { animation: fach-ein .24s var(--ease-out) both; animation-delay: calc(var(--i) * 30ms); }
+.fach-filter { transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .12s var(--ease-out); }
+.fach-filter:active { transform: scale(.96); }
+@media (prefers-reduced-motion: reduce) {
+  .fach-ein { animation: none; }
+  .fach-filter:active { transform: none; }
+}

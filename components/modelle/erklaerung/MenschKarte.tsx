@@ -76,6 +76,7 @@ export function MenschKarte({ fach, ueberschrift = true }: { fach?: string | nul
                     style={{ left: `${q.x}%`, top: `${q.y}%`, ["--i" as string]: i }}
                     data-testid={`punkt-${t}`}
                   >
+                    <span className="absolute -inset-1 rounded-full bg-white/60 ring-1 ring-brand-700/30" aria-hidden="true" />
                     <span className="mensch-puls absolute inset-0 rounded-full bg-brand-600" aria-hidden="true" />
                     <span className="relative block h-3.5 w-3.5 rounded-full border-2 border-white bg-brand-700 shadow-[0_2px_6px_rgba(0,0,0,.35)]" />
                     <span className="pointer-events-none absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded-[4px] bg-tinte px-1.5 py-0.5 text-[11px] font-semibold text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">

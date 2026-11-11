@@ -26,13 +26,13 @@ export const metadata: Metadata = {
   },
 };
 
-const kachel = (x: (typeof SPECIALTIES)[number]): FachKachel => ({ id: x.id, name: x.kurz, href: `/fachgebiete/${x.id}`, teaser: x.teaser ?? x.name });
+const kachel = (x: (typeof SPECIALTIES)[number]): FachKachel => ({ id: x.id, name: x.kurz, href: `/fachgebiete/${x.id}`, teaser: x.teaser ?? x.name, art: x.beruf === "therapie" ? "therapie" : "arzt" });
 
 const GRUPPEN: { titel: string; kacheln: FachKachel[] }[] = [
   {
     titel: "Ärztliche und zahnärztliche Praxen",
     kacheln: [
-      { id: "zahn", name: "Zahnmedizin", href: "/fachgebiete/zahn", teaser: "Zahnschema, Festzuschuss 2027, Mehrkostenvereinbarung" },
+      { id: "zahn", name: "Zahnmedizin", href: "/fachgebiete/zahn", teaser: "Zahnschema, Festzuschuss 2027, Mehrkostenvereinbarung", art: "zahn" },
       ...SPECIALTIES.filter((x) => x.beruf !== "therapie").map(kachel),
     ],
   },
