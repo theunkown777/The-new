@@ -53,6 +53,7 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("innerer gerader Augenmuskel", "Muskel an der Nasenseite des Auges.", "Dreht das Auge zur Nase hin, zum Beispiel beim Lesen."),
       T("oberer schräger Augenmuskel", "Muskel, der über eine kleine Rolle schräg am Auge ansetzt.", "Dreht und senkt das Auge."),
       T("unterer schräger Augenmuskel", "Muskel schräg unten am Auge.", "Dreht und hebt das Auge."),
+      T("Lidheber", "Ein Muskel im oberen Augenlid.", "Hebt das Oberlid und hält das Auge offen.", "Erschlafft er im Alter, hängt das Lid (Ptosis); das kann die Sicht einschränken."),
     ],
   },
   ohr: {
@@ -69,6 +70,7 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("Bogengänge", "Drei kleine, mit Flüssigkeit gefüllte Ringe im Innenohr.", "Sie sind Teil des Gleichgewichtsorgans und merken jede Drehung des Kopfes.", "Lose Kristalle in den Bogengängen verursachen den gutartigen Lagerungsschwindel."),
       T("Hörnerv", "Der Nerv vom Innenohr zum Gehirn.", "Er leitet Hör- und Gleichgewichtssignale weiter."),
       T("Ohrtrompete", "Ein schmaler Gang vom Mittelohr in den Rachen (Eustachische Röhre).", "Sie gleicht den Luftdruck aus, zum Beispiel beim Schlucken im Flugzeug.", "Ist sie bei Schnupfen verschwollen, fühlt sich das Ohr dumpf an."),
+      T("Paukenhöhle", "Der luftgefüllte Raum hinter dem Trommelfell, das Mittelohr.", "Hier sitzen die drei Gehörknöchelchen.", "Sammelt sich hier bei Erkältung Flüssigkeit, hört man dumpf; bei Kindern ist das häufig."),
     ],
   },
   lunge: {
@@ -129,6 +131,8 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("Schienbeinmuskel", "Muskel vorn neben dem Schienbein.", "Hebt den Fuß an, damit man beim Gehen nicht hängen bleibt."),
       T("Wadenmuskel", "Der kräftige Muskel hinten am Unterschenkel.", "Hebt die Ferse, zum Beispiel beim Gehen und auf Zehenspitzen.", "Seine Sehne ist die Achillessehne."),
       T("Sehnen", "Feste, weiße Stränge aus Bindegewebe.", "Sie verbinden die Muskeln mit den Knochen und übertragen die Kraft.", "Sehnen heilen langsam, weil sie wenig durchblutet sind."),
+      T("Stirnmuskel", "Ein flacher Muskel über der Stirn.", "Hebt die Augenbrauen und legt die Stirn in Falten."),
+      T("Kniescheibensehne", "Die kräftige Sehne unter der Kniescheibe.", "Überträgt die Kraft des Oberschenkelmuskels auf das Schienbein.", "Bei Sprungsportarten kann sie gereizt sein (Springerknie)."),
     ],
   },
   mund: {
@@ -146,6 +150,12 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("Unterkiefer", "Der bewegliche Kieferknochen.", "Trägt die unteren Zähne und bewegt sich beim Kauen und Sprechen."),
       T("Kiefergelenk", "Das Gelenk direkt vor dem Ohr.", "Erlaubt Öffnen, Schließen und Seitwärtsbewegen des Unterkiefers.", "Knacken, Schmerzen oder nächtliches Zähneknirschen können es belasten; eine Aufbissschiene entlastet."),
       T("Kaumuskel", "Ein kräftiger Muskel an der Wange.", "Schließt den Kiefer mit großer Kraft."),
+      T("Lippen", "Ober- und Unterlippe aus Muskel und dünner Haut.", "Schließen den Mund, formen Laute und tasten fein."),
+      T("harter Gaumen", "Der vordere, knöcherne Teil des Gaumens.", "Gegenlager für die Zunge beim Kauen und Sprechen."),
+      T("weicher Gaumen", "Der hintere, bewegliche Teil des Gaumens.", "Verschließt beim Schlucken den Weg in die Nase."),
+      T("Zäpfchen", "Das kleine Gewebe, das hinten vom weichen Gaumen herabhängt.", "Hilft beim Schlucken und Sprechen.", "Ist es lang oder schlaff, kann es Schnarchen verstärken."),
+      T("Rachen", "Der Raum hinter Mund und Nase.", "Hier kreuzen sich Atem- und Speiseweg."),
+      T("Gaumenmandel", "Lymphgewebe links und rechts am Rachen.", "Gehört zur Abwehr gegen Keime aus Mund und Nase.", "Entzündet sie sich häufig, kann eine Entfernung sinnvoll sein."),
     ],
   },
   zahn: {
@@ -161,6 +171,7 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("Zahnfleisch", "Die Schleimhaut um den Zahnhals.", "Dichtet den Zahn gegen Bakterien ab."),
       T("Kieferknochen", "Der Knochen, in dem die Wurzeln sitzen.", "Hält die Zähne.", "Bei Parodontitis baut er sich ab; Zähne können dann locker werden."),
       T("Wurzelhaut", "Feine Fasern zwischen Wurzel und Knochen.", "Federn den Kaudruck ab und halten den Zahn."),
+      T("Nerv und Blutgefäße", "Feine Nerven und Gefäße, die durch die Wurzelspitze in den Zahn ziehen.", "Versorgen das Zahnmark und melden Schmerz."),
     ],
   },
   haut: {
@@ -176,6 +187,8 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("Blutgefäße", "Feine Arterien und Venen in der Lederhaut.", "Versorgen die Haut und regeln die Körpertemperatur."),
       T("Nervenendigungen", "Sinneskörperchen für Druck, Wärme, Kälte und Schmerz.", "Machen die Haut zum Tastorgan."),
       T("Pigmentzellen", "Zellen in der unteren Oberhaut (Melanozyten).", "Bilden den braunen Farbstoff, der vor UV-Licht schützt.", "Aus ihnen können Muttermale und selten schwarzer Hautkrebs entstehen."),
+      T("Schweißpore", "Die winzige Öffnung der Schweißdrüse an der Hautoberfläche.", "Hier tritt der Schweiß aus."),
+      T("Lamellenkörperchen", "Zwiebelartig geschichtete Fühler tief in der Haut.", "Spüren Druck und Vibration."),
     ],
   },
   skelett: {
@@ -193,6 +206,10 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("Schienbein", "Der kräftige vordere Unterschenkelknochen.", "Trägt das Gewicht zum Fuß."),
       T("Wadenbein", "Der dünne äußere Unterschenkelknochen.", "Stabilisiert das Sprunggelenk."),
       T("Hand- und Fußknochen", "Viele kleine Knochen in Hand und Fuß.", "Ermöglichen feine Bewegungen und federn beim Gehen."),
+      T("Unterkiefer", "Der bewegliche Knochen des Kiefers.", "Trägt die unteren Zähne; einziger beweglicher Knochen des Schädels."),
+      T("Halswirbelsäule", "Die sieben obersten Wirbel.", "Tragen den Kopf und machen ihn beweglich.", "Verspannungen und Verschleiß hier verursachen oft Nacken- und Kopfschmerzen."),
+      T("Elle und Speiche", "Die zwei Knochen des Unterarms.", "Ermöglichen, die Hand zu drehen.", "Bei Stürzen auf die Hand bricht oft die Speiche nahe dem Handgelenk."),
+      T("Kreuzbein", "Der dreieckige Knochen am unteren Ende der Wirbelsäule.", "Verbindet die Wirbelsäule mit dem Becken."),
     ],
   },
   verdauung: {
@@ -208,6 +225,10 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("Dickdarm", "Der etwa 1,5 Meter lange Endabschnitt.", "Entzieht dem Stuhl Wasser.", "Die Darmspiegelung zur Vorsorge findet hier Polypen, bevor daraus Krebs wird."),
       T("Blinddarm", "Ein kleiner Anhang am Beginn des Dickdarms.", "Gehört zum Abwehrsystem des Darms.", "Entzündet er sich, schmerzt meist der rechte Unterbauch."),
       T("Mastdarm", "Der letzte Abschnitt des Darms.", "Sammelt den Stuhl bis zur Entleerung."),
+      T("Mundhöhle mit Zunge", "Der Beginn des Verdauungswegs.", "Zähne zerkleinern, Speichel beginnt die Verdauung von Stärke."),
+      T("Rachen", "Der Raum hinter Mund und Nase.", "Leitet die Nahrung beim Schlucken in die Speiseröhre."),
+      T("Milz", "Ein faustgroßes Organ links oben im Bauch.", "Filtert alte Blutzellen aus und gehört zur Abwehr."),
+      T("Zwölffingerdarm", "Der erste Abschnitt des Dünndarms direkt hinter dem Magen.", "Hier münden Galle und Bauchspeichel.", "Ein Geschwür hier macht oft Schmerzen im nüchternen Zustand."),
     ],
   },
   niere: {
@@ -221,6 +242,8 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("Harnröhre", "Der Ausgang der Blase.", "Leitet den Urin nach außen."),
       T("Nebenniere", "Eine kleine Drüse auf jeder Niere.", "Bildet Stresshormone wie Adrenalin und Cortisol."),
       T("Nierenarterie", "Das Blutgefäß von der Bauchschlagader zur Niere.", "Bringt das Blut zum Filtern."),
+      T("Nierenrinde", "Die äußere Schicht der Niere.", "Hier sitzen die winzigen Filter (Nierenkörperchen), die das Blut reinigen."),
+      T("Nierenmark", "Die innere Schicht mit kegelförmigen Pyramiden.", "Sammelt und konzentriert den Urin."),
     ],
   },
   gehirn: {
@@ -230,7 +253,7 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("Stirnlappen", "Der vordere Teil des Großhirns.", "Plant, entscheidet und steuert Bewegungen und Persönlichkeit."),
       T("Scheitellappen", "Der obere hintere Teil des Großhirns.", "Verarbeitet Berührung und Lage des Körpers im Raum."),
       T("Schläfenlappen", "Der seitliche Teil des Großhirns.", "Hören, Sprache verstehen und Gedächtnis."),
-      T("Hinterhauptlappen", "Der hintere Teil des Großhirns.", "Sehen: Hier entstehen die Bilder."),
+      T("Hinterhauptslappen", "Der hintere Teil des Großhirns.", "Sehen: Hier entstehen die Bilder."),
       T("Kleinhirn", "Der kleinere Teil unter dem Großhirn.", "Koordiniert Bewegungen und Gleichgewicht.", "Ist es gestört, wird der Gang unsicher."),
       T("Hirnstamm", "Die Verbindung zwischen Gehirn und Rückenmark.", "Steuert Atmung, Herzschlag und Schlucken."),
       T("Rückenmark", "Ein Nervenstrang in der Wirbelsäule.", "Leitet Signale zwischen Gehirn und Körper."),

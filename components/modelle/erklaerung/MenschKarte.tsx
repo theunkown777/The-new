@@ -53,9 +53,12 @@ export function MenschKarte({ fach, ueberschrift = true }: { fach?: string | nul
           </p>
         </div>
       )}
-      <div className={`grid items-center gap-8 ${MENSCH_BILD ? "md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]" : ""} ${ueberschrift ? "mt-8" : ""}`}>
+      <div className={`grid items-center gap-8 ${MENSCH_BILD ? "md:grid-cols-[auto_minmax(0,1fr)]" : ""} ${ueberschrift ? "mt-8" : ""}`}>
         {MENSCH_BILD && (
-          <div className="relative mx-auto w-full max-w-[22rem] overflow-hidden rounded-[10px] bg-[#FBF9F6]">
+          <div
+            className="relative mx-auto overflow-hidden rounded-[10px] bg-[#FBF9F6]"
+            style={{ width: `min(100%, 20rem, calc(72vh * ${MENSCH_BILD.breite / MENSCH_BILD.hoehe}))` }}
+          >
             <div className="mensch-zoom relative" style={p ? { transform: "scale(2.6)", transformOrigin: `${p.x}% ${p.y}%` } : undefined}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={MENSCH_BILD.datei} alt="Menschlicher Körper" width={MENSCH_BILD.breite} height={MENSCH_BILD.hoehe} className="block h-auto w-full" />
@@ -74,7 +77,7 @@ export function MenschKarte({ fach, ueberschrift = true }: { fach?: string | nul
                     data-testid={`punkt-${t}`}
                   >
                     <span className="mensch-puls absolute inset-0 rounded-full bg-brand-600" aria-hidden="true" />
-                    <span className="relative block h-4 w-4 rounded-full border-2 border-white bg-brand-700 shadow-[0_2px_6px_rgba(0,0,0,.35)]" />
+                    <span className="relative block h-3.5 w-3.5 rounded-full border-2 border-white bg-brand-700 shadow-[0_2px_6px_rgba(0,0,0,.35)]" />
                     <span className="pointer-events-none absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded-[4px] bg-tinte px-1.5 py-0.5 text-[11px] font-semibold text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
                       {THEMA_KURZ[t]}
                     </span>

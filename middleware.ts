@@ -68,5 +68,5 @@ async function weiter(req: NextRequest, event: NextFetchEvent) {
 
 export const config = {
   // Alle Seiten außer statischen Dateien: die Vorschau-Domain braucht jede Seite, die Anmeldung prüft nur GESCHUETZT.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|fonts/|og/|js/).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|fonts/|og/|js/|anatomie-bilder/|papier-korn.png).*)"],
 };
