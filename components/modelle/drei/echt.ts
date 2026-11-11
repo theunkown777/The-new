@@ -228,13 +228,18 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
     p.sheenColor ??= new T.Color(0xffffff);
     mat = new T.MeshPhysicalMaterial(p);
   }
-  if (p.opacity !== undefined && p.opacity < 1) { mat.transparent = true; mat.depthWrite = false; }
-  const u: EchtUniforms = { auf: { value: 1 }, kiefer: { value: 0 }, achse: { value: new T.Vector3() } };
+  // Punktraster nur für die Haut (sie wird beim Kombinieren durchsichtig); die Lunge bleibt echt durchscheinend
+  const raster = leichtesGeraet() && (s === "haut" || s === "gesicht");
+  if (p.opacity !== undefined && p.opacity < 1 && !raster) { mat.transparent = true; mat.depthWrite = false; }
+  const u: EchtUniforms = { auf: { value: 1 }, kiefer: { value: 0 }, achse: { value: new T.Vector3() }, deck: { value: 1 }, haut: { value: 0 } };
+  // Handy: Durchscheinen als Punktraster statt echter Transparenz (ein Shader-Programm für alles, nichts zu sortieren)
+  mat.userData.raster = raster;
   mat.userData.u = u;
   const haut = s === "haut" || s === "gesicht", kiefer = s === "gesicht";
   mat.userData.haut = haut;
+  u.haut.value = haut ? 1 : 0;
   mat.onBeforeCompile = (sh) => {
-    sh.uniforms.uAuf = u.auf; sh.uniforms.uKiefer = u.kiefer; sh.uniforms.uAchse = u.achse;
+    sh.uniforms.uAuf = u.auf; sh.uniforms.uKiefer = u.kiefer; sh.uniforms.uAchse = u.achse; sh.uniforms.uDeck = u.deck; sh.uniforms.uHaut = u.haut;
     let v = sh.vertexShader, f = sh.fragmentShader;
     v = `varying vec3 vAufPos;\n${kiefer ? "attribute vec4 kiefer; uniform float uKiefer; uniform vec3 uAchse;\n" : ""}` + v;
     if (kiefer) {
@@ -245,15 +250,17 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
         { vec3 kp = transformed - uAchse; transformed = uAchse + vec3(kp.x, kp.y * kC - kp.z * kS, kp.y * kS + kp.z * kC); }`);
     }
     v = v.replace("#include <project_vertex>", "#include <project_vertex>\n vAufPos = (modelMatrix * vec4(transformed, 1.0)).xyz;");
-    f = `varying vec3 vAufPos;\nuniform float uAuf;\n${RAUSCHEN}\n` + f;
+    f = `varying vec3 vAufPos;\nuniform float uAuf;\nuniform float uDeck;\nuniform float uHaut;\n${RAUSCHEN}\n` + f;
     f = f.replace("#include <clipping_planes_fragment>", `#include <clipping_planes_fragment>
       float aufWert = aufN(vAufPos * 0.06) * 0.72 + aufN(vAufPos * 0.23) * 0.28;
-      if (aufWert > uAuf * 1.06 - 0.03) discard;`);
+      if (aufWert > uAuf * 1.06 - 0.03) discard;
+      if (uDeck < 0.999 && fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715)))) > uDeck) discard;`);
     f = f.replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
       if (uAuf < 0.995) totalEmissiveRadiance += vec3(1.0, 0.66, 0.38) * smoothstep(uAuf * 1.06 - 0.12, uAuf * 1.06 - 0.03, aufWert) * 0.9;
-      ${haut ? "totalEmissiveRadiance += vec3(0.55, 0.16, 0.1) * pow(1.0 - saturate(dot(normal, normalize(vViewPosition))), 2.6) * 0.22;" : ""}`);
+      totalEmissiveRadiance += uHaut * vec3(0.55, 0.16, 0.1) * pow(1.0 - saturate(dot(normal, normalize(vViewPosition))), 2.6) * 0.22;`);
     sh.vertexShader = v; sh.fragmentShader = f;
   };
-  mat.customProgramCacheKey = () => `echt|${haut ? "h" : ""}${kiefer ? "k" : ""}`;
+  // Haut und andere Teile teilen sich das Programm (Hautschimmer über die Uniform uHaut); nur der Kiefer braucht ein eigenes
+  mat.customProgramCacheKey = () => `echt|${kiefer ? "k" : ""}`;
   return mat;
 }

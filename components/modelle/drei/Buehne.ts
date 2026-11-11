@@ -16,7 +16,7 @@ export interface Zustand {
   sichtbar: (daten: Record<string, unknown>) => boolean | number;
 }
 /** Uniforms, die echte Materialien (echt.ts) mitbringen: Zerfließen und Kiefer. */
-export interface EchtUniforms { auf: { value: number }; kiefer: { value: number }; achse: { value: DREI.Vector3 } }
+export interface EchtUniforms { auf: { value: number }; kiefer: { value: number }; achse: { value: DREI.Vector3 }; deck: { value: number }; haut: { value: number } }
 
 const GEWAEHLT = 0xf5c542, MARKIERT = 0xf28b45;
 /** cubic-bezier(0.77, 0, 0.175, 1): kräftiges Anfahren und Abbremsen */
@@ -235,9 +235,10 @@ export class Buehne {
     const alt = mats.map((m) => [m.transparent, m.depthWrite] as const);
     try {
       // deckend für alle; durchscheinend nur für die Haut (sie wird beim Kombinieren der Ebenen durchsichtig)
-      const hautMeshes = meshes.filter((m) => (m.material as DREI.Material).userData?.haut);
+      const hautMeshes = meshes.filter((m) => (m.material as DREI.Material).userData?.haut && !(m.material as DREI.Material).userData?.raster);
+      // (Teile, die von sich aus durchscheinen wie die Lunge, sind schon transparent und werden so übersetzt)
       for (const durch of hautMeshes.length ? [false, true] : [false]) {
-        for (const m of mats) { m.transparent = durch && !!m.userData?.haut; m.depthWrite = !m.transparent; m.needsUpdate = true; }
+        for (const m of mats) { m.transparent = durch && !!m.userData?.haut && !m.userData?.raster; m.depthWrite = !m.transparent; m.needsUpdate = true; }
         await this.renderer.compileAsync(probe, this.kamera, this.szene);
         if (this.entfernt) return;
       }
@@ -263,8 +264,8 @@ export class Buehne {
           this.renderer.setScissorTest(true);
           this.renderer.setScissor(0, 0, 1, 1);
           // beide Durchgänge einmal anstoßen: deckend und durchscheinend (sortiert, anderer Zeichenweg)
-          for (const durch of teilMats.some((m) => m.userData?.haut) ? [false, true] : [false]) {
-            for (const m of teilMats) { m.transparent = durch && !!m.userData?.haut; m.depthWrite = !m.transparent; }
+          for (const durch of teilMats.some((m) => m.userData?.haut && !m.userData?.raster) ? [false, true] : [false]) {
+            for (const m of teilMats) { m.transparent = durch && !!m.userData?.haut && !m.userData?.raster; m.depthWrite = !m.transparent; }
             this.renderer.render(this.szene, this.kamera);
           }
         } finally {
@@ -530,8 +531,14 @@ export class Buehne {
       if (t.u) {
         // Echte Teile: deckende zerfließen beim Ein- und Ausblenden, durchscheinende blenden über
         const durch = t.grundDeck < 0.99 || !!t.durch;
-        if (durch) { t.u.auf.value = 1; t.mat.opacity = t.deck; } else { t.u.auf.value = t.deck / Math.max(0.01, t.grundDeck); t.mat.opacity = 1; }
-        if (t.mat.transparent !== durch) { t.mat.transparent = durch; t.mat.depthWrite = !durch; t.mat.needsUpdate = true; }
+        if (t.mat.userData.raster) {
+          // Handy: Durchscheinen als feines Punktraster (kein eigenes Shader-Programm, kein Sortieren)
+          if (durch) { t.u.auf.value = 1; t.u.deck.value = t.deck; } else { t.u.auf.value = t.deck / Math.max(0.01, t.grundDeck); t.u.deck.value = 1; }
+          t.mat.opacity = 1;
+        } else {
+          if (durch) { t.u.auf.value = 1; t.mat.opacity = t.deck; } else { t.u.auf.value = t.deck / Math.max(0.01, t.grundDeck); t.mat.opacity = 1; }
+          if (t.mat.transparent !== durch) { t.mat.transparent = durch; t.mat.depthWrite = !durch; t.mat.needsUpdate = true; }
+        }
         t.u.kiefer.value = w * (ud.kieferVoll ? 1 : 0);
         t.u.achse.value.set(0, py, pz);
       } else {
