@@ -15,7 +15,7 @@ export function PatientenKarte() {
           <div className="min-h-0 flex-1 space-y-3 overflow-hidden px-4 pt-1">
             <div className="flex flex-col items-center gap-0.5 text-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/sorrida-mark.svg" alt="" className="h-7 w-7" />
+              <img src="/brand/sorrida-mark.webp" alt="" className="h-7 w-7" />
               <p className="text-[11px] text-slate-600">Hautarztpraxis am Markt</p>
             </div>
             <div className="rounded-[1.3rem] bg-salbei-50 px-4 pb-4 pt-3 text-center">

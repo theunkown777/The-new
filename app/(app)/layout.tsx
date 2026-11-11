@@ -47,7 +47,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <aside className="sticky top-0 hidden h-screen flex-col overflow-y-auto border-r border-[#E9E2DA] bg-[#F5F2EE] px-4 py-5 lg:flex [&>*]:shrink-0" data-testid="app-sidebar">
         <Link href="/dashboard" className="flex items-center gap-2 px-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/sorrida-mark.svg" alt="" className="h-10 w-10" />
+          <img src="/brand/sorrida-mark.webp" alt="" className="h-10 w-10" />
           <span className="font-brand text-brand-700">SORRIDA</span>
         </Link>
         <p className="mb-5 mt-3 truncate rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-800" title={session.user.practiceName}>
@@ -68,7 +68,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
             <Link href="/dashboard" className="flex min-w-0 items-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/sorrida-mark-hell.svg" alt="" className="h-8 w-auto shrink-0" />
+              <img src="/brand/sorrida-mark-hell.webp" alt="" className="h-8 w-auto shrink-0" />
               <span className="truncate font-semibold tracking-tight text-white">{session.user.practiceName}</span>
             </Link>
             <nav className="hidden shrink-0 items-center gap-5 text-sm text-brand-100 sm:flex">

@@ -15,7 +15,7 @@ export default async function EmbedLayout({ children }: { children: React.ReactN
         <div className="flex items-center justify-between gap-3 px-4 py-2">
           <span className="flex items-center gap-2 truncate text-sm font-semibold text-white">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/sorrida-mark-hell.svg" alt="" className="h-6 w-auto shrink-0" />
+            <img src="/brand/sorrida-mark-hell.webp" alt="" className="h-6 w-auto shrink-0" />
             {session.user.practiceName}
           </span>
           <span className="font-brand shrink-0 text-xs text-brand-200">SORRIDA</span>

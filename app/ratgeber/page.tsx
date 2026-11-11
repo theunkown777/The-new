@@ -21,7 +21,7 @@ export default function RatgeberIndex() {
         <ol className="mt-12 border-t border-tinte">
           {RATGEBER.map((a, i) => (
             <li key={a.slug} className="border-b border-linie">
-              <Link href={`/ratgeber/${a.slug}`} className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-baseline gap-4 py-6">
+              <Link prefetch={false} href={`/ratgeber/${a.slug}`} className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-baseline gap-4 py-6">
                 <span className="j-ziffer text-2xl">{i + 1}</span>
                 <span>
                   <span className="j-titel block text-[1.7rem] text-tinte group-hover:text-brand-700">{a.title}</span>

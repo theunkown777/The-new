@@ -102,7 +102,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
             ))}
           </div>
           {last && (
-            <Link href={last.href} className="j-kachel group mt-6 flex items-center gap-3 rounded-[8px] bg-papier-2 p-3.5" data-testid="fach-zuletzt">
+            <Link prefetch={false} href={last.href} className="j-kachel group mt-6 flex items-center gap-3 rounded-[8px] bg-papier-2 p-3.5" data-testid="fach-zuletzt">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-brand-700">
                 <SpecialtyIcon id={last.id} className="h-5 w-5" />
               </span>
@@ -115,7 +115,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
               </span>
             </Link>
           )}
-          <Link href="/hilfe" className="group mt-6 hidden items-start gap-3 border-t border-linie pt-5 text-[14.5px] text-tinte-2 lg:flex" data-testid="fach-hilfe">
+          <Link prefetch={false} href="/hilfe" className="group mt-6 hidden items-start gap-3 border-t border-linie pt-5 text-[14.5px] text-tinte-2 lg:flex" data-testid="fach-hilfe">
             <span>
               <span className="block font-semibold text-tinte">Ihr Fach ist nicht dabei?</span>
               Schreiben Sie uns, was Sie anbieten. Wir richten Sorrida mit Ihnen ein, persönlich und kostenlos.
@@ -132,7 +132,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
         <ul key={runde} className="grid grid-cols-1 gap-2.5 min-[480px]:grid-cols-2 sm:grid-cols-3 sm:gap-3">
           {gross && (
             <li className="fach-ein col-span-full" style={{ ["--i" as string]: 0 }}>
-              <Link
+              <Link prefetch={false}
                 href={gross.href}
                 onClick={() => remember(gross.id)}
                 className="j-kachel group relative flex min-h-[7.5rem] items-center gap-5 overflow-hidden rounded-[10px] bg-[#5A1D1D] p-5 text-[#F5EDE6] sm:min-h-[11rem] sm:p-7"
@@ -155,7 +155,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
             const ton = TON[k.art ?? "arzt"];
             return (
               <li key={k.id} className="fach-ein" style={{ ["--i" as string]: Math.min(i + (gross ? 1 : 0), 14) }}>
-                <Link
+                <Link prefetch={false}
                   href={k.href}
                   onClick={() => remember(k.id)}
                   className="j-kachel group flex h-full items-center gap-3 rounded-[10px] border border-linie bg-[#FBF9F6] p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 sm:flex-col sm:items-stretch sm:gap-0 sm:p-5"
@@ -186,7 +186,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
             Kein Fach gefunden für „{q}“. Schreiben Sie uns, wir richten Sorrida auch für Ihr Angebot ein.
           </p>
         )}
-        <Link href="/hilfe" className="mt-6 flex items-center justify-between gap-3 rounded-[10px] bg-papier-2 p-4 text-[14.5px] lg:hidden">
+        <Link prefetch={false} href="/hilfe" className="mt-6 flex items-center justify-between gap-3 rounded-[10px] bg-papier-2 p-4 text-[14.5px] lg:hidden">
           <span>
             <span className="block font-semibold text-tinte">Ihr Fach ist nicht dabei?</span>
             <span className="text-tinte-2">Wir richten Sorrida mit Ihnen ein.</span>

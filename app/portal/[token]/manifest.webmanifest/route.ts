@@ -19,7 +19,7 @@ export async function GET(_req: Request, { params }: { params: { token: string }
       background_color: "#F5F2EE",
       theme_color: "#6b2a24",
       lang: "de",
-      icons: [{ src: "/brand/sorrida-mark.svg", sizes: "any", type: "image/svg+xml", purpose: "any" }],
+      icons: [{ src: "/brand/sorrida-mark.png", sizes: "384x384", type: "image/png", purpose: "any" }],
     },
     { headers: { "Content-Type": "application/manifest+json", "Cache-Control": "no-store" } },
   );

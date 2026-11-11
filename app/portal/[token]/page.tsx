@@ -144,7 +144,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
         {/* Sorrida-Portal: mittig aufgebaut, der Behandlungsweg zuerst, dann die Begrüßung und der eine nächste Schritt */}
         <header className="flex flex-col items-center gap-1 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/sorrida-mark.svg" alt="" className="h-10 w-10" />
+          <img src="/brand/sorrida-mark.webp" alt="" className="h-10 w-10" />
           <span className="text-sm font-medium text-slate-600">{practice.name}</span>
         </header>
 

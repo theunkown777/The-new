@@ -99,7 +99,7 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
               <a href="#pilot" className="btn-primary text-center">
                 Pilotplatz anfragen
               </a>
-              <Link href={`/demo?fach=${s.id}`} className="btn-secondary text-center">
+              <Link prefetch={false} href={`/demo?fach=${s.id}`} className="btn-secondary text-center">
                 Demo-Praxis ansehen
               </Link>
             </div>
@@ -114,7 +114,7 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
                 ))}
               </ul>
             </nav>
-            <Link href="/#fach" className="mt-4 block text-xs text-slate-500 underline">
+            <Link prefetch={false} href="/#fach" className="mt-4 block text-xs text-slate-500 underline">
               Fach wechseln
             </Link>
           </div>
@@ -131,7 +131,7 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
                 <h2 className="font-display text-4xl text-slate-900">So sieht es Ihr Patient</h2>
                 <p className="mt-1 max-w-3xl text-slate-600">{s.marketing.beispiel} Beispielpreise, in den Einstellungen anpassbar.</p>
               </div>
-              <Link href="/vorschau" className="text-sm text-brand-700 underline">
+              <Link prefetch={false} href="/vorschau" className="text-sm text-brand-700 underline">
                 Interaktive Vorschau öffnen
               </Link>
             </div>
@@ -152,7 +152,7 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
                 {bereicheFuerFach(s.id).map((b, i) => (
                   <span key={b}>
                     {i > 0 && ", "}
-                    <Link href={`/leistungen?bereich=${slugBereich(b)}`} className="text-brand-700 underline">
+                    <Link prefetch={false} href={`/leistungen?bereich=${slugBereich(b)}`} className="text-brand-700 underline">
                       {b}
                     </Link>
                   </span>
@@ -174,7 +174,7 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
                       {katalogFuerAnlass(s.id, a.id).map((l, i) => (
                         <span key={l.id}>
                           {i > 0 && ", "}
-                          <Link href={`/leistungen/${l.id}`} className="text-brand-700 hover:underline">{l.name}</Link>
+                          <Link prefetch={false} href={`/leistungen/${l.id}`} className="text-brand-700 hover:underline">{l.name}</Link>
                         </span>
                       ))}
                     </p>
@@ -218,7 +218,7 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
             <MenschKarte fach={params.id} />
             <p className="mt-6 border-t border-[#E9E2DA] pt-4 text-[15px] text-slate-600">
               {MODELL_WERBUNG[hauptModell(params.id)].text}{" "}
-              <Link href={`/anatomie/${hauptModell(params.id)}`} className="font-semibold text-brand-700 underline underline-offset-4">
+              <Link prefetch={false} href={`/anatomie/${hauptModell(params.id)}`} className="font-semibold text-brand-700 underline underline-offset-4">
                 Modell zum Drehen und Markieren öffnen
               </Link>
             </p>
@@ -290,7 +290,7 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
               <p className="mt-2 text-sm text-white/85">
                 {PRICE_SHORT}. Mit Behandlungsweg für Patienten, Zahlungen und Analyse. Ohne Zähler, 30 Tage kostenlos, monatlich kündbar. Endpreise ohne späteren Steueraufschlag.
               </p>
-              <Link href={`/demo?fach=${s.id}`} className="mt-auto inline-block rounded-full bg-white px-4 py-2 text-center text-sm font-medium text-brand-700 hover:bg-brand-50">
+              <Link prefetch={false} href={`/demo?fach=${s.id}`} className="mt-auto inline-block rounded-full bg-white px-4 py-2 text-center text-sm font-medium text-brand-700 hover:bg-brand-50">
                 Jetzt ausprobieren
               </Link>
             </div>
@@ -311,7 +311,7 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
             <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {[DENTAL_SHOWCASE, ...SPECIALTIES].filter((x) => x.id !== s.id).map((x) => ({ id: x.id, kurz: x.kurz, href: `/fachgebiete/${x.id}` })).map((x) => (
                 <li key={x.id}>
-                  <Link href={x.href} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:border-brand-600 hover:text-brand-700">
+                  <Link prefetch={false} href={x.href} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:border-brand-600 hover:text-brand-700">
                     <SpecialtyIcon id={x.id} className="h-4 w-4" />
                     {x.kurz}
                   </Link>

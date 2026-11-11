@@ -173,7 +173,7 @@ h1 {
   text-wrap: balance;
 }
 .j-titel em { font-style: italic; font-weight: 400; }
-.j-text { text-wrap: pretty; color: #5E5650; }
+.j-text { color: #5E5650; }
 .j-ziffer {
   /* Zahlen in der klaren Grotesk statt in der Serife: gleich hohe, gleich breite Ziffern */
   font-family: var(--font-open-sans), "Open Sans", system-ui, sans-serif;
@@ -235,14 +235,14 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
 @keyframes j-blatt-ein { from { opacity: 0; transform: translateY(28px) rotate(1.5deg); } to { opacity: 1; transform: rotate(-1.2deg); } }
 .j-blatt-ein { animation: j-blatt-ein 1.1s .25s var(--ease-out) both; }
 
-/* Abschnitte blenden beim Scrollen weich ein (nur wo der Browser es kann; sonst sofort sichtbar) */
-@keyframes j-ein { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
-@supports (animation-timeline: view()) {
-  .j-ein { animation: j-ein linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
-}
+/* Abschnitte blenden einmal weich ein, wenn sie ins Bild kommen (Klasse .ist-da setzt WegAnimationen).
+   Danach rechnet der Browser beim Scrollen nichts mehr. Ohne JavaScript ist alles sofort sichtbar. */
+.js-ein .j-ein { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); }
+.js-ein .j-ein.ist-da { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
-  .j-auftakt > *, .j-blatt-ein, .j-ein { animation: none !important; }
+  .j-auftakt > *, .j-blatt-ein { animation: none !important; }
   .j-blatt-ein { transform: rotate(-1.2deg); }
+  .js-ein .j-ein { opacity: 1; transform: none; transition: none; }
 }
 
 /* Schieberegler im Zeitrechner */
@@ -258,32 +258,28 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
 .font-display, .j-schau, .j-titel { font-variant-numeric: lining-nums; }
 /* Wegband der Startseite: der Bogen zeichnet sich beim Hineinscrollen nach */
 .weg-band-strich { stroke-dasharray: 1 1; stroke-dashoffset: 0; }
-@keyframes weg-band-zeichnen { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@supports (animation-timeline: view()) {
-  .weg-band-strich { animation: weg-band-zeichnen linear both; animation-timeline: view(); animation-range: entry 20% cover 45%; }
-}
-@media (prefers-reduced-motion: reduce) { .weg-band-strich { animation: none; } }
+.js-ein .j-ein .weg-band-strich { stroke-dashoffset: 1; transition: stroke-dashoffset 1.6s var(--ease-in-out) .2s; }
+.js-ein .j-ein.ist-da .weg-band-strich { stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: reduce) { .js-ein .j-ein .weg-band-strich { stroke-dashoffset: 0; transition: none; } }
 
 /* ---- Bewegung im Journal (nach den Regeln aus dem animate-Skill) ---- */
 /* Kacheln heben sich unter der Maus leicht an; nur bei echter Maus, nicht beim Tippen. */
-.j-kachel { transition: transform .2s var(--ease-out), box-shadow .2s var(--ease-out); }
+.j-kachel { transition: transform .2s var(--ease-out); }
 @media (hover: hover) and (pointer: fine) {
   .j-kachel:hover { transform: translateY(-3px); box-shadow: 0 18px 30px -24px rgba(60, 30, 25, .55); }
 }
 /* Entlastung: erst das Problem, dann schiebt sich die Entlastung herein, der Pfeil folgt. */
-@keyframes j-von-rechts { from { opacity: 0; transform: translateX(32px); } to { opacity: 1; transform: none; } }
-@keyframes j-pfeil-ein { from { opacity: 0; transform: translate(-50%, -50%) scale(.6); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-@supports (animation-timeline: view()) {
-  .j-paar .j-paar-rechts { animation: j-von-rechts linear both; animation-timeline: view(); animation-range: entry 25% cover 40%; }
-  .j-paar .j-paar-pfeil { animation: j-pfeil-ein linear both; animation-timeline: view(); animation-range: entry 45% cover 42%; }
-}
+.js-ein .j-paar .j-paar-rechts { opacity: 0; transform: translateX(32px); transition: opacity .6s var(--ease-out) .15s, transform .6s var(--ease-out) .15s; }
+.js-ein .j-paar .j-paar-pfeil { opacity: 0; transform: translate(-50%, -50%) scale(.6); transition: opacity .4s var(--ease-out) .4s, transform .4s var(--ease-out) .4s; }
+.js-ein .j-paar.ist-da .j-paar-rechts { opacity: 1; transform: none; }
+.js-ein .j-paar.ist-da .j-paar-pfeil { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 /* Preise: Kacheln erscheinen leicht versetzt nacheinander. */
-@supports (animation-timeline: view()) {
-  .j-preis:nth-child(2) { animation-range: entry 10% entry 45%; }
-  .j-preis:nth-child(3) { animation-range: entry 20% entry 55%; }
-}
+.js-ein .j-preis:nth-child(2) { transition-delay: 80ms; }
+.js-ein .j-preis:nth-child(3) { transition-delay: 160ms; }
 @media (prefers-reduced-motion: reduce) {
-  .j-paar .j-paar-rechts, .j-paar .j-paar-pfeil { animation: none !important; }
+  .js-ein .j-paar .j-paar-rechts, .js-ein .j-paar .j-paar-pfeil { opacity: 1; transition: none; }
+  .js-ein .j-paar .j-paar-rechts { transform: none; }
+  .js-ein .j-paar .j-paar-pfeil { transform: translate(-50%, -50%); }
   .j-kachel, .j-knopf { transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
   .j-kachel:hover, .j-knopf:active { transform: none; }
 }

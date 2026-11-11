@@ -21,7 +21,7 @@ export default function Demnaechst({ searchParams }: { searchParams: { weiter?: 
       <div className="relative w-full max-w-2xl">
         <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-center sm:gap-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/sorrida-mark-hell.svg" alt="" className="h-24 w-24 sm:h-28 sm:w-28" />
+          <img src="/brand/sorrida-mark-hell.webp" alt="" className="h-24 w-24 sm:h-28 sm:w-28" />
           <div className="sm:text-left">
             <h1 className="font-brand text-5xl text-white sm:text-6xl">SORRIDA</h1>
             <p className="mt-2 text-base text-brand-100 sm:text-lg">Nach dem Patientengespräch ein Klick. Für jede Praxis.</p>

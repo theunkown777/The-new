@@ -15,7 +15,7 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
       <div className="mx-auto flex max-w-[78rem] items-center justify-between gap-6 px-5 py-4 sm:px-8">
         <Link href="/" className="flex items-center gap-3" aria-label="Sorrida Startseite">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/sorrida-mark.svg" alt="" className="h-10 w-10" />
+          <img src="/brand/sorrida-mark.webp" alt="" className="h-10 w-10" />
           <span className="font-brand text-[17px] text-brand-700">SORRIDA</span>
         </Link>
         <nav className="hidden items-center gap-8 text-[15px] lg:flex" aria-label="Hauptnavigation">
@@ -75,7 +75,7 @@ export function JournalFuss() {
         <div>
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/sorrida-mark.svg" alt="" className="h-9 w-9" />
+            <img src="/brand/sorrida-mark.webp" alt="" className="h-9 w-9" />
             <span className="font-brand text-brand-700">SORRIDA</span>
           </div>
           <p className="j-titel mt-5 max-w-[16rem] text-2xl text-tinte">
@@ -88,7 +88,7 @@ export function JournalFuss() {
             <ul className="mt-4 space-y-2.5 text-[15px]">
               {links.map(([href, name]) => (
                 <li key={href}>
-                  <Link href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700">
+                  <Link prefetch={false} href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700">
                     {name}
                   </Link>
                 </li>

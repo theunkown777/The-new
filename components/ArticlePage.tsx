@@ -19,7 +19,7 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
     <JournalRahmen>
     <main className="mx-auto max-w-2xl px-5 py-12 sm:px-8 sm:py-16">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <Link href="/ratgeber" className="j-link text-[15px] text-tinte-2">
+      <Link prefetch={false} href="/ratgeber" className="j-link text-[15px] text-tinte-2">
         ← Alle Ratgeber
       </Link>
       <article className="mt-10">
@@ -39,10 +39,10 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
           Der Patient bekommt alles als Link aufs Handy.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/demo" className="j-knopf j-knopf-voll">
+          <Link prefetch={false} href="/demo" className="j-knopf j-knopf-voll">
             Sofort ausprobieren
           </Link>
-          <Link href="/hilfe" className="j-knopf j-knopf-linie">
+          <Link prefetch={false} href="/hilfe" className="j-knopf j-knopf-linie">
             Pilotplatz anfragen
           </Link>
         </div>
@@ -52,7 +52,7 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
         <ul>
           {RATGEBER.filter((x) => x.slug !== slug).map((x) => (
             <li key={x.slug} className="border-b border-linie">
-              <Link href={`/ratgeber/${x.slug}`} className="group flex items-baseline justify-between gap-4 py-3">
+              <Link prefetch={false} href={`/ratgeber/${x.slug}`} className="group flex items-baseline justify-between gap-4 py-3">
                 <span className="j-titel text-xl text-tinte group-hover:text-brand-700">{x.title}</span>
                 <span className="j-pfeil text-tinte-2" aria-hidden="true">→</span>
               </Link>
