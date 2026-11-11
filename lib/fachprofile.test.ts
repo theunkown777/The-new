@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { FACHPROFILE, fachprofil, passtZuPerson } from "./fachprofile";
-import { SPECIALTIES, DENTAL_ID } from "./specialties";
+import { ALLE_SPECIALTIES, DENTAL_ID } from "./specialties";
 
 describe("Fachprofile", () => {
   it("jedes Fach hat ein eigenes Profil", () => {
-    for (const id of [DENTAL_ID, ...SPECIALTIES.map((s) => s.id)]) expect(FACHPROFILE[id], id).toBeDefined();
+    for (const id of [DENTAL_ID, ...ALLE_SPECIALTIES.map((s) => s.id)]) expect(FACHPROFILE[id], id).toBeDefined();
   });
   it("kein nicht-zahnärztliches Fach nennt Zähne in Sitzungstypen, Terminen oder Region", () => {
     for (const [id, p] of Object.entries(FACHPROFILE)) {

@@ -71,7 +71,7 @@ export interface Specialty {
 
 export const DENTAL_ID = "zahn";
 
-export const SPECIALTIES: Specialty[] = [
+export const ALLE_SPECIALTIES: Specialty[] = [
   {
     id: "hausarzt",
     name: "Allgemeinmedizin und hausärztliche Innere Medizin",
@@ -982,6 +982,14 @@ export const SPECIALTIES: Specialty[] = [
   },
 ];
 
+/** Vorerst ausgeblendet (Entscheidung 11.11.2026): die Versorgung, also Hebammen, Pflege, Apotheke,
+ *  Hörakustik, Augenoptik, Sanitätshaus, Heilpraktiker und Kliniken. Die Daten bleiben vollständig
+ *  erhalten; zum Wieder-Einblenden die Gruppe hier aus der Liste nehmen. */
+export const AUSGEBLENDETE_GRUPPEN: string[] = ["versorgung"];
+export const istSichtbar = (s: Specialty) => !s.gruppe || !AUSGEBLENDETE_GRUPPEN.includes(s.gruppe);
+/** Die Fachrichtungen, die die Website und die Auswahl anbieten. */
+export const SPECIALTIES: Specialty[] = ALLE_SPECIALTIES.filter(istSichtbar);
+
 // Kacheltexte für die bestehenden Fächer.
 const TEASER: Record<string, string> = {
   hausarzt: "Check-up, Reisemedizin, Sportuntersuchung",
@@ -994,23 +1002,30 @@ const TEASER: Record<string, string> = {
   kinder: "U10, U11, J2, Sport und Reise",
   kardio: "Herz-Check, Belastungs-EKG, Carotis",
 };
-for (const s of SPECIALTIES) s.teaser ??= TEASER[s.id];
+for (const s of ALLE_SPECIALTIES) s.teaser ??= TEASER[s.id];
 
 // Ergänzende Anlässe je Fach (lib/fachangebote.ts) anhängen; IDs bleiben eindeutig.
-for (const s of SPECIALTIES) {
+for (const s of ALLE_SPECIALTIES) {
   const extra = ZUSATZ_ANLAESSE[s.id] ?? [];
   for (const a of extra) if (!s.anlaesse.some((x) => x.id === a.id)) s.anlaesse.push(a);
 }
 
 export const isTherapie = (s: Specialty | null | undefined) => s?.beruf === "therapie";
 
-export const SPECIALTY_IDS = [DENTAL_ID, ...SPECIALTIES.map((s) => s.id), "andere"] as const;
+export const SPECIALTY_IDS = [DENTAL_ID, ...ALLE_SPECIALTIES.map((s) => s.id), "andere"] as const;
 
 export function specialty(id: string | null | undefined): Specialty | null {
-  return SPECIALTIES.find((s) => s.id === id) ?? null;
+  return ALLE_SPECIALTIES.find((s) => s.id === id) ?? null;
 }
 
 export const SPECIALTY_LABELS: Record<string, string> = {
+  [DENTAL_ID]: "Zahnmedizin",
+  ...Object.fromEntries(ALLE_SPECIALTIES.map((s) => [s.id, s.name])),
+  andere: "Andere Fachrichtung (nur eigene Leistungen)",
+};
+
+/** Auswahl bei der Anmeldung: nur sichtbare Fächer (ausgeblendete Gruppen fehlen). */
+export const SPECIALTY_AUSWAHL: Record<string, string> = {
   [DENTAL_ID]: "Zahnmedizin",
   ...Object.fromEntries(SPECIALTIES.map((s) => [s.id, s.name])),
   andere: "Andere Fachrichtung (nur eigene Leistungen)",

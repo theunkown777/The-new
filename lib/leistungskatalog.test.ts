@@ -97,9 +97,9 @@ describe("Fach → Katalog-Bereich", () => {
 describe("Zuordnung Anlass → Katalog", () => {
   it("jede Zuordnung zeigt auf vorhandene Anlässe und Katalog-IDs", async () => {
     const { ZUORDNUNG_ANLAESSE, leistung } = await import("./leistungskatalog");
-    const { SPECIALTIES } = await import("./specialties");
+    const { ALLE_SPECIALTIES } = await import("./specialties");
     const { DENTAL_SHOWCASE } = await import("./dentalShowcase");
-    const anlaesse = new Set([DENTAL_SHOWCASE, ...SPECIALTIES].flatMap((s) => s.anlaesse.map((a) => `${s.id}:${a.id}`)));
+    const anlaesse = new Set([DENTAL_SHOWCASE, ...ALLE_SPECIALTIES].flatMap((s) => s.anlaesse.map((a) => `${s.id}:${a.id}`)));
     expect(Object.keys(ZUORDNUNG_ANLAESSE).length).toBeGreaterThan(80);
     for (const [k, ids] of Object.entries(ZUORDNUNG_ANLAESSE)) {
       expect(anlaesse.has(k), k).toBe(true);

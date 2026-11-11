@@ -4,7 +4,7 @@ import { KOERPER_TEXTE } from "./koerperTexte";
 import { INSTRUMENTE, MILCHZAEHNE, SCHICHTEN, ZAEHNE, zahnNach } from "./gebiss";
 import { SCHNITTMODELLE } from "./schnitt";
 import { FACH_MODELLE, MODELL_IDS, hauptModell, modelleFuerFach } from "./fach";
-import { SPECIALTIES } from "../specialties";
+import { ALLE_SPECIALTIES } from "../specialties";
 import { rahmen } from "./formen";
 import { MODELL_BEFUNDE, istBleibenderZahn, markierungSchema, teilBezeichnung, teilGueltig } from "./markierung";
 
@@ -158,7 +158,7 @@ describe("Auge, Ohr und Haut", () => {
 
 describe("Passendes Modell je Fachrichtung", () => {
   it("jede Fachrichtung hat ein Hauptmodell; die naheliegenden stimmen", () => {
-    for (const s of SPECIALTIES) {
+    for (const s of ALLE_SPECIALTIES) {
       expect(FACH_MODELLE[s.id], s.id).toBeDefined();
       for (const m of modelleFuerFach(s.id).modelle) expect(MODELL_IDS, s.id).toContain(m);
     }

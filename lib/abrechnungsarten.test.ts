@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { ARTEN, artenFuer } from "./abrechnungsarten";
-import { SPECIALTIES } from "./specialties";
+import { ALLE_SPECIALTIES } from "./specialties";
 
 describe("Abrechnungsarten", () => {
   it("jedes Fach bekommt mindestens eine Abrechnungsart mit Begriffen und Geldhebeln", () => {
-    for (const f of ["zahn", ...SPECIALTIES.map((s) => s.id)]) {
+    for (const f of ["zahn", ...ALLE_SPECIALTIES.map((s) => s.id)]) {
       const a = artenFuer(f);
       expect(a.length, f).toBeGreaterThan(0);
       for (const x of a) { expect(x.begriffe.length).toBeGreaterThan(0); expect(x.geldhebel.length).toBeGreaterThan(0); }

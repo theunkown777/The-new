@@ -17,7 +17,8 @@ import { leistungenJeFach } from "@/lib/amtlich/zaehlung";
 export const revalidate = 86400;
 
 // Zahnmedizin hat dieselbe Seite wie alle anderen Fächer (/fachgebiete/zahn).
-const fach = (id: string) => (id === "zahn" ? DENTAL_SHOWCASE : specialty(id));
+// Ausgeblendete Fächer (Versorgung) haben vorerst keine eigene Seite.
+const fach = (id: string) => (id === "zahn" ? DENTAL_SHOWCASE : SPECIALTIES.find((s) => s.id === id) ?? null);
 
 export function generateStaticParams() {
   return [{ id: "zahn" }, ...SPECIALTIES.map((s) => ({ id: s.id }))];

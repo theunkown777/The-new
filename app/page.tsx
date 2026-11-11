@@ -18,7 +18,7 @@ import { Laechelbogen } from "@/components/Behandlungsweg";
 export const metadata: Metadata = {
   title: "Sorrida – Nach dem Patientengespräch ein Klick. Für jede Praxis.",
   description:
-    "Behandlungsvorschlag mit Kassenleistung und Eigenanteil, Patienten-Link, digitale Anamnese und To-dos, zugeschnitten auf rund 30 Bereiche: Zahnmedizin, Hausarzt, Fachärzte von Augen bis Radiologie, Psychotherapie, Physio-, Ergotherapie, Logopädie, Podologie, Hebammen, Pflege, Apotheken, Hörakustik, Optik, Sanitätshäuser und Kliniken.",
+    "Behandlungsvorschlag mit Kassenleistung und Eigenanteil, Patienten-Link, digitale Anamnese und To-dos, zugeschnitten auf Ihr Fach: Zahnmedizin, Hausarzt, Fachärzte von Augen bis Radiologie, Psychotherapie, Physio- und Ergotherapie, Logopädie und Podologie.",
   openGraph: {
     title: "Sorrida – für jede Praxis, passend zu Ihrem Fach",
     description: "Kassenleistung zuerst, Selbstzahlerleistungen ehrlich erklärt, Patient entscheidet zu Hause und meldet sich zurück.",
@@ -39,10 +39,6 @@ const GRUPPEN: { titel: string; kacheln: FachKachel[] }[] = [
   {
     titel: "Therapie und Gesundheitsberufe",
     kacheln: SPECIALTIES.filter((x) => x.beruf === "therapie" && !x.gruppe).map(kachel),
-  },
-  {
-    titel: "Versorgung: Hilfsmittel, Apotheke, Pflege, Kliniken",
-    kacheln: SPECIALTIES.filter((x) => x.gruppe === "versorgung").map(kachel),
   },
 ];
 
@@ -118,9 +114,7 @@ export default async function Start() {
               So sieht es Ihr Patient ↓
             </p>
             <div className="j-blatt-ein">
-              <div className="j-schwebt">
-                <PatientenKarte />
-              </div>
+              <PatientenKarte />
             </div>
           </div>
         </section>

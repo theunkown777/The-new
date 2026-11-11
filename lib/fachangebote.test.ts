@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { SPECIALTIES, specialty } from "./specialties";
+import { ALLE_SPECIALTIES, specialty } from "./specialties";
 import { passtZuPerson } from "./fachprofile";
 
 describe("Angebote je Fach", () => {
   it("Options-IDs sind je Fach eindeutig", () => {
-    for (const s of SPECIALTIES) {
+    for (const s of ALLE_SPECIALTIES) {
       const ids = s.anlaesse.flatMap((a) => a.options.map((o) => o.id));
       expect(new Set(ids).size, s.id).toBe(ids.length);
       expect(new Set(s.anlaesse.map((a) => a.id)).size, s.id).toBe(s.anlaesse.length);
@@ -24,6 +24,6 @@ describe("Angebote je Fach", () => {
     expect(uro.filter((a) => passtZuPerson(a, { geschlecht: "M", alter: 55 })).map((a) => a.id)).toContain("prostata");
   });
   it("Jedes Fach hat mindestens zwei Anlässe", () => {
-    for (const s of SPECIALTIES) expect(s.anlaesse.length, s.id).toBeGreaterThanOrEqual(2);
+    for (const s of ALLE_SPECIALTIES) expect(s.anlaesse.length, s.id).toBeGreaterThanOrEqual(2);
   });
 });

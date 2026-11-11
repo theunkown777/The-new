@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_PRICES, buildLetter, buildProposal, money, summarize, type ProposalInput } from "@/lib/proposals";
-import { SPECIALTIES } from "@/lib/specialties";
+import { ALLE_SPECIALTIES } from "@/lib/specialties";
 
 const patient = (age: number | null, insurance: "GKV" | "PKV" = "GKV") => ({ age, insurance, bonusYears: 0 as const, haertefall: false, erstattungProzent: insurance === "PKV" ? 100 : 0 });
 
@@ -17,7 +17,7 @@ describe("Vorschläge für Arztpraxen", () => {
   });
 
   it("empfiehlt nie eine IGeL von sich aus", () => {
-    for (const s of SPECIALTIES) {
+    for (const s of ALLE_SPECIALTIES) {
       const items = buildProposal({ teeth: {}, globals: {}, patient: patient(50), fach: s.id, anlaesse: s.anlaesse.map((a) => a.id) }, DEFAULT_PRICES);
       expect(items).toHaveLength(s.anlaesse.length);
       for (const it of items) {
@@ -110,7 +110,7 @@ describe("Gesundheitsberufe (Heilmittel)", () => {
     expect(steps.find((s) => s.id === "igel")?.text).toContain("Privatvereinbarung");
   });
   it("alle Fächer liefern Kasse vor Selbstzahler und keine IGeL-Empfehlung", () => {
-    expect(SPECIALTIES.length).toBeGreaterThanOrEqual(21);
+    expect(ALLE_SPECIALTIES.length).toBeGreaterThanOrEqual(21);
   });
 });
 
@@ -135,8 +135,8 @@ describe("Versorgung: Hilfsmittel, Apotheke, Klinik", () => {
     expect(it.recommended).toBe("hg_kasse");
   });
   it("alle Bereiche bauen ohne Fehler und mit Kassenleistung zuerst", () => {
-    expect(SPECIALTIES.length).toBeGreaterThanOrEqual(29);
-    for (const s of SPECIALTIES) {
+    expect(ALLE_SPECIALTIES.length).toBeGreaterThanOrEqual(29);
+    for (const s of ALLE_SPECIALTIES) {
       const items = buildProposal({ teeth: {}, globals: {}, patient: patient(40), fach: s.id, anlaesse: s.anlaesse.map((a) => a.id) }, DEFAULT_PRICES);
       expect(items.length).toBe(s.anlaesse.length);
     }

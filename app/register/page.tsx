@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { SPECIALTY_LABELS } from "@/lib/specialties";
+import { SPECIALTY_AUSWAHL, SPECIALTY_LABELS } from "@/lib/specialties";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -78,7 +78,7 @@ export default function RegisterPage() {
           <div>
             <label className="label" htmlFor="specialty">Fachgebiet</label>
             <select id="specialty" className="input" value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
-              {Object.entries(SPECIALTY_LABELS).map(([id, label]) => (
+              {Object.entries(SPECIALTY_AUSWAHL).map(([id, label]) => (
                 <option key={id} value={id}>{label}</option>
               ))}
             </select>

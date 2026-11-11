@@ -150,8 +150,8 @@ h1 {
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   background-color: #F5F2EE;
   color: #24201F;
-  /* feine Papierstruktur, kaum sichtbar */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .2 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* feine Papierstruktur als kleine, vorberechnete Kachel (kein SVG-Filter, der beim Scrollen neu gerechnet wird) */
+  background-image: url("/papier-korn.png");
   overflow-x: clip;
   font-size: 17px;
   line-height: 1.6;
@@ -277,16 +277,39 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
   .j-paar .j-paar-rechts { animation: j-von-rechts linear both; animation-timeline: view(); animation-range: entry 25% cover 40%; }
   .j-paar .j-paar-pfeil { animation: j-pfeil-ein linear both; animation-timeline: view(); animation-range: entry 45% cover 42%; }
 }
-/* Die Patientenkarte im Auftakt liegt nicht starr: sie schwebt ganz leicht. */
-@keyframes j-schweben { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-.j-schwebt { animation: j-schweben 6s ease-in-out 1.6s infinite; }
 /* Preise: Kacheln erscheinen leicht versetzt nacheinander. */
 @supports (animation-timeline: view()) {
   .j-preis:nth-child(2) { animation-range: entry 10% entry 45%; }
   .j-preis:nth-child(3) { animation-range: entry 20% entry 55%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .j-paar .j-paar-rechts, .j-paar .j-paar-pfeil, .j-schwebt { animation: none !important; }
+  .j-paar .j-paar-rechts, .j-paar .j-paar-pfeil { animation: none !important; }
   .j-kachel, .j-knopf { transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
   .j-kachel:hover, .j-knopf:active { transform: none; }
+}
+
+/* ---- Erklärungsansicht (Modelle) ---- */
+@keyframes erklaer-ein { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes erklaer-name-ein { from { opacity: 0; transform: translate(var(--dx, 0), -50%); } to { opacity: 1; transform: translate(0, -50%); } }
+@keyframes erklaer-tafel-ein { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+@keyframes erklaer-puls { 0% { r: 6; opacity: .7; } 100% { r: 16; opacity: 0; } }
+.erklaer-ein { animation: erklaer-ein .26s var(--ease-out) both; }
+.erklaer-zoom { transition: transform .7s var(--ease-in-out); will-change: transform; }
+.erklaer-linien, .erklaer-namen { transition: opacity .2s ease; }
+.erklaer-linien.ist-weg, .erklaer-namen.ist-weg { opacity: 0; pointer-events: none; }
+.erklaer-name { animation: erklaer-name-ein .32s var(--ease-out) both; animation-delay: calc(min(var(--i), 12) * 30ms + 120ms); }
+.erklaer-name { transition: background-color .15s ease; }
+.erklaer-tafel { animation: erklaer-tafel-ein .26s var(--ease-out) both; }
+@media (prefers-reduced-motion: reduce) {
+  .erklaer-ein, .erklaer-name, .erklaer-tafel { animation: none; }
+  .erklaer-zoom { transition: none; }
+}
+/* Mensch mit Punkten: Heranfahren und pulsierende Punkte */
+.mensch-zoom { transition: transform .65s var(--ease-in-out); will-change: transform; }
+.mensch-punkt { transition: opacity .2s ease; padding: 6px; }
+@keyframes mensch-puls { 0% { transform: scale(.6); opacity: .55; } 100% { transform: scale(2.2); opacity: 0; } }
+.mensch-puls { animation: mensch-puls 2.2s ease-out infinite; animation-delay: calc(var(--i) * 180ms); }
+@media (prefers-reduced-motion: reduce) {
+  .mensch-zoom { transition: none; }
+  .mensch-puls { animation: none; opacity: 0; }
 }
