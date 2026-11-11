@@ -5,6 +5,9 @@ import { STRUKTUREN, EBENEN } from "../koerper";
 import { SCHNITTMODELLE } from "../schnitt";
 import { ZAEHNE, MILCHZAEHNE, ZAHNARTEN, SCHICHTEN, INSTRUMENTE, MILCHZAHN_HINWEIS } from "../gebiss";
 import { MODELL_NAMEN } from "../fach";
+import { ERKLAERPUNKTE, FOKUS } from "../fokus";
+import { STUFEN } from "../drei/anatomie";
+import { MUND_HINWEIS, MUND_TEILE } from "../mund";
 import { textSchluessel } from "./schluessel";
 
 export function sammleModellTexte(): { alle: Record<string, string>; teile: Record<string, Record<string, string>> } {
@@ -20,6 +23,12 @@ export function sammleModellTexte(): { alle: Record<string, string>; teile: Reco
   add("oberflaeche", "Mit dem Finger oder der Maus drehen, mit zwei Fingern oder dem Mausrad vergrößern. Antippen für die Erklärung.", "Schema");
   add("oberflaeche", "Vereinfachte Darstellung zur Erklärung. Sie ersetzt keine Untersuchung und ist keine Diagnose.", "rechts", "links", "weiblich", "männlich", "Alle Zähne", "Aufbau eines Zahns", "Instrumente", "Bleibende Zähne (32)", "Milchzähne (20)", ...Object.values(MODELL_NAMEN));
   for (const e of EBENEN) add("oberflaeche", e.name, e.kurz);
+  // Echte 3D-Daten: Stufen, Organe allein, Erklärpunkte, Teile des Mundes
+  for (const s of STUFEN) add("oberflaeche", s.name);
+  for (const f of Object.values(FOKUS)) add("oberflaeche", f.name, f.hinweis);
+  for (const p of ERKLAERPUNKTE) add("oberflaeche", p.name);
+  for (const m of MUND_TEILE) add("gebiss", m.name, m.was);
+  add("gebiss", MUND_HINWEIS);
 
   STRUKTUREN.forEach((s, i) => add(i < STRUKTUREN.length / 2 ? "koerper1" : "koerper2", s.name, s.was, s.beschwerden));
   for (const m of Object.values(SCHNITTMODELLE)) {

@@ -8,6 +8,9 @@ import { useT } from "./Sprache";
 import { Modell3D, type Modell3DGriff } from "./drei/Modell3D";
 import { gebissBauplan } from "./drei/gebissBau";
 import { scheibeBauplan } from "./drei/scheibeBau";
+import { MUND_OFFEN, inDenMund, mundBauplan, vorDasGesicht } from "./drei/mundBau";
+import { ANATOMIE_PFAD, ANATOMIE_QUELLE } from "@/lib/modelle/drei/anatomie";
+import { MUND_HINWEIS, mundTeil } from "@/lib/modelle/mund";
 import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
@@ -46,12 +49,15 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
   const [offen, setOffen] = useState(true);
   const [wurzeln, setWurzeln] = useState(false);
   const griff = useRef<Modell3DGriff | null>(null);
-  const plan = useCallback((T: Parameters<typeof gebissBauplan>[0], h: { verbinde: Parameters<typeof gebissBauplan>[1] }) => gebissBauplan(T, h.verbinde), []);
+  // Bleibende Zähne: echter Mund mit Gesicht und Fahrt hinein; Milchzähne: nachgebildetes Gebiss
+  const plan = useCallback((T: Parameters<typeof gebissBauplan>[0], h: { verbinde: Parameters<typeof gebissBauplan>[1] }) => (milch ? gebissBauplan(T, h.verbinde) : mundBauplan(T)), [milch]);
+  const [mundTeilId, setMundTeilId] = useState<string | null>(null);
+  const [gesicht, setGesicht] = useState(true);
   const [raumSchnitt, setRaumSchnitt] = useState(true);
   const griffSchnitt = useRef<Modell3DGriff | null>(null);
   const planSchnitt = useCallback((T: Parameters<typeof scheibeBauplan>[0]) => scheibeBauplan(T, SCHICHTEN.map((x) => ({ id: x.id, farbe: x.farbe, formen: x.formen })), SCHNITT.b, SCHNITT.h, [SCHNITT.x, SCHNITT.y]), []);
   const immer = useCallback(() => true, []);
-  const sichtbar3D = useCallback((d: Record<string, unknown>) => (d.gruppe !== (milch ? "milch" : "bleibend") ? false : d.fleisch && wurzeln ? 0.22 : true), [milch, wurzeln]);
+  const sichtbar3D = useCallback((d: Record<string, unknown>) => (milch ? (d.gruppe !== "milch" ? false : d.fleisch && wurzeln ? 0.22 : true) : d.fleisch && wurzeln ? 0.22 : true), [milch, wurzeln]);
 
   // Mehrere Zähne auf einmal markieren (nur Praxisansicht)
   const [mehrfach, setMehrfach] = useState(false);
@@ -63,9 +69,12 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
 
   function zahnWaehlen(nr: number, hinzoomen = false) {
     if (mehrfach && !hinzoomen) { setAuswahl((a) => (a.includes(nr) ? a.filter((x) => x !== nr) : [...a, nr])); return; }
-    setFdi(nr);
+    setFdi(nr); setMundTeilId(null);
     const z = zahnNach(nr);
     if (z && !!z.milch !== milch) setMilch(!!z.milch);
+    // Im echten Mund: Gesicht ausblenden und Mund öffnen, damit der Zahn zu sehen ist
+    const b = griff.current?.buehne();
+    if (b && !milch && hinzoomen) { b.gesicht(0); b.klappen(MUND_OFFEN); setGesicht(false); setOffen(true); }
     if (hinzoomen && z && raum) window.setTimeout(() => griff.current?.fliegeZu(zahnKennung(nr)), 80);
     else if (hinzoomen && z) zoomBogen.zoomAuf(rahmen([z.form]), 4);
   }
@@ -124,12 +133,14 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
               {zahn && !mehrfach && <GewaehltLeiste titel={`${t("Zahn {nr}", { nr: zahn.fdi })}: ${t(zahn.name)}`} zielId="gebiss-erklaerung" />}
               {raum && (
                 <>
-                  <Modell3D ref={griff} plan={plan} schluessel="gebiss" beschriftung={t("Gebiss")} hoehe="h-[min(70vh,40rem)]"
-                    gewaehlt={mehrfach ? auswahl.map(zahnKennung) : fdi ? [zahnKennung(fdi)] : []} markiert={marken.liste.map((m) => m.teil)}
-                    sichtbar={sichtbar3D} sichtbarSchluessel={`${milch}|${wurzeln}`}
-                    onWahl={(k) => zahnWaehlen(Number(k))} ohne3D={() => setRaum(false)} />
+                  <Modell3D ref={griff} plan={plan} schluessel={milch ? "gebiss-milch" : "mund"} beschriftung={t("Gebiss")} hoehe="h-[min(70vh,40rem)]"
+                    gewaehlt={mehrfach ? auswahl.map(zahnKennung) : fdi ? [zahnKennung(fdi)] : mundTeilId ? [mundTeilId] : []} markiert={marken.liste.map((m) => m.teil)}
+                    sichtbar={sichtbar3D} sichtbarSchluessel={`${milch}|${wurzeln}`} quelle={milch ? undefined : ANATOMIE_QUELLE} poster={milch ? undefined : `${ANATOMIE_PFAD}/vorschau/gesicht.webp`}
+                    onBereit={(b) => { if (!milch) { setGesicht(true); inDenMund(b, () => { setGesicht(false); setOffen(true); }); } }}
+                    onWahl={(k) => { if (/^\d\d$/.test(k)) zahnWaehlen(Number(k)); else if (!mehrfach && mundTeil(k)) { setFdi(null); setMundTeilId(k); } }} ohne3D={() => setRaum(false)} />
                   <div className="absolute left-2 top-12 z-10 flex flex-col items-start gap-1.5 text-xs">
-                    <button type="button" className="rounded-full bg-white/90 px-3 py-1.5 text-slate-700 shadow ring-1 ring-slate-200" aria-pressed={offen} onClick={() => { griff.current?.klappen(offen ? 0 : 0.3); setOffen(!offen); }} data-testid="gebiss-mund">{offen ? t("Mund schließen") : t("Mund öffnen")}</button>
+                    {!milch && <button type="button" className="rounded-full bg-white/90 px-3 py-1.5 text-slate-700 shadow ring-1 ring-slate-200" onClick={() => { const b = griff.current?.buehne(); if (!b) return; if (gesicht) { inDenMund(b, () => { setGesicht(false); setOffen(true); }); } else { vorDasGesicht(b); setGesicht(true); setOffen(false); } }} data-testid="gebiss-gesicht">{gesicht ? t("In den Mund fahren") : t("Gesicht zeigen")}</button>}
+                    <button type="button" className="rounded-full bg-white/90 px-3 py-1.5 text-slate-700 shadow ring-1 ring-slate-200" aria-pressed={offen} onClick={() => { griff.current?.klappen(offen ? 0 : milch ? 0.3 : MUND_OFFEN); setOffen(!offen); }} data-testid="gebiss-mund">{offen ? t("Mund schließen") : t("Mund öffnen")}</button>
                     <button type="button" className="rounded-full bg-white/90 px-3 py-1.5 text-slate-700 shadow ring-1 ring-slate-200" aria-pressed={wurzeln} onClick={() => setWurzeln(!wurzeln)} data-testid="gebiss-wurzeln">{wurzeln ? t("Zahnfleisch zeigen") : t("Wurzeln zeigen")}</button>
                   </div>
                 </>
@@ -160,6 +171,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                 })}
               </svg>}
             </div>
+            {raum && !milch && <p className="mt-1.5 text-xs text-slate-500">{t(MUND_HINWEIS)}</p>}
             <p className="mt-1.5 text-xs text-slate-500">{raum ? t(DREI_HINWEIS) : t("Zahn antippen für die Erklärung. Die Nummern folgen dem Zahnschema der Praxis: Wie beim Blick in den Mund liegt Ihre rechte Seite links im Bild.")}</p>
           </div>
           <div className="min-w-0">
@@ -193,6 +205,12 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                 onEntfernen={(teil) => setAuswahl((a) => a.filter((x) => zahnKennung(x) !== teil))}
                 onFertig={() => { setMehrfach(false); setAuswahl([]); }}
               />
+            ) : mundTeilId && mundTeil(mundTeilId) ? (
+              <section className="card" aria-live="polite" data-testid="modell-erklaerung">
+                <h3 className="text-lg font-semibold text-slate-900">{t(mundTeil(mundTeilId)!.name)}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-slate-800">{t(mundTeil(mundTeilId)!.was)}</p>
+                <p className="mt-2 text-xs text-slate-500">{t("Zum Markieren für den Patienten bitte einen Zahn antippen.")}</p>
+              </section>
             ) : zahn ? (
               <section id="gebiss-erklaerung" className="card scroll-mt-4" aria-live="polite" data-testid="modell-erklaerung">
                 <h3 className="text-lg font-semibold text-slate-900">{t("Zahn {nr}", { nr: zahn.fdi })}</h3>

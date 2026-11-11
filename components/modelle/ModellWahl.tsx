@@ -52,7 +52,7 @@ function ModellWahlInnen({ fach, markierungen = [], patientId, geschlecht, einsp
         </div>
       )}
       {aktiv === "gebiss" ? <GebissModell key="gebiss" markierungen={marken} patientId={patientId} einspaltig={einspaltig} befunde={befunde} />
-        : aktiv === "koerper" ? <KoerperModell key="koerper" markierungen={marken} patientId={patientId} einspaltig={einspaltig} startEbenen={f.ebenen} geschlecht={geschlecht ?? f.geschlecht} />
+        : aktiv === "koerper" ? <KoerperModell key="koerper" markierungen={marken} patientId={patientId} einspaltig={einspaltig} startEbenen={f.ebenen} geschlecht={geschlecht ?? f.geschlecht} fokus={f.fokus ?? null} fach={fach ?? null} />
         : <SchnittModellAnsicht key={aktiv} modell={aktiv} markierungen={marken} patientId={patientId} einspaltig={einspaltig} />}
     </div>
   );
