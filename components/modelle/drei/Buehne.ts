@@ -234,8 +234,10 @@ export class Buehne {
     const mats = meshes.map((m) => m.material as DREI.Material);
     const alt = mats.map((m) => [m.transparent, m.depthWrite] as const);
     try {
-      for (const durch of [false, true]) {
-        for (const m of mats) { m.transparent = durch; m.depthWrite = !durch; m.needsUpdate = true; }
+      // deckend für alle; durchscheinend nur für die Haut (sie wird beim Kombinieren der Ebenen durchsichtig)
+      const hautMeshes = meshes.filter((m) => (m.material as DREI.Material).userData?.haut);
+      for (const durch of hautMeshes.length ? [false, true] : [false]) {
+        for (const m of mats) { m.transparent = durch && !!m.userData?.haut; m.depthWrite = !m.transparent; m.needsUpdate = true; }
         await this.renderer.compileAsync(probe, this.kamera, this.szene);
         if (this.entfernt) return;
       }
@@ -261,8 +263,8 @@ export class Buehne {
           this.renderer.setScissorTest(true);
           this.renderer.setScissor(0, 0, 1, 1);
           // beide Durchgänge einmal anstoßen: deckend und durchscheinend (sortiert, anderer Zeichenweg)
-          for (const durch of [false, true]) {
-            for (const m of teilMats) { m.transparent = durch; m.depthWrite = !durch; }
+          for (const durch of teilMats.some((m) => m.userData?.haut) ? [false, true] : [false]) {
+            for (const m of teilMats) { m.transparent = durch && !!m.userData?.haut; m.depthWrite = !m.transparent; }
             this.renderer.render(this.szene, this.kamera);
           }
         } finally {

@@ -225,6 +225,7 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
   const u: EchtUniforms = { auf: { value: 1 }, kiefer: { value: 0 }, achse: { value: new T.Vector3() } };
   mat.userData.u = u;
   const haut = s === "haut" || s === "gesicht", kiefer = s === "gesicht";
+  mat.userData.haut = haut;
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uAuf = u.auf; sh.uniforms.uKiefer = u.kiefer; sh.uniforms.uAchse = u.achse;
     let v = sh.vertexShader, f = sh.fragmentShader;

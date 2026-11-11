@@ -97,6 +97,10 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
     if (vorbereitet.current || !T || !b) return;
     vorbereitet.current = true;
     vorbereitenImLeerlauf(T, Array.from(new Set(Object.values(STUFE_DATEIEN).flat())) as DateiId[], (meshes) => b.vorwaermen(meshes));
+    // Auch die Erklärungsansicht schon laden, damit der erste Tipp auf einen Punkt sofort reagiert
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+    const holen = () => void import("./erklaerung/ErklaerAnsicht");
+    if (w.requestIdleCallback) w.requestIdleCallback(holen, { timeout: 5000 }); else setTimeout(holen, 1500);
   }, []);
   const laden = useCallback((T: Drei, d: string) => {
     dreiRef.current = T;
