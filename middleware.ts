@@ -68,5 +68,6 @@ async function weiter(req: NextRequest, event: NextFetchEvent) {
 
 export const config = {
   // Alle Seiten außer statischen Dateien: die Vorschau-Domain braucht jede Seite, die Anmeldung prüft nur GESCHUETZT.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|fonts/|og/|js/).*)"],
+  // anatomie-bilder/, anatomie-3d/: öffentliche Bilder und 3D-Dateien der Anatomie-Modelle
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|fonts/|og/|js/|anatomie-bilder/|papier-korn.png|anatomie-3d/).*)"],
 };
