@@ -43,6 +43,8 @@ export class Buehne {
   private T: Drei;
   private renderer: DREI.WebGLRenderer;
   private szene: DREI.Scene;
+  private entfernt = false;
+  private ziehen = false;
   private kamera: DREI.PerspectiveCamera;
   private steuerung!: Steuerung;
   private wurzel: DREI.Group;
@@ -130,6 +132,8 @@ export class Buehne {
     // Anfassen unterbricht jede Fahrt sofort
     const start = () => { this.wecken(); this.beruehrt = true; this.steuerung.autoRotate = false; this.flug = null; if (this.fahrtJetzt) { const f = this.fahrtJetzt; this.fahrtJetzt = null; f.abbruch?.(); } };
     this.steuerung.addEventListener("start", start);
+    this.steuerung.addEventListener("start", () => { this.ziehen = true; });
+    this.steuerung.addEventListener("end", () => { this.ziehen = false; });
 
     // Antippen: nur wenn der Finger kaum bewegt wurde (sonst war es Drehen)
     const runter = (e: PointerEvent) => { this.unten = { x: e.clientX, y: e.clientY, t: performance.now() }; };
@@ -216,6 +220,54 @@ export class Buehne {
   }
 
   /** Teile hinzufügen; sie erscheinen der Reihe nach (zerfließen ins Bild). */
+  /** Teile vorab an die Grafik übergeben, ohne sie zu zeigen: Shader in einer unsichtbaren Szene übersetzen
+   *  (mit dem Licht der echten Szene, asynchron, wo das Gerät es kann). Beide Fassungen: deckend und
+   *  durchscheinend (beim Ein- und Ausblenden sind Teile durchscheinend). Wartet, solange gedreht oder geflogen wird.
+   *  Danach stockt der spätere Wechsel der Ebene nicht mehr. */
+  async vorwaermen(meshes: DREI.Mesh[]) {
+    if (!meshes.length) return;
+    while (!this.entfernt && (this.ziehen || this.flug || this.fahrtJetzt)) await new Promise((r) => setTimeout(r, 400));
+    if (this.entfernt) return;
+    const T = this.T, probe = new T.Scene(), gruppe = new T.Group();
+    for (const m of meshes) { m.visible = true; gruppe.add(m); }
+    probe.add(gruppe);
+    const mats = meshes.map((m) => m.material as DREI.Material);
+    const alt = mats.map((m) => [m.transparent, m.depthWrite] as const);
+    try {
+      for (const durch of [false, true]) {
+        for (const m of mats) { m.transparent = durch; m.depthWrite = !durch; m.needsUpdate = true; }
+        await this.renderer.compileAsync(probe, this.kamera, this.szene);
+        if (this.entfernt) return;
+      }
+      // Daten einmal hochladen: in ein einziges Pixel des sichtbaren Bildes zeichnen (Shader sind schon fertig).
+      while (!this.entfernt && (this.ziehen || this.flug || this.fahrtJetzt)) await new Promise((r) => setTimeout(r, 400));
+      if (this.entfernt) return;
+      const versteckt: DREI.Object3D[] = [];
+      this.szene.traverse((o) => { if ((o as DREI.Mesh).isMesh && o.visible) { versteckt.push(o); o.visible = false; } });
+      this.szene.add(gruppe);
+      const schere = this.renderer.getScissorTest();
+      try {
+        this.renderer.setScissorTest(true);
+        this.renderer.setScissor(0, 0, 1, 1);
+        // beide Durchgänge einmal anstoßen: deckend und durchscheinend (sortiert, anderer Zeichenweg)
+        for (const durch of [false, true]) {
+          for (const m of mats) { m.transparent = durch; m.depthWrite = !durch; }
+          this.renderer.render(this.szene, this.kamera);
+        }
+      } finally {
+        this.renderer.setScissorTest(schere);
+        const g = this.renderer.getSize(new T.Vector2());
+        this.renderer.setScissor(0, 0, g.x, g.y);
+        this.szene.remove(gruppe);
+        for (const o of versteckt) o.visible = true;
+        this.wecken();
+      }
+    } finally {
+      mats.forEach((m, i) => { m.transparent = alt[i][0]; m.depthWrite = alt[i][1]; });
+      for (const m of meshes) gruppe.remove(m);
+    }
+  }
+
   hinzu(meshes: DREI.Mesh[]) {
     const T = this.T, jetzt = performance.now();
     meshes.forEach((mesh, i) => {
@@ -519,6 +571,7 @@ export class Buehne {
   };
 
   entfernen() {
+    this.entfernt = true;
     this.laeuft = false;
     if (this.rahmen) cancelAnimationFrame(this.rahmen);
     this.beobachter.disconnect(); this.sicht.disconnect();

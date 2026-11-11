@@ -87,15 +87,22 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
   const startKugel = useRef(aktiverFokus ? fokusKugel(aktiverFokus) : KOERPER_KUGEL);
   const plan = useCallback((): Bauplan => ({ kugel: startKugel.current, boden: startKugel.current === KOERPER_KUGEL ? -860 : undefined, winkel: 0.25, selbstDrehen: false, auftraege: [] }), []);
   const dateien: DateiId[] = aktiverFokus ? aktiverFokus.dateien : kombinieren ? dateienFuerEbenen(ebenen, hautAn) : STUFE_DATEIEN[stufe];
-  // Beim ersten Laden die übrigen Ebenen im Leerlauf vorbereiten, damit „Haut abnehmen“ und „Weiter innen“ sofort gehen
+  // Sobald Bühne und 3D-Bibliothek bereit sind: die übrigen Ebenen im Leerlauf laden, vorbereiten und unsichtbar
+  // an die Grafik übergeben, damit „Haut abnehmen“ und „Weiter innen“ ohne Stocken gehen.
   const vorbereitet = useRef(false);
-  const laden = useCallback((T: Drei, d: string) => {
-    if (!vorbereitet.current) {
-      vorbereitet.current = true;
-      vorbereitenImLeerlauf(T, Array.from(new Set(Object.values(STUFE_DATEIEN).flat())) as DateiId[]);
-    }
-    return ladeDatei(T, d as DateiId);
+  const dreiRef = useRef<Drei | null>(null);
+  const buehneRef = useRef<Buehne | null>(null);
+  const vorbereitenStarten = useCallback(() => {
+    const T = dreiRef.current, b = buehneRef.current;
+    if (vorbereitet.current || !T || !b) return;
+    vorbereitet.current = true;
+    vorbereitenImLeerlauf(T, Array.from(new Set(Object.values(STUFE_DATEIEN).flat())) as DateiId[], (meshes) => b.vorwaermen(meshes));
   }, []);
+  const laden = useCallback((T: Drei, d: string) => {
+    dreiRef.current = T;
+    vorbereitenStarten();
+    return ladeDatei(T, d as DateiId);
+  }, [vorbereitenStarten]);
   const sichtbar3D = useCallback((d: Record<string, unknown>) => {
     const datei = d.datei as DateiId, g = String(d.gruppe), k = (d.kennung as string | undefined) ?? null;
     if (d.geschlecht && d.geschlecht !== geschlecht) return false;
@@ -251,7 +258,7 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
         gewaehlt={mehrfach ? mehrere : kennung ? [kennung] : fremd ? [fremd] : []} markiert={marken.liste.map((m) => m.teil)}
         sichtbar={sichtbar3D} sichtbarSchluessel={sichtbarSchluessel} quelle={ANATOMIE_QUELLE} poster={`${ANATOMIE_PFAD}/vorschau/${fokusJetzt ?? "mensch"}.webp`}
         dateien={{ liste: dateien, laden }} onGeladen={geladen}
-        onBereit={(b) => { const k = aktiverFokus ? fokusKugel(aktiverFokus) : KOERPER_KUGEL; b.bewegen(aktiverFokus?.bewegung === "atmen" ? "atmen" : aktiverFokus?.bewegung === "schlagen" ? "schlagen" : null, k.mitte); ankerSetzen(b); geladen(); }}
+        onBereit={(b) => { buehneRef.current = b; vorbereitenStarten(); const k = aktiverFokus ? fokusKugel(aktiverFokus) : KOERPER_KUGEL; b.bewegen(aktiverFokus?.bewegung === "atmen" ? "atmen" : aktiverFokus?.bewegung === "schlagen" ? "schlagen" : null, k.mitte); ankerSetzen(b); geladen(); }}
         onWahl={wahl3D} ohne3D={() => setRaum(false)}>
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-label={t("Erklärpunkte")} role="group">
           {punkte.map((p) => (

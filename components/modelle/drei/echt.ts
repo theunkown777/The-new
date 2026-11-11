@@ -142,16 +142,22 @@ async function vorbereiten(T: Drei, m: DREI.Mesh): Promise<Roh> {
 
 /** Weitere Dateien vorbereiten, wenn der Browser gerade nichts zu tun hat (eine nach der anderen),
  *  damit der Wechsel der Ebene später sofort geht. Rechnen im Worker, hier nur Laden und Übergeben. */
-export function vorbereitenImLeerlauf(T: Drei, dateien: DateiId[]) {
+export function vorbereitenImLeerlauf(T: Drei, dateien: DateiId[], waermen?: (meshes: DREI.Mesh[]) => void | Promise<void>) {
   if (typeof window === "undefined") return;
   const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
   const warte = (f: () => void) => (w.requestIdleCallback ? w.requestIdleCallback(f, { timeout: 4000 }) : setTimeout(f, 600));
-  const liste = dateien.filter((d) => !cache.has(d));
+  // Beim Vorwärmen auch schon geladene Dateien (z. B. die Haut wird beim Abnehmen durchscheinend: neue Shader-Fassung)
+  const liste = waermen ? [...dateien] : dateien.filter((d) => !cache.has(d));
   const naechste = () => {
     const d = liste.shift();
     if (!d) return;
     warte(() => {
-      ladeRoh(T, d).catch(() => {}).finally(naechste);
+      if (!waermen) return void ladeRoh(T, d).catch(() => {}).finally(naechste);
+      // Laden und im Worker vorbereiten, dann im nächsten ruhigen Moment an die Grafik übergeben
+      ladeDatei(T, d)
+        .then((meshes) => new Promise<void>((fertig) => warte(() => { Promise.resolve().then(() => waermen(meshes)).catch(() => {}).finally(fertig); })))
+        .catch(() => {})
+        .finally(naechste);
     });
   };
   naechste();
