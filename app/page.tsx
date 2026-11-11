@@ -16,11 +16,11 @@ import { PatientenKarte } from "@/components/start/PatientenKarte";
 import { Laechelbogen } from "@/components/Behandlungsweg";
 
 export const metadata: Metadata = {
-  title: "Sorrida – Nach dem Patientengespräch ein Klick. Für jede Praxis.",
+  title: "Sorrida – damit beide Seiten lächeln",
   description:
     "Behandlungsvorschlag mit Kassenleistung und Eigenanteil, Patienten-Link, digitale Anamnese und To-dos, zugeschnitten auf Ihr Fach: Zahnmedizin, Hausarzt, Fachärzte von Augen bis Radiologie, Psychotherapie, Physio- und Ergotherapie, Logopädie und Podologie.",
   openGraph: {
-    title: "Sorrida – für jede Praxis, passend zu Ihrem Fach",
+    title: "Sorrida – damit beide Seiten lächeln",
     description: "Kassenleistung zuerst, Selbstzahlerleistungen ehrlich erklärt, Patient entscheidet zu Hause und meldet sich zurück.",
     images: [{ url: "/og/sorrida.png", width: 1200, height: 630 }],
   },
@@ -173,11 +173,11 @@ export default async function Start() {
             </svg>
             <div className="lg:col-span-8 lg:col-start-5">
               <p className="j-schau text-[clamp(2.8rem,6vw,5.2rem)] text-[#F5F2EE]">
-                Sorrida heißt <em className="!text-brand-200">„lächeln“.</em>
+                Damit beide Seiten <em className="!text-brand-200">lächeln.</em>
               </p>
               <p className="mt-8 max-w-xl text-[18px] leading-relaxed text-[#F5F2EE]/80">
-                Der Bogen aus dem Logo zieht sich durch das ganze Produkt: als Weg, als Markierung, als Unterschriftslinie. Denn gute Aufklärung
-                macht am Ende beide Seiten zufrieden.
+                Sorrida ist italienisch und heißt „lächeln“. Der Bogen aus dem Logo zieht sich durch das ganze Produkt: als Weg, als Markierung,
+                als Unterschriftslinie. Die Praxis hat weniger Arbeit, der Patient versteht, was er bekommt und was es kostet.
               </p>
             </div>
           </div>

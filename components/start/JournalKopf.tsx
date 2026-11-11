@@ -79,7 +79,7 @@ export function JournalFuss() {
             <span className="font-brand text-brand-700">SORRIDA</span>
           </div>
           <p className="j-titel mt-5 max-w-[16rem] text-2xl text-tinte">
-            Sorrida heißt <em>lächeln</em>.
+            Damit beide Seiten <em>lächeln</em>.
           </p>
         </div>
         {spalten.map(([titel, links]) => (

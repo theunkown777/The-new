@@ -24,7 +24,7 @@ export default function Demnaechst({ searchParams }: { searchParams: { weiter?: 
           <img src="/brand/sorrida-mark-hell.webp" alt="" className="h-24 w-24 sm:h-28 sm:w-28" />
           <div className="sm:text-left">
             <h1 className="font-brand text-5xl text-white sm:text-6xl">SORRIDA</h1>
-            <p className="mt-2 text-base text-brand-100 sm:text-lg">Nach dem Patientengespräch ein Klick. Für jede Praxis.</p>
+            <p className="mt-2 text-base text-brand-100 sm:text-lg">Damit beide Seiten lächeln.</p>
             <p className="mt-1 text-sm text-brand-300">Praxissoftware für Arzt-, Zahnarzt- und Therapiepraxen</p>
           </div>
         </div>

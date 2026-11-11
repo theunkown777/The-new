@@ -23,7 +23,7 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
   title: "Sorrida",
-  description: "Nach der Behandlung ein Klick: Leistungen, Bericht, Behandlungsvorschlag, Patienten-Link und Anamnese für Praxen jeder Fachrichtung",
+  description: "Sorrida – damit beide Seiten lächeln. Nach der Behandlung ein Klick: Leistungen, Bericht, Behandlungsvorschlag, Patienten-Link und Anamnese für Praxen jeder Fachrichtung",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
