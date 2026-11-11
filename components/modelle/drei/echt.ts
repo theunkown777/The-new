@@ -83,12 +83,27 @@ function attributDaten(at: DREI.BufferAttribute | DREI.InterleavedBufferAttribut
   return { daten, norm: at.normalized, anzahl: at.count, groesse: at.itemSize, schritt: il ? (at as DREI.InterleavedBufferAttribute).data.stride : at.itemSize, offset: il ? (at as DREI.InterleavedBufferAttribute).offset : 0 };
 }
 
+// Leichte Fassungen (scripts/anatomie-3d/leicht.mjs): gleiche Teile, ein Drittel bis die Hälfte der Dreiecke.
+const MIT_LEICHT = new Set(["skelett", "muskeln", "haut", "mund", "lunge", "verdauung", "gehirn", "herz", "auge", "harnwege", "hno", "sehnen"]);
+/** Handy, Tablet oder schwächerer Rechner: lieber die leichte Fassung, damit nichts ruckelt. */
+export function leichtesGeraet(): boolean {
+  if (typeof window === "undefined") return false;
+  const n = navigator as Navigator & { deviceMemory?: number };
+  return (
+    window.matchMedia("(pointer: coarse)").matches ||
+    (n.hardwareConcurrency ?? 8) <= 4 ||
+    (n.deviceMemory ?? 8) <= 4 ||
+    Math.min(window.innerWidth, window.innerHeight) < 700
+  );
+}
+const dateiName = (datei: string) => (MIT_LEICHT.has(datei) && leichtesGeraet() ? `${datei}-leicht` : datei);
+
 /** Datei laden und ihre Teile als fertige Geometrien (in Szenenkoordinaten, mit Normalen) liefern; einmal je Sitzung. */
 export function ladeRoh(T: Drei, datei: DateiId): Promise<Roh[]> {
   if (!cache.has(datei)) {
     cache.set(datei, (async () => {
       const { laden } = await gltfLader();
-      const g = await laden(`${ANATOMIE_PFAD}/${datei}.glb`);
+      const g = await laden(`${ANATOMIE_PFAD}/${dateiName(datei)}.glb`);
       g.scene.updateMatrixWorld(true);
       const meshes: DREI.Mesh[] = [];
       g.scene.traverse((o) => { if ((o as DREI.Mesh).isMesh) meshes.push(o as DREI.Mesh); });
@@ -123,6 +138,23 @@ async function vorbereiten(T: Drei, m: DREI.Mesh): Promise<Roh> {
   if (karten.normalMap) e._normalMap = karten.normalMap;
   quelle.dispose();
   return { name: (k?.name ?? "").split("#")[0], e, geo, mitte: [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2] };
+}
+
+/** Weitere Dateien vorbereiten, wenn der Browser gerade nichts zu tun hat (eine nach der anderen),
+ *  damit der Wechsel der Ebene später sofort geht. Rechnen im Worker, hier nur Laden und Übergeben. */
+export function vorbereitenImLeerlauf(T: Drei, dateien: DateiId[]) {
+  if (typeof window === "undefined") return;
+  const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+  const warte = (f: () => void) => (w.requestIdleCallback ? w.requestIdleCallback(f, { timeout: 4000 }) : setTimeout(f, 600));
+  const liste = dateien.filter((d) => !cache.has(d));
+  const naechste = () => {
+    const d = liste.shift();
+    if (!d) return;
+    warte(() => {
+      ladeRoh(T, d).catch(() => {}).finally(naechste);
+    });
+  };
+  naechste();
 }
 
 /** Teile einer Datei als Meshes mit userData für die Bühne. */

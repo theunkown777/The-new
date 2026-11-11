@@ -12,7 +12,7 @@ import { useZoom } from "./useZoom";
 import { useT } from "./Sprache";
 import { Modell3D, type Bauplan, type Modell3DGriff } from "./drei/Modell3D";
 import type { Buehne, Drei } from "./drei/Buehne";
-import { ladeDatei } from "./drei/echt";
+import { ladeDatei, vorbereitenImLeerlauf } from "./drei/echt";
 import { KOERPER_KUGEL, NUR_FOKUS, fokusKugel } from "./drei/koerperEcht";
 import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
@@ -87,7 +87,15 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
   const startKugel = useRef(aktiverFokus ? fokusKugel(aktiverFokus) : KOERPER_KUGEL);
   const plan = useCallback((): Bauplan => ({ kugel: startKugel.current, boden: startKugel.current === KOERPER_KUGEL ? -860 : undefined, winkel: 0.25, selbstDrehen: false, auftraege: [] }), []);
   const dateien: DateiId[] = aktiverFokus ? aktiverFokus.dateien : kombinieren ? dateienFuerEbenen(ebenen, hautAn) : STUFE_DATEIEN[stufe];
-  const laden = useCallback((T: Drei, d: string) => ladeDatei(T, d as DateiId), []);
+  // Beim ersten Laden die übrigen Ebenen im Leerlauf vorbereiten, damit „Haut abnehmen“ und „Weiter innen“ sofort gehen
+  const vorbereitet = useRef(false);
+  const laden = useCallback((T: Drei, d: string) => {
+    if (!vorbereitet.current) {
+      vorbereitet.current = true;
+      vorbereitenImLeerlauf(T, Array.from(new Set(Object.values(STUFE_DATEIEN).flat())) as DateiId[]);
+    }
+    return ladeDatei(T, d as DateiId);
+  }, []);
   const sichtbar3D = useCallback((d: Record<string, unknown>) => {
     const datei = d.datei as DateiId, g = String(d.gruppe), k = (d.kennung as string | undefined) ?? null;
     if (d.geschlecht && d.geschlecht !== geschlecht) return false;

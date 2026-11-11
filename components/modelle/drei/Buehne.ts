@@ -3,6 +3,7 @@
 // Atmen und Herzschlag. Unabhängig von React; die Modelle liefern nur ihre Teile
 // (Meshes mit userData.kennung und userData.gruppe).
 import type * as DREI from "three";
+import { leichtesGeraet } from "./echt";
 import type { OrbitControls as Steuerung } from "three/examples/jsm/controls/OrbitControls.js";
 
 export type Drei = typeof DREI;
@@ -83,7 +84,8 @@ export class Buehne {
     const T = (this.T = drei);
     this.ruhe = !!o.ruhig;
     this.m = { a: new T.Matrix4(), b: new T.Matrix4(), c: new T.Matrix4() };
-    this.renderer = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+    // Kantenglättung kostet auf Handys viel Grafikleistung und ist bei hoher Pixeldichte kaum zu sehen
+    this.renderer = new T.WebGLRenderer({ antialias: !leichtesGeraet(), alpha: true, powerPreference: "high-performance" });
     // Handys: höchstens 1,5-fache Auflösung (flüssig), sonst höchstens doppelt
     const handy = window.matchMedia?.("(pointer: coarse)").matches && Math.min(window.innerWidth, window.innerHeight) < 900;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, handy ? 1.5 : 2));
