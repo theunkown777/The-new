@@ -239,29 +239,42 @@ export class Buehne {
         await this.renderer.compileAsync(probe, this.kamera, this.szene);
         if (this.entfernt) return;
       }
-      // Daten einmal hochladen: in ein einziges Pixel des sichtbaren Bildes zeichnen (Shader sind schon fertig).
-      while (!this.entfernt && (this.ziehen || this.flug || this.fahrtJetzt)) await new Promise((r) => setTimeout(r, 400));
-      if (this.entfernt) return;
-      const versteckt: DREI.Object3D[] = [];
-      this.szene.traverse((o) => { if ((o as DREI.Mesh).isMesh && o.visible) { versteckt.push(o); o.visible = false; } });
-      this.szene.add(gruppe);
-      const schere = this.renderer.getScissorTest();
-      try {
-        this.renderer.setScissorTest(true);
-        this.renderer.setScissor(0, 0, 1, 1);
-        // beide Durchgänge einmal anstoßen: deckend und durchscheinend (sortiert, anderer Zeichenweg)
-        for (const durch of [false, true]) {
-          for (const m of mats) { m.transparent = durch; m.depthWrite = !durch; }
-          this.renderer.render(this.szene, this.kamera);
+      // Daten hochladen: in ein einziges Pixel des sichtbaren Bildes zeichnen (Shader sind schon fertig),
+      // in kleinen Portionen je ruhigem Moment, damit kein einzelner Schritt lang wird.
+      const ruhe = () => new Promise<void>((r) => {
+        const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+        if (w.requestIdleCallback) w.requestIdleCallback(() => r(), { timeout: 1500 }); else setTimeout(r, 50);
+      });
+      const PORTION = 6;
+      for (let i = 0; i < meshes.length; i += PORTION) {
+        await ruhe();
+        while (!this.entfernt && (this.ziehen || this.flug || this.fahrtJetzt)) await new Promise((r) => setTimeout(r, 400));
+        if (this.entfernt) return;
+        const teil = meshes.slice(i, i + PORTION), teilMats = teil.map((m) => m.material as DREI.Material);
+        const portion = new T.Group();
+        for (const m of teil) portion.add(m);
+        const versteckt: DREI.Object3D[] = [];
+        this.szene.traverse((o) => { if ((o as DREI.Mesh).isMesh && o.visible) { versteckt.push(o); o.visible = false; } });
+        this.szene.add(portion);
+        const schere = this.renderer.getScissorTest();
+        try {
+          this.renderer.setScissorTest(true);
+          this.renderer.setScissor(0, 0, 1, 1);
+          // beide Durchgänge einmal anstoßen: deckend und durchscheinend (sortiert, anderer Zeichenweg)
+          for (const durch of [false, true]) {
+            for (const m of teilMats) { m.transparent = durch; m.depthWrite = !durch; }
+            this.renderer.render(this.szene, this.kamera);
+          }
+        } finally {
+          this.renderer.setScissorTest(schere);
+          const g = this.renderer.getSize(new T.Vector2());
+          this.renderer.setScissor(0, 0, g.x, g.y);
+          this.szene.remove(portion);
+          for (const m of teil) portion.remove(m);
+          for (const o of versteckt) o.visible = true;
         }
-      } finally {
-        this.renderer.setScissorTest(schere);
-        const g = this.renderer.getSize(new T.Vector2());
-        this.renderer.setScissor(0, 0, g.x, g.y);
-        this.szene.remove(gruppe);
-        for (const o of versteckt) o.visible = true;
-        this.wecken();
       }
+      this.wecken();
     } finally {
       mats.forEach((m, i) => { m.transparent = alt[i][0]; m.depthWrite = alt[i][1]; });
       for (const m of meshes) gruppe.remove(m);

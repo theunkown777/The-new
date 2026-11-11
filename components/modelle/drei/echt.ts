@@ -214,6 +214,12 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
     case "gesicht": Object.assign(p, { color: new T.Color(0xffffff), map: e._map as DREI.Texture, normalMap: e._normalMap as DREI.Texture, normalScale: new T.Vector2(0.6, 0.6), roughness: 0.52, sheen: 0.45, sheenColor: new T.Color(0xffc9b5), sheenRoughness: 0.5, side: T.DoubleSide }); break;
     default: Object.assign(p, { roughness: 0.36, clearcoat: 0.55, clearcoatRoughness: 0.3 });
   }
+  // Alle Stoffe mit (kaum sichtbarem) Klarlack und Schimmer: dann teilen sie sich ein Shader-Programm,
+  // statt dass jede Kombination beim ersten Zeigen neu übersetzt werden muss (das stockt auf Handys).
+  p.clearcoat ??= 0.02;
+  p.clearcoatRoughness ??= 0.5;
+  p.sheen ??= 0.02;
+  p.sheenColor ??= new T.Color(0xffffff);
   const mat = new T.MeshPhysicalMaterial(p);
   if (p.opacity !== undefined && p.opacity < 1) { mat.transparent = true; mat.depthWrite = false; }
   const u: EchtUniforms = { auf: { value: 1 }, kiefer: { value: 0 }, achse: { value: new T.Vector3() } };
