@@ -12,6 +12,30 @@ const pt = (t: number) => [
 ];
 const PATH = `M${P0[0]} ${P0[1]} Q${P1[0]} ${P1[1]} ${P2[0]} ${P2[1]}`;
 
+// animateMotion misst keyPoints als Anteil der Weglänge, die Stationen liegen aber bei t = 0, ¼, ½, ¾, 1
+// der Kurve. Darum hier die echte Weglänge bis zu jeder Station, damit der Punkt genau mittig hält.
+const ANTEILE = (() => {
+  const n = 800;
+  const laenge: number[] = [0];
+  for (let k = 1; k <= n; k++) {
+    const [x0, y0] = pt((k - 1) / n), [x1, y1] = pt(k / n);
+    laenge.push(laenge[k - 1] + Math.hypot(x1 - x0, y1 - y0));
+  }
+  return [0, 1, 2, 3, 4].map((i) => Math.round((laenge[(i * n) / 4] / laenge[n]) * 10000) / 10000);
+})();
+// Halten an jeder Station, dazwischen weich fahren (ein Umlauf 6 s).
+const HALT = 0.1, FAHRT = (1 - 5 * HALT) / 4;
+const KEY_POINTS: number[] = [], KEY_TIMES: number[] = [], KEY_SPLINES: string[] = [];
+ANTEILE.forEach((a, i) => {
+  const t0 = i * (HALT + FAHRT);
+  KEY_POINTS.push(a, a);
+  KEY_TIMES.push(t0, t0 + HALT);
+  KEY_SPLINES.push("0 0 1 1");
+  if (i < 4) KEY_SPLINES.push("0.77 0 0.175 1");
+});
+KEY_TIMES[KEY_TIMES.length - 1] = 1;
+const KP = KEY_POINTS.join(";"), KT = KEY_TIMES.map((x) => Math.round(x * 10000) / 10000).join(";"), KS = KEY_SPLINES.slice(0, KEY_POINTS.length - 1).join(";");
+
 export function Behandlungsweg({
   erreicht,
   aktuell,
@@ -70,13 +94,13 @@ export function Behandlungsweg({
           );
         })}
         {animate && (
-          // Ein Punkt läuft den Weg ab, Station für Station, und beginnt dann von vorn.
+          // Ein Punkt läuft den Weg ab, hält an jeder Station genau mittig und beginnt dann von vorn.
           <circle r={gross ? 3.2 : 3.5} className="weg-laeufer fill-salbei-500">
-            <animateMotion dur="5s" repeatCount="indefinite" path={PATH} keyPoints="0;0.25;0.25;0.5;0.5;0.75;0.75;1;1" keyTimes="0;0.15;0.25;0.4;0.5;0.65;0.75;0.9;1" calcMode="linear" />
+            <animateMotion dur="6s" repeatCount="indefinite" path={PATH} keyPoints={KP} keyTimes={KT} keySplines={KS} calcMode="spline" />
           </circle>
         )}
       </svg>
-      {gross && (
+      {gross && labels.some(Boolean) && (
         <div className="relative mt-1 h-10">
           {labels.map((l, i) => {
             const [x] = pt(i / 4);

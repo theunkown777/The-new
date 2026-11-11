@@ -4,7 +4,8 @@
 // Heilmittelerbringern, Pflege und Hilfsmittelhandwerk); gerundete
 // Orientierungswerte, keine Statistik.
 //
-// patienten:   Stamm in der Demo (Patientinnen, Kunden, Klienten)
+// patienten:   Stamm einer echten Praxis (Patientinnen, Kunden, Klienten); die Demo zeigt davon einen
+//              überschaubaren Ausschnitt, siehe demoStamm()
 // quote:       Anteil mit Vorschlag zu Selbstzahler-, Aufzahlungs- oder Wahlleistungen
 // termine:     Termine je Werktag [min, max] über alle Behandlungsplätze
 // dauer:       übliche Termindauern in Minuten
@@ -66,3 +67,11 @@ export function erwarteteAuslastung(k: DemoKennzahlen): number {
   const kapazitaet = k.standorte.reduce((a, s) => a + s.rooms * s.minutesPerDay, 0);
   return (termine * dauer) / kapazitaet;
 }
+
+/** Wie viele Personen die Demo-Praxis zeigt: ein überschaubarer Ausschnitt des echten Stamms
+ *  (etwa ein Zwanzigstel, mindestens 30, höchstens 80), damit man sich in der Demo schnell zurechtfindet. */
+export const demoStamm = (fach: string): number => Math.min(80, Math.max(30, Math.round(demoKennzahlen(fach).patienten / 20)));
+
+/** Wie viele dieser Personen einen Behandlungsvorschlag haben: genug, dass jede Station des Wegs belegt ist. */
+export const demoVorschlaege = (fach: string, personen: number): number =>
+  Math.min(Math.round(personen * 0.6), Math.max(16, Math.round(personen * demoKennzahlen(fach).quote * 3)));

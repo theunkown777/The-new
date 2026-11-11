@@ -1,15 +1,16 @@
 import { Behandlungsweg } from "@/components/Behandlungsweg";
+import { WegBand } from "@/components/start/WegBand";
 
 // "Ein Weg, zwei Seiten": oben der Behandlungsweg über die volle Breite mit dem, was Praxis und Patient
 // an jeder Station tun; darunter die Arbeitsliste der Praxis mit dem nächsten Schritt je Patient.
 // Die Patientenansicht steht im Auftakt der Seite.
 
 const STATIONEN_TEXT: [string, string, string][] = [
-  ["Gespräch", "Befund oder Anlass wählen, ein Klick", "Hört zu, fragt nach"],
+  ["Gespräch", "Wählt Befund oder Anlass mit einem Klick", "Hört zu, fragt nach"],
   ["Vorschlag", "Kasse zuerst, Alternativen begründet, Link per SMS", "Bekommt den Link aufs Handy"],
-  ["Entscheidung", "Sieht Rückmeldung und Wunsch nach Raten", "Vergleicht zu Hause, tippt eine Antwort"],
-  ["Vereinbart", "Vereinbarung und Rechnung mit einem Klick", "Weiß vorher, was die Kasse zahlt"],
-  ["Bezahlt", "Eingang bestätigen, nichts abtippen", "Zahlt per GiroCode, ohne Konto"],
+  ["Entscheidung", "Sieht die Antwort und ob Raten gewünscht sind", "Vergleicht zu Hause, tippt eine Antwort"],
+  ["Vereinbart", "Erstellt Vereinbarung und Rechnung mit einem Klick", "Weiß vorher, was die Kasse zahlt"],
+  ["Bezahlt", "Zahlungseingang bestätigen, nichts abtippen", "Zahlt per GiroCode aus der Banking-App"],
 ];
 
 const LISTE: [string, number, number, string, "aktiv" | "achtung" | "warten" | "erledigt"][] = [
@@ -34,23 +35,9 @@ export function ZweiAnsichten() {
         </p>
       </div>
 
-      {/* Fünf Stationen auf dem Lächelbogen */}
-      <div className="mt-14" data-testid="weg-band">
-        <div className="mx-auto hidden max-w-2xl md:block">
-          <Behandlungsweg erreicht={5} aktuell={null} size="gross" labels={["", "", "", "", ""]} animate />
-        </div>
-        <ol className="grid border-t border-tinte md:mt-4 md:grid-cols-5">
-          {STATIONEN_TEXT.map(([name, praxis, patient], i) => (
-            <li key={name} className="border-b border-linie py-6 md:border-b-0 md:border-r md:px-5 md:last:border-r-0 md:first:pl-0">
-              <p className="flex items-baseline gap-3">
-                <span className="j-ziffer text-3xl">{i + 1}</span>
-                <span className="j-titel text-[1.6rem] text-tinte">{name}</span>
-              </p>
-              <p className="mt-4 text-[15px] text-tinte"><span className="font-semibold text-brand-700">Praxis</span> · {praxis}</p>
-              <p className="mt-2 text-[15px] text-tinte"><span className="font-semibold text-salbei-700">Patient</span> · {patient}</p>
-            </li>
-          ))}
-        </ol>
+      {/* Fünf Stationen auf dem Lächelbogen, jede genau über ihrer Spalte */}
+      <div className="mt-14">
+        <WegBand stationen={STATIONEN_TEXT} />
       </div>
 
       {/* Die Arbeitsliste der Praxis */}
@@ -59,10 +46,10 @@ export function ZweiAnsichten() {
           <p className="j-marke text-brand-700">Für die Praxis</p>
           <h3 className="j-titel mt-3 text-[2.2rem] text-tinte">Heute: wer als Nächstes dran ist</h3>
           <p className="j-text mt-4">
-            Keine Spalten voller Zustände. Jeder Patient steht auf seinem Weg, daneben steht, was jetzt zu tun ist. Rot heißt: heute.
+            Keine Spalten voller Statusangaben. Jeder Patient steht auf seinem Weg, daneben, was jetzt zu tun ist. Rot heißt: heute.
           </p>
           <p className="mt-6 text-[15px] text-tinte-2">
-            Der Patient bekommt seinen Weg per SMS oder QR-Code, <span className="text-salbei-700">ohne App und ohne Konto</span>, so wie oben im Bild.
+            Der Patient bekommt seinen Weg per SMS oder QR-Code, <span className="text-salbei-700">ohne App und ohne Konto</span>, so wie ganz oben gezeigt.
           </p>
         </div>
         <div className="lg:col-span-8">

@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import type { Prisma } from "@prisma/client";
-import { demoKennzahlen } from "@/lib/demoKennzahlen";
+import { demoKennzahlen, demoStamm, demoVorschlaege } from "@/lib/demoKennzahlen";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_PRICES, buildProposal, type FindingCode, type ProposalInput } from "@/lib/proposals";
 import { computeProposal } from "@/lib/proposalSchema";
@@ -11,13 +11,13 @@ import { fachprofil, passtZuPerson, termineFuer } from "@/lib/fachprofile";
 import { befundmodell } from "@/lib/befundmodelle";
 import { heuteTag, tagesGrenzen } from "@/lib/termine";
 
-// Füllt eine Demo-Praxis mit rund 1000 erfundenen Patienten und dem, was in
+// Füllt eine Demo-Praxis mit 30 bis 80 erfundenen Patienten und dem, was in
 // einer echten Praxis über einige Monate entsteht: Vorschläge in allen
 // Stadien, Patienten-Links mit Rückmeldungen, Anamnesebögen und (Zahnmedizin)
 // Berichte. Alles in wenigen Sammelabfragen, damit der Gastzugang schnell bleibt.
 
 /** Größe des Demo-Stamms hängt vom Fach ab (lib/demoKennzahlen.ts). */
-export const demoPatientCount = (fach: string) => demoKennzahlen(fach).patienten;
+export const demoPatientCount = (fach: string) => demoStamm(fach);
 const DAY = 24 * 60 * 60 * 1000;
 
 const DENTAL_FINDINGS: [FindingCode, number][] = [
@@ -50,7 +50,7 @@ export async function seedBulkDemo(args: {
   const seed = parseInt(crypto.randomBytes(4).toString("hex"), 16);
   const r = rng(seed);
   const kz = demoKennzahlen(fach);
-  const rows = generatePatients(Math.max(0, kz.patienten - args.existing), fach, seed, now);
+  const rows = generatePatients(Math.max(0, demoStamm(fach) - args.existing), fach, seed, now);
 
   const reportDates: { patientId: string; at: Date }[] = [];
   const patients = await prisma.patient.createManyAndReturn({
@@ -68,12 +68,12 @@ export async function seedBulkDemo(args: {
     select: { id: true, firstName: true, lastName: true, birthDate: true, insuranceType: true, geschlecht: true },
   });
 
-  // Behandlungsvorschläge für etwa 12 % der Patienten, über 150 Tage verteilt.
+  // Behandlungsvorschläge für einen Teil der Patienten (siehe demoVorschlaege), über 75 Tage verteilt, damit auch die kleine Demo auf jeder Station Patienten hat.
   const spec = specialty(fach);
   const anlaesseAlle = spec ? spec.anlaesse.filter((a) => !a.nurAufWunsch || fach === "aesthetik") : [];
   const proposals: Prisma.TreatmentProposalCreateManyInput[] = [];
   const shuffled = [...patients].sort(() => r() - 0.5);
-  for (const p of shuffled.slice(0, Math.round(patients.length * kz.quote))) {
+  for (const p of shuffled.slice(0, demoVorschlaege(fach, patients.length + args.existing))) {
     const age = ageOn(p.birthDate!, now);
     const insurance = (p.insuranceType === "PKV" ? "PKV" : "GKV") as "GKV" | "PKV";
     const factors = { age, insurance, bonusYears: weighted(r, [[0, 0.3], [5, 0.25], [10, 0.45]]) as 0 | 5 | 10, haertefall: r() < 0.04, erstattungProzent: insurance === "PKV" ? 80 : r() < 0.3 ? 50 : 0 };
@@ -92,7 +92,7 @@ export async function seedBulkDemo(args: {
 
     const items = buildProposal(input, DEFAULT_PRICES).filter((i) => i.options.length);
     if (!items.length) continue;
-    const daysAgo = Math.floor(r() * 150);
+    const daysAgo = Math.floor(r() * 75);
     const createdAt = new Date(now.getTime() - daysAgo * DAY - Math.floor(r() * 8) * 3600 * 1000);
     // Ältere Vorschläge sind meist entschieden, neue noch offen.
     const status =

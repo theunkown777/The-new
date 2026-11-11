@@ -19,3 +19,18 @@ describe("Demo-Kennzahlen je Fach", () => {
     expect(DEMO_KENNZAHLEN.psych.dauer).toEqual([50]);
   });
 });
+
+describe("Größe der Demo-Praxis", () => {
+  it("zeigt je Fach 30 bis 80 Personen, kleine Praxen weniger als große", async () => {
+    const { demoStamm, demoVorschlaege } = await import("./demoKennzahlen");
+    for (const fach of Object.keys(DEMO_KENNZAHLEN)) {
+      const n = demoStamm(fach);
+      expect(n, fach).toBeGreaterThanOrEqual(30);
+      expect(n, fach).toBeLessThanOrEqual(80);
+      const v = demoVorschlaege(fach, n);
+      expect(v, fach).toBeGreaterThanOrEqual(16);
+      expect(v, fach).toBeLessThanOrEqual(Math.round(n * 0.6));
+    }
+    expect(demoStamm("psych")).toBeLessThan(demoStamm("zahn"));
+  });
+});

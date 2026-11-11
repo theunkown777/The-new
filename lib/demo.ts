@@ -334,7 +334,7 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
   }
 
   if (spec) await seedMedicalProposals(spec, practice.id, author.id, practice.name, created, now);
-  // Realistische Größe: rund 1000 Patienten mit Vorschlägen, Links, Anamnesen.
+  // Überschaubare Größe: 30 bis 80 Patienten mit Vorschlägen, Links, Anamnesen (lib/demoKennzahlen.ts).
   await seedBulkDemo({ practiceId: practice.id, practiceName: practice.name, authorId: author.id, fach: spec ? spec.id : DENTAL_ID, existing: created.length, now });
   await eingangAusBestand(practice.id, now).catch((e) => console.error("Demo-Eingang", e));
   await verteileStamm(practice.id, author.id, practice.users.find((u) => u.name.startsWith("Lea Brandt"))?.id, new Set(created.map((c) => c.id)));

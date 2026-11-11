@@ -80,7 +80,7 @@ export default function DemoPage() {
             </select>
           </div>
           <p className="text-sm text-slate-700">
-            Sie bekommen eine eigene Demo-Praxis mit rund 1000 erfundenen Patienten, Vorschlägen, Rückmeldungen und Anamnesen aus mehreren Monaten. Alles lässt sich
+            Sie bekommen eine eigene, überschaubare Demo-Praxis mit 30 bis 80 erfundenen Patienten, Vorschlägen, Rückmeldungen und Anamnesen aus mehreren Monaten. Alles lässt sich
             ausprobieren, auch der Patienten-Link und der Anamnesebogen.
           </p>
           <ul className="list-disc space-y-1 pl-5 text-sm text-slate-500">

@@ -53,11 +53,24 @@ const FUER_PATIENTEN: [string, string, string | null][] = [
   ["Alles in einem Eingang", "Gemeldete Zahlungen, abgeschickte Anamnesebögen und gebuchte Termine stehen für die Praxis gesammelt auf einer Seite.", null],
 ];
 
+// Kleine Strichsymbole für "Was Ihre Patienten davon haben"
+const sym = (d: string) => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <path d={d} />
+  </svg>
+);
+const SYMBOLE: Record<string, React.ReactNode> = {
+  "Am Modell zeigen": sym("M12 3a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4zM5 21c1-4 4-6 7-6s6 2 7 6"),
+  "Termine ohne Telefon": sym("M4 6h16v14H4zM4 10h16M8 3v4M16 3v4M9 15l2 2 4-4"),
+  "Nachricht per WhatsApp": sym("M4 19l1.5-4A8 8 0 1 1 9 19.5L4 19zM9 10h6M9 13h4"),
+  "Alles in einem Eingang": sym("M3 13l3-8h12l3 8v6H3zM3 13h5l1 2h6l1-2h5"),
+};
+
 const SCHRITTE = [
   ["Aus der Praxissoftware öffnen", "Ein Klick in der Patientenakte. Zahnärzte über VDDS-media, Arztpraxen über GDT."],
   ["Befund oder Anlass wählen", "Sorrida zeigt die Kassenleistung zuerst und sinnvolle Alternativen mit Eigenanteil."],
-  ["Patient entscheidet zu Hause", "Per QR-Code oder SMS, mit Rückmeldung an die Praxis und auf Wunsch Ratenzahlung."],
-  ["Rezeption arbeitet ab", "Vereinbarungen, Anträge, Fristen und Termine stehen auf der To-do-Liste."],
+  ["Patient entscheidet zu Hause", "Per QR-Code oder SMS. Die Antwort geht direkt an die Praxis, auf Wunsch mit Ratenzahlung."],
+  ["Das Team erledigt den Rest", "Vereinbarungen, Anträge, Fristen und Termine stehen fertig auf der To-do-Liste."],
 ];
 
 export default async function Start() {
@@ -88,7 +101,7 @@ export default async function Start() {
             </h1>
             <p className="j-text mt-8 max-w-xl text-[19px] leading-relaxed">
               Sorrida zeigt Patienten zuerst, was die Kasse zahlt, und dann die sinnvollen Alternativen mit dem Betrag, den sie selbst zahlen.
-              Zu Hause vergleichen sie in Ruhe und melden sich mit einem Tipp zurück.
+              Zu Hause vergleichen sie in Ruhe und antworten mit einem Fingertipp.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
               <Link href="/demo" className="j-knopf j-knopf-voll">
@@ -105,7 +118,9 @@ export default async function Start() {
               So sieht es Ihr Patient ↓
             </p>
             <div className="j-blatt-ein">
-              <PatientenKarte />
+              <div className="j-schwebt">
+                <PatientenKarte />
+              </div>
             </div>
           </div>
         </section>
@@ -118,26 +133,26 @@ export default async function Start() {
                 Welche Praxis <em>haben Sie?</em>
               </h2>
               <p className="j-text self-end lg:col-span-4 lg:col-start-9">
-                Wählen Sie Ihr Fach. Sie sehen dann Sorrida mit Ihren Leistungen, Ihren Regeln und dem Pilotprogramm für Ihr Fach.
+                Wählen Sie Ihr Fach: Sie sehen Sorrida dann mit den Leistungen, Regeln und dem Pilotprogramm Ihres Fachs.
               </p>
             </div>
             <div className="mt-14">
               <FachWahl gruppen={GRUPPEN} />
             </div>
-            <div className="mt-16 grid gap-10 md:grid-cols-3 md:gap-8" data-testid="zugaenge">
-              <Link href="/demo" className="group block" data-testid="zugang-praxis">
+            <div className="mt-16 grid gap-4 md:grid-cols-3" data-testid="zugaenge">
+              <Link href="/demo" className="j-kachel group block rounded-[6px] bg-[#F3E4DF] p-7" data-testid="zugang-praxis">
                 <span className="j-marke text-brand-700">Für Praxen</span>
                 <span className="j-titel mt-3 flex items-center gap-2 text-[1.7rem] text-tinte group-hover:text-brand-700">
                   Demo-Praxis ansehen <span className="j-pfeil" aria-hidden="true">→</span>
                 </span>
-                <span className="j-text mt-2 block text-[15px]">Das ganze System mit Beispieldaten in der Größe einer typischen Praxis Ihres Fachs. Von dort öffnen Sie auch die Patientenansicht.</span>
+                <span className="j-text mt-2 block text-[15px]">Das ganze System mit Beispieldaten einer typischen Praxis Ihres Fachs. Von dort öffnen Sie auch die Patientenansicht.</span>
               </Link>
-              <div data-testid="hinweis-patienten">
+              <div className="rounded-[6px] bg-[#E4EDE2] p-7" data-testid="hinweis-patienten">
                 <span className="j-marke text-salbei-700">Für Patienten</span>
                 <span className="j-titel mt-3 block text-[1.7rem] text-tinte">Kein eigener Zugang nötig</span>
                 <span className="j-text mt-2 block text-[15px]">Patienten bekommen ihren persönlichen Link von ihrer Praxis, per SMS oder QR-Code. Ohne Konto, ohne Passwort.</span>
               </div>
-              <Link href="/vorschau" className="group block" data-testid="vorschau-link">
+              <Link href="/vorschau" className="j-kachel group block rounded-[6px] bg-papier-2 p-7" data-testid="vorschau-link">
                 <span className="j-marke">Ohne Praxiswahl</span>
                 <span className="j-titel mt-3 flex items-center gap-2 text-[1.7rem] text-tinte group-hover:text-brand-700">
                   Vorschau ansehen <span className="j-pfeil" aria-hidden="true">→</span>
@@ -167,8 +182,8 @@ export default async function Start() {
                 Sorrida heißt <em className="!text-brand-200">„lächeln“.</em>
               </p>
               <p className="mt-8 max-w-xl text-[18px] leading-relaxed text-[#F5F2EE]/80">
-                Der Bogen aus dem Logo zieht sich durch das ganze Produkt: als Weg, als Markierung, als Unterschriftslinie. Weil gute Aufklärung am
-                Ende beide Seiten zufrieden macht.
+                Der Bogen aus dem Logo zieht sich durch das ganze Produkt: als Weg, als Markierung, als Unterschriftslinie. Denn gute Aufklärung
+                macht am Ende beide Seiten zufrieden.
               </p>
             </div>
           </div>
@@ -201,10 +216,11 @@ export default async function Start() {
             <h3 className="j-titel text-[2.2rem] text-tinte">
               Was Ihre Patienten <em className="text-salbei-700">davon haben</em>
             </h3>
-            <ul className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {FUER_PATIENTEN.map(([t, d, href]) => (
-                <li key={t} className="j-ein border-t border-linie-stark pt-6">
-                  <h4 className="font-semibold text-tinte">{t}</h4>
+                <li key={t} className="j-ein rounded-[6px] bg-[#E4EDE2] p-6">
+                  <span aria-hidden="true" className="mb-4 grid h-10 w-10 place-items-center rounded-full bg-salbei-600 text-white">{SYMBOLE[t]}</span>
+                  <h4 className="font-semibold text-[#1f3320]">{t}</h4>
                   <p className="j-text mt-2 text-[15px]">{d}</p>
                   {href && (
                     <Link href={href} className="j-link mt-3 inline-block text-[15px] font-semibold text-brand-700">

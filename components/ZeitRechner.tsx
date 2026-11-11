@@ -44,12 +44,12 @@ export function ZeitRechner() {
         </div>
       </div>
       <div className="flex flex-col justify-center bg-papier-2 px-8 py-12 sm:px-12 lg:col-span-5 lg:col-start-8">
-        <p className="j-marke">Zeit für Ihr Team pro Monat, bis zu</p>
+        <p className="j-marke">Gewonnene Zeit pro Monat, bis zu</p>
         <p className="j-zahl mt-4 text-[clamp(4.2rem,9vw,7.5rem)] leading-none text-brand-700" data-testid="zeitrechner-stunden">
           {stunden.toLocaleString("de-DE")}<span className="ml-2 text-[0.35em] text-tinte"> h</span>
         </p>
         <p className="j-text mt-6 max-w-sm">
-          Das entspricht etwa {tage} {tage === 1 ? "Arbeitstag" : "Arbeitstagen"} einer Fachkraft, die für Patienten frei werden.
+          Das sind etwa {tage} {tage === 1 ? "Arbeitstag" : "Arbeitstage"} einer Fachkraft, die wieder für Patienten da {tage === 1 ? "ist" : "sind"}.
         </p>
       </div>
     </div>
