@@ -112,7 +112,7 @@ export default async function ProposalsPage() {
                   {p.patient.firstName} {p.patient.lastName}
                 </p>
                 <p className="text-sm text-slate-500">
-                  {p.createdAt.toLocaleDateString("de-DE")} · Plan {formatEuro(p.planTotalCent / 100)} · Eigenanteil{" "}
+                  {p.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · Plan {formatEuro(p.planTotalCent / 100)} · Eigenanteil{" "}
                   {formatEuro(p.eigenanteilCent / 100)}
                 </p>
               </div>

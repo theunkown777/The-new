@@ -11,6 +11,7 @@ import { PilotProgram } from "@/components/PilotProgram";
 import { Entlastung } from "@/components/Entlastung";
 import { PraxisFaq } from "@/components/PraxisFaq";
 import { DENTAL_SHOWCASE } from "@/lib/dentalShowcase";
+import { heilmittelPauschale } from "@/lib/proposals";
 import { bereicheFuerFach, katalogFuerAnlass, slugBereich } from "@/lib/leistungskatalog";
 import { leistungenJeFach } from "@/lib/amtlich/zaehlung";
 
@@ -52,7 +53,7 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
   const zuzahlungText = zz.has("hilfsmittel")
     ? "10 % des Preises, mindestens 5 €, höchstens 10 €"
     : zz.size
-      ? "10 % plus 10 € je Verordnung"
+      ? `10 % plus ${heilmittelPauschale()} € je Verordnung`
       : null;
   const anzahl = s.anlaesse.reduce((n, a) => n + a.options.length, 0);
   const nav: [string, string][] = [

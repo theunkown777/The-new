@@ -177,7 +177,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
                   <div className="font-medium text-slate-900">{inv.email}</div>
                   <div className="text-xs text-slate-400">
                     {inv.role === "admin" ? "Geschäftsführung" : "Mitarbeiter/in"} · gültig bis{" "}
-                    {new Date(inv.expiresAt).toLocaleDateString("de-DE")}
+                    {new Date(inv.expiresAt).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
                   </div>
                 </div>
               </div>

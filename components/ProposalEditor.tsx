@@ -50,6 +50,11 @@ export type ExistingProposal = {
   status: string;
   input: ProposalInput;
   choices: Record<string, string>;
+  /** Wahl, die der Patient über seinen Link zurückgemeldet hat. */
+  patientChoices?: Record<string, string>;
+  /** Wahl, die der Patient im Portal unterschrieben hat (geht vor). */
+  agreedChoices?: Record<string, string>;
+  patientFirstName?: string;
 };
 
 function defaultFactors(p: PatientOption | undefined): PatientFactors {
@@ -167,14 +172,34 @@ export function ProposalEditor({
     if (first) setSelected(first);
   }
 
-  async function save(nextStatus?: string) {
+  // Wahl des Patienten (unterschrieben geht vor Rückmeldung), nur für Positionen, die es im Vorschlag gibt.
+  const patientWahl = (() => {
+    const w = existing?.agreedChoices ?? existing?.patientChoices;
+    if (!w) return null;
+    const gueltig = Object.fromEntries(
+      Object.entries(w).filter(([k, v]) => items.some((it) => it.key === k && it.options.some((o) => o.id === v))),
+    );
+    return Object.keys(gueltig).length ? gueltig : null;
+  })();
+  const wahlUnterschrieben = !!existing?.agreedChoices;
+  const wahlWeichtAb = !!patientWahl && Object.entries(patientWahl).some(([k, v]) => chosenOption(items.find((it) => it.key === k)!, choices)?.id !== v);
+  const wahlText = patientWahl
+    ? Object.entries(patientWahl)
+        .map(([k, v]) => {
+          const it = items.find((x) => x.key === k)!;
+          return `${it.where}: ${it.options.find((o) => o.id === v)?.name ?? v}`;
+        })
+        .join(" · ")
+    : "";
+
+  async function save(nextStatus?: string, choicesOverride?: Record<string, string>) {
     if (!patientId) {
       setError("Bitte zuerst einen Patienten wählen.");
       return;
     }
     setSaving(true);
     setError(null);
-    const body = locked ? { status: nextStatus } : { patientId, input, choices, status: nextStatus ?? status };
+    const body = locked ? { status: nextStatus } : { patientId, input, choices: choicesOverride ?? choices, status: nextStatus ?? status };
     const res = await fetch(existing ? `/api/proposals/${existing.id}` : "/api/proposals", {
       method: existing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -451,12 +476,12 @@ export function ProposalEditor({
                 <div className={`rounded-lg bg-white p-3 ${jahr === 2026 ? "ring-2 ring-brand-600" : ""}`}>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Bewilligt bis 31.12.2026</p>
                   <p className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">{formatEuro(jv.netto2026)}</p>
-                  <p className="text-xs text-slate-400">Festzuschuss {pct(2026)} der Regelversorgung</p>
+                  <p className="text-xs text-slate-400">Festzuschuss nach Befund, {pct(2026)}</p>
                 </div>
                 <div className={`rounded-lg bg-white p-3 ${jahr === 2027 ? "ring-2 ring-brand-600" : ""}`}>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Bewilligt ab 1.1.2027</p>
                   <p className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">{formatEuro(jv.netto2027)}</p>
-                  <p className="text-xs text-slate-400">Festzuschuss {pct(2027)} der Regelversorgung</p>
+                  <p className="text-xs text-slate-400">Festzuschuss nach Befund, {pct(2027)}; Beträge 2027 voraussichtlich</p>
                 </div>
                 <div className="rounded-lg bg-white p-3">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Mehrkosten für den Patienten</p>
@@ -466,8 +491,9 @@ export function ProposalEditor({
               </div>
               <p className="mt-3 text-xs text-slate-600">
                 Maßgeblich ist das Bewilligungsdatum der Krankenkasse, nicht der Behandlungstermin. Härtefälle
-                erhalten weiter die volle Regelversorgung. Grundlage: GKV-Beitragssatzstabilisierungsgesetz, bitte
-                aktuelle Festzuschussbeträge Ihrer KZV prüfen.
+                erhalten weiter den doppelten Festzuschuss. Gerechnet wird mit den Festzuschüssen je Befund ab 1.1.2026
+                (GKV-Spitzenverband); die Beträge für 2027 sind noch nicht veröffentlicht, die Werte für 2027 deshalb
+                voraussichtlich. Grundlage der Kürzung: GKV-Beitragssatzstabilisierungsgesetz.
               </p>
             </div>
           )}
@@ -529,6 +555,11 @@ export function ProposalEditor({
                               <ul className="list-disc pl-4 text-xs text-slate-500">
                                 {o.benefits.map((b) => <li key={b}>{b}</li>)}
                               </ul>
+                              {o.befunde && factors.insurance === "GKV" && (
+                                <span className="text-xs text-green-800" data-testid="festzuschuss-befund">
+                                  Festzuschuss Befund {o.befunde.filter((b, i, a) => a.indexOf(b) === i).map((b) => (o.befunde!.filter((x) => x === b).length > 1 ? `${o.befunde!.filter((x) => x === b).length}× ${b}` : b)).join(" + ")}: {m.kasse.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}
+                                </span>
+                              )}
                               {o.hinweis && <span className="text-xs text-green-800">Kasse: {o.hinweis}</span>}
                               {o.nutzen && <span className="text-xs text-amber-800">Nutzen: {o.nutzen}</span>}
                               <span className="mt-auto flex justify-between border-t border-dashed border-slate-200 pt-2 text-xs text-slate-500">
@@ -588,6 +619,28 @@ export function ProposalEditor({
               : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Empfohlen wird nur die Kassenleistung; ob eine Selbstzahlerleistung sinnvoll ist, entscheiden Sie im Gespräch. ${isTherapie(spec) ? "Selbstzahlerleistungen vereinbaren Sie vor der Behandlung schriftlich." : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
           </p>
 
+          {!compact && patientWahl && (
+            <div
+              className={`rounded-xl border px-4 py-3 text-sm ${wahlWeichtAb && !locked ? "border-amber-300 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"}`}
+              data-testid="patient-wahl"
+            >
+              <p className="font-semibold">
+                {existing?.patientFirstName ?? "Der Patient"} hat {wahlUnterschrieben ? "unterschrieben" : "gewählt"}:
+              </p>
+              <p className="mt-0.5">{wahlText}</p>
+              {!locked && wahlWeichtAb && (
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <span className="text-xs">Ihre Planung oben weicht davon ab.</span>
+                  <button type="button" className="btn-secondary !py-1 text-xs" onClick={() => setChoices((c) => ({ ...c, ...patientWahl }))} data-testid="wahl-uebernehmen">
+                    Wahl des Patienten übernehmen
+                  </button>
+                </div>
+              )}
+              {!locked && !wahlWeichtAb && <p className="mt-1 text-xs">Ihre Planung entspricht dieser Wahl.</p>}
+              {locked && wahlWeichtAb && <p className="mt-1 text-xs">Festgehalten ist eine andere Wahl. Für die Wahl des Patienten bitte einen neuen Vorschlag anlegen.</p>}
+            </div>
+          )}
+
           {!compact && <div className="flex flex-wrap gap-2">
             {!locked && (
               <button type="button" disabled={saving} onClick={() => save()} className="btn-primary">
@@ -597,11 +650,22 @@ export function ProposalEditor({
             {existing &&
               (["BESPROCHEN", "ANGENOMMEN", "ABGELEHNT"] as const)
                 .filter((s) => s !== status)
-                .map((s) => (
-                  <button key={s} type="button" disabled={saving} onClick={() => save(s)} className="btn-secondary">
-                    Als „{PROPOSAL_STATUS_LABELS[s]}“ markieren
-                  </button>
-                ))}
+                .map((s) =>
+                  s === "ANGENOMMEN" && !locked && wahlWeichtAb && patientWahl ? (
+                    <span key={s} className="contents">
+                      <button type="button" disabled={saving} onClick={() => save(s, { ...choices, ...patientWahl })} className="btn-primary" data-testid="annehmen-patientenwahl">
+                        Wahl des Patienten annehmen
+                      </button>
+                      <button type="button" disabled={saving} onClick={() => save(s)} className="btn-secondary">
+                        Mit Ihrer Planung annehmen
+                      </button>
+                    </span>
+                  ) : (
+                    <button key={s} type="button" disabled={saving} onClick={() => save(s)} className="btn-secondary">
+                      Als „{PROPOSAL_STATUS_LABELS[s]}“ markieren
+                    </button>
+                  ),
+                )}
           </div>}
         </div>
       </div>

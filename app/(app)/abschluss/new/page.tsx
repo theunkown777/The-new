@@ -55,7 +55,7 @@ export default async function NewWrapUpPage({ searchParams }: { searchParams: { 
             {patients.map((p) => (
               <Link key={p.id} href={`/abschluss/new?patientId=${p.id}`} className="block px-6 py-3 hover:bg-slate-50">
                 {p.lastName}, {p.firstName}
-                {p.birthDate && <span className="ml-2 text-sm text-slate-500">geb. {p.birthDate.toLocaleDateString("de-DE")}</span>}
+                {p.birthDate && <span className="ml-2 text-sm text-slate-500">geb. {p.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</span>}
               </Link>
             ))}
           </div>

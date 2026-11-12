@@ -250,7 +250,7 @@ export function ReportEditor({
               {revisions.map((rev) => (
                 <details key={rev.id} className="rounded-lg border border-slate-200 p-3">
                   <summary className="cursor-pointer text-sm font-medium text-slate-700">
-                    Version vom {new Date(rev.createdAt).toLocaleString("de-DE")} · vor
+                    Version vom {new Date(rev.createdAt).toLocaleString("de-DE", { timeZone: "Europe/Berlin" })} · vor
                     Bearbeitung durch {rev.editedBy.name}
                   </summary>
                   <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">{rev.text}</p>

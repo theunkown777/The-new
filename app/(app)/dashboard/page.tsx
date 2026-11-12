@@ -1,5 +1,6 @@
 import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 import Link from "next/link";
+import { Einrichtung } from "@/components/Einrichtung";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -112,6 +113,8 @@ export default async function DashboardPage() {
         <Link href="/abschluss/new" className="btn-primary">{abschlussWort(practice?.specialty)} abschließen</Link>
       </div>
 
+      <Einrichtung practiceId={practiceId} isAdmin={session!.user.role === "admin"} />
+
       {eingangZahl > 0 && (
         <Link href="/eingang" className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900 hover:border-brand-400" data-testid="eingang-hinweis">
           <span><b>{eingangZahl} {eingangZahl === 1 ? "neue Rückmeldung" : "neue Rückmeldungen"}</b> von {P.pl} im Eingang (Zahlungen, Anamnese, Vorschläge, Termine)</span>
@@ -218,7 +221,7 @@ export default async function DashboardPage() {
                 <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
                   {r.patientResponse === "RUECKRUF" ? "Rückruf gewünscht" : "möchte besprechen"}
                   {r.patientWantsInstallments && " · Ratenzahlung"}
-                  {r.patientRespondedAt && ` · ${r.patientRespondedAt.toLocaleDateString("de-DE")}`}
+                  {r.patientRespondedAt && ` · ${r.patientRespondedAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}`}
                 </span>
               </Link>
             ))}
@@ -236,7 +239,7 @@ export default async function DashboardPage() {
                   {u.patient.firstName} {u.patient.lastName}
                 </span>
                 <span className="text-sm text-slate-500">
-                  Link vom {u.shareCreatedAt?.toLocaleDateString("de-DE")} · kurz anrufen oder neuen Link schicken
+                  Link vom {u.shareCreatedAt?.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · kurz anrufen oder neuen Link schicken
                 </span>
               </Link>
             ))}
@@ -261,7 +264,7 @@ export default async function DashboardPage() {
                     {r.patient.firstName} {r.patient.lastName}
                   </span>
                   <span className="shrink-0 text-right text-sm text-slate-500">
-                    {PROPOSAL_STATUS_LABELS[r.status]} · {r.createdAt.toLocaleDateString("de-DE")}
+                    {PROPOSAL_STATUS_LABELS[r.status]} · {r.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
                   </span>
                 </Link>
               ))
@@ -293,7 +296,7 @@ export default async function DashboardPage() {
                 <p className="font-medium text-slate-900">
                   {r.patient.firstName} {r.patient.lastName} · {REPORT_TYPE_LABELS[r.type]}
                 </p>
-                <p className="text-sm text-slate-500">{r.createdAt.toLocaleDateString("de-DE")}</p>
+                <p className="text-sm text-slate-500">{r.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</p>
               </div>
               <span
                 className={

@@ -28,7 +28,7 @@ export default function Page() {
         </tbody>
       </table>
       <p>
-        Bei einer Regelversorgung von 1.750 € macht der Unterschied zwischen keinem Bonus und zehn Jahren 262 € aus. Ab 2027 ist das
+        Bei einer Brücke für einen fehlenden Zahn (Befund 2.1) macht der Unterschied zwischen keinem Bonus und zehn Jahren rund 138 € aus, unabhängig vom Preis der Praxis. Ab 2027 ist das
         Bonusheft also wichtiger als vorher, weil der Grundzuschuss sinkt.
       </p>
 

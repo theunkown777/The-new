@@ -66,6 +66,25 @@ export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | nu
         </form>
       ) : (
         <div className="flex flex-wrap items-end gap-3">
+          <div className="flex w-full gap-2 text-sm" role="group" aria-label="Zeitraum">
+            {([["Vormonat", vormonat], ["Dieser Monat", new Date()]] as const).map(([name, d]) => {
+              const aktiv = von === monat(d) && bis === monat(d, true);
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  aria-pressed={aktiv}
+                  className={`rounded-full border px-3 py-1 ${aktiv ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 text-slate-700 hover:border-slate-500"}`}
+                  onClick={() => {
+                    setVon(monat(d));
+                    setBis(monat(d, true));
+                  }}
+                >
+                  {name}
+                </button>
+              );
+            })}
+          </div>
           <label className="text-sm">
             <span className="block text-slate-600">von</span>
             <input type="date" className="input mt-1" value={von} onChange={(x) => setVon(x.target.value)} />

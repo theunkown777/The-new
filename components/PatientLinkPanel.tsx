@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { PATIENT_RESPONSE_LABELS, type PatientLinkState } from "@/lib/patientLink";
 
 const fmt = (iso: string) =>
-  new Date(iso).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  new Date(iso).toLocaleString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
 // Patienten-Link erzeugen, als QR zeigen und Rückmeldung des Patienten anzeigen.
 export function PatientLinkPanel({ proposalId, state, firstName }: { proposalId: string; state: PatientLinkState; firstName: string }) {
@@ -53,7 +53,7 @@ export function PatientLinkPanel({ proposalId, state, firstName }: { proposalId:
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-medium text-slate-900">Patienten-Link</h2>
         {state.active && state.expiresAt && (
-          <span className="text-xs text-slate-500">aktiv bis {new Date(state.expiresAt).toLocaleDateString("de-DE")}</span>
+          <span className="text-xs text-slate-500">aktiv bis {new Date(state.expiresAt).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</span>
         )}
       </div>
       <p className="text-sm text-slate-600">

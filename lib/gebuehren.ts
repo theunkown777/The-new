@@ -6,6 +6,11 @@
 
 /** Bundeseinheitlicher EBM-Orientierungswert 2026 (Bewertungsausschuss, 803. Sitzung, 17.09.2025); regional kann abweichen. */
 export const EBM_ORIENTIERUNGSWERT_2026 = 12.7404;
+/** Orientierungswert ab 1.1.2027 (Einigung im Bewertungsausschuss, KBV-Praxisnachricht vom 23.09.2026: +2,2 %). */
+export const EBM_ORIENTIERUNGSWERT_2027 = 13.0207;
+/** Orientierungswert, der am angegebenen Tag gilt. */
+export const ebmOrientierungswert = (today = new Date()) => (today >= new Date(2027, 0, 1) ? EBM_ORIENTIERUNGSWERT_2027 : EBM_ORIENTIERUNGSWERT_2026);
+const EBM_AB_2027 = new Date() >= new Date(2027, 0, 1);
 
 export type Gebuehrenwerk = "GOAE" | "GOZ" | "EBM" | "BEMA" | "UVGOAE";
 
@@ -24,7 +29,7 @@ export interface WerkInfo {
 export const WERKE: Record<Gebuehrenwerk, WerkInfo> = {
   GOAE: { name: "Gebührenordnung für Ärzte", kurz: "GOÄ", zahler: "Privatversicherte, Beihilfe, Selbstzahler (IGeL)", punktwertCent: 5.82873, punktwertQuelle: "§ 5 Abs. 1 GOÄ, unverändert seit 1996", faktor: true },
   GOZ: { name: "Gebührenordnung für Zahnärzte", kurz: "GOZ", zahler: "Privatversicherte, Beihilfe, Selbstzahler, Mehrkosten bei Kassenpatienten", punktwertCent: 5.62421, punktwertQuelle: "§ 5 Abs. 1 GOZ, Stand GOZ 2012", faktor: true },
-  EBM: { name: "Einheitlicher Bewertungsmaßstab", kurz: "EBM", zahler: "Gesetzliche Krankenkasse über die Kassenärztliche Vereinigung", punktwertCent: 12.7404, punktwertQuelle: "Orientierungswert 2026 (Bewertungsausschuss, 803. Sitzung); regionale Punktwerte können abweichen", faktor: false },
+  EBM: { name: "Einheitlicher Bewertungsmaßstab", kurz: "EBM", zahler: "Gesetzliche Krankenkasse über die Kassenärztliche Vereinigung", punktwertCent: ebmOrientierungswert(), punktwertQuelle: EBM_AB_2027 ? "Orientierungswert 2027 (Bewertungsausschuss, Einigung 09/2026); regionale Punktwerte können abweichen" : "Orientierungswert 2026 (Bewertungsausschuss, 803. Sitzung); ab 1.1.2027: 13,0207 Cent; regionale Punktwerte können abweichen", faktor: false },
   BEMA: { name: "Bewertungsmaßstab zahnärztlicher Leistungen", kurz: "BEMA", zahler: "Gesetzliche Krankenkasse über die Kassenzahnärztliche Vereinigung", faktor: false },
   UVGOAE: { name: "Gebührenordnung der gesetzlichen Unfallversicherung", kurz: "UV-GOÄ", zahler: "Berufsgenossenschaft / Unfallkasse (Arbeits- und Wegeunfall)", faktor: false },
 };

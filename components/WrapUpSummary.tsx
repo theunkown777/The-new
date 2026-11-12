@@ -57,7 +57,7 @@ export async function WrapUpSummary({
             {report.patient.firstName} {report.patient.lastName}
           </h1>
           <p className="text-sm text-slate-500">
-            {(report.treatmentDate ?? report.createdAt).toLocaleDateString("de-DE")} · Automatisch erstellt:
+            {(report.treatmentDate ?? report.createdAt).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · Automatisch erstellt:
             Bericht{proposal ? ", Behandlungsvorschlag, Patientenschreiben" : ""} und {steps.length} To-dos
           </p>
         </div>

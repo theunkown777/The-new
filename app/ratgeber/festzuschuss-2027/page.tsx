@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ArticlePage } from "@/components/ArticlePage";
 import { ratgeber } from "@/lib/ratgeber";
+import { FESTZUSCHUSS_BEFUNDE } from "@/lib/proposals";
 
 const a = ratgeber("festzuschuss-2027");
 export const metadata: Metadata = { title: `${a.title} – Sorrida`, description: a.description };
@@ -11,6 +12,8 @@ const ROWS = [
   { bonus: "Bonusheft 10 Jahre", s26: 75, s27: 65 },
 ];
 const REGEL = 1750;
+// Festzuschuss bei 100 % für Befund 2.1 (Lücke mit einem fehlenden Zahn), Stand 1.1.2026.
+const FZ = FESTZUSCHUSS_BEFUNDE["2.1"].euro;
 const euro = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
 
 export default function Page() {
@@ -25,8 +28,9 @@ export default function Page() {
 
       <h2>Die Sätze im Vergleich</h2>
       <p>
-        Der Festzuschuss richtet sich nach dem Befund und deckt einen Prozentsatz der Kosten der Regelversorgung. Die Eurobeträge je
-        Befund legt der Gemeinsame Bundesausschuss fest. Grundlage der Kürzung ist das GKV-Beitragssatzstabilisierungsgesetz.
+        Der Festzuschuss ist ein fester Eurobetrag je Befund, kein Anteil an der Rechnung Ihrer Praxis. Er beträgt einen Prozentsatz der
+        durchschnittlichen Kosten der Regelversorgung; die Eurobeträge legt der Gemeinsame Bundesausschuss jedes Jahr fest. Grundlage der
+        Kürzung ist das GKV-Beitragssatzstabilisierungsgesetz.
       </p>
       <table>
         <thead>
@@ -46,11 +50,12 @@ export default function Page() {
           ))}
         </tbody>
       </table>
-      <p>Härtefälle erhalten weiterhin die vollen Kosten der Regelversorgung.</p>
+      <p>Härtefälle erhalten weiterhin den doppelten Festzuschuss (100 %), höchstens die tatsächlichen Kosten.</p>
 
       <h2>Rechenbeispiel: Brücke als Regelversorgung</h2>
       <p>
-        Angenommen, die Regelversorgung für eine Lücke an Zahn 36 kostet {euro(REGEL)}. So ändert sich der Eigenanteil des Patienten:
+        Angenommen, die Brücke für eine Lücke an Zahn 36 kostet in Ihrer Praxis {euro(REGEL)}. Der Festzuschuss für diesen Befund (2.1)
+        beträgt bei 100 % {FZ.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €. So ändert sich der Eigenanteil des Patienten:
       </p>
       <table>
         <thead>
@@ -63,8 +68,8 @@ export default function Page() {
         </thead>
         <tbody>
           {ROWS.map((r) => {
-            const e26 = REGEL * (1 - r.s26 / 100);
-            const e27 = REGEL * (1 - r.s27 / 100);
+            const e26 = REGEL - FZ * (r.s26 / 100);
+            const e27 = REGEL - FZ * (r.s27 / 100);
             return (
               <tr key={r.bonus}>
                 <td>{r.bonus}</td>
@@ -78,7 +83,9 @@ export default function Page() {
       </table>
       <p>
         Bei gleich- und andersartiger Versorgung, also etwa einer Vollkeramik-Brücke oder einem Implantat, bleibt der Festzuschuss an
-        die Regelversorgung gebunden. Der Mehrbetrag ist deshalb in Euro derselbe, nur der Gesamtbetrag ist höher.
+        die Regelversorgung gebunden. Der Mehrbetrag ist deshalb in Euro derselbe, nur der Gesamtbetrag ist höher. Die Eurobeträge für
+        2027 veröffentlicht der Gemeinsame Bundesausschuss erst zum Jahresende; die Werte für 2027 sind deshalb mit den Beträgen von 2026
+        gerechnet und voraussichtlich.
       </p>
 
       <h2>Checkliste für die Rezeption bis Jahresende</h2>

@@ -79,8 +79,10 @@ export interface ProposalOption {
   benefits: string[];
   /** Kassenäquivalent bei Mehrkosten/Privatzusatz (§ 28 Abs. 2 SGB V). */
   base?: number;
-  /** Kosten der Regelversorgung als Basis des Festzuschusses (Zahnersatz). */
+  /** Kosten der Regelversorgung (Preis der Praxis), nur noch Rückfall, wenn kein Befund hinterlegt ist. */
   regel?: number;
+  /** Festzuschuss-Befunde nach der Festzuschuss-Richtlinie (z. B. ["1.1", "1.3"]); bestimmen den Kassenanteil. */
+  befunde?: string[];
   /** Wann die Kasse eine Selbstzahlerleistung doch übernimmt (Arztpraxen). */
   hinweis?: string;
   /** Ehrliche Angabe zum belegten Nutzen (Arztpraxen). */
@@ -215,8 +217,8 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices): 
       break;
 
     case "zerstoert":
-      r.options.push({ id: "kr", type: "regel", name: "Krone, Regelversorgung", total: P.krone_regel, regel: P.krone_regel, benefits: [k === "molar" ? "Metall, im Seitenzahnbereich unverblendet" : "Metall mit Keramikverblendung", "bewährt und haltbar"] });
-      r.options.push({ id: "krvk", type: "gleichartig", name: "Vollkeramik-Krone", total: P.krone_vk, regel: P.krone_regel, benefits: ["metallfrei, natürliche Optik", "sehr gut verträglich", "gleicher Festzuschuss"] });
+      r.options.push({ id: "kr", type: "regel", name: "Krone, Regelversorgung", total: P.krone_regel, regel: P.krone_regel, befunde: kronenBefunde(n), benefits: [k === "molar" ? "Metall, im Seitenzahnbereich unverblendet" : "Metall mit Keramikverblendung", "bewährt und haltbar"] });
+      r.options.push({ id: "krvk", type: "gleichartig", name: "Vollkeramik-Krone", total: P.krone_vk, regel: P.krone_regel, befunde: kronenBefunde(n), benefits: ["metallfrei, natürliche Optik", "sehr gut verträglich", "gleicher Festzuschuss"] });
       if (k === "molar") {
         r.recommended = "kr";
         info("Im Seitenzahnbereich ist die Kassenkrone funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.");
@@ -237,14 +239,14 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices): 
       const nbWork = nf.some(needsWork);
       const nbHealthy = nf.every((x) => x === undefined || x === "fissur");
       if (gapNext) {
-        r.options.push({ id: "tp", type: "regel", name: "Teilprothese (Modellguss)", total: P.teilprothese, regel: P.teilprothese, benefits: ["herausnehmbar", "ersetzt mehrere Zähne"] });
-        r.options.push({ id: "impl", type: "andersartig", name: "Implantat mit Krone", total: P.implantat, regel: P.teilprothese, benefits: ["festsitzend", "Kieferknochen bleibt belastet", "Festzuschuss wie Regelversorgung"] });
+        r.options.push({ id: "tp", type: "regel", name: "Teilprothese (Modellguss)", total: P.teilprothese, regel: P.teilprothese, befunde: ["3.1"], benefits: ["herausnehmbar", "ersetzt mehrere Zähne"] });
+        r.options.push({ id: "impl", type: "andersartig", name: "Implantat mit Krone", total: P.implantat, regel: P.teilprothese, befunde: ["3.1"], benefits: ["festsitzend", "Kieferknochen bleibt belastet", "Festzuschuss wie Regelversorgung"] });
         r.excluded.push("Brücke: Nachbarlücke vorhanden, keine ausreichenden Pfeilerzähne.");
         r.recommended = "impl";
       } else {
-        r.options.push({ id: "br", type: "regel", name: "Brücke, Regelversorgung", total: P.bruecke_regel, regel: P.bruecke_regel, benefits: ["festsitzend", "Nachbarzähne werden beschliffen"] });
-        r.options.push({ id: "brvk", type: "gleichartig", name: "Vollkeramik-Brücke", total: P.bruecke_vk, regel: P.bruecke_regel, benefits: ["zahnfarben, metallfrei", "gleicher Festzuschuss"] });
-        r.options.push({ id: "impl", type: "andersartig", name: "Implantat mit Krone", total: P.implantat, regel: P.bruecke_regel, benefits: ["Nachbarzähne bleiben unberührt", "Kieferknochen bleibt belastet", "gleicher Festzuschuss"] });
+        r.options.push({ id: "br", type: "regel", name: "Brücke, Regelversorgung", total: P.bruecke_regel, regel: P.bruecke_regel, befunde: brueckenBefunde(n, nb), benefits: ["festsitzend", "Nachbarzähne werden beschliffen"] });
+        r.options.push({ id: "brvk", type: "gleichartig", name: "Vollkeramik-Brücke", total: P.bruecke_vk, regel: P.bruecke_regel, befunde: brueckenBefunde(n, nb), benefits: ["zahnfarben, metallfrei", "gleicher Festzuschuss"] });
+        r.options.push({ id: "impl", type: "andersartig", name: "Implantat mit Krone", total: P.implantat, regel: P.bruecke_regel, befunde: brueckenBefunde(n, nb), benefits: ["Nachbarzähne bleiben unberührt", "Kieferknochen bleibt belastet", "gleicher Festzuschuss"] });
         if (nbWork) {
           r.recommended = "br";
           info(`Die Nachbarzähne ${nb.join(" und ")} brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich.`);
@@ -375,6 +377,55 @@ function endOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
 }
 
+/**
+ * Festzuschüsse bei 100 % (Härtefall) je Befund, gültig ab 1.1.2026, bundeseinheitlich.
+ * Quelle: GKV-Spitzenverband „Festzuschussbeträge ab 01.01.2026“ (G-BA-Beschluss vom 05.12.2025,
+ * BAnz AT 04.02.2026 B3), gegengeprüft mit der KZBV-Abrechnungshilfe 2026. Die Euro-Beträge für 2027
+ * sind noch nicht veröffentlicht (Stand 12.11.2026); bis dahin rechnet Sorrida 2027 mit diesen
+ * Beträgen und den neuen Sätzen und kennzeichnet das Ergebnis als „voraussichtlich“.
+ */
+export const FESTZUSCHUSS_BEFUNDE: Record<string, { name: string; euro: number }> = {
+  "1.1": { name: "Krone (stark zerstörter Zahn)", euro: 398.39 },
+  "1.2": { name: "Teilkrone (große Substanzdefekte)", euro: 457.27 },
+  "1.3": { name: "Verblendung einer Krone im sichtbaren Bereich", euro: 134.44 },
+  "1.4": { name: "Konfektionierter Stiftaufbau", euro: 83.52 },
+  "1.5": { name: "Gegossener Stiftaufbau", euro: 251.57 },
+  "2.1": { name: "Lücke mit einem fehlenden Zahn", euro: 921.6 },
+  "2.2": { name: "Lücke mit zwei fehlenden Zähnen", euro: 1051.84 },
+  "2.3": { name: "Lücke mit drei fehlenden Zähnen", euro: 1174.89 },
+  "2.4": { name: "Frontzahnlücke mit vier fehlenden Zähnen", euro: 1287.9 },
+  "2.5": { name: "Angrenzende weitere Lücke mit einem fehlenden Zahn", euro: 511.35 },
+  "2.6": { name: "Disparallele Pfeilerzähne (Zuschlag)", euro: 378.71 },
+  "2.7": { name: "Verblendung eines ersetzten Zahns im sichtbaren Bereich", euro: 132.44 },
+  "3.1": { name: "Teilprothese (Lückensituation II, je Kiefer)", euro: 952.15 },
+  "3.2": { name: "Kombinationsversorgung, je Eckzahn oder erstem Prämolar", euro: 667.91 },
+  "4.1": { name: "Restzahnbestand bis 3 Zähne, Oberkiefer", euro: 994.8 },
+  "4.2": { name: "Zahnloser Oberkiefer", euro: 960.74 },
+  "4.3": { name: "Restzahnbestand bis 3 Zähne, Unterkiefer", euro: 1027.99 },
+  "4.4": { name: "Zahnloser Unterkiefer", euro: 1029.54 },
+};
+
+/** Verblendbereich der Festzuschuss-Richtlinie: Zähne 15 bis 25 und 34 bis 44. */
+export const VERBLENDBEREICH = new Set([15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 34, 33, 32, 31, 41, 42, 43, 44]);
+
+/** Befunde einer Einzelkrone: 1.1, im sichtbaren Bereich zusätzlich die Verblendung 1.3. */
+export const kronenBefunde = (n: number): string[] => (VERBLENDBEREICH.has(n) ? ["1.1", "1.3"] : ["1.1"]);
+
+/** Befunde einer Einzelzahnlücke: 2.1, je Zahn im sichtbaren Bereich (Lücke und Anker) eine Verblendung 2.7. */
+export const brueckenBefunde = (n: number, anker: number[]): string[] => [
+  "2.1",
+  ...[n, ...anker].filter((z) => VERBLENDBEREICH.has(z)).map(() => "2.7"),
+];
+
+const cent = (x: number) => Math.round(x * 100) / 100;
+
+/** Festzuschuss in Euro für die Befunde einer Option; null, wenn keine Befunde hinterlegt sind. */
+export function festzuschussEuro(o: Pick<ProposalOption, "befunde">, p: PatientFactors, jahr?: ZuschussJahr): number | null {
+  if (!o.befunde?.length) return null;
+  const q = festzuschussQuote(p, jahr);
+  return cent(o.befunde.reduce((sum, b) => sum + cent((FESTZUSCHUSS_BEFUNDE[b]?.euro ?? 0) * q), 0));
+}
+
 /** Festzuschuss-Quote: je nach Bewilligungsjahr und Bonusheft, Härtefall 100 %. */
 export function festzuschussQuote(p: PatientFactors, jahr: ZuschussJahr = p.zuschussJahr ?? defaultZuschussJahr()): number {
   if (p.haertefall) return 1;
@@ -396,14 +447,21 @@ export function money(o: ProposalOption, p: PatientFactors, jahr?: ZuschussJahr)
   if (o.type === "kasse") kasse = o.zuzahlung && (p.age == null || p.age >= 18) ? Math.max(0, total - zuzahlungBetrag(o.zuzahlung, total)) : total;
   else if (o.type === "mehrkosten" || o.type === "privatzusatz") kasse = o.base ?? 0;
   else if (o.type === "privat" || o.type === "igel") kasse = 0;
-  else kasse = Math.min((o.regel ?? 0) * festzuschussQuote(p, jahr), total);
+  else kasse = Math.min(festzuschussEuro(o, p, jahr) ?? (o.regel ?? 0) * festzuschussQuote(p, jahr), total);
   const eigen = total - kasse;
   const erstattet = eigen * pct;
   return { total, kasse, eigen, erstattet, netto: eigen - erstattet };
 }
 
-/** Gesetzliche Zuzahlung bei Heilmitteln: 10 % der Kosten plus 10 € je Verordnung (§ 32 Abs. 2, § 61 SGB V). */
-export const heilmittelZuzahlung = (total: number) => total * 0.1 + 10;
+/**
+ * Pauschale je Verordnung bei Heilmitteln: 10 €, für ab 1.1.2027 ausgestellte Verordnungen 15 €
+ * (GKV-Beitragssatzstabilisierungsgesetz; Quelle: TK „Gesundheitsreform 2026/2027“, Stand 11.11.2026).
+ */
+export const heilmittelPauschale = (today = new Date()) => (today >= new Date(2027, 0, 1) ? 15 : 10);
+/** Text zur Heilmittel-Zuzahlung, passend zum Datum. */
+export const heilmittelZuzahlungText = (today = new Date()) => `10 % der Kosten plus ${heilmittelPauschale(today)} € je Verordnung`;
+/** Gesetzliche Zuzahlung bei Heilmitteln: 10 % der Kosten plus Pauschale je Verordnung (§ 32 Abs. 2, § 61 SGB V). */
+export const heilmittelZuzahlung = (total: number, today = new Date()) => total * 0.1 + heilmittelPauschale(today);
 
 /** Hilfs- und Arzneimittel: 10 %, mindestens 5 €, höchstens 10 €, nie mehr als die Kosten (§ 61 SGB V). */
 export const hilfsmittelZuzahlung = (total: number) => Math.min(total, Math.min(10, Math.max(5, total * 0.1)));
@@ -571,7 +629,7 @@ export function buildLetter(args: {
     const arten = new Set(items.flatMap((i) => i.options.map((o) => o.zuzahlung)).filter(Boolean));
     if (arten.size) {
       L.push(
-        `Für Leistungen auf Verordnung gilt bei Volljährigen die gesetzliche Zuzahlung: ${arten.has("hilfsmittel") ? "10 % des Preises, mindestens 5 €, höchstens 10 €" : "10 % der Kosten plus 10 € je Verordnung"}. Kinder und Jugendliche sind befreit, ebenso Versicherte mit Befreiungsbescheid.`
+        `Für Leistungen auf Verordnung gilt bei Volljährigen die gesetzliche Zuzahlung: ${arten.has("hilfsmittel") ? "10 % des Preises, mindestens 5 €, höchstens 10 €" : heilmittelZuzahlungText()}. Kinder und Jugendliche sind befreit, ebenso Versicherte mit Befreiungsbescheid.`
       );
       L.push("");
     }

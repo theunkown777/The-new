@@ -33,13 +33,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         firstName: existing.patient.firstName,
         lastName: existing.patient.lastName,
         birthDate: existing.patient.birthDate
-          ? existing.patient.birthDate.toLocaleDateString("de-DE")
+          ? existing.patient.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })
           : null,
         insuranceName: existing.patient.insuranceName,
         insuranceNumber: existing.patient.insuranceNumber,
       },
       treatmentDate: existing.treatmentDate
-        ? existing.treatmentDate.toLocaleDateString("de-DE")
+        ? existing.treatmentDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })
         : null,
       serviceSummary: existing.serviceSummary,
       additionalContext: additionalContext ?? existing.additionalContext,

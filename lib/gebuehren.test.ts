@@ -31,3 +31,11 @@ describe("Gebührenrechner", () => {
     expect(mehrbetragCent({ werk: "GOZ", punkte: 518, faktor: 3.5 })).toBe(Math.round(518 * 5.62421 * 3.5) - Math.round(518 * 5.62421 * 2.3));
   });
 });
+
+describe("Orientierungswert nach Datum", () => {
+  it("wechselt am 1.1.2027 auf 13,0207 Cent", async () => {
+    const { ebmOrientierungswert } = await import("@/lib/gebuehren");
+    expect(ebmOrientierungswert(new Date(2026, 11, 31))).toBe(12.7404);
+    expect(ebmOrientierungswert(new Date(2027, 0, 1))).toBe(13.0207);
+  });
+});

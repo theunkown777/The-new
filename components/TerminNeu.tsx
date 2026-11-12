@@ -60,7 +60,7 @@ export function TerminNeu({ tag, standorte, anlaesse = [] }: { tag: string; stan
             {treffer.map((p) => (
               <li key={p.id}>
                 <button type="button" className="w-full px-3 py-2 text-left hover:bg-slate-50" onClick={() => { setPatient(p); setTreffer([]); }}>
-                  {p.lastName}, {p.firstName}{p.birthDate ? <span className="text-slate-400"> · {new Date(p.birthDate).toLocaleDateString("de-DE")}</span> : null}
+                  {p.lastName}, {p.firstName}{p.birthDate ? <span className="text-slate-400"> · {new Date(p.birthDate).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</span> : null}
                 </button>
               </li>
             ))}

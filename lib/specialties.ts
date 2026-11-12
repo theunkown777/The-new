@@ -28,7 +28,7 @@ export interface MedOption {
   /** Ehrlicher Hinweis zum belegten Nutzen. */
   nutzen?: string;
   /**
-   * Gesetzliche Zuzahlung für Erwachsene: true/"heilmittel" = 10 % der Kosten + 10 € je Verordnung;
+   * Gesetzliche Zuzahlung für Erwachsene: true/"heilmittel" = 10 % der Kosten + 10 € (ab 2027: 15 €) je Verordnung;
    * "hilfsmittel" = 10 %, mindestens 5 €, höchstens 10 € (auch Arzneimittel je Packung).
    */
   zuzahlung?: boolean | "heilmittel" | "hilfsmittel";

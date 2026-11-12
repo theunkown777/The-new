@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REMINDER_LABELS, formatCent, formatIban, invoiceTotals, invoiceView } from "@/lib/invoices";
 import { InvoiceActions } from "@/components/InvoiceActions";
+import { PortalLinkButton } from "@/components/PortalLinkButton";
 import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { BankSettings } from "@/components/BankSettings";
@@ -75,7 +76,7 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
   const t = invoiceTotals(all, now);
   const raten = all.filter((i) => i.wantsInstallments && (i.status === "OFFEN" || i.status === "GEMELDET")).length;
   const isAdmin = session!.user.role === "admin";
-  const fmtDate = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const fmtDate = (d: Date) => d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" });
 
   return (
     <div className="space-y-6" data-testid="zahlungen">
@@ -176,6 +177,11 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
                             {i.patient.lastName}, {i.patient.firstName}
                           </Link>
                           <p className="text-xs text-slate-500">{portal ? (i.patient.portalViewedAt ? "Weg geöffnet" : "Link gesendet") : "noch kein Link"}</p>
+                          {!portal && i.status !== "BEZAHLT" && i.status !== "STORNIERT" && (
+                            <div className="mt-1.5">
+                              <PortalLinkButton patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} label="Link zum Bezahlen senden" className="text-xs font-medium text-brand-700 underline" />
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           <p className="text-slate-800">{i.title}</p>

@@ -26,7 +26,7 @@ function status(k: Key): { text: string; warnung: boolean } | null {
   return { text: `Connector ${v} · ${weg}${kennungen ? ` · GDT-Kennung ${kennungen}` : ""}`, warnung: false };
 }
 
-const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString("de-DE") : "nie");
+const fmt = (iso: string | null) => (iso ? new Date(iso).toLocaleString("de-DE", { timeZone: "Europe/Berlin" }) : "nie");
 
 export function ConnectorSettings({
   initialKeys,

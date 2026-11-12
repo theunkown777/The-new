@@ -28,7 +28,7 @@ describe("buildNextSteps", () => {
   it("plans a HKP with the 2026 deadline for prosthetics", () => {
     const s = steps({ teeth: { "36": "fehlt" } });
     expect(ids(s)).toEqual(["bericht", "schreiben", "hkp", "frist2027"]);
-    expect(s.find((x) => x.id === "frist2027")!.detail).toMatch(/175 €/);
+    expect(s.find((x) => x.id === "frist2027")!.detail).toMatch(/92 €/);
     expect(s.find((x) => x.id === "frist2027")!.text).toMatch(/noch 62 Tage/);
   });
 

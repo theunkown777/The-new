@@ -90,12 +90,33 @@ describe("Prophylaxe und Wunschleistungen", () => {
 
 describe("money", () => {
   const bridge = item(input({ teeth: { "36": "fehlt" } }), "t36");
-  it("applies the 75 % Festzuschuss with 10 years of Bonusheft", () => {
-    expect(money(bridge.options[0], GKV10).eigen).toBeCloseTo(437.5);
-    expect(money(bridge.options[2], GKV10).eigen).toBeCloseTo(2087.5);
+  it("applies the fixed Festzuschuss of the finding (2.1, 75 %) with 10 years of Bonusheft", () => {
+    expect(money(bridge.options[0], GKV10).kasse).toBeCloseTo(691.2);
+    expect(money(bridge.options[0], GKV10).eigen).toBeCloseTo(1058.8);
+    expect(money(bridge.options[2], GKV10).eigen).toBeCloseTo(2708.8);
   });
-  it("covers the whole Regelversorgung for Härtefälle", () => {
-    expect(money(bridge.options[0], { ...GKV10, haertefall: true }).eigen).toBe(0);
+  it("pays the double Festzuschuss (100 %) for Härtefälle, at most the costs", () => {
+    expect(money(bridge.options[0], { ...GKV10, haertefall: true }).kasse).toBeCloseTo(921.6);
+    expect(money(bridge.options[0], { ...GKV10, haertefall: true }).eigen).toBeCloseTo(828.4);
+  });
+  it("uses finding 1.1 for a crown and adds 1.3 in the visible area", () => {
+    const molar = item(input({ teeth: { "36": "zerstoert" } }), "t36");
+    expect(molar.options[0].befunde).toEqual(["1.1"]);
+    expect(money(molar.options[0], GKV10).kasse).toBeCloseTo(298.79);
+    expect(money(molar.options[1], GKV10).kasse).toBeCloseTo(298.79);
+    const front = item(input({ teeth: { "21": "zerstoert" } }), "t21");
+    expect(front.options[0].befunde).toEqual(["1.1", "1.3"]);
+    expect(money(front.options[0], GKV10).kasse).toBeCloseTo(298.79 + 100.83);
+    expect(money(front.options[0], { ...GKV10, bonusYears: 0 }).kasse).toBeCloseTo(239.03 + 80.66);
+  });
+  it("adds a veneer (2.7) per visible tooth of a bridge", () => {
+    const b = item(input({ teeth: { "24": "fehlt" } }), "t24");
+    expect(b.options[0].befunde).toEqual(["2.1", "2.7", "2.7", "2.7"]);
+    expect(money(b.options[0], GKV10).kasse).toBeCloseTo(691.2 + 3 * 99.33);
+  });
+  it("never pays more than the costs", () => {
+    const cheap = buildProposal(input({ teeth: { "36": "zerstoert" } }), { ...DEFAULT_PRICES, krone_regel: 200 })[0];
+    expect(money(cheap.options[0], GKV10)).toMatchObject({ kasse: 200, eigen: 0 });
   });
   it("lets the GKV pay the equivalent filling under a Mehrkostenvereinbarung", () => {
     const f = item(input({ teeth: { "25": "karies_klein" } }), "t25").options[1];
@@ -148,13 +169,14 @@ describe("Festzuschuss 2026 vs. 2027", () => {
 
   it("lowers every bonus level by ten points for approvals from 2027", () => {
     const p = { ...GKV10, bonusYears: 0 as const };
-    expect(money(bridge.options[0], p, 2026).kasse).toBeCloseTo(1050);
-    expect(money(bridge.options[0], p, 2027).kasse).toBeCloseTo(875);
-    expect(money(bridge.options[0], GKV10, 2027).kasse).toBeCloseTo(1137.5);
+    expect(money(bridge.options[0], p, 2026).kasse).toBeCloseTo(552.96);
+    expect(money(bridge.options[0], p, 2027).kasse).toBeCloseTo(460.8);
+    expect(money(bridge.options[0], GKV10, 2027).kasse).toBeCloseTo(599.04);
   });
-  it("keeps Härtefälle at the full Regelversorgung in both years", () => {
+  it("keeps Härtefälle at the double Festzuschuss in both years", () => {
     const p = { ...GKV10, haertefall: true };
-    expect(money(bridge.options[0], p, 2027).eigen).toBe(0);
+    expect(money(bridge.options[0], p, 2027).kasse).toBeCloseTo(921.6);
+    expect(money(bridge.options[0], p, 2026).kasse).toBeCloseTo(921.6);
   });
   it("does not change GKV benefits without Festzuschuss", () => {
     const f = item(input({ teeth: { "25": "karies_klein" } }), "t25").options[1];
@@ -164,7 +186,7 @@ describe("Festzuschuss 2026 vs. 2027", () => {
     const items = buildProposal(input({ teeth: { "36": "fehlt", "25": "karies_klein" } }), DEFAULT_PRICES);
     const v = vergleicheJahre(items, {}, p2026);
     expect(v.betroffen).toBe(true);
-    expect(v.netto2027 - v.netto2026).toBeCloseTo(1750 * 0.1);
+    expect(v.netto2027 - v.netto2026).toBeCloseTo(921.6 * 0.1);
   });
   it("switches the default year after the deadline", () => {
     expect(defaultZuschussJahr(new Date(2026, 11, 31, 18))).toBe(2026);
@@ -178,5 +200,14 @@ describe("Festzuschuss 2026 vs. 2027", () => {
     expect(text).toMatch(/31\.12\.2026/);
     const after = buildLetter({ items, choices: {}, patient: { ...GKV10, zuschussJahr: 2027 }, patientName: "Frau Weber", practiceName: "Praxis Test", date: new Date(2027, 1, 1) });
     expect(after).not.toMatch(/31\.12\.2026/);
+  });
+});
+
+describe("Zuzahlung Heilmittel ab 2027", () => {
+  it("rechnet bis Ende 2026 mit 10 €, danach mit 15 € je Verordnung", async () => {
+    const { heilmittelZuzahlung, heilmittelZuzahlungText } = await import("@/lib/proposals");
+    expect(heilmittelZuzahlung(200, new Date(2026, 11, 31))).toBeCloseTo(30);
+    expect(heilmittelZuzahlung(200, new Date(2027, 0, 1))).toBeCloseTo(35);
+    expect(heilmittelZuzahlungText(new Date(2027, 0, 2))).toMatch(/15 €/);
   });
 });

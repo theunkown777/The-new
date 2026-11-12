@@ -59,7 +59,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
   if (!check.allowed) {
     return NextResponse.json(
       {
-        error: `Löschen ist gesperrt: Zu diesem Patienten gibt es Dokumentation, die bis ${check.until.toLocaleDateString("de-DE")} aufzubewahren ist (§ 630f BGB, steuerliche Fristen). Sie können die Daten exportieren; Werbung und Erinnerungen stellen Sie getrennt ab.`,
+        error: `Löschen ist gesperrt: Zu diesem Patienten gibt es Dokumentation, die bis ${check.until.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} aufzubewahren ist (§ 630f BGB, steuerliche Fristen). Sie können die Daten exportieren; Werbung und Erinnerungen stellen Sie getrennt ab.`,
         until: check.until,
       },
       { status: 409 }

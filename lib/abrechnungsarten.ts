@@ -60,7 +60,7 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     name: "Gesetzlich versichert (EBM)",
     werk: "EBM",
     zahler: "Krankenkasse über die Kassenärztliche Vereinigung (KV)",
-    rechenweg: "Punkte je Gebührenordnungsposition (GOP) × Orientierungswert (2026: 12,7404 Cent, regional abweichend möglich); Vergütung innerhalb des Regelleistungsvolumens (RLV/QZV), extrabudgetäre Leistungen voll.",
+    rechenweg: "Punkte je Gebührenordnungsposition (GOP) × Orientierungswert (2026: 12,7404 Cent, 2027: 13,0207 Cent, regional abweichend möglich); Vergütung innerhalb des Regelleistungsvolumens (RLV/QZV), extrabudgetäre Leistungen voll.",
     regeln: ["Quartalsabrechnung an die KV, Abgabe bis meist zum 10.–15. Tag nach Quartalsende", "Versichertenkarte je Quartal einlesen", "Ausschlüsse und Höchstwerte im EBM beachten"],
     begriffe: [["GOP", "Gebührenordnungsposition im EBM"], ["RLV/QZV", "Regelleistungs- und qualifikationsgebundenes Zusatzvolumen (Budget)"], ["extrabudgetär", "außerhalb des Budgets voll vergütet, z. B. Vorsorge, Impfungen"], ["Versichertenpauschale", "Grundpauschale je Patient und Quartal"], ["Chronikerpauschale", "Zuschlag für kontinuierlich behandelte chronisch Kranke"]],
     geldhebel: [
@@ -167,10 +167,10 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
   heilmittel: {
     id: "heilmittel",
     name: "Heilmittel (Physio, Ergo, Logo, Podologie)",
-    zahler: "Krankenkasse nach Vergütungsliste; Patient zahlt Zuzahlung (10 % + 10 € je Verordnung)",
+    zahler: "Krankenkasse nach Vergütungsliste; Patient zahlt Zuzahlung (10 % + 10 € je Verordnung, ab 2027: 15 €)",
     rechenweg: "Vergütung je Position laut bundeseinheitlicher Preisliste; Zuzahlung zieht die Praxis ein.",
     regeln: ["Verordnung nach Heilmittel-Richtlinie prüfen (Diagnosegruppe, Höchstmenge, Frequenz)", "Behandlungsbeginn innerhalb von 28 Tagen", "Abrechnung über Abrechnungszentrum oder direkt nach § 302 SGB V"],
-    begriffe: [["Diagnosegruppe", "z. B. WS (Wirbelsäule), EX (Extremitäten), ZN (Zentralnervensystem)"], ["orientierende Behandlungsmenge", "übliche Anzahl Einheiten je Verordnungsfall"], ["Blankoverordnung", "Therapeut bestimmt Art und Menge (z. B. Ergo, Physio Schulter)"], ["Zuzahlung", "10 % plus 10 € je Verordnung"]],
+    begriffe: [["Diagnosegruppe", "z. B. WS (Wirbelsäule), EX (Extremitäten), ZN (Zentralnervensystem)"], ["orientierende Behandlungsmenge", "übliche Anzahl Einheiten je Verordnungsfall"], ["Blankoverordnung", "Therapeut bestimmt Art und Menge (z. B. Ergo, Physio Schulter)"], ["Zuzahlung", "10 % plus 10 € je Verordnung, für Verordnungen ab 1.1.2027: 15 €"]],
     geldhebel: [
       { problem: "Formfehler auf der Verordnung führen zu Absetzungen", massnahme: "Verordnung vor Behandlungsbeginn prüfen", inSorrida: "Prüfliste (geplant)" },
       { problem: "Zuzahlung wird nicht eingezogen", massnahme: "Zuzahlung als Rechnung mit GiroCode", inSorrida: "Rechnungen, Portal" },

@@ -52,39 +52,57 @@ const STANDARD_FAKTOR = {
   begruendungspflichtAbFaktor: 2.3,
 };
 
+/** Privatziffern, die im Katalog fehlten (Code "–") oder falsch waren. */
+const ZIFFER_KORREKTUR: { system: string; title: string; von: string; nach: string }[] = [
+  { system: "GOZ", title: "Entfernung harter Zahnbeläge", von: "1000", nach: "4050/4055" },
+  { system: "GOZ", title: "Eingehende Beratung", von: "–", nach: "Ä1" },
+  { system: "GOZ", title: "Vitalitätsprüfung", von: "–", nach: "0070" },
+  { system: "GOZ", title: "Röntgen Einzelzahnaufnahme", von: "–", nach: "Ä5000" },
+  { system: "GOZ", title: "Röntgen Übersichtsaufnahme (OPG)", von: "–", nach: "Ä5004" },
+  { system: "GOZ", title: "Infiltrationsanästhesie", von: "–", nach: "0090" },
+  { system: "GOZ", title: "Leitungsanästhesie", von: "–", nach: "0100" },
+  { system: "GOZ", title: "Füllung, einflächig", von: "–", nach: "2060" },
+  { system: "GOZ", title: "Füllung, mehrflächig", von: "–", nach: "2080–2120" },
+  { system: "GOZ", title: "Trepanation", von: "–", nach: "2390" },
+  { system: "GOZ", title: "Wurzelkanalaufbereitung", von: "–", nach: "2410" },
+  { system: "GOZ", title: "Wurzelkanalfüllung", von: "–", nach: "2440" },
+  { system: "GOZ", title: "Zahnextraktion", von: "–", nach: "3000/3010" },
+  { system: "BEMA", title: "Eingehende Beratung", von: "–", nach: "Ä1" },
+];
+
 const CATALOG: SeedItem[] = [
   { key: "unters_privat", system: "GOZ", code: "0010", title: "Eingehende Untersuchung", description: "Eingehende Untersuchung zur Feststellung von Zahn-, Mund- und Kieferkrankheiten", category: "Diagnostik & Beratung", toothRelevant: false },
   { key: "unters_gkv", system: "BEMA", code: "01", title: "Eingehende Untersuchung", description: "Eingehende Untersuchung zur Feststellung von Zahn-, Mund- und Kieferkrankheiten sowie Erhebung des Zahnstatus", category: "Diagnostik & Beratung", toothRelevant: false },
-  { key: "beratung_privat", system: "GOZ", code: "–", title: "Eingehende Beratung", description: "Eingehende Beratung, ggf. unter Einbeziehung eines Patientengesprächs zu Befund und Behandlungsplan", category: "Diagnostik & Beratung", toothRelevant: false },
-  { key: "beratung_gkv", system: "BEMA", code: "–", title: "Eingehende Beratung", description: "Eingehende Beratung", category: "Diagnostik & Beratung", toothRelevant: false },
+  { key: "beratung_privat", system: "GOZ", code: "Ä1", title: "Eingehende Beratung", description: "Eingehende Beratung, ggf. unter Einbeziehung eines Patientengesprächs zu Befund und Behandlungsplan", category: "Diagnostik & Beratung", toothRelevant: false },
+  { key: "beratung_gkv", system: "BEMA", code: "Ä1", title: "Eingehende Beratung", description: "Eingehende Beratung", category: "Diagnostik & Beratung", toothRelevant: false },
   { key: "anamnese", system: "SONSTIGES", code: "–", title: "Anamnese erhoben", description: "Allgemeine und zahnmedizinische Anamnese erhoben und dokumentiert", category: "Diagnostik & Beratung", toothRelevant: false },
   { key: "psi", system: "GOZ", code: "4005", title: "Parodontaler Screening Index (PSI)", description: "Erhebung des Parodontalen Screening Index", category: "Diagnostik & Beratung", toothRelevant: false },
-  { key: "vitalitaet", system: "GOZ", code: "–", title: "Vitalitätsprüfung", description: "Sensibilitäts-/Vitalitätsprüfung eines oder mehrerer Zähne", category: "Diagnostik & Beratung", toothRelevant: true },
+  { key: "vitalitaet", system: "GOZ", code: "0070", title: "Vitalitätsprüfung", description: "Sensibilitäts-/Vitalitätsprüfung eines oder mehrerer Zähne", category: "Diagnostik & Beratung", toothRelevant: true },
   { key: "aufklaerung_dokumentiert", system: "SONSTIGES", code: "–", title: "Aufklärung dokumentiert", description: "Patient über Befund, Behandlungsalternativen und Risiken aufgeklärt; Einwilligung dokumentiert", category: "Diagnostik & Beratung", toothRelevant: false },
 
-  { key: "rx_einzelzahn", system: "GOZ", code: "–", title: "Röntgen Einzelzahnaufnahme", description: "Zahnfilm, digitale Einzelzahnaufnahme", category: "Röntgen", toothRelevant: true },
-  { key: "rx_uebersicht", system: "GOZ", code: "–", title: "Röntgen Übersichtsaufnahme (OPG)", description: "Orthopantomogramm / Panoramaschichtaufnahme", category: "Röntgen", toothRelevant: false },
+  { key: "rx_einzelzahn", system: "GOZ", code: "Ä5000", title: "Röntgen Einzelzahnaufnahme", description: "Zahnfilm, digitale Einzelzahnaufnahme", category: "Röntgen", toothRelevant: true },
+  { key: "rx_uebersicht", system: "GOZ", code: "Ä5004", title: "Röntgen Übersichtsaufnahme (OPG)", description: "Orthopantomogramm / Panoramaschichtaufnahme", category: "Röntgen", toothRelevant: false },
   { key: "rx_befundung", system: "SONSTIGES", code: "–", title: "Röntgenbild befundet", description: "Röntgenaufnahme angefertigt und befundet", category: "Röntgen", toothRelevant: false },
 
-  { key: "anaesthesie_infiltration", system: "GOZ", code: "–", title: "Infiltrationsanästhesie", description: "Lokale Infiltrationsanästhesie", category: "Anästhesie", toothRelevant: true },
-  { key: "anaesthesie_leitung", system: "GOZ", code: "–", title: "Leitungsanästhesie", description: "Leitungsanästhesie", category: "Anästhesie", toothRelevant: true },
+  { key: "anaesthesie_infiltration", system: "GOZ", code: "0090", title: "Infiltrationsanästhesie", description: "Lokale Infiltrationsanästhesie", category: "Anästhesie", toothRelevant: true },
+  { key: "anaesthesie_leitung", system: "GOZ", code: "0100", title: "Leitungsanästhesie", description: "Leitungsanästhesie", category: "Anästhesie", toothRelevant: true },
 
-  { key: "zst_entfernung", system: "GOZ", code: "1000", title: "Entfernung harter Zahnbeläge", description: "Entfernung harter Zahnbeläge (Zahnstein), unabhängig vom Ausmaß", category: "Prophylaxe", toothRelevant: false, frequenzlimitAnzahl: 1, frequenzlimitZeitraumTage: 365 },
+  { key: "zst_entfernung", system: "GOZ", code: "4050/4055", title: "Entfernung harter Zahnbeläge", description: "Entfernung harter Zahnbeläge (Zahnstein), unabhängig vom Ausmaß", category: "Prophylaxe", toothRelevant: false, frequenzlimitAnzahl: 1, frequenzlimitZeitraumTage: 365 },
   { key: "pzr", system: "GOZ", code: "1040", title: "Professionelle Zahnreinigung", description: "Entfernung weicher Zahnbeläge, Politur und Fluoridierung sämtlicher Zähne", category: "Prophylaxe", toothRelevant: false, frequenzlimitAnzahl: 2, frequenzlimitZeitraumTage: 365 },
   { key: "mundhygiene_instruktion", system: "SONSTIGES", code: "–", title: "Mundhygieneinstruktion", description: "Anleitung zur Mundhygiene gegeben", category: "Prophylaxe", toothRelevant: false },
   { key: "fluoridierung", system: "GOZ", code: "–", title: "Fluoridierung", description: "Lokale Fluoridierung", category: "Prophylaxe", toothRelevant: false },
 
   { key: "kariesexkavation", system: "SONSTIGES", code: "–", title: "Kariesexkavation", description: "Entfernung kariösen Zahnschmelzes/-dentins", category: "Füllungstherapie", toothRelevant: true },
-  { key: "fuellung_einflaechig", system: "GOZ", code: "–", title: "Füllung, einflächig", description: "Kompositfüllung, einflächig", category: "Füllungstherapie", toothRelevant: true, ausschlussMit: ["fuellung_mehrflaechig"] },
-  { key: "fuellung_mehrflaechig", system: "GOZ", code: "–", title: "Füllung, mehrflächig", description: "Kompositfüllung, mehrflächig", category: "Füllungstherapie", toothRelevant: true, ausschlussMit: ["fuellung_einflaechig"] },
+  { key: "fuellung_einflaechig", system: "GOZ", code: "2060", title: "Füllung, einflächig", description: "Kompositfüllung, einflächig", category: "Füllungstherapie", toothRelevant: true, ausschlussMit: ["fuellung_mehrflaechig"] },
+  { key: "fuellung_mehrflaechig", system: "GOZ", code: "2080–2120", title: "Füllung, mehrflächig", description: "Kompositfüllung, mehrflächig", category: "Füllungstherapie", toothRelevant: true, ausschlussMit: ["fuellung_einflaechig"] },
   { key: "fuellung_politur", system: "SONSTIGES", code: "–", title: "Füllung poliert", description: "Politur/Ausarbeitung der gelegten Füllung", category: "Füllungstherapie", toothRelevant: true },
   { key: "unterfuellung", system: "GOZ", code: "–", title: "Unterfüllung / Aufbaufüllung", description: "Unterfüllung bzw. Aufbaufüllung vor definitiver Versorgung", category: "Füllungstherapie", toothRelevant: true },
 
-  { key: "wurzelkanal_aufbereitung", system: "GOZ", code: "–", title: "Wurzelkanalaufbereitung", description: "Aufbereitung eines Wurzelkanals", category: "Endodontie", toothRelevant: true },
-  { key: "wurzelkanal_fuellung", system: "GOZ", code: "–", title: "Wurzelkanalfüllung", description: "Medikamentöse Einlage und/oder Wurzelfüllung", category: "Endodontie", toothRelevant: true },
-  { key: "trepanation", system: "GOZ", code: "–", title: "Trepanation", description: "Eröffnung der Pulpakammer als Erstmaßnahme", category: "Endodontie", toothRelevant: true },
+  { key: "wurzelkanal_aufbereitung", system: "GOZ", code: "2410", title: "Wurzelkanalaufbereitung", description: "Aufbereitung eines Wurzelkanals", category: "Endodontie", toothRelevant: true },
+  { key: "wurzelkanal_fuellung", system: "GOZ", code: "2440", title: "Wurzelkanalfüllung", description: "Medikamentöse Einlage und/oder Wurzelfüllung", category: "Endodontie", toothRelevant: true },
+  { key: "trepanation", system: "GOZ", code: "2390", title: "Trepanation", description: "Eröffnung der Pulpakammer als Erstmaßnahme", category: "Endodontie", toothRelevant: true },
 
-  { key: "extraktion", system: "GOZ", code: "–", title: "Zahnextraktion", description: "Entfernung eines Zahnes", category: "Chirurgie", toothRelevant: true },
+  { key: "extraktion", system: "GOZ", code: "3000/3010", title: "Zahnextraktion", description: "Entfernung eines Zahnes", category: "Chirurgie", toothRelevant: true },
   { key: "wundversorgung", system: "SONSTIGES", code: "–", title: "Wundversorgung / Naht", description: "Blutstillung, ggf. Naht nach chirurgischem Eingriff", category: "Chirurgie", toothRelevant: true },
   { key: "postop_anweisung", system: "SONSTIGES", code: "–", title: "Postoperative Anweisung", description: "Mündliche und/oder schriftliche Verhaltensanweisung nach dem Eingriff gegeben", category: "Chirurgie", toothRelevant: false },
 
@@ -104,6 +122,22 @@ const CATALOG: SeedItem[] = [
   { key: "par_uptb", system: "BEMA", code: "UPTb", title: "Unterstützende Parodontitistherapie – Stufe b", description: "Nachsorgesitzung im Rahmen der unterstützenden Parodontitistherapie", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
   { key: "par_uptc", system: "BEMA", code: "UPTc", title: "Unterstützende Parodontitistherapie – Stufe c", description: "Nachsorgesitzung im Rahmen der unterstützenden Parodontitistherapie", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
   { key: "par_uptd", system: "BEMA", code: "UPTd", title: "Unterstützende Parodontitistherapie – Stufe d", description: "Abschließende Nachsorgestufe im Rahmen der zweijährigen unterstützenden Parodontitistherapie", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
+
+  // Kassen-Gegenstücke (BEMA) mit gleichem Titel wie die Privatposition: Im Abschluss wird je nach
+  // Kassenart des Patienten nur die passende vorbelegt (ServiceChecklistForm, defaultPerformedFor).
+  { key: "psi_gkv", system: "BEMA", code: "04", title: "Parodontaler Screening Index (PSI)", description: "Erhebung des PSI-Code (einmal in zwei Jahren)", category: "Diagnostik & Beratung", toothRelevant: false },
+  { key: "vitalitaet_gkv", system: "BEMA", code: "8 (ViPr)", title: "Vitalitätsprüfung", description: "Sensibilitäts-/Vitalitätsprüfung eines oder mehrerer Zähne", category: "Diagnostik & Beratung", toothRelevant: true },
+  { key: "rx_einzelzahn_gkv", system: "BEMA", code: "Ä925a", title: "Röntgen Einzelzahnaufnahme", description: "Röntgendiagnostik der Zähne, bis zu zwei Aufnahmen", category: "Röntgen", toothRelevant: true },
+  { key: "rx_uebersicht_gkv", system: "BEMA", code: "Ä935d", title: "Röntgen Übersichtsaufnahme (OPG)", description: "Orthopantomogramm / Panoramaschichtaufnahme", category: "Röntgen", toothRelevant: false },
+  { key: "anaesthesie_infiltration_gkv", system: "BEMA", code: "40 (I)", title: "Infiltrationsanästhesie", description: "Lokale Infiltrationsanästhesie", category: "Anästhesie", toothRelevant: true },
+  { key: "anaesthesie_leitung_gkv", system: "BEMA", code: "41a (L1)", title: "Leitungsanästhesie", description: "Leitungsanästhesie", category: "Anästhesie", toothRelevant: true },
+  { key: "zst_gkv", system: "BEMA", code: "107 (Zst)", title: "Entfernung harter Zahnbeläge", description: "Entfernen harter Zahnbeläge, einmal im Kalenderjahr", category: "Prophylaxe", toothRelevant: false },
+  { key: "fuellung_einflaechig_gkv", system: "BEMA", code: "13a (F1)", title: "Füllung, einflächig", description: "Füllung, einflächig (Kassenleistung)", category: "Füllungstherapie", toothRelevant: true, ausschlussMit: ["fuellung_mehrflaechig_gkv"] },
+  { key: "fuellung_mehrflaechig_gkv", system: "BEMA", code: "13b–d (F2–F4)", title: "Füllung, mehrflächig", description: "Füllung, zwei-, drei- oder mehrflächig (Kassenleistung)", category: "Füllungstherapie", toothRelevant: true, ausschlussMit: ["fuellung_einflaechig_gkv"] },
+  { key: "trepanation_gkv", system: "BEMA", code: "31 (Trep1)", title: "Trepanation", description: "Eröffnung der Pulpakammer als Erstmaßnahme", category: "Endodontie", toothRelevant: true },
+  { key: "wurzelkanal_aufbereitung_gkv", system: "BEMA", code: "32 (WK)", title: "Wurzelkanalaufbereitung", description: "Aufbereitung eines Wurzelkanals", category: "Endodontie", toothRelevant: true },
+  { key: "wurzelkanal_fuellung_gkv", system: "BEMA", code: "35 (WF)", title: "Wurzelkanalfüllung", description: "Wurzelkanalfüllung je Kanal", category: "Endodontie", toothRelevant: true },
+  { key: "extraktion_gkv", system: "BEMA", code: "43–45 (X1–X3)", title: "Zahnextraktion", description: "Entfernung eines Zahnes", category: "Chirurgie", toothRelevant: true },
 
   { key: "dvt", system: "GOAE", code: "–", title: "Digitale Volumentomographie (DVT)", description: "3D-Röntgendiagnostik zur Planung komplexer prothetischer/chirurgischer Versorgungen; in der Zahnarztpraxis üblicherweise nach GOÄ abgerechnet", category: "Röntgen", toothRelevant: false },
   { key: "praeparation", system: "GOZ", code: "–", title: "Zahnpräparation", description: "Präparation eines Zahnes zur Aufnahme von Zahnersatz", category: "Prothetik", toothRelevant: true },
@@ -135,6 +169,41 @@ type SeedTemplate = {
 
 function it(key: string, dependsOn?: string[]): SeedTemplateItem {
   return { key, dependsOn };
+}
+
+/** Privatposition → Kassenposition mit gleichem Titel. Vorlagen bekommen beide; vorbelegt wird nach Kassenart. */
+const KASSE_ZU: Record<string, string> = {
+  unters_privat: "unters_gkv",
+  beratung_privat: "beratung_gkv",
+  psi: "psi_gkv",
+  vitalitaet: "vitalitaet_gkv",
+  rx_einzelzahn: "rx_einzelzahn_gkv",
+  rx_uebersicht: "rx_uebersicht_gkv",
+  anaesthesie_infiltration: "anaesthesie_infiltration_gkv",
+  anaesthesie_leitung: "anaesthesie_leitung_gkv",
+  zst_entfernung: "zst_gkv",
+  fuellung_einflaechig: "fuellung_einflaechig_gkv",
+  fuellung_mehrflaechig: "fuellung_mehrflaechig_gkv",
+  trepanation: "trepanation_gkv",
+  wurzelkanal_aufbereitung: "wurzelkanal_aufbereitung_gkv",
+  wurzelkanal_fuellung: "wurzelkanal_fuellung_gkv",
+  extraktion: "extraktion_gkv",
+};
+
+/** Ergänzt jede Privatposition einer Vorlage um ihr Kassen-Gegenstück; Abhängigkeiten gelten für beide (ODER). */
+function mitKassenpositionen(items: SeedTemplateItem[]): SeedTemplateItem[] {
+  const mitPaar = (keys?: string[]) => keys && [...new Set(keys.flatMap((k) => (KASSE_ZU[k] ? [k, KASSE_ZU[k]] : [k])))];
+  const out: SeedTemplateItem[] = [];
+  for (const x of items) {
+    if (out.some((o) => o.key === x.key)) continue;
+    out.push({ key: x.key, dependsOn: mitPaar(x.dependsOn) });
+    const k = KASSE_ZU[x.key];
+    if (k && !out.some((o) => o.key === k)) {
+      const eigen = items.find((y) => y.key === k);
+      out.push({ key: k, dependsOn: mitPaar(eigen?.dependsOn ?? x.dependsOn) });
+    }
+  }
+  return out;
 }
 
 const TEMPLATES: SeedTemplate[] = [
@@ -351,6 +420,13 @@ const LEXIKON: { category: string; title: string; gkvEinordnung: string; selbstz
 async function main() {
   console.log("Seede globalen Leistungskatalog…");
 
+  // Ziffern früher ohne Angabe bzw. falsch: im globalen Katalog umbenennen, bevor nach Ziffer gesucht wird.
+  for (const u of ZIFFER_KORREKTUR) {
+    const alt = await prisma.serviceCatalogItem.findFirst({ where: { practiceId: null, system: u.system, code: u.von, title: u.title } });
+    const neu = await prisma.serviceCatalogItem.findFirst({ where: { practiceId: null, system: u.system, code: u.nach, title: u.title } });
+    if (alt && !neu) await prisma.serviceCatalogItem.update({ where: { id: alt.id }, data: { code: u.nach } });
+  }
+
   const itemIdByKey = new Map<string, string>();
   for (const item of CATALOG) {
     const faktorFields =
@@ -425,8 +501,9 @@ async function main() {
       await prisma.serviceTemplate.update({ where: { id: template.id }, data: { fach: "zahn", description: tpl.description } });
     }
 
-    for (let i = 0; i < tpl.items.length; i++) {
-      const seedItem = tpl.items[i];
+    const tplItems = mitKassenpositionen(tpl.items);
+    for (let i = 0; i < tplItems.length; i++) {
+      const seedItem = tplItems[i];
       const catalogItemId = itemIdByKey.get(seedItem.key);
       if (!catalogItemId) continue;
       const dependsOnIds = (seedItem.dependsOn ?? [])

@@ -237,11 +237,11 @@ export async function POST(req: Request) {
       patient: {
         firstName: patient.firstName,
         lastName: patient.lastName,
-        birthDate: patient.birthDate ? patient.birthDate.toLocaleDateString("de-DE") : null,
+        birthDate: patient.birthDate ? patient.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" }) : null,
         insuranceName: patient.insuranceName,
         insuranceNumber: patient.insuranceNumber,
       },
-      treatmentDate: treatmentDateObj ? treatmentDateObj.toLocaleDateString("de-DE") : null,
+      treatmentDate: treatmentDateObj ? treatmentDateObj.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" }) : null,
       serviceSummary,
       additionalContext: additionalContext || null,
     });

@@ -11,7 +11,7 @@ export const EINGANG_ARTEN = {
   LASTSCHRIFT: { titel: "Lastschriftmandat erteilt", tun: "Unter Zahlungen in die nächste Lastschrift-Datei übernehmen.", gruppe: "Geld" },
   ANAMNESE: { titel: "Anamnesebogen abgeschickt", tun: "Vor dem Termin in der Akte ansehen.", gruppe: "Unterlagen" },
   KURZCHECK: { titel: "Kurz-Fragebogen ausgefüllt", tun: "Vor dem Termin in der Akte ansehen: wo, wie stark, seit wann.", gruppe: "Unterlagen" },
-  VORSCHLAG_INTERESSE: { titel: "Interesse am Vorschlag", tun: "Termin anbieten oder den Vorschlag als angenommen eintragen.", gruppe: "Vorschläge" },
+  VORSCHLAG_INTERESSE: { titel: "Interesse am Vorschlag", tun: "Vorschlag öffnen: Wahl und Nachricht des Patienten stehen dort. Termin anbieten oder annehmen.", gruppe: "Vorschläge" },
   VORSCHLAG_RUECKRUF: { titel: "Rückruf zum Vorschlag gewünscht", tun: "Patient anrufen.", gruppe: "Vorschläge" },
   VEREINBARUNG: { titel: "Vereinbarung unterschrieben", tun: "Vorschlag als angenommen eintragen und Termin planen.", gruppe: "Vorschläge" },
   ZWEITMEINUNG: { titel: "Zweitmeinung geteilt", tun: "Im Vorschlag ansehen und im Gespräch darauf eingehen.", gruppe: "Vorschläge" },

@@ -19,7 +19,7 @@ export default async function VorsorgePage() {
   const practiceId = session!.user.practiceId;
   const { practice, fach, rules, due, now } = await loadRecallDue(practiceId);
   const shown = due.slice(0, 60);
-  const fmt = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const fmt = (d: Date) => d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" });
 
   return (
     <div className="space-y-6" data-testid="vorsorge">

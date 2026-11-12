@@ -8,6 +8,7 @@
 // gewählte Option und sagen das auch.
 
 import {
+  heilmittelZuzahlungText,
   chosenOption,
   formatEuro,
   isZahnersatz,
@@ -152,7 +153,7 @@ export function buildNextSteps(args: {
       id: "zuzahlung",
       owner: "Rezeption",
       text: "Gesetzliche Zuzahlung kassieren oder Befreiungsbescheid prüfen",
-      detail: zz === "hilfsmittel" ? "10 % des Preises, mindestens 5 €, höchstens 10 €" : "10 % der Kosten plus 10 € je Verordnung",
+      detail: zz === "hilfsmittel" ? "10 % des Preises, mindestens 5 €, höchstens 10 €" : heilmittelZuzahlungText(today),
     });
   }
   if (termine.length) {

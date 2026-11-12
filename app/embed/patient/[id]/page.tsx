@@ -66,7 +66,7 @@ export default async function EmbedPatientPage({
             {patient.lastName}, {patient.firstName}
           </h1>
           <p className="text-xs text-slate-500">
-            {patient.birthDate ? `geb. ${patient.birthDate.toLocaleDateString("de-DE")} · ` : ""}
+            {patient.birthDate ? `geb. ${patient.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · ` : ""}
             {patient.insuranceType ?? "Versicherung unbekannt"}
             {patient.externalSource ? ` · ${patient.externalSource}-Nr. ${patient.externalId}` : ""}
           </p>
@@ -138,7 +138,7 @@ export default async function EmbedPatientPage({
                 {patient.reports.map((r) => (
                   <Link key={r.id} href={`/embed/report/${r.id}`} className="flex justify-between px-4 py-3 text-sm hover:bg-slate-50">
                     <span>
-                      {REPORT_TYPE_LABELS[r.type]} · {r.createdAt.toLocaleDateString("de-DE")}
+                      {REPORT_TYPE_LABELS[r.type]} · {r.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
                     </span>
                     <span className="text-slate-500">{REPORT_STATUS_LABELS[r.status]}</span>
                   </Link>
@@ -155,7 +155,7 @@ export default async function EmbedPatientPage({
                 {patient.proposals.map((p) => (
                   <Link key={p.id} href={`/embed/proposal/${p.id}`} className="flex items-center justify-between px-4 py-3 text-sm hover:bg-slate-50">
                     <span>
-                      {p.createdAt.toLocaleDateString("de-DE")} · Eigenanteil {formatEuro(p.eigenanteilCent / 100)}
+                      {p.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · Eigenanteil {formatEuro(p.eigenanteilCent / 100)}
                     </span>
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${PROPOSAL_STATUS_BADGE[p.status]}`}>
                       {PROPOSAL_STATUS_LABELS[p.status]}

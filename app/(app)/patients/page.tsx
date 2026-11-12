@@ -33,8 +33,8 @@ const FILTERS = {
 } satisfies Record<string, { label: string; where: Prisma.PatientWhereInput }>;
 type FilterKey = keyof typeof FILTERS;
 
-const fmtDate = (d: Date | null | undefined) => (d ? d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" }) : "–");
-const fmtStamp = (d: Date) => `${fmtDate(d)} ${d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}`;
+const fmtDate = (d: Date | null | undefined) => (d ? d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" }) : "–");
+const fmtStamp = (d: Date) => `${fmtDate(d)} ${d.toLocaleTimeString("de-DE", { timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit" })}`;
 
 export default async function PatientsPage({ searchParams }: { searchParams: { q?: string; page?: string; filter?: string; sel?: string } }) {
   const session = await getServerSession(authOptions);

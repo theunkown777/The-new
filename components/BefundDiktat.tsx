@@ -57,7 +57,7 @@ export function BefundDiktat({ onApply }: { onApply: (r: DiktatResult) => void }
           </div>
         </div>
       )}
-      <p className="text-xs text-slate-400">Wird im Browser ausgewertet, ohne KI und ohne Übertragung.</p>
+      <p className="text-xs text-slate-400">Die Befunde liest Sorrida ohne KI aus dem Text. Die Spracherkennung selbst macht der Browser; Chrome schickt die Aufnahme dafür an Server von Google. Bitte keine Namen diktieren, nur Zähne und Befunde.</p>
     </div>
   );
 }

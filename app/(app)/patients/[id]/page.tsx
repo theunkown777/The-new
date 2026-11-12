@@ -50,7 +50,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     prisma.patientEntry.findMany({ where: { practiceId, patientId: patient.id }, orderBy: [{ inaktiv: "asc" }, { createdAt: "desc" }] }),
     prisma.patientDocument.findMany({ where: { practiceId, patientId: patient.id }, orderBy: { createdAt: "desc" }, select: { id: true, name: true, mime: true, size: true, createdAt: true, createdBy: true } }),
   ]);
-  const de = (d: Date) => d.toLocaleDateString("de-DE");
+  const de = (d: Date) => d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" });
   const [praxis, team] = await Promise.all([
     prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }),
     prisma.user.findMany({ where: { practiceId }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
@@ -68,7 +68,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           </h1>
           <p className="mt-1 text-sm text-slate-500">
             {patient.birthDate
-              ? `geb. ${patient.birthDate.toLocaleDateString("de-DE")}`
+              ? `geb. ${patient.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}`
               : "Kein Geburtsdatum hinterlegt"}
             {patient.geschlecht ? ` · ${{ W: "weiblich", M: "männlich", D: "divers" }[patient.geschlecht] ?? ""}` : ""}
             {patient.insuranceName ? ` · ${patient.insuranceName}` : ""}
@@ -147,7 +147,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
               <div>
                 <p className="font-medium text-slate-900">{REPORT_TYPE_LABELS[r.type]}</p>
                 <p className="text-sm text-slate-500">
-                  {r.createdAt.toLocaleDateString("de-DE")} · von {r.author.name}
+                  {r.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · von {r.author.name}
                 </p>
               </div>
               <span
@@ -181,7 +181,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             >
               <div>
                 <p className="font-medium text-slate-900">Eigenanteil {formatEuro(p.eigenanteilCent / 100)}</p>
-                <p className="text-sm text-slate-500">{p.createdAt.toLocaleDateString("de-DE")}</p>
+                <p className="text-sm text-slate-500">{p.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</p>
               </div>
               <span className={`rounded-full px-3 py-1 text-xs font-medium ${PROPOSAL_STATUS_BADGE[p.status]}`}>
                 {PROPOSAL_STATUS_LABELS[p.status]}

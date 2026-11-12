@@ -41,7 +41,7 @@ export default async function Vereinbarung({ params }: { params: { token: string
             <div className="rounded-3xl bg-white p-6" data-testid="vereinbarung-fertig">
               <p className="font-display text-2xl text-slate-900">Bereits bestätigt</p>
               <p className="mt-2 text-sm text-slate-600">
-                Am {proposal.agreedAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })} von {proposal.agreedName}.
+                Am {proposal.agreedAt.toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "short", timeStyle: "short" })} von {proposal.agreedName}.
               </p>
             </div>
           ) : (

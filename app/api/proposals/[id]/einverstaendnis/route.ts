@@ -19,8 +19,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   const pdf = await buildAgreementPdf({
     practiceName: p.practice.name,
     patientName: `${p.patient.firstName} ${p.patient.lastName}`,
-    patientBirthDate: p.patient.birthDate ? p.patient.birthDate.toLocaleDateString("de-DE") : null,
-    proposalDate: p.createdAt.toLocaleDateString("de-DE"),
+    patientBirthDate: p.patient.birthDate ? p.patient.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" }) : null,
+    proposalDate: p.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" }),
     text: p.agreedText ?? ctx?.text ?? "",
     kasse: ctx?.kasse ?? 0,
     eigen: ctx?.eigen ?? 0,

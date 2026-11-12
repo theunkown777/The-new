@@ -24,7 +24,7 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
       </Link>
       <article className="mt-10">
         <p className="j-marke">
-          Ratgeber · Stand {new Date(a.updated).toLocaleDateString("de-DE")}
+          Ratgeber · Stand {new Date(a.updated).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
         </p>
         <h1 className="j-schau mb-6 mt-4 text-[clamp(2.4rem,6vw,3.8rem)]">{a.title}</h1>
         <p className="j-text mb-10 text-lg">{a.description}</p>

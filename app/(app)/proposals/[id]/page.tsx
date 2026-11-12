@@ -44,8 +44,8 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
             </Link>
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            {proposal.createdAt.toLocaleDateString("de-DE")} · von {proposal.author.name} · zuletzt geändert{" "}
-            {proposal.updatedAt.toLocaleDateString("de-DE")}
+            {proposal.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · von {proposal.author.name} · zuletzt geändert{" "}
+            {proposal.updatedAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
           </p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-medium ${PROPOSAL_STATUS_BADGE[proposal.status]}`}>
@@ -64,6 +64,9 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
             status: proposal.status,
             input: input.data,
             choices: choices.data,
+            patientChoices: choicesSchema.safeParse(proposal.patientChoices).data,
+            agreedChoices: choicesSchema.safeParse(proposal.agreedChoices).data,
+            patientFirstName: p.firstName,
           }}
         />
       ) : (
@@ -87,7 +90,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
                 <span>
                   <span className="block text-slate-900">{z.praxis || "Andere Praxis"}: {z.leistung}</span>
                   {z.notiz && <span className="block text-xs italic text-slate-500">„{z.notiz}“</span>}
-                  <span className="block text-xs text-slate-400">geteilt am {z.geteiltAt!.toLocaleDateString("de-DE")}</span>
+                  <span className="block text-xs text-slate-400">geteilt am {z.geteiltAt!.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</span>
                 </span>
                 <span className="text-right tabular-nums">
                   <span className="block font-medium text-slate-900">Eigenanteil {(z.eigenanteilCent / 100).toLocaleString("de-DE", { maximumFractionDigits: 0 })} €</span>
@@ -103,7 +106,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
         <section className="card mt-6 border-salbei-200 bg-salbei-50" data-testid="einverstaendnis">
           <h2 className="font-display text-2xl text-slate-900">Digitales Einverständnis</h2>
           <p className="mt-1 text-sm text-slate-700">
-            Unterschrieben am {proposal.agreedAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })} von <b>{proposal.agreedName}</b> auf dem Behandlungsweg (Patientenseite).
+            Unterschrieben am {proposal.agreedAt.toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "short", timeStyle: "short" })} von <b>{proposal.agreedName}</b> auf dem Behandlungsweg (Patientenseite).
           </p>
           {proposal.agreedSignature && (
             // eslint-disable-next-line @next/next/no-img-element

@@ -21,11 +21,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     authorName: report.author.name,
     patientName: `${report.patient.firstName} ${report.patient.lastName}`,
     patientBirthDate: report.patient.birthDate
-      ? report.patient.birthDate.toLocaleDateString("de-DE")
+      ? report.patient.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })
       : null,
     reportType: report.type,
-    treatmentDate: report.treatmentDate ? report.treatmentDate.toLocaleDateString("de-DE") : null,
-    createdAt: report.createdAt.toLocaleDateString("de-DE"),
+    treatmentDate: report.treatmentDate ? report.treatmentDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" }) : null,
+    createdAt: report.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" }),
     text,
   });
 

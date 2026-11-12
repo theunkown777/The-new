@@ -92,7 +92,7 @@ export default async function ReportsPage({
                 </p>
                 <p className="text-sm text-slate-500">
                   {r.serviceTemplate?.name ? `${r.serviceTemplate.name} · ` : ""}
-                  {r.createdAt.toLocaleDateString("de-DE")}
+                  {r.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
                 </p>
               </div>
               <span

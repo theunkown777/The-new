@@ -62,7 +62,7 @@ export function Bankabgleich() {
                 <input type="checkbox" className="mt-1 h-4 w-4" checked={!!wahl[t.rechnungId]} onChange={(ev) => setWahl({ ...wahl, [t.rechnungId]: ev.target.checked })} aria-label={`Rechnung ${t.nummer} buchen`} />
                 <div className="min-w-0 flex-1">
                   <p className="text-slate-900">Rechnung {t.nummer} · {t.patient} · {eur(t.istCent)}{t.istCent !== t.sollCent && <span className="text-amber-800"> (offen {eur(t.sollCent)})</span>}</p>
-                  <p className="truncate text-xs text-slate-500">{new Date(t.datum).toLocaleDateString("de-DE")} · {t.zweck || "ohne Verwendungszweck"}</p>
+                  <p className="truncate text-xs text-slate-500">{new Date(t.datum).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · {t.zweck || "ohne Verwendungszweck"}</p>
                 </div>
                 <span className={`rounded-full px-2 py-0.5 text-xs ${GUETE[t.guete][1]}`}>{GUETE[t.guete][0]}</span>
               </li>

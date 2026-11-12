@@ -1,4 +1,4 @@
-import { DEFAULT_PRICES as P } from "@/lib/proposals";
+import { DEFAULT_PRICES as P, FESTZUSCHUSS_BEFUNDE } from "@/lib/proposals";
 import type { Specialty } from "@/lib/specialties";
 
 // Zahnmedizin im selben Aufbau wie die übrigen Fachseiten (/fachgebiete/zahn).
@@ -45,7 +45,7 @@ export const DENTAL_SHOWCASE: Specialty = {
       label: "Lücke schließen",
       options: [
         { id: "bruecke", name: "Brücke, Regelversorgung", type: "kasse", price: P.bruecke_regel, benefits: ["Festzuschuss der Kasse"] },
-        { id: "implantat", name: "Implantat mit Krone", type: "igel", price: P.implantat, kasseAnteil: Math.round(P.bruecke_regel * 0.6), benefits: ["Nachbarzähne bleiben unbeschliffen"], kasseWenn: "Die Kasse zahlt den Festzuschuss der Regelversorgung (andersartige Versorgung)." },
+        { id: "implantat", name: "Implantat mit Krone", type: "igel", price: P.implantat, kasseAnteil: Math.round(FESTZUSCHUSS_BEFUNDE["2.1"].euro * 0.6), benefits: ["Nachbarzähne bleiben unbeschliffen"], kasseWenn: "Die Kasse zahlt den Festzuschuss der Regelversorgung (andersartige Versorgung)." },
       ],
     },
     {

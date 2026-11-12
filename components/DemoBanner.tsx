@@ -12,7 +12,7 @@ export function DemoBanner({ expiresAt, role, userName }: { expiresAt: Date; rol
           <span className="min-w-0 truncate"><b>Gastzugang</b> · {role === "admin" ? "Geschäftsführung" : "Mitarbeiterin"} · Beispieldaten</span>
           <span className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-medium ring-1 ring-brand-200">Mehr</span>
         </summary>
-        <p className="mt-2">Erfundene Beispielpatienten. Bitte keine echten Patientendaten eingeben. Wird am {expiresAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })} gelöscht.</p>
+        <p className="mt-2">Erfundene Beispielpatienten. Bitte keine echten Patientendaten eingeben. Wird am {expiresAt.toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "short", timeStyle: "short" })} gelöscht.</p>
         <div className="mt-2 flex flex-col items-start gap-1 [&>*]:min-h-[2.25rem] [&>*]:text-left">
           <DemoRoleSwitch role={role} />
           <DemoPatientButton />
@@ -22,7 +22,7 @@ export function DemoBanner({ expiresAt, role, userName }: { expiresAt: Date; rol
       <div className="hidden flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm text-brand-800 sm:flex sm:px-6 lg:px-10">
         <span>
           <b>Gastzugang</b> · angemeldet als <b data-testid="demo-rolle-aktiv">{role === "admin" ? "Geschäftsführung" : `Mitarbeiterin · ${userName ?? "Rezeption"}`}</b> · erfundene Beispielpatienten. Bitte keine echten Patientendaten eingeben.
-          Wird am {expiresAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })} gelöscht.
+          Wird am {expiresAt.toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "short", timeStyle: "short" })} gelöscht.
         </span>
         <span className="flex flex-wrap gap-x-4 gap-y-1">
           <DemoRoleSwitch role={role} />
