@@ -32,7 +32,7 @@ function toOption(o: MedOption, med: MedInput, age: number | null, therapie: boo
       : undefined;
   // Festbetrag + Aufzahlung (z. B. höherwertiges Hörgerät): Kasse zahlt den Anteil, Patient die Differenz.
   if (o.kasseAnteil != null && type === "igel") {
-    return { id: o.id, type: "mehrkosten", base: o.kasseAnteil, name: o.name, total: price, benefits: o.benefits, hinweis, nutzen: o.nutzen, typeLabel: "Kassenanteil + Aufzahlung" };
+    return { id: o.id, type: "mehrkosten", base: o.kasseAnteil, name: o.name, total: price, benefits: o.benefits, hinweis, nutzen: o.nutzen, zuzahlung: o.zuzahlung, typeLabel: "Kassenanteil + Aufzahlung" };
   }
   return { id: o.id, type, name: o.name, total: price, benefits: o.benefits, hinweis, nutzen: o.nutzen, zuzahlung: o.zuzahlung, typeLabel };
 }

@@ -48,6 +48,9 @@ const UI_DE = {
   pick: "Bitte wählen Sie eine Option.",
   open: (n: number) => (n === 1 ? "Noch 1 Auswahl offen" : `Noch ${n} Auswahlen offen`),
   missing: (titles: string) => `Bitte wählen Sie noch: ${titles}.`,
+  optional: "Freiwillig. Antippen, wenn Sie das möchten; noch einmal antippen, um es wieder abzuwählen.",
+  fineTherapie: (until: string) =>
+    `Unverbindliche Kostenschätzung nach der Preisliste Ihrer Praxis. Selbstzahlerleistungen sind freiwillig; vor der Behandlung vereinbaren wir sie schriftlich mit Ihnen. Für Leistungen auf Verordnung gilt die gesetzliche Zuzahlung. Dieser Link ist gültig bis ${until}.`,
   seeRec: "Hier sehen Sie unsere Empfehlung",
   recTitle: "Unsere Empfehlung im Vergleich",
   recIntro: "Zur Kontrolle: Ihre Auswahl neben dem, was Ihre Praxis empfehlen würde. Entscheiden können Sie frei.",
@@ -108,6 +111,9 @@ const UI_EN: Ui = {
   pick: "Please choose an option.",
   open: (n) => (n === 1 ? "1 choice still open" : `${n} choices still open`),
   missing: (titles) => `Please still choose: ${titles}.`,
+  optional: "Optional. Tap if you want this; tap again to deselect.",
+  fineTherapie: (until) =>
+    `Non-binding cost estimate based on your practice's price list. Self-pay services are voluntary; a written agreement is made before treatment. The statutory co-payment applies to prescribed therapy. This link is valid until ${until}. Only the German version is legally binding.`,
   seeRec: "See our recommendation",
   recTitle: "Our recommendation in comparison",
   recIntro: "As a check: your choice next to what your practice would recommend. The decision is yours.",
@@ -182,6 +188,28 @@ export const CONTENT_EN: Record<string, string> = {
   "Kassenleistung inklusive Nachsorge (UPT)": "covered by your insurer, including aftercare",
   "Kieferknochen bleibt belastet": "keeps the jawbone in use",
   "Metall mit Keramikverblendung": "metal with ceramic veneer",
+  "Metall mit Keramikverblendung auf der sichtbaren Seite": "metal with ceramic veneer on the visible side",
+  "als Brückenpfeiler in der Brücke enthalten": "included in the bridge as an abutment tooth",
+  "keine eigene Krone nötig": "no separate crown needed",
+  "In der Brücke enthalten": "Included in the bridge",
+  "Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung. Implantate sind möglich, aber deutlich aufwendiger.":
+    "With several missing teeth, a bridge is the standard care. Implants are possible but considerably more involved.",
+  "Im Seitenzahnbereich ist die Krone in Standardausführung funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.":
+    "On back teeth, the standard crown works just as well. All-ceramic is mainly a matter of appearance here.",
+  "Bei mehreren fehlenden Zähnen ist die Brücke die übliche Versorgung. Implantate sind möglich, aber deutlich aufwendiger.":
+    "With several missing teeth, a bridge is the usual care. Implants are possible but considerably more involved.",
+  "Krone, Standardausführung": "Crown, standard version",
+  "Brücke, Standardausführung": "Bridge, standard version",
+  "ersetzt den fehlenden Zahn": "replaces the missing tooth",
+  "ersetzt alle fehlenden Zähne des Kiefers": "replaces all missing teeth of the jaw",
+  "ersetzt alle Zähne des Kiefers": "replaces all teeth of the jaw",
+  "Fehlt nur der letzte Backenzahn, ist ein Ersatz oft nicht nötig (verkürzte Zahnreihe). Bitte im Gespräch klären.":
+    "If only the last molar is missing, a replacement is often not needed (shortened dental arch). Please discuss this with your dentist.",
+  Totalprothese: "Full denture",
+  "Deckprothese über den verbliebenen Zähnen": "Overdenture on the remaining teeth",
+  "Zahnloser Kiefer": "Jaw without teeth",
+  Oberkiefer: "Upper jaw",
+  Unterkiefer: "Lower jaw",
   "Metall, im Seitenzahnbereich unverblendet": "metal, without veneer on back teeth",
   "Nachbarzähne bleiben unberührt": "neighbouring teeth stay untouched",
   "Nachbarzähne werden beschliffen": "neighbouring teeth are ground down",
@@ -253,12 +281,23 @@ export const CONTENT_EN: Record<string, string> = {
 
 const PATTERNS_EN: [RegExp, (m: RegExpMatchArray) => string][] = [
   [/^Zahn (\d\d)$/, (m) => `Tooth ${m[1]}`],
+  [/^Zähne (\d\d(?:, \d\d)*)$/, (m) => `Teeth ${m[1]}`],
+  [/^(\d+) Zähne fehlen$/, (m) => `${m[1]} teeth missing`],
+  [/^Brücke \((\d+) Glieder\), Regelversorgung$/, (m) => `Bridge (${m[1]} units), standard care`],
+  [/^Vollkeramik-Brücke \((\d+) Glieder\)$/, (m) => `All-ceramic bridge (${m[1]} units)`],
+  [/^Brücke \((\d+) Glieder\), Standardausführung$/, (m) => `Bridge (${m[1]} units), standard version`],
+  [/^(\d+) Implantate mit Kronen$/, (m) => `${m[1]} implants with crowns`],
+  [/^Entfällt bei einer Brücke \((.+)\)$/, (m) => `Not needed with a bridge (${tr(m[1], "en")})`],
   [
-    /^Die Nachbarzähne (\d\d) und (\d\d) brauchen ohnehin eine Versorgung\. Eine Brücke löst beides zugleich\.$/,
+    /^Wird dieser Zahn Pfeiler einer Brücke \((.+)\), ist seine Krone dort enthalten\. Eine eigene Krone braucht er nur, wenn die Lücke anders versorgt wird\.$/,
+    (m) => `If this tooth becomes an abutment of a bridge (${tr(m[1], "en")}), its crown is included there. It only needs a crown of its own if the gap is treated differently.`,
+  ],
+  [
+    /^Die Nachbarzähne (\d\d(?:, \d\d)*) und (\d\d) brauchen ohnehin eine Versorgung\. Eine Brücke löst beides zugleich\.$/,
     (m) => `The neighbouring teeth ${m[1]} and ${m[2]} need treatment anyway. A bridge solves both at once.`,
   ],
   [
-    /^Die Nachbarzähne (\d\d) und (\d\d) sind gesund\. Ein Implantat erspart das Beschleifen\.$/,
+    /^Die Nachbarzähne (\d\d(?:, \d\d)*) und (\d\d) sind gesund\. Ein Implantat erspart das Beschleifen\.$/,
     (m) => `The neighbouring teeth ${m[1]} and ${m[2]} are healthy. An implant avoids grinding them down.`,
   ],
 ];

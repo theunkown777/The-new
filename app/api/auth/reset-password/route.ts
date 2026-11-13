@@ -50,7 +50,8 @@ export async function POST(req: Request) {
   const passwordHash = await bcrypt.hash(parsed.data.password, 12);
 
   await prisma.$transaction([
-    prisma.user.update({ where: { id: resetToken.userId }, data: { passwordHash } }),
+    // Neues Passwort beendet alle laufenden Sitzungen des Kontos (lib/sitzung.ts).
+    prisma.user.update({ where: { id: resetToken.userId }, data: { passwordHash, sessionVersion: { increment: 1 } } }),
     prisma.passwordResetToken.update({ where: { id: resetToken.id }, data: { usedAt: new Date() } }),
   ]);
 

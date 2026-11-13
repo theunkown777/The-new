@@ -72,7 +72,7 @@ export default async function TerminePage({ searchParams }: { searchParams: { ta
           <p className="mt-1 text-xl font-semibold sm:text-2xl tabular-nums text-slate-900">{a.prozent} %</p>
           <div className="mt-2 h-2 rounded-full bg-slate-200"><div className={`h-2 rounded-full ${a.prozent > 95 ? "bg-red-600" : "bg-brand-600"}`} style={{ width: `${Math.min(100, a.prozent)}%` }} /></div>
           <p className="mt-1 hidden text-xs text-slate-500 sm:block">
-            {Math.round(a.gebucht / 60 * 10) / 10} von {Math.round(a.kapazitaet / 60)} Std.{a.angenommen ? " · angenommen: 1 Platz, 8 Std. Standorte unter Einstellungen pflegen." : ""}
+            {(Math.round(a.gebucht / 60 * 10) / 10).toLocaleString("de-DE")} von {Math.round(a.kapazitaet / 60)} Std.{a.angenommen ? " · angenommen: 1 Platz, 8 Std. Standorte unter Einstellungen pflegen." : ""}
           </p>
         </div>
         <div className="card !p-3 sm:!p-5">

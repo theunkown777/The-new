@@ -1,11 +1,14 @@
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { withAuth, type NextRequestWithAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
+import { tokenGueltig } from "@/lib/sitzung";
 import { VORSCHAU_COOKIE, VORSCHAU_TAGE, freiOhneZugang, istVorschauHost, vorschauCookie, vorschauCookieGueltig, vorschauPassGueltig } from "@/lib/vorschau";
 
 // Website und App sind eins: Unter "/" sehen Besucher ohne Anmeldung die
 // Startseite mit Fachauswahl, angemeldete Nutzer landen in ihrer Übersicht. Alle anderen geschützten Bereiche laufen über next-auth.
-const auth = withAuth({ pages: { signIn: "/login" } });
+// Widerrufene Sitzungen (lib/sitzung.ts) gelten wie keine Anmeldung. Ob das Konto noch besteht, prüft
+// getServerSession in Layout und Routen bei jedem Aufruf; hier (Edge) gibt es keinen Datenbankzugriff.
+const auth = withAuth({ pages: { signIn: "/login" }, callbacks: { authorized: ({ token }) => tokenGueltig(token) } });
 
 
 // API-Pfade, die ein Konto mit offener 2FA-Pflicht noch braucht: Anmelden,
@@ -50,7 +53,7 @@ async function weiter(req: NextRequest, event: NextFetchEvent) {
     // Nur angemeldete Konten mit offener 2FA-Pflicht werden hier gestoppt;
     // alle anderen Prüfungen machen die Routen selbst.
     const token = await getToken({ req }).catch(() => null);
-    if (token?.mfaPending && !MFA_FREI.some((p) => req.nextUrl.pathname.startsWith(p))) {
+    if (token?.mfaPending && !token.widerrufen && !MFA_FREI.some((p) => req.nextUrl.pathname.startsWith(p))) {
       return NextResponse.json({ error: "Bitte zuerst die Zwei-Faktor-Anmeldung einrichten und neu anmelden." }, { status: 403 });
     }
     return NextResponse.next();

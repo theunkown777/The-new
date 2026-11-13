@@ -5,6 +5,7 @@ import { briefingAsText } from "@/lib/akte";
 import { generateBriefingSummary, kiFehlerGrund, kiVerfuegbar } from "@/lib/anthropic";
 import { auditFromSession } from "@/lib/audit";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
+import { kiLimit } from "@/lib/demoGuard";
 
 // KI-Kurzfassung des Überblicks. Grundlage ist der regelbasierte Überblick
 // ohne Namen; das Ergebnis ist ein Entwurf und wird nicht gespeichert.
@@ -17,6 +18,9 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
   const key = `briefing:${session.user.id}`;
   if (await isRateLimited(key, 60, 60 * 60 * 1000)) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut." }, { status: 429 });
   await recordAttempt(key, 60 * 60 * 1000);
+  // Zusätzlich je Praxis: Viele Konten (oder ein Gastzugang) sollen die Kosten nicht treiben.
+  const zuViele = await kiLimit(session.user.practiceId, "briefing");
+  if (zuViele) return zuViele;
   const b = await loadBriefing(session.user.practiceId, patient.id);
   if (!b) return NextResponse.json({ error: "Patient nicht gefunden" }, { status: 404 });
   try {

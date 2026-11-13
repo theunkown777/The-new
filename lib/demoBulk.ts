@@ -114,7 +114,8 @@ export async function seedBulkDemo(args: {
     const viewed = linked && r() < 0.8;
     const responded = viewed && (status !== "ENTWURF" ? r() < 0.55 : r() < 0.3);
     const shareCreatedAt = new Date(createdAt.getTime() + 3600 * 1000);
-    const respondedAt = new Date(shareCreatedAt.getTime() + Math.floor(24 + r() * 96) * 3600 * 1000);
+    const respondedRoh = new Date(shareCreatedAt.getTime() + Math.floor(24 + r() * 96) * 3600 * 1000);
+    const respondedAt = respondedRoh < now ? respondedRoh : new Date(now.getTime() - Math.floor(1 + r() * 20) * 3600 * 1000);
     proposals.push({
       practiceId,
       patientId: p.id,

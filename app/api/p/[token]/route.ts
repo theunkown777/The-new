@@ -5,7 +5,7 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { patientResponseSchema } from "@/lib/patientLink";
 import { eingangMelden } from "@/lib/eingang";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
-import { buildProposal, chosenOption, resolvePrices } from "@/lib/proposals";
+import { ABGEWAEHLT, buildProposal, chosenOption, resolvePrices } from "@/lib/proposals";
 
 // Rückmeldung des Patienten über den Patienten-Link (öffentlich, ohne Login).
 export async function POST(req: Request, { params }: { params: { token: string } }) {
@@ -43,7 +43,7 @@ export async function POST(req: Request, { params }: { params: { token: string }
   const items = inp.success ? buildProposal(inp.data, resolvePrices(proposal.practice.proposalPrices)) : [];
   const eigeneWahl = Object.entries(parsed.data.choices ?? {}).some(([k, v]) => {
     const it = items.find((x) => x.key === k);
-    return it ? chosenOption(it, praxisWahl)?.id !== v : false;
+    return it ? (chosenOption(it, praxisWahl)?.id ?? ABGEWAEHLT) !== v : false;
   });
   const hinweis = [
     eigeneWahl ? "hat anders gewählt als geplant" : Object.keys(parsed.data.choices ?? {}).length ? "Wahl wie geplant" : null,

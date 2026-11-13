@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { signaturSecret } from "@/lib/geheimnis";
 
 // Online-Zahlung im Patientenportal über Stripe Connect.
 // - Jede Praxis verbindet ihr eigenes Stripe-Konto (OAuth). Zahlungen laufen
@@ -29,7 +30,7 @@ export function stripeForm(params: Record<string, string | number | undefined>):
     .join("&");
 }
 
-const secret = () => process.env.NEXTAUTH_SECRET || "dev-secret-nur-lokal";
+const secret = () => signaturSecret();
 
 /** Signierter OAuth-"state": nur diese Praxis, 15 Minuten gültig. */
 export function connectState(practiceId: string, now = Date.now()): string {

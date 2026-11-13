@@ -62,6 +62,9 @@ export default async function AnalysePage({ searchParams }: { searchParams: { ta
           <p className="mt-1 max-w-2xl text-sm text-slate-600">
             Womit Ihre Praxis Geld verdient, warum Patienten zusagen und wo es haken kann. Grundlage sind Ihre Vorschläge und Rechnungen, keine Schätzungen von außen.
           </p>
+          <p className="mt-2 text-sm">
+            <Link href="/analyse/wirkung" className="font-medium text-brand-700 underline" data-testid="link-wirkung">Wirkungsbericht: vorher und heute im Vergleich →</Link>
+          </p>
         </div>
         <nav className="flex rounded-full bg-white p-1 text-sm shadow-sm ring-1 ring-slate-200" aria-label="Zeitraum">
           {ZEITRAUM.map(([t, l]) => (

@@ -104,8 +104,8 @@ geprüft und freigegeben werden.
   lassen sich jederzeit unter „Sicherheit“ generieren (ersetzt die alten).
 - **Passwort vergessen**: Self-Service-Link auf der Login-Seite; E-Mail-Versand
   über Resend (`RESEND_API_KEY`), mit kostenlosem Testmodus-Fallback ohne
-  Key (Link landet dann im Server-Log statt im Postfach – siehe Setup-Sektion
-  weiter unten für Details zum Testmodus-Muster).
+  Key (dann wird nichts verschickt; im Server-Log stehen nur Empfänger und
+  Betreff, nie der Link – siehe Setup-Sektion weiter unten).
 - **E-Mail-Verifizierung**: Nach der Registrierung wird eine
   Bestätigungs-E-Mail verschickt (24 Std. gültig, gleicher Resend-/
   Testmodus-Mechanismus). Nicht blockierend – ein unbestätigtes Konto kann
@@ -368,8 +368,10 @@ cp .env.example .env
 - `RESEND_API_KEY` – API-Key von [resend.com](https://resend.com) für den
   Versand von Passwort-Reset- und Team-Einladungs-E-Mails. **Optional zum
   Testen**: Ist die Variable nicht gesetzt, wird keine E-Mail verschickt,
-  sondern der Link nur ins Server-Log geschrieben (`lib/email.ts`) –
-  gleiches Testmodus-Muster wie bei `ANTHROPIC_API_KEY`. `RESEND_FROM_EMAIL`
+  sondern nur Empfänger und Betreff ins Server-Log geschrieben
+  (`lib/email.ts`; der Link steht dort bewusst nicht). Team-Einladungen
+  zeigen den Link dann in der Oberfläche; Passwort-Reset und
+  E-Mail-Bestätigung brauchen einen echten Key. `RESEND_FROM_EMAIL`
   optional für eine eigene Absenderadresse (Standard: Resends
   Test-Absender `onboarding@resend.dev`, der nur an die eigene, bei Resend
   verifizierte E-Mail-Adresse zustellt – für echten Versand an beliebige

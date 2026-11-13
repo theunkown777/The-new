@@ -11,6 +11,12 @@ import {
   defaultZuschussJahr,
   tageBisStichtag,
   DEFAULT_PRICES,
+  planKiefer,
+  festzuschussEuro,
+  berlinTag,
+  showsJahresvergleich,
+  UPPER_TEETH,
+  LOWER_TEETH,
   type ProposalInput,
   type PatientFactors,
 } from "./proposals";
@@ -60,9 +66,27 @@ describe("Zahn fehlt", () => {
     expect(i.recommended).toBe("br");
     expect(i.notes.some((n) => n.kind === "warn")).toBe(true);
   });
-  it("offers no bridge next to another gap", () => {
-    const i = item(input({ teeth: { "36": "fehlt", "35": "fehlt" } }), "t36");
-    expect(i.options.map((o) => o.id)).toEqual(["tp", "impl"]);
+  it("plans two adjacent missing teeth as one bridge (finding 2.2), not as two entries", () => {
+    const items = buildProposal(input({ teeth: { "36": "fehlt", "35": "fehlt" } }), DEFAULT_PRICES);
+    expect(items.map((i) => i.key)).toEqual(["l35-36"]);
+    expect(items[0].options.map((o) => o.id)).toEqual(["br", "brvk", "impl"]);
+    expect(items[0].options[0].befunde).toEqual(["2.2", "2.7"]);
+    expect(items[0].recommended).toBe("br");
+  });
+  it("offers a partial denture once per jaw when the last tooth of the row is missing", () => {
+    const items = buildProposal(input({ teeth: { "36": "fehlt", "37": "fehlt" } }), DEFAULT_PRICES);
+    expect(items.map((i) => i.key)).toEqual(["kUK"]);
+    expect(items[0].options.map((o) => o.id)).toEqual(["tp", "impl"]);
+    expect(items[0].excluded.join(" ")).toMatch(/Brücke/);
+  });
+  it("lets the crown of an abutment tooth drop out when the gap gets a bridge", () => {
+    const items = buildProposal(input({ teeth: { "36": "fehlt", "37": "zerstoert" } }), DEFAULT_PRICES);
+    const krone = items.find((i) => i.key === "t37")!;
+    expect(krone.options.map((o) => o.id)).toEqual(["kr", "krvk", "anker"]);
+    expect(krone.recommended).toBe("anker");
+    expect(money(krone.options[2], GKV10)).toMatchObject({ total: 0, eigen: 0 });
+    // Empfehlung zusammen: Brücke mit Festzuschuss 2.1, keine zweite Krone
+    expect(summarize(items, {}, GKV10).netto).toBeCloseTo(921.6 - 691.2);
   });
   it("offers nothing for a missing wisdom tooth", () => {
     expect(item(input({ teeth: { "38": "fehlt" } }), "t38").options).toHaveLength(0);
@@ -92,12 +116,33 @@ describe("money", () => {
   const bridge = item(input({ teeth: { "36": "fehlt" } }), "t36");
   it("applies the fixed Festzuschuss of the finding (2.1, 75 %) with 10 years of Bonusheft", () => {
     expect(money(bridge.options[0], GKV10).kasse).toBeCloseTo(691.2);
-    expect(money(bridge.options[0], GKV10).eigen).toBeCloseTo(1058.8);
     expect(money(bridge.options[2], GKV10).eigen).toBeCloseTo(2708.8);
   });
-  it("pays the double Festzuschuss (100 %) for Härtefälle, at most the costs", () => {
-    expect(money(bridge.options[0], { ...GKV10, haertefall: true }).kasse).toBeCloseTo(921.6);
-    expect(money(bridge.options[0], { ...GKV10, haertefall: true }).eigen).toBeCloseTo(828.4);
+  it("estimates the Regelversorgung for GKV patients with the average costs of the finding, not the practice price", () => {
+    expect(bridge.options[0].total).toBeCloseTo(921.6);
+    expect(money(bridge.options[0], GKV10).eigen).toBeCloseTo(230.4);
+    expect(money(bridge.options[0], { ...GKV10, bonusYears: 0 }).eigen).toBeCloseTo(368.64);
+    const pkv = item(input({ teeth: { "36": "fehlt" }, patient: { ...GKV10, insurance: "PKV", erstattungProzent: 80 } }), "t36");
+    expect(pkv.options[0].total).toBe(1750);
+  });
+  it("covers the whole Regelversorgung for Härtefälle and pays the double Festzuschuss otherwise", () => {
+    const h = { ...GKV10, haertefall: true };
+    expect(money(bridge.options[0], h).eigen).toBe(0);
+    expect(money(bridge.options[1], h).kasse).toBeCloseTo(921.6);
+    expect(money(bridge.options[1], h).eigen).toBeCloseTo(2450 - 921.6);
+  });
+  it("treats a ceramic inlay as Mehrkosten with the GKV share of the filling", () => {
+    const inlay = item(input({ teeth: { "16": "karies_gross" } }), "t16").options.find((o) => o.id === "inlay")!;
+    expect(money(inlay, GKV10)).toMatchObject({ kasse: 85, eigen: 805 });
+  });
+  it("never lets the patient share go negative or NaN", () => {
+    const billig = buildProposal(input({ teeth: { "25": "karies_klein" } }), { ...DEFAULT_PRICES, komp_klein: 40 })[0].options[1];
+    expect(money(billig, GKV10).eigen).toBe(0);
+    expect(money(bridge.options[1], { ...GKV10, erstattungProzent: NaN }).netto).toBeCloseTo(2450 - 691.2);
+  });
+  it("does not reimburse cosmetic bleaching", () => {
+    const bl = item(input({ globals: { bleaching: true }, patient: { ...GKV10, erstattungProzent: 50 } }), "gbleaching").options[0];
+    expect(money(bl, { ...GKV10, erstattungProzent: 50 }).netto).toBe(390);
   });
   it("uses finding 1.1 for a crown and adds 1.3 in the visible area", () => {
     const molar = item(input({ teeth: { "36": "zerstoert" } }), "t36");
@@ -115,8 +160,12 @@ describe("money", () => {
     expect(money(b.options[0], GKV10).kasse).toBeCloseTo(691.2 + 3 * 99.33);
   });
   it("never pays more than the costs", () => {
-    const cheap = buildProposal(input({ teeth: { "36": "zerstoert" } }), { ...DEFAULT_PRICES, krone_regel: 200 })[0];
-    expect(money(cheap.options[0], GKV10)).toMatchObject({ kasse: 200, eigen: 0 });
+    const cheap = buildProposal(input({ teeth: { "36": "zerstoert" } }), { ...DEFAULT_PRICES, krone_vk: 200 })[0];
+    expect(money(cheap.options[1], GKV10)).toMatchObject({ kasse: 200, eigen: 0 });
+  });
+  it("describes the crown by the visible area, not by tooth type", () => {
+    expect(item(input({ teeth: { "35": "zerstoert" } }), "t35").options[0].benefits[0]).toMatch(/unverblendet/);
+    expect(item(input({ teeth: { "34": "zerstoert" } }), "t34").options[0].benefits[0]).toMatch(/Keramikverblendung/);
   });
   it("lets the GKV pay the equivalent filling under a Mehrkostenvereinbarung", () => {
     const f = item(input({ teeth: { "25": "karies_klein" } }), "t25").options[1];
@@ -133,12 +182,12 @@ describe("summarize and letter", () => {
   const items = buildProposal(inp, DEFAULT_PRICES);
   it("uses the first option as baseline and the recommendation as default choice", () => {
     const s = summarize(items, {}, GKV10);
-    expect(s.baseTotal).toBe(85 + 1750 + 18);
+    expect(s.baseTotal).toBeCloseTo(85 + 921.6 + 18);
     expect(s.planTotal).toBe(890 + 3400 + 110);
   });
   it("respects explicit choices", () => {
     const s = summarize(items, { t36: "br" }, GKV10);
-    expect(s.planTotal).toBe(890 + 1750 + 110);
+    expect(s.planTotal).toBeCloseTo(890 + 921.6 + 110);
   });
   it("mentions the legal basis in the letter", () => {
     const text = buildLetter({ items, choices: {}, patient: GKV10, patientName: "Frau Weber", practiceName: "Praxis Test", date: new Date(2026, 9, 30) });
@@ -209,5 +258,101 @@ describe("Zuzahlung Heilmittel ab 2027", () => {
     expect(heilmittelZuzahlung(200, new Date(2026, 11, 31))).toBeCloseTo(30);
     expect(heilmittelZuzahlung(200, new Date(2027, 0, 1))).toBeCloseTo(35);
     expect(heilmittelZuzahlungText(new Date(2027, 0, 2))).toMatch(/15 €/);
+  });
+});
+
+describe("Lücken je Kiefer (Festzuschuss-Befunde)", () => {
+  const fz = (teeth: Record<string, "fehlt" | "zerstoert">, satz: PatientFactors) =>
+    [...planKiefer(UPPER_TEETH, teeth), ...planKiefer(LOWER_TEETH, teeth)].map((g) => [g.befunde.join("+"), festzuschussEuro(g, satz)]);
+  const F = (...z: number[]) => Object.fromEntries(z.map((n) => [String(n), "fehlt" as const]));
+  const H = { ...GKV10, haertefall: true };
+  const B0 = { ...GKV10, bonusYears: 0 as const };
+
+  it("Einzelzahnlücke im Seitenzahnbereich: 2.1", () => {
+    expect(fz(F(36), H)).toEqual([["2.1", 921.6]]);
+    expect(fz(F(36), GKV10)).toEqual([["2.1", 691.2]]);
+  });
+  it("zwei fehlende Zähne: 2.2 und eine Verblendung für den sichtbaren Pfeiler 34", () => {
+    expect(fz(F(35, 36), H)).toEqual([["2.2+2.7", 1184.28]]);
+    expect(fz(F(35, 36), B0)).toEqual([["2.2+2.7", 710.56]]);
+  });
+  it("drei fehlende Zähne: 2.3 mit Verblendungen", () => {
+    expect(fz(F(14, 15, 16), H)).toEqual([["2.3+2.7+2.7+2.7", 1572.21]]);
+  });
+  it("vier Schneidezähne: 2.4 mit sechs Verblendungen", () => {
+    expect(fz(F(12, 11, 21, 22), H)).toEqual([["2.4+2.7+2.7+2.7+2.7+2.7+2.7", 2082.54]]);
+  });
+  it("Lücke über die Mittellinie: 2.2", () => {
+    expect(fz(F(11, 21), H)).toEqual([["2.2+2.7+2.7+2.7+2.7", 1581.6]]);
+  });
+  it("zwei Einzellücken mit gemeinsamem Pfeiler: 2.1 und 2.5", () => {
+    expect(fz(F(24, 26), H)).toEqual([["2.1+2.5+2.7+2.7+2.7", 1830.27]]);
+    expect(fz(F(24, 26), GKV10)).toEqual([["2.1+2.5+2.7+2.7+2.7", 1372.7]]);
+  });
+  it("Einzellücke neben größerer Lücke: die größere bekommt 2.2, die einzelne 2.5", () => {
+    expect(fz(F(14, 16, 17), H)[0][0]).toBe("3.1"); // 17 fehlt: Ende der Zahnreihe
+    expect(fz(F(13, 15, 16), H)[0][0]).toMatch(/^2\.2\+2\.5/); // Reihenfolge entlang der Zahnreihe: Lücke 16/15 zuerst
+  });
+  it("je Kiefer getrennt", () => {
+    expect(fz(F(36, 46), H)).toEqual([["2.1", 921.6], ["2.1", 921.6]]);
+    expect(fz(F(16, 36), H)).toEqual([["2.1+2.7", 1054.04], ["2.1", 921.6]]); // Pfeiler 15 liegt im sichtbaren Bereich
+  });
+  it("Freiend oder mehr als vier fehlende Zähne: einmal 3.1 je Kiefer", () => {
+    expect(fz(F(36, 37), H)).toEqual([["3.1", 952.15]]);
+    expect(fz(F(35, 36, 45, 46, 47), H)).toEqual([["3.1", 952.15]]);
+    expect(fz(F(14, 15, 16, 17), GKV10)).toEqual([["3.1", 714.11]]);
+  });
+  it("Restbestand und zahnloser Kiefer: Klasse 4", () => {
+    const ok = UPPER_TEETH.filter((n) => n % 10 !== 8 && n !== 13 && n !== 23);
+    expect(fz(F(...ok), H)).toEqual([["4.1", 994.8]]);
+    expect(fz(F(...LOWER_TEETH.filter((n) => n % 10 !== 8)), GKV10)).toEqual([["4.4", 772.16]]);
+  });
+  it("Weisheitszähne zählen nicht", () => {
+    expect(fz(F(18, 28, 38, 48), H)).toEqual([]);
+  });
+  it("erzeugt je Lücke genau einen Eintrag und behält den Schlüssel der Einzelzahnlücke", () => {
+    const keys = (t: Record<string, "fehlt">) => buildProposal(input({ teeth: t }), DEFAULT_PRICES).map((i) => i.key);
+    expect(keys(F(36))).toEqual(["t36"]);
+    expect(keys(F(24, 26))).toEqual(["l24-26"]);
+    expect(keys(F(36, 46))).toEqual(["t46", "t36"]);
+    expect(keys(F(35, 36, 45, 46, 47))).toEqual(["kUK"]);
+  });
+  it("fehlt nur der letzte Backenzahn, steht der Hinweis auf die verkürzte Zahnreihe da", () => {
+    const i = item(input({ teeth: F(37) }), "t37");
+    expect(i.options.map((o) => o.id)).toEqual(["tp", "impl"]);
+    expect(i.notes.map((n) => n.text).join(" ")).toMatch(/verkürzte Zahnreihe/);
+  });
+});
+
+describe("Stichtag in deutscher Zeit", () => {
+  it("wechselt um Mitternacht deutscher Zeit, auch wenn der Server in UTC läuft", () => {
+    const kurzVor = new Date("2026-12-31T22:30:00Z"); // 23:30 in Deutschland
+    const kurzNach = new Date("2026-12-31T23:30:00Z"); // 00:30 am 1.1. in Deutschland
+    expect(berlinTag(kurzVor)).toBe("2026-12-31");
+    expect(defaultZuschussJahr(kurzVor)).toBe(2026);
+    expect(defaultZuschussJahr(kurzNach)).toBe(2027);
+    expect(showsJahresvergleich(kurzNach)).toBe(false);
+    expect(tageBisStichtag(kurzVor)).toBe(0);
+  });
+});
+
+describe("Brief: Wahl und Empfehlung", () => {
+  const items = buildProposal(input({ teeth: { "36": "fehlt", "25": "karies_klein" } }), DEFAULT_PRICES);
+  const brief = (choices: Record<string, string>, patient = GKV10) =>
+    buildLetter({ items, choices, patient, patientName: "Frau Weber", practiceName: "Praxis Test", date: new Date(2026, 9, 30) });
+  it("nennt nur eine wirklich getroffene Auswahl „besprochene Wahl“", () => {
+    expect(brief({})).toMatch(/Noch nicht entschieden\. Unsere Empfehlung: Implantat mit Krone/);
+    expect(brief({})).toMatch(/Wenn Sie überall die zuerst genannte Leistung wählen/);
+    expect(brief({ t36: "br", t25: "fk" })).toMatch(/Besprochene Wahl: Brücke, Regelversorgung/);
+    expect(brief({ t36: "br", t25: "fk" })).not.toMatch(/Noch nicht entschieden/);
+  });
+  it("behauptet die Kassenleistung nur, wo es sie gibt", () => {
+    expect(brief({})).toMatch(/Die Kassenleistung ist bei jedem Punkt möglich/);
+    const mitBleaching = buildProposal(input({ globals: { bleaching: true } }), DEFAULT_PRICES);
+    const text = buildLetter({ items: mitBleaching, choices: {}, patient: GKV10, patientName: "Frau Weber", practiceName: "Praxis Test", date: new Date(2026, 9, 30) });
+    expect(text).not.toMatch(/bei jedem Punkt möglich/);
+  });
+  it("kennzeichnet die Beträge für 2027 als vorläufig", () => {
+    expect(brief({ t36: "br" }, { ...GKV10, zuschussJahr: 2026 })).toMatch(/per Gesetz[\s\S]*vorläufig/);
   });
 });

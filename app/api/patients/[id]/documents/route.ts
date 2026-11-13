@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { DOC_MAX_BYTES, safeFileName, sniffMime } from "@/lib/akte";
+import { DOC_MAX_BYTES, dokumentSpeicherVoll, safeFileName, sniffMime } from "@/lib/akte";
 import { patientInPractice } from "@/lib/patientScope";
 import { auditFromSession } from "@/lib/audit";
 
@@ -14,6 +14,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const bytes = new Uint8Array(await file.arrayBuffer());
   const mime = sniffMime(bytes);
   if (!mime) return NextResponse.json({ error: "Nur PDF, PNG und JPEG sind erlaubt." }, { status: 415 });
+  // Gesamtgrenze je Praxis (Gastzugang deutlich knapper), sonst füllen viele kleine Dateien die Datenbank.
+  const [praxis, belegt] = await Promise.all([
+    prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { isDemo: true } }),
+    prisma.patientDocument.aggregate({ where: { practiceId: session.user.practiceId }, _sum: { size: true } }),
+  ]);
+  const voll = dokumentSpeicherVoll(belegt._sum.size ?? 0, bytes.length, !!praxis?.isDemo);
+  if (voll) return NextResponse.json({ error: voll }, { status: 413 });
   const doc = await prisma.patientDocument.create({
     data: { practiceId: session.user.practiceId, patientId: patient.id, name: safeFileName(file.name), mime, size: bytes.length, data: Buffer.from(bytes), createdBy: session.user.name ?? null },
     select: { id: true, name: true, mime: true, size: true, createdAt: true, createdBy: true },

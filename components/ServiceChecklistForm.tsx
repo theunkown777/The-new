@@ -57,9 +57,18 @@ function defaultPerformedFor(
       ((item.catalogItem.system === "GOZ" && other.catalogItem.system === "BEMA") ||
         (item.catalogItem.system === "BEMA" && other.catalogItem.system === "GOZ"))
   );
-  if (!counterpart) return true;
-  if (item.catalogItem.system === "GOZ") return kassenart === "PKV";
-  if (item.catalogItem.system === "BEMA") return kassenart === "GKV";
+  if (counterpart) {
+    if (item.catalogItem.system === "GOZ") return kassenart === "PKV";
+    if (item.catalogItem.system === "BEMA") return kassenart === "GKV";
+    return true;
+  }
+  // Arztpraxis: Enthält die Vorlage sowohl EBM- als auch GOÄ-Ziffern, sind das Alternativen je Versicherung.
+  const hatEbm = allItems.some((x) => x.catalogItem.system === "EBM");
+  const hatGoae = allItems.some((x) => x.catalogItem.system === "GOAE");
+  if (hatEbm && hatGoae) {
+    if (item.catalogItem.system === "EBM") return kassenart === "GKV";
+    if (item.catalogItem.system === "GOAE") return kassenart === "PKV";
+  }
   return true;
 }
 
@@ -136,8 +145,8 @@ export function ServiceChecklistForm({
     fetch("/api/service-templates")
       .then((res) => res.json())
       .then((data) => {
+        // Bewusst keine Vorauswahl: Der alphabetisch erste Sitzungstyp wäre sonst mit allen Leistungen „erbracht“.
         setTemplates(data.templates ?? []);
-        if (data.templates?.[0]) setTemplateId(data.templates[0].id);
       })
       .finally(() => setLoadingTemplates(false));
   }, []);
@@ -292,6 +301,12 @@ export function ServiceChecklistForm({
       .join(" oder ");
   }
 
+  // Erbrachte Leistungen, denen die Angabe Zahn bzw. Region fehlt (nur Hinweis, kein Zwang).
+  const ohneRegion =
+    regionLabel === null
+      ? []
+      : aktivItems.filter((it) => it.catalogItem.toothRelevant && effective[it.catalogItemId] && !(entries[it.catalogItemId]?.toothNumbers ?? "").trim()).map((it) => it.catalogItem.title);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -413,7 +428,9 @@ export function ServiceChecklistForm({
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
               disabled={loadingTemplates}
+              data-testid="sitzungstyp"
             >
+              <option value="">Bitte wählen …</option>
               {templates.some((t) => !t.practiceId) && (
                 <optgroup label="Sitzungstypen Ihres Fachs">
                   {templates.filter((t) => !t.practiceId).map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -686,6 +703,13 @@ export function ServiceChecklistForm({
       </div>
 
       {beforeSubmit}
+
+      {ohneRegion.length > 0 && (
+        <p className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950" role="status" data-testid="region-fehlt">
+          Bei {ohneRegion.length === 1 ? "einer erbrachten Leistung" : `${ohneRegion.length} erbrachten Leistungen`} fehlt noch „{regionLabel}“: {ohneRegion.join(", ")}. Bitte ergänzen oder die Leistung streichen,
+          sonst steht sie ohne Angabe im Bericht.
+        </p>
+      )}
 
       <div className="card">
         <label className="flex cursor-pointer items-start gap-3">

@@ -1,6 +1,7 @@
 import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 import Link from "next/link";
 import { Einrichtung } from "@/components/Einrichtung";
+import { NachfassHinweis } from "@/components/NachfassHinweis";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -114,6 +115,7 @@ export default async function DashboardPage() {
       </div>
 
       <Einrichtung practiceId={practiceId} isAdmin={session!.user.role === "admin"} />
+      <NachfassHinweis practiceId={practiceId} />
 
       {eingangZahl > 0 && (
         <Link href="/eingang" className="mb-6 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900 hover:border-brand-400" data-testid="eingang-hinweis">

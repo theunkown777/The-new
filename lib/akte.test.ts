@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildBriefing, briefingAsText, entrySchema, sniffMime } from "./akte";
+import { buildBriefing, briefingAsText, dokumentSpeicherVoll, entrySchema, sniffMime } from "./akte";
 const now = new Date("2026-11-20");
 const e = (art: string, text: string, extra: Partial<{ code: string; datum: Date; inaktiv: boolean }> = {}) => ({
   art, text, code: extra.code ?? null, datum: extra.datum ?? null, inaktiv: extra.inaktiv ?? false, createdAt: new Date("2026-10-01"),
@@ -32,5 +32,17 @@ describe("Akte", () => {
   });
   it("erfindet nichts bei leerer Akte", () => {
     expect(buildBriefing({ ...base, alter: null, versicherung: null })).toEqual({ achtung: [], zeilen: [{ label: "Patient", text: "Alter unbekannt" }] });
+  });
+});
+
+describe("Dokumentenspeicher je Praxis", () => {
+  const MB = 1024 * 1024;
+  it("Gastzugang: zusammen höchstens 10 MB", () => {
+    expect(dokumentSpeicherVoll(6 * MB, 4 * MB, true)).toBeNull();
+    expect(dokumentSpeicherVoll(6 * MB, 4 * MB + 1, true)).toContain("10 MB");
+  });
+  it("Praxis: zusammen höchstens 400 MB", () => {
+    expect(dokumentSpeicherVoll(6 * MB, 5 * MB, false)).toBeNull();
+    expect(dokumentSpeicherVoll(398 * MB, 5 * MB, false)).toContain("400 MB");
   });
 });

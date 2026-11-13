@@ -58,7 +58,7 @@ export function AnamnesisForm({ token, practiceName, firstName, dental = true, p
       <p className="text-sm font-medium text-brand-700">{practiceName}</p>
       <h1 className="mt-1 text-2xl font-semibold text-slate-900">Anamnesebogen für {firstName}</h1>
       <p className="mt-2 text-slate-600">
-        Etwa drei Minuten. Ihre Angaben helfen uns, Sie sicher zu behandeln, und gehen direkt an Ihre Praxis. Sie unterliegen der
+        Etwa drei Minuten. Ihre Angaben helfen uns, Sie sicher zu behandeln, und gehen direkt an Ihre Praxis. Sie unterliegen der{" "}
         {dental ? "zahnärztlichen" : "ärztlichen"} Schweigepflicht.
       </p>
 

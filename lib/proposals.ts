@@ -25,11 +25,12 @@ export const PRICE_DEFS = [
   { key: "komp_klein", label: "Mehrschicht-Komposit, 1–2 Flächen", default: 160 },
   { key: "komp_gross", label: "Mehrschicht-Komposit, ab 3 Flächen", default: 240 },
   { key: "inlay", label: "Keramik-Inlay", default: 890 },
-  { key: "krone_regel", label: "Krone, Regelversorgung", default: 680 },
+  { key: "krone_regel", label: "Krone, Standardausführung (nur Privatpatienten)", default: 680 },
   { key: "krone_vk", label: "Vollkeramik-Krone", default: 1050 },
-  { key: "bruecke_regel", label: "Brücke 3-gliedrig, Regelversorgung", default: 1750 },
+  { key: "bruecke_regel", label: "Brücke 3-gliedrig, Standardausführung (nur Privatpatienten)", default: 1750 },
   { key: "bruecke_vk", label: "Vollkeramik-Brücke 3-gliedrig", default: 2450 },
-  { key: "teilprothese", label: "Teilprothese Modellguss, Regelversorgung", default: 1300 },
+  { key: "teilprothese", label: "Teilprothese Modellguss (nur Privatpatienten)", default: 1300 },
+  { key: "totalprothese", label: "Totalprothese je Kiefer (nur Privatpatienten)", default: 1200 },
   { key: "implantat", label: "Implantat inkl. Krone", default: 3400 },
   { key: "wk_kasse", label: "Wurzelbehandlung, Kassenleistung", default: 240 },
   { key: "wk_plus", label: "Endo-Zusatz (maschinell, Mikroskop, Längenmessung)", default: 390 },
@@ -91,6 +92,8 @@ export interface ProposalOption {
   zuzahlung?: boolean | "heilmittel" | "hilfsmittel";
   /** Eigene Bezeichnung der Leistungsart, z. B. "Selbstzahlerleistung" in Therapiepraxen. */
   typeLabel?: string;
+  /** Rein kosmetisch (z. B. Bleaching): Zusatzversicherung und Privattarif erstatten nichts. */
+  ohneErstattung?: boolean;
 }
 
 export interface ProposalItem {
@@ -170,7 +173,7 @@ function emptyItem(key: string, where: string, title: string): ProposalItem {
   return { key, where, title, options: [], recommended: null, notes: [], excluded: [] };
 }
 
-function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices): ProposalItem {
+function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, anker?: { where: string; bruecke: boolean }): ProposalItem {
   const k = toothKind(n);
   const g = input.globals;
   const r = emptyItem(`t${n}`, `Zahn ${n}`, FINDINGS[f]);
@@ -202,7 +205,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices): 
       } else {
         r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_gross, benefits: ["schnelle Lösung", "bei großen Flächen begrenzt haltbar"] });
         r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_gross, base: P.fk_gross, benefits: ["zahnfarben, gute Randdichte", "Kasse zahlt Kassenfüllung anteilig"] });
-        r.options.push({ id: "inlay", type: "privat", name: "Keramik-Inlay", total: P.inlay, benefits: ["sehr langlebig", "stabilisiert den geschwächten Zahn"] });
+        r.options.push({ id: "inlay", type: "mehrkosten", name: "Keramik-Inlay", total: P.inlay, base: P.fk_gross, benefits: ["sehr langlebig", "stabilisiert den geschwächten Zahn", "Kasse zahlt Kassenfüllung anteilig"] });
         r.recommended = k === "molar" ? "inlay" : "komp";
         if (g.bruxismus) warn("Knirschen erhöht die Bruchgefahr. Zusätzlich eine Aufbissschiene einplanen.");
       }
@@ -216,54 +219,34 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices): 
       else info("Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus.");
       break;
 
-    case "zerstoert":
-      r.options.push({ id: "kr", type: "regel", name: "Krone, Regelversorgung", total: P.krone_regel, regel: P.krone_regel, befunde: kronenBefunde(n), benefits: [k === "molar" ? "Metall, im Seitenzahnbereich unverblendet" : "Metall mit Keramikverblendung", "bewährt und haltbar"] });
-      r.options.push({ id: "krvk", type: "gleichartig", name: "Vollkeramik-Krone", total: P.krone_vk, regel: P.krone_regel, befunde: kronenBefunde(n), benefits: ["metallfrei, natürliche Optik", "sehr gut verträglich", "gleicher Festzuschuss"] });
-      if (k === "molar") {
+    case "zerstoert": {
+      // Kassenpatienten: Die Regelversorgung wird nach BEMA und BEL II abgerechnet, nicht nach dem Preis der Praxis.
+      // Geschätzt wird sie mit den Durchschnittskosten der Festzuschuss-Richtlinie (100-%-Betrag des Befunds).
+      const kb = kronenBefunde(n);
+      const sichtbar = VERBLENDBEREICH.has(n);
+      const gkv = input.patient.insurance === "GKV";
+      r.options.push({ id: "kr", type: "regel", name: "Krone, Regelversorgung", total: gkv ? regelKosten(kb) : P.krone_regel, regel: P.krone_regel, befunde: kb, benefits: [sichtbar ? "Metall mit Keramikverblendung auf der sichtbaren Seite" : "Metall, im Seitenzahnbereich unverblendet", "bewährt und haltbar"] });
+      r.options.push({ id: "krvk", type: "gleichartig", name: "Vollkeramik-Krone", total: P.krone_vk, regel: P.krone_regel, befunde: kb, benefits: ["metallfrei, natürliche Optik", "sehr gut verträglich", "gleicher Festzuschuss"] });
+      if (!sichtbar) {
         r.recommended = "kr";
         info("Im Seitenzahnbereich ist die Kassenkrone funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.");
       } else {
         r.recommended = "krvk";
       }
+      if (anker) {
+        // Nachbar einer Lücke: Bei einer Brücke ist die Krone des Pfeilerzahns in der Brücke enthalten.
+        r.options.push({ id: "anker", type: "regel", typeLabel: "In der Brücke enthalten", name: `Entfällt bei einer Brücke (${anker.where})`, total: 0, benefits: ["als Brückenpfeiler in der Brücke enthalten", "keine eigene Krone nötig"] });
+        if (anker.bruecke) r.recommended = "anker";
+        info(`Wird dieser Zahn Pfeiler einer Brücke (${anker.where}), ist seine Krone dort enthalten. Eine eigene Krone braucht er nur, wenn die Lücke anders versorgt wird.`);
+      }
       if (g.bruxismus) warn("Bei Knirschen monolithisches Zirkon wählen, keine verblendete Keramik.");
       break;
-
-    case "fehlt": {
-      if (pos(n) === 8) {
-        r.excluded.push("Ersatz eines fehlenden Weisheitszahns ist nicht nötig.");
-        break;
-      }
-      const nb = neighbors(n);
-      const nf = nb.map((x) => input.teeth[String(x)]);
-      const gapNext = nf.some((x) => x === "fehlt");
-      const nbWork = nf.some(needsWork);
-      const nbHealthy = nf.every((x) => x === undefined || x === "fissur");
-      if (gapNext) {
-        r.options.push({ id: "tp", type: "regel", name: "Teilprothese (Modellguss)", total: P.teilprothese, regel: P.teilprothese, befunde: ["3.1"], benefits: ["herausnehmbar", "ersetzt mehrere Zähne"] });
-        r.options.push({ id: "impl", type: "andersartig", name: "Implantat mit Krone", total: P.implantat, regel: P.teilprothese, befunde: ["3.1"], benefits: ["festsitzend", "Kieferknochen bleibt belastet", "Festzuschuss wie Regelversorgung"] });
-        r.excluded.push("Brücke: Nachbarlücke vorhanden, keine ausreichenden Pfeilerzähne.");
-        r.recommended = "impl";
-      } else {
-        r.options.push({ id: "br", type: "regel", name: "Brücke, Regelversorgung", total: P.bruecke_regel, regel: P.bruecke_regel, befunde: brueckenBefunde(n, nb), benefits: ["festsitzend", "Nachbarzähne werden beschliffen"] });
-        r.options.push({ id: "brvk", type: "gleichartig", name: "Vollkeramik-Brücke", total: P.bruecke_vk, regel: P.bruecke_regel, befunde: brueckenBefunde(n, nb), benefits: ["zahnfarben, metallfrei", "gleicher Festzuschuss"] });
-        r.options.push({ id: "impl", type: "andersartig", name: "Implantat mit Krone", total: P.implantat, regel: P.bruecke_regel, befunde: brueckenBefunde(n, nb), benefits: ["Nachbarzähne bleiben unberührt", "Kieferknochen bleibt belastet", "gleicher Festzuschuss"] });
-        if (nbWork) {
-          r.recommended = "br";
-          info(`Die Nachbarzähne ${nb.join(" und ")} brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich.`);
-        } else if (nbHealthy) {
-          r.recommended = "impl";
-          info(`Die Nachbarzähne ${nb.join(" und ")} sind gesund. Ein Implantat erspart das Beschleifen.`);
-        } else {
-          r.recommended = "br";
-        }
-      }
-      if (g.raucher) {
-        warn("Rauchen erhöht das Risiko eines Implantatverlusts deutlich. Vorher Rauchstopp besprechen.");
-        if (r.recommended === "impl") r.recommended = gapNext ? "tp" : "br";
-      }
-      if (g.psi) warn("Vor Implantat oder Brücke zuerst die Parodontitis behandeln.");
-      break;
     }
+
+    case "fehlt":
+      // Lücken werden je Kiefer gemeinsam geplant (lueckenItem). Hier kommt nur der Weisheitszahn an.
+      r.excluded.push("Ersatz eines fehlenden Weisheitszahns ist nicht nötig.");
+      break;
 
     case "fissur": {
       const age = input.patient.age;
@@ -307,7 +290,7 @@ function globalItem(code: GlobalCode, input: ProposalInput, P: Prices): Proposal
       r.recommended = "schiene";
       return r;
     case "bleaching": {
-      r.options.push({ id: "bl", type: "privat", name: "Bleaching", total: P.bleaching, benefits: ["auf ausdrücklichen Wunsch (§ 2 Abs. 3 GOZ)", "Ergebnis hält 1–3 Jahre"] });
+      r.options.push({ id: "bl", type: "privat", name: "Bleaching", total: P.bleaching, ohneErstattung: true, benefits: ["auf ausdrücklichen Wunsch (§ 2 Abs. 3 GOZ)", "Ergebnis hält 1–3 Jahre"] });
       r.recommended = "bl";
       const hasKaries = Object.values(input.teeth).some(
         (f) => f === "karies_klein" || f === "karies_gross" || f === "fuellung_defekt"
@@ -321,17 +304,160 @@ function globalItem(code: GlobalCode, input: ProposalInput, P: Prices): Proposal
   }
 }
 
+const SCHNEIDEZAEHNE = new Set([12, 11, 21, 22, 42, 41, 31, 32]);
+
+/** Zusammengehörige Lücken eines Kiefers mit den Befunden der Festzuschuss-Richtlinie. */
+export interface LueckenGruppe {
+  kiefer: "OK" | "UK";
+  /** 2 = zahnbegrenzte Lücken (Brücke), 3 = Freiend oder mehr als vier fehlende Zähne (Teilprothese), 4 = Restbestand bis drei Zähne oder zahnlos. */
+  klasse: 2 | 3 | 4;
+  zaehne: number[];
+  /** Pfeilerzähne neben den Lücken (nur Klasse 2). */
+  anker: number[];
+  befunde: string[];
+}
+
+/**
+ * Plant die Lücken eines Kiefers. Weisheitszähne zählen weder als fehlend noch als Pfeiler.
+ * Klasse 2 (Befunde 2.1 bis 2.5, dazu 2.7 je sichtbarem ersetztem Zahn und Pfeiler): höchstens vier fehlende
+ * Zähne im Kiefer, keine Lücke am Ende der Zahnreihe, je Lücke höchstens drei Zähne bzw. vier Schneidezähne.
+ * Sonst einmal 3.1 je Kiefer; bei höchstens drei verbliebenen Zähnen 4.1/4.3, zahnlos 4.2/4.4.
+ */
+export function planKiefer(arch: readonly number[], teeth: ProposalInput["teeth"]): LueckenGruppe[] {
+  const oben = Math.floor(arch[0] / 10) <= 2;
+  const kiefer = oben ? "OK" : "UK";
+  const row = arch.filter((n) => pos(n) !== 8);
+  const fehlt = (n: number | undefined) => n != null && teeth[String(n)] === "fehlt";
+  const luecken: { zaehne: number[]; anker: number[]; freiend: boolean }[] = [];
+  for (let i = 0; i < row.length; i++) {
+    if (!fehlt(row[i])) continue;
+    let j = i;
+    while (fehlt(row[j + 1])) j++;
+    luecken.push({
+      zaehne: row.slice(i, j + 1),
+      freiend: i === 0 || j === row.length - 1,
+      anker: [row[i - 1], row[j + 1]].filter((x): x is number => x != null),
+    });
+    i = j;
+  }
+  const alle = luecken.flatMap((l) => l.zaehne);
+  if (!alle.length) return [];
+  if (alle.length === row.length) return [{ kiefer, klasse: 4, zaehne: alle, anker: [], befunde: [oben ? "4.2" : "4.4"] }];
+  if (row.length - alle.length <= 3) return [{ kiefer, klasse: 4, zaehne: alle, anker: [], befunde: [oben ? "4.1" : "4.3"] }];
+  const bruecke =
+    alle.length <= 4 &&
+    luecken.every((l) => !l.freiend && (l.zaehne.length <= 3 || (l.zaehne.length === 4 && l.zaehne.every((z) => SCHNEIDEZAEHNE.has(z)))));
+  if (!bruecke) return [{ kiefer, klasse: 3, zaehne: alle, anker: [], befunde: ["3.1"] }];
+
+  // Lücken mit gemeinsamem Pfeiler gehören zu einer Brücke: die größte bekommt 2.1 bis 2.4, eine angrenzende Einzellücke 2.5.
+  const gruppen: (typeof luecken)[] = [];
+  for (const l of luecken) {
+    const prev = gruppen[gruppen.length - 1];
+    if (prev && prev[prev.length - 1].anker.includes(l.anker[0])) prev.push(l);
+    else gruppen.push([l]);
+  }
+  return gruppen.map((gr) => {
+    const haupt = gr.reduce((a, b) => (b.zaehne.length > a.zaehne.length ? b : a));
+    const befunde = gr.map((l) => (l !== haupt && l.zaehne.length === 1 ? "2.5" : `2.${l.zaehne.length}`));
+    const zaehne = gr.flatMap((l) => l.zaehne);
+    const anker = [...new Set(gr.flatMap((l) => l.anker))];
+    befunde.push(...[...zaehne, ...anker].filter((z) => VERBLENDBEREICH.has(z)).map(() => "2.7"));
+    return { kiefer, klasse: 2 as const, zaehne, anker, befunde };
+  });
+}
+
+const lueckenWo = (g: LueckenGruppe) =>
+  g.zaehne.length === 1 ? `Zahn ${g.zaehne[0]}` : g.klasse === 2 ? `Zähne ${g.zaehne.join(", ")}` : g.kiefer === "OK" ? "Oberkiefer" : "Unterkiefer";
+
+/** Schlüssel des Eintrags: Einzelzahnlücken behalten „t36“, damit gespeicherte Vorschläge ihre Wahl behalten. */
+const lueckenKey = (g: LueckenGruppe) => (g.zaehne.length === 1 ? `t${g.zaehne[0]}` : g.klasse === 2 ? `l${g.zaehne.join("-")}` : `k${g.kiefer}`);
+
+function lueckenItem(g: LueckenGruppe, input: ProposalInput, P: Prices): ProposalItem {
+  const gl = input.globals;
+  const gkv = input.patient.insurance === "GKV";
+  const n = g.zaehne.length;
+  const zahnlos = g.befunde[0] === "4.2" || g.befunde[0] === "4.4";
+  const r = emptyItem(lueckenKey(g), lueckenWo(g), n === 1 ? FINDINGS.fehlt : zahnlos ? "Zahnloser Kiefer" : `${n} Zähne fehlen`);
+  const info = (text: string) => r.notes.push({ kind: "info", text });
+  const warn = (text: string) => r.notes.push({ kind: "warn", text });
+  const implantate = n === 1 ? "Implantat mit Krone" : `${n} Implantate mit Kronen`;
+
+  if (g.klasse === 2) {
+    const glieder = n + g.anker.length;
+    const faktor = glieder / 3;
+    const brName = glieder === 3 ? "Brücke, Regelversorgung" : `Brücke (${glieder} Glieder), Regelversorgung`;
+    r.options.push({ id: "br", type: "regel", name: brName, total: gkv ? regelKosten(g.befunde) : Math.round(P.bruecke_regel * faktor), regel: P.bruecke_regel, befunde: g.befunde, benefits: ["festsitzend", "Nachbarzähne werden beschliffen"] });
+    r.options.push({ id: "brvk", type: "gleichartig", name: glieder === 3 ? "Vollkeramik-Brücke" : `Vollkeramik-Brücke (${glieder} Glieder)`, total: Math.round(P.bruecke_vk * faktor), regel: P.bruecke_regel, befunde: g.befunde, benefits: ["zahnfarben, metallfrei", "gleicher Festzuschuss"] });
+    r.options.push({ id: "impl", type: "andersartig", name: implantate, total: P.implantat * n, regel: P.bruecke_regel, befunde: g.befunde, benefits: ["Nachbarzähne bleiben unberührt", "Kieferknochen bleibt belastet", "gleicher Festzuschuss"] });
+    const nf = g.anker.map((x) => input.teeth[String(x)]);
+    const nbZ = n === 1 ? neighbors(g.zaehne[0]) : g.anker;
+    const nb = { join: () => (nbZ.length <= 2 ? nbZ.join(" und ") : `${nbZ.slice(0, -1).join(", ")} und ${nbZ[nbZ.length - 1]}`) };
+    if (nf.some(needsWork)) {
+      r.recommended = "br";
+      info(`Die Nachbarzähne ${nb.join()} brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich.`);
+    } else if (n === 1 && nf.every((x) => x === undefined || x === "fissur")) {
+      r.recommended = "impl";
+      info(`Die Nachbarzähne ${nb.join()} sind gesund. Ein Implantat erspart das Beschleifen.`);
+    } else {
+      r.recommended = "br";
+      if (n > 1) info("Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung. Implantate sind möglich, aber deutlich aufwendiger.");
+    }
+  } else if (g.klasse === 3) {
+    r.options.push({ id: "tp", type: "regel", name: "Teilprothese (Modellguss)", total: gkv ? regelKosten(g.befunde) : P.teilprothese, regel: P.teilprothese, befunde: g.befunde, benefits: ["herausnehmbar", n === 1 ? "ersetzt den fehlenden Zahn" : "ersetzt alle fehlenden Zähne des Kiefers"] });
+    if (n <= 3) r.options.push({ id: "impl", type: "andersartig", name: implantate, total: P.implantat * n, regel: P.teilprothese, befunde: g.befunde, benefits: ["festsitzend", "Kieferknochen bleibt belastet", "Festzuschuss wie Regelversorgung"] });
+    else r.excluded.push("Implantate: bei so vielen fehlenden Zähnen wird individuell geplant, deshalb hier keine Schätzung.");
+    r.excluded.push(n > 4 ? "Brücke: mehr als vier fehlende Zähne im Kiefer." : "Brücke: am Ende der Zahnreihe fehlt der hintere Pfeilerzahn.");
+    r.recommended = "tp";
+    if (n === 1) info("Fehlt nur der letzte Backenzahn, ist ein Ersatz oft nicht nötig (verkürzte Zahnreihe). Bitte im Gespräch klären.");
+  } else {
+    r.options.push({ id: "tot", type: "regel", name: zahnlos ? "Totalprothese" : "Deckprothese über den verbliebenen Zähnen", total: gkv ? regelKosten(g.befunde) : P.totalprothese, regel: P.totalprothese, befunde: g.befunde, benefits: ["herausnehmbar", "ersetzt alle Zähne des Kiefers"] });
+    r.excluded.push("Implantatgetragener Zahnersatz: wird individuell geplant, deshalb hier keine Schätzung.");
+    r.recommended = "tot";
+  }
+  if (gl.raucher && r.options.some((o) => o.id === "impl")) {
+    warn("Rauchen erhöht das Risiko eines Implantatverlusts deutlich. Vorher Rauchstopp besprechen.");
+    if (r.recommended === "impl") r.recommended = g.klasse === 2 ? "br" : "tp";
+  }
+  if (gl.psi) warn("Vor Implantat oder Brücke zuerst die Parodontitis behandeln.");
+  return r;
+}
+
 export function buildProposal(input: ProposalInput, prices: Prices): ProposalItem[] {
   if (!isDental(input.fach)) return buildMedicalProposal(input);
+  // Lücken zuerst je Kiefer planen: ein Eintrag je Lücke bzw. Kiefer statt je fehlendem Zahn.
+  const gruppen = [...planKiefer(UPPER_TEETH, input.teeth), ...planKiefer(LOWER_TEETH, input.teeth)];
+  const lueckeBei = new Map<number, ProposalItem>();
+  const ankerVon = new Map<number, { where: string; bruecke: boolean }>();
+  for (const g of gruppen) {
+    const item = lueckenItem(g, input, prices);
+    lueckeBei.set(ALL_TEETH.find((n) => g.zaehne.includes(n))!, item);
+    for (const a of g.anker) ankerVon.set(a, { where: item.where, bruecke: item.recommended === "br" });
+  }
   const items: ProposalItem[] = [];
   for (const n of ALL_TEETH) {
+    const luecke = lueckeBei.get(n);
+    if (luecke) items.push(luecke);
     const f = input.teeth[String(n)];
-    if (f && f in FINDINGS) items.push(toothItem(n, f, input, prices));
+    if (!f || !(f in FINDINGS)) continue;
+    if (f === "fehlt" && pos(n) !== 8) continue;
+    items.push(toothItem(n, f, input, prices, ankerVon.get(n)));
   }
   for (const code of Object.keys(GLOBAL_FINDINGS) as GlobalCode[]) {
     if (!input.globals[code]) continue;
     const item = globalItem(code, input, prices);
     if (item) items.push(item);
+  }
+  // Privatpatienten: keine Begriffe der gesetzlichen Kasse (Festzuschuss, Kassenfüllung) in den Vorteilen und Hinweisen.
+  if (input.patient.insurance === "PKV") {
+    const kassenwort = /Kasse|Festzuschuss|Regelversorgung/;
+    for (const it of items) {
+      for (const o of it.options) {
+        o.benefits = o.benefits.filter((b) => !kassenwort.test(b));
+        o.name = o.name.replace(", Regelversorgung", ", Standardausführung");
+      }
+      it.notes = it.notes.map((n) => ({ ...n, text: n.text.replace("die Kassenkrone", "die Krone in Standardausführung").replace("ist die Brücke die Regelversorgung", "ist die Brücke die übliche Versorgung") }));
+      it.excluded = it.excluded.filter((e) => !/Kassen(leistung|-PAR)/.test(e));
+    }
   }
   return items;
 }
@@ -348,33 +474,30 @@ export interface Money {
 // GKV-Beitragssatzstabilisierungsgesetz (2026) senkt sie für alle ab dem
 // 1.1.2027 bewilligten Heil- und Kostenpläne um zehn Prozentpunkte; bis
 // 31.12.2026 bewilligte Pläne behalten die alten Sätze. Härtefälle erhalten
-// weiterhin die volle Regelversorgung.
+// weiterhin die volle Regelversorgung (bei anderer Versorgung den doppelten Festzuschuss).
 export const FESTZUSCHUSS_SAETZE = {
   2026: { 0: 0.6, 5: 0.7, 10: 0.75 },
   2027: { 0: 0.5, 5: 0.6, 10: 0.65 },
 } as const;
 export type ZuschussJahr = keyof typeof FESTZUSCHUSS_SAETZE;
-/** Letzter Tag, an dem eine Bewilligung noch die Sätze von 2026 sichert. */
-export const STICHTAG_ALTE_SAETZE = new Date(2026, 11, 31);
+
+/** Kalendertag in deutscher Zeit als "JJJJ-MM-TT": Stichtage gelten nach deutschem Datum, egal wo der Server steht. */
+export const berlinTag = (d: Date = new Date()): string => d.toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" });
+const STICHTAG_TAG = "2026-12-31";
 
 export function defaultZuschussJahr(today = new Date()): ZuschussJahr {
-  return today > endOfDay(STICHTAG_ALTE_SAETZE) ? 2027 : 2026;
+  return berlinTag(today) > STICHTAG_TAG ? 2027 : 2026;
 }
 
 /** Ob der Vergleich 2026/2027 noch eine Entscheidung beeinflussen kann. */
 export function showsJahresvergleich(today = new Date()): boolean {
-  return today <= endOfDay(STICHTAG_ALTE_SAETZE);
+  return berlinTag(today) <= STICHTAG_TAG;
 }
 
 /** Verbleibende Kalendertage bis einschließlich Stichtag (0 am Stichtag selbst, negativ danach). */
 export function tageBisStichtag(today = new Date()): number {
-  const a = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
-  const b = Date.UTC(STICHTAG_ALTE_SAETZE.getFullYear(), STICHTAG_ALTE_SAETZE.getMonth(), STICHTAG_ALTE_SAETZE.getDate());
-  return Math.round((b - a) / 86400000);
-}
-
-function endOfDay(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+  const [y, m, d] = berlinTag(today).split("-").map(Number);
+  return Math.round((Date.UTC(2026, 11, 31) - Date.UTC(y, m - 1, d)) / 86400000);
 }
 
 /**
@@ -419,6 +542,13 @@ export const brueckenBefunde = (n: number, anker: number[]): string[] => [
 
 const cent = (x: number) => Math.round(x * 100) / 100;
 
+/**
+ * Durchschnittskosten der Regelversorgung für die Befunde (100-%-Beträge der Festzuschuss-Richtlinie).
+ * Die Regelversorgung rechnet die Praxis nach BEMA und BEL II ab, nicht nach eigener Preisliste; die tatsächlichen
+ * Kosten weichen je nach Punktwert der KZV und Labor leicht ab. Verbindlich ist der Heil- und Kostenplan.
+ */
+export const regelKosten = (befunde: string[]): number => cent(befunde.reduce((sum, b) => sum + (FESTZUSCHUSS_BEFUNDE[b]?.euro ?? 0), 0));
+
 /** Festzuschuss in Euro für die Befunde einer Option; null, wenn keine Befunde hinterlegt sind. */
 export function festzuschussEuro(o: Pick<ProposalOption, "befunde">, p: PatientFactors, jahr?: ZuschussJahr): number | null {
   if (!o.befunde?.length) return null;
@@ -438,15 +568,22 @@ export const isZahnersatz = (o: ProposalOption) =>
 
 export function money(o: ProposalOption, p: PatientFactors, jahr?: ZuschussJahr): Money {
   const total = o.total;
-  const pct = Math.min(100, Math.max(0, p.erstattungProzent)) / 100;
+  const satz = Number.isFinite(p.erstattungProzent) ? p.erstattungProzent : 0;
+  const pct = o.ohneErstattung ? 0 : Math.min(100, Math.max(0, satz)) / 100;
   if (p.insurance === "PKV") {
     const kasse = total * pct;
     return { total, kasse, eigen: total - kasse, erstattet: 0, netto: total - kasse };
   }
   let kasse = 0;
   if (o.type === "kasse") kasse = o.zuzahlung && (p.age == null || p.age >= 18) ? Math.max(0, total - zuzahlungBetrag(o.zuzahlung, total)) : total;
-  else if (o.type === "mehrkosten" || o.type === "privatzusatz") kasse = o.base ?? 0;
+  else if (o.type === "mehrkosten" || o.type === "privatzusatz") {
+    kasse = Math.min(o.base ?? 0, total);
+    // Hilfsmittel mit Aufzahlung: Die gesetzliche Zuzahlung fällt zusätzlich an (vom Kassenanteil).
+    if (o.zuzahlung && (p.age == null || p.age >= 18)) kasse = Math.max(0, kasse - zuzahlungBetrag(o.zuzahlung, kasse));
+  }
   else if (o.type === "privat" || o.type === "igel") kasse = 0;
+  // Härtefall (§ 55 Abs. 2 SGB V): Die Kasse trägt die tatsächlichen Kosten der Regelversorgung, sonst den doppelten Festzuschuss.
+  else if (p.haertefall && o.type === "regel") kasse = total;
   else kasse = Math.min(festzuschussEuro(o, p, jahr) ?? (o.regel ?? 0) * festzuschussQuote(p, jahr), total);
   const eigen = total - kasse;
   const erstattet = eigen * pct;
@@ -457,7 +594,7 @@ export function money(o: ProposalOption, p: PatientFactors, jahr?: ZuschussJahr)
  * Pauschale je Verordnung bei Heilmitteln: 10 €, für ab 1.1.2027 ausgestellte Verordnungen 15 €
  * (GKV-Beitragssatzstabilisierungsgesetz; Quelle: TK „Gesundheitsreform 2026/2027“, Stand 11.11.2026).
  */
-export const heilmittelPauschale = (today = new Date()) => (today >= new Date(2027, 0, 1) ? 15 : 10);
+export const heilmittelPauschale = (today = new Date()) => (berlinTag(today) >= "2027-01-01" ? 15 : 10);
 /** Text zur Heilmittel-Zuzahlung, passend zum Datum. */
 export const heilmittelZuzahlungText = (today = new Date()) => `10 % der Kosten plus ${heilmittelPauschale(today)} € je Verordnung`;
 /** Gesetzliche Zuzahlung bei Heilmitteln: 10 % der Kosten plus Pauschale je Verordnung (§ 32 Abs. 2, § 61 SGB V). */
@@ -476,9 +613,17 @@ export function typeLabelOf(o: Pick<ProposalOption, "type" | "typeLabel">, insur
   return o.typeLabel ?? optionTypeLabel(o.type, insurance);
 }
 
+/** Wert in der Auswahl, wenn eine freiwillige Leistung ausdrücklich nicht gewünscht ist. */
+export const ABGEWAEHLT = "-";
+
+/** Freiwillig ist ein Punkt, der nur aus einer einzigen Selbstzahlerleistung besteht: Der Patient kann ihn weglassen. */
+export const istFreiwillig = (item: ProposalItem) =>
+  item.options.length === 1 && item.options[0].type !== "kasse" && item.options[0].type !== "regel";
+
 export function chosenOption(item: ProposalItem, choices: Record<string, string>): ProposalOption | null {
   if (!item.options.length) return null;
   const c = choices[item.key];
+  if (c === ABGEWAEHLT) return null;
   return (
     item.options.find((o) => o.id === c) ??
     item.options.find((o) => o.id === item.recommended) ??
@@ -514,6 +659,22 @@ export function vergleicheJahre(items: ProposalItem[], choices: Record<string, s
     netto2027 += money(o, p, 2027).netto;
   }
   return { netto2026, netto2027, mehrkosten: netto2027 - netto2026, betroffen };
+}
+
+/**
+ * Aufteilung aus Sicht des Patienten: was Kasse bzw. Versicherung (samt Zusatzversicherung) voraussichtlich trägt
+ * und was er selbst zahlt. Diese eine Rechnung gilt für Vorschlag, Einverständnis und Portal.
+ */
+export function patientAnteile(items: ProposalItem[], choices: Record<string, string>, p: PatientFactors): { kasse: number; eigen: number } {
+  let kasse = 0, eigen = 0;
+  for (const item of items) {
+    const o = chosenOption(item, choices);
+    if (!o) continue;
+    const m = money(o, p);
+    kasse += m.kasse + m.erstattet;
+    eigen += m.netto;
+  }
+  return { kasse, eigen };
 }
 
 /** Basis = jeweils erste Option (Kasse/Regel), Plan = gewählte Optionen. */
@@ -553,7 +714,7 @@ export function optionTypeLabel(t: OptionType, insurance: "GKV" | "PKV"): string
     if (t === "kasse") return "Basisleistung";
     if (t === "regel") return "Basisversorgung";
     if (t === "privatzusatz") return "Basis + Zusatz";
-    if (t === "mehrkosten" || t === "privat") return "Wahlleistung";
+    if (t === "mehrkosten" || t === "privat" || t === "gleichartig" || t === "andersartig") return "Wahlleistung";
     if (t === "igel") return "Privatleistung";
   }
   return TYPE_LABELS[t];
@@ -609,7 +770,8 @@ export function buildLetter(args: {
     }
     const why = item.notes.filter((n) => n.kind === "info").map((n) => n.text);
     if (why.length) L.push(`   Warum: ${why.join(" ")}`);
-    L.push(`   Besprochene Wahl: ${chosen.name}`);
+    // Nur was wirklich ausgewählt wurde, heißt „besprochene Wahl“; sonst steht die Empfehlung der Praxis da.
+    if (item.options.length > 1) L.push(choices[item.key] && item.options.some((o) => o.id === choices[item.key]) ? `   Besprochene Wahl: ${chosen.name}` : `   Noch nicht entschieden. Unsere Empfehlung: ${chosen.name}`);
   }
   if (!i) {
     L.push("");
@@ -617,11 +779,17 @@ export function buildLetter(args: {
   }
   const s = summarize(items, choices, patient);
   L.push("");
-  L.push(`Summe Ihres Eigenanteils bei der besprochenen Wahl: ca. ${formatEuro(s.netto)}`);
+  const alleGewaehlt = items.every((it) => it.options.length <= 1 || it.options.some((o) => o.id === choices[it.key]));
+  const wahlWort = alleGewaehlt ? "bei der besprochenen Wahl" : "bei besprochener Wahl bzw. unserer Empfehlung";
+  L.push(`Summe Ihres Eigenanteils ${wahlWort}: ca. ${formatEuro(s.netto)}`);
+  if (!alleGewaehlt) {
+    const nurKasse = items.reduce((sum, it) => sum + (it.options.length ? money(it.options[0], patient).netto : 0), 0);
+    if (Math.abs(nurKasse - s.netto) > 0.5) L.push(`Wenn Sie überall die zuerst genannte Leistung wählen: ca. ${formatEuro(nurKasse)}`);
+  }
   if (vergleich && jv.mehrkosten > 0.5) {
     L.push("");
     L.push(
-      `Bitte beachten: Zum 1. Januar 2027 senken die gesetzlichen Krankenkassen den Festzuschuss für Zahnersatz um zehn Prozentpunkte. Maßgeblich ist das Datum, an dem Ihre Krankenkasse den Heil- und Kostenplan bewilligt, nicht der Behandlungstermin. Wird Ihr Plan bis zum 31.12.2026 bewilligt, gilt der oben genannte Eigenanteil. Bei einer Bewilligung ab dem 1.1.2027 steigt er bei der besprochenen Wahl voraussichtlich auf ca. ${formatEuro(jv.netto2027)} (ca. ${formatEuro(jv.mehrkosten)} mehr).`
+      `Bitte beachten: Zum 1. Januar 2027 sinkt der Festzuschuss der gesetzlichen Krankenkassen für Zahnersatz per Gesetz um zehn Prozentpunkte. Maßgeblich ist das Datum, an dem Ihre Krankenkasse den Heil- und Kostenplan bewilligt, nicht der Behandlungstermin. Wird Ihr Plan bis zum 31.12.2026 bewilligt, gilt der oben genannte Eigenanteil. Bei einer Bewilligung ab dem 1.1.2027 steigt er ${wahlWort} voraussichtlich auf ca. ${formatEuro(jv.netto2027)} (ca. ${formatEuro(jv.mehrkosten)} mehr). Die Beträge für 2027 sind vorläufig, weil die neuen Festzuschüsse erst zum Jahresende veröffentlicht werden.`
     );
   }
   L.push("");
@@ -650,8 +818,9 @@ export function buildLetter(args: {
     L.push(`Ihr Team der ${practiceName}`);
     return L.join("\n");
   }
+  const kasseUeberall = patient.insurance === "GKV" && items.every((it) => !it.options.length || it.options.some((o) => o.type === "kasse" || o.type === "regel"));
   L.push(
-    "Wichtig: Die Kassenleistung ist bei jedem Punkt möglich. Alle Beträge sind Schätzungen. Verbindlich sind der Heil- und Kostenplan bzw. die schriftliche Mehrkostenvereinbarung, die wir vor Behandlungsbeginn mit Ihnen abschließen. Diese Information erhalten Sie nach § 630c Abs. 3 BGB in Textform."
+    (kasseUeberall ? "Wichtig: Die Kassenleistung ist bei jedem Punkt möglich. " : "Wichtig: ") + "Alle Beträge sind Schätzungen. Verbindlich sind der Heil- und Kostenplan bzw. die schriftliche Mehrkostenvereinbarung, die wir vor Behandlungsbeginn mit Ihnen abschließen. Diese Information erhalten Sie nach § 630c Abs. 3 BGB in Textform."
   );
   L.push("");
   L.push("Bei Fragen rufen Sie uns gern an.");

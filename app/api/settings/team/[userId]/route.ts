@@ -1,8 +1,9 @@
-import { auditFromSession, audit } from "@/lib/audit";
+import { auditFromSession } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/permissions";
+import { eigeneSitzungErneuern } from "@/lib/sitzungCookie";
 
 const roleSchema = z.object({ role: z.enum(["admin", "staff"]) });
 const analyticsSchema = z.object({ canSeeAnalytics: z.boolean() });
@@ -50,11 +51,16 @@ export async function PATCH(req: Request, { params }: { params: { userId: string
     }
   }
 
-  const updated = await prisma.user.update({
+  // Neue Rolle beendet die laufenden Sitzungen der Person: Sie meldet sich neu
+  // an (als Admin dann mit Zwei-Faktor-Pflicht). Unveränderte Rolle: nichts zu tun.
+  const wechsel = target.role !== parsed.data.role;
+  const { sessionVersion, ...updated } = await prisma.user.update({
     where: { id: target.id },
-    data: { role: parsed.data.role },
-    select: { id: true, name: true, email: true, role: true },
+    data: { role: parsed.data.role, ...(wechsel ? { sessionVersion: { increment: 1 } } : {}) },
+    select: { id: true, name: true, email: true, role: true, sessionVersion: true },
   });
+  // Wer sich selbst herabstuft, bleibt auf diesem Gerät angemeldet (mit der neuen Rolle).
+  if (wechsel && target.id === session.user.id) await eigeneSitzungErneuern(target.id, sessionVersion);
 
   await auditFromSession(session, "team.rolle", { entityType: "Konto", entityId: params.userId, summary: `Rolle ${parsed.data.role}` });
   return NextResponse.json({ user: updated });
@@ -86,6 +92,7 @@ export async function DELETE(_req: Request, { params }: { params: { userId: stri
     }
   }
 
+  // Mit dem Konto enden auch seine Sitzungen: Der Abgleich in lib/auth.ts findet es nicht mehr.
   await prisma.user.delete({ where: { id: target.id } });
   await auditFromSession(session, "team.entfernt", { entityType: "Konto", entityId: params.userId });
   return NextResponse.json({ ok: true });

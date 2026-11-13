@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
-import { sendEmail } from "@/lib/email";
+import { escapeHtml, sendEmail } from "@/lib/email";
 import { generateToken } from "@/lib/tokens";
 
 const schema = z.object({ email: z.string().email() });
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       to: user.email,
       subject: "Passwort zurücksetzen – Sorrida",
       html: `
-        <p>Hallo ${user.name},</p>
+        <p>Hallo ${escapeHtml(user.name)},</p>
         <p>Sie haben angefordert, Ihr Passwort zurückzusetzen. Der folgende Link ist eine Stunde gültig:</p>
         <p><a href="${resetUrl}">${resetUrl}</a></p>
         <p>Falls Sie das nicht angefordert haben, können Sie diese E-Mail ignorieren.</p>

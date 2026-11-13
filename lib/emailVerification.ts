@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { sendEmail } from "@/lib/email";
+import { escapeHtml, sendEmail } from "@/lib/email";
 import { generateToken } from "@/lib/tokens";
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
@@ -18,7 +18,7 @@ export async function sendVerificationEmail(user: { id: string; name: string; em
     to: user.email,
     subject: "E-Mail-Adresse bestätigen – Sorrida",
     html: `
-      <p>Hallo ${user.name},</p>
+      <p>Hallo ${escapeHtml(user.name)},</p>
       <p>Bitte bestätigen Sie Ihre E-Mail-Adresse (Link ist 24 Stunden gültig):</p>
       <p><a href="${verifyUrl}">${verifyUrl}</a></p>
     `,

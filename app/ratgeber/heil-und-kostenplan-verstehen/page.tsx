@@ -54,12 +54,12 @@ export default function Page() {
         Regelversorgung, darunter die medizinisch sinnvollen Alternativen, jeweils mit einem Satz zum Nutzen und dem Eigenanteil.
       </p>
       <ul>
-        <li>Brücke, Regelversorgung: Nachbarzähne werden beschliffen. Eigenanteil ca. 1.059 €.</li>
+        <li>Brücke, Regelversorgung: Nachbarzähne werden beschliffen. Eigenanteil ca. 230 €.</li>
         <li>Vollkeramik-Brücke: zahnfarben, gleicher Festzuschuss. Eigenanteil ca. 1.759 €.</li>
         <li>Implantat mit Krone: Nachbarzähne bleiben unberührt. Eigenanteil ca. 2.709 €.</li>
       </ul>
       <p>
-        Beispielwerte mit Bonusheft 10 Jahre und den Festzuschüssen 2026 (Befund 2.1: 691,20 €) bei Praxispreisen von 1.750 €, 2.450 € und 3.400 €. Die Kassenleistung steht immer zuerst, damit niemand glaubt, er müsse die teure Variante
+        Beispielwerte mit Bonusheft 10 Jahre und den Festzuschüssen 2026 (Befund 2.1: 691,20 € bei Durchschnittskosten der Regelversorgung von 921,60 €) und Praxispreisen von 2.450 € für die Vollkeramik-Brücke und 3.400 € für das Implantat. Die Kassenleistung steht immer zuerst, damit niemand glaubt, er müsse die teure Variante
         nehmen.
       </p>
 

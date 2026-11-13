@@ -67,20 +67,47 @@ export async function isRateLimited(key: string, limit: number, windowMs: number
   return bucket.count >= limit;
 }
 
-export async function recordAttempt(key: string, windowMs: number): Promise<void> {
-  const windowSeconds = Math.max(1, Math.ceil(windowMs / 1000));
-  const res = await withRedis(async (r) => {
-    const count = await r.incr(prefixed(key));
-    if (count === 1) await r.expire(prefixed(key), windowSeconds);
-  });
-  if (res.ok) return;
+// Zählen und Ablauf in einem Schritt auf dem Server: Bricht die Funktion
+// zwischen zwei Befehlen ab, bliebe sonst ein Zähler ohne Ablauf stehen und
+// würde dauerhaft sperren. Ein Zähler ohne Ablauf (Altbestand) bekommt ihn nach.
+const INCR_SCRIPT = `local c = redis.call('INCR', KEYS[1])
+if c == 1 or redis.call('PTTL', KEYS[1]) < 0 then redis.call('PEXPIRE', KEYS[1], ARGV[1]) end
+return c`;
+// Ablauf bleibt erhalten; nie unter null.
+const DECR_SCRIPT = `local c = tonumber(redis.call('GET', KEYS[1]) or '0')
+if c > 0 then return redis.call('DECR', KEYS[1]) end
+return 0`;
+
+/** Zählt einen Versuch und liefert den neuen Stand im laufenden Zeitfenster. */
+export async function recordAttempt(key: string, windowMs: number): Promise<number> {
+  const windowMsInt = Math.max(1000, Math.ceil(windowMs));
+  const res = await withRedis((r) => r.eval<[string], number>(INCR_SCRIPT, [prefixed(key)], [String(windowMsInt)]));
+  if (res.ok) return Number(res.value);
   const now = Date.now();
   const bucket = buckets.get(key);
   if (!bucket || now - bucket.windowStart > windowMs) {
     buckets.set(key, { count: 1, windowStart: now });
-    return;
+    return 1;
   }
   bucket.count += 1;
+  return bucket.count;
+}
+
+/**
+ * Zählen und prüfen in einem Schritt: true, solange dieser Versuch noch
+ * innerhalb der Grenze liegt. Anders als isRateLimited + recordAttempt
+ * kommen auch viele gleichzeitige Aufrufe nicht über die Grenze.
+ */
+export async function consumeAttempt(key: string, limit: number, windowMs: number): Promise<boolean> {
+  return (await recordAttempt(key, windowMs)) <= limit;
+}
+
+/** Einen vorab gezählten Versuch zurückgeben (z. B. Anmeldung gelungen). */
+export async function releaseAttempt(key: string): Promise<void> {
+  const res = await withRedis((r) => r.eval<[], number>(DECR_SCRIPT, [prefixed(key)], []));
+  if (res.ok) return;
+  const bucket = buckets.get(key);
+  if (bucket && bucket.count > 0) bucket.count -= 1;
 }
 
 export async function clearAttempts(key: string): Promise<void> {

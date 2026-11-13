@@ -76,8 +76,10 @@ export async function POST(req: Request) {
         name: parsed.data.name,
         passwordHash,
         role: invite.role,
-        // Wer den Einladungslink öffnet, hat die Adresse von der Geschäftsführung bekommen.
-        emailVerifiedAt: new Date(),
+        // Bestätigt ist die Adresse nur, wenn der Link per E-Mail genau dorthin ging.
+        // Wurde er bloß angezeigt (Gastzugang, kein Mailversand), kann ihn jeder
+        // eingelöst haben; das Konto bestätigt seine Adresse dann wie nach der Registrierung.
+        emailVerifiedAt: invite.mailed ? new Date() : null,
       },
     }),
     prisma.staffInvite.update({ where: { id: invite.id }, data: { acceptedAt: new Date() } }),

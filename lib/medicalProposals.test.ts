@@ -124,11 +124,11 @@ describe("Versorgung: Hilfsmittel, Apotheke, Klinik", () => {
     const [it] = buildProposal({ teeth: {}, globals: {}, patient: patient(70), fach: "apotheke", anlaesse: ["rezept"] }, DEFAULT_PRICES);
     expect(money(it.options[0], patient(70)).netto).toBe(5);
   });
-  it("höherwertiges Hörgerät: Kasse zahlt den Festbetrag, Eigenanteil ist die Differenz", () => {
+  it("höherwertiges Hörgerät: Kasse zahlt den Festbetrag, Eigenanteil ist die Differenz plus gesetzliche Zuzahlung", () => {
     const [it] = buildProposal({ teeth: {}, globals: {}, patient: patient(75), fach: "hoerakustik", anlaesse: ["hoergeraet"] }, DEFAULT_PRICES);
     const plus = it.options.find((o) => o.id === "hg_plus")!;
     expect(plus).toMatchObject({ type: "mehrkosten", base: 750 });
-    expect(money(plus, patient(75)).netto).toBe(900);
+    expect(money(plus, patient(75)).netto).toBe(910); // 900 € Aufzahlung + 10 € Zuzahlung
     expect(money(it.options[0], patient(75)).netto).toBe(10);
     const sum = summarize([it], { a_hoergeraet: "hg_plus" }, patient(75));
     expect(sum.planTotal - sum.baseTotal).toBe(900);

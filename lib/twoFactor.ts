@@ -66,3 +66,25 @@ export async function consumeBackupCode(
   }
   return null;
 }
+
+/**
+ * Erneute Bestätigung vor heiklen Änderungen bei aktiver 2FA (neues Gerät,
+ * neue Backup-Codes): aktuelles Passwort und ein gültiger Code aus der App,
+ * ersatzweise ein Backup-Code (wird dabei verbraucht). Eine übernommene
+ * Sitzung allein reicht damit nicht, um die 2FA auszuhebeln.
+ * `backupCodes` ist die Liste, die danach zu speichern ist.
+ */
+export async function bestaetigePasswortUndCode(
+  konto: { passwordHash: string; totpSecret: string | null; totpBackupCodes: string | null },
+  password: unknown,
+  code: unknown,
+): Promise<{ ok: true; backupCodes: string | null } | { ok: false; error: string }> {
+  const pw = typeof password === "string" ? password : "";
+  const c = typeof code === "string" ? code.trim() : "";
+  if (!pw || !c) return { ok: false, error: "Bitte das aktuelle Passwort und einen aktuellen Code eingeben." };
+  if (!(await bcrypt.compare(pw, konto.passwordHash))) return { ok: false, error: "Passwort ist falsch." };
+  if (konto.totpSecret && (await verifyTotpToken(c, konto.totpSecret))) return { ok: true, backupCodes: konto.totpBackupCodes };
+  const rest = await consumeBackupCode(c, konto.totpBackupCodes);
+  if (rest === null) return { ok: false, error: "Der Code ist ungültig oder abgelaufen." };
+  return { ok: true, backupCodes: rest || null };
+}

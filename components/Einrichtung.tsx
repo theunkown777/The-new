@@ -8,7 +8,7 @@ export async function Einrichtung({ practiceId, isAdmin }: { practiceId: string;
   if (!isAdmin) return null;
   const practice = await prisma.practice.findUnique({
     where: { id: practiceId },
-    select: { isDemo: true, specialty: true, iban: true, proposalPrices: true, medPrices: true, customOffers: true },
+    select: { isDemo: true, specialty: true, iban: true, proposalPrices: true, medPrices: true, customOffers: true, ausgangswert: true },
   });
   if (!practice || practice.isDemo) return null;
   const dental = isDental(practice.specialty);
@@ -31,6 +31,7 @@ export async function Einrichtung({ practiceId, isAdmin }: { practiceId: string;
     { id: "bank", text: "Bankverbindung hinterlegen", hilfe: "Für den GiroCode: Patienten zahlen direkt auf Ihr Konto.", href: "/zahlungen#konto", fertig: !!practice.iban },
     { id: "team", text: "Team einladen", hilfe: "Empfang und Behandelnde mit eigenem Zugang.", href: "/settings/team", fertig: nutzer > 1 || einladungen > 0 },
     { id: "pvs", text: "Praxissoftware anbinden (optional)", hilfe: "Sorrida öffnet sich dann mit dem gewählten Patienten.", href: "/settings/connector", fertig: connector > 0 },
+    { id: "ausgang", text: "Ausgangswerte schätzen (3 Zahlen)", hilfe: "Damit Sie später sehen, was Sorrida verändert hat.", href: "/analyse/wirkung", fertig: practice.ausgangswert != null },
     { id: "patient", text: "Ersten Patienten anlegen", hilfe: "Oder über die Praxissoftware übernehmen.", href: "/patients/new", fertig: patienten > 0 },
     { id: "abschluss", text: "Erste Behandlung abschließen", hilfe: "Ein Klick: Bericht, Vorschlag, Patienten-Link und To-dos.", href: "/abschluss/new", fertig: berichte + vorschlaege > 0 },
   ];

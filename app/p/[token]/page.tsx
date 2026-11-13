@@ -8,7 +8,7 @@ import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
 import { empfehlungJe, hasTranslation, pickLang } from "@/lib/patientI18n";
 import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
-import { isDental, specialty } from "@/lib/specialties";
+import { isDental, isTherapie, specialty } from "@/lib/specialties";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -83,6 +83,7 @@ export default async function PatientLinkPage({
       lang={translatable ? pickLang(searchParams.lang, headers().get("accept-language")) : "de"}
       translatable={translatable}
       dental={dental}
+      therapie={isTherapie(specialty(input.data.fach))}
       arztDativ={specialty(input.data.fach)?.arztDativ}
       zweitmeinung={{
         apiUrl: `/api/p/${params.token}/zweitmeinung`,

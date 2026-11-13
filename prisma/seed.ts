@@ -68,13 +68,34 @@ const ZIFFER_KORREKTUR: { system: string; title: string; von: string; nach: stri
   { system: "GOZ", title: "Wurzelkanalfüllung", von: "–", nach: "2440" },
   { system: "GOZ", title: "Zahnextraktion", von: "–", nach: "3000/3010" },
   { system: "BEMA", title: "Eingehende Beratung", von: "–", nach: "Ä1" },
+  { system: "GOZ", title: "Fluoridierung", von: "–", nach: "1020" },
+  { system: "BEMA", title: "Erhebung Mundhygienestatus", von: "–", nach: "IP1" },
+  { system: "BEMA", title: "Fissurenversiegelung", von: "–", nach: "IP5" },
+];
+
+/** Bezeichnungen, die fachlich falsch waren: Position über System und Ziffer finden und umbenennen (Verknüpfungen bleiben erhalten). */
+const TITEL_KORREKTUR: { system: string; code: string; title: string }[] = [
+  { system: "GOZ", code: "Ä1", title: "Beratung" },
+  { system: "BEMA", code: "Ä1", title: "Beratung" },
+  { system: "BEMA", code: "BEVa", title: "Befundevaluation nach antiinfektiöser Therapie" },
+  { system: "BEMA", code: "BEVb", title: "Befundevaluation nach chirurgischer Therapie" },
+  { system: "BEMA", code: "ATG", title: "Parodontologisches Aufklärungs- und Therapiegespräch" },
+  { system: "BEMA", code: "MHU", title: "Patientenindividuelle Mundhygieneunterweisung" },
+  { system: "BEMA", code: "AITa", title: "Antiinfektiöse Therapie, je einwurzeligem Zahn" },
+  { system: "BEMA", code: "AITb", title: "Antiinfektiöse Therapie, je mehrwurzeligem Zahn" },
+  { system: "BEMA", code: "CPTa", title: "Chirurgische Therapie, je einwurzeligem Zahn" },
+  { system: "BEMA", code: "CPTb", title: "Chirurgische Therapie, je mehrwurzeligem Zahn" },
+  { system: "BEMA", code: "UPTa", title: "UPT: Mundhygienekontrolle" },
+  { system: "BEMA", code: "UPTb", title: "UPT: Mundhygieneunterweisung" },
+  { system: "BEMA", code: "UPTc", title: "UPT: Reinigung aller Zähne, je Zahn" },
+  { system: "BEMA", code: "UPTd", title: "UPT: Messung von Sondierungsbluten und Sondierungstiefen" },
 ];
 
 const CATALOG: SeedItem[] = [
   { key: "unters_privat", system: "GOZ", code: "0010", title: "Eingehende Untersuchung", description: "Eingehende Untersuchung zur Feststellung von Zahn-, Mund- und Kieferkrankheiten", category: "Diagnostik & Beratung", toothRelevant: false },
   { key: "unters_gkv", system: "BEMA", code: "01", title: "Eingehende Untersuchung", description: "Eingehende Untersuchung zur Feststellung von Zahn-, Mund- und Kieferkrankheiten sowie Erhebung des Zahnstatus", category: "Diagnostik & Beratung", toothRelevant: false },
-  { key: "beratung_privat", system: "GOZ", code: "Ä1", title: "Eingehende Beratung", description: "Eingehende Beratung, ggf. unter Einbeziehung eines Patientengesprächs zu Befund und Behandlungsplan", category: "Diagnostik & Beratung", toothRelevant: false },
-  { key: "beratung_gkv", system: "BEMA", code: "Ä1", title: "Eingehende Beratung", description: "Eingehende Beratung", category: "Diagnostik & Beratung", toothRelevant: false },
+  { key: "beratung_privat", system: "GOZ", code: "Ä1", title: "Beratung", description: "Beratung, ggf. unter Einbeziehung eines Patientengesprächs zu Befund und Behandlungsplan", category: "Diagnostik & Beratung", toothRelevant: false },
+  { key: "beratung_gkv", system: "BEMA", code: "Ä1", title: "Beratung", description: "Beratung eines Kranken, auch fernmündlich", category: "Diagnostik & Beratung", toothRelevant: false },
   { key: "anamnese", system: "SONSTIGES", code: "–", title: "Anamnese erhoben", description: "Allgemeine und zahnmedizinische Anamnese erhoben und dokumentiert", category: "Diagnostik & Beratung", toothRelevant: false },
   { key: "psi", system: "GOZ", code: "4005", title: "Parodontaler Screening Index (PSI)", description: "Erhebung des Parodontalen Screening Index", category: "Diagnostik & Beratung", toothRelevant: false },
   { key: "vitalitaet", system: "GOZ", code: "0070", title: "Vitalitätsprüfung", description: "Sensibilitäts-/Vitalitätsprüfung eines oder mehrerer Zähne", category: "Diagnostik & Beratung", toothRelevant: true },
@@ -90,7 +111,7 @@ const CATALOG: SeedItem[] = [
   { key: "zst_entfernung", system: "GOZ", code: "4050/4055", title: "Entfernung harter Zahnbeläge", description: "Entfernung harter Zahnbeläge (Zahnstein), unabhängig vom Ausmaß", category: "Prophylaxe", toothRelevant: false, frequenzlimitAnzahl: 1, frequenzlimitZeitraumTage: 365 },
   { key: "pzr", system: "GOZ", code: "1040", title: "Professionelle Zahnreinigung", description: "Entfernung weicher Zahnbeläge, Politur und Fluoridierung sämtlicher Zähne", category: "Prophylaxe", toothRelevant: false, frequenzlimitAnzahl: 2, frequenzlimitZeitraumTage: 365 },
   { key: "mundhygiene_instruktion", system: "SONSTIGES", code: "–", title: "Mundhygieneinstruktion", description: "Anleitung zur Mundhygiene gegeben", category: "Prophylaxe", toothRelevant: false },
-  { key: "fluoridierung", system: "GOZ", code: "–", title: "Fluoridierung", description: "Lokale Fluoridierung", category: "Prophylaxe", toothRelevant: false },
+  { key: "fluoridierung", system: "GOZ", code: "1020", title: "Fluoridierung", description: "Lokale Fluoridierung", category: "Prophylaxe", toothRelevant: false },
 
   { key: "kariesexkavation", system: "SONSTIGES", code: "–", title: "Kariesexkavation", description: "Entfernung kariösen Zahnschmelzes/-dentins", category: "Füllungstherapie", toothRelevant: true },
   { key: "fuellung_einflaechig", system: "GOZ", code: "2060", title: "Füllung, einflächig", description: "Kompositfüllung, einflächig", category: "Füllungstherapie", toothRelevant: true, ausschlussMit: ["fuellung_mehrflaechig"] },
@@ -106,22 +127,25 @@ const CATALOG: SeedItem[] = [
   { key: "wundversorgung", system: "SONSTIGES", code: "–", title: "Wundversorgung / Naht", description: "Blutstillung, ggf. Naht nach chirurgischem Eingriff", category: "Chirurgie", toothRelevant: true },
   { key: "postop_anweisung", system: "SONSTIGES", code: "–", title: "Postoperative Anweisung", description: "Mündliche und/oder schriftliche Verhaltensanweisung nach dem Eingriff gegeben", category: "Chirurgie", toothRelevant: false },
 
-  // Systematische Parodontitisbehandlung (PAR-Richtlinie, seit 01.07.2021):
-  // die offiziellen BEMA-Kürzel BEVa/BEVb, ATG, MHU, AITa/AITb, CPTa/CPTb,
-  // UPTa-d werden in der Praxis als Kürzel statt der reinen Ziffer geführt -
-  // deshalb hier bewusst als "code" hinterlegt, statt eine Nummer zu raten.
-  { key: "par_beva", system: "BEMA", code: "BEVa", title: "Parodontaler Screening Index", description: "Erhebung des Parodontalen Screening Index (PSI) als Einstieg in die systematische PAR-Behandlung", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
-  { key: "par_bevb", system: "BEMA", code: "BEVb", title: "Erhebung Parodontalstatus", description: "Vollständige parodontale Befunderhebung (Taschentiefen, Attachmentverlust, Furkationsbefall, Zahnlockerung)", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
-  { key: "par_atg", system: "BEMA", code: "ATG", title: "Aufstellung Parodontal-Therapieplan", description: "Erstellung und Antrag des Parodontaltherapieplans zur Genehmigung durch die Krankenkasse", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
-  { key: "par_mhu", system: "BEMA", code: "MHU", title: "Mundhygieneunterweisung", description: "Unterweisung in Mundhygienetechniken im Rahmen der PAR-Behandlung", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
-  { key: "par_aita", system: "BEMA", code: "AITa", title: "Antiinfektiöse Therapie, geschlossenes Verfahren", description: "Nichtchirurgische subgingivale Reinigung (Scaling/Wurzelglättung) unter Lokalanästhesie", category: "Parodontologie", toothRelevant: true, gueltigAb: "2021-07-01" },
-  { key: "par_aitb", system: "BEMA", code: "AITb", title: "Antiinfektiöse Therapie, offenes Verfahren", description: "Chirurgisches Vorgehen bei der antiinfektiösen Therapie an Zähnen mit fortbestehenden tiefen Resttaschen", category: "Parodontologie", toothRelevant: true, gueltigAb: "2021-07-01" },
-  { key: "par_cpta", system: "BEMA", code: "CPTa", title: "Chirurgische Parodontitistherapie, resektiv", description: "Resektives chirurgisches Verfahren bei fortbestehenden Resttaschen nach antiinfektiöser Therapie", category: "Parodontologie", toothRelevant: true, gueltigAb: "2021-07-01" },
-  { key: "par_cptb", system: "BEMA", code: "CPTb", title: "Chirurgische Parodontitistherapie, regenerativ", description: "Regeneratives chirurgisches Verfahren bei fortbestehenden Resttaschen nach antiinfektiöser Therapie", category: "Parodontologie", toothRelevant: true, gueltigAb: "2021-07-01" },
-  { key: "par_upta", system: "BEMA", code: "UPTa", title: "Unterstützende Parodontitistherapie – Stufe a", description: "Erste Nachsorgesitzung im Rahmen der unterstützenden Parodontitistherapie", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
-  { key: "par_uptb", system: "BEMA", code: "UPTb", title: "Unterstützende Parodontitistherapie – Stufe b", description: "Nachsorgesitzung im Rahmen der unterstützenden Parodontitistherapie", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
-  { key: "par_uptc", system: "BEMA", code: "UPTc", title: "Unterstützende Parodontitistherapie – Stufe c", description: "Nachsorgesitzung im Rahmen der unterstützenden Parodontitistherapie", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
-  { key: "par_uptd", system: "BEMA", code: "UPTd", title: "Unterstützende Parodontitistherapie – Stufe d", description: "Abschließende Nachsorgestufe im Rahmen der zweijährigen unterstützenden Parodontitistherapie", category: "Parodontologie", toothRelevant: false, gueltigAb: "2021-07-01" },
+  // Systematische Parodontitisbehandlung nach der PAR-Richtlinie (seit 01.07.2021). Die BEMA-Kürzel dienen als Ziffer:
+  // 4 Status und Antrag, ATG, MHU, AIT a/b (ein-/mehrwurzelig), BEV a/b (Befundevaluation nach AIT bzw. CPT),
+  // CPT a/b (ein-/mehrwurzelig), UPT a bis g (Leistungen der zweijährigen Nachsorge).
+  { key: "par_status", system: "BEMA", code: "4", title: "Parodontalstatus und Antrag (PAR-Status)", description: "Befunderhebung und Erstellen des Heil- und Kostenplans bei Erkrankungen des Parodontiums; Antrag an die Krankenkasse", category: "Parodontologie", toothRelevant: false },
+  { key: "par_beva", system: "BEMA", code: "BEVa", title: "Befundevaluation nach antiinfektiöser Therapie", description: "Erneute Befundaufnahme drei bis sechs Monate nach der antiinfektiösen Therapie (AIT)", category: "Parodontologie", toothRelevant: false },
+  { key: "par_bevb", system: "BEMA", code: "BEVb", title: "Befundevaluation nach chirurgischer Therapie", description: "Erneute Befundaufnahme drei bis sechs Monate nach der chirurgischen Therapie (CPT)", category: "Parodontologie", toothRelevant: false },
+  { key: "par_atg", system: "BEMA", code: "ATG", title: "Parodontologisches Aufklärungs- und Therapiegespräch", description: "Gespräch über Befund, Diagnose, Therapie und Mitwirkung des Patienten", category: "Parodontologie", toothRelevant: false },
+  { key: "par_mhu", system: "BEMA", code: "MHU", title: "Patientenindividuelle Mundhygieneunterweisung", description: "Mundhygieneaufklärung, Anfärben und individuelle Unterweisung", category: "Parodontologie", toothRelevant: false },
+  { key: "par_aita", system: "BEMA", code: "AITa", title: "Antiinfektiöse Therapie, je einwurzeligem Zahn", description: "Entfernung aller supra- und subgingivalen weichen und harten Beläge (geschlossenes Vorgehen)", category: "Parodontologie", toothRelevant: true },
+  { key: "par_aitb", system: "BEMA", code: "AITb", title: "Antiinfektiöse Therapie, je mehrwurzeligem Zahn", description: "Entfernung aller supra- und subgingivalen weichen und harten Beläge (geschlossenes Vorgehen)", category: "Parodontologie", toothRelevant: true },
+  { key: "par_cpta", system: "BEMA", code: "CPTa", title: "Chirurgische Therapie, je einwurzeligem Zahn", description: "Offenes Vorgehen bei fortbestehenden Taschen nach der antiinfektiösen Therapie", category: "Parodontologie", toothRelevant: true },
+  { key: "par_cptb", system: "BEMA", code: "CPTb", title: "Chirurgische Therapie, je mehrwurzeligem Zahn", description: "Offenes Vorgehen bei fortbestehenden Taschen nach der antiinfektiösen Therapie", category: "Parodontologie", toothRelevant: true },
+  { key: "par_upta", system: "BEMA", code: "UPTa", title: "UPT: Mundhygienekontrolle", description: "Unterstützende Parodontitistherapie: Kontrolle der Mundhygiene", category: "Parodontologie", toothRelevant: false },
+  { key: "par_uptb", system: "BEMA", code: "UPTb", title: "UPT: Mundhygieneunterweisung", description: "Unterstützende Parodontitistherapie: Unterweisung, soweit erforderlich", category: "Parodontologie", toothRelevant: false },
+  { key: "par_uptc", system: "BEMA", code: "UPTc", title: "UPT: Reinigung aller Zähne, je Zahn", description: "Unterstützende Parodontitistherapie: supragingivale und gingivale Reinigung von Biofilm und Belägen", category: "Parodontologie", toothRelevant: false },
+  { key: "par_uptd", system: "BEMA", code: "UPTd", title: "UPT: Messung von Sondierungsbluten und Sondierungstiefen", description: "Unterstützende Parodontitistherapie: Messung an allen Zähnen", category: "Parodontologie", toothRelevant: false },
+  { key: "par_upte", system: "BEMA", code: "UPTe", title: "UPT: subgingivale Instrumentierung, je einwurzeligem Zahn", description: "Unterstützende Parodontitistherapie: bei Sondierungstiefen ab 4 mm mit Bluten bzw. ab 5 mm", category: "Parodontologie", toothRelevant: true },
+  { key: "par_uptf", system: "BEMA", code: "UPTf", title: "UPT: subgingivale Instrumentierung, je mehrwurzeligem Zahn", description: "Unterstützende Parodontitistherapie: bei Sondierungstiefen ab 4 mm mit Bluten bzw. ab 5 mm", category: "Parodontologie", toothRelevant: true },
+  { key: "par_uptg", system: "BEMA", code: "UPTg", title: "UPT: Untersuchung des Parodontalzustands", description: "Unterstützende Parodontitistherapie: Befundaufnahme im Verlauf der Nachsorge", category: "Parodontologie", toothRelevant: false },
 
   // Kassen-Gegenstücke (BEMA) mit gleichem Titel wie die Privatposition: Im Abschluss wird je nach
   // Kassenart des Patienten nur die passende vorbelegt (ServiceChecklistForm, defaultPerformedFor).
@@ -146,9 +170,9 @@ const CATALOG: SeedItem[] = [
   { key: "provisorium", system: "GOZ", code: "–", title: "Provisorische Versorgung", description: "Eingliederung eines Provisoriums bis zur definitiven Versorgung", category: "Prothetik", toothRelevant: true },
   { key: "eingliederung_ersatz", system: "GOZ", code: "–", title: "Eingliederung Zahnersatz", description: "Eingliederung von Zahnersatz/Zahnkrone", category: "Prothetik", toothRelevant: true },
 
-  { key: "ip_mundhygienestatus", system: "BEMA", code: "–", title: "Erhebung Mundhygienestatus", description: "Erhebung des Mundhygienestatus (Plaque-/Gingivitis-Index) bei Kindern/Jugendlichen", category: "Individualprophylaxe", toothRelevant: false },
+  { key: "ip_mundhygienestatus", system: "BEMA", code: "IP1", title: "Erhebung Mundhygienestatus", description: "Erhebung des Mundhygienestatus (Plaque-/Gingivitis-Index) bei Kindern/Jugendlichen", category: "Individualprophylaxe", toothRelevant: false },
   { key: "ip_ernaehrungsberatung", system: "BEMA", code: "–", title: "Ernährungsberatung", description: "Aufklärung über zahngesunde Ernährung", category: "Individualprophylaxe", toothRelevant: false },
-  { key: "fissuren_versiegelung", system: "BEMA", code: "–", title: "Fissurenversiegelung", description: "Versiegelung kariesfreier Fissuren der bleibenden Molaren", category: "Individualprophylaxe", toothRelevant: true },
+  { key: "fissuren_versiegelung", system: "BEMA", code: "IP5", title: "Fissurenversiegelung", description: "Versiegelung kariesfreier Fissuren der bleibenden Molaren", category: "Individualprophylaxe", toothRelevant: true },
 
   { key: "notfall_diagnostik", system: "SONSTIGES", code: "–", title: "Schmerzdiagnostik", description: "Diagnostik zur Lokalisation der akuten Schmerzursache", category: "Notfallbehandlung", toothRelevant: true },
   { key: "notfall_akutmassnahme", system: "SONSTIGES", code: "–", title: "Akutmaßnahme zur Schmerzausschaltung", description: "Sofortmaßnahme zur Beseitigung akuter Schmerzen (z. B. Trepanation, Entlastung)", category: "Notfallbehandlung", toothRelevant: true },
@@ -253,18 +277,22 @@ const TEMPLATES: SeedTemplate[] = [
     name: "Systematische Parodontitisbehandlung (PAR)",
     description: "Vollständiger PAR-Pfad nach der seit 2021 gültigen Systematik – von der Diagnostik über die antiinfektiöse und ggf. chirurgische Therapie bis zur zweijährigen Nachsorge (UPT)",
     items: [
-      it("par_beva"),
-      it("par_bevb", ["par_beva"]),
-      it("par_atg", ["par_bevb"]),
+      it("par_status"),
+      it("par_atg", ["par_status"]),
       it("par_mhu", ["par_atg"]),
       it("par_aita", ["par_mhu"]),
-      it("par_aitb", ["par_aita"]),
-      it("par_cpta", ["par_aitb"]),
-      it("par_cptb", ["par_aitb"]),
-      it("par_upta", ["par_aita", "par_cpta", "par_cptb"]),
+      it("par_aitb", ["par_mhu"]),
+      it("par_beva", ["par_aita", "par_aitb"]),
+      it("par_cpta", ["par_beva"]),
+      it("par_cptb", ["par_beva"]),
+      it("par_bevb", ["par_cpta", "par_cptb"]),
+      it("par_upta", ["par_beva", "par_bevb"]),
       it("par_uptb", ["par_upta"]),
-      it("par_uptc", ["par_uptb"]),
-      it("par_uptd", ["par_uptc"]),
+      it("par_uptc", ["par_upta"]),
+      it("par_uptd", ["par_upta"]),
+      it("par_upte", ["par_uptd"]),
+      it("par_uptf", ["par_uptd"]),
+      it("par_uptg", ["par_upta"]),
     ],
   },
   {
@@ -425,6 +453,12 @@ async function main() {
     const alt = await prisma.serviceCatalogItem.findFirst({ where: { practiceId: null, system: u.system, code: u.von, title: u.title } });
     const neu = await prisma.serviceCatalogItem.findFirst({ where: { practiceId: null, system: u.system, code: u.nach, title: u.title } });
     if (alt && !neu) await prisma.serviceCatalogItem.update({ where: { id: alt.id }, data: { code: u.nach } });
+  }
+  for (const u of TITEL_KORREKTUR) {
+    const da = await prisma.serviceCatalogItem.findFirst({ where: { practiceId: null, system: u.system, code: u.code, title: u.title, OR: [{ fach: "zahn" }, { fach: null }] } });
+    if (da) continue;
+    const alt = await prisma.serviceCatalogItem.findFirst({ where: { practiceId: null, system: u.system, code: u.code, OR: [{ fach: "zahn" }, { fach: null }] } });
+    if (alt) await prisma.serviceCatalogItem.update({ where: { id: alt.id }, data: { title: u.title } });
   }
 
   const itemIdByKey = new Map<string, string>();

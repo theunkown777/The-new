@@ -7,7 +7,7 @@ import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
 import { empfehlungJe, hasTranslation, pickLang } from "@/lib/patientI18n";
 import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
-import { isDental, specialty } from "@/lib/specialties";
+import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 
 export const dynamic = "force-dynamic";
@@ -66,6 +66,7 @@ export default async function PortalProposal({ params, searchParams }: { params:
       lang={translatable ? pickLang(searchParams.lang, headers().get("accept-language")) : "de"}
       translatable={translatable}
       dental={dental}
+      therapie={isTherapie(specialty(input.data.fach))}
       arztDativ={specialty(input.data.fach)?.arztDativ}
       zweitmeinung={{
         apiUrl: `/api/portal/${params.token}/vorschlag/${proposal.id}/zweitmeinung`,

@@ -1,7 +1,6 @@
 import type { Prisma } from "@prisma/client";
-import { buildProposal, chosenOption, resolvePrices } from "@/lib/proposals";
+import { buildProposal, chosenOption, patientAnteile, resolvePrices } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
-import { rowsOf } from "@/lib/analytics";
 import { agreementText } from "@/lib/agreement";
 
 /** Erklärung, Kassen- und Eigenanteil für das Einverständnis eines Vorschlags. */
@@ -19,18 +18,18 @@ export function agreementContext(p: {
   const items = buildProposal(input.data, resolvePrices(p.practice.proposalPrices)).filter((i) => i.options.length);
   const chosen = choicesSchema.safeParse(p.patientChoices ?? p.choices);
   const choices = chosen.success ? chosen.data : {};
-  const rows = rowsOf({ id: p.id, status: p.status, createdAt: p.createdAt, patient: input.data.patient }, items, choices);
-  const kasse = rows.reduce((s, r) => s + r.kasse, 0);
-  const eigen = rows.reduce((s, r) => s + r.privat, 0);
+  // Beträge aus Sicht des Patienten (nicht die Umsatzsicht der Praxis): Privattarif und Zusatzversicherung zählen mit.
+  const { kasse, eigen } = patientAnteile(items, choices, input.data.patient);
   const text = agreementText({
     practiceName: p.practice.name,
-    date: p.createdAt.toLocaleDateString("de-DE"),
+    date: p.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" }),
     choices: items.flatMap((i) => {
       const o = chosenOption(i, choices);
       return o ? [`${i.where}: ${o.name}`] : [];
     }),
     kasse,
     eigen,
+    privat: input.data.patient.insurance === "PKV",
   });
-  return { text, kasse, eigen, choices };
+  return { text, kasse, eigen, choices, privat: input.data.patient.insurance === "PKV" };
 }

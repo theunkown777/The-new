@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { signaturSecret } from "@/lib/geheimnis";
 
 // Zweite Sperre für "Mein Bereich": Auch wer am angemeldeten Rechner sitzt
 // (Empfang, gemeinsamer Arbeitsplatz), sieht Umsatz und Patientenstamm erst
@@ -11,7 +12,7 @@ export const MAX_FEHLVERSUCHE = 5;
 export const SPERRE_MINUTEN = 15;
 export const MIN_LAENGE = 6;
 
-const secret = () => process.env.NEXTAUTH_SECRET || "dev-secret-nur-lokal";
+const secret = () => signaturSecret();
 const sig = (s: string) => crypto.createHmac("sha256", secret()).update(`bereich:${s}`).digest("base64url");
 
 export function bereichToken(userId: string, now = Date.now()): string {

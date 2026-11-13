@@ -34,6 +34,18 @@ export const entrySchema = z
   .refine((e) => !e.code || ICD_RE.test(e.code), { message: "Der ICD-10-Code hat ein ungültiges Format (z. B. K02.1).", path: ["code"] });
 
 export const DOC_MAX_BYTES = 5 * 1024 * 1024;
+/** Obergrenze für alle Dokumente einer Praxis zusammen; im Gastzugang knapp, damit Demos keinen Speicher füllen. */
+export const DOC_GESAMT_BYTES = { demo: 10 * 1024 * 1024, praxis: 400 * 1024 * 1024 };
+
+/** Passt die neue Datei noch in den Dokumentenspeicher der Praxis? Liefert sonst den Hinweistext. */
+export function dokumentSpeicherVoll(belegtBytes: number, neuBytes: number, isDemo: boolean): string | null {
+  const grenze = isDemo ? DOC_GESAMT_BYTES.demo : DOC_GESAMT_BYTES.praxis;
+  if (belegtBytes + neuBytes <= grenze) return null;
+  const mb = Math.round(grenze / (1024 * 1024));
+  return isDemo
+    ? `Im Gastzugang sind zusammen bis zu ${mb} MB an Dokumenten möglich. Registrieren Sie Ihre Praxis, um weiterzuarbeiten.`
+    : `Der Dokumentenspeicher der Praxis ist voll (${mb} MB). Bitte nicht mehr benötigte Dokumente löschen oder den Support ansprechen.`;
+}
 export const DOC_TYPES: Record<string, string> = {
   "application/pdf": "PDF",
   "image/png": "PNG",

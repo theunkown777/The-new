@@ -4,7 +4,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { demoGuard } from "@/lib/demoGuard";
 import { requireAdmin } from "@/lib/permissions";
-import { sendEmail } from "@/lib/email";
+import { escapeHtml, mailVersandAktiv, sendEmail } from "@/lib/email";
+import { teamEmails } from "@/lib/supportTeam";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { generateToken } from "@/lib/tokens";
 
@@ -63,6 +64,12 @@ export async function POST(req: Request) {
 
   const email = parsed.data.email.toLowerCase().trim();
 
+  // Gastzugang: keine Konten auf Adressen des Sorrida-Teams anlegen lassen
+  // (siehe lib/supportTeam.ts, Postfach /anfragen).
+  if (isDemo && teamEmails().includes(email)) {
+    return NextResponse.json({ error: "Diese E-Mail-Adresse kann im Gastzugang nicht eingeladen werden." }, { status: 400 });
+  }
+
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) {
     return NextResponse.json(
@@ -75,7 +82,7 @@ export async function POST(req: Request) {
 
   const { raw: rawToken, hash: tokenHash } = generateToken();
 
-  await prisma.staffInvite.create({
+  const invite = await prisma.staffInvite.create({
     data: {
       practiceId: session.user.practiceId,
       email,
@@ -93,18 +100,25 @@ export async function POST(req: Request) {
   // Gastzugang: nie Mails an fremde Adressen verschicken, nur den Link zeigen.
   if (isDemo) return NextResponse.json({ ok: true, inviteUrl, mailed: false });
 
+  // Ohne eingerichteten Mailversand bekommt die Geschäftsführung den Link
+  // angezeigt und kann ihn selbst weitergeben.
+  if (!mailVersandAktiv()) return NextResponse.json({ ok: true, inviteUrl, mailed: false });
+
   const sent = await sendEmail({
     to: email,
     subject: `Einladung zu ${session.user.practiceName} – Sorrida`,
     html: `
       <p>Hallo,</p>
-      <p>${session.user.name} hat Sie eingeladen, dem Team von ${session.user.practiceName} in Sorrida beizutreten.</p>
+      <p>${escapeHtml(session.user.name)} hat Sie eingeladen, dem Team von ${escapeHtml(session.user.practiceName)} in Sorrida beizutreten.</p>
       <p>Der folgende Link ist 7 Tage gültig:</p>
       <p><a href="${inviteUrl}">${inviteUrl}</a></p>
     `,
   });
+  // Auch wenn der Maildienst ablehnt (z. B. Absenderadresse nicht freigeschaltet): Link zeigen statt „verschickt“ melden.
+  if (!sent.versendet) return NextResponse.json({ ok: true, inviteUrl, mailed: false });
 
-  // Ohne eingerichteten Mailversand bekommt die Geschäftsführung den Link
-  // angezeigt und kann ihn selbst weitergeben.
-  return NextResponse.json(sent.testMode ? { ok: true, inviteUrl, mailed: false } : { ok: true, mailed: true });
+  // Nur jetzt hat allein die eingeladene Adresse den Link bekommen: Beim
+  // Annehmen gilt sie damit als bestätigt (app/api/auth/accept-invite).
+  await prisma.staffInvite.update({ where: { id: invite.id }, data: { mailed: true } });
+  return NextResponse.json({ ok: true, mailed: true });
 }

@@ -1,4 +1,7 @@
-import { teamEmailsRaw } from "@/lib/supportTeam";
+import { isSupportTeam, teamEmailsRaw } from "@/lib/supportTeam";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { cronSecretPasst, kurzfassung, redisPunkt } from "@/lib/betriebsStatus";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { datenbankMb } from "@/lib/amtlich/import";
@@ -9,8 +12,23 @@ import { resolveDatabaseUrls } from "@/lib/databaseUrl";
 export const dynamic = "force-dynamic";
 
 // Selbsttest für den Betrieb (z. B. nach einem Deploy): zeigt, ob die für
-// Anmeldung und Gastzugang nötigen Einstellungen vorhanden sind. Gibt nur
-// ja/nein und Hostnamen aus, niemals Schlüssel oder Passwörter.
+// Anmeldung und Gastzugang nötigen Einstellungen vorhanden sind. Gibt nie
+// Schlüssel oder Passwörter aus.
+// Öffentlich: je Punkt nur der Name und "ok" / "nicht ok" (reicht, um zu sehen,
+// wo es hakt, auch wenn die Anmeldung selbst nicht geht). Die Hinweise mit
+// Anbieter, Region, Commit und Variablennamen sieht nur das Sorrida-Team
+// (angemeldet, SUPPORT_TEAM_EMAILS) oder wer CRON_SECRET als Bearer-Token
+// mitschickt. Ein Praxis-Admin allein genügt nicht: Im Gastzugang ist jeder Admin.
+async function darfDetailsSehen(req: Request): Promise<boolean> {
+  if (cronSecretPasst(req.headers.get("authorization"), process.env.CRON_SECRET)) return true;
+  try {
+    const session = await getServerSession(authOptions);
+    return await isSupportTeam(session?.user.id);
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(req: Request) {
   const requestHost = new URL(req.url).host;
   let nextauthHost: string | null = null;
@@ -59,13 +77,7 @@ export async function GET(req: Request) {
     checks.Datenbank = { ok: false, info: `nicht erreichbar${code ? ` (${code})` : ""}: DATABASE_URL prüfen` };
   }
 
-  const redis = await redisStatus();
-  checks["Missbrauchsschutz (Redis)"] =
-    redis.state === "erreichbar"
-      ? { ok: true, info: `Upstash erreichbar (${redis.source}${redis.tried > 1 ? `, ${redis.tried - 1} weitere Zugangsdaten gesetzt, die nicht antworten – können gelöscht werden` : ""})` }
-      : redis.state === "nicht angebunden"
-        ? { ok: true, info: "nicht angebunden (Zähler nur im Speicher, für den Start in Ordnung)" }
-        : { ok: true, info: `${redis.tried} Zugangsdaten gesetzt, keine antwortet: läuft ersatzweise im Speicher. Neue Upstash-Datenbank mit dem Projekt verbinden (Production) und neu deployen, alte KV_/UPSTASH_-Variablen löschen.` };
+  checks["Missbrauchsschutz (Redis)"] = redisPunkt(await redisStatus());
   checks["KI-Berichte"] = await (await import("@/lib/anthropic")).kiZugangPruefen();
   {
     const { onlineZahlungStatus } = await import("@/lib/onlineZahlung");
@@ -78,7 +90,7 @@ export async function GET(req: Request) {
   // Nur ob gesetzt, nie die Werte: zeigt, ob Pilot- und Hilfe-Anfragen per Mail ankommen.
   checks["E-Mail-Versand"] = process.env.RESEND_API_KEY
     ? { ok: true, info: `Resend-Schlüssel gesetzt${process.env.RESEND_FROM_EMAIL ? ", eigene Absenderadresse" : ", Absender onboarding@resend.dev (nur an die eigene Resend-Kontoadresse zustellbar)"}` }
-    : { ok: true, info: "kein Schlüssel: Mails werden nur protokolliert, Anfragen landen trotzdem in der Datenbank" };
+    : { ok: true, info: "kein Schlüssel: Mails werden nicht verschickt (im Protokoll nur Empfänger und Betreff), Anfragen landen trotzdem in der Datenbank" };
   checks["Benachrichtigung Support"] = process.env.SUPPORT_NOTIFY_EMAIL
     ? { ok: true, info: "eigene Support-Adresse gesetzt" }
     : process.env.LEAD_NOTIFY_EMAIL
@@ -113,5 +125,9 @@ export async function GET(req: Request) {
   };
 
   const ok = Object.values(checks).every((c) => c.ok);
-  return NextResponse.json({ ok, checks }, { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store", "Content-Type": "application/json; charset=utf-8" } });
+  const details = await darfDetailsSehen(req);
+  const body = details
+    ? { ok, checks }
+    : { ok, checks: kurzfassung(checks), hinweis: "Kurzfassung. Die Hinweise je Punkt sieht das Sorrida-Team nach der Anmeldung; ohne Anmeldung mit CRON_SECRET als Bearer-Token." };
+  return NextResponse.json(body, { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store", "Content-Type": "application/json; charset=utf-8" } });
 }

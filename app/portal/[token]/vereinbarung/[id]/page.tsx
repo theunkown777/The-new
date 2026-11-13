@@ -27,7 +27,7 @@ export default async function Vereinbarung({ params }: { params: { token: string
   }
   const ctx = agreementContext(proposal);
   if (!ctx) return null;
-  const { text, kasse, eigen } = ctx;
+  const { text, kasse, eigen, privat } = ctx;
 
   return (
     <main className="min-h-screen bg-[#F5F2EE]" data-testid="vereinbarung">
@@ -35,7 +35,7 @@ export default async function Vereinbarung({ params }: { params: { token: string
         <a href={back} className="text-sm text-salbei-700 underline">← Zurück zu Ihrem Behandlungsweg</a>
         <h1 className="font-display mt-6 text-4xl leading-tight text-slate-900">Ihr Einverständnis</h1>
         <p className="mt-2 text-slate-600">Bestätigen Sie Ihre Wahl schon jetzt. Die Praxis sieht es sofort und bereitet alles vor.</p>
-        <KassenSockel className="mt-5" kasse={kasse} eigen={eigen} />
+        <KassenSockel className="mt-5" kasse={kasse} eigen={eigen} labels={{ kasse: privat ? "Versicherung erstattet" : "Kasse zahlt", eigen: "Ihr Anteil" }} />
         <div className="mt-6">
           {proposal.agreedAt ? (
             <div className="rounded-3xl bg-white p-6" data-testid="vereinbarung-fertig">

@@ -17,12 +17,12 @@ export const agreementSchema = z.object({
 });
 
 /** Erklärungstext, der dem Patienten gezeigt und mit gespeichert wird. */
-export function agreementText(a: { practiceName: string; date: string; choices: string[]; kasse: number; eigen: number }): string {
+export function agreementText(a: { practiceName: string; date: string; choices: string[]; kasse: number; eigen: number; privat?: boolean }): string {
   const eur = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
   return [
     `Ich habe den Behandlungsvorschlag von ${a.practiceName} vom ${a.date} gelesen.`,
     a.choices.length ? `Ich wähle: ${a.choices.join("; ")}.` : "",
-    `Mir ist bekannt, dass meine Krankenkasse voraussichtlich ${eur(a.kasse)} übernimmt und mein Eigenanteil voraussichtlich ${eur(a.eigen)} beträgt.`,
+    `Mir ist bekannt, dass meine ${a.privat ? "Versicherung nach meinem Tarif" : "Krankenkasse"} voraussichtlich ${eur(a.kasse)} ${a.privat ? "erstattet" : "übernimmt"} und mein Eigenanteil voraussichtlich ${eur(a.eigen)} beträgt.`,
     "Die schriftliche Vereinbarung unterschreibe ich vor der Behandlung in der Praxis. Ich kann meine Entscheidung bis dahin jederzeit ändern.",
   ]
     .filter(Boolean)

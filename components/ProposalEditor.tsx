@@ -7,6 +7,7 @@ import { AnlassPicker } from "@/components/AnlassPicker";
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import type { DiktatResult } from "@/lib/befundDiktat";
 import {
+  ABGEWAEHLT,
   FINDINGS,
   GLOBAL_FINDINGS,
   LOWER_TEETH,
@@ -177,17 +178,17 @@ export function ProposalEditor({
     const w = existing?.agreedChoices ?? existing?.patientChoices;
     if (!w) return null;
     const gueltig = Object.fromEntries(
-      Object.entries(w).filter(([k, v]) => items.some((it) => it.key === k && it.options.some((o) => o.id === v))),
+      Object.entries(w).filter(([k, v]) => items.some((it) => it.key === k && (v === ABGEWAEHLT || it.options.some((o) => o.id === v)))),
     );
     return Object.keys(gueltig).length ? gueltig : null;
   })();
   const wahlUnterschrieben = !!existing?.agreedChoices;
-  const wahlWeichtAb = !!patientWahl && Object.entries(patientWahl).some(([k, v]) => chosenOption(items.find((it) => it.key === k)!, choices)?.id !== v);
+  const wahlWeichtAb = !!patientWahl && Object.entries(patientWahl).some(([k, v]) => (chosenOption(items.find((it) => it.key === k)!, choices)?.id ?? ABGEWAEHLT) !== v);
   const wahlText = patientWahl
     ? Object.entries(patientWahl)
         .map(([k, v]) => {
           const it = items.find((x) => x.key === k)!;
-          return `${it.where}: ${it.options.find((o) => o.id === v)?.name ?? v}`;
+          return v === ABGEWAEHLT ? `${it.where}: ${it.title} nicht gewünscht` : `${it.where}: ${it.options.find((o) => o.id === v)?.name ?? v}`;
         })
         .join(" · ")
     : "";
@@ -211,6 +212,8 @@ export function ProposalEditor({
       setError(data.error ?? "Speichern fehlgeschlagen.");
       return;
     }
+    // Übernommene Wahl auch in der Ansicht zeigen, nicht erst nach dem Neuladen.
+    if (choicesOverride) setChoices(choicesOverride);
     if (existing) router.refresh();
     else router.push(`${savedHrefPrefix}${data.proposal.id}`);
   }
@@ -451,12 +454,12 @@ export function ProposalEditor({
 
         <div className="min-w-0 space-y-4">
           <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-4 [&>div]:bg-white">
-            {dental ? <Stat label="Nur Kasse" value={formatEuro(summary.baseTotal)} /> : <Stat label="Anlässe" value={String(items.length)} />}
+            {dental ? <Stat label={factors.insurance === "PKV" ? "Nur Basis" : "Nur Kasse"} value={formatEuro(summary.baseTotal)} /> : <Stat label="Anlässe" value={String(items.length)} />}
             <Stat label="Gewählter Plan" value={formatEuro(summary.planTotal)} />
             <Stat
               label="Mehrumsatz"
               value={`${delta >= 0 ? "+" : ""}${formatEuro(delta)}`}
-              hint={summary.baseTotal ? `+${Math.round((delta / summary.baseTotal) * 100)} % ggü. Kasse` : undefined}
+              hint={summary.baseTotal ? `+${Math.round((delta / summary.baseTotal) * 100)} % ggü. ${factors.insurance === "PKV" ? "Basis" : "Kasse"}` : undefined}
               accent
             />
             <Stat label="Eigenanteil Patient" value={formatEuro(summary.netto)} />

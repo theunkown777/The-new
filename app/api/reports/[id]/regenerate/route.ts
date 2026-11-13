@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { demoGuard } from "@/lib/demoGuard";
+import { demoGuard, kiLimit } from "@/lib/demoGuard";
 import { kiFehlerGrund, generateReportText, ReportType } from "@/lib/anthropic";
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
@@ -21,6 +21,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     include: { patient: true },
   });
   if (!existing) return NextResponse.json({ error: "Bericht nicht gefunden" }, { status: 404 });
+  const zuViele = await kiLimit(session.user.practiceId, "regenerate");
+  if (zuViele) return zuViele;
 
   let generatedText: string;
   try {

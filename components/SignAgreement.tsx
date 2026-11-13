@@ -118,7 +118,7 @@ export function SignAgreement({ postUrl, backHref, text, defaultName }: { postUr
         <input type="checkbox" className="mt-1" checked={accept} onChange={(e) => setAccept(e.target.checked)} required />
         Ich bestätige die obige Erklärung.
       </label>
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{error}</p>}
       <button className="btn-primary !bg-salbei-600 hover:!bg-salbei-700 !border-salbei-600 w-full py-3" disabled={state === "busy"}>{state === "busy" ? "Wird gesendet …" : "Einverständnis senden"}</button>
     </form>
   );

@@ -20,7 +20,7 @@ export function OnlineZahlungEinrichten({ aktiv, fehlt, konto, istAdmin, meldung
       {meldung && texte[meldung] && <p className="mb-3 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700" role="status">{texte[meldung]}</p>}
       {!aktiv ? (
         <p className="text-sm text-slate-600" data-testid="online-nicht-eingerichtet">
-          Noch nicht freigeschaltet. Es fehlen in Vercel: <span className="font-mono text-xs">{fehlt.join(", ")}</span>. Anleitung in den To-dos (Stripe Connect).
+          Online-Zahlung mit Karte ist für Ihre Praxis noch nicht freigeschaltet. Überweisung per GiroCode und Lastschrift funktionieren unabhängig davon. Wenn Sie Kartenzahlung nutzen möchten, schreiben Sie uns über „Hilfe“.
         </p>
       ) : konto ? (
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm">

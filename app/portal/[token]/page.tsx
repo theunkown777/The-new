@@ -13,8 +13,7 @@ import { PortalInvoice, type PortalInvoiceData, type PortalText } from "@/compon
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { KassenSockel } from "@/components/KassenSockel";
 import { journey } from "@/lib/journey";
-import { rowsOf } from "@/lib/analytics";
-import { buildProposal, resolvePrices } from "@/lib/proposals";
+import { buildProposal, patientAnteile, resolvePrices } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 
 export const dynamic = "force-dynamic";
@@ -57,7 +56,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
         where: { OR: [{ shareCreatedAt: { not: null } }, { status: { in: ["BESPROCHEN", "ANGENOMMEN"] } }] },
         orderBy: { createdAt: "desc" },
         take: 5,
-        select: { id: true, createdAt: true, eigenanteilCent: true, status: true, patientResponse: true, patientRespondedAt: true, shareCreatedAt: true, patientViewedAt: true, agreedAt: true, input: true, choices: true },
+        select: { id: true, createdAt: true, eigenanteilCent: true, status: true, patientResponse: true, patientRespondedAt: true, shareCreatedAt: true, patientViewedAt: true, agreedAt: true, input: true, choices: true, patientChoices: true },
       },
       anamnesisForms: { where: { submittedAt: null, expiresAt: { gt: now } }, select: { id: true }, take: 1 },
       modellMarkierungen: { select: { modell: true, teil: true, notiz: true }, orderBy: { createdAt: "asc" } },
@@ -113,12 +112,14 @@ export default async function PortalPage({ params, searchParams }: { params: { t
   const current = patient.proposals[0] ?? null;
   const weg = journey({ proposal: current, invoices: patient.invoices, anamnesisSubmitted: false }, now);
   let split: { kasse: number; eigen: number } | null = null;
+  let privat = false;
   if (current) {
     const input = proposalInputSchema.safeParse(current.input);
-    const choices = choicesSchema.safeParse(current.choices);
+    // Angenommen: die vereinbarte Wahl. Sonst die Wahl des Patienten, wenn er schon geantwortet hat.
+    const wahl = choicesSchema.safeParse(current.status === "ANGENOMMEN" ? current.choices : current.patientChoices ?? current.choices);
     if (input.success) {
-      const rows = rowsOf({ id: current.id, status: current.status, createdAt: current.createdAt, patient: input.data.patient }, buildProposal(input.data, resolvePrices(practice.proposalPrices)).filter((i) => i.options.length), choices.success ? choices.data : {});
-      split = { kasse: rows.reduce((s, r) => s + r.kasse, 0), eigen: rows.reduce((s, r) => s + r.privat, 0) };
+      privat = input.data.patient.insurance === "PKV";
+      split = patientAnteile(buildProposal(input.data, resolvePrices(practice.proposalPrices)).filter((i) => i.options.length), wahl.success ? wahl.data : {}, input.data.patient);
     }
   }
 
@@ -130,7 +131,10 @@ export default async function PortalPage({ params, searchParams }: { params: { t
 
   // Wohin der Knopf "Als Nächstes" führt: Rechnung, Vorschlag, Fragebogen oder Unterlagen.
   const openProposal = patient.proposals.find((p) => (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse);
-  const nextHref = open.length
+  // Der Knopf führt dorthin, wovon sein Text spricht: steht der aktuelle Vorschlag zur Wahl, dann zum Vorschlag.
+  const nextHref = weg.aktuell === 2 && openProposal && current?.id === openProposal.id
+    ? `/portal/${params.token}/vorschlag/${openProposal.id}`
+    : open.length
     ? "#rechnungen"
     : openProposal
       ? `/portal/${params.token}/vorschlag/${openProposal.id}`
@@ -162,7 +166,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-salbei-600 text-white" aria-hidden="true">→</span>
           </a>
           {split && split.kasse + split.eigen > 0 && (
-            <KassenSockel className="mt-4 text-left" kasse={split.kasse} eigen={split.eigen} labels={{ kasse: t.kassePays, eigen: t.yourShare }} />
+            <KassenSockel className="mt-4 text-left" kasse={split.kasse} eigen={split.eigen} labels={{ kasse: privat && lang === "de" ? "Versicherung erstattet" : t.kassePays, eigen: t.yourShare }} />
           )}
           <p className="mt-3 text-sm text-slate-600">
             {open.length ? (
@@ -266,11 +270,12 @@ export default async function PortalPage({ params, searchParams }: { params: { t
                       </span>
                       <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-medium ${open ? "bg-salbei-600 text-white" : "bg-salbei-50 text-salbei-700"}`}>{open ? t.choose : t.show}</span>
                     </a>
-                    {p.status !== "ABGELEHNT" && (
+                    {/* Unterschreiben erst, wenn der Patient gewählt hat oder die Praxis die Wahl festgehalten hat. */}
+                    {p.status !== "ABGELEHNT" && (p.agreedAt || p.patientResponse || p.status === "ANGENOMMEN") && (
                       p.agreedAt ? (
                         <p className="mt-1 px-4 text-sm text-salbei-700">✓ {t.signed} · {date(p.agreedAt)}</p>
                       ) : (
-                        <a href={`/portal/${params.token}/vereinbarung/${p.id}`} className="mt-1 block px-4 text-sm font-medium text-salbei-700 underline" data-testid="portal-unterschreiben">
+                        <a href={`/portal/${params.token}/vereinbarung/${p.id}`} className="mt-1 block px-4 py-2 text-sm font-medium text-salbei-700 underline" data-testid="portal-unterschreiben">
                           {t.sign} →
                         </a>
                       )

@@ -56,6 +56,10 @@ export const PLATZHALTER = {
   nachname: "[NACHNAME]",
   geburtsdatum: "[GEBURTSDATUM]",
   versichertennummer: "[VERSICHERTENNUMMER]",
+  praxis: "[PRAXIS]",
+  verfasser: "[VERFASSER]",
+  telefon: "[TELEFON]",
+  email: "[E-MAIL]",
 } as const;
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -76,10 +80,24 @@ export function maskNames(text: string, p: { firstName: string; lastName: string
   return out;
 }
 
+/**
+ * Ersetzt Kontaktdaten im Freitext (E-Mail-Adressen, Telefonnummern). Datumsangaben und Zahnnummern bleiben stehen,
+ * weil der Bericht sie braucht.
+ */
+export function maskKontakt(text: string): string {
+  return text
+    .replace(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, PLATZHALTER.email)
+    .replace(/(?<![\d.])(?:\+|00)?\d[\d\s/().-]{7,}\d(?![\d.])/g, (m) => (/^\d{1,2}\.\s?\d{1,2}\.\s?\d{2,4}$/.test(m.trim()) || m.replace(/\D/g, "").length < 8 ? m : PLATZHALTER.telefon));
+}
+
 export function pseudonymize(input: GenerateReportInput): GenerateReportInput {
   const p = input.patient;
+  const frei = (t: string) => maskKontakt(maskNames(t, p));
   return {
     ...input,
+    // Praxis und Verfasser sind für die Formulierung nicht nötig; sie werden nach der Antwort wieder eingesetzt.
+    practiceName: PLATZHALTER.praxis,
+    authorName: PLATZHALTER.verfasser,
     patient: {
       firstName: PLATZHALTER.vorname,
       lastName: PLATZHALTER.nachname,
@@ -87,15 +105,15 @@ export function pseudonymize(input: GenerateReportInput): GenerateReportInput {
       insuranceName: p.insuranceName,
       insuranceNumber: p.insuranceNumber ? PLATZHALTER.versichertennummer : null,
     },
-    serviceSummary: maskNames(input.serviceSummary, p),
-    additionalContext: input.additionalContext ? maskNames(input.additionalContext, p) : null,
+    serviceSummary: frei(input.serviceSummary),
+    additionalContext: input.additionalContext ? frei(input.additionalContext) : null,
   };
 }
 
 /** Setzt die echten Angaben nach der KI-Antwort wieder ein. */
-export function reidentify(text: string, p: GenerateReportInput["patient"]): string {
+export function reidentify(text: string, p: GenerateReportInput["patient"], praxis?: { practiceName: string; authorName: string }): string {
   const name = `${p.firstName} ${p.lastName}`.trim();
-  return text
+  return (praxis ? text.split(PLATZHALTER.praxis).join(praxis.practiceName).split(PLATZHALTER.verfasser).join(praxis.authorName) : text)
     .split(`${PLATZHALTER.vorname} ${PLATZHALTER.nachname}`).join(name)
     .split(PLATZHALTER.name).join(name)
     .split(PLATZHALTER.vorname).join(p.firstName)
@@ -234,7 +252,7 @@ Wichtige Regeln:
     throw new Error("Keine Textantwort vom KI-Modell erhalten.");
   }
 
-  return reidentify(textBlock.text.trim(), input.patient);
+  return reidentify(textBlock.text.trim(), input.patient, { practiceName: input.practiceName, authorName: input.authorName });
 }
 
 /** Ist ein echter KI-Zugang hinterlegt? (Sonst Testmodus.) */
@@ -253,7 +271,7 @@ export async function generateBriefingSummary(facts: string, patient: { firstNam
     system: `Du fasst für eine Ärztin oder einen Arzt die Akte vor einem Termin zusammen. Drei bis vier kurze Sätze auf Deutsch.
 Regeln: Nur die gegebenen Fakten verwenden, nichts ergänzen, keine Diagnosen oder Therapien vorschlagen.
 Zeilen mit ACHTUNG gehören in den ersten Satz. Platzhalter in eckigen Klammern unverändert lassen.`,
-    messages: [{ role: "user", content: maskNames(facts, patient) }],
+    messages: [{ role: "user", content: maskKontakt(maskNames(facts, patient)) }],
   });
   const t = message.content.find((b) => b.type === "text");
   return t && t.type === "text" ? t.text.trim() : null;

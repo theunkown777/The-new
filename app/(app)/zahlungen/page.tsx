@@ -93,12 +93,12 @@ export default async function ZahlungenPage({ searchParams }: { searchParams: { 
         <div className="card">
           <p className="text-sm text-slate-500">Offen</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900" data-testid="kpi-offen">{formatCent(t.offenCent)}</p>
-          <p className="mt-1 text-xs text-slate-500">{t.offen} Rechnungen</p>
+          <p className="mt-1 text-xs text-slate-500">{t.offen} {t.offen === 1 ? "Rechnung" : "Rechnungen"}</p>
         </div>
         <div className="card">
           <p className="text-sm text-slate-500">Überfällig</p>
           <p className={`mt-1 text-2xl font-semibold tabular-nums ${t.ueberfaellig ? "text-red-700" : "text-slate-900"}`}>{formatCent(t.ueberfaelligCent)}</p>
-          <p className="mt-1 text-xs text-slate-500">{t.ueberfaellig} Rechnungen</p>
+          <p className="mt-1 text-xs text-slate-500">{t.ueberfaellig} {t.ueberfaellig === 1 ? "Rechnung" : "Rechnungen"}</p>
         </div>
         <div className="card">
           <p className="text-sm text-slate-500">Vom Patienten gemeldet</p>

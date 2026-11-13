@@ -4,6 +4,8 @@
 // bekommt ein signiertes Cookie und sieht danach die ganze Seite. Läuft in der Middleware (Edge),
 // deshalb nur Web-Crypto.
 
+import { signaturSecret } from "@/lib/geheimnis";
+
 export const VORSCHAU_COOKIE = "sorrida_vorschau";
 export const VORSCHAU_TAGE = 30;
 
@@ -31,7 +33,10 @@ async function hmac(text: string, secret: string): Promise<string> {
   return b64url(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(text)));
 }
 
-const geheimnis = (env: Record<string, string | undefined>) => `vorschau:${env.NEXTAUTH_SECRET || "dev-secret-nur-lokal"}:${env.VORSCHAU_PASSWORT ?? ""}`;
+// Wirft in Produktion ohne NEXTAUTH_SECRET (lib/geheimnis.ts): kein Cookie mit bekanntem Schlüssel.
+const geheimnis = (env: Record<string, string | undefined>) => `vorschau:${signaturSecret(env)}:${env.VORSCHAU_PASSWORT ?? ""}`;
+// Beim Prüfen gilt ohne Schlüssel schlicht „ungültig“, damit die Middleware nicht für jede Seite abbricht.
+const sollSignatur = (text: string, env: Record<string, string | undefined>) => Promise.resolve().then(() => hmac(text, geheimnis(env))).catch(() => null);
 
 /** Cookie-Wert "<ablauf>.<signatur>"; ändert sich das Passwort, werden alte Cookies ungültig. */
 export async function vorschauCookie(now = Date.now(), env: Record<string, string | undefined> = process.env): Promise<string> {
@@ -43,8 +48,8 @@ export async function vorschauCookieGueltig(wert: string | undefined, now = Date
   if (!wert) return false;
   const [ablauf, sig] = wert.split(".");
   if (!ablauf || !sig || Number(ablauf) < now) return false;
-  const soll = await hmac(ablauf, geheimnis(env));
-  if (soll.length !== sig.length) return false;
+  const soll = await sollSignatur(ablauf, env);
+  if (!soll || soll.length !== sig.length) return false;
   let diff = 0;
   for (let i = 0; i < soll.length; i++) diff |= soll.charCodeAt(i) ^ sig.charCodeAt(i);
   return diff === 0;
@@ -65,8 +70,8 @@ export async function vorschauPassGueltig(wert: string | null | undefined, now =
   if (!wert) return false;
   const [ablauf, sig] = wert.split(".");
   if (!ablauf || !sig || !/^\d+$/.test(ablauf) || Number(ablauf) < now || Number(ablauf) > now + VORSCHAU_PASS_MINUTEN * 60_000 + 60_000) return false;
-  const soll = await hmac(`pass:${ablauf}`, geheimnis(env));
-  if (soll.length !== sig.length) return false;
+  const soll = await sollSignatur(`pass:${ablauf}`, env);
+  if (!soll || soll.length !== sig.length) return false;
   let diff = 0;
   for (let i = 0; i < soll.length; i++) diff |= soll.charCodeAt(i) ^ sig.charCodeAt(i);
   return diff === 0;

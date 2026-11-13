@@ -48,8 +48,13 @@ export function ProposalPriceSettings({
         <h2 className="font-medium text-slate-900">Preise je Behandlungsoption</h2>
         <p className="mt-1 text-sm text-slate-500">
           Geschätztes Behandlungsvolumen in Euro inklusive Material und Labor, so wie Sie es Patienten
-          nennen würden. Daraus berechnen Behandlungsvorschläge Festzuschuss, Eigenanteil und
-          Mehrumsatz. {isCustom ? "" : "Aktuell sind Beispielwerte hinterlegt – bitte durch Ihre eigenen ersetzen."}
+          nennen würden. Daraus berechnen Behandlungsvorschläge den Eigenanteil.{" "}
+          {isCustom ? "" : "Aktuell sind Beispielwerte hinterlegt – bitte durch Ihre eigenen ersetzen."}
+        </p>
+        <p className="mt-2 text-sm text-slate-500">
+          Zahnersatz bei Kassenpatienten: Den Festzuschuss nimmt Sorrida aus der amtlichen Tabelle je Befund. Die Regelversorgung
+          (Krone, Brücke, Prothese) rechnen Sie nach BEMA und BEL II ab; Sorrida schätzt sie mit den Durchschnittskosten der
+          Festzuschuss-Richtlinie. Ihre Preise für die Standardausführung gelten deshalb nur für Privatpatienten.
         </p>
       </div>
 

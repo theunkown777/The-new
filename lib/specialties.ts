@@ -860,7 +860,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Hörgeräte",
         options: [
           { id: "hg_kasse", name: "Hörgerät ohne Aufzahlung (je Ohr)", type: "kasse", price: 750, zuzahlung: "hilfsmittel", benefits: ["Kassenversorgung mit moderner Technik", "gesetzliche Zuzahlung 10 €"] },
-          { id: "hg_plus", name: "Höherwertiges Hörgerät (je Ohr)", type: "igel", price: 1650, kasseAnteil: 750, benefits: ["z. B. Akku, Bluetooth, besseres Sprachverstehen in Gruppen"] },
+          { id: "hg_plus", name: "Höherwertiges Hörgerät (je Ohr)", type: "igel", price: 1650, kasseAnteil: 750, zuzahlung: "hilfsmittel", benefits: ["z. B. Akku, Bluetooth, besseres Sprachverstehen in Gruppen"] },
         ],
         notes: ["Ein aufzahlungsfreies Gerät muss immer angeboten werden; die Mehrkosten eines anderen Geräts tragen Sie nur, wenn Sie es ausdrücklich wählen."],
       },
@@ -912,7 +912,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Hilfsmittel",
         options: [
           { id: "einlage_kasse", name: "Einlagen auf Verordnung", type: "kasse", price: 80, zuzahlung: "hilfsmittel", benefits: ["Kassenversorgung mit gesetzlicher Zuzahlung"] },
-          { id: "einlage_komfort", name: "Einlagen mit Komfortausstattung", type: "igel", price: 140, kasseAnteil: 80, benefits: ["z. B. für Sportschuhe oder besonders dünn"] },
+          { id: "einlage_komfort", name: "Einlagen mit Komfortausstattung", type: "igel", price: 140, kasseAnteil: 80, zuzahlung: "hilfsmittel", benefits: ["z. B. für Sportschuhe oder besonders dünn"] },
         ],
       },
       {
@@ -921,7 +921,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Hilfsmittel",
         options: [
           { id: "kompr_kasse", name: "Kompressionsstrümpfe auf Verordnung", type: "kasse", price: 90, zuzahlung: "hilfsmittel", benefits: ["Kassenversorgung mit gesetzlicher Zuzahlung"] },
-          { id: "kompr_mode", name: "Kompressionsstrümpfe in Modefarbe oder mit Muster", type: "igel", price: 120, kasseAnteil: 90, benefits: ["gleiche Wirkung, andere Optik"] },
+          { id: "kompr_mode", name: "Kompressionsstrümpfe in Modefarbe oder mit Muster", type: "igel", price: 120, kasseAnteil: 90, zuzahlung: "hilfsmittel", benefits: ["gleiche Wirkung, andere Optik"] },
         ],
       },
     ],

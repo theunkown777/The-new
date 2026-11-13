@@ -11,7 +11,6 @@ const ROWS = [
   { bonus: "Bonusheft 5 Jahre", s26: 70, s27: 60 },
   { bonus: "Bonusheft 10 Jahre", s26: 75, s27: 65 },
 ];
-const REGEL = 1750;
 // Festzuschuss bei 100 % für Befund 2.1 (Lücke mit einem fehlenden Zahn), Stand 1.1.2026.
 const FZ = FESTZUSCHUSS_BEFUNDE["2.1"].euro;
 const euro = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
@@ -54,8 +53,9 @@ export default function Page() {
 
       <h2>Rechenbeispiel: Brücke als Regelversorgung</h2>
       <p>
-        Angenommen, die Brücke für eine Lücke an Zahn 36 kostet in Ihrer Praxis {euro(REGEL)}. Der Festzuschuss für diesen Befund (2.1)
-        beträgt bei 100 % {FZ.toLocaleString("de-DE", { minimumFractionDigits: 2 })} €. So ändert sich der Eigenanteil des Patienten:
+        Angenommen, an Zahn 36 fehlt ein Zahn und der Patient wählt die Brücke als Regelversorgung. Die Regelversorgung rechnen Sie
+        nach BEMA und BEL II ab; ihre Durchschnittskosten für diesen Befund (2.1) setzt die Festzuschuss-Richtlinie mit{" "}
+        {FZ.toLocaleString("de-DE", { minimumFractionDigits: 2 })} € an. Der Festzuschuss ist der Prozentsatz davon. So ändert sich der Eigenanteil des Patienten:
       </p>
       <table>
         <thead>
@@ -68,8 +68,8 @@ export default function Page() {
         </thead>
         <tbody>
           {ROWS.map((r) => {
-            const e26 = REGEL - FZ * (r.s26 / 100);
-            const e27 = REGEL - FZ * (r.s27 / 100);
+            const e26 = FZ * (1 - r.s26 / 100);
+            const e27 = FZ * (1 - r.s27 / 100);
             return (
               <tr key={r.bonus}>
                 <td>{r.bonus}</td>
@@ -83,7 +83,8 @@ export default function Page() {
       </table>
       <p>
         Bei gleich- und andersartiger Versorgung, also etwa einer Vollkeramik-Brücke oder einem Implantat, bleibt der Festzuschuss an
-        die Regelversorgung gebunden. Der Mehrbetrag ist deshalb in Euro derselbe, nur der Gesamtbetrag ist höher. Die Eurobeträge für
+        die Regelversorgung gebunden. Der Mehrbetrag ist deshalb in Euro derselbe, nur der Gesamtbetrag ist höher. Die tatsächlichen
+        Kosten der Regelversorgung weichen je nach Punktwert Ihrer KZV und Labor etwas vom Durchschnitt ab. Die Eurobeträge für
         2027 veröffentlicht der Gemeinsame Bundesausschuss erst zum Jahresende; die Werte für 2027 sind deshalb mit den Beträgen von 2026
         gerechnet und voraussichtlich.
       </p>

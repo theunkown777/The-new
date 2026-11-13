@@ -190,8 +190,20 @@ export function PortalInvoice({ token, inv, bank, t, startOpen, mandat }: { toke
           {raten && <p className="mt-2 text-xs text-slate-600">{t.installmentsDone}</p>}
         </div>
       )}
-      {reported && <p className="mt-3 text-sm text-sky-800">{t.reportedDone}</p>}
-      {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
+      {reported && <p className="mt-3 text-sm text-sky-800" role="status">{t.reportedDone}</p>}
+      {/* Nach „Ich habe überwiesen“ bleiben die Zahlungsdaten erreichbar, falls doch noch überwiesen werden muss. */}
+      {reported && bank && (
+        <details className="mt-2 text-sm" data-testid="zahlungsdaten-nach-meldung">
+          <summary className="cursor-pointer py-2 text-salbei-800 underline">{t.recipient}, {t.iban}, {t.reference}</summary>
+          <div className="mt-1">
+            <CopyRow label={t.recipient} value={bank.name} t={t} />
+            <CopyRow label={t.iban} value={bank.iban} raw={bank.iban.replace(/\s/g, "")} t={t} />
+            <CopyRow label={t.amount} value={inv.amountPlain} t={t} />
+            <CopyRow label={t.reference} value={inv.reference} t={t} />
+          </div>
+        </details>
+      )}
+      {error && <p className="mt-2 text-sm text-red-700" role="alert">{error}</p>}
     </div>
   );
 }

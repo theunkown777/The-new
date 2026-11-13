@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  ABGEWAEHLT,
+  istFreiwillig,
   isZahnersatz,
   money,
   typeLabelOf,
@@ -36,6 +38,8 @@ type Props = {
   /** "Ihrer Hautärztin oder Ihrem Hautarzt"; Zahnmedizin als Standard. */
   arztDativ?: string;
   dental?: boolean;
+  /** Therapiepraxis (Heilmittel): eigener Hinweistext statt GOÄ/IGeL. */
+  therapie?: boolean;
   /** Sprachumschalter nur, wenn alle Texte übersetzt sind. */
   translatable?: boolean;
   /** Zweitmeinung zum Vergleich (Patienten-Link und Portal). */
@@ -47,13 +51,14 @@ export function PatientProposalView(props: Props) {
   const t = UI[lang];
   const fmt = (n: number) => euro(n, lang);
   // Nichts ist vorausgewählt: Die Patientin oder der Patient entscheidet selbst.
-  // Nur Positionen mit einer einzigen Option sind automatisch gesetzt.
+  // Automatisch gesetzt ist nur, wo es ohnehin nur die Kassenleistung gibt. Eine einzelne
+  // Selbstzahlerleistung ist freiwillig: nicht vorausgewählt und wieder abwählbar.
   const [choices, setChoices] = useState<Record<string, string>>(() => {
     const c: Record<string, string> = {};
     for (const i of items) {
       const own = props.initialChoices[i.key];
       if (own && i.options.some((o) => o.id === own)) c[i.key] = own;
-      else if (i.options.length === 1) c[i.key] = i.options[0].id;
+      else if (i.options.length === 1 && !istFreiwillig(i)) c[i.key] = i.options[0].id;
     }
     return c;
   });
@@ -72,7 +77,7 @@ export function PatientProposalView(props: Props) {
 
   const gewaehlt = (item: ProposalItem) => item.options.find((o) => o.id === choices[item.key]) ?? null;
   const chosenItems = useMemo(() => items.filter((i) => i.options.some((o) => o.id === choices[i.key])), [items, choices]);
-  const offen = items.filter((i) => !choices[i.key]);
+  const offen = items.filter((i) => !choices[i.key] && !istFreiwillig(i));
   const sum = useMemo(() => summarize(chosenItems, choices, patient), [chosenItems, choices, patient]);
   const jahre = useMemo(() => vergleicheJahre(chosenItems, choices, patient), [chosenItems, choices, patient]);
   // Varianten für die Kontrolle: Empfehlung und geringster Eigenanteil je Position.
@@ -105,7 +110,10 @@ export function PatientProposalView(props: Props) {
     }
     setState("sending");
     setError("");
-    const chosen = Object.fromEntries(items.map((i) => [i.key, choices[i.key] ?? ""]).filter(([, v]) => v));
+    // Nicht angetippte freiwillige Leistungen gehen ausdrücklich als „nicht gewünscht“ an die Praxis.
+    const chosen = Object.fromEntries(
+      items.map((i) => [i.key, choices[i.key] ?? (response === "INTERESSE" && istFreiwillig(i) ? ABGEWAEHLT : "")]).filter(([, v]) => v),
+    );
     const res = await fetch(props.postUrl ?? `/api/p/${props.token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -164,7 +172,7 @@ export function PatientProposalView(props: Props) {
             <section key={item.key} id={`pos-${item.key}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <h2 className="font-semibold text-slate-900">{title}</h2>
               <p className="text-sm text-slate-500">{tr(item.where, lang)}</p>
-              {!current && <p className="mt-1 text-xs text-brand-700">{t.pick}</p>}
+              {!current && <p className="mt-1 text-xs text-brand-700">{istFreiwillig(item) ? t.optional : t.pick}</p>}
               <fieldset className="mt-4 space-y-3">
                 <legend className="sr-only">{t.optionsFor(title)}</legend>
                 {item.options.map((o) => {
@@ -173,7 +181,7 @@ export function PatientProposalView(props: Props) {
                   return (
                     <label
                       key={o.id}
-                      className={`block cursor-pointer rounded-xl border p-4 transition ${
+                      className={`block cursor-pointer rounded-xl border p-4 transition focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-700 ${
                         selected ? "border-brand-600 bg-brand-50 ring-1 ring-brand-600" : "border-slate-200 hover:border-slate-300"
                       }`}
                     >
@@ -183,6 +191,10 @@ export function PatientProposalView(props: Props) {
                         value={o.id}
                         checked={selected}
                         onChange={() => setChoices((c) => ({ ...c, [item.key]: o.id }))}
+                        onClick={() => {
+                          // Freiwillige Leistung: zweites Antippen wählt sie wieder ab.
+                          if (selected && istFreiwillig(item)) setChoices((c) => Object.fromEntries(Object.entries(c).filter(([k]) => k !== item.key)));
+                        }}
                         className="sr-only"
                       />
                       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -193,8 +205,15 @@ export function PatientProposalView(props: Props) {
                           <span className="text-xs text-slate-500">{tr(typeLabelOf(o, patient.insurance), lang)}</span>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-semibold tabular-nums text-slate-900">{fmt(m.netto)}</div>
-                          <div className="text-xs text-slate-500">{t.yourShare}</div>
+                          {o.type === "kasse" && o.total === 0 && o.zuzahlung ? (
+                            // Kassenleistung auf Verordnung ohne hinterlegten Preis: Die Zuzahlung hängt von der Verordnung ab.
+                            <div className="max-w-[9rem] text-sm font-medium text-slate-900">{lang === "en" ? "statutory co-payment" : "gesetzliche Zuzahlung"}</div>
+                          ) : (
+                            <>
+                              <div className="text-lg font-semibold tabular-nums text-slate-900">{fmt(m.netto)}</div>
+                              <div className="text-xs text-slate-500">{t.yourShare}</div>
+                            </>
+                          )}
                         </div>
                       </div>
                       {o.benefits.length > 0 && (
@@ -214,7 +233,7 @@ export function PatientProposalView(props: Props) {
                           {t.nutzen} {o.nutzen}
                         </p>
                       )}
-                      <p className="mt-2 text-xs text-slate-500">
+                      <p className={`mt-2 text-xs text-slate-500 ${o.total === 0 ? "hidden" : ""}`}>
                         {t.total} {fmt(m.total)}
                         {m.kasse > 0 && (
                           <>
@@ -321,7 +340,7 @@ export function PatientProposalView(props: Props) {
       )}
 
       <p className="mt-6 text-xs leading-relaxed text-slate-500">
-        {props.dental === false ? t.fineMed(until) : t.fine(gkv, until)}
+        {props.dental === false ? (props.therapie ? t.fineTherapie(until) : t.fineMed(until)) : t.fine(gkv, until)}
         {offer.kind === "rate" && t.installmentsFine(props.installments.provider)}
       </p>
 

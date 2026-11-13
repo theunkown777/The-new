@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EINGANG_ARTEN, eingangZiel, istEingangArt } from "@/lib/eingang";
 import { EingangAktion, EingangAlle } from "@/components/EingangAktion";
+import { MorgenMail } from "@/components/MorgenMail";
+import { mailVersandAktiv } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Eingang" };
@@ -15,6 +17,7 @@ export default async function EingangPage() {
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const sel = { id: true, art: true, entityId: true, hinweis: true, createdAt: true, erledigtAt: true, erledigtVon: true, patientId: true, patient: { select: { firstName: true, lastName: true } } } as const;
+  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { morgenMail: true, morgenMailAn: true, isDemo: true } });
   const [offen, erledigt] = await Promise.all([
     prisma.eingang.findMany({ where: { practiceId, erledigtAt: null }, orderBy: { createdAt: "desc" }, take: 200, select: sel }),
     prisma.eingang.findMany({ where: { practiceId, erledigtAt: { gte: new Date(Date.now() - 14 * 864e5) } }, orderBy: { erledigtAt: "desc" }, take: 50, select: sel }),
@@ -75,6 +78,8 @@ export default async function EingangPage() {
           <ul className="divide-y divide-slate-100 border-t border-slate-100">{erledigt.map((e) => zeile(e, true))}</ul>
         </details>
       )}
+
+      {session!.user.role === "admin" && praxis && !praxis.isDemo && <MorgenMail aktiv={praxis.morgenMail} an={praxis.morgenMailAn ?? session!.user.email ?? ""} versandBereit={mailVersandAktiv()} />}
 
       <section className="card mt-5 text-sm text-slate-700">
         <h2 className="font-semibold text-slate-900">Was wo ankommt</h2>

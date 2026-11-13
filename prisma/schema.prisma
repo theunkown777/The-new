@@ -39,6 +39,12 @@ model Practice {
   buchungVorlaufStd  Int                 @default(24)
   buchungTageVoraus  Int                 @default(28)
   /// Kalender-Abo der Praxis (ICS-Adresse aus Google, Outlook, Praxisprogramm); nur belegte Zeiten werden gelesen
+  /// Wirkungsbericht: Schätzung der Praxis vor dem Start ({ vorschlaegeMonat, ohneEntscheidungProzent, tageBisZahlung, erfasstAm })
+  ausgangswert       Json?
+  /// Morgen-Mail: tägliche Kurzmeldung an die Praxis, nur Zahlen ohne Namen
+  morgenMail         Boolean             @default(false)
+  morgenMailAn       String?
+  morgenMailZuletzt  DateTime?
   kalenderUrl        String?
   kalenderSyncAt     DateTime?
   kalenderSyncFehler String?
@@ -127,6 +133,10 @@ model User {
   // Authenticator-App verloren geht. Comma-separated bcrypt-Hashes; ein
   // Code wird beim Verbrauch aus der Liste entfernt.
   totpBackupCodes        String?
+  /// Neues, noch nicht bestätigtes Secret (Einrichtung oder Gerätewechsel); wird erst nach gültigem Code zu totpSecret
+  totpPendingSecret      String?
+  /// Wird bei Passwort-Reset, Rollenwechsel und 2FA-Änderung erhöht; Sitzungen mit älterem Stand sind ungültig (lib/sitzung.ts)
+  sessionVersion         Int                      @default(0)
   reportRevisions        ReportRevision[]
   resetTokens            PasswordResetToken[]
   verificationTokens     EmailVerificationToken[]
@@ -179,6 +189,8 @@ model StaffInvite {
   tokenHash  String    @unique
   expiresAt  DateTime
   acceptedAt DateTime?
+  /// Einladung ging wirklich per E-Mail an die Adresse (nicht nur als Link angezeigt); nur dann gilt die Adresse beim Annehmen als bestätigt
+  mailed     Boolean   @default(false)
   createdAt  DateTime  @default(now())
 
   @@index([practiceId])
@@ -480,6 +492,10 @@ model TreatmentProposal {
   agreedChoices            Json?
   /// Erklärungstext, wie er beim Unterschreiben angezeigt wurde
   agreedText               String?
+  /// Nachfass-Liste: zuletzt an den offenen Vorschlag erinnert
+  nachgefasstAt            DateTime?
+  /// Heil- und Kostenplan bei der Kasse eingereicht (für den Stichtag der Festzuschüsse)
+  hkpEingereichtAt         DateTime?
   invoices                 Invoice[]
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @updatedAt

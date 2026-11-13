@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { maskNames, pseudonymize, reidentify, PLATZHALTER } from "./anthropic";
+import { maskKontakt, maskNames, pseudonymize, reidentify, PLATZHALTER } from "./anthropic";
 
 const patient = { firstName: "Anna", lastName: "Müller", birthDate: "03.04.1980", insuranceName: "AOK", insuranceNumber: "A123456789" };
 const input = {
@@ -32,5 +32,17 @@ describe("Pseudonymisierung vor dem KI-Aufruf", () => {
   });
   it("lässt fehlende Angaben als Lücke stehen statt zu raten", () => {
     expect(reidentify("geb. [GEBURTSDATUM]", { ...patient, birthDate: null })).toBe("geb. [Geburtsdatum ergänzen]");
+  });
+
+  it("schickt weder Praxis noch Verfasser an den KI-Dienst und setzt sie danach wieder ein", () => {
+    const p = pseudonymize(input);
+    expect(p.practiceName).toBe(PLATZHALTER.praxis);
+    expect(p.authorName).toBe(PLATZHALTER.verfasser);
+    expect(reidentify(`${PLATZHALTER.praxis}, ${PLATZHALTER.verfasser}`, patient, { practiceName: "Praxis Sonne", authorName: "Dr. Weber" })).toBe("Praxis Sonne, Dr. Weber");
+  });
+
+  it("ersetzt Telefonnummern und E-Mail-Adressen im Freitext, lässt Datum und Zahnnummern stehen", () => {
+    const t = maskKontakt("Rückruf unter 0171 2345678 oder +49 (0)30 1234567, Mail an.mueller@example.com. Termin 13.11.2026, Zähne 36, 37 und 46, GOZ 2060.");
+    expect(t).toBe(`Rückruf unter ${PLATZHALTER.telefon} oder ${PLATZHALTER.telefon}, Mail ${PLATZHALTER.email}. Termin 13.11.2026, Zähne 36, 37 und 46, GOZ 2060.`);
   });
 });

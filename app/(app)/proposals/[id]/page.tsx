@@ -77,6 +77,21 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
         {input.success && <PatientLinkPanel proposalId={proposal.id} state={linkState} firstName={p.firstName} />}
       </div>
 
+      {input.success && (
+        <section className="card mt-6 flex flex-wrap items-center justify-between gap-3" data-testid="nachweis">
+          <div className="max-w-2xl">
+            <h2 className="font-medium text-slate-900">Nachweis für die Karteikarte</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Ein Blatt mit allen gezeigten Möglichkeiten und Eigenanteilen, wann der Patient sie gesehen und was er gewählt hat. Als PDF in Ihre
+              Praxissoftware ablegen, auch ohne Anbindung.
+            </p>
+          </div>
+          <a href={`/api/proposals/${proposal.id}/nachweis`} className="btn-secondary" data-testid="nachweis-pdf">
+            Kosteninformation als PDF
+          </a>
+        </section>
+      )}
+
       {proposal.zweitmeinungen.length > 0 && (
         <section className="card mt-6" data-testid="zweitmeinung-praxis">
           <h2 className="font-display text-2xl text-slate-900">Zweitmeinung, vom Patienten geteilt</h2>

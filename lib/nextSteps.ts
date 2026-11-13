@@ -69,6 +69,8 @@ export function buildNextSteps(args: {
   for (const item of items) {
     const o = chosenOption(item, choices);
     if (!o) continue;
+    // Krone eines Brückenpfeilers, die in der Brücke enthalten ist: kein eigener Schritt.
+    if (o.id === "anker") continue;
     const label = `${item.where}: ${o.name}`;
     if (isZahnersatz(o)) {
       zeWhere.push(label);
@@ -107,6 +109,14 @@ export function buildNextSteps(args: {
       detail: zeWhere.join(" · "),
       urgent: frist,
     });
+    if (gkv && patient.haertefall) {
+      steps.push({
+        id: "haertefall",
+        owner: "Rezeption",
+        text: "Härtefall-Bescheid der Krankenkasse zum Heil- und Kostenplan legen",
+        detail: "Ohne Bescheid rechnet die Kasse mit dem normalen Festzuschuss. Liegt keiner vor: Patient stellt den Antrag bei seiner Kasse.",
+      });
+    }
     if (frist && zeMehrkosten2027 > 0.5) {
       const tage = tageBisStichtag(today);
       steps.push({
@@ -122,7 +132,7 @@ export function buildNextSteps(args: {
     steps.push({
       id: "mkv",
       owner: "Rezeption",
-      text: "Mehrkostenvereinbarung (§ 28 Abs. 2 SGB V) vor der Behandlung unterschreiben lassen",
+      text: gkv ? "Mehrkostenvereinbarung (§ 28 Abs. 2 SGB V) vor der Behandlung unterschreiben lassen" : "Kostenvoranschlag für die Wahlleistung mitgeben und vor der Behandlung bestätigen lassen",
       detail: mehrkosten.join(" · ") + " – falls der Patient diese Option wählt",
     });
   }
