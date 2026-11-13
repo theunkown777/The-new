@@ -8,7 +8,7 @@ import { isSpam, leadEmailHtml, leadSchema } from "@/lib/leads";
 const LIMIT = 5;
 const WINDOW_MS = 60 * 60 * 1000;
 
-// Formular "Pilotplatz anfragen" der öffentlichen Website (public/landing.html).
+// Formular "Pilotplatz anfragen" der öffentlichen Website (Fachseiten und Hilfe).
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const key = `lead:${ip}`;

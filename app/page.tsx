@@ -18,7 +18,7 @@ import { Laechelbogen } from "@/components/Behandlungsweg";
 export const metadata: Metadata = {
   title: "Sorrida – damit beide Seiten lächeln",
   description:
-    "Behandlungsvorschlag mit Kassenleistung und Eigenanteil, Patienten-Link, digitale Anamnese und To-dos, zugeschnitten auf Ihr Fach: Zahnmedizin, Hausarzt, Fachärzte von Augen bis Radiologie, Psychotherapie, Physio- und Ergotherapie, Logopädie und Podologie.",
+    "Behandlungsvorschlag mit Kassenleistung und Eigenanteil, Patienten-Link, digitale Anamnese und To-dos, zugeschnitten auf Ihr Fach: Hausarzt, Fachärzte von Augen bis Radiologie, Zahnmedizin, Psychotherapie, Physio- und Ergotherapie, Logopädie und Podologie.",
   openGraph: {
     title: "Sorrida – damit beide Seiten lächeln",
     description: "Kassenleistung zuerst, Selbstzahlerleistungen ehrlich erklärt, Patient entscheidet zu Hause und meldet sich zurück.",
@@ -28,13 +28,14 @@ export const metadata: Metadata = {
 
 const kachel = (x: (typeof SPECIALTIES)[number]): FachKachel => ({ id: x.id, name: x.kurz, href: `/fachgebiete/${x.id}`, teaser: x.teaser ?? x.name, art: x.beruf === "therapie" ? "therapie" : "arzt" });
 
+// Reihenfolge wie im Verzeichnis der Fächer; Zahnmedizin steht als ein Fach unter vielen dazwischen.
+const AERZTLICH = SPECIALTIES.filter((x) => x.beruf !== "therapie").map(kachel);
+const ZAHN: FachKachel = { id: "zahn", name: "Zahnmedizin", href: "/fachgebiete/zahn", teaser: "Zahnschema, Festzuschuss, Mehrkostenvereinbarung", art: "zahn" };
+
 const GRUPPEN: { titel: string; kacheln: FachKachel[] }[] = [
   {
     titel: "Ärztliche und zahnärztliche Praxen",
-    kacheln: [
-      { id: "zahn", name: "Zahnmedizin", href: "/fachgebiete/zahn", teaser: "Zahnschema, Festzuschuss 2027, Mehrkostenvereinbarung", art: "zahn" },
-      ...SPECIALTIES.filter((x) => x.beruf !== "therapie").map(kachel),
-    ],
+    kacheln: [...AERZTLICH.slice(0, 3), ZAHN, ...AERZTLICH.slice(3)],
   },
   {
     titel: "Therapie und Gesundheitsberufe",
@@ -63,7 +64,7 @@ const SYMBOLE: Record<string, React.ReactNode> = {
 };
 
 const SCHRITTE = [
-  ["Aus der Praxissoftware öffnen", "Ein Klick in der Patientenakte. Zahnärzte über VDDS-media, Arztpraxen über GDT."],
+  ["Aus der Praxissoftware öffnen", "Ein Klick in der Patientenakte: Arztpraxen über GDT, Zahnarztpraxen über VDDS-media. Ohne Anbindung geht es genauso."],
   ["Befund oder Anlass wählen", "Sorrida zeigt die Kassenleistung zuerst und sinnvolle Alternativen mit Eigenanteil."],
   ["Patient entscheidet zu Hause", "Per QR-Code oder SMS. Die Antwort geht direkt an die Praxis, auf Wunsch mit Ratenzahlung."],
   ["Das Team erledigt den Rest", "Vereinbarungen, Anträge, Fristen und Termine stehen fertig auf der To-do-Liste."],
@@ -232,7 +233,7 @@ export default async function Start() {
         </div>
 
         <div className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
-          <PraxisFaq journal />
+          <PraxisFaq journal alle />
         </div>
 
         {/* Schlussaufruf */}

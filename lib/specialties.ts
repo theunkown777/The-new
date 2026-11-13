@@ -1024,10 +1024,19 @@ export const SPECIALTY_LABELS: Record<string, string> = {
   andere: "Andere Fachrichtung (nur eigene Leistungen)",
 };
 
+/**
+ * Fächer in Gruppen für jede Auswahl (Demo, Registrierung, Website): ärztliche Praxen, Zahnmedizin,
+ * Therapie. Sorrida ist für alle Fächer da, deshalb steht keins als Voreinstellung vorn.
+ */
+export const FACH_GRUPPEN: { titel: string; faecher: { id: string; name: string; kurz: string }[] }[] = [
+  { titel: "Ärztliche Praxen", faecher: SPECIALTIES.filter((s) => s.beruf !== "therapie").map((s) => ({ id: s.id, name: s.name, kurz: s.kurz })) },
+  { titel: "Zahnärztliche Praxen", faecher: [{ id: DENTAL_ID, name: "Zahnmedizin", kurz: "Zahnmedizin" }] },
+  { titel: "Therapie und Gesundheitsberufe", faecher: SPECIALTIES.filter((s) => s.beruf === "therapie").map((s) => ({ id: s.id, name: s.name, kurz: s.kurz })) },
+].filter((g) => g.faecher.length > 0);
+
 /** Auswahl bei der Anmeldung: nur sichtbare Fächer (ausgeblendete Gruppen fehlen). */
 export const SPECIALTY_AUSWAHL: Record<string, string> = {
-  [DENTAL_ID]: "Zahnmedizin",
-  ...Object.fromEntries(SPECIALTIES.map((s) => [s.id, s.name])),
+  ...Object.fromEntries(FACH_GRUPPEN.flatMap((g) => g.faecher.map((f) => [f.id, f.name]))),
   andere: "Andere Fachrichtung (nur eigene Leistungen)",
 };
 

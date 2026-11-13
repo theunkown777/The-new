@@ -13,20 +13,20 @@ const ohneAkzent = (s: string) => s.toLocaleLowerCase("de-DE").normalize("NFD").
 const FILTER: { id: "alle" | FachArt; name: string }[] = [
   { id: "alle", name: "Alle" },
   { id: "arzt", name: "Ärztlich" },
-  { id: "zahn", name: "Zahnmedizin" },
+  { id: "zahn", name: "Zahnärztlich" },
   { id: "therapie", name: "Therapie" },
 ];
 
-// Farbe je Art: ärztlich Rosé mit Bordeaux, Zahnmedizin Bordeaux, Therapie Salbei.
+// Farbe je Art: ärztlich und zahnärztlich Rosé mit Bordeaux, Therapie Salbei.
 const TON: Record<FachArt, { feld: string; zeichen: string; hover: string }> = {
   arzt: { feld: "bg-[#F3E4DF]", zeichen: "text-brand-700", hover: "group-hover:bg-brand-700 group-hover:text-white" },
-  zahn: { feld: "bg-brand-700", zeichen: "text-white", hover: "" },
+  zahn: { feld: "bg-[#F3E4DF]", zeichen: "text-brand-700", hover: "group-hover:bg-brand-700 group-hover:text-white" },
   therapie: { feld: "bg-[#E4EDE2]", zeichen: "text-salbei-700", hover: "group-hover:bg-salbei-700 group-hover:text-white" },
 };
 
 // Fachauswahl wie ein Wegweiser: links Suche und Filter, rechts die Fächer als Kacheln mit eigenem
-// Zeichen. Zahnmedizin steht groß vorn (dort kommt Sorrida her). Die letzte Wahl wird im Browser
-// gemerkt, damit wiederkehrende Besucher direkt zu ihrer Version springen können.
+// Zeichen. Alle Fächer stehen gleich groß nebeneinander, keins ist hervorgehoben. Die letzte Wahl
+// wird im Browser gemerkt, damit wiederkehrende Besucher direkt zu ihrer Version springen können.
 export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachKachel[] }[] }) {
   const kacheln = useMemo(() => gruppen.flatMap((g) => g.kacheln.map((k) => ({ ...k, art: k.art ?? ("arzt" as FachArt) }))), [gruppen]);
   const [last, setLast] = useState<FachKachel | null>(null);
@@ -58,8 +58,6 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
     setFilter(f);
     setRunde((r) => r + 1);
   };
-  const gross = sichtbar[0]?.art === "zahn" && !such ? sichtbar[0] : null;
-  const rest = gross ? sichtbar.slice(1) : sichtbar;
 
   return (
     <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
@@ -130,31 +128,10 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
       {/* Die Fächer */}
       <div className="lg:col-span-8" data-testid="fach-kacheln" aria-live="polite">
         <ul key={runde} className="grid grid-cols-1 gap-2.5 min-[480px]:grid-cols-2 sm:grid-cols-3 sm:gap-3">
-          {gross && (
-            <li className="fach-ein col-span-full" style={{ ["--i" as string]: 0 }}>
-              <Link prefetch={false}
-                href={gross.href}
-                onClick={() => remember(gross.id)}
-                className="j-kachel group relative flex min-h-[7.5rem] items-center gap-5 overflow-hidden rounded-[10px] bg-[#5A1D1D] p-5 text-[#F5EDE6] sm:min-h-[11rem] sm:p-7"
-              >
-                <span aria-hidden="true" className="pointer-events-none absolute -bottom-8 right-2 text-white/15 transition-transform duration-300 group-hover:-translate-y-1 sm:right-10">
-                  <SpecialtyIcon id="zahn" className="h-48 w-48 sm:h-56 sm:w-56" />
-                </span>
-                <span aria-hidden="true" className="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-brand-700">
-                  →
-                </span>
-                <span className="relative max-w-[62%]">
-                  <span className="j-marke !text-[#E8C9A9]">Von hier kommt Sorrida</span>
-                  <span className="j-titel mt-2 block text-[1.9rem] leading-tight text-white sm:text-[2.3rem]">{gross.name}</span>
-                  <span className="mt-1 hidden text-[14px] leading-snug text-[#F5EDE6]/85 sm:block">{gross.teaser}</span>
-                </span>
-              </Link>
-            </li>
-          )}
-          {rest.map((k, i) => {
+          {sichtbar.map((k, i) => {
             const ton = TON[k.art ?? "arzt"];
             return (
-              <li key={k.id} className="fach-ein" style={{ ["--i" as string]: Math.min(i + (gross ? 1 : 0), 14) }}>
+              <li key={k.id} className="fach-ein" style={{ ["--i" as string]: Math.min(i, 14) }}>
                 <Link prefetch={false}
                   href={k.href}
                   onClick={() => remember(k.id)}

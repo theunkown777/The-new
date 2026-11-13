@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { AUTH_UNAVAILABLE_MESSAGE, authServiceAvailable } from "@/lib/authAvailable";
-import { DENTAL_ID, SPECIALTIES } from "@/lib/specialties";
+import { FACH_GRUPPEN } from "@/lib/specialties";
 
 // Einstieg "Als Gast ansehen": legt per Klick eine eigene Demo-Praxis an und
 // meldet direkt an. Bewusst per Knopf statt automatisch, damit Suchmaschinen
@@ -12,16 +12,20 @@ import { DENTAL_ID, SPECIALTIES } from "@/lib/specialties";
 export default function DemoPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fach, setFach] = useState<string>(DENTAL_ID);
+  const [fach, setFach] = useState<string>("");
 
   // Vorauswahl über /demo?fach=haut (z. B. von den Fachgebietsseiten).
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const f = q.get("fach");
-    if (f && SPECIALTIES.some((s) => s.id === f)) setFach(f);
+    if (f && FACH_GRUPPEN.some((g) => g.faecher.some((s) => s.id === f))) setFach(f);
   }, []);
 
   async function start() {
+    if (!fach) {
+      setError("Bitte wählen Sie zuerst Ihr Fachgebiet.");
+      return;
+    }
     setBusy(true);
     setError(null);
     if (!(await authServiceAvailable())) {
@@ -72,12 +76,17 @@ export default function DemoPage() {
           </p>
           <div>
             <label className="label" htmlFor="demo-fach">Ihr Fachgebiet</label>
-            <select id="demo-fach" className="input" value={fach} onChange={(e) => setFach(e.target.value)}>
-              <option value={DENTAL_ID}>Zahnmedizin</option>
-              {SPECIALTIES.map((s) => (
-                <option key={s.id} value={s.id}>{s.name}</option>
+            <select id="demo-fach" className="input" value={fach} onChange={(e) => { setFach(e.target.value); setError(null); }} data-testid="demo-fach">
+              <option value="" disabled>Bitte wählen …</option>
+              {FACH_GRUPPEN.map((g) => (
+                <optgroup key={g.titel} label={g.titel}>
+                  {g.faecher.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </optgroup>
               ))}
             </select>
+            <p className="mt-1 text-xs text-slate-500">Die Demo-Praxis bekommt die Leistungen, Regeln und Beispielpatienten dieses Fachs.</p>
           </div>
           <p className="text-sm text-slate-700">
             Sie bekommen eine eigene, überschaubare Demo-Praxis mit 30 bis 80 erfundenen Patienten, Vorschlägen, Rückmeldungen und Anamnesen aus mehreren Monaten. Alles lässt sich
@@ -88,9 +97,9 @@ export default function DemoPage() {
             <li>Bitte keine echten Patientendaten eingeben</li>
             <li>Der Zugang und alle Eingaben werden nach 24 Stunden gelöscht</li>
           </ul>
-          {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+          {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
           <button type="button" onClick={start} disabled={busy} className="btn-primary w-full">
-            {busy ? "Demo-Praxis mit 1000 Patienten wird angelegt…" : "Demo-Praxis öffnen"}
+            {busy ? "Demo-Praxis wird angelegt …" : "Demo-Praxis öffnen"}
           </button>
         </div>
 

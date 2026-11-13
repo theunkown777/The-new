@@ -3,17 +3,17 @@
 import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { SPECIALTY_AUSWAHL, SPECIALTY_LABELS } from "@/lib/specialties";
+import { FACH_GRUPPEN, SPECIALTY_AUSWAHL } from "@/lib/specialties";
 import Link from "next/link";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [practiceName, setPracticeName] = useState("");
-  const [specialty, setSpecialty] = useState("zahn");
+  const [specialty, setSpecialty] = useState("");
   // Vorauswahl über /register?fach=haut (z. B. von den Fachseiten).
   useEffect(() => {
     const f = new URLSearchParams(window.location.search).get("fach");
-    if (f && f in SPECIALTY_LABELS) setSpecialty(f);
+    if (f && f in SPECIALTY_AUSWAHL) setSpecialty(f);
   }, []);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -77,10 +77,16 @@ export default function RegisterPage() {
           </div>
           <div>
             <label className="label" htmlFor="specialty">Fachgebiet</label>
-            <select id="specialty" className="input" value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
-              {Object.entries(SPECIALTY_AUSWAHL).map(([id, label]) => (
-                <option key={id} value={id}>{label}</option>
+            <select id="specialty" required className="input" value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
+              <option value="" disabled>Bitte wählen …</option>
+              {FACH_GRUPPEN.map((g) => (
+                <optgroup key={g.titel} label={g.titel}>
+                  {g.faecher.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </optgroup>
               ))}
+              <option value="andere">{SPECIALTY_AUSWAHL.andere}</option>
             </select>
           </div>
           <div>

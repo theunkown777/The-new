@@ -1,5 +1,5 @@
 // Zahnbefunde und FDI-Zahnschema. Eigenes Modul ohne weitere Abhängigkeiten,
-// damit das Befund-Diktat der Website klein bleibt (public/js/befund-diktat.js).
+// damit das Befund-Diktat klein bleibt.
 
 export const FINDINGS = {
   karies_klein: "Karies, 1–2 Flächen",

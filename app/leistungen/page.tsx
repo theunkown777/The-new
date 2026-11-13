@@ -64,7 +64,7 @@ export default function LeistungenPage({ searchParams }: { searchParams: SP }) {
       <header className="max-w-3xl">
         <h1 className="font-display text-4xl text-slate-900 sm:text-5xl">Leistungen von A bis Z</h1>
         <p className="mt-3 text-slate-600">
-          {KATALOG.meta.anzahl} Behandlungen und Untersuchungen in {BEREICHE.length} Bereichen, von der Zahnmedizin über die Ästhetik bis zur Pflege, in
+          {KATALOG.meta.anzahl} Behandlungen und Untersuchungen in {BEREICHE.length} Bereichen, von der Hausarztmedizin über Fachärzte, Zahnmedizin und Therapie bis zur Pflege, in
           einfachen Worten: was dahinter steckt, wer sie macht und wer sie bezahlt. Kosten und Kassenleistung richten sich nach dem Einzelfall.
         </p>
       </header>

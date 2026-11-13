@@ -13,8 +13,7 @@
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
-    "api:create-client": "tsx scripts/create-api-client.ts",
-    "web:build": "esbuild lib/befundDiktatWeb.ts --bundle --format=iife --global-name=SorridaDiktat --minify --target=es2019 --legal-comments=none --outfile=public/js/befund-diktat.js"
+    "api:create-client": "tsx scripts/create-api-client.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

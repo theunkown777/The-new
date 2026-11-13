@@ -2,7 +2,8 @@ import { PRICE_SHORT, PRICE_TERMS } from "@/lib/pricing";
 import Link from "next/link";
 
 // Häufige Fragen von Praxen vor dem Start (aus Recherche und Pilotgesprächen abgeleitet).
-export function PraxisFaq({ therapie = false, dental = false, journal = false }: { therapie?: boolean; dental?: boolean; journal?: boolean }) {
+// `alle`: Fassung für die Startseite, die kein Fach voraussetzt.
+export function PraxisFaq({ therapie = false, dental = false, journal = false, alle = false }: { therapie?: boolean; dental?: boolean; journal?: boolean; alle?: boolean }) {
   const fragen: [string, React.ReactNode][] = [
     [
       "Ist das nicht Verkaufen am Patienten?",
@@ -32,7 +33,9 @@ export function PraxisFaq({ therapie = false, dental = false, journal = false }:
       "Müssen wir unsere Praxissoftware wechseln?",
       therapie
         ? "Nein. Sorrida läuft im Browser neben Ihrer Software. Abrechnung und Terminplanung bleiben, wo sie sind."
-        : `Nein. Sorrida öffnet sich aus Ihrer Praxissoftware mit dem aktuellen Patienten, ${dental ? "über VDDS-media (z. B. DS-Win, CGM Z1, charly, EVIDENT)" : "über GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS)"}. Ohne Anbindung geht es im Browser.`,
+        : alle
+          ? "Nein. Sorrida öffnet sich aus Ihrer Praxissoftware mit dem aktuellen Patienten: in Arztpraxen über GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS), in Zahnarztpraxen über VDDS-media (z. B. DS-Win, CGM Z1, charly, EVIDENT). Therapiepraxen und alle ohne Anbindung nutzen Sorrida im Browser neben ihrer Software."
+          : `Nein. Sorrida öffnet sich aus Ihrer Praxissoftware mit dem aktuellen Patienten, ${dental ? "über VDDS-media (z. B. DS-Win, CGM Z1, charly, EVIDENT)" : "über GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS)"}. Ohne Anbindung geht es im Browser.`,
     ],
     ["Wie viel Arbeit macht die Einführung?", "Etwa eine Stunde: Preise prüfen, eigene Leistungen ergänzen, kurze Einweisung fürs Team. Im Pilotprogramm übernehmen wir die Einrichtung mit Ihnen."],
     ["Was kostet es?", `${PRICE_SHORT}. ${PRICE_TERMS}`],

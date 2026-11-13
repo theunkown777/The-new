@@ -229,11 +229,11 @@ Fällen vollständig beim Menschen.
 
 ## Website und App sind eins
 
-Die öffentliche Website liegt in derselben Anwendung: `public/landing.html`
-(Live-Demo des Vorschlags-Regelwerks, Festzuschuss-Vergleich 2026/2027,
-Mehrumsatz-Rechner, Preise, Anfrageformular). `middleware.ts` liefert sie
-unter `/` an Besucher ohne Anmeldung aus; angemeldete Nutzer landen von `/`
-direkt in der Übersicht. „Anmelden“ führt auf `/login` derselben App.
+Die öffentliche Website liegt in derselben Anwendung: `app/page.tsx` ist die
+Startseite für alle Fachrichtungen (Fachauswahl, Ablauf, Preise, Fragen), dazu
+die Fachseiten unter `/fachgebiete/<fach>`, der Ratgeber unter `/ratgeber` und
+die Modelle unter `/anatomie`. „Anmelden“ führt auf `/login` derselben App.
+Die frühere statische Seite `/website` leitet auf die Startseite um.
 
 Das Formular „Pilotplatz anfragen“ speichert Anfragen über `POST /api/leads`
 in der Tabelle `Lead` (Rate-Limit je IP, Honeypot gegen Bots) und schickt

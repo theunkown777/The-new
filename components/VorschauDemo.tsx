@@ -21,7 +21,7 @@ import { SpecialtyIcon } from "@/components/SpecialtyIcon";
 // speichert nichts. Fach umschalten, Option antippen, Ergebnis sehen.
 
 const PATIENT: PatientFactors = { age: 46, insurance: "GKV", bonusYears: 10, haertefall: false, erstattungProzent: 0, zuschussJahr: 2026 };
-const AUSWAHL = ["zahn", "hausarzt", "haut", "ortho", "radiologie", "psych", "physio"];
+const AUSWAHL = ["hausarzt", "haut", "ortho", "zahn", "psych", "physio", "radiologie"];
 
 function inputFor(fach: string): ProposalInput {
   if (fach === "zahn") return { teeth: { "36": "fehlt", "25": "karies_klein" }, globals: {}, patient: PATIENT };
@@ -30,7 +30,7 @@ function inputFor(fach: string): ProposalInput {
 }
 
 export function VorschauDemo() {
-  const [fach, setFach] = useState("zahn");
+  const [fach, setFach] = useState(AUSWAHL[0]);
   const [choices, setChoices] = useState<Record<string, string>>({});
   const [sent, setSent] = useState(false);
   const [recOpen, setRecOpen] = useState(false);
