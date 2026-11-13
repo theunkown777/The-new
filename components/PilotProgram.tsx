@@ -41,7 +41,7 @@ export function PilotProgram({ fach, kurz, dental = false, therapie = false }: {
         </p>
         <ul className="space-y-2 text-slate-700">
           <li><b>Drei Monate kostenlos</b>, danach dauerhaft 30 % günstiger</li>
-          <li><b>Persönliche Einrichtung</b> mit Ihren Leistungen, Preisen und Ihrem Logo</li>
+          <li><b>Persönliche Einrichtung</b> mit Ihren Leistungen und Preisen</li>
           <li><b>Ihr Fach-Regelwerk</b> mitgestalten: was Patienten am häufigsten fragen, steht danach im Vorschlag</li>
           <li><b>Ihr Teil:</b> ein 30-Minuten-Gespräch im Monat, in dem Sie sagen, was stört</li>
         </ul>

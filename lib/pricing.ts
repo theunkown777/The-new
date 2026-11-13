@@ -19,7 +19,7 @@ export const PLANS = [
     preis: 449,
     ab: false,
     fuer: "2 bis 5 Behandelnde",
-    punkte: ["Alles aus Einzelpraxis", "Zugänge für das ganze Team", "Anbindung an Ihre Praxissoftware", "Analyse je Leistung und Behandler", "Persönliche Einrichtung inklusive"],
+    punkte: ["Alles aus Einzelpraxis", "Zugänge für das ganze Team", "Anbindung an Ihre Praxissoftware", "Analyse je Leistung, eigener Bereich je Behandler/in", "Persönliche Einrichtung inklusive"],
   },
   {
     id: "mvz",
@@ -27,7 +27,7 @@ export const PLANS = [
     preis: 790,
     ab: true,
     fuer: "ab 6 Behandelnden, mehrere Standorte",
-    punkte: ["Alles aus Praxis", "Zentrale Preislisten je Standort", "Schulung vor Ort", "Fester Ansprechpartner"],
+    punkte: ["Alles aus Praxis", "Mehrere Standorte mit Terminen und Auslastung je Standort", "Schulung vor Ort", "Fester Ansprechpartner"],
   },
 ] as const;
 
