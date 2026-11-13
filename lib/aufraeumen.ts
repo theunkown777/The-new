@@ -15,6 +15,8 @@ export async function aufraeumen(now = new Date()) {
     prisma.lead.deleteMany({ where: { handledAt: { lt: stichtag("anfragen", now) } } }),
     prisma.auditLog.deleteMany({ where: { createdAt: { lt: stichtag("protokoll", now) } } }),
   ]);
+  // Zähler der Geburtsdatum-Prüfung (S5) zu Links, an denen sich lange nichts getan hat
+  await prisma.portalPruefung.deleteMany({ where: { updatedAt: { lt: stichtag("portal", now) } } });
   const demos = await cleanupExpiredDemos(now);
   return { token: ev.count + pr.count + inv.count + lt.count, portal: portal.count, anamnese: anam.count, anfragen: leads.count, protokoll: logs.count, demos };
 }

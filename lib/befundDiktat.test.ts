@@ -49,3 +49,9 @@ describe("Befund-Diktat", () => {
     expect(parseBefundDiktat("Raucher, wünscht Bleaching").globals.sort()).toEqual(["bleaching", "raucher"]);
   });
 });
+
+describe("Stiftaufbau und Teilkrone im Diktat", () => {
+  it("erkennt beide Befunde", () => {
+    expect(parseBefundDiktat("36 Stiftaufbau, 47 Teilkrone").teeth).toMatchObject({ "36": "stift", "47": "teilkrone" });
+  });
+});

@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 import { agreementContext } from "@/lib/agreementContext";
 import { SignAgreement } from "@/components/SignAgreement";
 import { KassenSockel } from "@/components/KassenSockel";
+import { pickPortalLang } from "@/lib/portalI18n";
+import { pruefLage } from "@/lib/portalPruefungServer";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Einverständnis", robots: { index: false, follow: false }, referrer: "no-referrer" };
 
-export default async function Vereinbarung({ params }: { params: { token: string; id: string } }) {
+export default async function Vereinbarung({ params, searchParams }: { params: { token: string; id: string }; searchParams: { lang?: string } }) {
   const patient = await portalPatient(params.token);
   const back = `/portal/${params.token}`;
   const proposal = patient
@@ -28,6 +31,16 @@ export default async function Vereinbarung({ params }: { params: { token: string
   const ctx = agreementContext(proposal);
   if (!ctx) return null;
   const { text, kasse, eigen, privat } = ctx;
+  // Geburtsdatum-Prüfung vor der Unterschrift (S5). Das Geburtsdatum selbst geht nie an den Browser;
+  // nur in Demo-Praxen (erfundene Patienten) steht es als Hinweis dabei, sonst käme dort niemand weiter.
+  const stamm = await prisma.patient.findUnique({ where: { id: patient.id }, select: { id: true, birthDate: true, practice: { select: { isDemo: true } } } });
+  const lage = stamm ? pruefLage(params.token, stamm) : { status: "noetig" as const };
+  const pruefung = {
+    status: lage.status,
+    url: `/api/portal/${params.token}/pruefung`,
+    lang: pickPortalLang(searchParams.lang, headers().get("accept-language")),
+    demoDatum: stamm?.practice.isDemo && stamm.birthDate ? stamm.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" }) : null,
+  };
 
   return (
     <main className="min-h-screen bg-[#F5F2EE]" data-testid="vereinbarung">
@@ -45,7 +58,7 @@ export default async function Vereinbarung({ params }: { params: { token: string
               </p>
             </div>
           ) : (
-            <SignAgreement postUrl={`/api/portal/${params.token}/vereinbarung/${proposal.id}`} backHref={back} text={text} defaultName={`${patient.firstName} ${patient.lastName}`} />
+            <SignAgreement postUrl={`/api/portal/${params.token}/vereinbarung/${proposal.id}`} backHref={back} text={text} defaultName={`${patient.firstName} ${patient.lastName}`} pruefung={pruefung} />
           )}
         </div>
       </div>

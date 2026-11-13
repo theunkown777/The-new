@@ -154,7 +154,7 @@ export default function LoginPage() {
         <p className="mt-4 rounded-xl bg-[#F5F2EE] px-4 py-3 text-center text-sm text-slate-600">
           Sie sind Patient? Hier ist keine Anmeldung nötig. Ihre Praxis schickt Ihnen einen persönlichen Link zu Ihrem Behandlungsweg.
         </p>
-        <p className="mt-6 text-center text-xs text-slate-400">
+        <p className="mt-6 text-center text-xs text-slate-500">
           <Link href="/demo" className="hover:underline">Als Gast ansehen</Link> ·{" "}
           <Link href="/" className="hover:underline">Website</Link> ·{" "}
           <Link href="/impressum" className="hover:underline">Impressum</Link> ·{" "}

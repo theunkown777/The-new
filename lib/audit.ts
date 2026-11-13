@@ -27,6 +27,7 @@ export const AUDIT_ACTIONS = {
   "schnittstelle.export": "An die Praxissoftware übergeben",
   "bereich.passwort": "Passwort für Mein Bereich gesetzt oder geändert",
   "bereich.gesperrt": "Mein Bereich nach Fehlversuchen gesperrt",
+  "portal.gesperrt": "Geburtsdatum-Prüfung im Patientenportal nach Fehlversuchen gesperrt",
   "datev.export": "DATEV-Buchungsstapel exportiert",
   "kalender": "Kalender oder Online-Termine geändert",
   "termin.online": "Termin vom Patienten online gebucht oder abgesagt",

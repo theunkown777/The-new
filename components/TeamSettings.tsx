@@ -113,7 +113,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="card p-0">
-        <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
           Mitglieder
         </h2>
         <div className="divide-y divide-slate-100">
@@ -121,9 +121,9 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
             <div key={u.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
               <div className="min-w-0">
                 <div className="text-sm font-medium text-slate-900">
-                  {u.name} {u.id === currentUserId && <span className="text-xs text-slate-400">(Sie)</span>}
+                  {u.name} {u.id === currentUserId && <span className="text-xs text-slate-500">(Sie)</span>}
                 </div>
-                <div className="text-xs text-slate-400 [overflow-wrap:anywhere]">{u.email}</div>
+                <div className="text-xs text-slate-500 [overflow-wrap:anywhere]">{u.email}</div>
               </div>
               <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
                 <span
@@ -167,7 +167,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
 
       {invites.length > 0 && (
         <div className="card p-0">
-          <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
             Ausstehende Einladungen
           </h2>
           <div className="divide-y divide-slate-100">
@@ -175,7 +175,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
               <div key={inv.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
                 <div>
                   <div className="font-medium text-slate-900">{inv.email}</div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-slate-500">
                     {inv.role === "admin" ? "Geschäftsführung" : "Mitarbeiter/in"} · gültig bis{" "}
                     {new Date(inv.expiresAt).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
                   </div>
@@ -222,7 +222,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
             {inviteUrl}
           </p>
         )}
-        <p className="mt-3 text-xs text-slate-400">
+        <p className="mt-3 text-xs text-slate-500">
           Admins können praxisweite Einstellungen (Abrechnung, Katalog, Team) ändern; Staff kann
           Patienten und Berichte bearbeiten, aber keine dieser Einstellungen.
         </p>

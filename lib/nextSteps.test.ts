@@ -27,7 +27,7 @@ describe("buildNextSteps", () => {
 
   it("plans a HKP with the 2026 deadline for prosthetics", () => {
     const s = steps({ teeth: { "36": "fehlt" } });
-    expect(ids(s)).toEqual(["bericht", "schreiben", "hkp", "frist2027"]);
+    expect(ids(s)).toEqual(["bericht", "schreiben", "hkp", "haertefall-hinweis", "frist2027"]);
     expect(s.find((x) => x.id === "frist2027")!.detail).toMatch(/92 €/);
     expect(s.find((x) => x.id === "frist2027")!.text).toMatch(/noch 62 Tage/);
   });
@@ -35,6 +35,14 @@ describe("buildNextSteps", () => {
   it("drops the deadline after 2026 and for Härtefälle", () => {
     expect(ids(steps({ teeth: { "36": "fehlt" } }, { today: new Date(2027, 1, 1) }))).not.toContain("frist2027");
     expect(ids(steps({ teeth: { "36": "fehlt" } }, { patient: { ...GKV10, haertefall: true } }))).not.toContain("frist2027");
+  });
+
+  it("weist bei Zahnersatz auf die Härtefallprüfung hin, außer bei Härtefall und Privatpatienten", () => {
+    const hinweis = steps({ teeth: { "36": "fehlt" } }).find((x) => x.id === "haertefall-hinweis")!;
+    expect(hinweis.detail).toMatch(/gleitende Regelung/);
+    expect(ids(steps({ teeth: { "36": "fehlt" } }, { patient: { ...GKV10, haertefall: true } }))).not.toContain("haertefall-hinweis");
+    expect(ids(steps({ teeth: { "36": "fehlt" } }, { patient: { ...GKV10, insurance: "PKV", erstattungProzent: 80 } }))).not.toContain("haertefall-hinweis");
+    expect(ids(steps({ teeth: { "25": "karies_klein" } }))).not.toContain("haertefall-hinweis");
   });
 
   it("asks for a cost estimate instead of a HKP for private patients", () => {

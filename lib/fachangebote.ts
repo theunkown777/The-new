@@ -82,21 +82,21 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
         { id: "uro_inko_diag", name: "Abklärung (Urin, Ultraschall, Restharn)", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
         { id: "uro_inko_bb", name: "Beckenbodentraining in der Physiotherapie", type: "kasse", price: 0, zuzahlung: "heilmittel", benefits: ["Heilmittel auf Verordnung"] },
         { id: "uro_inko_hm", name: "Inkontinenzhilfsmittel auf Rezept", type: "kasse", price: 0, zuzahlung: "hilfsmittel", benefits: ["Kassenleistung mit Zuzahlung"] },
-        { id: "uro_inko_magnet", name: "Magnetstimulation des Beckenbodens", type: "igel", price: 40, benefits: ["ohne Ausziehen, im Sitzen"], nutzen: "Wirkung nur in kleinen Studien belegt; Beckenbodentraining ist die Basis." },
+        { id: "uro_inko_magnet", zusatz: true, name: "Magnetstimulation des Beckenbodens", type: "igel", price: 40, benefits: ["ohne Ausziehen, im Sitzen"], nutzen: "Wirkung nur in kleinen Studien belegt; Beckenbodentraining ist die Basis." },
       ],
     },
     {
       id: "hwi", label: "Wiederkehrende Harnwegsinfekte", bereich: "Blase",
       options: [
         { id: "uro_hwi_kultur", name: "Urinkultur und gezielte Behandlung", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-        { id: "uro_hwi_immun", name: "Immunprophylaxe (orale Impfung gegen Harnwegsinfekte)", type: "igel", price: 60, benefits: ["kann Infekte seltener machen"], kasseWenn: "Manche Kassen erstatten auf Antrag.", nutzen: "Nutzen für einen Teil der Betroffenen belegt." },
+        { id: "uro_hwi_immun", zusatz: true, name: "Immunprophylaxe (orale Impfung gegen Harnwegsinfekte)", type: "igel", price: 60, benefits: ["kann Infekte seltener machen"], kasseWenn: "Manche Kassen erstatten auf Antrag.", nutzen: "Nutzen für einen Teil der Betroffenen belegt." },
       ],
     },
     {
       id: "maennergesundheit", geschlecht: "M", label: "Männergesundheit und Erektionsstörung", bereich: "Männergesundheit",
       options: [
         { id: "uro_ed_diag", name: "Abklärung der Ursache (Labor, Gefäße, Hormone)", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
-        { id: "uro_ed_swt", name: "Stoßwellentherapie bei Erektionsstörung (je Sitzung)", type: "igel", price: 150, benefits: ["ohne Medikamente"], nutzen: "Wirkung vor allem bei leichter, gefäßbedingter Störung untersucht; Ergebnisse uneinheitlich." },
+        { id: "uro_ed_swt", zusatz: true, name: "Stoßwellentherapie bei Erektionsstörung (je Sitzung)", type: "igel", price: 150, benefits: ["ohne Medikamente"], nutzen: "Wirkung vor allem bei leichter, gefäßbedingter Störung untersucht; Ergebnisse uneinheitlich." },
       ],
     },
     {
@@ -149,14 +149,14 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "haare", label: "Haarausfall", bereich: "Haare",
       options: [
         { id: "haut_haar_diag", name: "Abklärung der Ursache", type: "kasse", price: 0, benefits: ["Kassenleistung bei krankhaftem Haarausfall"] },
-        { id: "haut_trichogramm", name: "Trichogramm / Haaranalyse", type: "igel", price: 45, benefits: ["genaue Zählung der Haarwachstumsphasen"] },
+        { id: "haut_trichogramm", zusatz: true, name: "Trichogramm / Haaranalyse", type: "igel", price: 45, benefits: ["genaue Zählung der Haarwachstumsphasen"] },
       ],
     },
     {
       id: "akne", label: "Akne und Hautbild", bereich: "Haut",
       options: [
         { id: "haut_akne_kasse", name: "Medizinische Aknetherapie", type: "kasse", price: 0, benefits: ["Kassenleistung bei Akne"] },
-        { id: "haut_peeling", name: "Chemisches Peeling (je Sitzung)", type: "igel", price: 90, benefits: ["glattere Haut"], nutzen: "Ergänzung, ersetzt keine Aknetherapie." },
+        { id: "haut_peeling", zusatz: true, name: "Chemisches Peeling (je Sitzung)", type: "igel", price: 90, benefits: ["glattere Haut"], nutzen: "Ergänzung, ersetzt keine Aknetherapie." },
       ],
     },
   ],
@@ -165,7 +165,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "trockenes_auge", label: "Trockenes Auge", bereich: "Oberfläche",
       options: [
         { id: "au_trocken_kasse", name: "Untersuchung und Behandlung", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
-        { id: "au_ipl", name: "Lidrandbehandlung mit Lichtimpulsen (IPL, je Sitzung)", type: "igel", price: 120, benefits: ["bei Funktionsstörung der Liddrüsen"], nutzen: "Nutzen in Studien gezeigt, Langzeitdaten begrenzt." },
+        { id: "au_ipl", zusatz: true, name: "Lidrandbehandlung mit Lichtimpulsen (IPL, je Sitzung)", type: "igel", price: 120, benefits: ["bei Funktionsstörung der Liddrüsen"], nutzen: "Nutzen in Studien gezeigt, Langzeitdaten begrenzt." },
       ],
     },
     {
@@ -198,7 +198,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       options: [
         { id: "or_ruecken_kasse", name: "Untersuchung, Physiotherapie auf Verordnung", type: "kasse", price: 0, zuzahlung: "heilmittel", benefits: ["Kassenleistung"] },
         { id: "or_akupunktur", name: "Akupunktur bei chronischem Kreuzschmerz", type: "kasse", price: 0, benefits: ["Kassenleistung bei mindestens 6 Monaten Beschwerden"] },
-        { id: "or_rueckenkurs", name: "Präventionskurs Rücken", type: "igel", price: 120, benefits: ["Kasse bezuschusst zertifizierte Kurse"] },
+        { id: "or_rueckenkurs", zusatz: true, name: "Präventionskurs Rücken", type: "igel", price: 120, benefits: ["Kasse bezuschusst zertifizierte Kurse"] },
       ],
     },
     {
@@ -241,7 +241,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "beckenboden", label: "Beckenboden", bereich: "Becken",
       options: [
         { id: "ph_bb", name: "Beckenbodentraining auf Verordnung", type: "kasse", price: 0, zuzahlung: "heilmittel", benefits: ["Heilmittel"] },
-        { id: "ph_bb_kurs", name: "Beckenbodenkurs (Gruppe)", type: "igel", price: 110, benefits: ["Kasse bezuschusst zertifizierte Präventionskurse"] },
+        { id: "ph_bb_kurs", zusatz: true, name: "Beckenbodenkurs (Gruppe)", type: "igel", price: 110, benefits: ["Kasse bezuschusst zertifizierte Präventionskurse"] },
       ],
     },
   ],
@@ -268,7 +268,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       options: [
         { id: "apo_kompr", name: "Kompressionsstrümpfe anmessen", type: "kasse", price: 0, zuzahlung: "hilfsmittel", benefits: ["auf Rezept"] },
         { id: "apo_phm", name: "Pflegehilfsmittel zum Verbrauch (Handschuhe, Desinfektion)", type: "kasse", price: 0, benefits: ["bis 42 € im Monat von der Pflegekasse, ab Pflegegrad 1"] },
-        { id: "apo_messgeraet", name: "Blutdruckmessgerät mit Einweisung", type: "igel", price: 60, benefits: ["validiertes Oberarmgerät"] },
+        { id: "apo_messgeraet", zusatz: true, name: "Blutdruckmessgerät mit Einweisung", type: "igel", price: 60, benefits: ["validiertes Oberarmgerät"] },
       ],
     },
     {
@@ -282,9 +282,9 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "service_apo", label: "Service rund um Arzneimittel", bereich: "Service",
       options: [
         { id: "apo_bote", name: "Botendienst für Rezeptarzneimittel", type: "kasse", price: 0, benefits: ["Lieferung nach Hause"] },
-        { id: "apo_blister", name: "Wochenblister / Verblisterung", type: "igel", price: 15, benefits: ["fertig sortiert für jeden Tag"] },
-        { id: "apo_reise", name: "Reiseapotheke und Reiseberatung", type: "igel", price: 25, benefits: ["passend zum Reiseziel"] },
-        { id: "apo_kosmetik", name: "Hautanalyse und Pflegeberatung", type: "igel", price: 0, benefits: ["kostenlose Beratung, Produkte als Selbstzahler"] },
+        { id: "apo_blister", zusatz: true, name: "Wochenblister / Verblisterung", type: "igel", price: 15, benefits: ["fertig sortiert für jeden Tag"] },
+        { id: "apo_reise", zusatz: true, name: "Reiseapotheke und Reiseberatung", type: "igel", price: 25, benefits: ["passend zum Reiseziel"] },
+        { id: "apo_kosmetik", zusatz: true, name: "Hautanalyse und Pflegeberatung", type: "igel", price: 0, benefits: ["kostenlose Beratung, Produkte als Selbstzahler"] },
       ],
     },
   ],
@@ -306,7 +306,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "kinderbrille", bisAlter: 17, label: "Kinderbrille", bereich: "Brille",
       options: [
         { id: "op_kind_glas", name: "Brillengläser auf Verordnung", type: "kasse", price: 0, benefits: ["Kasse zahlt bis 18 den Festbetrag"] },
-        { id: "op_kind_fass", name: "Kinderfassung", type: "igel", price: 60, benefits: ["robust, mitwachsend"] },
+        { id: "op_kind_fass", zusatz: true, name: "Kinderfassung", type: "igel", price: 60, benefits: ["robust, mitwachsend"] },
       ],
     },
   ],

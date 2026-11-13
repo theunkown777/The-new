@@ -125,7 +125,7 @@ export function Behandlungsweg({
               return (
                 <span
                   key={l}
-                  className={`absolute whitespace-nowrap text-center text-[11px] leading-none sm:text-xs ${i < erreicht ? "font-semibold text-slate-800" : aktuell === i ? "font-semibold text-brand-700" : "text-slate-400"}`}
+                  className={`absolute whitespace-nowrap text-center text-[11px] leading-none sm:text-xs ${i < erreicht ? "font-semibold text-slate-800" : aktuell === i ? "font-semibold text-brand-700" : "text-slate-500"}`}
                   style={{
                     left: `${(x / 200) * 100}%`,
                     // Abstand = Punktradius plus Luft, in Bogeneinheiten, damit er mit der Breite mitwächst

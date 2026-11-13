@@ -168,7 +168,7 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
       </form>
 
       <div className="card p-0">
-        <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
           Positionen ({template.items.length})
         </h2>
         <div className="divide-y divide-slate-100">
@@ -177,7 +177,7 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
               <div className="flex flex-wrap items-center gap-3">
                 <div className="min-w-[220px] flex-1">
                   <div className="text-sm font-medium text-slate-900">{item.catalogItem.title}</div>
-                  <div className="text-xs text-slate-400">
+                  <div className="text-xs text-slate-500">
                     {item.catalogItem.code !== "–" ? `${item.catalogItem.system} ${item.catalogItem.code}` : item.catalogItem.system}
                     {" · "}
                     {item.catalogItem.category}
@@ -196,7 +196,7 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
               </div>
               {template.items.length > 1 && (
                 <div className="mt-2 border-t border-dashed border-slate-100 pt-2">
-                  <div className="mb-1 text-xs text-slate-400">
+                  <div className="mb-1 text-xs text-slate-500">
                     Setzt eine dieser Positionen voraus (baut auf ihr auf):
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1">

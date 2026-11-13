@@ -9,6 +9,7 @@ import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 import { ProposalEditor } from "@/components/ProposalEditor";
 import { PatientLinkPanel } from "@/components/PatientLinkPanel";
 import { patientLinkState } from "@/lib/patientLink";
+import { pruefVermerk } from "@/lib/portalPruefung";
 
 export default async function ProposalDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -105,7 +106,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
                 <span>
                   <span className="block text-slate-900">{z.praxis || "Andere Praxis"}: {z.leistung}</span>
                   {z.notiz && <span className="block text-xs italic text-slate-500">„{z.notiz}“</span>}
-                  <span className="block text-xs text-slate-400">geteilt am {z.geteiltAt!.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</span>
+                  <span className="block text-xs text-slate-500">geteilt am {z.geteiltAt!.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</span>
                 </span>
                 <span className="text-right tabular-nums">
                   <span className="block font-medium text-slate-900">Eigenanteil {(z.eigenanteilCent / 100).toLocaleString("de-DE", { maximumFractionDigits: 0 })} €</span>
@@ -123,6 +124,21 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
           <p className="mt-1 text-sm text-slate-700">
             Unterschrieben am {proposal.agreedAt.toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "short", timeStyle: "short" })} von <b>{proposal.agreedName}</b> auf dem Behandlungsweg (Patientenseite).
           </p>
+          {/* Geburtsdatum-Prüfung im Portal (S5): Die Praxis sieht, ob vor der Unterschrift geprüft wurde. */}
+          {proposal.agreedGeprueftAt ? (
+            <p className="mt-1 text-sm text-salbei-800" data-testid="einverstaendnis-pruefung">✓ {pruefVermerk(proposal.agreedGeprueftAt)}.</p>
+          ) : (
+            <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="einverstaendnis-pruefung">
+              <b>Ohne Geburtsdatum-Prüfung unterschrieben.</b> Wer den persönlichen Link hatte, konnte unterschreiben.{" "}
+              {proposal.patient.birthDate ? (
+                "Bitte lassen Sie die Vereinbarung in der Praxis bestätigen."
+              ) : (
+                <>
+                  Bitte das <Link href={`/patients/${proposal.patient.id}#kontakt`} className="underline">Geburtsdatum in der Akte nachtragen</Link>, dann wird es künftig vor jeder Unterschrift abgefragt.
+                </>
+              )}
+            </p>
+          )}
           {proposal.agreedSignature && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={proposal.agreedSignature} alt={`Unterschrift von ${proposal.agreedName}`} className="mt-3 h-24 rounded-xl border border-salbei-200 bg-white p-2" />
@@ -144,7 +160,7 @@ export default async function ProposalDetailPage({ params }: { params: { id: str
       {(proposal.status === "ANGENOMMEN" || proposal.status === "ABGELEHNT") && (
         <div className="card mt-6 space-y-2">
           <h2 className="font-medium text-slate-900">Gespeichertes Patientenschreiben</h2>
-          <p className="text-xs text-slate-400">Stand beim letzten Speichern, als Nachweis der wirtschaftlichen Aufklärung.</p>
+          <p className="text-xs text-slate-500">Stand beim letzten Speichern, als Nachweis der wirtschaftlichen Aufklärung.</p>
           <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-slate-800">
             {proposal.letterText}
           </pre>

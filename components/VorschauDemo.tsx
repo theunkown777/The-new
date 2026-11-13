@@ -156,7 +156,7 @@ export function VorschauDemo() {
         <section className="rounded-2xl border border-slate-200 bg-white p-5" aria-labelledby="v3">
           <p className="font-mono text-xs uppercase tracking-wider text-brand-700">3 · Praxis, automatisch</p>
           <h2 id="v3" className="mt-1 font-semibold text-slate-900">Rückmeldung und To-dos</h2>
-          <div className={`mt-4 rounded-xl border p-3 text-sm ${sent ? "border-emerald-300 bg-emerald-50 text-emerald-900" : "border-dashed border-slate-300 text-slate-400"}`} data-testid="vorschau-rueckmeldung">
+          <div className={`mt-4 rounded-xl border p-3 text-sm ${sent ? "border-emerald-300 bg-emerald-50 text-emerald-900" : "border-dashed border-slate-300 text-slate-500"}`} data-testid="vorschau-rueckmeldung">
             {sent ? (
               <>
                 <b>Martina Weber möchte besprechen</b>

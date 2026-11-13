@@ -94,7 +94,7 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
                     <label key={o.id} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2 text-sm">
                       <span className="min-w-0">
                         {o.name}
-                        <span className="block text-xs text-slate-400">{o.type === "kasse" ? "Kassenleistung (Wert für Privatversicherte)" : "Selbstzahlerleistung"}</span>
+                        <span className="block text-xs text-slate-500">{o.type === "kasse" ? "Kassenleistung (Wert für Privatversicherte)" : "Selbstzahlerleistung"}</span>
                       </span>
                       <input
                         type="number"
@@ -161,7 +161,7 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
                 <p className="mt-2 text-xs text-slate-500">Übernommene Leistungen erscheinen unten; bitte Preis prüfen und speichern.</p>
               </details>
             )}
-            {v.customOffers.length === 0 && <p className="text-sm text-slate-400">Noch keine eigenen Leistungen.</p>}
+            {v.customOffers.length === 0 && <p className="text-sm text-slate-500">Noch keine eigenen Leistungen.</p>}
             {v.customOffers.map((c, i) => (
               <div key={c.id} className="space-y-2 rounded-lg border border-slate-200 p-3" data-testid="custom-offer">
                 <div className="grid gap-2 sm:grid-cols-[1fr_1fr_7rem]">

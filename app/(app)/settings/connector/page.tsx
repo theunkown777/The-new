@@ -64,7 +64,7 @@ export default async function ConnectorSettingsPage() {
             Hier oben sehen Sie danach „zuletzt verbunden“ und ob der Rückweg aktiv ist. Bei Problemen hilft das
             Protokoll <code className="break-all rounded bg-slate-100 px-1 text-xs">%LOCALAPPDATA%\Sorrida\connector.log</code> (ohne Patientendaten).
           </p>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Übertragen werden nur PVS-Name, Patientennummer, Name, Titel, Geburtsdatum, Geschlecht,
             Versicherungsstatus und Kasse. Adresse, Telefon und Versichertennummer verlassen den PC nicht.
           </p>
@@ -75,12 +75,12 @@ export default async function ConnectorSettingsPage() {
           {PVS_GUIDES.map((g) => (
             <div key={g.name}>
               <h3 className="text-sm font-semibold text-slate-800">
-                {g.name} {g.share && <span className="font-normal text-slate-400">· Marktanteil {g.share}</span>}
+                {g.name} {g.share && <span className="font-normal text-slate-500">· Marktanteil {g.share}</span>}
               </h3>
               <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-slate-600">
                 {g.steps.map((s) => <li key={s}>{s}</li>)}
               </ol>
-              <p className="mt-1 text-xs text-slate-400">Quelle: {g.source}</p>
+              <p className="mt-1 text-xs text-slate-500">Quelle: {g.source}</p>
             </div>
           ))}
         </li>

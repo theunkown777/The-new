@@ -121,7 +121,7 @@ export function AnalyseExplorer({
                 <li key={g.name} className={`rounded-2xl border ${auf ? "border-brand-600 bg-white" : "border-transparent bg-[#FBFAF8]"}`}>
                   <button type="button" className="w-full px-4 py-3 text-left" aria-expanded={auf} onClick={() => setOffen(auf ? null : g.name)} data-testid="leistung-zeile">
                     <span className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
-                      <span className="min-w-0 font-medium text-slate-800"><span className="mr-2 tabular-nums text-slate-400">{i + 1}.</span>{g.name}</span>
+                      <span className="min-w-0 font-medium text-slate-800"><span className="mr-2 tabular-nums text-slate-500">{i + 1}.</span>{g.name}</span>
                       <b className="tabular-nums text-slate-900">{fmtWert(g)}</b>
                     </span>
                     <span className="mt-2 block h-2.5 overflow-hidden rounded-full bg-slate-100" aria-hidden="true">

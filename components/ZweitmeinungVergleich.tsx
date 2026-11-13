@@ -78,7 +78,7 @@ export function ZweitmeinungVergleich({
               <li key={h.label} className="flex items-baseline justify-between gap-3 py-0.5">
                 <span className="text-slate-700">
                   Hier: {h.label}
-                  {h === bezug && <span className="ml-1 text-xs text-slate-400">(Vergleichswert)</span>}
+                  {h === bezug && <span className="ml-1 text-xs text-slate-500">(Vergleichswert)</span>}
                 </span>
                 <span className="shrink-0 tabular-nums text-slate-900">{h.cent == null ? "noch offen" : eur(h.cent)}</span>
               </li>
@@ -107,7 +107,7 @@ export function ZweitmeinungVergleich({
                     <input type="checkbox" checked={z.geteilt} onChange={(e) => teilen(z.id, e.target.checked)} />
                     mit meiner Praxis teilen
                   </label>
-                  <button type="button" className="text-slate-400 underline" onClick={() => loeschen(z.id)}>
+                  <button type="button" className="text-slate-500 underline" onClick={() => loeschen(z.id)}>
                     löschen
                   </button>
                 </div>

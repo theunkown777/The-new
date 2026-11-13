@@ -33,7 +33,7 @@ export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | nu
     <label className="block text-sm">
       <span className="text-slate-600">{label}</span>
       <input className="input mt-1" inputMode="numeric" value={e[k] ?? ""} onChange={(x) => setE({ ...e, [k]: x.target.value === "" ? undefined : Number(x.target.value) })} required={k === "beraternummer" || k === "mandantennummer"} />
-      {hilfe && <span className="text-xs text-slate-400">{hilfe}</span>}
+      {hilfe && <span className="text-xs text-slate-500">{hilfe}</span>}
     </label>
   );
 
@@ -54,7 +54,7 @@ export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | nu
               <option value="03">SKR03</option>
               <option value="04">SKR04</option>
             </select>
-            <span className="text-xs text-slate-400">bei SKR04 die Konten oben anpassen</span>
+            <span className="text-xs text-slate-500">bei SKR04 die Konten oben anpassen</span>
           </label>
           <p className="text-xs text-slate-500 sm:col-span-3">
             Konten bitte mit Ihrer Steuerberatung abstimmen. Selbstzahlerleistungen mit Umsatzsteuer (z. B. Ästhetik) bucht die Steuerberatung auf ein eigenes Erlöskonto um.

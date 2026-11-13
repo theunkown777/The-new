@@ -77,7 +77,7 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
           <span className="font-medium text-slate-900">{frei ? "Leistungen auswählen" : "Fehlt eine Leistung? Hier suchen und ergänzen"}</span>
           <span className="block text-xs text-slate-500">Alle amtlichen Leistungen Ihres Fachs: Name oder Ziffer eintippen, mit „+“ übernehmen</span>
         </span>
-        <span className="text-slate-400">{offen ? "–" : "+"}</span>
+        <span className="text-slate-500">{offen ? "–" : "+"}</span>
       </button>
       {offen && (
         <div className="space-y-3 border-t border-slate-100 px-4 pb-4 pt-3 text-sm">
@@ -108,7 +108,7 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
                         <li key={k.name}>
                           <button type="button" onClick={() => setKapitel(kapitel === k.name ? null : k.name)}
                             className={`flex w-full justify-between rounded-lg px-2 py-1.5 text-left text-xs ${kapitel === k.name ? "bg-brand-50 text-brand-800" : "text-slate-700 hover:bg-slate-50"}`}>
-                            <span>{k.name}</span><span className="tabular-nums text-slate-400">{k.anzahl}</span>
+                            <span>{k.name}</span><span className="tabular-nums text-slate-500">{k.anzahl}</span>
                           </button>
                         </li>
                       ))}
@@ -135,7 +135,7 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
                           <span className="mr-1.5 rounded bg-slate-100 px-1 py-0.5 font-mono text-[11px] text-slate-600">{KURZ[l.system] ?? l.system} {l.code}</span>
                           <span className="text-slate-800">{l.text}</span>
                           {(l.punkte != null || l.euroCent != null) && (
-                            <span className="ml-1 text-xs text-slate-400">{l.punkte != null ? `${l.punkte} Pkt.` : euro(l.euroCent!)}</span>
+                            <span className="ml-1 text-xs text-slate-500">{l.punkte != null ? `${l.punkte} Pkt.` : euro(l.euroCent!)}</span>
                           )}
                         </span>
                         <button type="button" disabled={!!hinzu[l.id]} onClick={() => hinzufuegen(l)}

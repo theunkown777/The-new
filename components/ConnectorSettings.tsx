@@ -140,7 +140,7 @@ export function ConnectorSettings({
             <div key={k.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm">
               <div>
                 <p className="font-medium text-slate-900">
-                  {k.name} <span className="font-mono text-xs text-slate-400">{k.keyPrefix}…</span>
+                  {k.name} <span className="font-mono text-xs text-slate-500">{k.keyPrefix}…</span>
                 </p>
                 <p className="text-xs text-slate-500">
                   erstellt {fmt(k.createdAt)} · zuletzt verbunden {fmt(k.lastUsedAt)}

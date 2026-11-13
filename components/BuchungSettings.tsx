@@ -68,13 +68,13 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
           {TAGE.map((tag, n) => (
             <div key={tag} className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-slate-100 pt-2 text-sm first:border-0 first:pt-0">
               <span className="w-24 shrink-0 font-medium text-slate-800">{WOCHENTAGE[n]}</span>
-              {(zeiten[tag] ?? []).length === 0 && <span className="text-slate-400">geschlossen</span>}
+              {(zeiten[tag] ?? []).length === 0 && <span className="text-slate-500">geschlossen</span>}
               {(zeiten[tag] ?? []).map((f, i) => (
                 <span key={i} className="flex items-center gap-1">
                   <input type="time" className="input w-[7.5rem]" value={f[0]} disabled={!admin} onChange={(e) => setze(tag, i, 0, e.target.value)} aria-label={`${WOCHENTAGE[n]} von`} />
-                  <span className="text-slate-400">bis</span>
+                  <span className="text-slate-500">bis</span>
                   <input type="time" className="input w-[7.5rem]" value={f[1]} disabled={!admin} onChange={(e) => setze(tag, i, 1, e.target.value)} aria-label={`${WOCHENTAGE[n]} bis`} />
-                  {admin && <button type="button" className="ziel px-2 text-slate-400 hover:text-red-700" onClick={() => weg(tag, i)} aria-label={`Zeitfenster ${WOCHENTAGE[n]} entfernen`}>✕</button>}
+                  {admin && <button type="button" className="ziel px-2 text-slate-500 hover:text-red-700" onClick={() => weg(tag, i)} aria-label={`Zeitfenster ${WOCHENTAGE[n]} entfernen`}>✕</button>}
                 </span>
               ))}
               {admin && (zeiten[tag] ?? []).length < 4 && <button type="button" className="ziel text-brand-700 underline" onClick={() => mehr(tag)}>+ Zeit</button>}

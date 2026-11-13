@@ -9,6 +9,21 @@ export const kontaktSchema = z.object({
   /** Eigene Einwilligung für WhatsApp (getrennt von E-Mail) */
   whatsapp: z.boolean().optional(),
   geschlecht: z.enum(["W", "M", "D"]).optional().nullable().or(z.literal("")),
+  /**
+   * Geburtsdatum nachtragen oder berichtigen ("JJJJ-MM-TT"). Leer = unverändert: Es lässt sich hier
+   * nicht entfernen, weil das Patientenportal es vor Unterschrift und Lastschrift abfragt.
+   */
+  geburtsdatum: z
+    .string()
+    .trim()
+    .optional()
+    .nullable()
+    .refine((v) => {
+      if (!v) return true;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+      const d = new Date(`${v}T00:00:00Z`);
+      return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v && d.getUTCFullYear() >= 1900 && d.getTime() <= Date.now();
+    }, "Das Geburtsdatum ist ungültig."),
 });
 
 export type NachrichtArt = "termin-bestaetigung" | "termin-erinnerung" | "zahlungserinnerung";

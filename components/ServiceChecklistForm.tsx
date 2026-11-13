@@ -513,7 +513,7 @@ export function ServiceChecklistForm({
           <div className="space-y-5 px-3 pb-4 pt-3 sm:px-4">
             {grouped.map(([category, items]) => (
               <div key={category}>
-                <h3 className="mb-1 px-2 text-xs font-medium text-slate-400">{category}</h3>
+                <h3 className="mb-1 px-2 text-xs font-medium text-slate-500">{category}</h3>
                 <ul className="space-y-1">
                   {items.map((item) => {
                     const entry = entries[item.catalogItemId];
@@ -571,7 +571,7 @@ export function ServiceChecklistForm({
                             onClick={() => toggleItem(item.catalogItemId)}
                           >
                             <span className={`block hyphens-auto text-[15px] [overflow-wrap:anywhere] ${eff ? "text-slate-900" : "text-slate-400 line-through"}`}>{item.catalogItem.title}</span>
-                            <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-slate-400">
+                            <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
                               <span className={`inline-flex items-center gap-1 ${eff ? art.cls : ""}`} title={badge.text}>
                                 <span className={`h-1.5 w-1.5 rounded-full ${eff ? art.dot : "bg-slate-300"}`} />
                                 {art.text}
@@ -592,7 +592,7 @@ export function ServiceChecklistForm({
                             </button>
                           )}
                           {item.position >= 1000 && (
-                            <button type="button" className="shrink-0 rounded-full px-2 py-1 text-xs text-slate-400 hover:bg-slate-100 hover:text-red-700"
+                            <button type="button" className="shrink-0 rounded-full px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 hover:text-red-700"
                               aria-label={`${item.catalogItem.title} wieder entfernen`} title="Wieder entfernen"
                               onClick={() => setZusatz((z) => z.filter((x) => x.catalogItemId !== item.catalogItemId))}>
                               ✕
@@ -672,7 +672,7 @@ export function ServiceChecklistForm({
             ))}
           </div>
           {totalEstimatedCent != null && (
-            <p className="border-t border-slate-100 px-5 py-2 text-xs text-slate-400 sm:px-6">
+            <p className="border-t border-slate-100 px-5 py-2 text-xs text-slate-500 sm:px-6">
               Beträge sind Schätzungen aus Punktwert und Faktor, keine Rechnung.
             </p>
           )}
@@ -694,7 +694,7 @@ export function ServiceChecklistForm({
           value={additionalContext}
           onChange={(e) => setAdditionalContext(e.target.value)}
         />
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-slate-500">
           Kurz reinsprechen genügt – die KI formuliert daraus einen ausführlicheren Abschnitt im
           Bericht, ohne die übliche Struktur zu ändern. Die Spracherkennung läuft über den Browser
           (Chrome empfohlen) und verarbeitet Audio ggf. über dessen Anbieter – bei Patientendaten

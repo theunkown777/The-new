@@ -29,7 +29,7 @@ export function AnlassPicker({
           <input type="checkbox" className="mt-1" checked={value.includes(a.id)} onChange={(e) => toggle(a.id, e.target.checked)} />
           <span>
             {a.label}
-            {a.nurAufWunsch && <span className="block text-xs text-slate-400">nur auf ausdrücklichen Wunsch des Patienten</span>}
+            {a.nurAufWunsch && <span className="block text-xs text-slate-500">nur auf ausdrücklichen Wunsch des Patienten</span>}
           </span>
         </label>
       ))}

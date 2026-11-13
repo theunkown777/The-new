@@ -49,6 +49,8 @@ const RULES: Rule[] = [
   { code: "karies_klein", re: /karies\s+[modbvlp]{1,2}\b/g },
   { code: "karies_klein", re: /\bkaries\b|\bkariös\w*/g },
   { code: "wurzel", re: /wurzelbehandlung|wurzelkanal|pulpitis|nerv\s+(?:ist\s+)?entzündet|entzündete[rn]?\s+nerv|\bdevital|apikale?\b|\bwurzel\b|\bwkb\b/g },
+  { code: "stift", re: /stiftaufbau|krone\s+mit\s+stift|stift\s+und\s+krone|\bstift\b/g },
+  { code: "teilkrone", re: /teilkrone\w*/g },
   { code: "zerstoert", re: /zerstört|zerstoert|krone\s+(?:nötig|notwendig)|überkronen|frakturiert|abgebrochen|tief\s+zerstört/g },
   { code: "fehlt", re: /\bfehlt\b|\bfehlen\b|fehlend\w*|\blücke\b|extrahiert|nicht\s+angelegt|gezogen/g },
   { code: "fissur", re: /fissur\w*|versiegel\w*/g },

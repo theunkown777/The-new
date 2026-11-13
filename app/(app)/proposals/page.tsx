@@ -40,12 +40,12 @@ export default async function ProposalsPage() {
         <div className="card">
           <p className="text-sm text-slate-500">Annahmequote</p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">{rate == null ? "–" : `${rate} %`}</p>
-          <p className="text-xs text-slate-400">von {stats.all.decided} entschiedenen</p>
+          <p className="text-xs text-slate-500">von {stats.all.decided} entschiedenen</p>
         </div>
         <div className="card">
           <p className="text-sm text-slate-500">Mehrumsatz angenommen</p>
           <p className="mt-1 text-2xl font-semibold text-amber-700">{formatEuro(acceptedDeltaCent / 100)}</p>
-          <p className="text-xs text-slate-400">ggü. reiner Kassenleistung</p>
+          <p className="text-xs text-slate-500">ggü. reiner Kassenleistung</p>
         </div>
       </div>
 
@@ -68,7 +68,7 @@ export default async function ProposalsPage() {
                   <div className="h-full rounded-full bg-brand-600" style={{ width: `${pct(n as number)}%` }} />
                 </div>
                 <span className="tabular-nums text-slate-900">
-                  {n} <span className="text-slate-400">({pct(n as number)} %)</span>
+                  {n} <span className="text-slate-500">({pct(n as number)} %)</span>
                 </span>
               </div>
             ))}

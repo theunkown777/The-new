@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { buildAgreementPdf } from "@/lib/pdf";
 import { agreementContext } from "@/lib/agreementContext";
+import { pruefVermerk } from "@/lib/portalPruefung";
 
 // Digitales Einverständnis als PDF für die Akte und zum Gegenzeichnen.
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
@@ -27,6 +28,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     signedAt: p.agreedAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Berlin" }),
     signedName: p.agreedName ?? "",
     signaturePng: png,
+    pruefung: pruefVermerk(p.agreedGeprueftAt),
   });
   return new NextResponse(new Uint8Array(pdf), {
     headers: { "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="einverstaendnis-${p.patient.lastName}-${p.id.slice(0, 6)}.pdf"`, "Cache-Control": "no-store" },

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { buildKosteninfoPdf } from "@/lib/pdf";
 import { ABGEWAEHLT, PROPOSAL_STATUS_LABELS, buildProposal, chosenOption, formatEuro, money, resolvePrices, summarize, typeLabelOf } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
+import { pruefVermerk } from "@/lib/portalPruefung";
 
 const TZ = "Europe/Berlin";
 const zeit = (d: Date) => d.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: TZ });
@@ -55,7 +56,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     p.shareCreatedAt && { was: "Persönlicher Link für den Patienten erzeugt", wann: zeit(p.shareCreatedAt) },
     p.patientViewedAt && { was: "Vom Patienten geöffnet", wann: zeit(p.patientViewedAt) },
     p.patientRespondedAt && { was: p.patientResponse === "RUECKRUF" ? "Patient bittet um Rückruf" : "Rückmeldung des Patienten mit Auswahl", wann: zeit(p.patientRespondedAt) },
-    p.agreedAt && { was: "Einverständnis digital unterschrieben", wann: zeit(p.agreedAt) },
+    p.agreedGeprueftAt && { was: "Geburtsdatum im Portal bestätigt", wann: zeit(p.agreedGeprueftAt) },
+    p.agreedAt && { was: `Einverständnis digital unterschrieben${p.agreedGeprueftAt ? "" : " (ohne Geburtsdatum-Prüfung)"}`, wann: zeit(p.agreedAt) },
   ].filter((x): x is { was: string; wann: string } => !!x);
 
   const pdf = await buildKosteninfoPdf({
@@ -75,6 +77,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
           at: zeit(p.agreedAt),
           name: p.agreedName ?? "",
           text: p.agreedText ?? "",
+          pruefung: pruefVermerk(p.agreedGeprueftAt),
           png: p.agreedSignature?.startsWith("data:image/png;base64,") ? Buffer.from(p.agreedSignature.split(",")[1], "base64") : null,
         }
       : null,

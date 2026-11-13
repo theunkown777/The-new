@@ -76,7 +76,7 @@ export function BillingSettings({
             value={gozPunktwert}
             onChange={(e) => setGozPunktwert(e.target.value)}
           />
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-500">
             Bundeseinheitlich gesetzlich fixiert (aktuell 5,62421 Cent, Stand seit der
             GOZ-Reform 2012) – wird bei Registrierung vorbelegt, hier änderbar für den Fall einer
             künftigen Reform.
@@ -98,7 +98,7 @@ export function BillingSettings({
             value={bemaPunktwert}
             onChange={(e) => setBemaPunktwert(e.target.value)}
           />
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-500">
             Wird regional von Ihrer Kassenzahnärztlichen Vereinigung (KZV) mit den
             Krankenkassen des Bundeslands verhandelt – es gibt keinen bundeseinheitlichen Wert.
             Bitte den aktuell für Ihre Praxis gültigen Wert eintragen.

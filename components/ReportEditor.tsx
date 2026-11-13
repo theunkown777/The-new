@@ -291,7 +291,7 @@ export function ReportEditor({
           </div>
         </div>
         {totalEstimatedCent != null && (
-          <p className="mb-3 text-xs text-slate-400">
+          <p className="mb-3 text-xs text-slate-500">
             Geschätzter Gesamtbetrag der erbrachten Positionen – keine verbindliche Rechnung.
           </p>
         )}
@@ -325,7 +325,7 @@ export function ReportEditor({
                   >
                     {entry.catalogItem.title}
                   </span>{" "}
-                  <span className="text-xs text-slate-400">({ref})</span>{" "}
+                  <span className="text-xs text-slate-500">({ref})</span>{" "}
                   {entry.performed && (
                     <span
                       className={"rounded-full px-2 py-0.5 text-[11px] font-medium " + badgeClass}
@@ -344,7 +344,7 @@ export function ReportEditor({
                   )}
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-0.5">
-                  {!entry.performed && <span className="text-xs text-slate-400">nicht erbracht</span>}
+                  {!entry.performed && <span className="text-xs text-slate-500">nicht erbracht</span>}
                   {amountCent != null && (
                     <span className="text-xs font-medium text-slate-600">{formatEuro(amountCent)}</span>
                   )}

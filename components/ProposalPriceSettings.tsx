@@ -77,7 +77,7 @@ export function ProposalPriceSettings({
                 value={prices[d.key]}
                 onChange={(e) => setPrices({ ...prices, [d.key]: e.target.value })}
               />
-              <p className="mt-1 text-xs text-slate-400">Beispielwert: {DEFAULT_PRICES[d.key]} €</p>
+              <p className="mt-1 text-xs text-slate-500">Beispielwert: {DEFAULT_PRICES[d.key]} €</p>
             </div>
           ))}
         </div>

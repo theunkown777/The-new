@@ -11,9 +11,10 @@ import { PilotProgram } from "@/components/PilotProgram";
 import { Entlastung } from "@/components/Entlastung";
 import { PraxisFaq } from "@/components/PraxisFaq";
 import { DENTAL_SHOWCASE } from "@/lib/dentalShowcase";
-import { heilmittelPauschale } from "@/lib/proposals";
+import { heilmittelPauschale, hilfsmittelZuzahlungText } from "@/lib/proposals";
 import { bereicheFuerFach, katalogFuerAnlass, slugBereich } from "@/lib/leistungskatalog";
 import { leistungenJeFach } from "@/lib/amtlich/zaehlung";
+import { ratgeberFuerFach } from "@/lib/ratgeber";
 
 // Zahl der amtlichen Leistungen kommt aus der Datenbank; einmal täglich neu berechnet.
 export const revalidate = 86400;
@@ -51,11 +52,13 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
   };
   const zz = new Set(s.anlaesse.flatMap((a) => a.options.map((o) => o.zuzahlung)).filter(Boolean));
   const zuzahlungText = zz.has("hilfsmittel")
-    ? "10 % des Preises, mindestens 5 €, höchstens 10 €"
+    ? hilfsmittelZuzahlungText()
     : zz.size
       ? `10 % plus ${heilmittelPauschale()} € je Verordnung`
       : null;
   const anzahl = s.anlaesse.reduce((n, a) => n + a.options.length, 0);
+  // Ratgeber-Artikel, die zum Fach passen (lib/ratgeber.ts); Versorger gehören zu keiner Ratgeber-Gruppe.
+  const ratgeberLinks = ratgeberFuerFach(s.id, dental ? "zahn" : s.gruppe === "versorgung" ? null : therapie ? "therapie" : "arzt", 6);
   const nav: [string, string][] = [
     ["#beispiel", "So sieht es Ihr Patient"],
     ["#automatisch", "Was automatisch entsteht"],
@@ -307,10 +310,28 @@ export default async function SpecialtyPage({ params }: { params: { id: string }
             <PraxisFaq therapie={therapie} dental={dental} />
           </div>
 
+          {ratgeberLinks.length > 0 && (
+            <section className="mt-14" data-testid="fach-ratgeber">
+              <h2 className="font-display mb-3 text-lg text-slate-900">Ratgeber für Ihr Team</h2>
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {ratgeberLinks.map((r) => (
+                  <li key={r.slug}>
+                    <Link prefetch={false} href={`/ratgeber/${r.slug}`} className="block h-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:border-brand-600 hover:text-brand-700">
+                      {r.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <Link prefetch={false} href="/ratgeber" className="mt-3 inline-block text-sm text-brand-700 underline">
+                Alle Ratgeber
+              </Link>
+            </section>
+          )}
+
           <section className="mt-14">
             <h2 className="font-display mb-3 text-lg text-slate-900">Weitere Fachgebiete</h2>
             <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {[DENTAL_SHOWCASE, ...SPECIALTIES].filter((x) => x.id !== s.id).map((x) => ({ id: x.id, kurz: x.kurz, href: `/fachgebiete/${x.id}` })).map((x) => (
+              {[...SPECIALTIES.slice(0, 3), DENTAL_SHOWCASE, ...SPECIALTIES.slice(3)].filter((x) => x.id !== s.id).map((x) => ({ id: x.id, kurz: x.kurz, href: `/fachgebiete/${x.id}` })).map((x) => (
                 <li key={x.id}>
                   <Link prefetch={false} href={x.href} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 hover:border-brand-600 hover:text-brand-700">
                     <SpecialtyIcon id={x.id} className="h-4 w-4" />

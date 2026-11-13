@@ -31,7 +31,7 @@ export default async function LexikonPage() {
       <div className="space-y-6">
         {Array.from(byCategory.entries()).map(([category, items]) => (
           <div key={category} className="card p-0">
-            <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
               {category}
             </h2>
             <div className="divide-y divide-slate-100">

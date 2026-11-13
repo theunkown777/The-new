@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_PRICES, buildLetter, buildProposal, money, summarize, type ProposalInput } from "@/lib/proposals";
+import { DEFAULT_PRICES, buildLetter, buildProposal, chosenOption, money, summarize, type ProposalInput } from "@/lib/proposals";
 import { ALLE_SPECIALTIES } from "@/lib/specialties";
 
 const patient = (age: number | null, insurance: "GKV" | "PKV" = "GKV") => ({ age, insurance, bonusYears: 0 as const, haertefall: false, erstattungProzent: insurance === "PKV" ? 100 : 0 });
@@ -19,8 +19,17 @@ describe("Vorschläge für Arztpraxen", () => {
   it("empfiehlt nie eine IGeL von sich aus", () => {
     for (const s of ALLE_SPECIALTIES) {
       const items = buildProposal({ teeth: {}, globals: {}, patient: patient(50), fach: s.id, anlaesse: s.anlaesse.map((a) => a.id) }, DEFAULT_PRICES);
-      expect(items).toHaveLength(s.anlaesse.length);
+      // Je Anlass eine Hauptposition; Zusatzleistungen kommen als eigene Positionen dazu.
+      expect(items.filter((it) => !it.zusatz)).toHaveLength(s.anlaesse.length);
       for (const it of items) {
+        if (it.zusatz) {
+          expect(it.options).toHaveLength(1);
+          expect(it.options[0].type).toBe("igel");
+          expect(it.recommended).toBeNull();
+          // nie von selbst gewählt
+          expect(chosenOption(it, {})).toBeNull();
+          continue;
+        }
         const rec = it.options.find((o) => o.id === it.recommended);
         if (rec) expect(rec.type).toBe("kasse");
         // Kassenleistung steht vor den Selbstzahlerleistungen
@@ -42,8 +51,9 @@ describe("Vorschläge für Arztpraxen", () => {
     };
     const items = buildProposal(input, DEFAULT_PRICES);
     expect(items[0].options.find((o) => o.id === "glaukom_igel")?.total).toBe(35);
-    expect(items[1]).toMatchObject({ title: "Trockenes Auge", where: "Leistung der Praxis" });
-    expect(items[1].options[0]).toMatchObject({ id: "eigen_tropfen", type: "igel", total: 60 });
+    const eigen = items.find((it) => it.where === "Leistung der Praxis")!;
+    expect(eigen).toMatchObject({ title: "Trockenes Auge" });
+    expect(eigen.options[0]).toMatchObject({ id: "eigen_tropfen", type: "igel", total: 60 });
   });
 
   it("Mehrumsatz zählt IGeL ohne Kassenalternative voll", () => {
@@ -54,8 +64,10 @@ describe("Vorschläge für Arztpraxen", () => {
     expect(s.planTotal).toBe(120);
     // IGeL zusätzlich zur Kassenleistung: Mehrumsatz = Selbstzahleranteil, nie negativ
     const haut = buildProposal({ teeth: {}, globals: {}, patient: patient(50), fach: "haut", anlaesse: ["hautkrebs"] }, DEFAULT_PRICES);
-    expect(summarize(haut, { a_hautkrebs: "auflicht" }, patient(50)).planTotal).toBe(35);
-    expect(summarize(haut, {}, patient(50)).planTotal).toBe(0);
+    const mit = summarize(haut, { a_hautkrebs__auflicht: "auflicht" }, patient(50));
+    expect(mit.planTotal - mit.baseTotal).toBe(35);
+    const ohne = summarize(haut, {}, patient(50));
+    expect(ohne.planTotal - ohne.baseTotal).toBe(0);
   });
 
   it("Schreiben nennt Nutzen, Kassenhinweis und IGeL-Regeln statt HKP", () => {
@@ -98,7 +110,8 @@ describe("Gesundheitsberufe (Heilmittel)", () => {
   it("heißt in Therapiepraxen Selbstzahlerleistung, nicht IGeL", () => {
     const [it] = buildProposal(physio(40), DEFAULT_PRICES);
     expect(typeLabelOf(it.options[0], "GKV")).toBe("Kassenleistung mit Zuzahlung");
-    expect(typeLabelOf(it.options[1], "GKV")).toBe("Selbstzahlerleistung");
+    const zusatz = buildProposal(physio(40), DEFAULT_PRICES).find((x) => x.zusatz)!;
+    expect(typeLabelOf(zusatz.options[0], "GKV")).toBe("Selbstzahlerleistung");
   });
   it("Schreiben und To-dos ohne IGeL-Regeln, mit Zuzahlungshinweis", () => {
     const input = physio(40);
@@ -138,7 +151,53 @@ describe("Versorgung: Hilfsmittel, Apotheke, Klinik", () => {
     expect(ALLE_SPECIALTIES.length).toBeGreaterThanOrEqual(29);
     for (const s of ALLE_SPECIALTIES) {
       const items = buildProposal({ teeth: {}, globals: {}, patient: patient(40), fach: s.id, anlaesse: s.anlaesse.map((a) => a.id) }, DEFAULT_PRICES);
-      expect(items.length).toBe(s.anlaesse.length);
+      expect(items.filter((it) => !it.zusatz).length).toBe(s.anlaesse.length);
     }
+  });
+});
+
+describe("Zusatzleistungen zur Kassenleistung", () => {
+  const haut = () => buildProposal({ teeth: {}, globals: {}, patient: patient(50), fach: "haut", anlaesse: ["hautkrebs"] }, DEFAULT_PRICES);
+
+  it("Hautkrebs-Screening bleibt gewählt, wenn die Auflichtmikroskopie dazukommt", () => {
+    const items = haut();
+    expect(items.map((it) => it.key)).toEqual(["a_hautkrebs", "a_hautkrebs__auflicht", "a_hautkrebs__video"]);
+    expect(items[0].options.map((o) => o.id)).toEqual(["hks"]);
+    const wahl = { a_hautkrebs__auflicht: "auflicht" };
+    expect(chosenOption(items[0], wahl)?.id).toBe("hks");
+    expect(chosenOption(items[1], wahl)?.id).toBe("auflicht");
+    expect(chosenOption(items[2], wahl)).toBeNull();
+    // Patient zahlt nur die Zusatzleistung, die Kassenleistung kostet ihn nichts
+    expect(summarize(items, wahl, patient(50)).netto).toBe(35);
+    expect(summarize(items, { ...wahl, a_hautkrebs__video: "video" }, patient(50)).netto).toBe(125);
+  });
+
+  it("ältere Vorschläge, in denen die Zusatzleistung die Kassenleistung ersetzt hat, zählen beide", () => {
+    const items = haut();
+    const alt = { a_hautkrebs: "auflicht" };
+    expect(chosenOption(items[0], alt)?.id).toBe("hks");
+    expect(chosenOption(items[1], alt)?.id).toBe("auflicht");
+    expect(chosenOption(items[2], alt)).toBeNull();
+  });
+
+  it("Alternativen bleiben in einer Position (Glaukom mit oder ohne Verdacht), nur das OCT ist Zusatz", () => {
+    const items = buildProposal({ teeth: {}, globals: {}, patient: patient(50), fach: "augen", anlaesse: ["glaukom"] }, DEFAULT_PRICES);
+    expect(items[0].options.map((o) => o.id)).toEqual(["glaukom_kasse", "glaukom_igel"]);
+    expect(items[1]).toMatchObject({ key: "a_glaukom__glaukom_oct", zusatz: true });
+  });
+
+  it("unter der Altersgrenze wird die Hauptleistung selbst Selbstzahlerleistung, Zusätze bleiben Zusätze", () => {
+    const jung = buildProposal({ teeth: {}, globals: {}, patient: patient(28), fach: "haut", anlaesse: ["hautkrebs"] }, DEFAULT_PRICES);
+    expect(jung[0].options.map((o) => [o.id, o.type])).toEqual([["hks", "igel"]]);
+    expect(jung.filter((it) => it.zusatz)).toHaveLength(2);
+  });
+
+  it("Schreiben nennt nicht gewählte Zusätze als Möglichkeit und lässt herausgenommene weg", () => {
+    const items = haut();
+    const brief = (choices: Record<string, string>) => buildLetter({ items, choices, patient: patient(50), patientName: "Frau Test", practiceName: "Praxis", date: new Date("2026-11-02"), fach: "haut" });
+    expect(brief({})).toContain("Auf Wunsch zusätzlich: Auflichtmikroskopie auffälliger Muttermale");
+    expect(brief({ a_hautkrebs__auflicht: "-" })).not.toContain("Auflichtmikroskopie");
+    expect(brief({ a_hautkrebs__auflicht: "auflicht" })).toContain("(zusätzlich gewählt)");
+    expect(brief({})).toContain("Summe Ihres Eigenanteils");
   });
 });

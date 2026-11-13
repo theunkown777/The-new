@@ -152,7 +152,7 @@ export default async function AnalysePage({ searchParams }: { searchParams: { ta
               {[f.a, f.b].map((g) => (
                 <div key={g.label} className="mt-3">
                   <div className="flex justify-between text-xs text-slate-600">
-                    <span>{g.label} <span className="text-slate-400">({g.n})</span></span>
+                    <span>{g.label} <span className="text-slate-500">({g.n})</span></span>
                     <b className="tabular-nums text-slate-900">{g.quote == null ? "–" : `${g.quote} %`}</b>
                   </div>
                   <div className="mt-1 h-2 rounded-full bg-slate-200">

@@ -27,6 +27,9 @@ export const PRICE_DEFS = [
   { key: "inlay", label: "Keramik-Inlay", default: 890 },
   { key: "krone_regel", label: "Krone, Standardausführung (nur Privatpatienten)", default: 680 },
   { key: "krone_vk", label: "Vollkeramik-Krone", default: 1050 },
+  { key: "stift", label: "Stiftaufbau unter einer Krone (nur Privatpatienten)", default: 140 },
+  { key: "teilkrone_regel", label: "Teilkrone aus Metall, Standardausführung (nur Privatpatienten)", default: 620 },
+  { key: "teilkrone_keramik", label: "Keramik-Teilkrone", default: 950 },
   { key: "bruecke_regel", label: "Brücke 3-gliedrig, Standardausführung (nur Privatpatienten)", default: 1750 },
   { key: "bruecke_vk", label: "Vollkeramik-Brücke 3-gliedrig", default: 2450 },
   { key: "teilprothese", label: "Teilprothese Modellguss (nur Privatpatienten)", default: 1300 },
@@ -104,6 +107,12 @@ export interface ProposalItem {
   recommended: string | null;
   notes: { kind: "info" | "warn"; text: string }[];
   excluded: string[];
+  /**
+   * Zusatzleistung zu einer Kassenleistung (eigene Position, nur auf Wunsch): gilt erst als gewählt, wenn sie
+   * ausdrücklich angekreuzt ist. `hauptKey` ist die Position der Kassenleistung, zu der sie gehört.
+   */
+  zusatz?: boolean;
+  hauptKey?: string;
 }
 
 export interface PatientFactors {
@@ -167,7 +176,7 @@ export function neighbors(n: number): number[] {
 }
 
 const needsWork = (f: FindingCode | undefined) =>
-  f === "zerstoert" || f === "karies_gross" || f === "wurzel";
+  f === "zerstoert" || f === "stift" || f === "teilkrone" || f === "karies_gross" || f === "wurzel";
 
 function emptyItem(key: string, where: string, title: string): ProposalItem {
   return { key, where, title, options: [], recommended: null, notes: [], excluded: [] };
@@ -219,14 +228,31 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
       else info("Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus.");
       break;
 
+    case "teilkrone": {
+      // Befund 1.2: großer Substanzdefekt, aber erhaltene Zahnwand. Regelversorgung ist die metallische Teilkrone.
+      const tb = ["1.2"];
+      const gkv = input.patient.insurance === "GKV";
+      r.options.push({ id: "tk", type: "regel", name: "Teilkrone aus Metall, Regelversorgung", total: gkv ? regelKosten(tb) : P.teilkrone_regel, regel: P.teilkrone_regel, befunde: tb, benefits: ["erhält die gesunde Zahnwand", "bewährt und haltbar"] });
+      r.options.push({ id: "tkk", type: "gleichartig", name: "Keramik-Teilkrone", total: P.teilkrone_keramik, regel: P.teilkrone_regel, befunde: tb, benefits: ["zahnfarben, metallfrei", "erhält die gesunde Zahnwand", "gleicher Festzuschuss"] });
+      r.recommended = VERBLENDBEREICH.has(n) ? "tkk" : "tk";
+      info("Eine Teilkrone schont mehr Zahnsubstanz als eine Vollkrone. Sie kommt infrage, solange die äußere oder innere Zahnwand stabil ist.");
+      if (g.bruxismus) warn("Bei Knirschen Material und Schichtstärke der Keramik darauf abstimmen.");
+      break;
+    }
+
+    case "stift":
     case "zerstoert": {
       // Kassenpatienten: Die Regelversorgung wird nach BEMA und BEL II abgerechnet, nicht nach dem Preis der Praxis.
       // Geschätzt wird sie mit den Durchschnittskosten der Festzuschuss-Richtlinie (100-%-Betrag des Befunds).
-      const kb = kronenBefunde(n);
+      // Wurzelbehandelter Zahn mit Stiftaufbau: zusätzlich Befund 1.4 (konfektionierter Stiftaufbau).
+      const mitStift = f === "stift";
+      const kb = mitStift ? [...kronenBefunde(n), "1.4"] : kronenBefunde(n);
       const sichtbar = VERBLENDBEREICH.has(n);
       const gkv = input.patient.insurance === "GKV";
-      r.options.push({ id: "kr", type: "regel", name: "Krone, Regelversorgung", total: gkv ? regelKosten(kb) : P.krone_regel, regel: P.krone_regel, befunde: kb, benefits: [sichtbar ? "Metall mit Keramikverblendung auf der sichtbaren Seite" : "Metall, im Seitenzahnbereich unverblendet", "bewährt und haltbar"] });
-      r.options.push({ id: "krvk", type: "gleichartig", name: "Vollkeramik-Krone", total: P.krone_vk, regel: P.krone_regel, befunde: kb, benefits: ["metallfrei, natürliche Optik", "sehr gut verträglich", "gleicher Festzuschuss"] });
+      const stiftPreis = mitStift ? P.stift : 0;
+      if (mitStift) info(gkv ? "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist. Die Kasse gibt dafür einen eigenen Festzuschuss." : "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist.");
+      r.options.push({ id: "kr", type: "regel", name: mitStift ? "Krone mit Stiftaufbau, Regelversorgung" : "Krone, Regelversorgung", total: gkv ? regelKosten(kb) : P.krone_regel + stiftPreis, regel: P.krone_regel + stiftPreis, befunde: kb, benefits: [sichtbar ? "Metall mit Keramikverblendung auf der sichtbaren Seite" : "Metall, im Seitenzahnbereich unverblendet", "bewährt und haltbar"] });
+      r.options.push({ id: "krvk", type: "gleichartig", name: mitStift ? "Vollkeramik-Krone mit Stiftaufbau" : "Vollkeramik-Krone", total: P.krone_vk + stiftPreis, regel: P.krone_regel + stiftPreis, befunde: kb, benefits: ["metallfrei, natürliche Optik", "sehr gut verträglich", "gleicher Festzuschuss"] });
       if (!sichtbar) {
         r.recommended = "kr";
         info("Im Seitenzahnbereich ist die Kassenkrone funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.");
@@ -591,8 +617,9 @@ export function money(o: ProposalOption, p: PatientFactors, jahr?: ZuschussJahr)
 }
 
 /**
- * Pauschale je Verordnung bei Heilmitteln: 10 €, für ab 1.1.2027 ausgestellte Verordnungen 15 €
- * (GKV-Beitragssatzstabilisierungsgesetz; Quelle: TK „Gesundheitsreform 2026/2027“, Stand 11.11.2026).
+ * Pauschale je Verordnung bei Heilmitteln: 10 €, ab 1.1.2027 15 € (neuer § 61 SGB V, BGBl. 2026 I Nr. 228,
+ * Art. 1 Nr. 23, in Kraft am 1.1.2027). Eine Übergangsregel für ältere Verordnungen nennt das Gesetz nicht;
+ * umgeschaltet wird deshalb nach dem Tagesdatum.
  */
 export const heilmittelPauschale = (today = new Date()) => (berlinTag(today) >= "2027-01-01" ? 15 : 10);
 /** Text zur Heilmittel-Zuzahlung, passend zum Datum. */
@@ -600,12 +627,26 @@ export const heilmittelZuzahlungText = (today = new Date()) => `10 % der Kosten 
 /** Gesetzliche Zuzahlung bei Heilmitteln: 10 % der Kosten plus Pauschale je Verordnung (§ 32 Abs. 2, § 61 SGB V). */
 export const heilmittelZuzahlung = (total: number, today = new Date()) => total * 0.1 + heilmittelPauschale(today);
 
-/** Hilfs- und Arzneimittel: 10 %, mindestens 5 €, höchstens 10 €, nie mehr als die Kosten (§ 61 SGB V). */
-export const hilfsmittelZuzahlung = (total: number) => Math.min(total, Math.min(10, Math.max(5, total * 0.1)));
+/**
+ * Grenzen der Zuzahlung bei Hilfs- und Arzneimitteln: bis 31.12.2026 mindestens 5 €, höchstens 10 €;
+ * ab 1.1.2027 mindestens 7,50 €, höchstens 15 € (neuer § 61 SGB V, BGBl. 2026 I Nr. 228).
+ */
+export const hilfsmittelGrenzen = (today = new Date()) => (berlinTag(today) >= "2027-01-01" ? { min: 7.5, max: 15 } : { min: 5, max: 10 });
+/** Text zur Zuzahlung bei Hilfs- und Arzneimitteln, passend zum Datum. */
+export const hilfsmittelZuzahlungText = (today = new Date()) => {
+  const g = hilfsmittelGrenzen(today);
+  const eur = (n: number) => `${n.toLocaleString("de-DE", { minimumFractionDigits: n % 1 ? 2 : 0 })} €`;
+  return `10 % des Preises, mindestens ${eur(g.min)}, höchstens ${eur(g.max)}`;
+};
+/** Hilfs- und Arzneimittel: 10 % innerhalb der Grenzen, nie mehr als die Kosten (§ 61 SGB V). */
+export const hilfsmittelZuzahlung = (total: number, today = new Date()) => {
+  const g = hilfsmittelGrenzen(today);
+  return Math.min(total, Math.min(g.max, Math.max(g.min, total * 0.1)));
+};
 
-export function zuzahlungBetrag(art: ProposalOption["zuzahlung"], total: number): number {
+export function zuzahlungBetrag(art: ProposalOption["zuzahlung"], total: number, today = new Date()): number {
   if (!art) return 0;
-  return art === "hilfsmittel" ? hilfsmittelZuzahlung(total) : heilmittelZuzahlung(total);
+  return art === "hilfsmittel" ? hilfsmittelZuzahlung(total, today) : heilmittelZuzahlung(total, today);
 }
 
 /** Bezeichnung der Leistungsart einer Option (eigene Bezeichnung hat Vorrang). */
@@ -618,12 +659,17 @@ export const ABGEWAEHLT = "-";
 
 /** Freiwillig ist ein Punkt, der nur aus einer einzigen Selbstzahlerleistung besteht: Der Patient kann ihn weglassen. */
 export const istFreiwillig = (item: ProposalItem) =>
-  item.options.length === 1 && item.options[0].type !== "kasse" && item.options[0].type !== "regel";
+  !!item.zusatz || (item.options.length === 1 && item.options[0].type !== "kasse" && item.options[0].type !== "regel");
 
 export function chosenOption(item: ProposalItem, choices: Record<string, string>): ProposalOption | null {
   if (!item.options.length) return null;
   const c = choices[item.key];
   if (c === ABGEWAEHLT) return null;
+  if (item.zusatz) {
+    // Zusatzleistung: nie von selbst gewählt. Ältere Vorschläge haben sie noch als Wahl der Hauptposition gespeichert.
+    const alt = c === undefined && item.hauptKey ? choices[item.hauptKey] : undefined;
+    return item.options.find((o) => o.id === c || o.id === alt) ?? null;
+  }
   return (
     item.options.find((o) => o.id === c) ??
     item.options.find((o) => o.id === item.recommended) ??
@@ -750,10 +796,19 @@ export function buildLetter(args: {
   let i = 0;
   for (const item of items) {
     const chosen = chosenOption(item, choices);
+    if (item.zusatz && !chosen) {
+      // Zusatzleistung, die (noch) nicht gewählt ist: als Möglichkeit nennen, außer die Praxis hat sie herausgenommen.
+      if (choices[item.key] === ABGEWAEHLT) continue;
+      const o = item.options[0];
+      L.push(`   Auf Wunsch zusätzlich: ${o.name} (${typeLabelOf(o, patient.insurance)}): ca. ${formatEuro(money(o, patient).netto)}`);
+      if (o.hinweis) L.push(`      ${o.name}: ${o.hinweis}`);
+      if (o.nutzen) L.push(`      Zum Nutzen: ${o.nutzen}`);
+      continue;
+    }
     if (!chosen) continue;
     i++;
     L.push("");
-    L.push(`${i}. ${item.where}: ${item.title}`);
+    L.push(`${i}. ${item.where}: ${item.title}${item.zusatz ? " (zusätzlich gewählt)" : ""}`);
     item.options.forEach((o, j) => {
       const m = money(o, patient);
       const later =
@@ -783,7 +838,7 @@ export function buildLetter(args: {
   const wahlWort = alleGewaehlt ? "bei der besprochenen Wahl" : "bei besprochener Wahl bzw. unserer Empfehlung";
   L.push(`Summe Ihres Eigenanteils ${wahlWort}: ca. ${formatEuro(s.netto)}`);
   if (!alleGewaehlt) {
-    const nurKasse = items.reduce((sum, it) => sum + (it.options.length ? money(it.options[0], patient).netto : 0), 0);
+    const nurKasse = items.reduce((sum, it) => sum + (it.options.length && !it.zusatz ? money(it.options[0], patient).netto : 0), 0);
     if (Math.abs(nurKasse - s.netto) > 0.5) L.push(`Wenn Sie überall die zuerst genannte Leistung wählen: ca. ${formatEuro(nurKasse)}`);
   }
   if (vergleich && jv.mehrkosten > 0.5) {
@@ -797,7 +852,7 @@ export function buildLetter(args: {
     const arten = new Set(items.flatMap((i) => i.options.map((o) => o.zuzahlung)).filter(Boolean));
     if (arten.size) {
       L.push(
-        `Für Leistungen auf Verordnung gilt bei Volljährigen die gesetzliche Zuzahlung: ${arten.has("hilfsmittel") ? "10 % des Preises, mindestens 5 €, höchstens 10 €" : heilmittelZuzahlungText()}. Kinder und Jugendliche sind befreit, ebenso Versicherte mit Befreiungsbescheid.`
+        `Für Leistungen auf Verordnung gilt bei Volljährigen die gesetzliche Zuzahlung: ${arten.has("hilfsmittel") ? hilfsmittelZuzahlungText(date) : heilmittelZuzahlungText(date)}. Kinder und Jugendliche sind befreit, ebenso Versicherte mit Befreiungsbescheid.`
       );
       L.push("");
     }

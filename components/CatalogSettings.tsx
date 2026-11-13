@@ -161,7 +161,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
 
       {grouped.map(([category, categoryItems]) => (
         <div key={category} className="card p-0">
-          <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
             {category}
           </h2>
           <div className="divide-y divide-slate-100">
@@ -176,11 +176,11 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                       {item.title}
                       {!item.practiceId && <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-normal text-slate-500" title="Vorgabe von Sorrida, schreibgeschützt">Vorgabe</span>}
                     </div>
-                    <div className="text-xs text-slate-400">{ref}</div>
+                    <div className="text-xs text-slate-500">{ref}</div>
                   </div>
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="w-28">
-                      <label className="mb-1 block text-xs text-slate-400">Punktzahl</label>
+                      <label className="mb-1 block text-xs text-slate-500">Punktzahl</label>
                       <input
                         className="input py-1 text-xs disabled:opacity-60"
                         type="number"
@@ -192,7 +192,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                       />
                     </div>
                     <div className="w-28">
-                      <label className="mb-1 block text-xs text-slate-400">Festbetrag (EUR)</label>
+                      <label className="mb-1 block text-xs text-slate-500">Festbetrag (EUR)</label>
                       <input
                         className="input py-1 text-xs disabled:opacity-60"
                         type="number"

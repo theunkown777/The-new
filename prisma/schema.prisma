@@ -41,6 +41,8 @@ model Practice {
   /// Kalender-Abo der Praxis (ICS-Adresse aus Google, Outlook, Praxisprogramm); nur belegte Zeiten werden gelesen
   /// Wirkungsbericht: Schätzung der Praxis vor dem Start ({ vorschlaegeMonat, ohneEntscheidungProzent, tageBisZahlung, erfasstAm })
   ausgangswert       Json?
+  /// Diktat über den Sprachdienst des Browsers erlauben (Aufnahme verlässt das Gerät). Ohne Schalter nur Erkennung auf dem Gerät.
+  diktatCloud        Boolean             @default(false)
   /// Morgen-Mail: tägliche Kurzmeldung an die Praxis, nur Zahlen ohne Namen
   morgenMail         Boolean             @default(false)
   morgenMailAn       String?
@@ -246,10 +248,30 @@ model Patient {
   externalId         String?
   eingaenge          Eingang[]
   kurzchecks         Kurzcheck[]
+  portalPruefungen   PortalPruefung[]
 
   @@unique([practiceId, externalSource, externalId])
   @@index([practiceId])
   @@index([behandlerId])
+}
+
+// Geburtsdatum-Prüfung im Patientenportal (S5): Fehlversuche und Sperre je
+// Portal-Link. Schlüssel ist der Hash des Link-Tokens, ein neuer Link beginnt
+// also ohne Altlast. Die Zeile entsteht beim ersten Fehlversuch und wird nach
+// einer richtigen Eingabe gelöscht.
+model PortalPruefung {
+  linkHash    String    @id
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  /// Fehlversuche seit der letzten Sperre bzw. seit Beginn
+  fehler      Int       @default(0)
+  /// Sperren in Folge; jede weitere Sperre dauert doppelt so lang
+  sperren     Int       @default(0)
+  gesperrtBis DateTime?
+  updatedAt   DateTime  @default(now()) @updatedAt
+
+  @@index([patientId])
+  @@index([updatedAt])
 }
 
 // SQLite has no native enum support; these are constrained to
@@ -492,6 +514,8 @@ model TreatmentProposal {
   agreedChoices            Json?
   /// Erklärungstext, wie er beim Unterschreiben angezeigt wurde
   agreedText               String?
+  /// Geburtsdatum im Portal vor der Unterschrift bestätigt (Zeitpunkt); null = ohne Geburtsdatum-Prüfung
+  agreedGeprueftAt         DateTime?
   /// Nachfass-Liste: zuletzt an den offenen Vorschlag erinnert
   nachgefasstAt            DateTime?
   /// Heil- und Kostenplan bei der Kasse eingereicht (für den Stichtag der Festzuschüsse)
@@ -634,6 +658,8 @@ model Invoice {
   sepaIban          String?
   sepaName          String?
   sepaMandatAt      DateTime?
+  /// Geburtsdatum im Portal vor dem Mandat bestätigt (Zeitpunkt); null = ohne Geburtsdatum-Prüfung (Altbestand)
+  sepaGeprueftAt    DateTime?
   /// In eine pain.008-Datei übernommen (nicht doppelt einziehen)
   sepaExportedAt    DateTime?
   /// Wie bezahlt wurde: UEBERWEISUNG | LASTSCHRIFT | ONLINE (für DATEV: Online über Geldtransit)

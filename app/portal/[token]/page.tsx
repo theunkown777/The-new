@@ -9,7 +9,8 @@ import { hauptModell } from "@/lib/modelle/fach";
 import { epcPayload, formatIban, invoiceView, isOutstanding, paymentReference } from "@/lib/invoices";
 import { PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, PORTAL_UI, pickPortalLang, portalStatus, reminderLabel } from "@/lib/portalI18n";
 import { onlineZahlungStatus } from "@/lib/onlineZahlung";
-import { PortalInvoice, type PortalInvoiceData, type PortalText } from "@/components/PortalInvoice";
+import { PortalInvoice, type PortalInvoiceData, type PortalPruefungStand, type PortalText } from "@/components/PortalInvoice";
+import { pruefLage } from "@/lib/portalPruefungServer";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { KassenSockel } from "@/components/KassenSockel";
 import { journey } from "@/lib/journey";
@@ -48,9 +49,10 @@ export default async function PortalPage({ params, searchParams }: { params: { t
       id: true,
       firstName: true,
       lastName: true,
+      birthDate: true,
       portalExpiresAt: true,
       portalViewedAt: true,
-      practice: { select: { name: true, specialty: true, buchungAktiv: true, accountHolder: true, iban: true, bic: true, proposalPrices: true, glaeubigerId: true, stripeAccountId: true } },
+      practice: { select: { isDemo: true, name: true, specialty: true, buchungAktiv: true, accountHolder: true, iban: true, bic: true, proposalPrices: true, glaeubigerId: true, stripeAccountId: true } },
       invoices: { where: { status: { not: "STORNIERT" } }, orderBy: { dueDate: "asc" }, take: 50 },
       proposals: {
         where: { OR: [{ shareCreatedAt: { not: null } }, { status: { in: ["BESPROCHEN", "ANGENOMMEN"] } }] },
@@ -75,6 +77,14 @@ export default async function PortalPage({ params, searchParams }: { params: { t
   const bank = practice.iban ? { name: practice.accountHolder || practice.name, iban: practice.iban, bic: practice.bic } : null;
 
   const onlineAktiv = onlineZahlungStatus().aktiv;
+  // Geburtsdatum-Prüfung vor dem Lastschriftmandat (S5). Das Geburtsdatum selbst geht nicht an den Browser,
+  // außer als Hinweis in Demo-Praxen (erfundene Patienten). Ohne hinterlegtes Geburtsdatum wird Lastschrift
+  // nicht angeboten; Überweisung und Online-Zahlung bleiben.
+  const pruefung: PortalPruefungStand = {
+    status: pruefLage(params.token, patient).status,
+    lang,
+    demoDatum: practice.isDemo && patient.birthDate ? patient.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" }) : null,
+  };
   const open = patient.invoices.filter((i) => isOutstanding(i.status));
   const done = patient.invoices.filter((i) => i.status === "BEZAHLT").slice(0, 10);
   const openInvoices: PortalInvoiceData[] = await Promise.all(
@@ -99,7 +109,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
         due: [String(i.dueDate.getDate()), i.dueDate.toLocaleDateString(locale, { month: "short" })] as [string, string],
         sepa: !!i.sepaMandatAt,
         online: onlineAktiv && !!practice.stripeAccountId && i.amountCent > 0,
-        mandat: practice.glaeubigerId && i.status === "OFFEN" && !i.sepaExportedAt ? mandatsText(practice.accountHolder || practice.name, practice.glaeubigerId, mandatsReferenz(i.number)) : null,
+        mandat: practice.glaeubigerId && patient.birthDate && i.status === "OFFEN" && !i.sepaExportedAt ? mandatsText(practice.accountHolder || practice.name, practice.glaeubigerId, mandatsReferenz(i.number)) : null,
       };
     }),
   );
@@ -235,7 +245,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
             <ul className="mt-3 space-y-3">
               {openInvoices.map((i, idx) => (
                 <li key={i.id}>
-                  <PortalInvoice token={params.token} inv={i} bank={bank ? { name: bank.name, iban: formatIban(bank.iban) } : null} t={text} startOpen={idx === 0 && openInvoices.length === 1} mandat={i.mandat} />
+                  <PortalInvoice token={params.token} inv={i} bank={bank ? { name: bank.name, iban: formatIban(bank.iban) } : null} t={text} startOpen={idx === 0 && openInvoices.length === 1} mandat={i.mandat} pruefung={pruefung} />
                 </li>
               ))}
             </ul>

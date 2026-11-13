@@ -9,6 +9,7 @@
 
 import {
   heilmittelZuzahlungText,
+  hilfsmittelZuzahlungText,
   chosenOption,
   formatEuro,
   isZahnersatz,
@@ -117,6 +118,16 @@ export function buildNextSteps(args: {
         detail: "Ohne Bescheid rechnet die Kasse mit dem normalen Festzuschuss. Liegt keiner vor: Patient stellt den Antrag bei seiner Kasse.",
       });
     }
+    // Gleitende Härtefallregelung (§ 55 Abs. 3 SGB V): Die Praxis kennt das Einkommen nicht und rechnet es
+    // nicht aus. Sie weist nur darauf hin, damit Patienten mit kleinem Einkommen bei ihrer Kasse nachfragen.
+    if (gkv && !patient.haertefall) {
+      steps.push({
+        id: "haertefall-hinweis",
+        owner: "Rezeption",
+        text: "Auf die Härtefallprüfung der Krankenkasse hinweisen",
+        detail: "Bei kleinem Einkommen zahlt die Kasse auf Antrag mehr, auch knapp über der Grenze (gleitende Regelung). Den Betrag errechnet die Kasse zum Heil- und Kostenplan.",
+      });
+    }
     if (frist && zeMehrkosten2027 > 0.5) {
       const tage = tageBisStichtag(today);
       steps.push({
@@ -163,7 +174,7 @@ export function buildNextSteps(args: {
       id: "zuzahlung",
       owner: "Rezeption",
       text: "Gesetzliche Zuzahlung kassieren oder Befreiungsbescheid prüfen",
-      detail: zz === "hilfsmittel" ? "10 % des Preises, mindestens 5 €, höchstens 10 €" : heilmittelZuzahlungText(today),
+      detail: zz === "hilfsmittel" ? hilfsmittelZuzahlungText(today) : heilmittelZuzahlungText(today),
     });
   }
   if (termine.length) {

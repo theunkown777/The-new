@@ -56,6 +56,8 @@ interface AgreementPdfInput {
   signedAt: string;
   signedName: string;
   signaturePng: Buffer | null;
+  /** Vermerk zur Geburtsdatum-Prüfung im Portal (lib/portalPruefung.ts, pruefVermerk) */
+  pruefung?: string | null;
 }
 
 /** Einverständnis aus dem Patientenportal als PDF, mit Zeile für die Gegenzeichnung der Praxis. */
@@ -85,6 +87,7 @@ export async function buildAgreementPdf(input: AgreementPdfInput): Promise<Buffe
   doc.fillColor("#000000").fontSize(10).text(`Kasse zahlt voraussichtlich ${eur(input.kasse)}  ·  Eigenanteil voraussichtlich ${eur(input.eigen)}`, x, y + 16);
   doc.moveDown(2);
   doc.text(`Digital unterschrieben am ${input.signedAt} von ${input.signedName}:`);
+  if (input.pruefung) doc.fontSize(9).fillColor("#555555").text(`Identität: persönlicher Link der Praxis. ${input.pruefung}.`).fillColor("#000000").fontSize(10);
   if (input.signaturePng) {
     const sx = doc.page.margins.left, sy = doc.y + 6;
     doc.image(input.signaturePng, sx, sy, { fit: [220, 80] });
@@ -120,7 +123,7 @@ export interface KosteninfoPdfInput {
   verlauf: { was: string; wann: string }[];
   patientWahl: string | null;
   patientNotiz: string | null;
-  signed: { at: string; name: string; text: string; png: Buffer | null } | null;
+  signed: { at: string; name: string; text: string; png: Buffer | null; pruefung?: string | null } | null;
   erstelltAm: string;
   erstelltVon: string;
 }
@@ -178,6 +181,7 @@ export async function buildKosteninfoPdf(input: KosteninfoPdfInput): Promise<Buf
     doc.text(input.signed.text, { width: breite, lineGap: 2 });
     doc.moveDown(0.5);
     doc.text(`Digital unterschrieben am ${input.signed.at} von ${input.signed.name}:`);
+    if (input.signed.pruefung) doc.text(`Identität: persönlicher Link der Praxis. ${input.signed.pruefung}.`);
     if (input.signed.png) {
       if (doc.y > doc.page.height - 170) doc.addPage();
       const sx = doc.page.margins.left, sy = doc.y + 6;

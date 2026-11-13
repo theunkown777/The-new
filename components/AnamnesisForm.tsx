@@ -69,7 +69,7 @@ export function AnamnesisForm({ token, practiceName, firstName, dental = true, p
             <fieldset key={q.key} className="rounded-2xl border border-slate-200 bg-white p-4">
               <legend className="sr-only">{q.text}</legend>
               <p className="font-medium text-slate-900">
-                <span className="mr-1 text-slate-400">{i + 1}.</span>
+                <span className="mr-1 text-slate-500">{i + 1}.</span>
                 {q.text}
               </p>
               <div className="mt-3 flex gap-2">

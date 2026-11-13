@@ -96,7 +96,7 @@ export default function DatenschutzPage() {
         </p>
       </section>
 
-      <p className="text-xs text-slate-400">Stand: Oktober 2026</p>
+      <p className="text-xs text-slate-500">Stand: Oktober 2026</p>
     </LegalPage>
   );
 }

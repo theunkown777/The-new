@@ -117,8 +117,8 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         <ModellWahl fach={fach} patientId={patient.id} markierungen={modellMarken} befunde={MODELL_BEFUNDE} geschlecht={patient.geschlecht === "M" ? "M" : patient.geschlecht === "W" ? "W" : null} />
       </section>
 
-      <div className="mb-8">
-        <PatientKontakt patientId={patient.id} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} whatsappAm={patient.whatsappConsentAt ? de(patient.whatsappConsentAt) : null} whatsappDirekt={whatsappApiAktiv()} />
+      <div className="mb-8 scroll-mt-24" id="kontakt">
+        <PatientKontakt patientId={patient.id} geburtsdatum={patient.birthDate ? patient.birthDate.toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" }) : null} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} whatsappAm={patient.whatsappConsentAt ? de(patient.whatsappConsentAt) : null} whatsappDirekt={whatsappApiAktiv()} />
       </div>
 
       <div className="mb-8">

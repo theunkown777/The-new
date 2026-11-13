@@ -100,7 +100,7 @@ export default async function NachfassenPage() {
                             <p className="text-xs font-medium text-red-700">+{formatEuro(z.stichtag.mehr)}</p>
                           </>
                         ) : (
-                          <span className="text-slate-400">–</span>
+                          <span className="text-slate-500">–</span>
                         )}
                       </td>
                     )}

@@ -1,8 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { InvoiceView } from "@/lib/invoices";
 import type { PortalUi } from "@/lib/portalI18n";
+import { PRUEFUNG_NOETIG, pruefFehlerText, pruefText, type PruefStatus } from "@/lib/portalPruefung";
+import { GeburtsdatumBestaetigt, GeburtsdatumPruefung } from "@/components/PortalPruefung";
+
+/** Geburtsdatum-Prüfung vor dem Lastschriftmandat (S5): Stand beim Laden der Seite. */
+export type PortalPruefungStand = { status: PruefStatus; lang: string; demoDatum?: string | null };
+// Mehrere Rechnungen auf einer Seite: Nach einer Bestätigung fragen die anderen nicht noch einmal.
+const BESTAETIGT_EREIGNIS = "sorrida:geburtsdatum-bestaetigt";
 
 export type PortalInvoiceData = {
   id: string;
@@ -87,7 +94,7 @@ function CopyRow({ label, value, raw, t }: { label: string; value: string; raw?:
 
 // Eine offene Rechnung im Patientenportal: Status, Bezahldaten mit GiroCode,
 // "Ich habe überwiesen" und Ratenanfrage.
-export function PortalInvoice({ token, inv, bank, t, startOpen, mandat }: { token: string; inv: PortalInvoiceData; bank: { name: string; iban: string } | null; t: Text; startOpen: boolean; mandat?: string | null }) {
+export function PortalInvoice({ token, inv, bank, t, startOpen, mandat, pruefung }: { token: string; inv: PortalInvoiceData; bank: { name: string; iban: string } | null; t: Text; startOpen: boolean; mandat?: string | null; pruefung?: PortalPruefungStand }) {
   const [open, setOpen] = useState(startOpen);
   const [reported, setReported] = useState(inv.reported);
   const [raten, setRaten] = useState(inv.wantsInstallments);
@@ -95,13 +102,27 @@ export function PortalInvoice({ token, inv, bank, t, startOpen, mandat }: { toke
   const [error, setError] = useState<string | null>(null);
   const [sepa, setSepa] = useState(!!inv.sepa);
   const [ls, setLs] = useState({ iban: "", name: "", zustimmung: false, offen: false });
+  // Vor dem Mandat das Geburtsdatum bestätigen; der Server verlangt es unabhängig von dieser Anzeige.
+  const pruefLang = pruefung?.lang ?? "de";
+  const [geprueft, setGeprueft] = useState<{ noetig: boolean; abgelaufen: boolean }>({ noetig: pruefung?.status === "noetig", abgelaufen: false });
+  useEffect(() => {
+    const ok = () => setGeprueft({ noetig: false, abgelaufen: false });
+    window.addEventListener(BESTAETIGT_EREIGNIS, ok);
+    return () => window.removeEventListener(BESTAETIGT_EREIGNIS, ok);
+  }, []);
 
   async function lastschrift() {
     setBusy(true);
     setError(null);
     const res = await fetch(`/api/portal/${token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ invoiceId: inv.id, action: "lastschrift", iban: ls.iban, name: ls.name, zustimmung: ls.zustimmung }) });
     setBusy(false);
-    if (!res.ok) return setError((await res.json().catch(() => ({}))).error ?? t.failed);
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      // Bestätigung fehlt oder ist abgelaufen: Geburtsdatum (erneut) abfragen, IBAN und Name bleiben stehen.
+      if (d.code === PRUEFUNG_NOETIG) return setGeprueft({ noetig: true, abgelaufen: true });
+      if (d.code === "OHNE_GEBURTSDATUM") return setError(pruefFehlerText(pruefText(pruefLang), d));
+      return setError(d.error ?? t.failed);
+    }
     setSepa(true);
   }
 
@@ -164,9 +185,24 @@ export function PortalInvoice({ token, inv, bank, t, startOpen, mandat }: { toke
             <div className="mt-4 rounded-xl border border-slate-200 p-3" data-testid="lastschrift">
               {!ls.offen ? (
                 <button type="button" className="text-sm font-medium text-salbei-800 underline" onClick={() => setLs({ ...ls, offen: true })}>Stattdessen per Lastschrift zahlen</button>
+              ) : geprueft.noetig ? (
+                <GeburtsdatumPruefung
+                  pruefUrl={`/api/portal/${token}/pruefung`}
+                  lang={pruefLang}
+                  grund="lastschrift"
+                  hinweis={geprueft.abgelaufen ? pruefText(pruefLang).abgelaufen : null}
+                  demoDatum={pruefung?.demoDatum}
+                  autoFocus
+                  onBestaetigt={() => {
+                    setError(null);
+                    setGeprueft({ noetig: false, abgelaufen: false });
+                    window.dispatchEvent(new Event(BESTAETIGT_EREIGNIS));
+                  }}
+                />
               ) : (
                 <div className="space-y-2 text-sm">
                   <p className="font-medium text-slate-900">SEPA-Lastschrift</p>
+                  {pruefung && pruefung.status !== "ohne" && <GeburtsdatumBestaetigt lang={pruefLang} />}
                   <input className="input w-full font-mono" placeholder="IBAN" value={ls.iban} onChange={(e) => setLs({ ...ls, iban: e.target.value })} aria-label="IBAN" data-testid="ls-iban" />
                   <input className="input w-full" placeholder="Kontoinhaber" value={ls.name} onChange={(e) => setLs({ ...ls, name: e.target.value })} aria-label="Kontoinhaber" data-testid="ls-name" />
                   <label className="flex items-start gap-2 text-xs leading-relaxed text-slate-600">

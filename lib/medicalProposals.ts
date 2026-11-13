@@ -45,7 +45,13 @@ export function buildMedicalProposal(input: ProposalInput): ProposalItem[] {
 
   for (const a of spec?.anlaesse ?? []) {
     if (!chosen.has(a.id)) continue;
-    const options = a.options.map((o) => toOption(o, med, input.patient.age, isTherapie(spec)));
+    const alle = a.options.map((o) => ({ roh: o, opt: toOption(o, med, input.patient.age, isTherapie(spec)) }));
+    // Zusatzleistungen (z. B. Auflichtmikroskopie zum Hautkrebs-Screening) werden eigene Positionen zum Ankreuzen,
+    // damit die Kassenleistung daneben gewählt bleibt. Voraussetzung: Es bleibt eine Hauptleistung übrig.
+    const istZusatz = (x: (typeof alle)[number]) => !!x.roh.zusatz && x.opt.type === "igel";
+    const haupt = alle.filter((x) => !istZusatz(x));
+    const zusaetze = haupt.length ? alle.filter(istZusatz) : [];
+    const options = (zusaetze.length ? haupt : alle).map((x) => x.opt);
     const kasse = options.find((o) => o.type === "kasse");
     items.push({
       key: `a_${a.id}`,
@@ -56,6 +62,9 @@ export function buildMedicalProposal(input: ProposalInput): ProposalItem[] {
       notes: (a.notes ?? []).map((text) => ({ kind: "info" as const, text })),
       excluded: [],
     });
+    for (const z of zusaetze) {
+      items.push({ key: `a_${a.id}__${z.opt.id}`, where: a.bereich, title: a.label, options: [z.opt], recommended: null, notes: [], excluded: [], zusatz: true, hauptKey: `a_${a.id}` });
+    }
   }
 
   // Eigene Leistungen der Praxis, gruppiert nach ihrem Anlass.

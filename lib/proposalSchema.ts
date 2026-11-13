@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  ABGEWAEHLT,
   FINDINGS,
   GLOBAL_FINDINGS,
   PRICE_DEFS,
@@ -7,6 +8,7 @@ import {
   buildLetter,
   buildProposal,
   isValidTooth,
+  istFreiwillig,
   summarize,
   type FindingCode,
   type GlobalCode,
@@ -80,6 +82,8 @@ export function computeProposal(args: {
   for (const item of items) {
     const c = args.choices[item.key];
     if (c && item.options.some((o) => o.id === c)) choices[item.key] = c;
+    // „Nicht gewünscht“ bei freiwilligen Leistungen bleibt erhalten, sonst zählte die Leistung wieder mit.
+    else if (c === ABGEWAEHLT && istFreiwillig(item)) choices[item.key] = c;
   }
   const s = summarize(items, choices, args.input.patient);
   return {

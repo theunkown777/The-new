@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { RATGEBER, ratgeber, type RatgeberSlug } from "@/lib/ratgeber";
+import { ratgeber, ratgeberGruppe, weitereRatgeber, type RatgeberSlug } from "@/lib/ratgeber";
 import { JournalRahmen } from "@/components/start/JournalKopf";
 
 // Rahmen für Ratgeber-Artikel: öffentlich, lesbar, mit strukturierten Daten
-// für Suchmaschinen und einem Hinweis auf die Demo am Ende.
+// für Suchmaschinen und einem Hinweis auf die Demo am Ende. Abschluss-Kasten,
+// Fußnote und die Reihenfolge der weiteren Artikel richten sich nach der Gruppe.
 export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: React.ReactNode }) {
   const a = ratgeber(slug);
+  const g = ratgeberGruppe(a.gruppe);
+  const zahn = a.gruppe === "zahn";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -13,6 +16,7 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
     description: a.description,
     dateModified: a.updated,
     inLanguage: "de-DE",
+    articleSection: g.titel,
     publisher: { "@type": "Organization", name: "Sorrida" },
   };
   return (
@@ -24,7 +28,7 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
       </Link>
       <article className="mt-10">
         <p className="j-marke">
-          Ratgeber · Stand {new Date(a.updated).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
+          Ratgeber · {g.titel} · Stand {new Date(a.updated).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
         </p>
         <h1 className="j-schau mb-6 mt-4 text-[clamp(2.4rem,6vw,3.8rem)]">{a.title}</h1>
         <p className="j-text mb-10 text-lg">{a.description}</p>
@@ -33,11 +37,12 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
         </div>
       </article>
       <aside className="mt-16 bg-papier-2 px-6 py-8 sm:px-8">
-        <h2 className="j-titel text-[1.8rem] text-tinte">Sorrida rechnet das <em className="text-brand-700">für jeden Patienten</em> aus</h2>
-        <p className="j-text mt-3">
-          Befund anklicken oder diktieren, Sorrida zeigt jede sinnvolle Option mit Eigenanteil, auch im Vergleich 2026 und 2027.
-          Der Patient bekommt alles als Link aufs Handy.
-        </p>
+        <h2 className="j-titel text-[1.8rem] text-tinte">
+          {zahn ? "Sorrida rechnet das " : "Sorrida stellt das "}
+          <em className="text-brand-700">für jeden Patienten</em>
+          {zahn ? " aus" : " zusammen"}
+        </h2>
+        <p className="j-text mt-3">{g.kasten}</p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link prefetch={false} href="/demo" className="j-knopf j-knopf-voll">
             Sofort ausprobieren
@@ -50,7 +55,7 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
       <section className="mt-14">
         <h2 className="j-marke border-b border-tinte pb-3">Weitere Ratgeber</h2>
         <ul>
-          {RATGEBER.filter((x) => x.slug !== slug).map((x) => (
+          {weitereRatgeber(slug).slice(0, 6).map((x) => (
             <li key={x.slug} className="border-b border-linie">
               <Link prefetch={false} href={`/ratgeber/${x.slug}`} className="group flex items-baseline justify-between gap-4 py-3">
                 <span className="j-titel text-xl text-tinte group-hover:text-brand-700">{x.title}</span>
@@ -61,8 +66,7 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
         </ul>
       </section>
       <p className="mt-10 text-xs text-tinte-2">
-        Allgemeine Information, keine Rechts- oder Abrechnungsberatung. Maßgeblich sind die aktuellen Vorgaben von KZBV, KZV und
-        Krankenkasse.
+        Allgemeine Information, keine Rechts- oder Abrechnungsberatung. Maßgeblich sind {g.massgeblich}.
       </p>
     </main>
     </JournalRahmen>

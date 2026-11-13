@@ -15,6 +15,8 @@ import {
   festzuschussEuro,
   berlinTag,
   showsJahresvergleich,
+  hilfsmittelZuzahlung,
+  hilfsmittelZuzahlungText,
   UPPER_TEETH,
   LOWER_TEETH,
   type ProposalInput,
@@ -354,5 +356,64 @@ describe("Brief: Wahl und Empfehlung", () => {
   });
   it("kennzeichnet die Beträge für 2027 als vorläufig", () => {
     expect(brief({ t36: "br" }, { ...GKV10, zuschussJahr: 2026 })).toMatch(/per Gesetz[\s\S]*vorläufig/);
+  });
+});
+
+describe("Krone mit Stiftaufbau und Teilkrone", () => {
+  it("Stiftaufbau: Befund 1.4 kommt zum Kronenbefund dazu", () => {
+    const it36 = item(input({ teeth: { "36": "stift" } }), "t36");
+    const kr = it36.options.find((o) => o.id === "kr")!;
+    expect(kr.befunde).toEqual(["1.1", "1.4"]);
+    expect(kr.total).toBeCloseTo(398.39 + 83.52, 2);
+    const m = money(kr, GKV10);
+    expect(m.kasse).toBeCloseTo((398.39 + 83.52) * 0.75, 1);
+    expect(it36.notes.some((n) => /Stiftaufbau gibt der Krone Halt/.test(n.text))).toBe(true);
+    // Im sichtbaren Bereich zusätzlich die Verblendung
+    expect(item(input({ teeth: { "21": "stift" } }), "t21").options.find((o) => o.id === "kr")!.befunde).toEqual(["1.1", "1.3", "1.4"]);
+  });
+
+  it("Stiftaufbau bei Privatpatienten: Praxispreis mit Stift, keine Kassenwörter", () => {
+    const pkv = item(input({ teeth: { "36": "stift" }, patient: { ...GKV10, insurance: "PKV", erstattungProzent: 80 } }), "t36");
+    const kr = pkv.options.find((o) => o.id === "kr")!;
+    expect(kr.total).toBe(DEFAULT_PRICES.krone_regel + DEFAULT_PRICES.stift);
+    expect(kr.name).toBe("Krone mit Stiftaufbau, Standardausführung");
+    expect(JSON.stringify(pkv)).not.toMatch(/Festzuschuss|Kasse /);
+  });
+
+  it("Teilkrone: Befund 1.2, Keramik als gleichartige Versorgung mit demselben Festzuschuss", () => {
+    const it47 = item(input({ teeth: { "47": "teilkrone" } }), "t47");
+    const tk = it47.options.find((o) => o.id === "tk")!;
+    const tkk = it47.options.find((o) => o.id === "tkk")!;
+    expect(tk.befunde).toEqual(["1.2"]);
+    expect(tk.total).toBeCloseTo(457.27, 2);
+    expect(money(tk, GKV10).kasse).toBeCloseTo(457.27 * 0.75, 1);
+    expect(money(tkk, GKV10).kasse).toBeCloseTo(money(tk, GKV10).kasse, 2);
+    expect(money(tkk, GKV10).netto).toBeCloseTo(DEFAULT_PRICES.teilkrone_keramik - 457.27 * 0.75, 1);
+    expect(it47.recommended).toBe("tk");
+    expect(item(input({ teeth: { "14": "teilkrone" } }), "t14").recommended).toBe("tkk");
+  });
+
+  it("Härtefall: Krone mit Stiftaufbau in der Regelversorgung ohne Eigenanteil", () => {
+    const kr = item(input({ teeth: { "36": "stift" }, patient: { ...GKV10, haertefall: true } }), "t36").options.find((o) => o.id === "kr")!;
+    expect(money(kr, { ...GKV10, haertefall: true }).netto).toBeCloseTo(0, 2);
+  });
+});
+
+describe("Zuzahlung bei Hilfs- und Arzneimitteln ab 2027", () => {
+  const d26 = new Date("2026-12-31T12:00:00+01:00");
+  const d27 = new Date("2027-01-01T00:30:00+01:00");
+  it("bis 31.12.2026: 10 %, mindestens 5 €, höchstens 10 €", () => {
+    expect(hilfsmittelZuzahlung(30, d26)).toBe(5);
+    expect(hilfsmittelZuzahlung(80, d26)).toBe(8);
+    expect(hilfsmittelZuzahlung(900, d26)).toBe(10);
+    expect(hilfsmittelZuzahlung(3, d26)).toBe(3);
+    expect(hilfsmittelZuzahlungText(d26)).toBe("10 % des Preises, mindestens 5 €, höchstens 10 €");
+  });
+  it("ab 1.1.2027 (deutsche Zeit): mindestens 7,50 €, höchstens 15 €", () => {
+    expect(hilfsmittelZuzahlung(30, d27)).toBe(7.5);
+    expect(hilfsmittelZuzahlung(120, d27)).toBe(12);
+    expect(hilfsmittelZuzahlung(900, d27)).toBe(15);
+    expect(hilfsmittelZuzahlung(3, d27)).toBe(3);
+    expect(hilfsmittelZuzahlungText(d27)).toBe("10 % des Preises, mindestens 7,50 €, höchstens 15 €");
   });
 });

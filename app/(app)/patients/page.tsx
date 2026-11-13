@@ -240,7 +240,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: { q
                 {selected.birthDate && ` · ${ageFromBirthDate(selected.birthDate)} Jahre`} · {selected.insuranceName ?? "–"} ({selected.insuranceType === "PKV" ? "privat" : "gesetzlich"})
               </p>
             </div>
-            <Link href={href({ sel: undefined })} scroll={false} className="text-slate-400 hover:text-slate-700" aria-label="Detailansicht schließen">
+            <Link href={href({ sel: undefined })} scroll={false} className="text-slate-500 hover:text-slate-700" aria-label="Detailansicht schließen">
               ✕
             </Link>
           </div>

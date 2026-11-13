@@ -7,6 +7,8 @@ export const FINDINGS = {
   fuellung_defekt: "Alte Füllung defekt",
   wurzel: "Entzündeter Nerv",
   zerstoert: "Stark zerstört, Krone nötig",
+  stift: "Wurzelbehandelt, Krone mit Stiftaufbau nötig",
+  teilkrone: "Großer Defekt, Zahnwand erhalten (Teilkrone)",
   fehlt: "Zahn fehlt",
   fissur: "Tiefe Fissuren, kariesfrei",
 } as const;

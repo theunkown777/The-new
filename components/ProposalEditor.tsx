@@ -234,7 +234,7 @@ export function ProposalEditor({
     const shape = lower ? "rounded-b-lg rounded-t" : "rounded-t-lg rounded-b";
     const color =
       f === "fehlt"
-        ? "border-dashed border-slate-400 bg-slate-100 text-slate-400"
+        ? "border-dashed border-slate-400 bg-slate-100 text-slate-500"
         : f === "fissur"
           ? "border-brand-500 bg-brand-50 text-brand-700"
           : f
@@ -410,12 +410,12 @@ export function ProposalEditor({
           <div className="card space-y-3">
             <h2 className="font-medium text-slate-900">Zahnschema (FDI)</h2>
             {/* Handy: je Kiefer zwei Reihen (erst die rechte, dann die linke Seite), damit jeder Zahn groß genug zum Antippen ist */}
-            <div className="hidden justify-between text-[11px] text-slate-400 sm:flex"><span>rechts</span><span>Oberkiefer</span><span>links</span></div>
+            <div className="hidden justify-between text-[11px] text-slate-500 sm:flex"><span>rechts</span><span>Oberkiefer</span><span>links</span></div>
             <p className="text-xs text-slate-500 sm:hidden">Oberkiefer: erste Reihe rechte Seite (18–11), zweite Reihe linke Seite (21–28)</p>
             <div className="grid grid-cols-8 gap-1 sm:grid-cols-[repeat(16,minmax(0,1fr))] sm:gap-0.5" data-testid="zahnschema-oben">{UPPER_TEETH.map((n) => tooth(n, false))}</div>
             <p className="pt-1 text-xs text-slate-500 sm:hidden">Unterkiefer: erste Reihe rechte Seite (48–41), zweite Reihe linke Seite (31–38)</p>
             <div className="grid grid-cols-8 gap-1 sm:grid-cols-[repeat(16,minmax(0,1fr))] sm:gap-0.5" data-testid="zahnschema-unten">{LOWER_TEETH.map((n) => tooth(n, true))}</div>
-            <div className="hidden justify-between text-[11px] text-slate-400 sm:flex"><span>rechts</span><span>Unterkiefer</span><span>links</span></div>
+            <div className="hidden justify-between text-[11px] text-slate-500 sm:flex"><span>rechts</span><span>Unterkiefer</span><span>links</span></div>
             <div className="rounded-lg bg-slate-50 p-3">
               <label className="label" htmlFor="proposal-finding">Befund an Zahn {selected}</label>
               <select
@@ -479,17 +479,17 @@ export function ProposalEditor({
                 <div className={`rounded-lg bg-white p-3 ${jahr === 2026 ? "ring-2 ring-brand-600" : ""}`}>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Bewilligt bis 31.12.2026</p>
                   <p className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">{formatEuro(jv.netto2026)}</p>
-                  <p className="text-xs text-slate-400">Festzuschuss nach Befund, {pct(2026)}</p>
+                  <p className="text-xs text-slate-500">Festzuschuss nach Befund, {pct(2026)}</p>
                 </div>
                 <div className={`rounded-lg bg-white p-3 ${jahr === 2027 ? "ring-2 ring-brand-600" : ""}`}>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Bewilligt ab 1.1.2027</p>
                   <p className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">{formatEuro(jv.netto2027)}</p>
-                  <p className="text-xs text-slate-400">Festzuschuss nach Befund, {pct(2027)}; Beträge 2027 voraussichtlich</p>
+                  <p className="text-xs text-slate-500">Festzuschuss nach Befund, {pct(2027)}; Beträge 2027 voraussichtlich</p>
                 </div>
                 <div className="rounded-lg bg-white p-3">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Mehrkosten für den Patienten</p>
                   <p className="mt-0.5 text-lg font-semibold tabular-nums text-red-700">+{formatEuro(jv.mehrkosten)}</p>
-                  <p className="text-xs text-slate-400">bei der gewählten Versorgung</p>
+                  <p className="text-xs text-slate-500">bei der gewählten Versorgung</p>
                 </div>
               </div>
               <p className="mt-3 text-xs text-slate-600">
@@ -529,6 +529,7 @@ export function ProposalEditor({
                     <div className="flex flex-wrap items-baseline gap-2">
                       <span className="rounded bg-slate-800 px-2 py-0.5 text-xs font-medium text-white">{item.where}</span>
                       <h3 className="font-medium text-slate-900">{item.title}</h3>
+                      {item.zusatz && <span className="text-xs text-slate-500" data-testid="zusatz-hinweis">Zusatz zur Kassenleistung, nur auf Wunsch: anklicken, wenn besprochen</span>}
                     </div>
                     {item.options.length > 0 && (
                       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
@@ -541,7 +542,10 @@ export function ProposalEditor({
                               type="button"
                               disabled={locked}
                               aria-pressed={active}
-                              onClick={() => setChoices({ ...choices, [item.key]: o.id })}
+                              onClick={() =>
+                                // Zusatzleistung: erneutes Anklicken nimmt sie wieder heraus.
+                                setChoices(item.zusatz && active ? { ...choices, [item.key]: ABGEWAEHLT } : { ...choices, [item.key]: o.id })
+                              }
                               className={`flex flex-col gap-2 rounded-lg border p-3 text-left text-sm transition-colors disabled:cursor-default ${active ? "border-brand-600 bg-brand-50" : "border-slate-200 bg-white hover:border-slate-400"}`}
                             >
                               <span className="flex flex-wrap items-center justify-between gap-1">
@@ -577,7 +581,7 @@ export function ProposalEditor({
                                   </span>
                                 </span>
                               )}
-                              <span className="flex justify-between text-xs text-slate-400">
+                              <span className="flex justify-between text-xs text-slate-500">
                                 Volumen <span className="tabular-nums">{formatEuro(m.total)}</span>
                               </span>
                             </button>
@@ -594,7 +598,7 @@ export function ProposalEditor({
                           </li>
                         ))}
                         {item.excluded.map((x) => (
-                          <li key={x} className="text-slate-400">○ Nicht vorgeschlagen: {x}</li>
+                          <li key={x} className="text-slate-500">○ Nicht vorgeschlagen: {x}</li>
                         ))}
                       </ul>
                     )}
@@ -608,7 +612,7 @@ export function ProposalEditor({
                 <button type="button" onClick={copyLetter} className="btn-secondary">
                   {copied ? "Kopiert" : "Text kopieren"}
                 </button>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-slate-500">
                   Für E-Mail, Patienten-Link oder Ausdruck. Gespeichert wird der Text beim Sichern des Vorschlags.
                 </span>
               </div>
@@ -616,7 +620,7 @@ export function ProposalEditor({
             </div>
           )}
 
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             {dental
               ? "Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Die Empfehlung ist ein Vorschlag des Regelwerks; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware."
               : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Empfohlen wird nur die Kassenleistung; ob eine Selbstzahlerleistung sinnvoll ist, entscheiden Sie im Gespräch. ${isTherapie(spec) ? "Selbstzahlerleistungen vereinbaren Sie vor der Behandlung schriftlich." : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
@@ -681,7 +685,7 @@ function Stat({ label, value, hint, accent }: { label: string; value: string; hi
     <div className="px-4 py-3">
       <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
       <p className={`mt-0.5 text-lg font-semibold tabular-nums ${accent ? "text-amber-700" : "text-slate-900"}`}>{value}</p>
-      {hint && <p className="text-xs text-slate-400">{hint}</p>}
+      {hint && <p className="text-xs text-slate-500">{hint}</p>}
     </div>
   );
 }

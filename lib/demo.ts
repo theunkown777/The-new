@@ -154,6 +154,8 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
       name: spec ? `${spec.kurz} am Markt (Demo)` : DEMO_PRACTICE_NAME,
       specialty: spec ? spec.id : DENTAL_ID,
       isDemo: true,
+      // Demo mit erfundenen Daten: Diktat über den Browser-Dienst ist zum Ausprobieren erlaubt.
+      diktatCloud: true,
       // Demo zeigt regionale KV-Ziffern beispielhaft für Nordrhein (in der Praxis unter Leistungsverzeichnis änderbar)
       kvBezirk: "NO",
       // Beispiel-IBAN aus der Bankendokumentation, damit das Portal den GiroCode zeigt.
@@ -374,7 +376,7 @@ async function seedMedicalProposals(
     };
     const items = buildProposal(input, DEFAULT_PRICES);
     const choices = plan.pickIgel
-      ? Object.fromEntries(items.map((it) => [it.key, it.options.find((o) => o.type === "igel")?.id ?? it.options[0].id]))
+      ? Object.fromEntries(items.filter((it, n) => !it.zusatz || n % 2 === 1).map((it) => [it.key, it.options.find((o) => o.type === "igel")?.id ?? it.options[0].id]))
       : {};
     const computed = computeProposal({ input, choices, prices: DEFAULT_PRICES, patientName: `${p.firstName} ${p.lastName}`, practiceName, date: now });
     await prisma.treatmentProposal.create({

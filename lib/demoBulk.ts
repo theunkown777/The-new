@@ -103,9 +103,11 @@ export async function seedBulkDemo(args: {
           : weighted(r, [["ANGENOMMEN", 0.55], ["ABGELEHNT", 0.4], ["BESPROCHEN", 0.05]]);
     const upgrade = status === "ANGENOMMEN" ? r() < 0.7 : r() < 0.4;
     const choices = Object.fromEntries(
-      items.map((it) => {
+      items.flatMap((it) => {
+        // Zusatzleistungen: nur manchmal dazugewählt, sonst bleibt es bei der Kassenleistung.
+        if (it.zusatz) return upgrade && r() < 0.5 ? [[it.key, it.options[0].id]] : [];
         const alt = it.options.filter((o) => o.type !== "kasse" && o.type !== "regel");
-        return [it.key, upgrade && alt.length ? alt[Math.floor(r() * alt.length)].id : it.options[0].id];
+        return [[it.key, upgrade && alt.length ? alt[Math.floor(r() * alt.length)].id : it.options[0].id]];
       }),
     );
     const computed = computeProposal({ input, choices, prices: DEFAULT_PRICES, patientName: `${p.firstName} ${p.lastName}`, practiceName, date: createdAt });

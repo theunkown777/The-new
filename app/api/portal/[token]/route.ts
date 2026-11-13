@@ -5,6 +5,7 @@ import { hashToken } from "@/lib/tokens";
 import { isValidIban, normalizeIban } from "@/lib/invoices";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { eingangMelden } from "@/lib/eingang";
+import { pruefLage, pruefungNoetigAntwort } from "@/lib/portalPruefungServer";
 
 const schema = z.object({
   invoiceId: z.string().min(1).max(40),
@@ -30,7 +31,7 @@ export async function POST(req: Request, { params }: { params: { token: string }
 
   const patient = await prisma.patient.findUnique({
     where: { portalTokenHash: hashToken(params.token) },
-    select: { id: true, practiceId: true, portalExpiresAt: true },
+    select: { id: true, practiceId: true, portalExpiresAt: true, birthDate: true },
   });
   if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < new Date()) {
     return NextResponse.json({ error: "Dieser Link ist abgelaufen. Bitte wenden Sie sich an Ihre Praxis." }, { status: 404 });
@@ -40,13 +41,19 @@ export async function POST(req: Request, { params }: { params: { token: string }
 
   if (parsed.data.action === "lastschrift") {
     // Einzel-Lastschriftmandat: nur mit gültiger IBAN, Namen und ausdrücklicher Zustimmung zum Mandatstext.
+    // Und nur nach bestätigtem Geburtsdatum (S5): Ein Mandat bewegt Geld von einem frei eingetippten Konto,
+    // deshalb gibt es hier, anders als bei der Unterschrift, keinen Weg ohne Prüfung. Hat die Praxis kein
+    // Geburtsdatum hinterlegt, bleiben Überweisung und Online-Zahlung.
+    const pruefung = pruefLage(params.token, patient);
+    if (pruefung.status === "ohne") return NextResponse.json({ error: "Lastschrift ist hier erst möglich, wenn Ihre Praxis Ihr Geburtsdatum hinterlegt hat. Bitte überweisen Sie den Betrag oder sprechen Sie Ihre Praxis an.", code: "OHNE_GEBURTSDATUM" }, { status: 409 });
+    if (pruefung.status === "noetig") return pruefungNoetigAntwort();
     const iban = normalizeIban(parsed.data.iban ?? "");
     if (!isValidIban(iban)) return NextResponse.json({ error: "Die IBAN ist ungültig." }, { status: 400 });
     if (!parsed.data.name || parsed.data.name.length < 2) return NextResponse.json({ error: "Bitte den Namen des Kontoinhabers angeben." }, { status: 400 });
     if (!parsed.data.zustimmung) return NextResponse.json({ error: "Bitte dem Lastschriftmandat zustimmen." }, { status: 400 });
     const r = await prisma.invoice.updateMany({
       where: { id: parsed.data.invoiceId, patientId: patient.id, status: "OFFEN", sepaExportedAt: null, practice: { glaeubigerId: { not: null } } },
-      data: { sepaIban: iban, sepaName: parsed.data.name, sepaMandatAt: new Date() },
+      data: { sepaIban: iban, sepaName: parsed.data.name, sepaMandatAt: new Date(), sepaGeprueftAt: pruefung.geprueftAt },
     });
     if (r.count === 0) return NextResponse.json({ error: "Lastschrift für diese Rechnung nicht möglich." }, { status: 409 });
     await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: "LASTSCHRIFT", entityId: parsed.data.invoiceId, hinweis: await rechnungHinweis(parsed.data.invoiceId) });

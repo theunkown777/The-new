@@ -97,7 +97,7 @@ function AcceptInviteForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <p className="mt-1 text-xs text-slate-400">Mindestens 8 Zeichen</p>
+          <p className="mt-1 text-xs text-slate-500">Mindestens 8 Zeichen</p>
         </div>
         <button type="submit" disabled={loading} className="btn-primary w-full">
           {loading ? "Wird erstellt…" : "Konto erstellen"}

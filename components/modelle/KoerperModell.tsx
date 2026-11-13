@@ -328,14 +328,14 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
               ) : (
                 <div className="flex flex-wrap gap-1.5" role="group" aria-label={t("Ebenen")}>
                   <button type="button" aria-pressed={hautAuswahl} onClick={() => setHautAuswahl(!hautAuswahl)} data-testid="koerper-ebene-haut"
-                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm ring-1 ${hautAuswahl ? "bg-white text-slate-900 ring-slate-300" : "bg-slate-50 text-slate-400 ring-slate-200"}`}>
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm ring-1 ${hautAuswahl ? "bg-white text-slate-900 ring-slate-300" : "bg-slate-50 text-slate-500 ring-slate-200"}`}>
                     <span className="h-3 w-3 rounded-full ring-1 ring-black/10" style={{ background: hautAuswahl ? STUFE_FARBE.haut : "#e5e7eb" }} />{t("Haut")}
                   </button>
                   {EBENEN.map((e) => {
                     const an = ebenenAuswahl.includes(e.id);
                     return (
                       <button key={e.id} type="button" aria-pressed={an} onClick={() => setEbenenAuswahl((l) => (an ? l.filter((x) => x !== e.id) : [...l, e.id]))} data-testid={`koerper-ebene-${e.id}`}
-                        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm ring-1 ${an ? "bg-white text-slate-900 ring-slate-300" : "bg-slate-50 text-slate-400 ring-slate-200"}`}>
+                        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm ring-1 ${an ? "bg-white text-slate-900 ring-slate-300" : "bg-slate-50 text-slate-500 ring-slate-200"}`}>
                         <span className="h-3 w-3 rounded-full ring-1 ring-black/10" style={{ background: an ? FARBE[e.id].flaeche : "#e5e7eb" }} />{t(e.kurz)}
                       </button>
                     );

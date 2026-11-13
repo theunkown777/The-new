@@ -86,7 +86,7 @@ export function TemplateList({ readOnly = false }: { readOnly?: boolean }) {
                   {tpl.name}
                   {!tpl.practiceId && <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-normal text-slate-500">Vorgabe</span>}
                 </div>
-                <div className="text-xs text-slate-400">
+                <div className="text-xs text-slate-500">
                   {tpl.items.length} Position{tpl.items.length === 1 ? "" : "en"}
                   {tpl.description ? ` · ${tpl.description}` : ""}
                 </div>
