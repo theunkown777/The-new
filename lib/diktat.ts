@@ -24,6 +24,9 @@ export const DIKTAT_SPRACHE = "de-DE";
 export async function lokalStatus(SR: unknown): Promise<LokalStatus> {
   const verfuegbar = (SR as { available?: (o: object) => Promise<string> } | null)?.available;
   if (typeof verfuegbar !== "function") return "unbekannt";
+  // Ferngesteuerte Browser (automatische Tests) haben kein Mikrofon; die abgespeckte Testfassung von Chrome
+  // stürzt bei dieser Abfrage sogar ab. Dort gar nicht erst fragen.
+  if (typeof navigator !== "undefined" && (navigator as { webdriver?: boolean }).webdriver) return "unbekannt";
   try {
     const s = await verfuegbar.call(SR, { langs: [DIKTAT_SPRACHE], processLocally: true });
     return s === "available" || s === "downloadable" || s === "downloading" || s === "unavailable" ? s : "unbekannt";

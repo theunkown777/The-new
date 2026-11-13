@@ -13,7 +13,7 @@ import {
   type ProposalItem,
 } from "@/lib/proposals";
 import { installmentOffer, type Installments } from "@/lib/installments";
-import { UI, euro, tr, type PatientLang } from "@/lib/patientI18n";
+import { PATIENT_LANGS, UI, datum, euro, langDir, langName, tr, uebersetzung, type PatientLang } from "@/lib/patientI18n";
 import { ZweitmeinungVergleich, type ZweitmeinungProps } from "@/components/ZweitmeinungVergleich";
 
 type Props = {
@@ -40,16 +40,46 @@ type Props = {
   dental?: boolean;
   /** Therapiepraxis (Heilmittel): eigener Hinweistext statt GOÄ/IGeL. */
   therapie?: boolean;
-  /** Sprachumschalter nur, wenn alle Texte übersetzt sind. */
+  /** Sprachwahl ausblenden (false). Ohne Angabe wird sie gezeigt. */
   translatable?: boolean;
   /** Zweitmeinung zum Vergleich (Patienten-Link und Portal). */
   zweitmeinung?: ZweitmeinungProps;
 };
 
+/**
+ * Regeltext in der gewählten Sprache. Was es nur auf Deutsch gibt, wird als Deutsch ausgezeichnet:
+ * richtige Schreibrichtung in der arabischen Ansicht und richtige Aussprache in Vorleseprogrammen.
+ */
+function Rt({ text, lang }: { text: string; lang: PatientLang }) {
+  const u = uebersetzung(text, lang);
+  return u.stand === "deutsch" ? (
+    <span lang="de" dir="ltr">
+      {u.text}
+    </span>
+  ) : (
+    <>{u.text}</>
+  );
+}
+
 export function PatientProposalView(props: Props) {
   const { items, patient, lang } = props;
   const t = UI[lang];
+  const dir = langDir(lang);
   const fmt = (n: number) => euro(n, lang);
+  // Liegt ein gezeigter Regeltext nicht (ganz) in der gewählten Sprache vor, sagt die Ansicht das dazu.
+  const teilsDeutsch = useMemo(
+    () =>
+      lang !== "de" &&
+      items.some((i) =>
+        [
+          i.title,
+          i.where,
+          ...i.notes.filter((n) => n.kind === "info").map((n) => n.text),
+          ...i.options.flatMap((o) => [o.name, typeLabelOf(o, patient.insurance), ...o.benefits, ...(o.hinweis ? [o.hinweis] : []), ...(o.nutzen ? [o.nutzen] : [])]),
+        ].some((x) => uebersetzung(x, lang).stand !== "ganz"),
+      ),
+    [items, lang, patient.insurance],
+  );
   // Nichts ist vorausgewählt: Die Patientin oder der Patient entscheidet selbst.
   // Automatisch gesetzt ist nur, wo es ohnehin nur die Kassenleistung gibt. Eine einzelne
   // Selbstzahlerleistung ist freiwillig: nicht vorausgewählt und wieder abwählbar.
@@ -99,7 +129,7 @@ export function PatientProposalView(props: Props) {
   const lowSum = useMemo(() => summarize(items, lowChoices, patient).netto, [items, lowChoices, patient]);
   const gkv = patient.insurance === "GKV";
   const offer = installmentOffer(sum.netto, props.installments);
-  const until = new Date(props.expiresAt).toLocaleDateString(lang === "en" ? "en-GB" : "de-DE");
+  const until = datum(props.expiresAt, lang);
 
   async function send(response: "INTERESSE" | "RUECKRUF") {
     if (response === "INTERESSE" && offen.length > 0) {
@@ -129,32 +159,44 @@ export function PatientProposalView(props: Props) {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-40 pt-8 sm:pt-12" lang={lang}>
+    <main className="mx-auto max-w-2xl px-4 pb-40 pt-8 sm:pt-12" lang={lang} dir={dir}>
       {props.backHref && (
-        <a href={props.backHref} className="mb-4 inline-block text-sm text-brand-700 underline" data-testid="zurueck-portal">
-          {lang === "en" ? "← Back to your treatment path" : "← Zurück zu Ihrem Behandlungsweg"}
+        // Die gewählte Sprache geht mit zurück ins Portal (dort gilt sie, soweit das Portal sie anbietet).
+        <a href={`${props.backHref}${props.backHref.includes("?") ? "&" : "?"}lang=${lang}`} className="mb-4 inline-block text-sm text-brand-700 underline" data-testid="zurueck-portal">
+          {dir === "rtl" ? "→" : "←"} {t.back}
         </a>
       )}
       <header className="space-y-2">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-medium text-brand-700">{props.practiceName}</p>
-          {props.translatable !== false && <nav aria-label="Sprache / Language" className="flex gap-1 text-xs">
-            {(["de", "en"] as const).map((l) => (
+        <p className="text-sm font-medium text-brand-700">
+          <bdi>{props.practiceName}</bdi>
+        </p>
+        {props.translatable !== false && (
+          // Sprachwahl: jede Sprache in eigener Schreibweise, als Reihe gut antippbarer Schalter, die auf dem Handy umbricht.
+          <nav aria-label={lang === "en" ? "Language" : `${t.langLabel} / Language`} className="flex flex-wrap gap-1.5" data-testid="sprachwahl">
+            {PATIENT_LANGS.map((l) => (
               <a
                 key={l}
                 href={`?lang=${l}`}
                 hrefLang={l}
+                lang={l}
+                dir={langDir(l)}
                 aria-current={l === lang ? "true" : undefined}
-                className={`rounded-full border px-2.5 py-1 ${l === lang ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 text-slate-600"}`}
+                className={`inline-flex min-h-[40px] items-center rounded-full border px-3.5 text-sm ${l === lang ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"}`}
               >
-                {l === "de" ? "Deutsch" : "English"}
+                {langName(l)}
               </a>
             ))}
-          </nav>}
-        </div>
+          </nav>
+        )}
         <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{t.hello(props.firstName)}</h1>
-        <p className="text-slate-600">{t.intro(props.arztDativ ?? "Ihrer Zahnärztin oder Ihrem Zahnarzt")}</p>
-        {t.langNote && <p className="text-xs text-slate-500">{t.langNote}</p>}
+        <p className="text-slate-600">{t.intro(props.arztDativ)}</p>
+        {t.langNote && (
+          // Rechtlicher Hinweis in jeder Fremdsprache: maßgeblich sind die deutsche Fassung und das Gespräch in der Praxis.
+          <p className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700" role="note" data-testid="sprachhinweis">
+            {t.langNote}
+            {teilsDeutsch && <> {t.contentNote}</>}
+          </p>
+        )}
       </header>
 
       {props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
@@ -170,8 +212,12 @@ export function PatientProposalView(props: Props) {
           const infos = item.notes.filter((n) => n.kind === "info");
           return (
             <section key={item.key} id={`pos-${item.key}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-              <h2 className="font-semibold text-slate-900">{title}</h2>
-              <p className="text-sm text-slate-500">{tr(item.where, lang)}</p>
+              <h2 className="font-semibold text-slate-900">
+                <Rt text={item.title} lang={lang} />
+              </h2>
+              <p className="text-sm text-slate-500">
+                <Rt text={item.where} lang={lang} />
+              </p>
               {!current && <p className="mt-1 text-xs text-brand-700">{istFreiwillig(item) ? t.optional : t.pick}</p>}
               <fieldset className="mt-4 space-y-3">
                 <legend className="sr-only">{t.optionsFor(title)}</legend>
@@ -200,14 +246,18 @@ export function PatientProposalView(props: Props) {
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-medium text-slate-900">{tr(o.name, lang)}</span>
+                            <span className="font-medium text-slate-900">
+                              <Rt text={o.name} lang={lang} />
+                            </span>
                           </div>
-                          <span className="text-xs text-slate-500">{tr(typeLabelOf(o, patient.insurance), lang)}</span>
+                          <span className="text-xs text-slate-500">
+                            <Rt text={typeLabelOf(o, patient.insurance)} lang={lang} />
+                          </span>
                         </div>
-                        <div className="text-right">
+                        <div className="text-end">
                           {o.type === "kasse" && o.total === 0 && o.zuzahlung ? (
                             // Kassenleistung auf Verordnung ohne hinterlegten Preis: Die Zuzahlung hängt von der Verordnung ab.
-                            <div className="max-w-[9rem] text-sm font-medium text-slate-900">{lang === "en" ? "statutory co-payment" : "gesetzliche Zuzahlung"}</div>
+                            <div className="max-w-[9rem] text-sm font-medium text-slate-900">{t.coPayment}</div>
                           ) : (
                             <>
                               <div className="text-lg font-semibold tabular-nums text-slate-900">{fmt(m.netto)}</div>
@@ -217,20 +267,22 @@ export function PatientProposalView(props: Props) {
                         </div>
                       </div>
                       {o.benefits.length > 0 && (
-                        <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-slate-700">
+                        <ul className="mt-2 list-disc space-y-0.5 ps-5 text-sm text-slate-700">
                           {o.benefits.map((b) => (
-                            <li key={b}>{tr(b, lang)}</li>
+                            <li key={b}>
+                              <Rt text={b} lang={lang} />
+                            </li>
                           ))}
                         </ul>
                       )}
                       {o.hinweis && (
                         <p className="mt-2 text-xs text-emerald-800">
-                          {t.kasseWenn} {o.hinweis}
+                          {t.kasseWenn} <Rt text={o.hinweis} lang={lang} />
                         </p>
                       )}
                       {o.nutzen && (
                         <p className="mt-1 text-xs text-amber-800">
-                          {t.nutzen} {o.nutzen}
+                          {t.nutzen} <Rt text={o.nutzen} lang={lang} />
                         </p>
                       )}
                       <p className={`mt-2 text-xs text-slate-500 ${o.total === 0 ? "hidden" : ""}`}>
@@ -262,7 +314,9 @@ export function PatientProposalView(props: Props) {
               {infos.length > 0 && (
                 <ul className="mt-3 space-y-1 text-sm text-slate-600">
                   {infos.map((n) => (
-                    <li key={n.text}>{tr(n.text, lang)}</li>
+                    <li key={n.text}>
+                      <Rt text={n.text} lang={lang} />
+                    </li>
                   ))}
                 </ul>
               )}
@@ -278,7 +332,7 @@ export function PatientProposalView(props: Props) {
         {state === "sent" ? (
           <p className="mt-2 text-slate-700" role="status">
             {t.thanks}
-            <button type="button" className="ml-1 text-brand-700 underline" onClick={() => setState("idle")}>
+            <button type="button" className="ms-1 text-brand-700 underline" onClick={() => setState("idle")}>
               {t.change}
             </button>
           </p>
@@ -329,19 +383,31 @@ export function PatientProposalView(props: Props) {
       </section>
 
       {props.zweitmeinung && (
-        <ZweitmeinungVergleich
-          {...props.zweitmeinung}
-          hier={[
-            { label: "Ihre Auswahl", cent: offen.length ? null : Math.round(sum.netto * 100) },
-            { label: "wie empfohlen", cent: Math.round(recSum * 100) },
-            { label: "geringster Eigenanteil", cent: Math.round(lowSum * 100) },
-          ]}
-        />
+        // Der Abschnitt „Zweitmeinung vergleichen“ (eigene Komponente) liegt nur auf Deutsch vor: in jeder
+        // Fremdsprache steht ein kurzer Hinweis davor, der Abschnitt selbst ist als Deutsch ausgezeichnet.
+        <>
+          {t.germanOnlyNote && (
+            <p className="mt-8 text-sm text-slate-600" role="note" data-testid="zweitmeinung-sprachhinweis">
+              {t.germanOnlyNote}
+            </p>
+          )}
+          <div lang="de" dir="ltr" className={t.germanOnlyNote ? "-mt-5" : undefined}>
+            <ZweitmeinungVergleich
+              {...props.zweitmeinung}
+              hier={[
+                { label: "Ihre Auswahl", cent: offen.length ? null : Math.round(sum.netto * 100) },
+                { label: "wie empfohlen", cent: Math.round(recSum * 100) },
+                { label: "geringster Eigenanteil", cent: Math.round(lowSum * 100) },
+              ]}
+            />
+          </div>
+        </>
       )}
 
       <p className="mt-6 text-xs leading-relaxed text-slate-500">
         {props.dental === false ? (props.therapie ? t.fineTherapie(until) : t.fineMed(until)) : t.fine(gkv, until)}
         {offer.kind === "rate" && t.installmentsFine(props.installments.provider)}
+        {t.langNote && <> {t.langNote}</>}
       </p>
 
       <div className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 backdrop-blur">
@@ -360,7 +426,7 @@ export function PatientProposalView(props: Props) {
             {offer.kind === "ask" && <div className="text-xs text-emerald-700">{t.ask}</div>}
           </div>
           {props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
-            <div className="text-right text-xs text-amber-800">
+            <div className="text-end text-xs text-amber-800">
               {t.bar2027}
               <br />
               <span className="font-semibold tabular-nums">{fmt(jahre.netto2027)}</span>
@@ -388,16 +454,20 @@ export function PatientProposalView(props: Props) {
                 const gleich = !!mine && mine.id === rec?.id;
                 return (
                   <li key={item.key} className="rounded-xl border border-slate-200 p-3">
-                    <p className="font-medium text-slate-900">{tr(item.title, lang)}</p>
+                    <p className="font-medium text-slate-900">
+                      <Rt text={item.title} lang={lang} />
+                    </p>
                     <dl className="mt-1 grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-0.5 text-sm">
                       <dt className="text-slate-500">{t.yourChoice}</dt>
-                      <dd className={mine ? "text-slate-900" : "text-brand-700"}>{mine ? tr(mine.name, lang) : t.notChosen}</dd>
-                      <dd className="text-right tabular-nums text-slate-700">{mine ? fmt(money(mine, patient).netto) : ""}</dd>
+                      <dd className={mine ? "text-slate-900" : "text-brand-700"}>{mine ? <Rt text={mine.name} lang={lang} /> : t.notChosen}</dd>
+                      <dd className="text-end tabular-nums text-slate-700">{mine ? fmt(money(mine, patient).netto) : ""}</dd>
                       {rec && (
                         <>
                           <dt className="text-salbei-700">{t.ourRec}</dt>
-                          <dd className="text-slate-900">{tr(rec.name, lang)}</dd>
-                          <dd className="text-right tabular-nums text-slate-700">{fmt(money(rec, patient).netto)}</dd>
+                          <dd className="text-slate-900">
+                            <Rt text={rec.name} lang={lang} />
+                          </dd>
+                          <dd className="text-end tabular-nums text-slate-700">{fmt(money(rec, patient).netto)}</dd>
                         </>
                       )}
                     </dl>
@@ -406,7 +476,7 @@ export function PatientProposalView(props: Props) {
                     ) : (
                       rec?.benefits[0] && (
                         <p className="mt-1 text-xs text-slate-600">
-                          {t.why} {tr(rec.benefits[0], lang)}
+                          {t.why} <Rt text={rec.benefits[0]} lang={lang} />
                         </p>
                       )
                     )}

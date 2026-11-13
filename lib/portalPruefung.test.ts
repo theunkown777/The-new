@@ -187,14 +187,52 @@ describe("Bestätigung (signiertes Cookie)", () => {
 });
 
 describe("Texte", () => {
-  it("gibt es auf Deutsch und Englisch, sonst Deutsch", () => {
+  it("gibt es in sieben Sprachen, sonst Deutsch", () => {
     expect(pruefText("de").titel).toMatch(/Geburtsdatum/);
     expect(pruefText("en").titel).toMatch(/date of birth/);
-    for (const l of ["tr", "uk", "xx", "", null, undefined, "constructor", "__proto__"]) expect(pruefText(l)).toBe(PRUEF_TEXTE.de);
+    expect(Object.keys(PRUEF_TEXTE).sort()).toEqual(["ar", "de", "en", "pl", "ru", "tr", "uk"]);
+    for (const l of ["xx", "fr", "", null, undefined, "constructor", "__proto__"]) expect(pruefText(l)).toBe(PRUEF_TEXTE.de);
+  });
+
+  it("hat in jeder Sprache jeden Text, ohne deutsche Reste und mit den übergebenen Zahlen", () => {
+    const de = pruefText("de");
+    const flach = (t: ReturnType<typeof pruefText>) => [
+      ...Object.values(t).filter((v): v is string => typeof v === "string"),
+      t.falsch(4),
+      t.gesperrt(15),
+      t.gesperrt(1440),
+      t.demo("12.03.1980"),
+    ];
+    for (const lang of ["en", "tr", "uk", "ru", "pl", "ar"]) {
+      const t = pruefText(lang);
+      expect(t, lang).not.toBe(de);
+      expect(Object.keys(t).sort(), lang).toEqual(Object.keys(de).sort());
+      const texte = flach(t);
+      expect(texte.length).toBe(flach(de).length);
+      texte.forEach((s, i) => {
+        expect(s.replace(/[\u2067\u2069]/g, "").trim(), `${lang} ${i}`).not.toBe("");
+        expect(s, `${lang} ${i}`).not.toBe(flach(de)[i]);
+        expect(s.replace("(Lastschrift)", ""), `${lang}: ${s}`).not.toMatch(/(?<!\p{L})(Geburtsdatum|Praxis|Lastschrift|Versuch\p{L}*|Minuten?|Stunden?|bitte|Sie|und|oder|nicht|Ihre[rnms]?)(?!\p{L})/iu);
+      });
+      expect(t.falsch(4), lang).toContain("4");
+      expect(t.gesperrt(15), lang).toContain("15");
+      expect(t.gesperrt(1440), lang).toContain("24");
+      expect(t.demo("12.03.1980"), lang).toContain("12.03.1980");
+      expect(t.platzhalter).toHaveLength(3);
+      for (const p of t.platzhalter) expect(p.trim(), lang).not.toBe("");
+    }
+    // Zahlwörter: slawische Mehrzahl und arabische Zweizahl.
+    expect(pruefText("ru").gesperrt(15)).toContain("на 15 минут.");
+    expect(pruefText("ru").gesperrt(180)).toContain("примерно 3 часа");
+    expect(pruefText("uk").gesperrt(22)).toContain("на 22 хвилини.");
+    expect(pruefText("pl").gesperrt(1440)).toContain("około 24 godziny");
+    expect(pruefText("pl").gesperrt(15)).toContain("na 15 minut.");
+    expect(pruefText("ar").gesperrt(120)).toContain("نحو ساعتين");
+    expect(pruefText("ar").gesperrt(15)).toContain("15 دقيقة");
   });
 
   it("verrät im Fehlertext nichts über das richtige Datum", () => {
-    for (const lang of ["de", "en"]) {
+    for (const lang of Object.keys(PRUEF_TEXTE)) {
       const t = pruefText(lang);
       const texte = [t.falsch(4), t.falsch(1), t.gesperrt(15), t.gesperrt(1440), pruefFehlerText(t, { code: "FALSCH", rest: 2 }), pruefFehlerText(t, { code: "GESPERRT", minuten: 30 }), pruefFehlerText(t, null)];
       for (const s of texte) expect(s).not.toMatch(/\d{4}|fast|almost|close/i);

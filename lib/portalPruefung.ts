@@ -169,7 +169,139 @@ const EN: PruefText = {
   demo: (datum) => `Demo: this sample patient's date of birth is ${datum}.`,
 };
 
-export const PRUEF_TEXTE: Partial<Record<string, PruefText>> = { de: DE, en: EN };
+/** Zahlwort für slawische Sprachen: eins (1, 21 …), wenige (2–4, 22–24 …), viele (0, 5–20 …). */
+const slawisch = (n: number, eins: string, wenige: string, viele: string) => {
+  const a = Math.abs(n) % 100;
+  const b = a % 10;
+  return a > 10 && a < 20 ? viele : b === 1 ? eins : b >= 2 && b <= 4 ? wenige : viele;
+};
+const stunden = (min: number) => Math.round(min / 60);
+
+const TR: PruefText = {
+  titel: "Lütfen doğum tarihinizi onaylayın",
+  grundUnterschrift: "İmzalamadan önce güvenlik amacıyla doğum tarihinizi soruyoruz. Böylece yalnızca bağlantınızı bilen biri sizin adınıza imza atamaz.",
+  grundLastschrift: "Otomatik ödeme talimatı (Lastschrift) vermeden önce güvenlik amacıyla doğum tarihinizi soruyoruz. Böylece yalnızca bağlantınızı bilen biri sizin adınıza talimat veremez.",
+  feld: "Doğum tarihiniz",
+  tag: "Gün",
+  monat: "Ay",
+  jahr: "Yıl",
+  platzhalter: ["GG", "AA", "YYYY"],
+  senden: "Doğum tarihini onayla",
+  laeuft: "Kontrol ediliyor …",
+  unvollstaendig: "Lütfen doğum tarihinizin gününü, ayını ve yılını (dört haneli) girin.",
+  falsch: (rest) => `Doğum tarihi muayenehanenizdeki kayıtla uyuşmuyor. ${rest} deneme hakkınız kaldı.`,
+  gesperrt: (min) => `Çok fazla hatalı deneme yapıldı. Güvenliğiniz için onay ${min >= 120 ? `yaklaşık ${stunden(min)} saat` : `${min} dakika`} süreyle kilitlendi. Lütfen daha sonra yeniden deneyin veya muayenehanenize başvurun.`,
+  abgelaufen: "Onayınızın süresi doldu. Lütfen doğum tarihinizi yeniden onaylayın.",
+  bestaetigt: "Doğum tarihi onaylandı",
+  ohneGeburtsdatum: "Otomatik ödeme talimatı burada ancak muayenehaneniz doğum tarihinizi kaydettikten sonra mümkündür. Lütfen tutarı havale ile ödeyin veya muayenehanenize başvurun.",
+  zuViele: "Çok fazla istek gönderildi. Lütfen daha sonra yeniden deneyin.",
+  fehler: "İşlem başarısız oldu. Lütfen yeniden deneyin.",
+  demo: (datum) => `Demo: Bu örnek hastanın doğum tarihi ${datum}.`,
+};
+
+const UK: PruefText = {
+  titel: "Будь ласка, підтвердьте Вашу дату народження",
+  grundUnterschrift: "Перш ніж Ви підпишете, ми з міркувань безпеки запитуємо Вашу дату народження. Так ніхто, хто знає лише Ваше посилання, не зможе підписати від Вашого імені.",
+  grundLastschrift: "Перш ніж Ви надасте дозвіл на пряме списання коштів (Lastschrift), ми з міркувань безпеки запитуємо Вашу дату народження. Так ніхто, хто знає лише Ваше посилання, не зможе надати такий дозвіл від Вашого імені.",
+  feld: "Ваша дата народження",
+  tag: "День",
+  monat: "Місяць",
+  jahr: "Рік",
+  platzhalter: ["ДД", "ММ", "РРРР"],
+  senden: "Підтвердити дату народження",
+  laeuft: "Перевіряємо …",
+  unvollstaendig: "Будь ласка, введіть день, місяць і рік (чотири цифри) Вашої дати народження.",
+  falsch: (rest) => `Дата народження не збігається з даними Вашої практики. Залишилося спроб: ${rest}.`,
+  gesperrt: (min) =>
+    `Забагато невдалих спроб. Для Вашого захисту підтвердження заблоковано на ${min >= 120 ? `приблизно ${stunden(min)} ${slawisch(stunden(min), "годину", "години", "годин")}` : `${min} ${slawisch(min, "хвилину", "хвилини", "хвилин")}`}. Будь ласка, спробуйте пізніше або зверніться до Вашої практики.`,
+  abgelaufen: "Термін дії Вашого підтвердження минув. Будь ласка, підтвердьте дату народження ще раз.",
+  bestaetigt: "Дату народження підтверджено",
+  ohneGeburtsdatum: "Пряме списання коштів тут можливе лише після того, як Ваша практика внесе Вашу дату народження. Будь ласка, сплатіть суму банківським переказом або зверніться до Вашої практики.",
+  zuViele: "Забагато запитів. Будь ласка, спробуйте пізніше.",
+  fehler: "Не вдалося. Будь ласка, спробуйте ще раз.",
+  demo: (datum) => `Демо: дата народження цього умовного пацієнта — ${datum}.`,
+};
+
+const RU: PruefText = {
+  titel: "Пожалуйста, подтвердите Вашу дату рождения",
+  grundUnterschrift: "Прежде чем Вы подпишете, мы в целях безопасности запрашиваем Вашу дату рождения. Так никто, кто знает только Вашу ссылку, не сможет подписать от Вашего имени.",
+  grundLastschrift: "Прежде чем Вы дадите разрешение на прямое списание средств (Lastschrift), мы в целях безопасности запрашиваем Вашу дату рождения. Так никто, кто знает только Вашу ссылку, не сможет дать такое разрешение от Вашего имени.",
+  feld: "Ваша дата рождения",
+  tag: "День",
+  monat: "Месяц",
+  jahr: "Год",
+  platzhalter: ["ДД", "ММ", "ГГГГ"],
+  senden: "Подтвердить дату рождения",
+  laeuft: "Проверяем …",
+  unvollstaendig: "Пожалуйста, введите день, месяц и год (четыре цифры) Вашей даты рождения.",
+  falsch: (rest) => `Дата рождения не совпадает с данными Вашей практики. Осталось попыток: ${rest}.`,
+  gesperrt: (min) =>
+    `Слишком много неудачных попыток. Для Вашей защиты подтверждение заблокировано на ${min >= 120 ? `примерно ${stunden(min)} ${slawisch(stunden(min), "час", "часа", "часов")}` : `${min} ${slawisch(min, "минуту", "минуты", "минут")}`}. Пожалуйста, попробуйте позже или обратитесь в Вашу практику.`,
+  abgelaufen: "Срок действия Вашего подтверждения истёк. Пожалуйста, подтвердите дату рождения ещё раз.",
+  bestaetigt: "Дата рождения подтверждена",
+  ohneGeburtsdatum: "Прямое списание средств здесь возможно только после того, как Ваша практика внесёт Вашу дату рождения. Пожалуйста, оплатите сумму банковским переводом или обратитесь в Вашу практику.",
+  zuViele: "Слишком много запросов. Пожалуйста, попробуйте позже.",
+  fehler: "Не получилось. Пожалуйста, попробуйте ещё раз.",
+  demo: (datum) => `Демо: дата рождения этого условного пациента — ${datum}.`,
+};
+
+const PL: PruefText = {
+  titel: "Proszę potwierdzić swoją datę urodzenia",
+  grundUnterschrift: "Przed złożeniem podpisu dla bezpieczeństwa pytamy o Pani/Pana datę urodzenia. Dzięki temu nikt, kto zna tylko Pani/Pana link, nie może podpisać w Pani/Pana imieniu.",
+  grundLastschrift: "Przed udzieleniem zgody na polecenie zapłaty (Lastschrift) dla bezpieczeństwa pytamy o Pani/Pana datę urodzenia. Dzięki temu nikt, kto zna tylko Pani/Pana link, nie może udzielić takiej zgody w Pani/Pana imieniu.",
+  feld: "Pani/Pana data urodzenia",
+  tag: "Dzień",
+  monat: "Miesiąc",
+  jahr: "Rok",
+  platzhalter: ["DD", "MM", "RRRR"],
+  senden: "Potwierdź datę urodzenia",
+  laeuft: "Sprawdzanie …",
+  unvollstaendig: "Proszę podać dzień, miesiąc i rok (cztery cyfry) swojej daty urodzenia.",
+  falsch: (rest) => `Data urodzenia nie zgadza się z danymi w gabinecie. Pozostało prób: ${rest}.`,
+  gesperrt: (min) =>
+    `Zbyt wiele nieudanych prób. Dla Pani/Pana bezpieczeństwa potwierdzenie zostało zablokowane na ${min >= 120 ? `około ${stunden(min)} ${slawisch(stunden(min), "godzinę", "godziny", "godzin")}` : `${min} ${slawisch(min, "minutę", "minuty", "minut")}`}. Proszę spróbować ponownie później lub skontaktować się z gabinetem.`,
+  abgelaufen: "Pani/Pana potwierdzenie wygasło. Proszę ponownie potwierdzić datę urodzenia.",
+  bestaetigt: "Data urodzenia potwierdzona",
+  ohneGeburtsdatum: "Polecenie zapłaty jest tutaj możliwe dopiero wtedy, gdy gabinet zapisze Pani/Pana datę urodzenia. Proszę zapłacić przelewem lub skontaktować się z gabinetem.",
+  zuViele: "Zbyt wiele zapytań. Proszę spróbować ponownie później.",
+  fehler: "Nie udało się. Proszę spróbować ponownie.",
+  demo: (datum) => `Demo: data urodzenia tego przykładowego pacjenta to ${datum}.`,
+};
+
+// Arabisch läuft von rechts nach links. Ganze Sätze stehen als rechts-nach-links-Insel (RLI … PDI),
+// damit Satzzeichen und Zahlen auch dann richtig stehen, wenn das umgebende Formular kein dir="rtl" setzt.
+const rtl = (s: string) => `\u2067${s}\u2069`;
+const dauerAr = (min: number) => {
+  if (min >= 120) {
+    const h = stunden(min);
+    return h === 2 ? "نحو ساعتين" : h <= 10 ? `نحو ${h} ساعات` : `نحو ${h} ساعة`;
+  }
+  return min === 1 ? "دقيقة واحدة" : min === 2 ? "دقيقتين" : min <= 10 ? `${min} دقائق` : `${min} دقيقة`;
+};
+
+const AR: PruefText = {
+  titel: "يُرجى تأكيد تاريخ ميلادكم",
+  grundUnterschrift: rtl("قبل التوقيع نسأل عن تاريخ ميلادكم حرصًا على الأمان. بذلك لا يستطيع من يعرف رابطكم فقط أن يوقّع باسمكم."),
+  grundLastschrift: rtl("قبل منح تفويض الخصم المباشر من الحساب (Lastschrift) نسأل عن تاريخ ميلادكم حرصًا على الأمان. بذلك لا يستطيع من يعرف رابطكم فقط أن يمنح تفويضًا باسمكم."),
+  feld: "تاريخ ميلادكم",
+  tag: "اليوم",
+  monat: "الشهر",
+  jahr: "السنة",
+  platzhalter: ["يوم", "شهر", "سنة"],
+  senden: "تأكيد تاريخ الميلاد",
+  laeuft: rtl("جارٍ التحقق …"),
+  unvollstaendig: rtl("يُرجى إدخال اليوم والشهر والسنة (بأربعة أرقام) لتاريخ ميلادكم."),
+  falsch: (rest) => rtl(`تاريخ الميلاد لا يطابق البيانات المسجلة لدى عيادتكم. عدد المحاولات المتبقية: ${rest}.`),
+  gesperrt: (min) => rtl(`محاولات خاطئة كثيرة. لحمايتكم تم إيقاف التأكيد لمدة ${dauerAr(min)}. يُرجى المحاولة لاحقًا أو التواصل مع عيادتكم.`),
+  abgelaufen: rtl("انتهت صلاحية تأكيدكم. يُرجى تأكيد تاريخ ميلادكم مرة أخرى."),
+  bestaetigt: "تم تأكيد تاريخ الميلاد",
+  ohneGeburtsdatum: rtl("الخصم المباشر من الحساب غير ممكن هنا إلا بعد أن تسجّل عيادتكم تاريخ ميلادكم. يُرجى تحويل المبلغ مصرفيًا أو التواصل مع عيادتكم."),
+  zuViele: rtl("طلبات كثيرة جدًا. يُرجى المحاولة لاحقًا."),
+  fehler: rtl("لم تنجح العملية. يُرجى المحاولة مرة أخرى."),
+  demo: (datum) => rtl(`عرض تجريبي: تاريخ ميلاد هذا المريض النموذجي هو ${datum}.`),
+};
+
+export const PRUEF_TEXTE: Partial<Record<string, PruefText>> = { de: DE, en: EN, tr: TR, uk: UK, ru: RU, pl: PL, ar: AR };
 
 /** Texte in der Sprache des Portals, sonst Deutsch. */
 export function pruefText(lang: string | null | undefined): PruefText {

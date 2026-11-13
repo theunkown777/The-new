@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ConnectorSettings } from "@/components/ConnectorSettings";
 import { PVS_GUIDES } from "@/lib/pvsGuides";
+import { isDental } from "@/lib/specialties";
 
 export default async function ConnectorSettingsPage() {
   const session = await getServerSession(authOptions);
@@ -12,6 +13,8 @@ export default async function ConnectorSettingsPage() {
     select: { id: true, name: true, keyPrefix: true, createdAt: true, lastUsedAt: true, revokedAt: true, gdtKennung: true, connectorInfo: true },
   });
   const server = process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? "";
+  const practice = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true } });
+  const zahn = isDental(practice?.specialty);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -20,9 +23,9 @@ export default async function ConnectorSettingsPage() {
         <p className="mt-1 text-sm text-slate-500">
           Sorrida öffnet sich als eigenes Fenster direkt aus Ihrer Praxissoftware, mit dem gerade
           gewählten Patienten: Bericht schreiben, Behandlungsvorschlag erstellen, Verlauf ansehen.
-          Zahnarztpraxen werden über den Branchenstandard VDDS-media angebunden (DS-Win, CGM Z1, charly,
-          EVIDENT und viele weitere), Arztpraxen über GDT (Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS
-          u. a.). Bei GDT kommen freigegebene Berichte automatisch zurück in die Karteikarte.
+          {zahn
+            ? "Zahnarztpraxen werden über den Branchenstandard VDDS-media angebunden (DS-Win, CGM Z1, charly, EVIDENT und viele weitere)."
+            : "Die Anbindung läuft über GDT, den Standard der Arztsoftware (Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS u. a.). Freigegebene Berichte kommen automatisch zurück in die Karteikarte. Unterstützt Ihre Software kein GDT, nutzen Sie Sorrida einfach im Browser daneben."}
         </p>
       </div>
 
@@ -43,6 +46,7 @@ export default async function ConnectorSettingsPage() {
             }))}
             server={server}
             readOnly={session!.user.role !== "admin"}
+            zahn={zahn}
           />
         </li>
 
@@ -72,7 +76,8 @@ export default async function ConnectorSettingsPage() {
 
         <li className="card space-y-4">
           <h2 className="font-medium text-slate-900">3. In der Praxissoftware aktivieren</h2>
-          {PVS_GUIDES.map((g) => (
+          {/* Anleitungen passend zum Fach: Zahnarzt-Software über VDDS-media, Arztsoftware über GDT */}
+          {PVS_GUIDES.filter((g) => /GDT/.test(g.name) !== zahn).map((g) => (
             <div key={g.name}>
               <h3 className="text-sm font-semibold text-slate-800">
                 {g.name} {g.share && <span className="font-normal text-slate-500">· Marktanteil {g.share}</span>}

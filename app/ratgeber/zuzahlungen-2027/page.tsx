@@ -111,8 +111,9 @@ export default function Page() {
         deshalb die Quittungen auf.“
       </blockquote>
       <p>
-        Sorrida rechnet die Heilmittel-Zuzahlung nach dem Datum: 10 % plus 10 € bis Ende 2026, 10 % plus 15 € ab 2027. Bei Kindern und
-        Jugendlichen entfällt sie; für Erwachsene legt Sorrida die Aufgabe an, die Zuzahlung zu kassieren oder die Befreiung zu prüfen.
+        Sorrida rechnet die Zuzahlungen nach dem Datum: bei Heilmitteln 10 % plus 10 € bis Ende 2026 und plus 15 € ab 2027, bei Hilfs- und
+        Arzneimitteln mit den Grenzen von 5 € und 10 € bis Ende 2026 und von 7,50 € und 15 € ab 2027. Bei Kindern und Jugendlichen
+        entfällt sie; für Erwachsene legt Sorrida die Aufgabe an, die Zuzahlung zu kassieren oder die Befreiung zu prüfen.
       </p>
 
       <h2>Quellen</h2>

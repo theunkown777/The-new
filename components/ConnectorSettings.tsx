@@ -32,10 +32,13 @@ export function ConnectorSettings({
   initialKeys,
   server,
   readOnly = false,
+  zahn = true,
 }: {
   initialKeys: Key[];
   server: string;
   readOnly?: boolean;
+  /** Zahnarztpraxis: VDDS-media ist voreingestellt; sonst GDT, und die Zahn-Variante wird nicht angeboten. */
+  zahn?: boolean;
 }) {
   const [keys, setKeys] = useState(initialKeys);
   const [name, setName] = useState("");
@@ -44,7 +47,7 @@ export function ConnectorSettings({
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const [art, setArt] = useState<"vdds" | "gdt">("vdds");
+  const [art, setArt] = useState<"vdds" | "gdt">(zahn ? "vdds" : "gdt");
   const command = secret
     ? `powershell -ExecutionPolicy Bypass -File install.ps1 -Server ${server || "https://ihre-sorrida-adresse.de"} -Key ${secret}` +
       (art === "gdt" ? ` -GdtFile C:\\GDT\\SORRIDA.GDT -GdtImport C:\\GDT\\IMPORT` : ` -Ablage C:\\Sorrida\\Berichte`)
@@ -120,7 +123,7 @@ export function ConnectorSettings({
             Schlüssel erzeugt. Er wird nur jetzt angezeigt. Installationsbefehl für diesen PC:
           </p>
           <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Art der Praxissoftware">
-            {([["vdds", "Zahnarztpraxis (VDDS-media)"], ["gdt", "Arztpraxis (GDT)"]] as const).map(([wert, label]) => (
+            {([["vdds", "Zahnarztpraxis (VDDS-media)"], ["gdt", "Arztpraxis (GDT)"]] as const).filter(([wert]) => zahn || wert === "gdt").map(([wert, label]) => (
               <button key={wert} type="button" role="radio" aria-checked={art === wert} onClick={() => setArt(wert)}
                 className={`rounded-full px-3 py-1 text-xs ${art === wert ? "bg-brand-600 text-white" : "bg-white text-slate-700 ring-1 ring-slate-200"}`}>
                 {label}

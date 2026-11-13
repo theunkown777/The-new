@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isDental } from "@/lib/specialties";
 import { formatEuro, resolvePrices, showsJahresvergleich } from "@/lib/proposals";
 import { nachfassListe, nachfassSumme } from "@/lib/nachfassen";
 import { darfWhatsapp } from "@/lib/whatsapp";
@@ -16,7 +17,7 @@ export default async function NachfassenPage() {
   const practiceId = session!.user.practiceId;
   const now = new Date();
   const [practice, proposals] = await Promise.all([
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, proposalPrices: true } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, proposalPrices: true, specialty: true } }),
     prisma.treatmentProposal.findMany({
       where: { practiceId, status: { in: ["ENTWURF", "BESPROCHEN"] }, createdAt: { gte: new Date(now.getTime() - 180 * 864e5) } },
       orderBy: { createdAt: "desc" },
@@ -125,7 +126,7 @@ export default async function NachfassenPage() {
         </div>
       )}
       <p className="mt-4 max-w-3xl text-xs text-slate-500">
-        Die Erinnerung nennt weder Befund noch Betrag, nur den persönlichen Link. Bitte nur Patienten anschreiben, die der Kontaktaufnahme zugestimmt haben. Eigenanteile sind Schätzungen; verbindlich ist der Heil- und Kostenplan.
+        Die Erinnerung nennt weder Befund noch Betrag, nur den persönlichen Link. Bitte nur Patienten anschreiben, die der Kontaktaufnahme zugestimmt haben. Eigenanteile sind Schätzungen{isDental(practice?.specialty) ? "; verbindlich ist der Heil- und Kostenplan" : "; verbindlich ist die schriftliche Vereinbarung vor der Leistung"}.
       </p>
     </div>
   );

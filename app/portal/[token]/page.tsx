@@ -141,13 +141,15 @@ export default async function PortalPage({ params, searchParams }: { params: { t
 
   // Wohin der Knopf "Als Nächstes" führt: Rechnung, Vorschlag, Fragebogen oder Unterlagen.
   const openProposal = patient.proposals.find((p) => (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse);
+  // Die im Portal gewählte Sprache geht in den Vorschlag mit (sonst entscheidet dort wieder der Browser).
+  const sprachZusatz = lang === "de" ? "" : `?lang=${lang}`;
   // Der Knopf führt dorthin, wovon sein Text spricht: steht der aktuelle Vorschlag zur Wahl, dann zum Vorschlag.
   const nextHref = weg.aktuell === 2 && openProposal && current?.id === openProposal.id
-    ? `/portal/${params.token}/vorschlag/${openProposal.id}`
+    ? `/portal/${params.token}/vorschlag/${openProposal.id}${sprachZusatz}`
     : open.length
     ? "#rechnungen"
     : openProposal
-      ? `/portal/${params.token}/vorschlag/${openProposal.id}`
+      ? `/portal/${params.token}/vorschlag/${openProposal.id}${sprachZusatz}`
       : patient.anamnesisForms[0]
         ? `/portal/${params.token}/anamnese/${patient.anamnesisForms[0].id}`
         : "#dokumente";
@@ -271,7 +273,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
                 const open = (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse;
                 return (
                   <li key={p.id}>
-                    <a href={`/portal/${params.token}/vorschlag/${p.id}${lang === "en" ? "?lang=en" : ""}`} className="flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-salbei-50" data-testid="portal-vorschlag">
+                    <a href={`/portal/${params.token}/vorschlag/${p.id}${sprachZusatz}`} className="flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-salbei-50" data-testid="portal-vorschlag">
                       <span>
                         <span className="block font-medium text-slate-900">{t.proposalDoc(date(p.createdAt))}</span>
                         <span className="text-sm text-slate-500">
