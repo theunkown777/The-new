@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PublicShell } from "@/components/PublicShell";
 import { PilotProgram } from "@/components/PilotProgram";
+import { FACH_ZAHL } from "@/lib/fachZahl";
 
 export const metadata: Metadata = {
   title: "Sorrida für jedes Fach – mit eigenen Leistungen",
@@ -21,13 +22,13 @@ export default function AnderesFach() {
       <p className="text-sm font-medium text-brand-700">Sorrida für jedes Fach</p>
       <h1 className="font-display mt-2 text-3xl leading-tight text-slate-900">Ihr Fach ist nicht dabei? Dann legen Sie Ihre Leistungen selbst an.</h1>
       <p className="mt-4 max-w-2xl text-lg text-slate-600">
-        Für neun Fächer bringt Sorrida fertige Anlässe mit. Für alle anderen tragen Sie ein, was Sie anbieten. Alles andere funktioniert
+        Für {FACH_ZAHL} Fachrichtungen bringt Sorrida fertige Anlässe mit. Für alle anderen tragen Sie ein, was Sie anbieten. Alles andere funktioniert
         genauso: Kassenleistung zuerst, Patienten-Link, Rückmeldung, schriftliche Vereinbarung und Auswertung.
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
-        <Link href="/register?fach=andere" className="btn-primary">
-          Praxis kostenlos anlegen
-        </Link>
+        <a href="#pilot" className="btn-primary">
+          Pilotplatz anfragen
+        </a>
         <Link href="/demo?fach=hausarzt" className="btn-secondary">
           Erst ansehen (Beispiel Hausarztpraxis)
         </Link>
@@ -37,7 +38,7 @@ export default function AnderesFach() {
         <div>
           <h2 className="font-display text-2xl text-slate-900">So richten Sie es ein</h2>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-slate-700">
-            <li>Praxis anlegen und als Fachgebiet „Andere Fachrichtung“ wählen.</li>
+            <li>Im Pilotprogramm legen wir Ihre Praxis mit dem Fachgebiet „Andere Fachrichtung“ an.</li>
             <li>Unter Einstellungen → Fachgebiet und Leistungen je Leistung eintragen: Anlass, Name, Preis.</li>
             <li>Optional: wann die Kasse zahlt und was über den Nutzen bekannt ist. Beides sieht der Patient.</li>
             <li>Kassenleistungen ankreuzen, damit sie in der Auswahl immer oben stehen.</li>

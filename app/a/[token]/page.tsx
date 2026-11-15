@@ -1,3 +1,4 @@
+import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
@@ -29,5 +30,10 @@ export default async function AnamnesisPage(props: { params: Promise<{ token: st
     );
   }
   if (!form.viewedAt) await prisma.anamnesisForm.update({ where: { id: form.id }, data: { viewedAt: new Date() } });
-  return <AnamnesisForm token={params.token} practiceName={form.practice.name} firstName={form.patient.firstName} dental={isDental(form.practice.specialty)} />;
+  return (
+    <>
+      <AnamnesisForm token={params.token} practiceName={form.practice.name} firstName={form.patient.firstName} dental={isDental(form.practice.specialty)} />
+      <PraxisFussLaden practiceId={form.practiceId} className="mx-auto max-w-xl px-4 pb-10 pt-2" />
+    </>
+  );
 }

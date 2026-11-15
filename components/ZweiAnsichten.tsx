@@ -7,8 +7,8 @@ import { WegBand } from "@/components/start/WegBand";
 
 const STATIONEN_TEXT: [string, string, string][] = [
   ["Gespräch", "Wählt Befund oder Anlass mit einem Klick", "Hört zu, fragt nach"],
-  ["Vorschlag", "Kasse zuerst, Alternativen begründet, Link per SMS", "Bekommt den Link aufs Handy"],
-  ["Entscheidung", "Sieht die Antwort und ob Raten gewünscht sind", "Vergleicht zu Hause, tippt eine Antwort"],
+  ["Vorschlag", "Kasse zuerst, weitere Optionen mit Erklärung, Link per SMS", "Bekommt den Link aufs Handy"],
+  ["Entscheidung", "Sieht die Antwort des Patienten", "Vergleicht zu Hause, tippt eine Antwort"],
   ["Vereinbart", "Erstellt Vereinbarung und Rechnung mit einem Klick", "Weiß vorher, was die Kasse zahlt"],
   ["Bezahlt", "Zahlungseingang bestätigen, nichts abtippen", "Zahlt per GiroCode aus der Banking-App"],
 ];
@@ -16,7 +16,7 @@ const STATIONEN_TEXT: [string, string, string][] = [
 const LISTE: [string, number, number, string, "aktiv" | "achtung" | "warten" | "erledigt"][] = [
   ["Weber, Martina", 3, 3, "Rückruf gewünscht: heute anrufen", "achtung"],
   ["Yılmaz, Elif", 0, 0, "Anamnese liegt vor: Vorschlag erstellen", "aktiv"],
-  ["Schulz, Peter", 2, 2, "Link seit Tagen ungeöffnet: kurz anrufen", "achtung"],
+  ["Schulz, Peter", 2, 2, "Link seit Tagen ungeöffnet: beim nächsten Termin ansprechen", "achtung"],
   ["Nowak, Piotr", 2, 2, "Vorschlag angesehen: Rückmeldung abwarten", "warten"],
   ["Krüger, Anna", 4, 4, "Vereinbart: Rechnung erstellen", "aktiv"],
   ["Haddad, Omar", 5, -1, "Abgeschlossen", "erledigt"],

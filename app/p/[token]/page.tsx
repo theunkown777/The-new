@@ -1,3 +1,4 @@
+import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -72,6 +73,7 @@ export default async function PatientLinkPage(props: {
   const now = new Date();
 
   return (
+    <>
     <PatientProposalView
       token={params.token}
       practiceName={proposal.practice.name}
@@ -97,5 +99,7 @@ export default async function PatientLinkPage(props: {
         fragen: vergleichsFragen(dental),
       }}
     />
+    <PraxisFussLaden practiceId={proposal.practiceId} className="mx-auto max-w-xl px-4 pb-10 pt-2" />
+    </>
   );
 }

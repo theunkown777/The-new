@@ -1,6 +1,10 @@
 import { PRICE_SHORT, PRICE_TERMS } from "@/lib/pricing";
 import Link from "next/link";
 
+// Keine Namen einzelner Praxisprogramme, solange es je Programm kein Testprotokoll aus einer Praxis gibt (Prüfbericht A19).
+const SCHNITTSTELLE_SATZ =
+  "Programme, die diese Schnittstellen anbieten, können Sorrida mit dem aktuellen Patienten öffnen. Welche Programme wir schon in einer Praxis getestet haben, sagen wir Ihnen auf Anfrage.";
+
 // Häufige Fragen von Praxen vor dem Start (aus Recherche und Pilotgesprächen abgeleitet).
 // `alle`: Fassung für die Startseite, die kein Fach voraussetzt.
 export function PraxisFaq({ therapie = false, dental = false, journal = false, alle = false }: { therapie?: boolean; dental?: boolean; journal?: boolean; alle?: boolean }) {
@@ -9,24 +13,31 @@ export function PraxisFaq({ therapie = false, dental = false, journal = false, a
       "Ist das nicht Verkaufen am Patienten?",
       therapie
         ? "Nein. Sorrida zeigt zuerst, was auf Verordnung möglich ist, und rechnet die Zuzahlung korrekt. Selbstzahler-Einheiten stehen daneben, mit Preis und Hinweis auf Kassenzuschüsse. Empfohlen wird nichts von sich aus."
-        : "Nein. Die Kassenleistung steht immer zuerst. Bei jeder Selbstzahlerleistung steht, was über den Nutzen bekannt ist, und Sorrida empfiehlt sie nie von sich aus. Das entspricht dem, was Patientenvertreter fordern: Information, Bedenkzeit und Kosten vorab.",
+        : "Nein. Die Kassenleistung steht immer zuerst und ist immer vorausgewählt. Bei jeder Selbstzahlerleistung steht, was über den Nutzen bekannt ist. Was hervorgehoben wird, klickt die Praxis an; Sorrida empfiehlt nichts von sich aus. Das entspricht dem, was Patientenvertreter fordern: Information, Bedenkzeit und Kosten vorab.",
     ],
     [
-      "Ist das rechtlich sauber?",
-      therapie
-        ? "Patienten erhalten Preise und Ablauf in Textform, Selbstzahlerleistungen werden vor der Behandlung schriftlich vereinbart. Die Zuzahlung bei Heilmitteln wird nach § 32 und § 61 SGB V berechnet."
-        : dental
-          ? "Die Kostenaufklärung in Textform erfüllt § 630c Abs. 3 BGB. Mehrkostenvereinbarung und Heil- und Kostenplan erstellen Sie weiter in Ihrer Praxissoftware; Sorrida erinnert daran."
-          : "Die Kostenaufklärung in Textform erfüllt § 630c Abs. 3 BGB. Für IGeL erinnert Sorrida an die schriftliche Vereinbarung vor der Leistung (§ 18 Abs. 8 BMV-Ä) mit Kosten nach GOÄ und an die Bedenkzeit.",
+      // Keine Aussage „erfüllt § 630c“: Ob die Information im Einzelfall genügt, entscheidet die Praxis (Prüfbericht A16, T10).
+      "Wobei hilft Sorrida rechtlich, und was bleibt bei uns?",
+      `Sorrida erstellt die Kosteninformation mit den voraussichtlichen Kosten je Option als Text zum Ausdrucken oder Mitgeben und ${
+        therapie
+          ? "erinnert an die schriftliche Vereinbarung vor Selbstzahlerleistungen; die Zuzahlung rechnet Sorrida nach § 32 und § 61 SGB V in der jeweils geltenden Fassung"
+          : dental
+            ? "erinnert an Mehrkostenvereinbarung und Heil- und Kostenplan, die Sie weiter in Ihrer Praxissoftware erstellen"
+            : alle
+              ? "erinnert an die schriftliche Vereinbarung vor einer Selbstzahlerleistung und an die Bedenkzeit"
+              : "erinnert an die schriftliche Vereinbarung vor einer Selbstzahlerleistung (§ 18 Abs. 8 BMV-Ä) und an die Bedenkzeit"
+      }. Das unterstützt Sie bei der Information nach § 630c Abs. 3 BGB. Die Verantwortung für Inhalt, Zeitpunkt und Form bleibt bei Ihrer Praxis; Sorrida ersetzt keine Rechtsberatung.`,
     ],
     [
       "Wo liegen die Daten?",
       <>
-        Anwendung und Datenbank laufen in Frankfurt am Main. Ein Vertrag zur Auftragsverarbeitung gehört zu jedem Paket ({" "}
+        Anwendung und Datenbank laufen in Rechenzentren in Frankfurt am Main. Die Betreiber sind US-Unternehmen. Für E-Mail-Versand und die
+        Formulierung von Berichtsentwürfen nutzen wir Dienste mit Verarbeitung in den USA; an den KI-Dienst gehen keine Namen, kein
+        Geburtsdatum und keine Versichertennummer. Alle Dienstleister stehen im{" "}
         <Link href="/avv" className="underline">
-          Muster ansehen
+          AVV-Muster
         </Link>
-        ). Patienten-Links enthalten keine Patientendaten und laufen nach 30 Tagen ab.
+        . Patienten-Links enthalten keine Patientendaten und laufen ab.
       </>,
     ],
     [
@@ -34,10 +45,10 @@ export function PraxisFaq({ therapie = false, dental = false, journal = false, a
       therapie
         ? "Nein. Sorrida läuft im Browser neben Ihrer Software. Abrechnung und Terminplanung bleiben, wo sie sind."
         : alle
-          ? "Nein. Sorrida öffnet sich aus Ihrer Praxissoftware mit dem aktuellen Patienten: in Arztpraxen über GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS), in Zahnarztpraxen über VDDS-media (z. B. DS-Win, CGM Z1, charly, EVIDENT). Therapiepraxen und alle ohne Anbindung nutzen Sorrida im Browser neben ihrer Software."
-          : `Nein. Sorrida öffnet sich aus Ihrer Praxissoftware mit dem aktuellen Patienten, ${dental ? "über VDDS-media (z. B. DS-Win, CGM Z1, charly, EVIDENT)" : "über GDT (z. B. Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS)"}. Ohne Anbindung geht es im Browser.`,
+          ? `Nein. Sorrida nutzt die Standardschnittstellen GDT (Arztpraxen) und VDDS-media (Zahnarztpraxen). ${SCHNITTSTELLE_SATZ} Therapiepraxen und alle ohne Anbindung nutzen Sorrida im Browser neben ihrer Software.`
+          : `Nein. Sorrida nutzt die Standardschnittstelle ${dental ? "VDDS-media" : "GDT"}. ${SCHNITTSTELLE_SATZ} Ohne Anbindung geht es im Browser.`,
     ],
-    ["Wie viel Arbeit macht die Einführung?", "Etwa eine Stunde: Preise prüfen, eigene Leistungen ergänzen, kurze Einweisung fürs Team. Im Pilotprogramm übernehmen wir die Einrichtung mit Ihnen."],
+    ["Wie viel Arbeit macht die Einführung?", "Erfahrungswert aus der Entwicklung: etwa eine Stunde für Preise prüfen, eigene Leistungen ergänzen und eine kurze Einweisung fürs Team. Im Pilot messen wir es. Im Pilotprogramm übernehmen wir die Einrichtung mit Ihnen."],
     ["Was kostet es?", `${PRICE_SHORT}. ${PRICE_TERMS}`],
   ];
   if (journal)

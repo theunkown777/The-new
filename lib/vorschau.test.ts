@@ -64,3 +64,45 @@ describe("Vorschau-Schloss für die eigene Domain", () => {
     expect(await vorschauCookieGueltig(p, jetzt, env)).toBe(false);
   });
 });
+
+import { darfInSuchmaschinen, istInfoSeite, oeffentlichFrei, oeffentlichStufe } from "@/lib/vorschau";
+
+describe("Stufe „öffentlich, aber geschützt“", () => {
+  const aus = {}, seiten = { VORSCHAU_OEFFENTLICH: "1" }, demo = { VORSCHAU_OEFFENTLICH: "demo" };
+  it("liest die Stufe aus der Variable", () => {
+    expect(oeffentlichStufe(aus, true)).toBe("aus");
+    expect(oeffentlichStufe(seiten, true)).toBe("seiten");
+    expect(oeffentlichStufe(demo, true)).toBe("demo");
+    expect(oeffentlichStufe({ VORSCHAU_OEFFENTLICH: "nein" }, true)).toBe("aus");
+  });
+  it("wird ohne vollständiges Impressum nie öffentlich, auch wenn die Variable gesetzt ist", () => {
+    expect(oeffentlichStufe(seiten, false)).toBe("aus");
+    expect(oeffentlichStufe(demo, false)).toBe("aus");
+    expect(oeffentlichFrei("/", seiten, false)).toBe(false);
+    expect(darfInSuchmaschinen("/", demo, false)).toBe(false);
+  });
+  it("ohne die Variable bleibt alles verschlossen", () => {
+    for (const p of ["/", "/ratgeber", "/rechner/zuzahlung-2027", "/demo", "/api/leads"]) expect(oeffentlichFrei(p, aus, true)).toBe(false);
+  });
+  it("öffnet nur Informationsseiten und ihre Formulare", () => {
+    for (const p of ["/", "/fachgebiete/hausarzt", "/ratgeber/igel-vereinbarung", "/rechner", "/rechner/goae-rechnung", "/leistungen/abc", "/hilfe", "/avv", "/neu", "/sitemap.xml", "/api/leads", "/api/support", "/t/abcdefgh1234", "/api/t/abcdefgh1234"])
+      expect(oeffentlichFrei(p, seiten, true), p).toBe(true);
+  });
+  it("hält App, Anmeldung, Registrierung, Gastzugang, Modelle und Schnittstellen verschlossen", () => {
+    for (const p of ["/dashboard", "/patients/abc", "/login", "/register", "/api/register", "/demo", "/api/demo", "/api/patients", "/api/proposals", "/settings", "/anatomie", "/anatomie/gebiss", "/empfang", "/uebergabe", "/api/suche", "/ratgeberx", "/t/kurz"])
+      expect(oeffentlichFrei(p, seiten, true), p).toBe(false);
+  });
+  it("öffnet den Gastzugang nur in der Stufe „demo“", () => {
+    expect(oeffentlichFrei("/demo", demo, true)).toBe(true);
+    expect(oeffentlichFrei("/api/demo", demo, true)).toBe(true);
+    expect(oeffentlichFrei("/dashboard", demo, true)).toBe(false);
+    expect(oeffentlichFrei("/login", demo, true)).toBe(false);
+  });
+  it("lässt nur Informationsseiten in Suchmaschinen, nie Gastzugang, Terminseiten oder Formular-Schnittstellen", () => {
+    expect(darfInSuchmaschinen("/", seiten, true)).toBe(true);
+    expect(darfInSuchmaschinen("/ratgeber/zuzahlungen-2027", demo, true)).toBe(true);
+    for (const p of ["/demo", "/t/abcdefgh1234", "/api/leads", "/login", "/dashboard", "/anatomie"]) expect(darfInSuchmaschinen(p, demo, true), p).toBe(false);
+    expect(darfInSuchmaschinen("/", aus, true)).toBe(false);
+    expect(istInfoSeite("/impressum")).toBe(true);
+  });
+});

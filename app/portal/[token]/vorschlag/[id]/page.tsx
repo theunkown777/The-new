@@ -1,3 +1,4 @@
+import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -56,6 +57,7 @@ export default async function PortalProposal(props: { params: Promise<{ token: s
   const decided = proposal.status === "ANGENOMMEN" || proposal.status === "ABGELEHNT";
 
   return (
+    <>
     <PatientProposalView
       token={params.token}
       postUrl={`/api/portal/${params.token}/vorschlag/${proposal.id}`}
@@ -83,5 +85,7 @@ export default async function PortalProposal(props: { params: Promise<{ token: s
         fragen: vergleichsFragen(dental),
       }}
     />
+    <PraxisFussLaden patientId={patient.id} className="mx-auto max-w-xl px-4 pb-10 pt-2" />
+    </>
   );
 }

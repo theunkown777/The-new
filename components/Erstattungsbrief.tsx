@@ -39,13 +39,23 @@ export function Erstattungsbrief({ invoiceId, vorgaben, className }: { invoiceId
   const box = useRef<HTMLDivElement>(null);
   const knopf = useRef<HTMLButtonElement>(null);
   const erstes = useRef<HTMLSelectElement>(null);
+  const senden = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!offen) return;
     const alt = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     erstes.current?.focus();
+    // Esc schließt auch dann, wenn der Fokus nicht (mehr) im Dialog liegt – z. B. nachdem der
+    // Knopf „PDF erstellen“ während des Erstellens gesperrt war und der Browser den Fokus verworfen hat.
+    const esc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      e.preventDefault();
+      schliessenRef.current();
+    };
+    document.addEventListener("keydown", esc);
     return () => {
+      document.removeEventListener("keydown", esc);
       document.body.style.overflow = alt;
     };
   }, [offen]);
@@ -56,6 +66,9 @@ export function Erstattungsbrief({ invoiceId, vorgaben, className }: { invoiceId
     setFertig(false);
     window.setTimeout(() => knopf.current?.focus(), 0);
   }
+
+  const schliessenRef = useRef(schliessen);
+  schliessenRef.current = schliessen;
 
   function taste(e: React.KeyboardEvent) {
     if (e.key === "Escape") {
@@ -122,6 +135,8 @@ export function Erstattungsbrief({ invoiceId, vorgaben, className }: { invoiceId
       setFehler("Keine Verbindung. Bitte erneut versuchen.");
     }
     setLaeuft(false);
+    // Der gesperrte Knopf hat den Fokus verloren: zurück in den Dialog, damit Tab und Esc weiter dort gelten.
+    window.setTimeout(() => senden.current?.focus(), 0);
   }
 
   const info = GEBUEHRENORDNUNGEN[go];
@@ -254,7 +269,7 @@ export function Erstattungsbrief({ invoiceId, vorgaben, className }: { invoiceId
                 {fehler && <p className="text-sm text-red-700" role="alert" data-testid="erstattungsbrief-fehler">{fehler}</p>}
                 {fertig && <p className="text-sm text-salbei-800" role="status" data-testid="erstattungsbrief-fertig">Das PDF wurde heruntergeladen. Bitte lesen Sie den Brief durch, bevor Sie ihn mitgeben.</p>}
                 <div className="flex flex-wrap items-center gap-3">
-                  <button type="submit" className="btn btn-primary" disabled={laeuft} data-testid="erstattungsbrief-erstellen">{laeuft ? "Erstellt …" : "PDF erstellen und herunterladen"}</button>
+                  <button ref={senden} type="submit" className="btn btn-primary" disabled={laeuft} data-testid="erstattungsbrief-erstellen">{laeuft ? "Erstellt …" : "PDF erstellen und herunterladen"}</button>
                   <span className="text-xs text-slate-500">{gewaehlt.length} Posten im Brief · nichts wird gespeichert oder verschickt</span>
                 </div>
               </div>

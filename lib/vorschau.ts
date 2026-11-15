@@ -1,3 +1,4 @@
+import { impressumVollstaendig } from "@/lib/betreiber";
 // Vorschau-Schloss für die eigene Domain, solange Sorrida noch nicht öffentlich ist.
 // Auf den Hosts in VORSCHAU_HOSTS (z. B. "sorrida.de,www.sorrida.de") sehen Besucher nur die
 // Seite „Demnächst“ mit Anmeldefeld. Wer VORSCHAU_BENUTZER und VORSCHAU_PASSWORT kennt,
@@ -97,6 +98,47 @@ const PATIENTENLINK = /^\/(api\/)?(p|portal|a)\/[^/]{16,}(\/|$)/;
 // Pflichtangaben: Die Demnächst-Seite ist schon ein geschäftlicher Auftritt. Impressum (§ 5 DDG), Datenschutzerklärung
 // (Art. 13 DSGVO) und die Lizenzangaben müssen deshalb auch ohne Zugang erreichbar sein.
 const PFLICHTSEITEN = ["/impressum", "/datenschutz", "/lizenzen"];
+/**
+ * Stufe „öffentlich, aber geschützt“ (Variable VORSCHAU_OEFFENTLICH): Die Informationsseiten der Website sind
+ * ohne Zugang erreichbar und dürfen in Suchmaschinen stehen. App, Anmeldung, Registrierung und (ohne den Wert
+ * „demo“) auch der Gastzugang bleiben hinter dem Zugang für Pilotpraxen und Partner; Patientenlinks bleiben geheim
+ * und für Suchmaschinen gesperrt.
+ *   leer        → alles hinter dem Zugang (nur „Demnächst“)
+ *   "1"         → Informationsseiten öffentlich, Gastzugang verschlossen
+ *   "demo"      → zusätzlich der Gastzugang (/demo) öffentlich, aber nicht in Suchmaschinen
+ */
+export type OeffentlichStufe = "aus" | "seiten" | "demo";
+export function oeffentlichStufe(env: Record<string, string | undefined> = process.env, impressumOk: boolean = impressumVollstaendig()): OeffentlichStufe {
+  // Sicherung: Ohne vollständiges Impressum (zweiter Kontaktweg neben der E-Mail, § 5 DDG) wird nichts öffentlich,
+  // auch wenn die Variable gesetzt ist. Der Statusbericht nennt den Grund.
+  if (!impressumOk) return "aus";
+  const v = (env.VORSCHAU_OEFFENTLICH ?? "").trim().toLowerCase();
+  return v === "demo" ? "demo" : v === "1" || v === "ja" || v === "true" ? "seiten" : "aus";
+}
+
+/** Informationsseiten: dürfen in Suchmaschinen stehen. Keine App, keine Patientendaten, keine Anmeldung. */
+const INFO_GENAU = ["/", "/ratgeber", "/rechner", "/leistungen", "/hilfe", "/avv", "/vorschau", "/neu", "/zahnmedizin", "/fachgebiete", "/sitemap.xml"];
+const INFO_UNTER = ["/ratgeber/", "/rechner/", "/leistungen/", "/fachgebiete/"];
+export function istInfoSeite(pfad: string): boolean {
+  return INFO_GENAU.includes(pfad) || PFLICHTSEITEN.includes(pfad) || INFO_UNTER.some((p) => pfad.startsWith(p));
+}
+/** Was die Informationsseiten zum Arbeiten brauchen: Anfrage- und Hilfeformular, Terminbuchung der Praxen für neue Patienten. */
+const INFO_DIENSTE = ["/api/leads", "/api/support"];
+const TERMINSEITE = /^\/(api\/)?t\/[^/]{8,}(\/|$)/;
+const DEMO_PFADE = ["/demo", "/api/demo"];
+
+/** In der öffentlichen Stufe ohne Zugang erreichbar. */
+export function oeffentlichFrei(pfad: string, env: Record<string, string | undefined> = process.env, impressumOk: boolean = impressumVollstaendig()): boolean {
+  const stufe = oeffentlichStufe(env, impressumOk);
+  if (stufe === "aus") return false;
+  if (istInfoSeite(pfad) || INFO_DIENSTE.includes(pfad) || TERMINSEITE.test(pfad)) return true;
+  return stufe === "demo" && DEMO_PFADE.some((p) => pfad === p || pfad.startsWith(p + "/"));
+}
+/** Darf diese Seite in Suchmaschinen stehen? Nur Informationsseiten, und nur in der öffentlichen Stufe. */
+export function darfInSuchmaschinen(pfad: string, env: Record<string, string | undefined> = process.env, impressumOk: boolean = impressumVollstaendig()): boolean {
+  return oeffentlichStufe(env, impressumOk) !== "aus" && istInfoSeite(pfad);
+}
+
 export function freiOhneZugang(pfad: string): boolean {
   return EIGENE_ABSICHERUNG.some((p) => pfad.startsWith(p)) || PATIENTENLINK.test(pfad) || PFLICHTSEITEN.includes(pfad) || pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
 }

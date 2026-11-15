@@ -56,7 +56,9 @@ export default async function LeistungPage(props: { params: Promise<{ id: string
           {l.hinweis && <p className="mt-4 rounded-lg bg-salbei-50 px-3 py-2 text-sm text-salbei-800">Hinweis: {l.hinweis}</p>}
           {l.synonyme.length > 0 && <p className="mt-4 text-sm text-slate-500">Auch gesucht als: {l.synonyme.join(", ")}</p>}
           <p className="mt-6 text-xs text-slate-500">
-            Allgemeine Information, ersetzt keine Beratung. Ob und wie behandelt wird und was es kostet, klärt Ihre Praxis mit Ihnen.
+            Allgemeine Information, ersetzt keine Beratung. Ob und wie behandelt wird und was es kostet, klärt Ihre Praxis mit Ihnen. Sorrida
+            behandelt nicht und vermittelt keine Behandlungen. Die Texte beschreiben Leistungen allgemein und versprechen keinen
+            Behandlungserfolg.
           </p>
         </div>
         <aside className="space-y-4">

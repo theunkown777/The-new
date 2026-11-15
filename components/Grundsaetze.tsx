@@ -7,7 +7,7 @@ const SAETZE: { titel: string; text: string; bild?: "sockel" | "nutzen" | "weg" 
   { titel: "Kasse zuerst", text: "Jeder Betrag baut auf dem Kassenanteil auf: erst was die Kasse zahlt, dann der eigene Anteil. Nie umgekehrt.", bild: "sockel" },
   { titel: "Ehrlich zum Nutzen", text: "Wo ein Nutzen nicht belegt ist, steht das beim Angebot. Wer vertraut, kommt wieder.", bild: "nutzen" },
   { titel: "Ein Weg statt Listen", text: "Gespräch, Vorschlag, Entscheidung, Vereinbart, Bezahlt. Praxis und Patient sehen denselben Weg und den nächsten Schritt.", bild: "weg" },
-  { titel: "Das Geld bleibt in der Praxis", text: "Patienten zahlen per GiroCode direkt aufs Praxiskonto. Kein Abschlag, keine Finanzierungsmarge dazwischen." },
+  { titel: "Das Geld bleibt in der Praxis", text: "Bei Zahlung per GiroCode geht der volle Betrag direkt aufs Praxiskonto. Sorrida behält nichts ein und finanziert nichts vor. Für Kartenzahlung berechnet der Zahlungsdienst der Praxis seine eigenen Gebühren." },
   { titel: "Ein Preis, keine Zähler", text: "Kein Kontingent, das abläuft, keine Einheiten zum Nachkaufen. Was im Paket steht, ist drin." },
 ];
 

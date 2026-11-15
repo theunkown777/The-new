@@ -1,12 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { katalogEintrag } from "@/lib/amtlich/katalog";
+import { GAST_GESPERRT } from "@/lib/amtlich/gliederung";
 
 /**
  * Amtliche Leistungen in den Abrechnungskatalog der Praxis übernehmen (falls noch nicht da)
  * und die Katalogpositionen zurückgeben, in der Reihenfolge der übergebenen ids.
  */
 export async function uebernehme(practiceId: string, ids: string[]) {
-  const amtlich = await prisma.amtlicheLeistung.findMany({ where: { id: { in: ids } } });
+  // Gastzugang: Einträge aus gesperrten Verzeichnissen (EBM der KBV) lassen sich auch über ihre Kennung nicht holen.
+  const gast = !!(await prisma.practice.findUnique({ where: { id: practiceId }, select: { isDemo: true } }))?.isDemo;
+  const amtlich = await prisma.amtlicheLeistung.findMany({ where: { id: { in: ids }, ...(gast ? { system: { notIn: [...GAST_GESPERRT] } } : {}) } });
   const eintraege = amtlich.map((a) => ({ id: a.id, e: katalogEintrag(a) }));
   const schluessel = (s: string, c: string) => `${s}|${c}`;
   const vorhanden = eintraege.length

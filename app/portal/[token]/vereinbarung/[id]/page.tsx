@@ -1,3 +1,4 @@
+import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -63,6 +64,7 @@ export default async function Vereinbarung(props: { params: Promise<{ token: str
             <SignAgreement postUrl={`/api/portal/${params.token}/vereinbarung/${proposal.id}`} backHref={back} text={text} defaultName={`${patient.firstName} ${patient.lastName}`} pruefung={pruefung} />
           )}
         </div>
+        <PraxisFussLaden patientId={patient.id} className="mt-8" />
       </div>
     </main>
   );

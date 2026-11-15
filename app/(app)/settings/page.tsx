@@ -16,6 +16,11 @@ const CARDS: { href: string; title: string; description: string; nur?: "zahn" }[
     description: "Fachgebiet der Praxis wählen, Preise und eigene Selbstzahlerleistungen pflegen.",
   },
   {
+    href: "/settings/praxis",
+    title: "Angaben der Praxis",
+    description: "Anschrift, Telefon, Kammer, Impressum und Datenschutzhinweise. Ihre Patienten sehen sie im Portal und unter jeder E-Mail.",
+  },
+  {
     href: "/zahlungen#konto",
     title: "Bankverbindung",
     description: "IBAN für den GiroCode auf dem Behandlungsweg Ihrer Patienten. Zahlungen gehen direkt auf Ihr Praxiskonto.",

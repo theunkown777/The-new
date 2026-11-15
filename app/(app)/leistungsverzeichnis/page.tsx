@@ -10,7 +10,7 @@ import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 import { LeistungenImport } from "@/components/LeistungenImport";
 import { LeistungSchnell } from "@/components/LeistungSchnell";
 import { KvBezirkWahl } from "@/components/KvBezirkWahl";
-import { fachFilter, sortiereSysteme } from "@/lib/amtlich/gliederung";
+import { alleFilter, fachFilter, GAST_HINWEIS, sortiereSysteme } from "@/lib/amtlich/gliederung";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Leistungsverzeichnis" };
@@ -31,9 +31,12 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
   const q = (searchParams.q ?? "").trim().slice(0, 80);
   const seite = Math.max(1, Number(searchParams.seite) || 1);
 
-  const kvBezirk = (await prisma.practice.findUnique({ where: { id: practiceId }, select: { kvBezirk: true } }))?.kvBezirk ?? null;
+  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { kvBezirk: true, isDemo: true } });
+  const kvBezirk = praxis?.kvBezirk ?? null;
+  // Gastzugang: ohne den EBM der KBV (Lizenz: Weitergabe nur an Kunden), siehe lib/amtlich/gliederung.ts
+  const gast = !!praxis?.isDemo;
   // Eigenes Fach: Verzeichnisse in der Reihenfolge, die für diese Praxisart zählt; regionale Ziffern nur aus dem eigenen KV-Bezirk
-  const basis: Prisma.AmtlicheLeistungWhereInput = alle ? {} : fachFilter(fach, kvBezirk);
+  const basis: Prisma.AmtlicheLeistungWhereInput = alle ? alleFilter(gast) : fachFilter(fach, kvBezirk, gast);
   const proSystem = sortiereSysteme(fach, await prisma.amtlicheLeistung.groupBy({ by: ["system"], where: basis, _count: true }));
   const system = searchParams.system && proSystem.some((s) => s.system === searchParams.system) ? searchParams.system : null;
   const kapitelListe = system
@@ -78,6 +81,11 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
             {alle ? "Nur mein Fach anzeigen" : "Alle Fächer anzeigen"}
           </Link>
         </p>
+        {gast && (
+          <p className="mt-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-900" data-testid="ebm-gast-hinweis">
+            {GAST_HINWEIS}
+          </p>
+        )}
         {fach !== "zahn" && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
       </div>
 

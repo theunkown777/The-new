@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { mailVersandAktiv, sendEmail } from "@/lib/email";
+import { eigenerAbsender, mailVersandAktiv, sendEmail } from "@/lib/email";
+import { leseStammdaten, praxisZeile } from "@/lib/praxisStammdaten";
 import { BETREFF, darfMailen, mailHtml } from "@/lib/kontakt";
 import { bestaetigungText, erinnerungText } from "@/lib/termine";
 import { PORTAL_TTL_MS, nextReminderLevel, reminderText } from "@/lib/invoices";
@@ -29,8 +30,12 @@ export async function POST(req: Request) {
   const key = `nachricht:${practiceId}`;
   if (await isRateLimited(key, 300, 3600e3)) return NextResponse.json({ error: "Zu viele Nachrichten in kurzer Zeit." }, { status: 429 });
 
-  const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, isDemo: true, specialty: true } });
+  const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, isDemo: true, specialty: true, stammdaten: true } });
   if (practice?.isDemo) return NextResponse.json({ error: "Im Gastzugang werden keine Nachrichten verschickt." }, { status: 403 });
+  // An Patienten nie mit der Testadresse des E-Mail-Dienstes: Ohne eigene Absenderadresse wird nichts verschickt.
+  if (mailVersandAktiv() && !eigenerAbsender()) {
+    return NextResponse.json({ ok: false, error: "E-Mails an Patienten sind noch nicht eingerichtet: Es fehlt die eigene Absenderadresse. Es wurde nichts verschickt; bitte den Text kopieren." }, { status: 503 });
+  }
   const praxis = practice?.name ?? "Ihrer Praxis";
   const testmodus = () => NextResponse.json({ ok: false, testMode: true, error: "Mailversand ist noch nicht eingerichtet (Testmodus). Es wurde nichts verschickt; bitte den Text kopieren." }, { status: 503 });
   const now = new Date();
@@ -77,7 +82,7 @@ export async function POST(req: Request) {
   await recordAttempt(key, 3600e3);
   let ergebnis: { testMode: boolean };
   try {
-    ergebnis = await sendEmail({ to: empfaenger.email!, subject: BETREFF[art](praxis), html: mailHtml({ text, practiceName: praxis }) });
+    ergebnis = await sendEmail({ to: empfaenger.email!, subject: BETREFF[art](praxis), html: mailHtml({ text, practiceName: praxis, absender: praxisZeile(praxis, leseStammdaten(practice?.stammdaten)) }) });
   } catch (e) {
     console.error("Versand fehlgeschlagen", e);
     return NextResponse.json({ error: "Die E-Mail konnte nicht verschickt werden." }, { status: 502 });

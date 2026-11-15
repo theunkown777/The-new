@@ -1,3 +1,4 @@
+import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { mandatsReferenz, mandatsText } from "@/lib/sepa";
@@ -336,6 +337,8 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
           <p>{t.privacy}</p>
           <p data-testid="startbildschirm">{t.homescreen}</p>
           <p>{t.valid(date(patient.portalExpiresAt))}</p>
+          {/* Anbieter gegenüber dem Patienten ist die Praxis: ihre Angaben und der Hinweis auf Sorrida als technischen Dienst */}
+          <PraxisFussLaden patientId={patient.id} className="!mt-4 border-t border-slate-200 pt-4" />
         </footer>
       </div>
     </main>

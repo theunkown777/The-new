@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fachFilter, kvFaecher, KV_BEZIRKE, reihenfolge, sortiereSysteme } from "./gliederung";
+import { alleFilter, fachFilter, GAST_GESPERRT, imGastGesperrt, kvFaecher, KV_BEZIRKE, reihenfolge, sortiereSysteme } from "./gliederung";
 
 describe("Ordnung der Leistungen je Fach", () => {
   it("wichtigstes Verzeichnis zuerst", () => {
@@ -22,5 +22,18 @@ describe("Ordnung der Leistungen je Fach", () => {
     expect(KV_BEZIRKE).toHaveLength(17);
     expect(fachFilter("hausarzt", "NO")).toEqual({ faecher: { has: "hausarzt" }, NOT: { system: "KV_REGIONAL", NOT: { kapitel: "KV Nordrhein" } } });
     expect(fachFilter("hausarzt", null)).toEqual({ faecher: { has: "hausarzt" }, NOT: { system: "KV_REGIONAL" } });
+  });
+
+  it("Gastzugang: kein EBM der KBV, weder im eigenen Fach noch unter „alle Fächer“", () => {
+    expect(GAST_GESPERRT).toContain("EBM");
+    expect(imGastGesperrt("EBM")).toBe(true);
+    expect(imGastGesperrt("GOAE")).toBe(false);
+    // Die Sperre steht in NOT: Ein zusätzliches `system: "EBM"` aus der Adresszeile hebt sie nicht auf.
+    expect(fachFilter("hausarzt", null, true)).toEqual({ faecher: { has: "hausarzt" }, NOT: [{ system: "KV_REGIONAL" }, { system: { in: ["EBM"] } }] });
+    expect({ ...fachFilter("hausarzt", "NO", true), system: "EBM" }.NOT).toEqual([{ system: "KV_REGIONAL", NOT: { kapitel: "KV Nordrhein" } }, { system: { in: ["EBM"] } }]);
+    expect(alleFilter(true)).toEqual({ NOT: [{ system: { in: ["EBM"] } }] });
+    // Echte Praxen: unverändert
+    expect(alleFilter(false)).toEqual({});
+    expect(fachFilter("hausarzt", null, false)).toEqual(fachFilter("hausarzt", null));
   });
 });

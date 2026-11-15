@@ -67,6 +67,8 @@ export default async function LeistungenPage(props: { searchParams: Promise<SP> 
         <p className="mt-3 text-slate-600">
           {KATALOG.meta.anzahl} Behandlungen und Untersuchungen in {BEREICHE.length} Bereichen, von der Hausarztmedizin über Fachärzte, Zahnmedizin und Therapie bis zur Pflege, in
           einfachen Worten: was dahinter steckt, wer sie macht und wer sie bezahlt. Kosten und Kassenleistung richten sich nach dem Einzelfall.
+          Sorrida behandelt nicht und vermittelt keine Behandlungen. Die Texte beschreiben Leistungen allgemein und versprechen keinen
+          Behandlungserfolg.
         </p>
       </header>
 
@@ -75,7 +77,7 @@ export default async function LeistungenPage(props: { searchParams: Promise<SP> 
           <input
             name="q"
             defaultValue={q}
-            placeholder="Was suchen Sie? z. B. dritte Zähne, Kreuzbandriss, Hollywood-Lächeln"
+            placeholder="Was suchen Sie? z. B. dritte Zähne, Kreuzbandriss, Zahnfarbe"
             aria-label="Leistung suchen"
             className="input flex-1 py-2.5 text-base"
           />

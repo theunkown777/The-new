@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ratgeber, ratgeberGruppe, weitereRatgeber, type RatgeberSlug } from "@/lib/ratgeber";
 import { JournalRahmen } from "@/components/start/JournalKopf";
+import { BETREIBER } from "@/lib/betreiber";
+import { PILOT_ZIEL } from "@/lib/pricing";
 
 // Rahmen für Ratgeber-Artikel: öffentlich, lesbar, mit strukturierten Daten
 // für Suchmaschinen und einem Hinweis auf die Demo am Ende. Abschluss-Kasten,
@@ -17,7 +19,9 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
     dateModified: a.updated,
     inLanguage: "de-DE",
     articleSection: g.titel,
-    publisher: { "@type": "Organization", name: "Sorrida" },
+    // Verantwortlich ist eine Person, keine Organisation (Impressum, lib/betreiber.ts).
+    author: { "@type": "Person", name: BETREIBER.name },
+    publisher: { "@type": "Person", name: BETREIBER.name },
   };
   return (
     <JournalRahmen>
@@ -45,9 +49,9 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
         <p className="j-text mt-3">{g.kasten}</p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link prefetch={false} href="/demo" className="j-knopf j-knopf-voll">
-            Sofort ausprobieren
+            Demo-Praxis öffnen
           </Link>
-          <Link prefetch={false} href="/hilfe" className="j-knopf j-knopf-linie">
+          <Link prefetch={false} href={PILOT_ZIEL} className="j-knopf j-knopf-linie">
             Pilotplatz anfragen
           </Link>
         </div>
@@ -66,7 +70,9 @@ export function ArticlePage({ slug, children }: { slug: RatgeberSlug; children: 
         </ul>
       </section>
       <p className="mt-10 text-xs text-tinte-2">
-        Allgemeine Information, keine Rechts- oder Abrechnungsberatung. Maßgeblich sind {g.massgeblich}.
+        Allgemeine Information nach bestem Wissen zum genannten Stand, ohne Gewähr für Vollständigkeit und Aktualität; keine Rechts-, Steuer-
+        oder Abrechnungsberatung im Einzelfall. Maßgeblich sind {g.massgeblich}. Verantwortlich: {BETREIBER.name}, siehe{" "}
+        <Link prefetch={false} href="/impressum" className="underline">Impressum</Link>.
       </p>
     </main>
     </JournalRahmen>

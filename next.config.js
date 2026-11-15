@@ -48,7 +48,8 @@ const nextConfig = {
     return [
       // Alle Seiten außer /t/…: Ein einmal gesetztes X-Frame-Options lässt sich je Pfad nicht wieder entfernen.
       { source: "/((?!t/).*)", headers: securityHeaders },
-      { source: "/t/:path*", headers: [...einbettbar, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      // :path+ (mindestens ein Teil): Für die nackte Adresse /t gilt die Regel darüber, sonst bekäme sie beide.
+      { source: "/t/:path+", headers: [...einbettbar, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
       // Portal- und Freigabe-Links enthalten das Zugangstoken im Pfad.
       { source: "/(portal|p|a)/:path*", headers: [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
     ];

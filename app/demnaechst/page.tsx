@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { VorschauLogin } from "@/components/VorschauLogin";
+import { oeffentlichStufe } from "@/lib/vorschau";
 
 export const metadata: Metadata = {
   title: "Sorrida – demnächst",
@@ -13,6 +14,8 @@ export default async function Demnaechst(props: { searchParams: Promise<{ weiter
   const searchParams = await props.searchParams;
   const weiter = searchParams.weiter && searchParams.weiter.startsWith("/") && !searchParams.weiter.startsWith("//") ? searchParams.weiter : "/";
   const zugangAktiv = !!(process.env.VORSCHAU_BENUTZER && process.env.VORSCHAU_PASSWORT);
+  // Öffentliche Stufe: Die Website ist offen; hier landet nur, wer App, Anmeldung oder Demo-Praxis aufruft.
+  const offen = oeffentlichStufe() !== "aus";
   return (
     <main
       className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 py-12 text-center text-white"
@@ -30,8 +33,22 @@ export default async function Demnaechst(props: { searchParams: Promise<{ weiter
             <p className="mt-1 text-sm text-brand-300">Software für Kostenaufklärung und Patientenkommunikation in Arzt-, Zahnarzt- und Therapiepraxen</p>
           </div>
         </div>
-        <p className="mt-10 font-display text-3xl sm:text-4xl">Wird demnächst veröffentlicht.</p>
-        <p className="mx-auto mt-3 max-w-md text-sm text-brand-100">Wir bereiten den Start mit unseren ersten Praxen vor. Bald finden Sie hier alles über Sorrida.</p>
+        {offen ? (
+          <>
+            <p className="mt-10 font-display text-3xl sm:text-4xl" data-testid="bereich-geschuetzt">Dieser Bereich ist für Pilotpraxen und Partner.</p>
+            <p className="mx-auto mt-3 max-w-md text-sm text-brand-100">
+              Anmeldung und Demo-Praxis öffnen wir zurzeit auf Anfrage.{" "}
+              <Link href="/hilfe#pilot" className="underline underline-offset-4 hover:text-white">Pilotplatz anfragen</Link>
+              {" · "}
+              <Link href="/" className="underline underline-offset-4 hover:text-white">Zur Website</Link>
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="mt-10 font-display text-3xl sm:text-4xl">Wird demnächst veröffentlicht.</p>
+            <p className="mx-auto mt-3 max-w-md text-sm text-brand-100">Wir bereiten den Start mit unseren ersten Praxen vor. Bald finden Sie hier alles über Sorrida.</p>
+          </>
+        )}
         {zugangAktiv && <VorschauLogin weiter={weiter} />}
         <p className="mt-10 text-sm text-brand-100" data-testid="demnaechst-rechtliches">
           <Link href="/impressum" className="underline underline-offset-4 hover:text-white">Impressum</Link>

@@ -94,11 +94,32 @@ export function kvFaecher(text: string, abschnitt: string | null, standard: stri
   return aus.size ? Array.from(aus) : standard;
 }
 
-/** Filter für amtliche Leistungen einer Praxis: eigenes Fach; regionale Ziffern nur aus dem eigenen KV-Bezirk. */
-export function fachFilter(fach: string, kvBezirk: string | null) {
+/**
+ * Verzeichnisse, die der Gastzugang (Demo-Praxis) nicht zeigt. Der EBM stammt aus der Stammdatei der KBV; deren
+ * Lizenz erlaubt die Weitergabe nur an Kunden des Softwareherstellers. Anonyme Gäste sind keine Kunden.
+ */
+export const GAST_GESPERRT: readonly string[] = ["EBM"];
+export const GAST_HINWEIS = "Der EBM der KBV steht nur registrierten Praxen zur Verfügung. Im Gastzugang sehen Sie die übrigen Verzeichnisse.";
+export const imGastGesperrt = (system: string) => GAST_GESPERRT.includes(system);
+
+/** Bedingung, die im Gastzugang gesperrte Verzeichnisse ausschließt (für NOT in einer Abfrage). */
+const gastSperre = () => ({ system: { in: [...GAST_GESPERRT] } });
+
+/**
+ * Filter für amtliche Leistungen einer Praxis: eigenes Fach; regionale Ziffern nur aus dem eigenen KV-Bezirk.
+ * `gast`: Demo-Praxis, dann ohne die gesperrten Verzeichnisse. Die Sperre steht in NOT, damit ein späteres
+ * `system: …` in derselben Abfrage sie nicht überschreibt.
+ */
+export function fachFilter(fach: string, kvBezirk: string | null, gast = false) {
   const kv = kvName(kvBezirk);
+  const regional = kv ? { system: "KV_REGIONAL", NOT: { kapitel: kv } } : { system: "KV_REGIONAL" };
   return {
     faecher: { has: fach },
-    NOT: kv ? { system: "KV_REGIONAL", NOT: { kapitel: kv } } : { system: "KV_REGIONAL" },
+    NOT: gast ? [regional, gastSperre()] : regional,
   };
+}
+
+/** Filter ohne Fachbezug („Alle Fächer anzeigen“): für echte Praxen leer, im Gastzugang ohne die gesperrten Verzeichnisse. */
+export function alleFilter(gast = false) {
+  return gast ? { NOT: [gastSperre()] } : {};
 }

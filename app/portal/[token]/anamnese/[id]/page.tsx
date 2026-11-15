@@ -1,3 +1,4 @@
+import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { AnamnesisForm } from "@/components/AnamnesisForm";
@@ -29,6 +30,7 @@ export default async function PortalAnamnesis(props: { params: Promise<{ token: 
   }
   if (!form.viewedAt) await prisma.anamnesisForm.update({ where: { id: form.id }, data: { viewedAt: new Date() } });
   return (
+    <>
     <AnamnesisForm
       token={params.token}
       postUrl={`/api/portal/${params.token}/anamnese/${form.id}`}
@@ -37,5 +39,7 @@ export default async function PortalAnamnesis(props: { params: Promise<{ token: 
       firstName={patient.firstName}
       dental={isDental(form.practice.specialty)}
     />
+    <PraxisFussLaden patientId={patient.id} className="mx-auto max-w-xl px-4 pb-10 pt-2" />
+    </>
   );
 }

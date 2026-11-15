@@ -15,7 +15,7 @@ export const DENTAL_SHOWCASE: Specialty = {
     headline: "Nach dem Gespräch ein Klick: Bericht, Vorschlag mit Eigenanteil, Patienten-Link.",
     problem:
       "Mehrkostenvereinbarung, Festzuschuss und Heil- und Kostenplan sind für Patienten schwer zu verstehen. Gute Alternativen fallen im vollen Praxisalltag unter den Tisch, und die Rezeption erklärt dieselben Fragen jeden Tag aufs Neue.",
-    beispiel: "Befund am Zahnschema wählen: Sorrida zeigt die Kassenleistung zuerst, sinnvolle Alternativen mit Eigenanteil und Festzuschuss.",
+    beispiel: "Befund am Zahnschema wählen: Sorrida zeigt die Kassenleistung zuerst und daneben die weiteren Optionen mit Eigenanteil und Festzuschuss.",
   },
   anlaesse: [
     {

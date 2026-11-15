@@ -270,3 +270,65 @@ export async function buildErstattungsbriefPdf(b: Brief): Promise<Buffer> {
     stream.on("error", reject);
   });
 }
+
+/**
+ * Kostenübersicht für die Patientin oder den Patienten (lib/kostenuebersicht.ts): dieselben Möglichkeiten und Beträge
+ * wie in der Patientenansicht, zum Speichern und Einreichen. Ohne Geburtsdatum, Versichertennummer und Praxiszahlen.
+ */
+export async function buildKostenuebersichtPdf(k: import("@/lib/kostenuebersicht").Kostenuebersicht): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", margin: 56, info: { Title: "Kostenübersicht zum Behandlungsvorschlag", Author: k.praxis } });
+  const stream = new PassThrough();
+  const chunks: Buffer[] = [];
+  doc.pipe(stream);
+  stream.on("data", (chunk) => chunks.push(chunk as Buffer));
+  const links = doc.page.margins.left;
+  const breite = doc.page.width - 112;
+  const platz = (hoehe: number) => {
+    if (doc.y + hoehe > doc.page.height - doc.page.margins.bottom) doc.addPage();
+  };
+
+  doc.fontSize(16).font("Helvetica-Bold").fillColor("#6b2a24").text(k.praxis, { width: breite });
+  if (k.praxisZeilen.length) doc.fontSize(9).font("Helvetica").fillColor("#555555").text(k.praxisZeilen.join(" · "), { width: breite });
+  doc.moveDown(0.5);
+  doc.fontSize(12).font("Helvetica").fillColor("#333333").text("Kostenübersicht zum Behandlungsvorschlag (unverbindliche Schätzung)", { width: breite });
+  doc.moveDown(0.5);
+  doc.fillColor("#000000").fontSize(10);
+  doc.text(`Erstellt am: ${k.datum}`);
+  doc.text("Name der versicherten Person: ______________________________");
+  doc.moveDown(0.8);
+
+  for (const p of k.positionen) {
+    platz(60);
+    doc.font("Helvetica-Bold").fontSize(10.5).fillColor("#000000").text(`${p.wo}: ${p.titel}`, links, doc.y, { width: breite });
+    doc.font("Helvetica").fontSize(10);
+    for (const o of p.optionen) {
+      platz(34);
+      doc.font(o.markierung ? "Helvetica-Bold" : "Helvetica").text(`${o.name}${o.markierung ? `  (${o.markierung})` : ""}`, links + 12, doc.y, { width: breite - 12 });
+      doc.font("Helvetica").fillColor("#444444");
+      const teile = [o.art, o.gesamt ? `Gesamt ${o.gesamt}` : "", o.kasse, o.zusatz, `Eigenanteil ${o.eigen}`].filter(Boolean);
+      doc.text(teile.join("  ·  "), links + 12, doc.y, { width: breite - 12 });
+      doc.fillColor("#000000");
+      doc.moveDown(0.25);
+    }
+    if (p.abgewaehlt) doc.fillColor("#444444").text("Von Ihnen nicht gewünscht.", links + 12, doc.y, { width: breite - 12 }).fillColor("#000000");
+    doc.x = links;
+    doc.moveDown(0.5);
+  }
+
+  platz(70);
+  doc.moveDown(0.3);
+  doc.font("Helvetica-Bold").fontSize(11).text(`${k.summeText}: ${k.summe}`, links, doc.y, { width: breite });
+  doc.font("Helvetica").fontSize(10).text(`${k.kasseText}: ${k.kasseSumme}`, { width: breite });
+  doc.moveDown(1);
+  platz(80);
+  doc.fontSize(9).fillColor("#333333").text(k.hinweis, { width: breite, lineGap: 1.5 });
+  doc.moveDown(0.5);
+  doc.font("Helvetica-Bold").text(k.einreichen, { width: breite, lineGap: 1.5 });
+  doc.font("Helvetica").moveDown(0.8);
+  doc.fontSize(8).fillColor("#666666").text("Erstellt mit Sorrida aus dem Behandlungsvorschlag Ihrer Praxis. Dieses Blatt ist keine Rechnung und kein Heil- und Kostenplan.", { width: breite });
+  doc.end();
+  return await new Promise<Buffer>((resolve, reject) => {
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
+  });
+}

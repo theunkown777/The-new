@@ -8,6 +8,9 @@ import { datenbankMb } from "@/lib/amtlich/import";
 import { redisStatus } from "@/lib/rateLimit";
 import { databaseLocation } from "@/lib/hostingRegion";
 import { resolveDatabaseUrls } from "@/lib/databaseUrl";
+import { impressumVollstaendig } from "@/lib/betreiber";
+import { oeffentlichStufe } from "@/lib/vorschau";
+import { registrierungOffen } from "@/lib/registrierung";
 
 export const dynamic = "force-dynamic";
 
@@ -123,6 +126,19 @@ export async function GET(req: Request) {
     ok: true,
     info: process.env.VERCEL_REGION ? `Vercel ${process.env.VERCEL_REGION}${process.env.VERCEL_REGION === "fra1" ? " (Frankfurt)" : " – erwartet fra1, vercel.json prüfen"}` : "nicht auf Vercel",
   };
+
+  // Veröffentlichung: Stufe der Sichtbarkeit und die Sicherung „ohne vollständiges Impressum nicht öffentlich“.
+  {
+    const gewollt = (process.env.VORSCHAU_OEFFENTLICH ?? "").trim() !== "";
+    const impressumOk = impressumVollstaendig();
+    const stufe = oeffentlichStufe();
+    const reg = registrierungOffen() ? "offen" : "geschlossen";
+    checks["Veröffentlichung"] = !process.env.VORSCHAU_HOSTS
+      ? { ok: impressumOk, info: impressumOk ? `keine Vorschau-Sperre: alles öffentlich; Registrierung ${reg}` : "keine Vorschau-Sperre, aber das Impressum ist unvollständig (Telefonnummer in lib/betreiber.ts fehlt)" }
+      : gewollt && !impressumOk
+        ? { ok: false, info: "VORSCHAU_OEFFENTLICH ist gesetzt, aber das Impressum ist unvollständig (Telefonnummer fehlt): Die Seite bleibt deshalb verschlossen" }
+        : { ok: true, info: `${stufe === "aus" ? "verschlossen (nur „Demnächst“)" : stufe === "seiten" ? "Informationsseiten öffentlich, App und Demo verschlossen" : "Informationsseiten und Demo öffentlich, App verschlossen"}; Impressum ${impressumOk ? "vollständig" : "unvollständig (Telefonnummer fehlt)"}; Registrierung ${reg}` };
+  }
 
   const ok = Object.values(checks).every((c) => c.ok);
   const details = await darfDetailsSehen(req);

@@ -7,7 +7,7 @@ import { nachfassText } from "@/lib/nachfassen";
 import { waLink } from "@/lib/whatsapp";
 
 /** Knöpfe je Zeile der Nachfass-Liste: erinnern (Link + Text, auf Wunsch per WhatsApp) und „HKP eingereicht“. */
-export function NachfassAktionen({ id, patientId, firstName, practiceName, zahnersatz, hkp, hkpEingereicht, whatsappNummer }: {
+export function NachfassAktionen({ id, patientId, firstName, practiceName, zahnersatz, hkp, hkpEingereicht, whatsappNummer, einwilligung = false }: {
   id: string;
   patientId: string;
   firstName: string;
@@ -18,6 +18,8 @@ export function NachfassAktionen({ id, patientId, firstName, practiceName, zahne
   hkpEingereicht: boolean;
   /** Nur gesetzt, wenn Mobilnummer und Einwilligung vorliegen. */
   whatsappNummer: string | null;
+  /** Hat der Patient eingewilligt, an offene Vorschläge erinnert zu werden? Ohne das: kein Hinweis auf 2027, kein Versand per WhatsApp. */
+  einwilligung?: boolean;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -49,14 +51,19 @@ export function NachfassAktionen({ id, patientId, firstName, practiceName, zahne
         copyLabel="Text kopieren"
         message={(u) => {
           if (u !== url) setTimeout(() => setUrl(u), 0);
-          return nachfassText({ firstName, practiceName, url: u, zahnersatz });
+          return nachfassText({ firstName, practiceName, url: u, zahnersatz, einwilligung });
         }}
         onCreated={() => melden("nachgefasst")}
       />
-      {url && whatsappNummer && (
-        <a className="btn-secondary !py-1 text-xs" href={waLink(whatsappNummer, nachfassText({ firstName, practiceName, url, zahnersatz }))} target="_blank" rel="noopener noreferrer">
+      {url && whatsappNummer && einwilligung && (
+        <a className="btn-secondary !py-1 text-xs" href={waLink(whatsappNummer, nachfassText({ firstName, practiceName, url, zahnersatz, einwilligung }))} target="_blank" rel="noopener noreferrer">
           In WhatsApp öffnen
         </a>
+      )}
+      {!einwilligung && (
+        <span className="max-w-[14rem] text-xs text-slate-500" data-testid="nachfass-ohne-einwilligung">
+          Keine Einwilligung in Erinnerungen dokumentiert. Bitte den Link persönlich mitgeben oder beim nächsten Termin ansprechen.
+        </span>
       )}
       {hkp && (
         <label className="flex items-center gap-2 text-xs text-slate-600">

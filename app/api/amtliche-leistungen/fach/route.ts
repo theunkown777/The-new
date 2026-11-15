@@ -15,9 +15,9 @@ export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const url = new URL(req.url);
-  const practice = await prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { kvBezirk: true } });
+  const practice = await prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { kvBezirk: true, isDemo: true } });
   const fach = await praxisFach(session.user.practiceId);
-  const basis: Prisma.AmtlicheLeistungWhereInput = fachFilter(fach, practice?.kvBezirk ?? null);
+  const basis: Prisma.AmtlicheLeistungWhereInput = fachFilter(fach, practice?.kvBezirk ?? null, !!practice?.isDemo); // Gastzugang: ohne EBM der KBV
   const system = url.searchParams.get("system");
   const kapitel = url.searchParams.get("kapitel");
   const q = (url.searchParams.get("q") ?? "").trim().slice(0, 80);

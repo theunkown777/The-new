@@ -65,9 +65,9 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
 /** Fußzeile: Wortmarke, drei Spalten Links, rechtlicher Hinweis. */
 export function JournalFuss() {
   const spalten: [string, [string, string][]][] = [
-    ["Sorrida", [["/#fach", "Fachgebiete"], ["/leistungen", "Leistungen A–Z"], ["/anatomie", "Modelle"], ["/#preise", "Preise"]]],
+    ["Sorrida", [["/#fach", "Fachgebiete"], ["/leistungen", "Leistungen A–Z"], ["/#preise", "Preise"]]],
     ["Ausprobieren", [["/demo", "Demo-Praxis öffnen"], ["/vorschau", "Vorschau"], ["/hilfe", "Hilfe und Kontakt"], ["/ratgeber", "Ratgeber"], ["/rechner", "Rechner"]]],
-    ["Rechtliches", [["/impressum", "Impressum"], ["/datenschutz", "Datenschutz"], ["/avv", "AVV-Muster"]]],
+    ["Rechtliches", [["/impressum", "Impressum"], ["/datenschutz", "Datenschutz"], ["/avv", "AVV-Muster"], ["/lizenzen", "Lizenzen und Quellen"], ["/impressum#zweck", "Wofür Sorrida bestimmt ist"]]],
   ];
   return (
     <footer className="border-t border-linie">

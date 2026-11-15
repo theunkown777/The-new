@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { DemoPatientButton } from "@/components/DemoPatientButton";
 import { DemoRoleSwitch } from "@/components/DemoRoleSwitch";
+import { registrierungOffen } from "@/lib/registrierung";
 import { rollenLabel } from "@/lib/rollen";
 
 // Hinweis im Gastzugang: Beispieldaten, automatische Löschung, Weg zur eigenen Praxis.
 export function DemoBanner({ expiresAt, role, userName }: { expiresAt: Date; role: string; userName?: string | null }) {
+  // Solange die Registrierung geschlossen ist (Standard), führt der Weg zur eigenen Praxis über die Pilot-Anfrage auf /register.
+  const eigenePraxis = registrierungOffen() ? "Eigene Praxis registrieren" : "Pilotplatz anfragen";
   return (
     <div className="border-b border-brand-200 bg-brand-50">
       {/* Handy: eine Zeile, der Rest aufklappbar, damit der Hinweis nicht ein Viertel des Bildschirms belegt */}
@@ -17,7 +20,7 @@ export function DemoBanner({ expiresAt, role, userName }: { expiresAt: Date; rol
         <div className="mt-2 flex flex-col items-start gap-1 [&>*]:min-h-[2.25rem] [&>*]:text-left">
           <DemoRoleSwitch role={role} />
           <DemoPatientButton />
-          <Link href="/register" className="flex items-center font-medium underline">Eigene Praxis registrieren</Link>
+          <Link href="/register" className="flex items-center font-medium underline">{eigenePraxis}</Link>
         </div>
       </details>
       <div className="hidden flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm text-brand-800 sm:flex sm:px-6 lg:px-10">
@@ -28,7 +31,7 @@ export function DemoBanner({ expiresAt, role, userName }: { expiresAt: Date; rol
         <span className="flex flex-wrap gap-x-4 gap-y-1">
           <DemoRoleSwitch role={role} />
           <DemoPatientButton />
-          <Link href="/register" className="font-medium underline">Eigene Praxis registrieren</Link>
+          <Link href="/register" className="font-medium underline" data-testid="demo-eigene-praxis">{eigenePraxis}</Link>
         </span>
       </div>
     </div>

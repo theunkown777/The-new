@@ -11,6 +11,7 @@ import { AnamnesisPanel } from "@/components/AnamnesisPanel";
 import { PatientDatenschutz } from "@/components/PatientDatenschutz";
 import { PatientAkte } from "@/components/PatientAkte";
 import { PatientKontakt } from "@/components/PatientKontakt";
+import { leseVermerk } from "@/lib/kontakt";
 import { AkteAnlegen } from "@/components/AkteAnlegen";
 import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { BefundAuswahl } from "@/components/BefundAuswahl";
@@ -122,7 +123,7 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
       </section>
 
       <div className="mb-8 scroll-mt-24" id="kontakt">
-        <PatientKontakt patientId={patient.id} geburtsdatum={patient.birthDate ? patient.birthDate.toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" }) : null} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} whatsappAm={patient.whatsappConsentAt ? de(patient.whatsappConsentAt) : null} whatsappDirekt={whatsappApiAktiv()} />
+        <PatientKontakt praxisName={session!.user.practiceName} patientName={`${patient.firstName} ${patient.lastName}`} nachfassAm={patient.nachfassConsentAt ? de(patient.nachfassConsentAt) : null} vermerk={leseVermerk(patient.einwilligungVermerk)} patientId={patient.id} geburtsdatum={patient.birthDate ? patient.birthDate.toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" }) : null} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} whatsappAm={patient.whatsappConsentAt ? de(patient.whatsappConsentAt) : null} whatsappDirekt={whatsappApiAktiv()} />
       </div>
 
       <div className="mb-8">

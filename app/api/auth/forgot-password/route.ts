@@ -60,6 +60,7 @@ export async function POST(req: Request) {
         <p><a href="${resetUrl}">${resetUrl}</a></p>
         <p>Falls Sie das nicht angefordert haben, können Sie diese E-Mail ignorieren.</p>
       `,
+      sorridaFuss: true,
     });
   }
 

@@ -43,7 +43,7 @@ export function dokumentSpeicherVoll(belegtBytes: number, neuBytes: number, isDe
   if (belegtBytes + neuBytes <= grenze) return null;
   const mb = Math.round(grenze / (1024 * 1024));
   return isDemo
-    ? `Im Gastzugang sind zusammen bis zu ${mb} MB an Dokumenten möglich. Registrieren Sie Ihre Praxis, um weiterzuarbeiten.`
+    ? `Im Gastzugang sind zusammen bis zu ${mb} MB an Dokumenten möglich. Für die Arbeit mit einer eigenen Praxis fragen Sie bitte einen Pilotplatz an.`
     : `Der Dokumentenspeicher der Praxis ist voll (${mb} MB). Bitte nicht mehr benötigte Dokumente löschen oder den Support ansprechen.`;
 }
 export const DOC_TYPES: Record<string, string> = {

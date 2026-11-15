@@ -146,9 +146,9 @@ export default function LoginPage() {
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-slate-500">
-          Noch keine Praxis registriert?{" "}
+          Noch kein Konto?{" "}
           <Link href="/register" className="font-medium text-brand-600 hover:underline">
-            Jetzt registrieren
+            Zugang für Ihre Praxis
           </Link>
         </p>
         <p className="mt-4 rounded-xl bg-[#F5F2EE] px-4 py-3 text-center text-sm text-slate-600">

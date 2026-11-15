@@ -2,12 +2,15 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { EmpfangPinSettings } from "@/components/EmpfangPinSettings";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Empfang" };
 
 export default async function EmpfangSettingsPage() {
+  // Einstellungen der Praxis: Behandler/innen sehen nur das eigene Konto (lib/rollen.ts).
+  await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const praxis = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { empfangPinHash: true } });
   return (

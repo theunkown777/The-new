@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { SpecialtyIcon } from "@/components/SpecialtyIcon";
 
 export type FachArt = "arzt" | "zahn" | "therapie";
 export type FachKachel = { id: string; name: string; href: string; teaser: string; art?: FachArt };
 
-const KEY = "sorrida-fach";
 const ohneAkzent = (s: string) => s.toLocaleLowerCase("de-DE").normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 const FILTER: { id: "alle" | FachArt; name: string }[] = [
@@ -25,31 +24,13 @@ const TON: Record<FachArt, { feld: string; zeichen: string; hover: string }> = {
 };
 
 // Fachauswahl wie ein Wegweiser: links Suche und Filter, rechts die Fächer als Kacheln mit eigenem
-// Zeichen. Alle Fächer stehen gleich groß nebeneinander, keins ist hervorgehoben. Die letzte Wahl
-// wird im Browser gemerkt, damit wiederkehrende Besucher direkt zu ihrer Version springen können.
+// Zeichen. Alle Fächer stehen gleich groß nebeneinander, keins ist hervorgehoben. Die Wahl wird nicht
+// im Browser gespeichert: Das wäre bequem, aber nicht erforderlich (§ 25 TDDDG), und bräuchte eine Einwilligung.
 export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachKachel[] }[] }) {
   const kacheln = useMemo(() => gruppen.flatMap((g) => g.kacheln.map((k) => ({ ...k, art: k.art ?? ("arzt" as FachArt) }))), [gruppen]);
-  const [last, setLast] = useState<FachKachel | null>(null);
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"alle" | FachArt>("alle");
   const [runde, setRunde] = useState(0); // zählt hoch, damit die Kacheln beim Filtern neu einblenden
-
-  useEffect(() => {
-    try {
-      const id = localStorage.getItem(KEY);
-      setLast(kacheln.find((k) => k.id === id) ?? null);
-    } catch {
-      /* Speicher gesperrt: ohne Erinnerung weiter */
-    }
-  }, [kacheln]);
-
-  const remember = (id: string) => {
-    try {
-      localStorage.setItem(KEY, id);
-    } catch {
-      /* egal */
-    }
-  };
 
   const such = ohneAkzent(q.trim());
   const sichtbar = kacheln.filter((k) => (filter === "alle" || k.art === filter) && (!such || ohneAkzent(`${k.name} ${k.teaser}`).includes(such)));
@@ -99,24 +80,10 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
               </button>
             ))}
           </div>
-          {last && (
-            <Link prefetch={false} href={last.href} className="j-kachel group mt-6 flex items-center gap-3 rounded-[8px] bg-papier-2 p-3.5" data-testid="fach-zuletzt">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-brand-700">
-                <SpecialtyIcon id={last.id} className="h-5 w-5" />
-              </span>
-              <span className="min-w-0 text-[14px] leading-snug text-tinte-2">
-                Zuletzt gewählt
-                <b className="block truncate font-semibold text-tinte">{last.name}</b>
-              </span>
-              <span className="j-pfeil ml-auto text-brand-700" aria-hidden="true">
-                →
-              </span>
-            </Link>
-          )}
           <Link prefetch={false} href="/hilfe" className="group mt-6 hidden items-start gap-3 border-t border-linie pt-5 text-[14.5px] text-tinte-2 lg:flex" data-testid="fach-hilfe">
             <span>
               <span className="block font-semibold text-tinte">Ihr Fach ist nicht dabei?</span>
-              Schreiben Sie uns, was Sie anbieten. Wir richten Sorrida mit Ihnen ein, persönlich und kostenlos.
+              Schreiben Sie uns, was Sie anbieten. Wir richten Sorrida mit Ihnen ein.
               <span className="mt-1 block font-semibold text-brand-700">
                 Zum Support <span className="j-pfeil inline-block" aria-hidden="true">→</span>
               </span>
@@ -134,7 +101,6 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
               <li key={k.id} className="fach-ein" style={{ ["--i" as string]: Math.min(i, 14) }}>
                 <Link prefetch={false}
                   href={k.href}
-                  onClick={() => remember(k.id)}
                   className="j-kachel group flex h-full items-center gap-3 rounded-[10px] border border-linie bg-[#FBF9F6] p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 sm:flex-col sm:items-stretch sm:gap-0 sm:p-5"
                   data-testid="fach-kachel"
                 >

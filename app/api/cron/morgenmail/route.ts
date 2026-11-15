@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     const zahlen = await morgenZahlen(p.id, now).catch(() => null);
     if (!zahlen || morgenSumme(zahlen) === 0) continue; // nichts offen: keine Mail
     const { subject, html } = morgenMailText(zahlen, { practiceName: p.name, baseUrl });
-    const r = await sendEmail({ to: p.morgenMailAn!, subject, html }).catch(() => null);
+    const r = await sendEmail({ to: p.morgenMailAn!, subject, html, sorridaFuss: true }).catch(() => null);
     if (r?.versendet) {
       verschickt++;
       await prisma.practice.update({ where: { id: p.id }, data: { morgenMailZuletzt: now } });

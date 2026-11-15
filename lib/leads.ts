@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { SPECIALTY_IDS, SPECIALTY_LABELS } from "@/lib/specialties";
 
-/** Praxissoftware für das Anfrageformular: Zahnarzt-Systeme (VDDS-media) und Arzt-Systeme (GDT). */
+/**
+ * Auswahl „Welche Praxissoftware nutzen Sie?“ im Anfrageformular. Nur eine Frage an die Praxis, keine Aussage,
+ * dass Sorrida mit diesen Programmen getestet ist: Solche Aussagen erst mit Testprotokoll je Programm (Prüfbericht A19).
+ */
 export const LEAD_PVS_DENTAL = ["DS-Win", "CGM Z1", "charly", "EVIDENT"] as const;
 export const LEAD_PVS_MEDICAL = ["Medistar", "TURBOMED", "CGM M1 PRO", "x.isynet", "ALBIS", "T2med"] as const;
 export const LEAD_PVS_THERAPIE = ["THEORG"] as const;

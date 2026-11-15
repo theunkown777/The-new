@@ -6,7 +6,7 @@ import { SPECIALTIES } from "@/lib/specialties";
 import { FachWahl, type FachKachel } from "@/components/FachWahl";
 import { PricingPlans } from "@/components/PricingPlans";
 import { Grundsaetze } from "@/components/Grundsaetze";
-import { PLANS, eur } from "@/lib/pricing";
+import { PILOT_KURZ, PILOT_ZIEL, PLANS, eur } from "@/lib/pricing";
 import { Entlastung } from "@/components/Entlastung";
 import { ZeitRechner } from "@/components/ZeitRechner";
 import { PraxisFaq } from "@/components/PraxisFaq";
@@ -14,9 +14,11 @@ import { ZweiAnsichten } from "@/components/ZweiAnsichten";
 import { JournalFuss, JournalKopf } from "@/components/start/JournalKopf";
 import { PatientenKarte } from "@/components/start/PatientenKarte";
 import { Laechelbogen } from "@/components/Behandlungsweg";
+import { websiteBasis } from "@/lib/betreiber";
 
 export const metadata: Metadata = {
   title: "Sorrida – damit beide Seiten lächeln",
+  alternates: { canonical: "/" },
   description:
     "Behandlungsvorschlag mit Kassenleistung und Eigenanteil, Patienten-Link, digitale Anamnese und To-dos, zugeschnitten auf Ihr Fach: Hausarzt, Fachärzte von Augen bis Radiologie, Zahnmedizin, Psychotherapie, Physio- und Ergotherapie, Logopädie und Podologie.",
   openGraph: {
@@ -65,8 +67,8 @@ const SYMBOLE: Record<string, React.ReactNode> = {
 
 const SCHRITTE = [
   ["Aus der Praxissoftware öffnen", "Ein Klick in der Patientenakte: Arztpraxen über GDT, Zahnarztpraxen über VDDS-media. Ohne Anbindung geht es genauso."],
-  ["Befund oder Anlass wählen", "Sorrida zeigt die Kassenleistung zuerst und sinnvolle Alternativen mit Eigenanteil."],
-  ["Patient entscheidet zu Hause", "Per QR-Code oder SMS. Die Antwort geht direkt an die Praxis, auf Wunsch mit Ratenzahlung."],
+  ["Befund oder Anlass wählen", "Sorrida zeigt die Kassenleistung zuerst und daneben die Leistungen aus Ihrer Preisliste mit dem Eigenanteil."],
+  ["Patient entscheidet zu Hause", "Per QR-Code oder SMS. Die Antwort geht direkt an die Praxis."],
   ["Das Team erledigt den Rest", "Vereinbarungen, Anträge, Fristen und Termine stehen fertig auf der To-do-Liste."],
 ];
 
@@ -76,6 +78,27 @@ export default async function Start() {
 
   return (
     <div className="journal min-h-screen">
+      {/* Angaben für Suchmaschinen: was Sorrida ist. Ohne Preise, Bewertungen oder Versprechen. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              { "@type": "WebSite", name: "Sorrida", url: websiteBasis(), inLanguage: "de-DE" },
+              {
+                "@type": "SoftwareApplication",
+                name: "Sorrida",
+                applicationCategory: "BusinessApplication",
+                operatingSystem: "Web",
+                inLanguage: "de-DE",
+                description: "Software für Kostenaufklärung und Patientenkommunikation in Arzt-, Zahnarzt- und Therapiepraxen: Kassenleistung zuerst, weitere Leistungen der Praxis mit Eigenanteil, Patienten-Link.",
+                url: websiteBasis(),
+              },
+            ],
+          }),
+        }}
+      />
       <JournalKopf angemeldet={!!session} />
 
       <main>
@@ -97,7 +120,7 @@ export default async function Start() {
               Nach dem Gespräch ein Klick. <em>Der Rest ist erledigt.</em>
             </h1>
             <p className="j-text mt-8 max-w-xl text-[19px] leading-relaxed">
-              Sorrida zeigt Patienten zuerst, was die Kasse zahlt, und dann die sinnvollen Alternativen mit dem Betrag, den sie selbst zahlen.
+              Sorrida zeigt Patienten zuerst, was die Kasse zahlt, und dann die weiteren Leistungen Ihrer Praxis mit dem Betrag, den sie selbst zahlen.
               Zu Hause vergleichen sie in Ruhe und antworten mit einem Fingertipp.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
@@ -108,7 +131,7 @@ export default async function Start() {
                 Ihr Fach wählen
               </a>
             </div>
-            <p className="mt-8 text-[14px] text-tinte-2">30 Tage kostenlos · monatlich kündbar · keine Zähler</p>
+            <p className="mt-8 text-[14px] text-tinte-2">{PILOT_KURZ} · keine Zähler</p>
           </div>
           <div className="relative lg:col-span-4 lg:col-start-9" data-testid="seite-patient">
             <p className="font-hand absolute -top-12 left-2 z-10 -rotate-3 text-[1.6rem] leading-none text-brand-700 sm:-left-8" aria-hidden="true">
@@ -243,12 +266,12 @@ export default async function Start() {
               <h2 className="j-schau text-[clamp(2.8rem,6vw,5.4rem)] text-[#F5F2EE]">
                 Ab <span className="j-zahl">{eur(PLANS[0].preis)}</span> im Monat. <em className="!text-brand-200">Alles enthalten.</em>
               </h2>
-              <p className="mt-6 text-[18px] text-[#F5F2EE]/75">30 Tage kostenlos, monatlich kündbar, keine Zähler. Endpreise ohne späteren Steueraufschlag.</p>
+              <p className="mt-6 text-[18px] text-[#F5F2EE]/75">{PILOT_KURZ}, keine Zähler. Geplante Preise ab dem allgemeinen Start; zurzeit nehmen wir nur Pilotpraxen auf.</p>
             </div>
             <div className="flex flex-wrap gap-4 lg:col-span-4 lg:justify-end">
-              <a href="#fach" className="j-knopf j-knopf-hell">
-                Fach wählen und loslegen
-              </a>
+              <Link href={PILOT_ZIEL} className="j-knopf j-knopf-hell">
+                Pilotplatz anfragen
+              </Link>
               <Link href="/demo" className="j-knopf border border-[#F5F2EE]/40 text-[#F5F2EE] hover:border-[#F5F2EE]">
                 Demo öffnen
               </Link>

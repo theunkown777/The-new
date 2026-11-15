@@ -40,7 +40,7 @@ export function PilotProgram({ fach, kurz, dental = false, therapie = false }: {
           gemeinsam mit Ihnen.
         </p>
         <ul className="space-y-2 text-slate-700">
-          <li><b>Drei Monate kostenlos</b>, danach dauerhaft 30 % günstiger</li>
+          <li><b>Drei Monate kostenlos</b>, danach 30 % Nachlass auf den Listenpreis, solange der Pilotvertrag läuft; Einzelheiten im Pilotvertrag</li>
           <li><b>Persönliche Einrichtung</b> mit Ihren Leistungen und Preisen</li>
           <li><b>Ihr Fach-Regelwerk</b> mitgestalten: was Patienten am häufigsten fragen, steht danach im Vorschlag</li>
           <li><b>Ihr Teil:</b> ein 30-Minuten-Gespräch im Monat, in dem Sie sagen, was stört</li>
@@ -57,7 +57,7 @@ export function PilotProgram({ fach, kurz, dental = false, therapie = false }: {
       {state === "done" ? (
         <div className="self-center rounded-2xl bg-emerald-50 p-6 text-emerald-900" role="status">
           <b>Danke, Ihre Anfrage ist angekommen.</b>
-          <p className="mt-1 text-sm">Wir melden uns innerhalb von zwei Werktagen zu Ihrer Wunschzeit.</p>
+          <p className="mt-1 text-sm">Wir melden uns in der Regel innerhalb von zwei Werktagen, wenn möglich zu Ihrer Wunschzeit.</p>
         </div>
       ) : (
         <form onSubmit={submit} className="space-y-3" noValidate>

@@ -2,7 +2,7 @@ import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server
 import { withAuth, type NextRequestWithAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
 import { tokenGueltig } from "@/lib/sitzung";
-import { VORSCHAU_COOKIE, VORSCHAU_TAGE, freiOhneZugang, istVorschauHost, vorschauCookie, vorschauCookieGueltig, vorschauPassGueltig } from "@/lib/vorschau";
+import { VORSCHAU_COOKIE, VORSCHAU_TAGE, darfInSuchmaschinen, freiOhneZugang, istVorschauHost, oeffentlichFrei, vorschauCookie, vorschauCookieGueltig, vorschauPassGueltig } from "@/lib/vorschau";
 
 // Website und App sind eins: Unter "/" sehen Besucher ohne Anmeldung die
 // Startseite mit Fachauswahl, angemeldete Nutzer landen in ihrer Übersicht. Alle anderen geschützten Bereiche laufen über next-auth.
@@ -33,7 +33,8 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
       res.headers.set("X-Robots-Tag", "noindex, nofollow");
       return res;
     }
-    if (!freiOhneZugang(pfad) && !(await vorschauCookieGueltig(req.cookies.get(VORSCHAU_COOKIE)?.value))) {
+    // Stufe „öffentlich, aber geschützt“: Informationsseiten sind frei, App, Anmeldung und Gastzugang bleiben verschlossen.
+    if (!freiOhneZugang(pfad) && !oeffentlichFrei(pfad) && !(await vorschauCookieGueltig(req.cookies.get(VORSCHAU_COOKIE)?.value))) {
       if (pfad.startsWith("/api/")) return NextResponse.json({ error: "Noch nicht veröffentlicht" }, { status: 403, headers: { "X-Robots-Tag": "noindex, nofollow" } });
       const ziel = req.nextUrl.clone();
       ziel.pathname = "/demnaechst";
@@ -44,7 +45,8 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
     }
   }
   const antwort = await weiter(req, event);
-  if (antwort && istVorschauHost(req.headers.get("host"))) antwort.headers.set("X-Robots-Tag", "noindex, nofollow");
+  // Suchmaschinen: auf der geschützten Domain nur die Informationsseiten, und nur in der öffentlichen Stufe.
+  if (antwort && istVorschauHost(req.headers.get("host")) && !darfInSuchmaschinen(req.nextUrl.pathname)) antwort.headers.set("X-Robots-Tag", "noindex, nofollow");
   return antwort;
 }
 

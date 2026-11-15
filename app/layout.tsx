@@ -23,6 +23,8 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
   title: "Sorrida",
+  // Bestätigung für die Google Search Console (kein Geheimnis; Wert aus der Search Console als Variable setzen).
+  ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
   description: "Sorrida – damit beide Seiten lächeln. Nach der Behandlung ein Klick: Leistungen, Bericht, Behandlungsvorschlag, Patienten-Link und Anamnese für Praxen jeder Fachrichtung",
 };
 

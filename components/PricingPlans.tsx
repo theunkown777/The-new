@@ -1,8 +1,9 @@
-import { PLANS, PRICE_TERMS, VAT_NOTE, eur } from "@/lib/pricing";
+import { PILOT_ZIEL, PLANS, PRICE_TERMS, VAT_NOTE, eur } from "@/lib/pricing";
 
 // Preistabelle der Website: drei Pakete, alles enthalten. Gesetzt wie eine Preisliste:
 // drei Blätter, das meistgewählte Paket in Bordeaux hervorgehoben.
-export function PricingPlans({ cta = "#fach" }: { cta?: string }) {
+// Der Knopf führt zur Anfrage eines Pilotplatzes: Eine Testphase zum Selbststarten gibt es nicht.
+export function PricingPlans({ cta = PILOT_ZIEL }: { cta?: string }) {
   return (
     <section id="preise" className="scroll-mt-10" aria-labelledby="preise-titel" data-testid="preise">
       <div className="grid gap-6 lg:grid-cols-12">
@@ -49,7 +50,7 @@ export function PricingPlans({ cta = "#fach" }: { cta?: string }) {
               </ul>
               <div className="mt-auto pt-10">
                 <a href={p.id === "mvz" ? "/hilfe?fach=MVZ" : cta} className={`j-knopf w-full ${hervor ? "j-knopf-hell" : "j-knopf-linie"}`}>
-                  {p.id === "mvz" ? "Gespräch vereinbaren" : "30 Tage kostenlos testen"}
+                  {p.id === "mvz" ? "Gespräch vereinbaren" : "Pilotplatz anfragen"}
                 </a>
               </div>
             </div>

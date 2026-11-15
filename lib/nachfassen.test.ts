@@ -52,7 +52,16 @@ describe("Nachfass-Liste", () => {
   });
   it("schreibt eine Erinnerung ohne Befund, Betrag und Druck", () => {
     const t = nachfassText({ firstName: "Thomas", practiceName: "Praxis Test", url: "https://x.test/portal/abc", zahnersatz: true });
-    expect(t).toContain("https://x.test/portal/abc");
-    expect(t).not.toMatch(/€|Krone|Zahn \d|nur noch|letzte Chance|Tage/);
+    expect(t).toBe("Hallo Thomas, hier ist noch einmal Ihr persönlicher Link von Praxis Test: https://x.test/portal/abc Wenn Sie Fragen haben, rufen Sie uns an. Wenn Sie keine Erinnerung mehr möchten, sagen Sie es uns.");
+    expect(t).not.toMatch(/€|Krone|Zahn \d|nur noch|letzte Chance|Tage|noch offen|2027/);
+  });
+  it("nennt den Stichtag 2027 nur mit dokumentierter Einwilligung in Erinnerungen, und nur bei Zahnersatz", () => {
+    const basis = { firstName: "Thomas", practiceName: "Praxis Test", url: "https://x.test/portal/abc" };
+    expect(nachfassText({ ...basis, zahnersatz: true, einwilligung: false })).not.toMatch(/2027/);
+    expect(nachfassText({ ...basis, zahnersatz: false, einwilligung: true })).not.toMatch(/2027/);
+    const mit = nachfassText({ ...basis, zahnersatz: true, einwilligung: true });
+    expect(mit).toMatch(/1\. Januar 2027/);
+    expect(mit).toMatch(/Wenn Sie keine Erinnerung mehr möchten, sagen Sie es uns\.$/);
+    expect(mit).not.toMatch(/€|nur noch|letzte Chance/);
   });
 });

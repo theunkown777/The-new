@@ -27,7 +27,7 @@ export interface NachfassQuelle {
   agreedAt: Date | null;
   nachgefasstAt: Date | null;
   hkpEingereichtAt: Date | null;
-  patient: { id: string; firstName: string; lastName: string; phone: string | null; whatsappConsentAt: Date | null };
+  patient: { id: string; firstName: string; lastName: string; phone: string | null; whatsappConsentAt: Date | null; /** Einwilligung in Erinnerungen an offene Vorschläge */ nachfassConsentAt?: Date | null };
 }
 
 export type NachfassStand = "ohne-link" | "nicht-geoeffnet" | "geoeffnet" | "rueckmeldung" | "unterschrieben";
@@ -131,12 +131,14 @@ export function nachfassSumme(zeilen: NachfassZeile[], now = new Date()): Nachfa
 }
 
 /**
- * Text der Erinnerung. Bewusst sachlich und ohne Befund, Betrag oder Frist-Druck: nur der Hinweis,
- * dass der Vorschlag noch offen ist, und der persönliche Link (Heilmittelwerbegesetz, Berufsordnung).
+ * Text der Erinnerung. Sachlich, ohne Befund, Betrag und Zeitdruck: nur der persönliche Link, das Angebot zum Anruf
+ * und der Hinweis, wie man Erinnerungen abbestellt (Heilmittelwerbegesetz, Berufsordnung, § 7 UWG).
+ * Der Satz zum 1. Januar 2027 nennt einen Stichtag und kann als Werbung gelten. Er steht nur im Text, wenn der
+ * Patient ausdrücklich eingewilligt hat, an offene Vorschläge erinnert zu werden (`einwilligung`, Patient.nachfassConsentAt).
  */
-export function nachfassText(a: { firstName: string; practiceName: string; url: string; zahnersatz: boolean }): string {
-  const hinweis = a.zahnersatz
+export function nachfassText(a: { firstName: string; practiceName: string; url: string; zahnersatz: boolean; einwilligung?: boolean }): string {
+  const hinweis = a.zahnersatz && a.einwilligung
     ? " Für Zahnersatz ändern sich zum 1. Januar 2027 die Zuschüsse der Krankenkassen; wir beraten Sie gern dazu."
     : "";
-  return `${anrede("Hallo", a.firstName)}, Ihr Behandlungsvorschlag von ${a.practiceName} ist noch offen.${hinweis} Unter Ihrem persönlichen Link können Sie ihn in Ruhe ansehen und uns antworten: ${a.url} Bei Fragen rufen Sie uns einfach an.`;
+  return `${anrede("Hallo", a.firstName)}, hier ist noch einmal Ihr persönlicher Link von ${a.practiceName}: ${a.url}${hinweis} Wenn Sie Fragen haben, rufen Sie uns an. Wenn Sie keine Erinnerung mehr möchten, sagen Sie es uns.`;
 }

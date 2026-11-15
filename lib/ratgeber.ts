@@ -36,7 +36,7 @@ export const RATGEBER_GRUPPEN = [
     titel: "Für Zahnarztpraxen",
     text: "Festzuschuss, Heil- und Kostenplan, Mehrkosten, Bonusheft, Härtefall, Zahnreinigung.",
     kasten:
-      "Befund anklicken oder diktieren, Sorrida zeigt jede sinnvolle Option mit Eigenanteil, auch im Vergleich 2026 und 2027. Der Patient bekommt alles als Link aufs Handy.",
+      "Befund anklicken oder diktieren, Sorrida zeigt die Optionen nach den Regeln der Kasse mit Eigenanteil, auch im Vergleich 2026 und 2027. Der Patient bekommt alles als Link aufs Handy.",
     massgeblich: "die aktuellen Vorgaben von KZBV, KZV und Krankenkasse",
   },
 ] as const;

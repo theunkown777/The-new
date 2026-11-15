@@ -22,5 +22,6 @@ export async function sendVerificationEmail(user: { id: string; name: string; em
       <p>Bitte bestätigen Sie Ihre E-Mail-Adresse (Link ist 24 Stunden gültig):</p>
       <p><a href="${verifyUrl}">${verifyUrl}</a></p>
     `,
+    sorridaFuss: true,
   });
 }

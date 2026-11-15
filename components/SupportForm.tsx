@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export function SupportForm({ defaultFach = "" }: { defaultFach?: string }) {
   const [state, setState] = useState<"idle" | "busy" | "done">("idle");
@@ -25,7 +26,7 @@ export function SupportForm({ defaultFach = "" }: { defaultFach?: string }) {
     return (
       <div className="rounded-3xl bg-white p-6 sm:p-8" data-testid="support-done">
         <p className="text-xl font-semibold text-slate-900">Danke, Ihre Nachricht ist bei uns.</p>
-        <p className="mt-2 text-slate-600">Wir melden uns innerhalb eines Werktags und richten Sorrida gemeinsam mit Ihnen für Ihre Fachrichtung ein.</p>
+        <p className="mt-2 text-slate-600">Wir melden uns in der Regel innerhalb von zwei Werktagen und besprechen mit Ihnen, wie Sorrida zu Ihrer Fachrichtung passt.</p>
       </div>
     );
 
@@ -57,7 +58,10 @@ export function SupportForm({ defaultFach = "" }: { defaultFach?: string }) {
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       <div className="flex flex-wrap items-center gap-3">
         <button className="btn-primary" disabled={state === "busy"}>{state === "busy" ? "Wird gesendet …" : "Hilfe anfragen"}</button>
-        <p className="text-xs text-slate-500">Wir nutzen Ihre Angaben nur, um uns bei Ihnen zu melden.</p>
+        <p className="text-xs text-slate-500" data-testid="support-datenschutz">
+          Wir nutzen Ihre Angaben nur, um Ihre Anfrage zu beantworten. Einzelheiten in der{" "}
+          <Link href="/datenschutz" className="underline">Datenschutzerklärung</Link>.
+        </p>
       </div>
     </form>
   );

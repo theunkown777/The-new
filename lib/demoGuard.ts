@@ -20,7 +20,7 @@ export async function demoGuard(practiceId: string, action: "invite" | "report")
   ]);
   if (demoLimitErreicht(reports, kiLaeufe)) {
     return NextResponse.json(
-      { error: `Im Gastzugang sind bis zu ${DEMO_REPORT_LIMIT} KI-Berichte möglich (neu erzeugte zählen mit). Registrieren Sie Ihre Praxis, um weiterzuarbeiten.` },
+      { error: `Im Gastzugang sind bis zu ${DEMO_REPORT_LIMIT} KI-Berichte möglich (neu erzeugte zählen mit). Für die Arbeit mit einer eigenen Praxis fragen Sie bitte einen Pilotplatz an.` },
       { status: 429 }
     );
   }

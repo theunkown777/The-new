@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PRICE_SHORT } from "@/lib/pricing";
+import { PILOT_KURZ, PRICE_SHORT } from "@/lib/pricing";
 import { notFound } from "next/navigation";
 import { SPECIALTIES, isTherapie, specialty } from "@/lib/specialties";
 import { PublicShell } from "@/components/PublicShell";
@@ -29,7 +29,7 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
   const params = await props.params;
   const s = fach(params.id);
   if (!s) return {};
-  return { title: `Sorrida für die ${s.kurz} – ${s.marketing.headline}`, description: `${s.marketing.problem} ${s.marketing.beispiel}` };
+  return { title: `Sorrida für die ${s.kurz} – ${s.marketing.headline}`, description: `${s.marketing.problem} ${s.marketing.beispiel}`, alternates: { canonical: `/fachgebiete/${params.id}` } };
 }
 
 const euro = (n: number) => (n ? `${n.toLocaleString("de-DE")} €` : "–");
@@ -96,7 +96,7 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
             {amtlich && amtlich.gesamt > 0 && (
               <p className="mt-2 text-[11px] leading-snug text-slate-500" data-testid="fach-leistungen-teile">
                 Amtlich, bundesweit: {amtlich.teile.map((t) => `${t.name} ${t.anzahl.toLocaleString("de-DE")}`).join(" · ")}
-                {amtlich.regional > 0 ? ", dazu die regionalen Ziffern Ihrer KV" : ""}. Alle stehen in Sorrida zur Auswahl.
+                {amtlich.regional > 0 ? ", dazu die regionalen Ziffern Ihrer KV" : ""}. Für angemeldete Praxen in Sorrida auswählbar.
               </p>
             )}
             <div className="mt-4 grid gap-2">
@@ -223,7 +223,7 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
               <h2 className="font-display text-2xl text-slate-900">Was nach dem Gespräch automatisch entsteht</h2>
               <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-slate-700">
                 {dental && <li>Befund- und Behandlungsbericht mit erfassten Leistungen (BEMA/GOZ)</li>}
-                <li>Patienteninformation in Textform mit Kosten je Option (§ 630c Abs. 3 BGB)</li>
+                <li>Patienteninformation mit Kosten je Option, zum Ausdrucken oder Mitgeben (Unterstützung für § 630c Abs. 3 BGB)</li>
                 <li>Patienten-Link mit QR-Code, Rückmeldung an die Praxis</li>
                 <li>
                   To-do:{" "}
@@ -235,10 +235,10 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
                 <li>Gemessene Annahmequote statt Bauchgefühl</li>
                 <li>
                   {dental
-                    ? "Öffnet sich aus DS-Win, CGM Z1, charly oder EVIDENT über VDDS-media"
+                    ? "Nutzt die Standardschnittstelle VDDS-media: Praxisprogramme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen"
                     : therapie
                       ? "Läuft im Browser neben Ihrer Software, ohne Installation"
-                      : "Öffnet sich aus Ihrer Praxissoftware über GDT mit dem aktuellen Patienten"}
+                      : "Nutzt die Standardschnittstelle GDT: Praxisprogramme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen"}
                 </li>
               </ul>
             </div>
@@ -269,7 +269,7 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
                   </li>
                 )}
                 <li>
-                  <b>Kein Druck:</b> Sorrida empfiehlt keine Selbstzahlerleistung von sich aus und lädt zur Bedenkzeit ein.
+                  <b>Kein Druck:</b> Vorausgewählt ist immer die Kassenleistung. Was hervorgehoben wird, klickt die Praxis an. Sorrida lädt zur Bedenkzeit ein.
                 </li>
                 <li>
                   <b>Ehrlich zum Nutzen:</b> Wo kein Nutzen belegt ist, steht das beim Angebot.
@@ -282,10 +282,10 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
             <div className="flex flex-col rounded-2xl bg-brand-700 p-5 text-white">
               <h2 className="font-display text-2xl">Ein Preis, alles enthalten</h2>
               <p className="mt-2 text-sm text-white/85">
-                {PRICE_SHORT}. Mit Behandlungsweg für Patienten, Zahlungen und Analyse. Ohne Zähler, 30 Tage kostenlos, monatlich kündbar. Endpreise ohne späteren Steueraufschlag.
+                {PRICE_SHORT}. Mit Behandlungsweg für Patienten, Zahlungen und Analyse. Ohne Zähler. {PILOT_KURZ}. Geplante Preise ab dem allgemeinen Start; zurzeit nehmen wir nur Pilotpraxen auf.
               </p>
               <Link prefetch={false} href={`/demo?fach=${s.id}`} className="mt-auto inline-block rounded-full bg-white px-4 py-2 text-center text-sm font-medium text-brand-700 hover:bg-brand-50">
-                Jetzt ausprobieren
+                Demo-Praxis ansehen
               </Link>
             </div>
           </section>

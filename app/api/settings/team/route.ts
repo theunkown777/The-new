@@ -120,6 +120,7 @@ export async function POST(req: Request) {
       <p>Der folgende Link ist 7 Tage gültig:</p>
       <p><a href="${inviteUrl}">${inviteUrl}</a></p>
     `,
+    sorridaFuss: true,
   });
   // Auch wenn der Maildienst ablehnt (z. B. Absenderadresse nicht freigeschaltet): Link zeigen statt „verschickt“ melden.
   if (!sent.versendet) return NextResponse.json({ ok: true, inviteUrl, mailed: false });

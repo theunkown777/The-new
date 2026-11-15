@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import type { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
+import { kontoDarf } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { PROPOSAL_STATUS_LABELS, ageFromBirthDate } from "@/lib/proposals";
 import { loadAnamnesis } from "@/lib/anamnesisView";
@@ -40,6 +41,8 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
+  // Listen einlesen darf nur die Praxisleitung (lib/rollen.ts); ohne Recht entfällt der Link.
+  const darfEinlesen = await kontoDarf(session!.user.id, "patienten.import", practiceId);
   const P = fachprofil(await praxisFach(practiceId)).person;
   const q = (searchParams.q ?? "").trim().slice(0, 60);
   const filter: FilterKey = searchParams.filter && searchParams.filter in FILTERS ? (searchParams.filter as FilterKey) : "alle";
@@ -136,7 +139,7 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
             <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500"><Laechelbogen className="h-2 w-8 text-brand-600" />Jeder auf seinem Behandlungsweg, mit dem nächsten Schritt</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/patients/import" className="ziel text-sm text-brand-700 underline" data-testid="liste-einlesen">Liste einlesen</Link>
+            {darfEinlesen && <Link href="/patients/import" className="ziel text-sm text-brand-700 underline" data-testid="liste-einlesen">Liste einlesen</Link>}
             <Link href="/patients/new" className="btn-primary">
               Neu anlegen
             </Link>
