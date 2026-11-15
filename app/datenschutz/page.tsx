@@ -149,6 +149,16 @@ export default function DatenschutzPage() {
           Empfangsmodus: Gibt die Praxis ihr Gerät einem Patienten in die Hand, kann er dort Kontaktdaten prüfen, den Anamnesebogen ausfüllen
           oder unterschreiben. Auch das geschieht im Auftrag der Praxis; die Cookies dazu stehen in Abschnitt 3.
         </p>
+        <p data-testid="datenschutz-patientenfunktionen">
+          Weitere Funktionen im Patienten-Link, ebenfalls im Auftrag der Praxis: Wer seinen Vorschlag mit einer Vertrauensperson teilt,
+          erzeugt einen zweiten Link nur zum Lesen. Wir speichern davon nur einen Hashwert; die Lese-Ansicht zeigt weder Namen noch
+          Antworten, und der Link lässt sich jederzeit widerrufen. Wer sich erinnern lassen möchte, wählt einen Tag; an diesem Tag sieht die
+          Praxis den Wunsch in ihrem Eingang, von selbst wird keine Nachricht verschickt. Die Kostenübersicht als PDF entsteht beim Abruf und
+          wird bei uns nicht gespeichert. Die Antwort auf die Frage nach dem Termin (fünf Stufen, auf Wunsch ein Satz) sieht die Praxis ohne
+          Namen und erst ab fünf Antworten. Hat die Praxis einen Link zu ihrem Profil bei Google hinterlegt, zeigen wir ihn nach dem Absenden
+          an; erst wenn Sie ihn anklicken, verlassen Sie Sorrida, und es gelten die Bedingungen von Google. Das Vorlesen übernimmt Ihr Browser
+          auf Ihrem Gerät; dabei wird nichts an uns übertragen.
+        </p>
         <p>
           Hinweis für Patientinnen und Patienten: Ihr persönlicher Link enthält keine Patientendaten, sondern ein zufälliges Kennzeichen, von
           dem wir nur einen Hashwert speichern. Im Patientenportal setzen wir erst dann ein Cookie, wenn Sie Ihr Geburtsdatum bestätigen
