@@ -7,11 +7,10 @@ import { resolveMed } from "@/lib/practiceMed";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 import { MODELLE, MODELL_BEFUNDE, istBleibenderZahn, teilBezeichnung, teilGueltig, type Modell } from "@/lib/modelle/markierung";
 
-export default async function NewProposalPage({
-  searchParams,
-}: {
-  searchParams: { patientId?: string; modell?: string };
+export default async function NewProposalPage(props: {
+  searchParams: Promise<{ patientId?: string; modell?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
 
   const [patients, practice] = await Promise.all([

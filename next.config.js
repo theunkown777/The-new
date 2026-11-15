@@ -44,9 +44,7 @@ const nextConfig = {
       { source: "/(portal|p|a)/:path*", headers: [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
     ];
   },
-  experimental: {
-    serverComponentsExternalPackages: ["pdfkit"],
-  },
+  serverExternalPackages: ["pdfkit"],
 };
 
 module.exports = nextConfig;

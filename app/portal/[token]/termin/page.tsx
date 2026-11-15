@@ -8,7 +8,8 @@ export const metadata: Metadata = { title: "Termin buchen", robots: { index: fal
 export const dynamic = "force-dynamic";
 
 // Patientenportal: Termin online buchen. Zugang nur über den geheimen Patientenlink.
-export default async function PortalTerminPage({ params }: { params: { token: string } }) {
+export default async function PortalTerminPage(props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const gefunden = /^[A-Za-z0-9_-]{20,128}$/.test(params.token)
     ? await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(params.token) }, select: { portalExpiresAt: true, practice: { select: { name: true } } } })
     : null;

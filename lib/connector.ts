@@ -66,12 +66,12 @@ export const VDDS_PATIENT_FIELDS = [
 // Name). Alles Weitere ist Zusatz: Ungewohnte Schreibweisen der einzelnen Praxissoftware werden
 // übersetzt, Unlesbares wird weggelassen, statt den ganzen Aufruf abzulehnen.
 export const vddsPatientSchema = z.object({
-  PVS: z.string({ required_error: "PVS fehlt in der Übergabedatei" }).min(1, "PVS fehlt in der Übergabedatei").max(30),
+  PVS: z.string({ error: "PVS fehlt in der Übergabedatei" }).min(1, "PVS fehlt in der Übergabedatei").max(30),
   // Laut VDDS-media höchstens 12 Stellen; manche Systeme liefern längere Nummern mit Punkt, Bindestrich oder Schrägstrich.
-  PATID: z.string({ required_error: "PATID fehlt in der Übergabedatei" }).min(1, "PATID fehlt in der Übergabedatei").max(40, "Patientennummer zu lang").regex(/^[A-Za-z0-9_.\/-]+$/, "Patientennummer enthält unerlaubte Zeichen"),
+  PATID: z.string({ error: "PATID fehlt in der Übergabedatei" }).min(1, "PATID fehlt in der Übergabedatei").max(40, "Patientennummer zu lang").regex(/^[A-Za-z0-9_.\/-]+$/, "Patientennummer enthält unerlaubte Zeichen"),
   PATSHOWNR: z.string().max(20).optional(),
-  LASTNAME: z.string({ required_error: "Nachname fehlt in der Übergabedatei" }).min(1, "Nachname fehlt in der Übergabedatei").max(100),
-  FIRSTNAME: z.string({ required_error: "Vorname fehlt in der Übergabedatei" }).min(1, "Vorname fehlt in der Übergabedatei").max(100),
+  LASTNAME: z.string({ error: "Nachname fehlt in der Übergabedatei" }).min(1, "Nachname fehlt in der Übergabedatei").max(100),
+  FIRSTNAME: z.string({ error: "Vorname fehlt in der Übergabedatei" }).min(1, "Vorname fehlt in der Übergabedatei").max(100),
   TITLE: z.string().max(40).optional(),
   BIRTHDAY: z.string().regex(/^\d{8}$/).optional(),
   SEX: z.enum(["M", "W", "D"]).optional(),

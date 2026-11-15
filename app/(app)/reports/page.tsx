@@ -4,11 +4,10 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REPORT_TYPE_LABELS, REPORT_STATUS_LABELS } from "@/lib/reportLabels";
 
-export default async function ReportsPage({
-  searchParams,
-}: {
-  searchParams: { q?: string; status?: string };
+export default async function ReportsPage(props: {
+  searchParams: Promise<{ q?: string; status?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const q = searchParams.q?.trim();
   const status = searchParams.status;

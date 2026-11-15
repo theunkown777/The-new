@@ -17,7 +17,7 @@ on:
       - lib/vorschau.ts
       - lib/__fixtures__/pvs/**
       - app/api/connector/**
-      - middleware.ts
+      - proxy.ts
       - scripts/ci/connector-windows.mjs
       - .github/workflows/connector-windows.yml
   workflow_dispatch:
@@ -43,7 +43,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: PostgreSQL starten

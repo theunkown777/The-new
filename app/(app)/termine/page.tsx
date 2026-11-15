@@ -20,7 +20,8 @@ const verschiebe = (tag: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
-export default async function TerminePage({ searchParams }: { searchParams: { tag?: string; ort?: string } }) {
+export default async function TerminePage(props: { searchParams: Promise<{ tag?: string; ort?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const tag = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.tag ?? "") ? searchParams.tag! : heuteTag();

@@ -14,7 +14,8 @@ const WEGE = [
   ["Wir richten es ein", "Ihre Leistungen, Preise und Hinweise zur Kasse legen wir gemeinsam an."],
 ];
 
-export default function HilfePage({ searchParams }: { searchParams: { fach?: string } }) {
+export default async function HilfePage(props: { searchParams: Promise<{ fach?: string }> }) {
+  const searchParams = await props.searchParams;
   return (
     <PublicShell full>
       <div className="grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">

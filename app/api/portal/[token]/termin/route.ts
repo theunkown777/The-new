@@ -21,7 +21,8 @@ const abgelaufen = () => NextResponse.json({ error: "Dieser Link ist abgelaufen.
 
 // Patientenportal: freie Termine ansehen. Angeboten wird nur, was nach Sprechzeiten, Sorrida-Terminen
 // und dem übertragenen Praxiskalender wirklich frei ist.
-export async function GET(_req: Request, { params }: { params: { token: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const patient = await patientVon(params.token);
   if (!patient) return abgelaufen();
   const lage = await buchungsLage(patient.practiceId);
@@ -31,7 +32,8 @@ export async function GET(_req: Request, { params }: { params: { token: string }
 }
 
 // Termin buchen: Das Zeitfenster wird beim Buchen noch einmal geprüft.
-export async function POST(req: Request, { params }: { params: { token: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   if (await isRateLimited(`buchung:${ip}`, 20, 3600e3)) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });
   await recordAttempt(`buchung:${ip}`, 3600e3);
@@ -68,7 +70,8 @@ export async function POST(req: Request, { params }: { params: { token: string }
 }
 
 // Eigenen, online gebuchten Termin absagen (bis 24 Stunden vorher).
-export async function DELETE(req: Request, { params }: { params: { token: string } }) {
+export async function DELETE(req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const patient = await patientVon(params.token);
   if (!patient) return abgelaufen();
   const id = new URL(req.url).searchParams.get("id") ?? "";

@@ -8,7 +8,8 @@ import { eingangMelden } from "@/lib/eingang";
 
 // Ausgefüllter Anamnesebogen (öffentlich, ohne Login). Nach dem Absenden
 // ist der Link verbraucht, damit niemand die Angaben nachträglich ändert.
-export async function POST(req: Request, { params }: { params: { token: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const key = `anamnesis:${ip}`;
   if (await isRateLimited(key, 20, 60 * 60 * 1000)) {

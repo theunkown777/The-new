@@ -9,7 +9,8 @@ import { kiLimit } from "@/lib/demoGuard";
 
 // KI-Kurzfassung des Überblicks. Grundlage ist der regelbasierte Überblick
 // ohne Namen; das Ergebnis ist ein Entwurf und wird nicht gespeichert.
-export async function POST(_req: Request, { params }: { params: { id: string } }) {
+export async function POST(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, patient, error } = await patientInPractice(params.id);
   if (error) return error;
   if (!kiVerfuegbar()) {

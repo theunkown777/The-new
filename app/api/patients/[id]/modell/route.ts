@@ -6,7 +6,8 @@ import { MODELLE, markierungSchema, teilBezeichnung, type Modell } from "@/lib/m
 
 // Anatomie-Modelle: Die Praxis markiert für einen Patienten eine Stelle (Zahn, Knochen, Muskel,
 // Sehne) und schreibt einen kurzen Hinweis dazu. Der Patient sieht beides in seinem Patientenlink.
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, patient, error } = await patientInPractice(params.id);
   if (error) return error;
   const parsed = markierungSchema.safeParse(await req.json().catch(() => null));
@@ -32,7 +33,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   return NextResponse.json({ markierung: markierungen[0], markierungen }, { status: neu ? 201 : 200 });
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, patient, error } = await patientInPractice(params.id);
   if (error) return error;
   const url = new URL(req.url);

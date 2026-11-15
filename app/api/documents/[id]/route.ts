@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/permissions";
 import { auditFromSession } from "@/lib/audit";
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const doc = await prisma.patientDocument.findFirst({ where: { id: params.id, practiceId: session.user.practiceId } });
@@ -23,7 +24,8 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 }
 
 // Löschen nur durch Admins: Dokumente gehören zur Behandlungsdokumentation.
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (error) return error;
   const doc = await prisma.patientDocument.findFirst({ where: { id: params.id, practiceId: session.user.practiceId }, select: { id: true, patientId: true } });

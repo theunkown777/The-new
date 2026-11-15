@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { sichtbarFuer } from "@/lib/katalogScope";
 import { TemplateEditor } from "@/components/TemplateEditor";
 
-export default async function TemplateEditorPage({ params }: { params: { id: string } }) {
+export default async function TemplateEditorPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   const tpl = await prisma.serviceTemplate.findFirst({ where: { id: params.id, ...(await sichtbarFuer(session!.user.practiceId)) }, select: { practiceId: true } });
   if (!tpl) notFound();

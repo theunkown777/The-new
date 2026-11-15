@@ -10,7 +10,7 @@ import { ortszeit } from "@/lib/ics";
 const UHR = /^([01]\d|2[0-3]):[0-5]\d$/;
 const fenster = z.tuple([z.string().regex(UHR), z.string().regex(UHR)]).refine(([a, b]) => a < b, "Ende muss nach dem Beginn liegen");
 /** Sprechzeiten je Wochentag: 1 = Montag … 7 = Sonntag; je Tag bis zu vier Zeitfenster. */
-export const sprechzeitenSchema = z.record(z.enum(["1", "2", "3", "4", "5", "6", "7"]), z.array(fenster).max(4));
+export const sprechzeitenSchema = z.partialRecord(z.enum(["1", "2", "3", "4", "5", "6", "7"]), z.array(fenster).max(4));
 export type Sprechzeiten = z.infer<typeof sprechzeitenSchema>;
 
 export const STANDARD_SPRECHZEITEN: Sprechzeiten = {

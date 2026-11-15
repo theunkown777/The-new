@@ -19,8 +19,9 @@ const BASIS_META: Metadata = {
   openGraph: { title: "Ihr Behandlungsvorschlag", description: "Ihre Möglichkeiten und Ihr Eigenanteil, von Ihrer Zahnarztpraxis.", images: [{ url: "/og/vorschlag.png", width: 1200, height: 630 }] },
 };
 // Titel im Browser in der Sprache der Ansicht; die Vorschau beim Teilen bleibt deutsch und neutral.
-export function generateMetadata({ searchParams }: { searchParams: { lang?: string } }): Metadata {
-  return { ...BASIS_META, title: UI[pickLang(searchParams.lang, headers().get("accept-language"))].pageTitle };
+export async function generateMetadata(props: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  return { ...BASIS_META, title: UI[pickLang(searchParams.lang, (await headers()).get("accept-language"))].pageTitle };
 }
 
 function Expired({ lang }: { lang: PatientLang }) {
@@ -35,15 +36,14 @@ function Expired({ lang }: { lang: PatientLang }) {
 
 // Öffentliche Ansicht für den Patienten. Gezeigt werden nur Vorname,
 // Praxisname und die Optionen, keine Geburtsdaten oder Kassendaten.
-export default async function PatientLinkPage({
-  params,
-  searchParams,
-}: {
-  params: { token: string };
-  searchParams: { lang?: string };
+export default async function PatientLinkPage(props: {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   // Sprache: `?lang=`, sonst die bevorzugte Sprache des Browsers, sonst Deutsch.
-  const lang = pickLang(searchParams.lang, headers().get("accept-language"));
+  const lang = pickLang(searchParams.lang, (await headers()).get("accept-language"));
   if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <Expired lang={lang} />;
   const proposal = await prisma.treatmentProposal.findUnique({
     where: { shareTokenHash: hashToken(params.token) },

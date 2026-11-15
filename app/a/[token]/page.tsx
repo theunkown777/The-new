@@ -12,7 +12,8 @@ export const metadata: Metadata = {
   openGraph: { title: "Ihr Anamnesebogen", description: "In drei Minuten vor Ihrem Termin ausgefüllt.", images: [{ url: "/og/anamnese.png", width: 1200, height: 630 }] },
 };
 
-export default async function AnamnesisPage({ params }: { params: { token: string } }) {
+export default async function AnamnesisPage(props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const form = /^[A-Za-z0-9_-]{20,128}$/.test(params.token)
     ? await prisma.anamnesisForm.findUnique({
         where: { tokenHash: hashToken(params.token) },

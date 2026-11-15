@@ -11,7 +11,8 @@ const TZ = "Europe/Berlin";
 const zeit = (d: Date) => d.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: TZ });
 
 // Nachweis „Kosteninformation“ als PDF für die Karteikarte (auch ohne Unterschrift des Patienten).
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const p = await prisma.treatmentProposal.findFirst({

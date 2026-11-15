@@ -6,7 +6,8 @@ import { auditFromSession } from "@/lib/audit";
 
 // Einträge werden nicht gelöscht, sondern als „nicht mehr aktuell“ markiert,
 // damit die Historie der Akte erhalten bleibt (Dokumentationspflicht).
-export async function PATCH(req: Request, { params }: { params: { id: string; entryId: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ id: string; entryId: string }> }) {
+  const params = await props.params;
   const { session, patient, error } = await patientInPractice(params.id);
   if (error) return error;
   const parsed = z.object({ inaktiv: z.boolean() }).safeParse(await req.json().catch(() => null));

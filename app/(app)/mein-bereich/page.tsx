@@ -17,12 +17,13 @@ export const metadata = { title: "Mein Bereich" };
 
 const eur = (c: number) => `${Math.round(c / 100).toLocaleString("de-DE")} €`;
 
-export default async function MeinBereichPage({ searchParams }: { searchParams: { q?: string } }) {
+export default async function MeinBereichPage(props: { searchParams: Promise<{ q?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const { practiceId, id: userId } = session!.user;
   // Eigenes Bereichs-Passwort: ohne gültige Freigabe werden keine Zahlen geladen.
   const schutz = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, bereichPinHash: true, practice: { select: { isDemo: true } } } });
-  if (!schutz?.bereichPinHash || !bereichTokenGueltig(cookies().get(BEREICH_COOKIE)?.value, userId)) {
+  if (!schutz?.bereichPinHash || !bereichTokenGueltig((await cookies()).get(BEREICH_COOKIE)?.value, userId)) {
     return <BereichSchloss start={schutz?.bereichPinHash ? "entsperren" : "setzen"} demo={!!schutz?.practice.isDemo} name={schutz?.name ?? ""} />;
   }
   const P = fachprofil(await praxisFach(practiceId)).person;

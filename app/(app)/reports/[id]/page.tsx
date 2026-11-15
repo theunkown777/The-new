@@ -4,7 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { loadReportEditorProps } from "@/lib/reportView";
 import { ReportEditor } from "@/components/ReportEditor";
 
-export default async function ReportDetailPage({ params }: { params: { id: string } }) {
+export default async function ReportDetailPage(seite: { params: Promise<{ id: string }> }) {
+  const params = await seite.params;
   const session = await getServerSession(authOptions);
   const props = await loadReportEditorProps(params.id, session!.user.practiceId);
   if (!props) notFound();

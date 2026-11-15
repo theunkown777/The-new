@@ -11,7 +11,8 @@ import { PatientLinkPanel } from "@/components/PatientLinkPanel";
 import { patientLinkState } from "@/lib/patientLink";
 import { pruefVermerk } from "@/lib/portalPruefung";
 
-export default async function ProposalDetailPage({ params }: { params: { id: string } }) {
+export default async function ProposalDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
 
   const proposal = await prisma.treatmentProposal.findFirst({

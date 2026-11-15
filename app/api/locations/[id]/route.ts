@@ -4,7 +4,8 @@ import { requireAdmin } from "@/lib/permissions";
 import { standortSchema } from "@/lib/termine";
 import { auditFromSession } from "@/lib/audit";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (error) return error;
   const parsed = standortSchema.safeParse(await req.json().catch(() => null));
@@ -16,7 +17,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 // Termine des Standorts bleiben erhalten und verlieren nur die Zuordnung.
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (error) return error;
   const r = await prisma.location.deleteMany({ where: { id: params.id, practiceId: session.user.practiceId } });

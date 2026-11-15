@@ -6,7 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { auditFromSession } from "@/lib/audit";
 import { approvalUpdate } from "@/lib/reportApproval";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 
@@ -24,7 +25,8 @@ const updateSchema = z.object({
   status: z.enum(["ENTWURF", "FINAL"]).optional(),
 });
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 

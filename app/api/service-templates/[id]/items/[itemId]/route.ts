@@ -11,8 +11,8 @@ const updateSchema = z.object({
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string; itemId: string } }
-) {
+  props: { params: Promise<{ id: string; itemId: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (!session) return error;
 
@@ -42,8 +42,8 @@ export async function PATCH(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string; itemId: string } }
-) {
+  props: { params: Promise<{ id: string; itemId: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (!session) return error;
 

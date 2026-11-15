@@ -7,7 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { demoGuard, kiLimit } from "@/lib/demoGuard";
 import { kiFehlerGrund, generateReportText, ReportType } from "@/lib/anthropic";
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const blocked = await demoGuard(session.user.practiceId, "report");

@@ -4,11 +4,10 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ServiceChecklistForm } from "@/components/ServiceChecklistForm";
 
-export default async function NewReportPage({
-  searchParams,
-}: {
-  searchParams: { patientId?: string };
+export default async function NewReportPage(props: {
+  searchParams: Promise<{ patientId?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
 
   const [patients, practice] = await Promise.all([

@@ -9,7 +9,8 @@ import { PORTAL_TTL_MS } from "@/lib/invoices";
 // Patientenportal-Link erzeugen: offene Rechnungen, Vorschläge und Anamnese
 // auf dem Handy des Patienten. Ein neuer Link ersetzt den alten; der Link
 // steht nur in dieser Antwort im Klartext.
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const { raw, hash } = generateToken();
@@ -25,7 +26,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   return NextResponse.json({ url, qr, expiresAt }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const res = await prisma.patient.updateMany({

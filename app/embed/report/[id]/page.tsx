@@ -6,7 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { loadReportEditorProps } from "@/lib/reportView";
 import { ReportEditor } from "@/components/ReportEditor";
 
-export default async function EmbedReportPage({ params }: { params: { id: string } }) {
+export default async function EmbedReportPage(seite: { params: Promise<{ id: string }> }) {
+  const params = await seite.params;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const [props, report] = await Promise.all([

@@ -27,7 +27,8 @@ export function generateStaticParams() {
   return [{ id: "zahn" }, ...SPECIALTIES.map((s) => ({ id: s.id }))];
 }
 
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const s = fach(params.id);
   if (!s) return {};
   return { title: `Sorrida für die ${s.kurz} – ${s.marketing.headline}`, description: `${s.marketing.problem} ${s.marketing.beispiel}` };
@@ -35,7 +36,8 @@ export function generateMetadata({ params }: { params: { id: string } }): Metada
 
 const euro = (n: number) => (n ? `${n.toLocaleString("de-DE")} €` : "–");
 
-export default async function SpecialtyPage({ params }: { params: { id: string } }) {
+export default async function SpecialtyPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const s = fach(params.id);
   if (!s) notFound();
   const amtlich = await leistungenJeFach(s.id);

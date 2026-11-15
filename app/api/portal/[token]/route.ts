@@ -21,7 +21,8 @@ const rechnungHinweis = async (id: string) => {
 };
 
 // Patientenportal (öffentlich, ohne Login): Zahlung melden oder Ratenzahlung anfragen.
-export async function POST(req: Request, { params }: { params: { token: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const key = `portal:${ip}`;
   if (await isRateLimited(key, 30, 60 * 60 * 1000)) {
@@ -44,7 +45,7 @@ export async function POST(req: Request, { params }: { params: { token: string }
     // Und nur nach bestätigtem Geburtsdatum (S5): Ein Mandat bewegt Geld von einem frei eingetippten Konto,
     // deshalb gibt es hier, anders als bei der Unterschrift, keinen Weg ohne Prüfung. Hat die Praxis kein
     // Geburtsdatum hinterlegt, bleiben Überweisung und Online-Zahlung.
-    const pruefung = pruefLage(params.token, patient);
+    const pruefung = await pruefLage(params.token, patient);
     if (pruefung.status === "ohne") return NextResponse.json({ error: "Lastschrift ist hier erst möglich, wenn Ihre Praxis Ihr Geburtsdatum hinterlegt hat. Bitte überweisen Sie den Betrag oder sprechen Sie Ihre Praxis an.", code: "OHNE_GEBURTSDATUM" }, { status: 409 });
     if (pruefung.status === "noetig") return pruefungNoetigAntwort();
     const iban = normalizeIban(parsed.data.iban ?? "");

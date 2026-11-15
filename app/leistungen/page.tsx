@@ -48,7 +48,8 @@ function Karte({ l }: { l: Leistung }) {
   );
 }
 
-export default function LeistungenPage({ searchParams }: { searchParams: SP }) {
+export default async function LeistungenPage(props: { searchParams: Promise<SP> }) {
+  const searchParams = await props.searchParams;
   const q = (searchParams.q ?? "").slice(0, 80);
   const bereich = searchParams.bereich ? bereichAusSlug(searchParams.bereich) : null;
   const kt = (Object.keys(KT_LABEL) as KostentraegerCode[]).find((k) => k === searchParams.kt) ?? null;

@@ -22,7 +22,7 @@ export async function eigeneSitzungErneuern(userId: string, sessionVersion: numb
   const secret = process.env.NEXTAUTH_SECRET;
   if (!secret) return false;
   try {
-    const jar = cookies();
+    const jar = await cookies();
     for (const name of COOKIE_NAMEN) {
       const wert = jar.get(name)?.value;
       if (!wert) continue;

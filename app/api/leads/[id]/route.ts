@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { isSupportTeam } from "@/lib/supportTeam";
 
 // Postfach des Sorrida-Teams: Anfrage als erledigt markieren oder wieder öffnen.
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!(await isSupportTeam(session?.user.id))) return NextResponse.json({ error: "Kein Zugriff" }, { status: 403 });
   const body = await req.json().catch(() => null);

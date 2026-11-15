@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Anamnesebogen", robots: { index: false, follow: false }, referrer: "no-referrer" };
 
 // Anamnesebogen im Patientenportal (statt eines eigenen Links).
-export default async function PortalAnamnesis({ params }: { params: { token: string; id: string } }) {
+export default async function PortalAnamnesis(props: { params: Promise<{ token: string; id: string }> }) {
+  const params = await props.params;
   const patient = await portalPatient(params.token);
   const back = `/portal/${params.token}`;
   const form = patient

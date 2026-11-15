@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 // Kalender-Abo für die Praxis: Termine aus Sorrida im eigenen Kalender (Google, Outlook, Apple).
 // Zugang über den geheimen Link. Bewusst ohne Patientennamen und ohne Anlass, weil Kalenderdienste
 // den Link auf ihren eigenen Servern abrufen.
-export async function GET(req: Request, { params }: { params: { token: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   if (await isRateLimited(`kalenderfeed:${ip}`, 120, 3600e3)) return new NextResponse("Zu viele Abrufe", { status: 429 });
   await recordAttempt(`kalenderfeed:${ip}`, 3600e3);

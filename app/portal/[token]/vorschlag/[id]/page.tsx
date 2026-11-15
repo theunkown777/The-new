@@ -12,8 +12,9 @@ import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 
 export const dynamic = "force-dynamic";
 // Titel im Browser in der Sprache der Ansicht.
-export function generateMetadata({ searchParams }: { searchParams: { lang?: string } }): Metadata {
-  return { title: UI[pickLang(searchParams.lang, headers().get("accept-language"))].pageTitle, robots: { index: false, follow: false }, referrer: "no-referrer" };
+export async function generateMetadata(props: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  return { title: UI[pickLang(searchParams.lang, (await headers()).get("accept-language"))].pageTitle, robots: { index: false, follow: false }, referrer: "no-referrer" };
 }
 
 function Gone({ back, lang }: { back?: string; lang: PatientLang }) {
@@ -29,9 +30,11 @@ function Gone({ back, lang }: { back?: string; lang: PatientLang }) {
 
 // Behandlungsvorschlag im Patientenportal: gleiche Ansicht wie der
 // Patienten-Link, abgesichert über den Portal-Link des Patienten.
-export default async function PortalProposal({ params, searchParams }: { params: { token: string; id: string }; searchParams: { lang?: string } }) {
+export default async function PortalProposal(props: { params: Promise<{ token: string; id: string }>; searchParams: Promise<{ lang?: string }> }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   // Sprache: `?lang=`, sonst die bevorzugte Sprache des Browsers, sonst Deutsch.
-  const lang = pickLang(searchParams.lang, headers().get("accept-language"));
+  const lang = pickLang(searchParams.lang, (await headers()).get("accept-language"));
   const patient = await portalPatient(params.token);
   if (!patient) return <Gone lang={lang} />;
   const back = `/portal/${params.token}`;

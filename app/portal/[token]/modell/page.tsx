@@ -13,8 +13,10 @@ export const dynamic = "force-dynamic";
 
 // Patientenansicht des Modells: Der Patient sieht die Stellen, die seine Praxis markiert hat,
 // mit Hinweis und allgemeiner Erklärung. Zugang nur über den geheimen Patientenlink.
-export default async function PortalModellPage({ params, searchParams }: { params: { token: string }; searchParams: { lang?: string } }) {
-  const lang = pickPortalLang(searchParams.lang, headers().get("accept-language"));
+export default async function PortalModellPage(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string }> }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  const lang = pickPortalLang(searchParams.lang, (await headers()).get("accept-language"));
   const texte = await modellTexte(lang);
   const t = (de: string, werte?: Record<string, string | number>) => uebersetze(texte, de, werte);
   const gueltig = /^[A-Za-z0-9_-]{20,128}$/.test(params.token);

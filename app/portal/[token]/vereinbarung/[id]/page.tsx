@@ -11,7 +11,9 @@ import { pruefLage } from "@/lib/portalPruefungServer";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Einverständnis", robots: { index: false, follow: false }, referrer: "no-referrer" };
 
-export default async function Vereinbarung({ params, searchParams }: { params: { token: string; id: string }; searchParams: { lang?: string } }) {
+export default async function Vereinbarung(props: { params: Promise<{ token: string; id: string }>; searchParams: Promise<{ lang?: string }> }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const patient = await portalPatient(params.token);
   const back = `/portal/${params.token}`;
   const proposal = patient
@@ -34,11 +36,11 @@ export default async function Vereinbarung({ params, searchParams }: { params: {
   // Geburtsdatum-Prüfung vor der Unterschrift (S5). Das Geburtsdatum selbst geht nie an den Browser;
   // nur in Demo-Praxen (erfundene Patienten) steht es als Hinweis dabei, sonst käme dort niemand weiter.
   const stamm = await prisma.patient.findUnique({ where: { id: patient.id }, select: { id: true, birthDate: true, practice: { select: { isDemo: true } } } });
-  const lage = stamm ? pruefLage(params.token, stamm) : { status: "noetig" as const };
+  const lage = stamm ? await pruefLage(params.token, stamm) : { status: "noetig" as const };
   const pruefung = {
     status: lage.status,
     url: `/api/portal/${params.token}/pruefung`,
-    lang: pickPortalLang(searchParams.lang, headers().get("accept-language")),
+    lang: pickPortalLang(searchParams.lang, (await headers()).get("accept-language")),
     demoDatum: stamm?.practice.isDemo && stamm.birthDate ? stamm.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" }) : null,
   };
 

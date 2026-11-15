@@ -23,10 +23,10 @@ export type PruefLage =
   | { status: "ohne" };
 
 /** Lage für Seiten und Routen, die den Patienten schon geladen haben. */
-export function pruefLage(token: string, patient: { id: string; birthDate: Date | null }): PruefLage {
+export async function pruefLage(token: string, patient: { id: string; birthDate: Date | null }): Promise<PruefLage> {
   if (!patient.birthDate) return { status: "ohne" };
   const linkHash = hashToken(token);
-  const wert = cookies().get(pruefCookieName(linkHash))?.value;
+  const wert = (await cookies()).get(pruefCookieName(linkHash))?.value;
   const ok = pruefTokenLesen(wert, { linkHash, patientId: patient.id, geburtstag: berlinTag(patient.birthDate) });
   return ok ? { status: "bestaetigt", geprueftAt: ok.geprueftAt } : { status: "noetig" };
 }

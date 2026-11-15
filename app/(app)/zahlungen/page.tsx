@@ -40,7 +40,8 @@ function Status({ tone, label }: { tone: string; label: string }) {
   );
 }
 
-export default async function ZahlungenPage({ searchParams }: { searchParams: { f?: string; stripe?: string } }) {
+export default async function ZahlungenPage(props: { searchParams: Promise<{ f?: string; stripe?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const f = FILTER.find(([k]) => k === searchParams.f)?.[0] ?? "offen";

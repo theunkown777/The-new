@@ -18,7 +18,8 @@ const GRUPPEN: Record<string, { label: string; actions: AuditAction[] }> = {
   geld: { label: "Rechnungen", actions: ["rechnung.status"] },
 };
 
-export default async function ProtokollPage({ searchParams }: { searchParams: { gruppe?: string } }) {
+export default async function ProtokollPage(props: { searchParams: Promise<{ gruppe?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   if (session?.user.role !== "admin") {
     return (

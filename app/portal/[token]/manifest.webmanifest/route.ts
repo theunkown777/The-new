@@ -4,7 +4,8 @@ import { portalPatient } from "@/lib/portalAuth";
 
 // Patientenportal als Web-App: "Zum Startbildschirm hinzufügen" öffnet
 // direkt das eigene Portal, mit dem Namen der Praxis.
-export async function GET(_req: Request, { params }: { params: { token: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const patient = await portalPatient(params.token);
   if (!patient) return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 });
   const practice = await prisma.practice.findUnique({ where: { id: patient.practiceId }, select: { name: true } });

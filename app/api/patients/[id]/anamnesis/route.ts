@@ -8,7 +8,8 @@ import { ANAMNESIS_LINK_TTL_MS } from "@/lib/anamnesis";
 
 // Link zum digitalen Anamnesebogen erzeugen. Offene, noch nicht ausgefüllte
 // Bögen desselben Patienten werden dabei ungültig.
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const practiceId = session.user.practiceId;

@@ -9,13 +9,15 @@ import { SCHNITTMODELLE, type SchnittId } from "@/lib/modelle/schnitt";
 export const dynamicParams = false;
 export const generateStaticParams = () => Object.keys(SCHNITTMODELLE).map((modell) => ({ modell }));
 
-export function generateMetadata({ params }: { params: { modell: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ modell: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const m = SCHNITTMODELLE[params.modell as SchnittId];
   if (!m) return {};
   return { title: `${m.titel} im Modell: Aufbau verständlich erklärt – Sorrida`, description: `Interaktives Modell: ${m.titel} im Schnitt mit ${m.teile.length} Teilen. Antippen, heranzoomen und lesen, was es ist und welche Beschwerden dort häufig sind.` };
 }
 
-export default function SchnittPage({ params }: { params: { modell: string } }) {
+export default async function SchnittPage(props: { params: Promise<{ modell: string }> }) {
+  const params = await props.params;
   const m = SCHNITTMODELLE[params.modell as SchnittId];
   if (!m) notFound();
   return (

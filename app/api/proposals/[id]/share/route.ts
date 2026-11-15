@@ -8,7 +8,8 @@ import { PATIENT_LINK_TTL_MS } from "@/lib/patientLink";
 
 // Patienten-Link erzeugen. Ein neuer Link macht den vorherigen ungültig.
 // Der Link wird nur in dieser Antwort im Klartext ausgegeben.
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 
@@ -31,7 +32,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   return NextResponse.json({ url, qr, expiresAt }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 

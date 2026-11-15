@@ -15,7 +15,7 @@ export function MenschKarte({ fach, ueberschrift = true }: { fach?: string | nul
   const themen = themenFuerFach(fach).filter((t) => ERKLAER_BILDER[t] || !MENSCH_BILD);
   const [ziel, setZiel] = useState<ErklaerThema | null>(null);
   const [offen, setOffen] = useState<ErklaerThema | null>(null);
-  const timer = useRef<number>();
+  const timer = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
   // Erklärungsbild schon vorladen, wenn der Mauszeiger über einem Punkt steht.

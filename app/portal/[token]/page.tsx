@@ -18,7 +18,8 @@ import { buildProposal, patientAnteile, resolvePrices } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 
 export const dynamic = "force-dynamic";
-export function generateMetadata({ params }: { params: { token: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const params = await props.params;
   return {
     title: "Ihr Behandlungsweg",
     robots: { index: false, follow: false },
@@ -40,7 +41,9 @@ function Expired() {
 
 // Patientenportal: offene Rechnungen mit GiroCode, Vorschläge als Dokument.
 // Gezeigt werden nur Vorname und Praxisname, keine Kassen- oder Geburtsdaten.
-export default async function PortalPage({ params, searchParams }: { params: { token: string }; searchParams: { lang?: string; bezahlt?: string } }) {
+export default async function PortalPage(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string; bezahlt?: string }> }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <Expired />;
   const now = new Date();
   const patient = await prisma.patient.findUnique({
@@ -68,7 +71,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
   if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < now) return <Expired />;
   if (!patient.portalViewedAt) await prisma.patient.update({ where: { id: patient.id }, data: { portalViewedAt: now } });
 
-  const lang = pickPortalLang(searchParams.lang, headers().get("accept-language"));
+  const lang = pickPortalLang(searchParams.lang, (await headers()).get("accept-language"));
   const t = PORTAL_UI[lang];
   const locale = PORTAL_LOCALE[lang];
   const date = (d: Date) => d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -81,7 +84,7 @@ export default async function PortalPage({ params, searchParams }: { params: { t
   // außer als Hinweis in Demo-Praxen (erfundene Patienten). Ohne hinterlegtes Geburtsdatum wird Lastschrift
   // nicht angeboten; Überweisung und Online-Zahlung bleiben.
   const pruefung: PortalPruefungStand = {
-    status: pruefLage(params.token, patient).status,
+    status: (await pruefLage(params.token, patient)).status,
     lang,
     demoDatum: practice.isDemo && patient.birthDate ? patient.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" }) : null,
   };

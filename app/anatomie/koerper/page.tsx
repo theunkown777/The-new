@@ -9,7 +9,8 @@ export const metadata: Metadata = {
   description: "Interaktives Körpermodell aus echten anatomischen Daten: Punkt antippen, die Kamera fährt heran und die Erklärung öffnet sich. Haut abnehmen und Ebene für Ebene Muskeln, Organe, Skelett und Nerven ansehen.",
 };
 
-export default function KoerperPage({ searchParams }: { searchParams?: { fokus?: string } }) {
+export default async function KoerperPage(props: { searchParams?: Promise<{ fokus?: string }> }) {
+  const searchParams = await props.searchParams;
   const fokus = searchParams?.fokus && searchParams.fokus in FOKUS ? (searchParams.fokus as FokusId) : null;
   return (
     <PublicShell full>

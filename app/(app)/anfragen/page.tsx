@@ -21,7 +21,8 @@ const FILTER = [
 // Postfach des Sorrida-Teams: Hilfe-Anfragen ("Fachrichtung nicht gefunden")
 // und Pilot-Anfragen. Funktioniert auch ohne Mailversand. Nur für Konten aus
 // SUPPORT_TEAM_EMAILS mit bestätigter Adresse; alle anderen sehen 404.
-export default async function AnfragenPage({ searchParams }: { searchParams: { f?: string } }) {
+export default async function AnfragenPage(props: { searchParams: Promise<{ f?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   if (!(await isSupportTeam(session?.user.id))) notFound();
   const f = FILTER.find(([k]) => k === searchParams.f)?.[0] ?? "offen";

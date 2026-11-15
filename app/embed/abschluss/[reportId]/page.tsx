@@ -4,7 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { WrapUpSummary } from "@/components/WrapUpSummary";
 
-export default async function EmbedWrapUpResultPage({ params }: { params: { reportId: string } }) {
+export default async function EmbedWrapUpResultPage(props: { params: Promise<{ reportId: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   const report = await prisma.report.findFirst({
     where: { id: params.reportId, practiceId: session!.user.practiceId },

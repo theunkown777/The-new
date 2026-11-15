@@ -8,7 +8,8 @@ export const metadata: Metadata = {
 };
 
 // Seite für die eigene Domain, solange Sorrida noch nicht öffentlich ist (lib/vorschau.ts).
-export default function Demnaechst({ searchParams }: { searchParams: { weiter?: string } }) {
+export default async function Demnaechst(props: { searchParams: Promise<{ weiter?: string }> }) {
+  const searchParams = await props.searchParams;
   const weiter = searchParams.weiter && searchParams.weiter.startsWith("/") && !searchParams.weiter.startsWith("//") ? searchParams.weiter : "/";
   const zugangAktiv = !!(process.env.VORSCHAU_BENUTZER && process.env.VORSCHAU_PASSWORT);
   return (

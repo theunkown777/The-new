@@ -23,7 +23,8 @@ import { ModellWahl } from "@/components/modelle/ModellWahl";
 import { MODELL_BEFUNDE } from "@/lib/modelle/markierung";
 import { KurzcheckKarte } from "@/components/kurzcheck/KurzcheckKarte";
 
-export default async function PatientDetailPage({ params }: { params: { id: string } }) {
+export default async function PatientDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
 
   const patient = await prisma.patient.findFirst({

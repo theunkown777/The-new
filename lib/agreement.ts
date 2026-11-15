@@ -9,7 +9,7 @@ export const MAX_SIGNATURE_BYTES = 80_000;
 
 export const agreementSchema = z.object({
   name: z.string().trim().min(3, "Bitte Ihren vollständigen Namen eingeben").max(120),
-  accept: z.literal(true, { errorMap: () => ({ message: "Bitte bestätigen Sie die Erklärung" }) }),
+  accept: z.literal(true, { error: "Bitte bestätigen Sie die Erklärung" }),
   signature: z
     .string()
     .max(MAX_SIGNATURE_BYTES, "Die Unterschrift ist zu groß")

@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 
@@ -25,7 +26,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 // Löschen (Art. 17 DSGVO) nur für Admins, nur mit Bestätigung durch den
 // Nachnamen und nur, wenn keine Aufbewahrungspflicht entgegensteht
 // (lib/retention.ts). Der Vorgang wird ohne Namen protokolliert.
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { requireAdmin } = await import("@/lib/permissions");
   const { deletionCheck } = await import("@/lib/retention");
   const { auditFromSession } = await import("@/lib/audit");

@@ -8,7 +8,8 @@ import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { ABGEWAEHLT, buildProposal, chosenOption, resolvePrices } from "@/lib/proposals";
 
 // Rückmeldung des Patienten über den Patienten-Link (öffentlich, ohne Login).
-export async function POST(req: Request, { params }: { params: { token: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const key = `patient-link:${ip}`;
   if (await isRateLimited(key, 20, 60 * 60 * 1000)) {

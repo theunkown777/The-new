@@ -7,7 +7,8 @@ import { hashToken } from "@/lib/tokens";
 // Einlösen des Einmal-Tokens aus dem Sorrida-Connector. Der Token gehört zu
 // genau einer Praxis; nur ein angemeldeter Nutzer derselben Praxis kann ihn
 // einlösen, und nur einmal.
-export default async function EmbedLaunchPage({ searchParams }: { searchParams: { t?: string } }) {
+export default async function EmbedLaunchPage(props: { searchParams: Promise<{ t?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const raw = searchParams.t ?? "";
   if (!session) redirect(`/login?callbackUrl=${encodeURIComponent(`/embed/launch?t=${raw}`)}`);

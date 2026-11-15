@@ -29,7 +29,8 @@ const STUFE: Record<Risk["stufe"], { label: string; cls: string; dot: string }> 
 
 
 
-export default async function AnalysePage({ searchParams }: { searchParams: { tage?: string } }) {
+export default async function AnalysePage(props: { searchParams: Promise<{ tage?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   // Umsätze und Risiken sind Sache der Geschäftsführung: Mitarbeitende sehen
   // die Analyse nur mit Freigabe (Einstellungen → Team). Ohne Freigabe werden

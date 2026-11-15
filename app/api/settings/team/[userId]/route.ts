@@ -12,7 +12,8 @@ async function countAdmins(practiceId: string): Promise<number> {
   return prisma.user.count({ where: { practiceId, role: "admin" } });
 }
 
-export async function PATCH(req: Request, { params }: { params: { userId: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ userId: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (!session) return error;
 
@@ -66,7 +67,8 @@ export async function PATCH(req: Request, { params }: { params: { userId: string
   return NextResponse.json({ user: updated });
 }
 
-export async function DELETE(_req: Request, { params }: { params: { userId: string } }) {
+export async function DELETE(_req: Request, props: { params: Promise<{ userId: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (!session) return error;
 

@@ -17,7 +17,8 @@ const antwort = (body: Record<string, unknown>, status: number) => NextResponse.
 // Lastschriftmandat erteilt wird. Die Antwort sagt nur "stimmt" oder "stimmt
 // nicht" und wie viele Versuche bleiben, nie wie nah die Eingabe war. Bei
 // Erfolg gilt 30 Minuten lang ein signiertes httpOnly-Cookie für genau diesen Link.
-export async function POST(req: Request, { params }: { params: { token: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   // Grobe Bremse je Absender; die eigentliche Grenze zählt je Link in der Datenbank.
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const key = `portalpruefung:${ip}`;

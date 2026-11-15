@@ -6,7 +6,8 @@ import { authOptions } from "@/lib/auth";
 import { PublicShell } from "@/components/PublicShell";
 import { INV_LABEL, KT_LABEL, LEISTUNGEN, kostenHinweis, leistung, slugBereich, vorherNachherErlaubt } from "@/lib/leistungskatalog";
 
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const l = leistung(params.id);
   if (!l) return {};
   return { title: `${l.name} (${l.fachbegriff}) – Sorrida`, description: `${l.beschreibung} ${kostenHinweis(l)}` };
@@ -18,7 +19,8 @@ const HWG_TEXT = {
   nein: "Keine Einschränkung für Vorher-Nachher-Bilder aus dem Katalog.",
 } as const;
 
-export default async function LeistungPage({ params }: { params: { id: string } }) {
+export default async function LeistungPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const l = leistung(params.id);
   if (!l) notFound();
   // Gebührenordnung und HWG-Status nur für angemeldete Admins, nicht für Endkunden.

@@ -25,7 +25,8 @@ const updateSchema = z.object({
   festbetragCent: z.number().int().min(0).optional().nullable(),
 });
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (!session) return error;
 
@@ -60,7 +61,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   return NextResponse.json({ item });
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (!session) return error;
 

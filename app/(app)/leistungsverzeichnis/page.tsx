@@ -21,7 +21,8 @@ const EBM_ORIENTIERUNGSWERT = 12.7404;
 
 const euro = (c: number) => (c / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 
-export default async function LeistungsverzeichnisPage({ searchParams }: { searchParams: { q?: string; system?: string; kapitel?: string; seite?: string; alle?: string } }) {
+export default async function LeistungsverzeichnisPage(props: { searchParams: Promise<{ q?: string; system?: string; kapitel?: string; seite?: string; alle?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const admin = session!.user.role === "admin";

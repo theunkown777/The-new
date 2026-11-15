@@ -4,7 +4,8 @@ import { entrySchema } from "@/lib/akte";
 import { patientInPractice } from "@/lib/patientScope";
 import { auditFromSession } from "@/lib/audit";
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, patient, error } = await patientInPractice(params.id);
   if (error) return error;
   const parsed = entrySchema.safeParse(await req.json().catch(() => null));

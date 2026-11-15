@@ -13,7 +13,8 @@ import { portalPruefung, pruefungNoetigAntwort } from "@/lib/portalPruefungServe
 // es kurz zuvor bestätigt worden sein. Ohne hinterlegtes Geburtsdatum bleibt die
 // Unterschrift möglich, wird aber als "ohne Geburtsdatum-Prüfung" festgehalten
 // (agreedGeprueftAt bleibt leer) und der Praxis im Eingang gemeldet.
-export async function POST(req: Request, { params }: { params: { token: string; id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ token: string; id: string }> }) {
+  const params = await props.params;
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const key = `portal:${ip}`;
   if (await isRateLimited(key, 30, 60 * 60 * 1000)) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });

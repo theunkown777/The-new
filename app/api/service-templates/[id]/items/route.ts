@@ -10,7 +10,8 @@ const addItemSchema = z.object({
   dependsOn: z.array(z.string()).default([]),
 });
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { session, error } = await requireAdmin();
   if (!session) return error;
 

@@ -7,7 +7,8 @@ import { kurzArt, kurzcheckSchema } from "@/lib/kurzcheck";
 import { eingangMelden } from "@/lib/eingang";
 
 // Kurz-Fragebogen aus dem Patientenlink speichern. Die Praxis sieht ihn im Eingang und in der Akte.
-export async function POST(req: Request, { params }: { params: { token: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const key = `kurzcheck:${ip}`;
   if (await isRateLimited(key, 12, 60 * 60 * 1000)) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });

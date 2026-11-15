@@ -7,7 +7,8 @@ import { agreementContext } from "@/lib/agreementContext";
 import { pruefVermerk } from "@/lib/portalPruefung";
 
 // Digitales Einverständnis als PDF für die Akte und zum Gegenzeichnen.
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const p = await prisma.treatmentProposal.findFirst({

@@ -7,7 +7,8 @@ import { prisma } from "@/lib/prisma";
 const schema = z.object({ aktion: z.enum(["nachgefasst", "hkp", "hkp-zurueck"]) });
 
 // Nachfass-Liste: festhalten, dass erinnert wurde bzw. dass der Heil- und Kostenplan bei der Kasse liegt.
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const parsed = schema.safeParse(await req.json().catch(() => null));

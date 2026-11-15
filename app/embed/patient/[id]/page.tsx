@@ -21,13 +21,12 @@ const TAB_LABELS: Record<EmbedView, string> = {
   verlauf: "Verlauf",
 };
 
-export default async function EmbedPatientPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: { view?: string };
+export default async function EmbedPatientPage(props: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ view?: string }>;
 }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const view: EmbedView = (EMBED_VIEWS as readonly string[]).includes(searchParams.view ?? "")

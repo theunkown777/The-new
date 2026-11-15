@@ -9,7 +9,8 @@ export const metadata: Metadata = { title: "Fünf Fragen vor dem Termin", robots
 export const dynamic = "force-dynamic";
 
 // Patientenlink: Kurz-Fragebogen mit höchstens fünf Fragen, jede mit Bildern zum Antippen.
-export default async function PortalFragenPage({ params }: { params: { token: string } }) {
+export default async function PortalFragenPage(props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const gefunden = /^[A-Za-z0-9_-]{20,128}$/.test(params.token)
     ? await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(params.token) }, select: { firstName: true, portalExpiresAt: true, practice: { select: { name: true, specialty: true } } } })
     : null;

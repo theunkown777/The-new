@@ -8,7 +8,8 @@ import { TreatmentWrapUp } from "@/components/TreatmentWrapUp";
 import { resolveMed } from "@/lib/practiceMed";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 
-export default async function NewWrapUpPage({ searchParams }: { searchParams: { patientId?: string; q?: string } }) {
+export default async function NewWrapUpPage(props: { searchParams: Promise<{ patientId?: string; q?: string }> }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
 

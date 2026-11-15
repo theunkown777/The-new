@@ -9,7 +9,8 @@ import { ProposalEditor } from "@/components/ProposalEditor";
 import { PatientLinkPanel } from "@/components/PatientLinkPanel";
 import { patientLinkState } from "@/lib/patientLink";
 
-export default async function EmbedProposalPage({ params }: { params: { id: string } }) {
+export default async function EmbedProposalPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
   const proposal = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, practiceId: session!.user.practiceId },
