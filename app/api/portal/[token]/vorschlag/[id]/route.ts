@@ -25,6 +25,9 @@ export async function POST(req: Request, props: { params: Promise<{ token: strin
       patientNote: parsed.data.note || null,
       patientRespondedAt: new Date(),
       patientWantsInstallments: parsed.data.wantsInstallments,
+      // Mit der Rückmeldung hat sich ein Erinnerungswunsch erledigt.
+      erinnernAm: null,
+      erinnernGemeldetAt: null,
     },
   });
   if (res.count === 0) return NextResponse.json({ error: "Vorschlag nicht gefunden" }, { status: 404 });

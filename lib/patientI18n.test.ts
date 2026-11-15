@@ -148,7 +148,7 @@ const DEUTSCHER_REST =
   /(?<!\p{L})(Kasse\p{L}*|Krankenkasse\p{L}*|Zahn\p{L}*|Zähne\p{L}*|Krone\p{L}*|Brücke\p{L}*|Füllung\p{L}*|Eigenanteil\p{L}*|Zuzahlung\p{L}*|Leistung\p{L}*|Versicherung\p{L}*|Behandlung\p{L}*|Praxis|Zahnarzt\p{L}*|Ihre[rnms]?|Sie|und|oder|nicht|für|wird|sind|bitte)(?!\p{L})/iu;
 const LATEIN = /[A-Za-zÄÖÜäöüß]{2,}/g;
 /** Lateinische Wörter, die in kyrillischer oder arabischer Schrift stehen bleiben dürfen. */
-const LATEIN_ERLAUBT = new Set(["PSI"]);
+const LATEIN_ERLAUBT = new Set(["PSI", "PDF"]);
 const zahlen = (s: string) => s.match(/\d+/g) ?? [];
 
 // Beispielwerte für die Funktionen der Oberfläche; was hier steht, muss im Satz wieder vorkommen.
@@ -164,6 +164,9 @@ const UI_ARGS: Record<string, unknown[][]> = {
   fine: [[true, "24.11.2026"], [false, "24.11.2026"]],
   installmentsFine: [["Medipay"], [undefined]],
   rate: [[12, "57 €"]],
+  shareFrom: [["24.11.2026"]],
+  remindSet: [["24.11.2026"]],
+  stepItems: [[1], [3], [12]],
 };
 const BEISPIELE = new Set(["Zofia", "Qwertz", "Asdf", "Medipay"]);
 

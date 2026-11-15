@@ -114,6 +114,9 @@ model Practice {
   /// Angaben der Praxis für Patienten (Anschrift, Telefon, Impressum, Datenschutzhinweise): Fuß von Portal, Patienten-Link,
   /// Anamnesebogen und Patienten-E-Mails (lib/praxisStammdaten.ts)
   stammdaten                Json?
+  /// Link zum Google-Profil der Praxis für den neutralen Bewertungs-Hinweis nach der Rückmeldung (lib/rueckmeldung.ts)
+  googleProfilUrl           String?
+  terminRueckmeldungen      TerminRueckmeldung[]
 
   @@index([isDemo, demoExpiresAt])
 }
@@ -561,10 +564,50 @@ model TreatmentProposal {
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @updatedAt
   zweitmeinungen           Zweitmeinung[]
+  /// Lese-Links für Vertrauenspersonen, vom Patienten erzeugt (lib/leseLink.ts)
+  leseLinks                LeseLink[]
+  /// „Erinnern Sie mich“: Tag, den der Patient gewählt hat. An dem Tag entsteht ein Eintrag im Eingang; es geht keine Nachricht von selbst raus.
+  erinnernAm               DateTime?
+  /// Wann der tägliche Lauf den Eintrag im Eingang angelegt hat (verhindert doppelte Einträge)
+  erinnernGemeldetAt       DateTime?
 
   @@index([practiceId])
   @@index([patientId])
   @@index([reportId])
+  @@index([erinnernAm])
+}
+
+/// Lese-Link für eine Vertrauensperson: Der Patient erzeugt ihn selbst in seiner Ansicht des Vorschlags.
+/// Nur Lesen (keine Antwort, Unterschrift, Zweitmeinung, kein PDF). Gespeichert wird nur der Hash des Tokens,
+/// nicht für wen der Link gedacht ist. Gültig, solange der Zugang des Patienten gilt (quelle), höchstens bis expiresAt.
+model LeseLink {
+  id         String            @id @default(cuid())
+  proposalId String
+  proposal   TreatmentProposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  tokenHash  String            @unique
+  /// "LINK" (über den Patienten-Link /p erzeugt) oder "PORTAL" (im Patientenportal erzeugt)
+  quelle     String            @default("LINK")
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime          @default(now())
+
+  @@index([proposalId])
+}
+
+/// Eine Frage nach dem Termin im Patientenportal („Wie zufrieden waren Sie mit Ihrem Besuch?“), höchstens eine Antwort je Termin.
+/// Die Praxis sieht nur Durchschnitt, Verteilung und Texte ohne Namen (lib/rueckmeldung.ts), nie die einzelne Antwort am Patienten.
+model TerminRueckmeldung {
+  id            String      @id @default(cuid())
+  practiceId    String
+  practice      Practice    @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  /// 1 (gar nicht zufrieden) bis 5 (sehr zufrieden)
+  stufe         Int
+  text          String?
+  createdAt     DateTime    @default(now())
+
+  @@index([practiceId, createdAt])
 }
 
 // Schlüssel, mit dem der Sorrida-Connector auf einem Praxis-PC Patienten aus
@@ -821,6 +864,7 @@ model Appointment {
   /// Online gebucht, nachdem die Praxis in den 30 Tagen davor an die Vorsorge erinnert hat (Seite /vorsorge)
   nachErinnerung Boolean   @default(false)
   createdAt      DateTime  @default(now())
+  rueckmeldung   TerminRueckmeldung?
 
   @@index([practiceId, start])
   @@index([patientId])

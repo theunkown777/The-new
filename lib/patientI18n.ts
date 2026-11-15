@@ -19,6 +19,7 @@
 import { PATTERNS, PATTERN_IDS } from "@/lib/i18n/patterns";
 import type { PatientLocale, Ui } from "@/lib/i18n/types";
 import { de } from "@/lib/i18n/de";
+import { uiEinfach } from "@/lib/i18n/de-einfach";
 import { en } from "@/lib/i18n/en";
 import { tr as tuerkisch } from "@/lib/i18n/tr";
 import { uk } from "@/lib/i18n/uk";
@@ -36,6 +37,12 @@ export const LOCALES: Record<PatientLang, PatientLocale> = { de, en, tr: tuerkis
 
 /** Oberfläche je Sprache. */
 export const UI = Object.fromEntries(PATIENT_LANGS.map((l) => [l, LOCALES[l].ui])) as Record<PatientLang, Ui>;
+
+/**
+ * Oberfläche der Ansicht. „Einfache Sprache“ gibt es nur auf Deutsch: Dann ersetzen kurze Sätze die Rahmentexte
+ * (lib/i18n/de-einfach.ts), alles Übrige kommt aus der deutschen Fassung. In jeder anderen Sprache ohne Wirkung.
+ */
+export const uiFuer = (lang: PatientLang, einfach = false): Ui => (einfach && lang === "de" ? { ...UI.de, ...uiEinfach } : UI[lang]);
 
 /** Englisches Wörterbuch der Regeltexte (bleibt als eigener Export für bestehende Aufrufer). */
 export const CONTENT_EN: Record<string, string> = en.content;

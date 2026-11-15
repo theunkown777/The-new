@@ -36,6 +36,9 @@ export async function POST(req: Request, props: { params: Promise<{ token: strin
       patientNote: parsed.data.note || null,
       patientRespondedAt: new Date(),
       patientWantsInstallments: parsed.data.wantsInstallments,
+      // Mit der Rückmeldung hat sich ein Erinnerungswunsch erledigt.
+      erinnernAm: null,
+      erinnernGemeldetAt: null,
     },
   });
   // Nur Hinweise ohne Gesundheitsangaben (siehe lib/eingang.ts): ob eine eigene Wahl, eine Nachricht oder ein Ratenwunsch dabei ist.

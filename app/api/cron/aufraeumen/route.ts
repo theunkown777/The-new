@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { aufraeumen } from "@/lib/aufraeumen";
 import { prisma } from "@/lib/prisma";
 import { kalenderAbgleichen } from "@/lib/kalenderSync";
+import { erinnerungenMelden } from "@/lib/erinnerungWunsch";
 
 // Täglich von Vercel Cron aufgerufen (vercel.json). Mit gesetztem
 // CRON_SECRET schickt Vercel es als Bearer-Token mit; nur dann läuft der Job.
@@ -17,5 +18,7 @@ export async function GET(req: Request) {
   let kalender = 0;
   for (const p of praxen) { const r = await kalenderAbgleichen(p.id).catch(() => null); if (r?.ok) kalender++; }
   await prisma.kalenderBelegung.deleteMany({ where: { ende: { lt: new Date(Date.now() - 2 * 864e5) } } });
-  return NextResponse.json({ ok: true, ergebnis, kalender });
+  // „Erinnern Sie mich“: fällige Wünsche der Patienten als Aufgabe in den Eingang der Praxis (es geht keine Nachricht raus)
+  const erinnerungen = await erinnerungenMelden().catch((err) => { console.error("Erinnerungswünsche konnten nicht gemeldet werden", err); return 0; });
+  return NextResponse.json({ ok: true, ergebnis, kalender, erinnerungen });
 }

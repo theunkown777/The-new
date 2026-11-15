@@ -77,6 +77,41 @@ export type Ui = {
   expiredText: string;
   goneTitle: string;
   goneText: string;
+  /** Knopf für die Kostenübersicht als PDF; pdfNote sagt, dass das PDF deutsch ist. */
+  pdfSave: string;
+  pdfNote: string;
+  /** Lese-Link für eine Vertrauensperson (nur lesen). */
+  shareTitle: string;
+  shareText: string;
+  shareCreate: string;
+  shareSend: string;
+  shareCopy: string;
+  shareCopied: string;
+  /** Der Link wird nur direkt nach dem Erzeugen gezeigt (gespeichert ist nur sein Hash). */
+  shareOnce: string;
+  shareFrom: (date: string) => string;
+  shareRevoke: string;
+  shareLimit: string;
+  actionFailed: string;
+  /** Überschrift und Hinweis der Lese-Ansicht für Vertrauenspersonen. */
+  readOnlyTitle: string;
+  readOnlyNote: string;
+  /** „Erinnern Sie mich“: Die Praxis meldet sich; es geht keine Nachricht von selbst raus. */
+  remindTitle: string;
+  remindText: string;
+  remind3: string;
+  remind7: string;
+  remind14: string;
+  remindSet: (date: string) => string;
+  remindDelete: string;
+  readAloud: string;
+  readStop: string;
+  /** Drei Kacheln oben: geplant, Anteil von Kasse bzw. Versicherung, eigener Anteil. */
+  stepPlanned: string;
+  stepItems: (n: number) => string;
+  stepInsurerGkv: string;
+  stepInsurerPkv: string;
+  stepSelf: string;
 };
 
 /** `t` übersetzt einen eingebetteten Regeltext (z. B. „Zahn 36“ in einem Hinweis). */

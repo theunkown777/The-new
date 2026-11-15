@@ -15,6 +15,8 @@ export const EINGANG_ARTEN = {
   VORSCHLAG_RUECKRUF: { titel: "Rückruf zum Vorschlag gewünscht", tun: "Patient anrufen.", gruppe: "Vorschläge" },
   VEREINBARUNG: { titel: "Vereinbarung unterschrieben", tun: "Vorschlag als angenommen eintragen und Termin planen.", gruppe: "Vorschläge" },
   ZWEITMEINUNG: { titel: "Zweitmeinung geteilt", tun: "Im Vorschlag ansehen und im Gespräch darauf eingehen.", gruppe: "Vorschläge" },
+  // Der Patient hat in seiner Ansicht „Erinnern Sie mich“ gewählt (lib/erinnerungWunsch.ts). Sorrida verschickt nichts von selbst.
+  ERINNERUNG_GEWUENSCHT: { titel: "Erinnerung vom Patienten gewünscht", tun: "Vorschlag öffnen und den Patienten erinnern (Knopf dort) oder anrufen. Von selbst geht nichts raus.", gruppe: "Vorschläge" },
   TERMIN_GEBUCHT: { titel: "Termin online gebucht", tun: "Im Kalender ansehen, bei Bedarf bestätigen.", gruppe: "Termine" },
   TERMIN_ABGESAGT: { titel: "Termin online abgesagt", tun: "Die Zeit ist wieder frei; bei Bedarf neu vergeben.", gruppe: "Termine" },
   // Anfrage über die Buchungsseite für neue Patienten (/t/<kennung>). Dazu gibt es noch keinen Patienten und deshalb
@@ -32,7 +34,7 @@ export function eingangZiel(e: { art: string; entityId: string | null; patientId
     case "ZAHLUNG_ONLINE": case "RATEN": case "LASTSCHRIFT": return "/zahlungen";
     case "ANAMNESE": return `/patients/${e.patientId}#anamnese`;
     case "KURZCHECK": return `/patients/${e.patientId}#kurzcheck`;
-    case "VORSCHLAG_INTERESSE": case "VORSCHLAG_RUECKRUF": case "VEREINBARUNG": case "ZWEITMEINUNG":
+    case "VORSCHLAG_INTERESSE": case "VORSCHLAG_RUECKRUF": case "VEREINBARUNG": case "ZWEITMEINUNG": case "ERINNERUNG_GEWUENSCHT":
       return e.entityId ? `/proposals/${e.entityId}` : `/patients/${e.patientId}`;
     case "TERMIN_GEBUCHT": case "TERMIN_ABGESAGT": return e.tag ? `/termine?tag=${e.tag}` : "/termine";
     case "TERMINANFRAGE": return "/termine#anfragen";
