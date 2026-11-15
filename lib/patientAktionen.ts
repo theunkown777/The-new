@@ -15,14 +15,14 @@ const KOPF = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" 
 const json = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: KOPF });
 const ABGELAUFEN = "Dieser Link ist abgelaufen. Bitte wenden Sie sich an Ihre Praxis.";
 
-export type PatientZugang = { proposalId: string; status: string; quelle: "LINK" | "PORTAL"; expiresAt: Date };
+export type PatientZugang = { proposalId: string; status: string; quelle: "LINK" | "PORTAL"; expiresAt: Date; zugangHash: string };
 
 /** Zugang über den Patienten-Link: derselbe Test wie auf der Seite /p/<token>. */
 export async function zugangLink(token: string): Promise<PatientZugang | null> {
   if (!TOKEN_FORM.test(token)) return null;
   const p = await prisma.treatmentProposal.findUnique({ where: { shareTokenHash: hashToken(token) }, select: { id: true, status: true, shareExpiresAt: true } });
   if (!p || !p.shareExpiresAt || p.shareExpiresAt < new Date()) return null;
-  return { proposalId: p.id, status: p.status, quelle: "LINK", expiresAt: p.shareExpiresAt };
+  return { proposalId: p.id, status: p.status, quelle: "LINK", expiresAt: p.shareExpiresAt, zugangHash: hashToken(token) };
 }
 
 /** Zugang über das Portal: Portal-Link des Patienten und ein Vorschlag, den er dort sehen darf. */
@@ -31,7 +31,7 @@ export async function zugangPortal(token: string, id: string): Promise<PatientZu
   if (!patient) return null;
   const p = await prisma.treatmentProposal.findFirst({ where: { id, ...portalProposalWhere(patient.id) }, select: { id: true, status: true } });
   if (!p) return null;
-  return { proposalId: p.id, status: p.status, quelle: "PORTAL", expiresAt: patient.portalExpiresAt! };
+  return { proposalId: p.id, status: p.status, quelle: "PORTAL", expiresAt: patient.portalExpiresAt!, zugangHash: hashToken(token) };
 }
 
 async function begrenzt(req: Request): Promise<boolean> {
@@ -44,9 +44,9 @@ export async function leseLinkAntwort(req: Request, zugang: PatientZugang | null
   if (await begrenzt(req)) return json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, 429);
   if (!zugang) return json({ error: ABGELAUFEN }, 404);
   if (req.method === "POST") {
-    const neu = await leseLinkErzeugen(zugang.proposalId, zugang.quelle, zugang.expiresAt);
+    const neu = await leseLinkErzeugen(zugang.proposalId, zugang.quelle, zugang.expiresAt, zugang.zugangHash);
     if (!neu) return json({ error: `Es sind höchstens ${LESE_LINK_MAX} Lese-Links gleichzeitig möglich.`, code: "LIMIT" }, 409);
-    return json({ ok: true, pfad: `/p/lesen/${neu.raw}`, links: await leseLinksAktiv(zugang.proposalId), max: LESE_LINK_MAX });
+    return json({ ok: true, pfad: `/p/${neu.raw}/lesen`, links: await leseLinksAktiv(zugang.proposalId), max: LESE_LINK_MAX });
   }
   if (req.method === "DELETE") {
     const body = z.object({ id: z.string().min(1).max(60) }).safeParse(await req.json().catch(() => null));

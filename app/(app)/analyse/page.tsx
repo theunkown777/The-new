@@ -7,6 +7,7 @@ import { formatCent, invoiceTotals } from "@/lib/invoices";
 import type { Risk } from "@/lib/analytics";
 import { AnalyseExplorer } from "@/components/AnalyseExplorer";
 import { canSeeAnalytics } from "@/lib/permissions";
+import { AUSWERTUNG_TAGE, auswertung } from "@/lib/rueckmeldung";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Analyse" };
@@ -54,6 +55,13 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
     prisma.invoice.findMany({ where: { practiceId }, select: { status: true, dueDate: true, amountCent: true, paidAt: true } }),
   ]);
   const inv = invoiceTotals(invoices);
+  // Rückmeldungen nach dem Termin: nur gesammelt, ohne Namen und ohne Bezug zum Termin (lib/rueckmeldung.ts).
+  const jetzt = new Date();
+  const rueck = auswertung(
+    await prisma.terminRueckmeldung.findMany({ where: { practiceId, createdAt: { gte: new Date(jetzt.getTime() - AUSWERTUNG_TAGE * 864e5) } }, select: { stufe: true, text: true, createdAt: true } }),
+    jetzt,
+  );
+  const STUFEN_TEXT = ["Gar nicht zufrieden", "Wenig zufrieden", "Teils, teils", "Zufrieden", "Sehr zufrieden"];
 
   return (
     <div className="space-y-6" data-testid="analyse">
@@ -170,6 +178,54 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="card" id="rueckmeldungen" data-testid="rueckmeldungen">
+        <h2 className="font-semibold text-slate-900">Rückmeldungen nach dem Termin</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          „Wie zufrieden waren Sie mit Ihrem Besuch?“ aus dem Patientenportal, letzte {rueck.tage} Tage. Ohne Namen; gezeigt wird erst ab {rueck.mindestens} Antworten.{" "}
+          <Link href="/settings/rueckmeldung" className="text-brand-700 underline">Einstellungen</Link>
+        </p>
+        {rueck.genug ? (
+          <div className="mt-4 grid gap-5 md:grid-cols-2">
+            <div>
+              <p className="text-sm text-slate-500">Durchschnitt aus {rueck.anzahl} Antworten</p>
+              <p className="font-display text-4xl tabular-nums text-slate-900" data-testid="rueckmeldungen-durchschnitt">{rueck.durchschnitt.toLocaleString("de-DE", { minimumFractionDigits: 1 })} <span className="text-base text-slate-500">von 5</span></p>
+              <ul className="mt-3 space-y-2" data-testid="rueckmeldungen-verteilung">
+                {rueck.verteilung.map((n, i) => (
+                  <li key={i}>
+                    <div className="flex justify-between text-xs text-slate-600">
+                      <span>{i + 1} · {STUFEN_TEXT[i]}</span>
+                      <b className="tabular-nums text-slate-900">{n}</b>
+                    </div>
+                    <div className="mt-1 h-2 rounded-full bg-slate-200">
+                      <div className="h-2 rounded-full bg-brand-600" style={{ width: `${Math.round((n / rueck.anzahl) * 100)}%` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="text-sm text-slate-500">Was Patienten dazu geschrieben haben</p>
+              {rueck.texte.length ? (
+                <ul className="mt-2 max-h-80 space-y-2 overflow-y-auto" data-testid="rueckmeldungen-texte">
+                  {rueck.texte.map((x, i) => (
+                    <li key={i} className="rounded-xl bg-[#FBFAF8] p-3 text-sm text-slate-800">
+                      <span className="block text-xs text-slate-500">{x.datum}</span>
+                      {x.text}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-2 text-sm text-slate-600">Bisher hat niemand einen Satz dazugeschrieben.</p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <p className="mt-3 rounded-xl bg-[#FBFAF8] p-3 text-sm text-slate-600" data-testid="rueckmeldungen-zu-wenig">
+            Bisher {rueck.anzahl === 1 ? "liegt 1 Antwort" : `liegen ${rueck.anzahl} Antworten`} vor. Durchschnitt, Verteilung und Texte erscheinen ab {rueck.mindestens} Antworten.
+          </p>
+        )}
       </section>
 
       <p className="text-xs text-slate-500">

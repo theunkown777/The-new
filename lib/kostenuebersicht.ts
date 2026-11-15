@@ -42,6 +42,8 @@ export interface Kostenuebersicht {
   summe: string;
   kasseText: string;
   kasseSumme: string;
+  /** Geschätzte Erstattung der Zusatzversicherung für dieselbe Auswahl; leer ohne Zusatzversicherung. */
+  zusatzSumme: string;
   hinweis: string;
   einreichen: string;
 }
@@ -83,13 +85,14 @@ export function kostenuebersicht(a: {
     return istFreiwillig(i) ? null : i.options[0];
   };
 
-  let summe = 0, kasseSumme = 0;
+  let summe = 0, kasseSumme = 0, zusatzSumme = 0;
   const positionen = items.map((i) => {
     const g = gerechnet(i);
     if (g) {
       const m = money(g, a.patient);
       summe += m.netto;
-      kasseSumme += m.kasse + m.erstattet;
+      kasseSumme += m.kasse;
+      zusatzSumme += m.erstattet;
     }
     return {
       wo: i.where,
@@ -126,6 +129,7 @@ export function kostenuebersicht(a: {
     summe: `ca. ${formatEuro(summe)}`,
     kasseText: gkv ? "Das übernimmt Ihre Kasse voraussichtlich" : "Das erstattet Ihre Versicherung voraussichtlich",
     kasseSumme: `ca. ${formatEuro(kasseSumme)}`,
+    zusatzSumme: zusatzSumme > 0 ? `ca. ${formatEuro(zusatzSumme)}` : "",
     hinweis: hinweisText({ gkv, dental: a.dental, therapie: a.therapie }),
     einreichen: KOSTEN_EINREICHEN,
   };

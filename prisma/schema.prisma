@@ -587,6 +587,9 @@ model LeseLink {
   tokenHash  String            @unique
   /// "LINK" (über den Patienten-Link /p erzeugt) oder "PORTAL" (im Patientenportal erzeugt)
   quelle     String            @default("LINK")
+  /// Hash des Zugangs (Patienten-Link bzw. Portal-Link), über den der Lese-Link erzeugt wurde. Wird dieser Zugang
+  /// gesperrt oder ersetzt, endet der Lese-Link mit.
+  zugangHash String            @default("")
   expiresAt  DateTime
   revokedAt  DateTime?
   createdAt  DateTime          @default(now())

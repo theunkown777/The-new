@@ -10,6 +10,7 @@ import { UI, empfehlungJe, langDir, pickLang, type PatientLang } from "@/lib/pat
 import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
+import { LESE_LINK_MAX, leseLinksAktiv } from "@/lib/leseLink";
 
 export const dynamic = "force-dynamic";
 // Titel im Browser in der Sprache der Ansicht.
@@ -55,6 +56,8 @@ export default async function PortalProposal(props: { params: Promise<{ token: s
   const zweitmeinungen = await prisma.zweitmeinung.findMany({ where: { proposalId: proposal.id }, orderBy: { createdAt: "asc" } });
   const now = new Date();
   const decided = proposal.status === "ANGENOMMEN" || proposal.status === "ABGELEHNT";
+  const leseLinks = await leseLinksAktiv(proposal.id, now);
+  const api = `/api/portal/${params.token}/vorschlag/${proposal.id}`;
 
   return (
     <>
@@ -84,6 +87,9 @@ export default async function PortalProposal(props: { params: Promise<{ token: s
         anspruch: !!anspruchAufZweitmeinung(texte),
         fragen: vergleichsFragen(dental),
       }}
+      pdfUrl={`${api}/pdf`}
+      share={{ apiUrl: `${api}/lesen`, links: leseLinks, max: LESE_LINK_MAX }}
+      remind={decided ? undefined : { apiUrl: `${api}/erinnern`, am: proposal.erinnernAm?.toISOString() ?? null }}
     />
     <PraxisFussLaden patientId={patient.id} className="mx-auto max-w-xl px-4 pb-10 pt-2" />
     </>

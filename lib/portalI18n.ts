@@ -56,6 +56,17 @@ const DE = {
   privacy: "Ohne App und ohne Konto. Die Zahlung geht direkt an Ihre Praxis.",
   failed: "Das hat nicht geklappt. Bitte versuchen Sie es erneut.",
   invoiceNo: "Rechnung",
+  // Eine Frage nach dem Termin (lib/rueckmeldung.ts). Der Hinweis auf die öffentliche Bewertung ist neutral und erscheint bei allen.
+  feedbackTitle: "Wie zufrieden waren Sie mit Ihrem Besuch?",
+  feedbackVisit: (d: string) => `Ihr Termin am ${d}`,
+  feedbackScale: "Gar nicht zufrieden|Wenig zufrieden|Teils, teils|Zufrieden|Sehr zufrieden",
+  feedbackNote: "Möchten Sie noch etwas dazu sagen? (freiwillig)",
+  feedbackPrivacy: "Ihre Praxis sieht die Antworten gesammelt und ohne Namen.",
+  feedbackSend: "Absenden",
+  feedbackPick: "Bitte wählen Sie eine Stufe.",
+  feedbackThanks: "Danke für Ihre Rückmeldung.",
+  feedbackPublic: "Wenn Sie mögen, können Sie Ihre Praxis auch öffentlich bewerten.",
+  feedbackPublicLink: "Zum Google-Profil der Praxis",
 };
 
 // Nächster Schritt aus lib/journey.ts auf Englisch.
@@ -128,6 +139,16 @@ const EN: typeof DE = {
   privacy: "No app, no account. Payment goes directly to your practice.",
   failed: "That did not work. Please try again.",
   invoiceNo: "Invoice",
+  feedbackTitle: "How satisfied were you with your visit?",
+  feedbackVisit: (d) => `Your appointment on ${d}`,
+  feedbackScale: "Not at all satisfied|Not very satisfied|Mixed|Satisfied|Very satisfied",
+  feedbackNote: "Would you like to add something? (optional)",
+  feedbackPrivacy: "Your practice sees the answers collected and without names.",
+  feedbackSend: "Send",
+  feedbackPick: "Please choose a level.",
+  feedbackThanks: "Thank you for your feedback.",
+  feedbackPublic: "If you like, you can also review your practice publicly.",
+  feedbackPublicLink: "To the practice's Google profile",
 };
 
 export type PortalUi = typeof DE;
@@ -200,6 +221,16 @@ const TR: PortalUi = {
   privacy: "Uygulama ve hesap gerekmez. Ödeme doğrudan muayenehanenize gider.",
   failed: "Bu işlem olmadı. Lütfen tekrar deneyin.",
   invoiceNo: "Fatura",
+  feedbackTitle: "Ziyaretinizden ne kadar memnun kaldınız?",
+  feedbackVisit: (d) => `${d} tarihli randevunuz`,
+  feedbackScale: "Hiç memnun değilim|Pek memnun değilim|Kısmen|Memnunum|Çok memnunum",
+  feedbackNote: "Eklemek istediğiniz bir şey var mı? (isteğe bağlı)",
+  feedbackPrivacy: "Muayenehaneniz yanıtları toplu olarak ve isimsiz görür.",
+  feedbackSend: "Gönder",
+  feedbackPick: "Lütfen bir düzey seçin.",
+  feedbackThanks: "Geri bildiriminiz için teşekkür ederiz.",
+  feedbackPublic: "Dilerseniz muayenehanenizi herkese açık olarak da değerlendirebilirsiniz.",
+  feedbackPublicLink: "Muayenehanenin Google profiline git",
 };
 
 const PL: PortalUi = {
@@ -265,6 +296,16 @@ const PL: PortalUi = {
   privacy: "Bez aplikacji i bez konta. Płatność trafia bezpośrednio do gabinetu.",
   failed: "Nie udało się. Prosimy spróbować ponownie.",
   invoiceNo: "Rachunek",
+  feedbackTitle: "Jak ocenia Pani/Pan swoją wizytę?",
+  feedbackVisit: (d) => `Wizyta w dniu ${d}`,
+  feedbackScale: "Zdecydowanie niezadowolona/-y|Raczej niezadowolona/-y|Częściowo|Zadowolona/-y|Bardzo zadowolona/-y",
+  feedbackNote: "Czy chce Pani/Pan coś dodać? (dobrowolnie)",
+  feedbackPrivacy: "Gabinet widzi odpowiedzi zbiorczo i bez nazwisk.",
+  feedbackSend: "Wyślij",
+  feedbackPick: "Proszę wybrać ocenę.",
+  feedbackThanks: "Dziękujemy za opinię.",
+  feedbackPublic: "Jeśli Pani/Pan chce, można też ocenić gabinet publicznie.",
+  feedbackPublicLink: "Do profilu gabinetu w Google",
 };
 
 const RU: PortalUi = {
@@ -330,6 +371,16 @@ const RU: PortalUi = {
   privacy: "Без приложения и без аккаунта. Оплата поступает напрямую в Вашу практику.",
   failed: "Не получилось. Пожалуйста, попробуйте ещё раз.",
   invoiceNo: "Счёт",
+  feedbackTitle: "Насколько Вы довольны своим визитом?",
+  feedbackVisit: (d) => `Ваш приём ${d}`,
+  feedbackScale: "Совсем не доволен(на)|Скорее не доволен(на)|Отчасти|Доволен(на)|Очень доволен(на)",
+  feedbackNote: "Хотите что-нибудь добавить? (по желанию)",
+  feedbackPrivacy: "Практика видит ответы в общем виде и без имён.",
+  feedbackSend: "Отправить",
+  feedbackPick: "Пожалуйста, выберите оценку.",
+  feedbackThanks: "Спасибо за Ваш отзыв.",
+  feedbackPublic: "Если хотите, Вы можете также оценить практику публично.",
+  feedbackPublicLink: "К профилю практики в Google",
 };
 
 const UK: PortalUi = {
@@ -395,13 +446,103 @@ const UK: PortalUi = {
   privacy: "Без застосунку і без облікового запису. Оплата надходить безпосередньо до Вашої практики.",
   failed: "Не вдалося. Будь ласка, спробуйте ще раз.",
   invoiceNo: "Рахунок",
+  feedbackTitle: "Наскільки Ви задоволені своїм візитом?",
+  feedbackVisit: (d) => `Ваш прийом ${d}`,
+  feedbackScale: "Зовсім не задоволений(а)|Скоріше не задоволений(а)|Частково|Задоволений(а)|Дуже задоволений(а)",
+  feedbackNote: "Бажаєте щось додати? (за бажанням)",
+  feedbackPrivacy: "Практика бачить відповіді узагальнено і без імен.",
+  feedbackSend: "Надіслати",
+  feedbackPick: "Будь ласка, оберіть оцінку.",
+  feedbackThanks: "Дякуємо за Ваш відгук.",
+  feedbackPublic: "Якщо бажаєте, Ви можете також оцінити практику публічно.",
+  feedbackPublicLink: "До профілю практики в Google",
 };
 
-export const PORTAL_LANGS = ["de", "en", "tr", "pl", "ru", "uk"] as const;
+
+// العربية (von rechts nach links, wie in der Patientenansicht des Vorschlags: lib/i18n/ar.ts). Maschinell übersetzt.
+// Beträge, Daten und IBAN kommen mit lateinischen Ziffern; die Seite setzt dir="rtl" (portalDir).
+const AR: PortalUi = {
+  ...DE,
+  payOnline: "الدفع عبر الإنترنت (بطاقة، PayPal، Klarna …)",
+  payOnlineHint: "دفع آمن عبر Stripe مباشرة إلى عيادتكم.",
+  paidOnlineThanks: "شكرًا لكم! يجري تأكيد دفعتكم عبر الإنترنت؛ ستظهر الفاتورة قريبًا كمدفوعة.",
+  hello: (n) => `مرحبًا، ${n}`,
+  next: "الخطوة التالية",
+  step: step({
+    "Ihr Gespräch in der Praxis steht an.": "موعد حديثكم في العيادة قريب.",
+    "Sie haben sich gegen die Behandlung entschieden.": "لقد قررتم عدم إجراء العلاج.",
+    "Alles erledigt. Vielen Dank!": "تم كل شيء. شكرًا جزيلًا!",
+    "Die Rechnung für Ihren Eigenanteil folgt.": "ستصلكم فاتورة حصتكم لاحقًا.",
+    "Danke, Ihre Zahlung wird geprüft.": "شكرًا لكم، يجري التحقق من دفعتكم.",
+    "Bitte begleichen Sie Ihren Eigenanteil.": "يُرجى تسديد حصتكم.",
+    "Ihren Eigenanteil überweisen.": "تحويل حصتكم.",
+    "Danke für Ihre Rückmeldung. Die Praxis meldet sich bei Ihnen.": "شكرًا على ردّكم. ستتواصل العيادة معكم.",
+    "Ihren Vorschlag ansehen und wählen.": "عرض المقترح والاختيار.",
+    "Ihre Praxis bereitet Ihren Vorschlag vor.": "عيادتكم تُعدّ مقترحكم.",
+    "Danke für Ihr Einverständnis. Die Praxis plant Ihren Termin.": "شكرًا على موافقتكم. العيادة تحدّد موعدكم.",
+  }),
+  wayTitle: "مسار علاجكم",
+  stations: "الحديث|المقترح|القرار|تم الاتفاق|تم الدفع",
+  kassePays: "يدفع التأمين الصحي",
+  yourShare: "حصتكم",
+  summary: (inv, docs) => `الفواتير المفتوحة: ${inv}، المستندات: ${docs}.`,
+  openTotal: "المبلغ المستحق",
+  nextDue: (d) => `أقرب موعد استحقاق: ${d}`,
+  allPaid: "تم كل شيء. شكرًا جزيلًا!",
+  invoices: "المطلوب دفعه",
+  pay: "ادفعوا الآن",
+  hide: "إغلاق",
+  howTo: "على الهاتف: انسخوا البيانات إلى تطبيق البنك. على الحاسوب: امسحوا الرمز بتطبيق البنك (GiroCode).",
+  recipient: "المستفيد",
+  amount: "المبلغ",
+  reference: "سبب التحويل",
+  copy: "نسخ",
+  copied: "تم النسخ",
+  reported: "لقد حوّلتُ المبلغ",
+  reportedDone: "شكرًا لكم! العيادة تتحقق من وصول الدفعة.",
+  reportedLabel: "تم الإبلاغ عن الدفع",
+  installments: "الاستفسار عن الدفع بالتقسيط",
+  installmentsDone: "وصل طلبكم إلى العيادة. ستتواصل معكم.",
+  noBank: "لم تُدخل العيادة بياناتها البنكية بعد. يُرجى الدفع كما اتفقتم مع العيادة.",
+  documents: "مستنداتكم",
+  proposalDoc: (d) => `مقترح العلاج بتاريخ ${d}`,
+  eigen: "حصتكم",
+  show: "عرض",
+  paid: "مدفوعة",
+  history: "منجز",
+  anamnesis: "ثلاث دقائق قبل موعدكم، حتى لا يبقى شيء لتعبئته في العيادة.",
+  anamnesisTitle: "استبيان الحالة الصحية",
+  fillIn: "تعبئة",
+  choose: "عرض واختيار",
+  sign: "توقيع الموافقة",
+  homescreen: "نصيحة: عبر «مشاركة» ← «إضافة إلى الشاشة الرئيسية» تكون بوابتكم معكم دائمًا مثل التطبيق.",
+  signed: "تم تأكيد الموافقة",
+  accepted: "تم القبول",
+  answered: "تم إرسال الرد",
+  waiting: "بانتظار ردّكم",
+  valid: (d) => `هذا الرابط صالح حتى ${d} وهو مخصّص لكم فقط.`,
+  privacy: "بدون تطبيق وبدون حساب. الدفع يذهب مباشرة إلى عيادتكم.",
+  failed: "لم ينجح ذلك. يُرجى المحاولة مرة أخرى.",
+  invoiceNo: "فاتورة",
+  feedbackTitle: "ما مدى رضاكم عن زيارتكم؟",
+  feedbackVisit: (d) => `موعدكم بتاريخ ${d}`,
+  feedbackScale: "غير راضٍ إطلاقًا|غير راضٍ كثيرًا|إلى حدّ ما|راضٍ|راضٍ جدًا",
+  feedbackNote: "هل تودّون إضافة شيء؟ (اختياري)",
+  feedbackPrivacy: "ترى عيادتكم الإجابات مجمّعة وبدون أسماء.",
+  feedbackSend: "إرسال",
+  feedbackPick: "يُرجى اختيار درجة.",
+  feedbackThanks: "شكرًا على رأيكم.",
+  feedbackPublic: "إن رغبتم، يمكنكم أيضًا تقييم عيادتكم علنًا.",
+  feedbackPublicLink: "إلى ملف العيادة على Google",
+};
+
+export const PORTAL_LANGS = ["de", "en", "tr", "pl", "ru", "uk", "ar"] as const;
 export type PortalLang = (typeof PORTAL_LANGS)[number];
-export const PORTAL_LANG_NAMES: Record<PortalLang, string> = { de: "Deutsch", en: "English", tr: "Türkçe", pl: "Polski", ru: "Русский", uk: "Українська" };
-export const PORTAL_LOCALE: Record<PortalLang, string> = { de: "de-DE", en: "en-GB", tr: "tr-TR", pl: "pl-PL", ru: "ru-RU", uk: "uk-UA" };
-export const PORTAL_UI: Record<PortalLang, PortalUi> = { de: DE, en: EN, tr: TR, pl: PL, ru: RU, uk: UK };
+export const PORTAL_LANG_NAMES: Record<PortalLang, string> = { de: "Deutsch", en: "English", tr: "Türkçe", pl: "Polski", ru: "Русский", uk: "Українська", ar: "العربية" };
+export const PORTAL_LOCALE: Record<PortalLang, string> = { de: "de-DE", en: "en-GB", tr: "tr-TR", pl: "pl-PL", ru: "ru-RU", uk: "uk-UA", ar: "en-GB" };
+/** Schreibrichtung der Portal-Startseite; Arabisch läuft von rechts nach links. */
+export const portalDir = (lang: PortalLang): "ltr" | "rtl" => (lang === "ar" ? "rtl" : "ltr");
+export const PORTAL_UI: Record<PortalLang, PortalUi> = { de: DE, en: EN, tr: TR, pl: PL, ru: RU, uk: UK, ar: AR };
 
 /** Sprache aus ?lang= oder dem Browser, sonst Deutsch. */
 export function pickPortalLang(param: string | undefined, acceptLanguage: string | null): PortalLang {
@@ -419,6 +560,7 @@ const STATUS: Record<PortalLang, { gemeldet: string; bezahlt: string; ueber: (n:
   tr: { gemeldet: "Ödeme bildirildi", bezahlt: "Ödendi", ueber: (n) => `${n} gündür gecikmede`, heute: "Son ödeme günü bugün", faellig: (n) => `${n} gün içinde ödenmeli`, mahn: ["", "Ödeme hatırlatması", "2. hatırlatma", "Son ihtar"] },
   pl: { gemeldet: "Płatność zgłoszona", bezahlt: "Zapłacone", ueber: (n) => `Po terminie: ${n} dni`, heute: "Termin płatności: dziś", faellig: (n) => `Termin płatności za ${n} dni`, mahn: ["", "Przypomnienie o płatności", "2. przypomnienie", "Ostateczne wezwanie"] },
   ru: { gemeldet: "Оплата отмечена", bezahlt: "Оплачено", ueber: (n) => `Просрочено на ${n} дн.`, heute: "Срок оплаты сегодня", faellig: (n) => `Срок оплаты через ${n} дн.`, mahn: ["", "Напоминание об оплате", "2-е напоминание", "Последнее требование"] },
+  ar: { gemeldet: "تم الإبلاغ عن الدفع", bezahlt: "مدفوعة", ueber: (n) => `متأخرة منذ ${n} يوم`, heute: "تستحق اليوم", faellig: (n) => `تستحق خلال ${n} يوم`, mahn: ["", "تذكير بالدفع", "التذكير 2", "الإنذار الأخير"] },
   uk: { gemeldet: "Оплату позначено", bezahlt: "Оплачено", ueber: (n) => `Прострочено на ${n} дн.`, heute: "Термін оплати сьогодні", faellig: (n) => `Термін оплати через ${n} дн.`, mahn: ["", "Нагадування про оплату", "2-ге нагадування", "Остання вимога"] },
 };
 

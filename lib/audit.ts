@@ -39,6 +39,7 @@ export const AUDIT_ACTIONS = {
   "warteliste.angebot": "Frei gewordene Zeit von der Warteliste angeboten",
   "terminanfrage": "Online-Anfrage eines neuen Patienten bearbeitet",
   "praxis.stammdaten": "Angaben der Praxis für Patienten geändert",
+  "praxis.bewertungslink": "Link zum Google-Profil für den Bewertungs-Hinweis geändert",
   "empfang.uebergabe": "Empfangs-Tablet an Patient übergeben",
   "empfang.pin": "Empfangs-PIN gesetzt oder geändert",
   "empfang.gesperrt": "Empfangs-PIN nach Fehlversuchen gesperrt",

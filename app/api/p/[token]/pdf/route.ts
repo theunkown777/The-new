@@ -5,7 +5,7 @@ import { kostenuebersichtAntwort, pdfErlaubt, pdfFehler } from "@/lib/kostenuebe
 export const dynamic = "force-dynamic";
 
 // Kostenübersicht als PDF über den Patienten-Link (öffentlich, ohne Login). Geprüft wird wie auf der Seite /p/<token>:
-// nur der Hauptlink des Patienten, nicht abgelaufen. Lese-Links für Vertrauenspersonen (/a/<token>) bekommen kein PDF.
+// nur der Hauptlink des Patienten, nicht abgelaufen. Lese-Links für Vertrauenspersonen (/p/<Lese-Token>/lesen) bekommen kein PDF.
 export async function GET(req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
   if (!(await pdfErlaubt(req))) return pdfFehler("Zu viele Anfragen. Bitte später erneut versuchen.", 429);

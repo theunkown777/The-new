@@ -20,7 +20,8 @@ export function vorleseTeile(a: {
   patient: PatientFactors;
   /** Aktuelle Auswahl in der Ansicht (Position → Option). */
   choices: Record<string, string>;
-  summe: number;
+  /** Summe der aktuellen Auswahl; null in der Lese-Ansicht für Vertrauenspersonen (dort gibt es keine Auswahl). */
+  summe: number | null;
   lang: PatientLang;
   t: Pick<Ui, "yourShare" | "yourChoice" | "coPayment" | "barLabel">;
 }): VorleseTeil[] {
@@ -46,7 +47,7 @@ export function vorleseTeile(a: {
       if (a.choices[item.key] === o.id) sag(a.t.yourChoice, a.lang);
     }
   }
-  sag(`${a.t.barLabel}: ${euro(a.summe, a.lang)}`, a.lang);
+  if (a.summe != null) sag(`${a.t.barLabel}: ${euro(a.summe, a.lang)}`, a.lang);
   return out;
 }
 

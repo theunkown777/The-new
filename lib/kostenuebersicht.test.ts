@@ -50,6 +50,16 @@ describe("Kostenübersicht für Patienten", () => {
     expect(k.positionen.some((p) => p.abgewaehlt)).toBe(items.some((i) => wahl[i.key] === ABGEWAEHLT));
   });
 
+  it("trennt Kassenanteil und geschätzte Erstattung der Zusatzversicherung", () => {
+    const ohne = kostenuebersicht({ ...basis, praxisWahl: {}, patientWahl: null });
+    expect(ohne.zusatzSumme).toBe("");
+    const mit = kostenuebersicht({ ...basis, patient: { ...patient, erstattungProzent: 50 }, praxisWahl: {}, patientWahl: null });
+    expect(mit.zusatzSumme).toMatch(/^ca\. /);
+    expect(mit.kasseSumme).toBe(ohne.kasseSumme);
+    expect(mit.kasseText).toBe("Das übernimmt Ihre Kasse voraussichtlich");
+    expect(kostenuebersicht({ ...basis, patient: { ...patient, insurance: "PKV" }, praxisWahl: {}, patientWahl: null }).kasseText).toBe("Das erstattet Ihre Versicherung voraussichtlich");
+  });
+
   it("nennt die Praxisangaben nur, soweit vorhanden", () => {
     expect(kostenuebersicht({ ...basis, praxisWahl: {}, patientWahl: null }).praxisZeilen).toEqual([]);
     const k = kostenuebersicht({ ...basis, stammdaten: { ...LEERE_STAMMDATEN, strasse: "Hauptstr. 1", plzOrt: "10115 Berlin", telefon: "030 123456" }, praxisWahl: {}, patientWahl: null });

@@ -22,15 +22,17 @@ export const darfNeuenLeseLink = (links: Zeile[], now = new Date()) => links.fil
  * (Link gesperrt, abgelaufen oder Vorschlag nicht mehr für den Patienten sichtbar). Der Lese-Link endet dann mit.
  */
 export function zugangBis(
-  quelle: string,
+  l: { quelle: string; zugangHash: string },
   p: { status: string; shareTokenHash: string | null; shareExpiresAt: Date | null; shareCreatedAt: Date | null; patient: { portalTokenHash: string | null; portalExpiresAt: Date | null } },
   now = new Date(),
 ): Date | null {
-  if (quelle === "PORTAL") {
+  // Derselbe Zugang wie beim Erzeugen: Sperrt oder ersetzt die Praxis den Link des Patienten, gilt auch der Lese-Link nicht mehr.
+  if (!l.zugangHash) return null;
+  if (l.quelle === "PORTAL") {
     const sichtbar = !!p.shareCreatedAt || p.status === "BESPROCHEN" || p.status === "ANGENOMMEN";
-    return sichtbar && p.patient.portalTokenHash && p.patient.portalExpiresAt && p.patient.portalExpiresAt > now ? p.patient.portalExpiresAt : null;
+    return sichtbar && p.patient.portalTokenHash === l.zugangHash && p.patient.portalExpiresAt && p.patient.portalExpiresAt > now ? p.patient.portalExpiresAt : null;
   }
-  return p.shareTokenHash && p.shareExpiresAt && p.shareExpiresAt > now ? p.shareExpiresAt : null;
+  return p.shareTokenHash === l.zugangHash && p.shareExpiresAt && p.shareExpiresAt > now ? p.shareExpiresAt : null;
 }
 
 /** Zeile für die Praxis im Vorschlag: dass es Lese-Links gibt, nicht für wen. Leer, wenn nie einer erzeugt wurde. */
@@ -41,15 +43,27 @@ export function leseLinkVermerk(links: Zeile[], now = new Date()): string {
   return `${basis} (${aktiv === 0 ? "keiner mehr aktiv" : aktiv === 1 ? "1 aktiv" : `${aktiv} aktiv`}). Darüber kann nur gelesen werden.`;
 }
 
-export const leseLinksAktiv = async (proposalId: string, now = new Date()) =>
-  (await prisma.leseLink.findMany({ where: { proposalId, revokedAt: null, expiresAt: { gt: now } }, orderBy: { createdAt: "asc" }, select: { id: true, createdAt: true } })).map((l) => ({ id: l.id, createdAt: l.createdAt.toISOString() }));
+/** Hashes der Zugänge, die der Patient gerade hat (Patienten-Link und Portal); Lese-Links zu älteren Zugängen sind erloschen. */
+async function zugaenge(proposalId: string): Promise<string[]> {
+  const p = await prisma.treatmentProposal.findUnique({ where: { id: proposalId }, select: { shareTokenHash: true, patient: { select: { portalTokenHash: true } } } });
+  return [p?.shareTokenHash, p?.patient.portalTokenHash].filter((x): x is string => !!x);
+}
 
-/** Neuen Lese-Link anlegen. Der Rohwert des Tokens wird nur hier einmal zurückgegeben. */
-export async function leseLinkErzeugen(proposalId: string, quelle: "LINK" | "PORTAL", expiresAt: Date) {
-  const alle = await prisma.leseLink.findMany({ where: { proposalId }, select: { expiresAt: true, revokedAt: true } });
-  if (!darfNeuenLeseLink(alle)) return null;
+/** Aktive Lese-Links eines Vorschlags für die Liste in der Patientenansicht (ohne Token; den kennt nur, wer den Link bekam). */
+export async function leseLinksAktiv(proposalId: string, now = new Date()) {
+  const links = await prisma.leseLink.findMany({
+    where: { proposalId, revokedAt: null, expiresAt: { gt: now }, zugangHash: { in: await zugaenge(proposalId) } },
+    orderBy: { createdAt: "asc" },
+    select: { id: true, createdAt: true },
+  });
+  return links.map((l) => ({ id: l.id, createdAt: l.createdAt.toISOString() }));
+}
+
+/** Neuen Lese-Link anlegen. Der Rohwert des Tokens wird nur hier einmal zurückgegeben. Null, wenn schon drei aktiv sind. */
+export async function leseLinkErzeugen(proposalId: string, quelle: "LINK" | "PORTAL", expiresAt: Date, zugangHash: string) {
+  if ((await leseLinksAktiv(proposalId)).length >= LESE_LINK_MAX) return null;
   const { raw, hash } = generateToken();
-  const l = await prisma.leseLink.create({ data: { proposalId, tokenHash: hash, quelle, expiresAt }, select: { id: true, createdAt: true } });
+  const l = await prisma.leseLink.create({ data: { proposalId, tokenHash: hash, quelle, expiresAt, zugangHash }, select: { id: true, createdAt: true } });
   return { id: l.id, createdAt: l.createdAt.toISOString(), raw };
 }
 
@@ -72,7 +86,7 @@ export async function leseLinkVorschlag(token: string, now = new Date()) {
     },
   });
   if (!l || !leseLinkAktiv(l, now)) return null;
-  const bis = zugangBis(l.quelle, l.proposal, now);
+  const bis = zugangBis(l, l.proposal, now);
   if (!bis) return null;
   return { proposal: l.proposal, expiresAt: bis < l.expiresAt ? bis : l.expiresAt };
 }

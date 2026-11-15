@@ -10,6 +10,8 @@ import { resolveInstallments } from "@/lib/installments";
 import { UI, empfehlungJe, langDir, pickLang, type PatientLang } from "@/lib/patientI18n";
 import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
+import { LESE_LINK_MAX, leseLinksAktiv } from "@/lib/leseLink";
+import { erinnernMoeglich } from "@/lib/erinnerungWunsch";
 
 export const dynamic = "force-dynamic";
 const BASIS_META: Metadata = {
@@ -71,6 +73,7 @@ export default async function PatientLinkPage(props: {
   // Arztpraxen), bleiben deutsch; die Ansicht weist dann selbst darauf hin.
   const patientChoices = choicesSchema.safeParse(proposal.patientChoices);
   const now = new Date();
+  const leseLinks = await leseLinksAktiv(proposal.id, now);
 
   return (
     <>
@@ -98,6 +101,9 @@ export default async function PatientLinkPage(props: {
         anspruch: !!anspruchAufZweitmeinung(texte),
         fragen: vergleichsFragen(dental),
       }}
+      pdfUrl={`/api/p/${params.token}/pdf`}
+      share={{ apiUrl: `/api/p/${params.token}/lesen`, links: leseLinks, max: LESE_LINK_MAX }}
+      remind={erinnernMoeglich(proposal.status) ? { apiUrl: `/api/p/${params.token}/erinnern`, am: proposal.erinnernAm?.toISOString() ?? null } : undefined}
     />
     <PraxisFussLaden practiceId={proposal.practiceId} className="mx-auto max-w-xl px-4 pb-10 pt-2" />
     </>

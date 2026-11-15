@@ -68,6 +68,11 @@ const CARDS: { href: string; title: string; description: string; nur?: "zahn" }[
     description: "Patienten buchen selbst und sehen nur freie Zeiten. Kalender der Praxis übertragen (Google, Outlook, Praxisprogramm).",
   },
   {
+    href: "/settings/rueckmeldung",
+    title: "Rückmeldung nach dem Termin",
+    description: "Eine Frage im Patientenportal nach dem Besuch. Link zum Google-Profil für den neutralen Bewertungs-Hinweis hinterlegen.",
+  },
+  {
     href: "/settings/empfang",
     title: "Empfang",
     description: "Empfangs-PIN für das Tablet im Wartezimmer festlegen. Mit ihr kommt die Praxis nach der Übergabe an einen Patienten zurück.",

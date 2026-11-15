@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { PublicShell } from "@/components/PublicShell";
+import { RATGEBER_LINK, rechnerFuer } from "@/lib/leistungRechner";
 import { INV_LABEL, KT_LABEL, LEISTUNGEN, kostenHinweis, leistung, slugBereich, vorherNachherErlaubt } from "@/lib/leistungskatalog";
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -91,6 +92,21 @@ export default async function LeistungPage(props: { params: Promise<{ id: string
           )}
         </aside>
       </article>
+      {/* Selbst nachrechnen: nur Links zu den Rechnern und zum Ratgeber, keine Preisangaben auf dieser Seite. */}
+      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5" aria-labelledby="nachrechnen" data-testid="selbst-nachrechnen">
+        <h2 id="nachrechnen" className="font-semibold text-slate-900">Selbst nachrechnen</h2>
+        <p className="mt-1 text-sm text-slate-500">Die Rechner arbeiten mit Ihren eigenen Zahlen im Browser. Was eine Behandlung bei Ihnen kostet, sagt Ihnen Ihre Praxis.</p>
+        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+          {[...rechnerFuer(l), RATGEBER_LINK].map((r) => (
+            <li key={r.href}>
+              <Link href={r.href} className="block rounded-xl border border-slate-200 p-3 hover:bg-slate-50" data-testid={`nachrechnen-${r.href.split("/").pop()}`}>
+                <span className="block font-medium text-brand-700">{r.titel}</span>
+                <span className="text-sm text-slate-500">{r.text}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
     </PublicShell>
   );
 }

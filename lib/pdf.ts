@@ -319,6 +319,7 @@ export async function buildKostenuebersichtPdf(k: import("@/lib/kostenuebersicht
   doc.moveDown(0.3);
   doc.font("Helvetica-Bold").fontSize(11).text(`${k.summeText}: ${k.summe}`, links, doc.y, { width: breite });
   doc.font("Helvetica").fontSize(10).text(`${k.kasseText}: ${k.kasseSumme}`, { width: breite });
+  if (k.zusatzSumme) doc.text(`Erstattung Ihrer Zusatzversicherung (geschätzt): ${k.zusatzSumme}`, { width: breite });
   doc.moveDown(1);
   platz(80);
   doc.fontSize(9).fillColor("#333333").text(k.hinweis, { width: breite, lineGap: 1.5 });

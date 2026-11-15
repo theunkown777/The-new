@@ -24,15 +24,21 @@ describe("Lese-Link für Vertrauenspersonen", () => {
 
   it("endet mit dem Zugang des Patienten", () => {
     const p = { status: "ENTWURF", shareTokenHash: "h", shareExpiresAt: spaeter, shareCreatedAt: frueher, patient: { portalTokenHash: "p", portalExpiresAt: spaeter } };
-    expect(zugangBis("LINK", p, now)).toEqual(spaeter);
-    expect(zugangBis("LINK", { ...p, shareTokenHash: null }, now)).toBeNull();
-    expect(zugangBis("LINK", { ...p, shareExpiresAt: frueher }, now)).toBeNull();
-    expect(zugangBis("PORTAL", p, now)).toEqual(spaeter);
-    expect(zugangBis("PORTAL", { ...p, patient: { portalTokenHash: null, portalExpiresAt: spaeter } }, now)).toBeNull();
-    expect(zugangBis("PORTAL", { ...p, patient: { portalTokenHash: "p", portalExpiresAt: frueher } }, now)).toBeNull();
+    const link = { quelle: "LINK", zugangHash: "h" };
+    const portal = { quelle: "PORTAL", zugangHash: "p" };
+    expect(zugangBis(link, p, now)).toEqual(spaeter);
+    // Link des Patienten gesperrt oder durch einen neuen ersetzt: Der Lese-Link gilt nicht mehr.
+    expect(zugangBis(link, { ...p, shareTokenHash: null }, now)).toBeNull();
+    expect(zugangBis(link, { ...p, shareTokenHash: "neu" }, now)).toBeNull();
+    expect(zugangBis(link, { ...p, shareExpiresAt: frueher }, now)).toBeNull();
+    expect(zugangBis({ quelle: "LINK", zugangHash: "" }, { ...p, shareTokenHash: "" }, now)).toBeNull();
+    expect(zugangBis(portal, p, now)).toEqual(spaeter);
+    expect(zugangBis(portal, { ...p, patient: { portalTokenHash: null, portalExpiresAt: spaeter } }, now)).toBeNull();
+    expect(zugangBis(portal, { ...p, patient: { portalTokenHash: "neu", portalExpiresAt: spaeter } }, now)).toBeNull();
+    expect(zugangBis(portal, { ...p, patient: { portalTokenHash: "p", portalExpiresAt: frueher } }, now)).toBeNull();
     // Interner Entwurf, der nie geteilt wurde: im Portal nicht sichtbar, also auch kein Lese-Link.
-    expect(zugangBis("PORTAL", { ...p, shareCreatedAt: null }, now)).toBeNull();
-    expect(zugangBis("PORTAL", { ...p, shareCreatedAt: null, status: "BESPROCHEN" }, now)).toEqual(spaeter);
+    expect(zugangBis(portal, { ...p, shareCreatedAt: null }, now)).toBeNull();
+    expect(zugangBis(portal, { ...p, shareCreatedAt: null, status: "BESPROCHEN" }, now)).toEqual(spaeter);
   });
 
   it("sagt der Praxis nur, dass es Lese-Links gibt", () => {

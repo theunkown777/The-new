@@ -128,8 +128,15 @@ export function PatientProposalView(props: Props) {
   const offen = items.filter((i) => !choices[i.key] && !istFreiwillig(i));
   const sum = useMemo(() => summarize(chosenItems, choices, patient), [chosenItems, choices, patient]);
   const jahre = useMemo(() => vergleicheJahre(chosenItems, choices, patient), [chosenItems, choices, patient]);
-  // Für die Kachel oben: was Kasse bzw. Versicherung bei der aktuellen Auswahl voraussichtlich trägt.
-  const anteile = useMemo(() => patientAnteile(chosenItems, choices, patient), [chosenItems, choices, patient]);
+  // Für die Kachel oben: was Kasse bzw. Versicherung bei der aktuellen Auswahl voraussichtlich trägt; die geschätzte
+  // Erstattung der Zusatzversicherung steht getrennt darunter (zusammen ergeben sie patientAnteile().kasse).
+  const anteile = useMemo(() => {
+    const zusatz = chosenItems.reduce((s, i) => {
+      const o = i.options.find((x) => x.id === choices[i.key]);
+      return s + (o ? money(o, patient).erstattet : 0);
+    }, 0);
+    return { kasse: patientAnteile(chosenItems, choices, patient).kasse - zusatz, zusatz };
+  }, [chosenItems, choices, patient]);
   // Varianten für die Kontrolle: Empfehlung und geringster Eigenanteil je Position.
   const lowChoices = useMemo(
     () =>
@@ -212,7 +219,7 @@ export function PatientProposalView(props: Props) {
           </nav>
         )}
         <div className="flex flex-wrap gap-1.5" data-testid="lesehilfen">
-          <VorlesenKnopf t={t} teile={() => vorleseTeile({ ueberschrift, items, patient, choices: readOnly ? {} : choices, summe: sum.netto, lang, t })} />
+          <VorlesenKnopf t={t} teile={() => vorleseTeile({ ueberschrift, items, patient, choices: readOnly ? {} : choices, summe: readOnly ? null : sum.netto, lang, t })} />
           {lang === "de" && (
             <button
               type="button"
@@ -253,7 +260,10 @@ export function PatientProposalView(props: Props) {
           <>
             <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
               <dt className="text-sm text-slate-500">{gkv ? t.stepInsurerGkv : t.stepInsurerPkv}</dt>
-              <dd className="font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-lg" data-testid="schritt-kasse">{fmt(anteile.kasse)}</dd>
+              <dd className="font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-lg" data-testid="schritt-kasse">
+                {fmt(anteile.kasse)}
+                {anteile.zusatz > 0.5 && <span className="ms-2 text-xs font-normal text-slate-500 sm:ms-0 sm:block">+ {t.supplementary} {fmt(anteile.zusatz)}</span>}
+              </dd>
             </div>
             <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
               <dt className="text-sm text-slate-500">{t.stepSelf}</dt>

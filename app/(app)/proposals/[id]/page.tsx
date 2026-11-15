@@ -8,6 +8,7 @@ import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 import { ProposalEditor } from "@/components/ProposalEditor";
 import { PatientLinkPanel } from "@/components/PatientLinkPanel";
+import { leseLinkVermerk } from "@/lib/leseLink";
 import { patientLinkState } from "@/lib/patientLink";
 import { pruefVermerk } from "@/lib/portalPruefung";
 
@@ -24,6 +25,8 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
       practice: { select: { name: true, proposalPrices: true } },
       // Nur, was die Patientin bzw. der Patient ausdrücklich geteilt hat.
       zweitmeinungen: { where: { geteiltAt: { not: null } }, orderBy: { createdAt: "asc" } },
+      // Lese-Links für Vertrauenspersonen: nur, dass es sie gibt (nie für wen).
+      leseLinks: { select: { expiresAt: true, revokedAt: true } },
     },
   });
   if (!proposal) notFound();
@@ -78,6 +81,9 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
 
       <div className="mt-6">
         {input.success && <PatientLinkPanel proposalId={proposal.id} state={linkState} firstName={p.firstName} sofort={qrSofort && !linkState.active} />}
+        {proposal.leseLinks.length > 0 && (
+          <p className="mt-2 text-xs text-slate-500" data-testid="lese-link-vermerk">{leseLinkVermerk(proposal.leseLinks)}</p>
+        )}
       </div>
 
       {input.success && (

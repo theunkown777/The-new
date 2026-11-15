@@ -43,6 +43,13 @@ describe("Vorlesen", () => {
     expect(vorleseText(basis("en"))).toContain("Your share: €");
   });
 
+  it("lässt in der Lese-Ansicht Wahl und Summe weg", () => {
+    const text = vorleseText({ ...basis("de"), choices: {}, summe: null });
+    expect(text).not.toContain("Ihre Wahl");
+    expect(text).not.toContain("Ihr Eigenanteil für diese Auswahl");
+    expect(text).toContain("Ihr Anteil:");
+  });
+
   it("liest mit deutscher Stimme, was es nur auf Deutsch gibt", () => {
     const fremd = [{ ...erste, title: "Diesen Titel kennt keine Sprache" }];
     const teile = vorleseTeile({ ...basis("en"), items: fremd });
