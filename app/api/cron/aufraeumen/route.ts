@@ -20,5 +20,7 @@ export async function GET(req: Request) {
   await prisma.kalenderBelegung.deleteMany({ where: { ende: { lt: new Date(Date.now() - 2 * 864e5) } } });
   // „Erinnern Sie mich“: fällige Wünsche der Patienten als Aufgabe in den Eingang der Praxis (es geht keine Nachricht raus)
   const erinnerungen = await erinnerungenMelden().catch((err) => { console.error("Erinnerungswünsche konnten nicht gemeldet werden", err); return 0; });
+  // Lese-Links für Vertrauenspersonen: 30 Tage nach Ablauf entfernen (sie gelten ohnehin nicht mehr)
+  await prisma.leseLink.deleteMany({ where: { expiresAt: { lt: new Date(Date.now() - 30 * 864e5) } } }).catch(() => null);
   return NextResponse.json({ ok: true, ergebnis, kalender, erinnerungen });
 }
