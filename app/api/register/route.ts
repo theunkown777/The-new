@@ -6,6 +6,7 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { STANDARD_GOZ_PUNKTWERT_CENT } from "@/lib/billing";
 import { DENTAL_ID, SPECIALTY_IDS } from "@/lib/specialties";
 import { sendVerificationEmail } from "@/lib/emailVerification";
+import { REGISTRIERUNG_GESCHLOSSEN, VERTRAGSTEXTE_FASSUNG, registrierungOffen } from "@/lib/registrierung";
 
 const registerSchema = z.object({
   practiceName: z.string().min(2, "Praxisname ist zu kurz"),
@@ -13,12 +14,19 @@ const registerSchema = z.object({
   name: z.string().min(2, "Name ist zu kurz"),
   email: z.string().email("Ungültige E-Mail-Adresse"),
   password: z.string().min(8, "Passwort muss mindestens 8 Zeichen haben"),
+  // Pflicht-Bestätigungen (lib/registrierung.ts): nur für Unternehmer, AVV-Muster und Zweckbestimmung gelesen.
+  // Geprüft wird hier auf dem Server; das Formular allein genügt nicht.
+  unternehmer: z.literal(true, "Bitte bestätigen Sie, dass Sie für eine Praxis oder ein anderes Unternehmen handeln."),
+  vertragstexte: z.literal(true, "Bitte bestätigen Sie, dass Sie das AVV-Muster und die Hinweise gelesen haben."),
 });
 
 const REGISTER_LIMIT = 5;
 const REGISTER_WINDOW_MS = 60 * 60 * 1000;
 
 export async function POST(req: Request) {
+  // Standard: geschlossen. Solange Nutzungsvertrag und AVV nicht mit jeder Praxis geschlossen werden, legt niemand selbst ein Konto an.
+  if (!registrierungOffen()) return NextResponse.json({ error: REGISTRIERUNG_GESCHLOSSEN }, { status: 403 });
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
   const rateLimitKey = `register:${ip}`;
   if (await isRateLimited(rateLimitKey, REGISTER_LIMIT, REGISTER_WINDOW_MS)) {
@@ -29,7 +37,7 @@ export async function POST(req: Request) {
   }
   await recordAttempt(rateLimitKey, REGISTER_WINDOW_MS);
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
   const parsed = registerSchema.safeParse(body);
 
   if (!parsed.success) {
@@ -51,6 +59,7 @@ export async function POST(req: Request) {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
+  const bestaetigtAm = new Date();
 
   const practice = await prisma.practice.create({
     data: {
@@ -60,6 +69,9 @@ export async function POST(req: Request) {
       // BEMA-Punktwert ist regional unterschiedlich und muss von der Praxis
       // selbst unter "Einstellungen > Abrechnung" eingetragen werden.
       gozPunktwertCent: STANDARD_GOZ_PUNKTWERT_CENT,
+      unternehmerBestaetigtAt: bestaetigtAm,
+      vertragstexteBestaetigtAt: bestaetigtAm,
+      vertragstexteFassung: VERTRAGSTEXTE_FASSUNG,
       users: {
         create: {
           name,

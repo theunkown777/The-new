@@ -15,6 +15,7 @@ import { WartelisteAngebot } from "@/components/WartelisteAngebot";
 import { TerminAnfragen } from "@/components/TerminAnfragen";
 import { passende, wunschText } from "@/lib/warteliste";
 import { offeneAnfragen } from "@/lib/terminanfrageLoad";
+import { gewaehlterStandort, sichtbareStandorte, standortRechtVon, terminFilter } from "@/lib/standortRechte";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Termine" };
@@ -31,15 +32,17 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
   const practiceId = session!.user.practiceId;
   const tag = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.tag ?? "") ? searchParams.tag! : heuteTag();
   const { von, bis } = tagesGrenzen(tag);
-  const standorte = await prisma.location.findMany({ where: { practiceId }, orderBy: { createdAt: "asc" } });
-  const ort = standorte.find((s) => s.id === searchParams.ort)?.id ?? null;
+  // Konten mit Standort-Zuordnung sehen nur ihre Standorte und deren Termine (lib/standortRechte.ts).
+  const recht = await standortRechtVon(session!.user.id, practiceId);
+  const standorte = sichtbareStandorte(recht, await prisma.location.findMany({ where: { practiceId }, orderBy: { createdAt: "asc" } }));
+  const ort = gewaehlterStandort(recht, searchParams.ort, standorte);
   const [termine, letzte, practice, warteliste, anfragen] = await Promise.all([
     prisma.appointment.findMany({
-      where: { practiceId, start: { gte: von, lt: bis }, ...(ort ? { locationId: ort } : {}) },
+      where: { practiceId, start: { gte: von, lt: bis }, ...terminFilter(recht, ort) },
       orderBy: { start: "asc" },
       include: { patient: { select: { id: true, firstName: true, lastName: true, email: true, contactConsentAt: true, phone: true, whatsappConsentAt: true } }, location: { select: { name: true } } },
     }),
-    prisma.appointment.findMany({ where: { practiceId, start: { gte: new Date(Date.now() - 60 * 864e5), lt: new Date() } }, select: { status: true } }),
+    prisma.appointment.findMany({ where: { practiceId, ...terminFilter(recht), start: { gte: new Date(Date.now() - 60 * 864e5), lt: new Date() } }, select: { status: true } }),
     prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, specialty: true } }),
     // Warteliste: offene Einträge, wer am längsten wartet zuerst
     prisma.warteliste.findMany({ where: { practiceId, erledigtAt: null }, orderBy: { createdAt: "asc" }, take: 300, include: { patient: { select: { firstName: true, lastName: true } } } }),

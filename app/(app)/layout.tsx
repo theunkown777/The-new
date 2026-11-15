@@ -12,7 +12,7 @@ import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { DemoBanner } from "@/components/DemoBanner";
 import { isDental } from "@/lib/specialties";
 import { isSupportTeam } from "@/lib/supportTeam";
-import { canSeeAnalytics } from "@/lib/permissions";
+import { menueRechteVon } from "@/lib/permissions";
 import { zweiFaktorPflicht } from "@/lib/zweiFaktorPflicht";
 import { TwoFactorSettings } from "@/components/TwoFactorSettings";
 import { eingangOffen } from "@/lib/eingang";
@@ -32,7 +32,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const personen = fachprofil(currentUser?.practice.specialty ?? "zahn").person.pl;
   const person = fachprofil(currentUser?.practice.specialty ?? "zahn").person.sg;
   const team = await isSupportTeam(session.user.id);
-  const analyse = await canSeeAnalytics(session.user.id);
+  // Menü nach Rolle und Freigabe (lib/rollen.ts): Zahlungen, Analyse und Einstellungen der Praxis.
+  const menue = await menueRechteVon(session.user.id, session.user.practiceId);
+  const analyse = menue.analyse;
   const eingang = await eingangOffen(session.user.practiceId).catch(() => 0);
   // Ohne eingerichtete Zwei-Faktor-Anmeldung zeigt Sorrida bei Pflicht nur die
   // Einrichtung, keine Patientendaten.
@@ -58,7 +60,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </p>
         <EingangWaechter start={eingang} />
         {!sperre && <SucheKnopf />}
-        <SidebarNav eingang={eingang} dental={dental} team={team} analyse={analyse} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
+        <SidebarNav eingang={eingang} dental={dental} team={team} analyse={analyse} zahlungen={menue.zahlungen} einstellungen={menue.einstellungen} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
         <div className="mt-auto border-t border-slate-100 pt-4 text-sm">
           <p className="truncate px-2 text-slate-700">{session.user.name}</p>
           <div className="px-2 pt-1">
@@ -83,11 +85,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <Link href="/patients" className="hover:text-white">{personen}</Link>
               {dental && <Link href="/reports" className="hover:text-white">Berichte</Link>}
               <Link href="/proposals" className="hover:text-white">Vorschläge</Link>
-              <Link href="/zahlungen" className="hover:text-white">Zahlungen</Link>
+              {menue.zahlungen && <Link href="/zahlungen" className="hover:text-white">Zahlungen</Link>}
               {analyse && <Link href="/analyse" className="hover:text-white">Analyse</Link>}
-              <Link href="/settings" className="hover:text-white">Einstellungen</Link>
+              <Link href="/settings" className="hover:text-white">{menue.einstellungen ? "Einstellungen" : "Mein Konto"}</Link>
             </nav>
-            <MobileNav eingang={eingang} userName={session.user.name} dental={dental} team={team} analyse={analyse} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
+            <MobileNav eingang={eingang} userName={session.user.name} dental={dental} team={team} analyse={analyse} zahlungen={menue.zahlungen} einstellungen={menue.einstellungen} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
           </div>
         </header>
         {/* Suche über alles (Strg+K) und Tastenkürzel; ohne eingerichtete Pflicht-2FA nicht verfügbar */}

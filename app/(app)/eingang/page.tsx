@@ -7,6 +7,7 @@ import { EingangAktion, EingangAlle, EingangMeldungen, EingangUebernehmen } from
 import { MorgenMail } from "@/components/MorgenMail";
 import { EingangAnfragen } from "@/components/EingangAnfragen";
 import { mailVersandAktiv } from "@/lib/email";
+import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Eingang" };
@@ -28,7 +29,9 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
   const offen = nurMeine ? meine : offenAlle;
   // Für Termin-Einträge den Tag nachschlagen, damit der Klick direkt im Kalender landet.
   const terminIds = [...offen, ...erledigt].filter((e) => e.art.startsWith("TERMIN_") && e.entityId).map((e) => e.entityId!);
-  const termine = terminIds.length ? await prisma.appointment.findMany({ where: { id: { in: terminIds }, practiceId }, select: { id: true, start: true } }) : [];
+  // Konten mit Standort-Zuordnung bekommen keine Terminzeiten fremder Standorte.
+  const recht = await standortRechtVon(session!.user.id, practiceId);
+  const termine = terminIds.length ? await prisma.appointment.findMany({ where: { id: { in: terminIds }, practiceId, ...terminFilter(recht) }, select: { id: true, start: true } }) : [];
   const tagVon = new Map(termine.map((t) => [t.id, t.start.toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" })]));
 
   const zeile = (e: (typeof offen)[number], fertig: boolean) => {

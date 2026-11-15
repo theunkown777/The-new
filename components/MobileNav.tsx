@@ -24,7 +24,7 @@ const LINKS = [
   { href: "/analyse", label: "Analyse" },
 ];
 
-export function MobileNav({ userName, dental = true, team = false, analyse = false, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; userName?: string | null; dental?: boolean; team?: boolean; analyse?: boolean; personPl?: string; abschluss?: string }) {
+export function MobileNav({ userName, dental = true, team = false, analyse = false, zahlungen = true, einstellungen = true, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; userName?: string | null; dental?: boolean; team?: boolean; analyse?: boolean; zahlungen?: boolean; einstellungen?: boolean; personPl?: string; abschluss?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -51,7 +51,7 @@ export function MobileNav({ userName, dental = true, team = false, analyse = fal
       {open && (
         <div className="absolute inset-x-0 top-full z-40 border-t border-brand-800 bg-brand-600 px-4 py-3 shadow-lg">
           <nav className="flex flex-col gap-1 text-sm">
-            {LINKS.filter((l) => (dental || l.href !== "/reports") && (analyse || l.href !== "/analyse")).map((link) => (
+            {LINKS.filter((l) => (dental || l.href !== "/reports") && (analyse || l.href !== "/analyse") && (zahlungen || l.href !== "/zahlungen")).map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -67,7 +67,7 @@ export function MobileNav({ userName, dental = true, team = false, analyse = fal
               onClick={() => setOpen(false)}
               className="rounded-md px-2 py-2 text-brand-100 hover:bg-brand-700 hover:text-white"
             >
-              Einstellungen
+              {einstellungen ? "Einstellungen" : "Mein Konto"}
             </Link>
             {team && (
               <Link href="/anfragen" onClick={() => setOpen(false)} className="rounded-md px-2 py-2 text-brand-100 hover:bg-brand-700 hover:text-white">

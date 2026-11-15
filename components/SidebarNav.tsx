@@ -35,7 +35,7 @@ function Icon({ name }: { name: string }) {
   );
 }
 
-export function SidebarNav({ dental, team = false, analyse = false, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; dental: boolean; team?: boolean; analyse?: boolean; personPl?: string; abschluss?: string }) {
+export function SidebarNav({ dental, team = false, analyse = false, zahlungen = true, einstellungen = true, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; dental: boolean; team?: boolean; analyse?: boolean; zahlungen?: boolean; einstellungen?: boolean; personPl?: string; abschluss?: string }) {
   const path = usePathname();
   type L = [string, string, string];
   const gruppen: [string, L[]][] = [
@@ -49,12 +49,13 @@ export function SidebarNav({ dental, team = false, analyse = false, personPl = "
         ...(dental ? ([["/reports", "Berichte", "reports"]] as L[]) : []),
       ],
     ],
-    ["Geld", [["/zahlungen", "Zahlungen", "zahlungen"], ["/abrechnung", "Abrechnung", "abrechnung"], ["/abrechnungspruefung", "Abrechnungsprüfung", "pruefung"], ...(analyse ? ([["/analyse", "Analyse", "analyse"]] as L[]) : [])]],
+    ["Geld", [...(zahlungen ? ([["/zahlungen", "Zahlungen", "zahlungen"]] as L[]) : []), ["/abrechnung", "Abrechnung", "abrechnung"], ["/abrechnungspruefung", "Abrechnungsprüfung", "pruefung"], ...(analyse ? ([["/analyse", "Analyse", "analyse"]] as L[]) : [])]],
     [
       "Praxis",
       [
         ["/leistungsverzeichnis", "Leistungsverzeichnis", "abrechnung"],
-        ["/settings", "Einstellungen", "settings"],
+        // Ohne Recht auf die Einstellungen der Praxis bleibt das eigene Konto (Passwort, Zwei-Faktor-Anmeldung).
+        ["/settings", einstellungen ? "Einstellungen" : "Mein Konto", "settings"],
         ...(team ? ([["/anfragen", "Anfragen (Team)", "anfragen"]] as L[]) : []),
         ["/", "Fachauswahl und Website", "start"],
       ],
