@@ -6,6 +6,7 @@ import {
   istFreiwillig,
   isZahnersatz,
   money,
+  patientAnteile,
   typeLabelOf,
   summarize,
   vergleicheJahre,
@@ -13,7 +14,10 @@ import {
   type ProposalItem,
 } from "@/lib/proposals";
 import { installmentOffer, type Installments } from "@/lib/installments";
-import { PATIENT_LANGS, UI, datum, euro, langDir, langName, tr, uebersetzung, type PatientLang } from "@/lib/patientI18n";
+import { PATIENT_LANGS, datum, euro, langDir, langName, tr, uebersetzung, uiFuer, type PatientLang } from "@/lib/patientI18n";
+import { EINFACH_SCHALTER } from "@/lib/i18n/de-einfach";
+import { vorleseTeile } from "@/lib/vorlesen";
+import { ErinnernBlock, TeilenBlock, VorlesenKnopf, type LeseLinkZeile } from "@/components/PatientExtras";
 import { ZweitmeinungVergleich, type ZweitmeinungProps } from "@/components/ZweitmeinungVergleich";
 
 type Props = {
@@ -44,6 +48,17 @@ type Props = {
   translatable?: boolean;
   /** Zweitmeinung zum Vergleich (Patienten-Link und Portal). */
   zweitmeinung?: ZweitmeinungProps;
+  /** Adresse der Kostenübersicht als PDF; ohne Angabe gibt es den Knopf nicht. */
+  pdfUrl?: string;
+  /** Lese-Link für Vertrauenspersonen: Schnittstelle, aktive Links und Obergrenze. */
+  share?: { apiUrl: string; links: LeseLinkZeile[]; max: number };
+  /** „Erinnern Sie mich“: Schnittstelle und der schon gewählte Tag. Nur bei offenen Vorschlägen übergeben. */
+  remind?: { apiUrl: string; am: string | null };
+  /**
+   * Lese-Ansicht für eine Vertrauensperson: nur die Möglichkeiten und Beträge. Keine Auswahl, keine Antwort,
+   * keine Zweitmeinung, kein PDF, kein Vorname, nichts von dem, was der Patient gewählt oder geschrieben hat.
+   */
+  readOnly?: boolean;
 };
 
 /**
@@ -63,7 +78,10 @@ function Rt({ text, lang }: { text: string; lang: PatientLang }) {
 
 export function PatientProposalView(props: Props) {
   const { items, patient, lang } = props;
-  const t = UI[lang];
+  const readOnly = !!props.readOnly;
+  // „Einfache Sprache“ gibt es nur in der deutschen Ansicht; sie ersetzt die Rahmentexte, nicht die Namen der Leistungen.
+  const [einfach, setEinfach] = useState(false);
+  const t = uiFuer(lang, einfach);
   const dir = langDir(lang);
   const fmt = (n: number) => euro(n, lang);
   // Liegt ein gezeigter Regeltext nicht (ganz) in der gewählten Sprache vor, sagt die Ansicht das dazu.
@@ -110,6 +128,8 @@ export function PatientProposalView(props: Props) {
   const offen = items.filter((i) => !choices[i.key] && !istFreiwillig(i));
   const sum = useMemo(() => summarize(chosenItems, choices, patient), [chosenItems, choices, patient]);
   const jahre = useMemo(() => vergleicheJahre(chosenItems, choices, patient), [chosenItems, choices, patient]);
+  // Für die Kachel oben: was Kasse bzw. Versicherung bei der aktuellen Auswahl voraussichtlich trägt.
+  const anteile = useMemo(() => patientAnteile(chosenItems, choices, patient), [chosenItems, choices, patient]);
   // Varianten für die Kontrolle: Empfehlung und geringster Eigenanteil je Position.
   const lowChoices = useMemo(
     () =>
@@ -159,8 +179,10 @@ export function PatientProposalView(props: Props) {
     setState("error");
   }
 
+  const ueberschrift = readOnly ? t.readOnlyTitle : props.firstName && props.firstName !== "ohne Akte" ? t.hello(props.firstName) : t.pageTitle;
+
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-40 pt-8 sm:pt-12" lang={lang} dir={dir}>
+    <main className={`mx-auto max-w-2xl px-4 pt-8 sm:pt-12 ${readOnly ? "pb-12" : "pb-40"}`} lang={lang} dir={dir}>
       {props.backHref && (
         // Die gewählte Sprache geht mit zurück ins Portal (dort gilt sie, soweit das Portal sie anbietet).
         <a href={`${props.backHref}${props.backHref.includes("?") ? "&" : "?"}lang=${lang}`} className="mb-4 inline-block text-sm text-brand-700 underline" data-testid="zurueck-portal">
@@ -189,8 +211,29 @@ export function PatientProposalView(props: Props) {
             ))}
           </nav>
         )}
-        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{props.firstName && props.firstName !== "ohne Akte" ? t.hello(props.firstName) : t.pageTitle}</h1>
-        <p className="text-slate-600">{t.intro(props.arztDativ)}</p>
+        <div className="flex flex-wrap gap-1.5" data-testid="lesehilfen">
+          <VorlesenKnopf t={t} teile={() => vorleseTeile({ ueberschrift, items, patient, choices: readOnly ? {} : choices, summe: sum.netto, lang, t })} />
+          {lang === "de" && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={einfach}
+              onClick={() => setEinfach((x) => !x)}
+              className={`inline-flex min-h-[40px] items-center rounded-full border px-3.5 text-sm ${einfach ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-slate-400"}`}
+              data-testid="einfache-sprache"
+            >
+              {EINFACH_SCHALTER}
+            </button>
+          )}
+        </div>
+        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl" data-testid="ueberschrift">{ueberschrift}</h1>
+        {readOnly ? (
+          <p className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-slate-800" role="note" data-testid="mitlesen-hinweis">
+            {t.readOnlyNote}
+          </p>
+        ) : (
+          <p className="text-slate-600" data-testid="einleitung">{t.intro(props.arztDativ)}</p>
+        )}
         {t.langNote && (
           // Rechtlicher Hinweis in jeder Fremdsprache: maßgeblich sind die deutsche Fassung und das Gespräch in der Praxis.
           <p className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700" role="note" data-testid="sprachhinweis">
@@ -200,7 +243,30 @@ export function PatientProposalView(props: Props) {
         )}
       </header>
 
-      {props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
+      {/* Drei ruhige Kacheln: was geplant ist, was Kasse bzw. Versicherung trägt, was selbst zu zahlen ist (folgt der Auswahl). */}
+      <dl className={`mt-6 grid grid-cols-1 gap-2 ${readOnly ? "" : "sm:grid-cols-3"}`} data-testid="drei-schritte">
+        <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
+          <dt className="text-sm text-slate-500">{t.stepPlanned}</dt>
+          <dd className="font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-lg" data-testid="schritt-geplant">{t.stepItems(items.length)}</dd>
+        </div>
+        {!readOnly && (
+          <>
+            <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
+              <dt className="text-sm text-slate-500">{gkv ? t.stepInsurerGkv : t.stepInsurerPkv}</dt>
+              <dd className="font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-lg" data-testid="schritt-kasse">{fmt(anteile.kasse)}</dd>
+            </div>
+            <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
+              <dt className="text-sm text-slate-500">{t.stepSelf}</dt>
+              <dd className="font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-lg" data-testid="schritt-selbst">
+                {fmt(sum.netto)}
+                {offen.length > 0 && <span className="ms-2 text-xs font-normal text-brand-700 sm:ms-0 sm:block">{t.open(offen.length)}</span>}
+              </dd>
+            </div>
+          </>
+        )}
+      </dl>
+
+      {!readOnly && props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
         <div className="mt-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900" role="note">
           <strong>{t.deadlineTitle}</strong> {t.deadline(props.tageBisStichtag)} <strong>{fmt(jahre.mehrkosten)}</strong>.
         </div>
@@ -219,7 +285,7 @@ export function PatientProposalView(props: Props) {
               <p className="text-sm text-slate-500">
                 <Rt text={item.where} lang={lang} />
               </p>
-              {!current && <p className="mt-1 text-xs text-brand-700">{istFreiwillig(item) ? t.optional : t.pick}</p>}
+              {!current && !readOnly && <p className="mt-1 text-xs text-brand-700">{istFreiwillig(item) ? t.optional : t.pick}</p>}
               <fieldset className="mt-4 space-y-3">
                 <legend className="sr-only">{t.optionsFor(title)}</legend>
                 {item.options.map((o) => {
@@ -228,7 +294,7 @@ export function PatientProposalView(props: Props) {
                   return (
                     <label
                       key={o.id}
-                      className={`block cursor-pointer rounded-xl border p-4 transition focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-700 ${
+                      className={`block rounded-xl border p-4 transition ${readOnly ? "" : "cursor-pointer"} focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-700 ${
                         selected ? "border-brand-600 bg-brand-50 ring-1 ring-brand-600" : "border-slate-200 hover:border-slate-300"
                       }`}
                     >
@@ -237,6 +303,7 @@ export function PatientProposalView(props: Props) {
                         name={item.key}
                         value={o.id}
                         checked={selected}
+                        disabled={readOnly}
                         onChange={() => setChoices((c) => ({ ...c, [item.key]: o.id }))}
                         onClick={() => {
                           // Freiwillige Leistung: zweites Antippen wählt sie wieder ab.
@@ -326,7 +393,7 @@ export function PatientProposalView(props: Props) {
         })}
       </div>
 
-      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" aria-labelledby="antwort">
+      {!readOnly && <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" aria-labelledby="antwort">
         <h2 id="antwort" className="font-semibold text-slate-900">
           {t.nextTitle}
         </h2>
@@ -379,11 +446,24 @@ export function PatientProposalView(props: Props) {
                 {t.callMe}
               </button>
             </p>
+            {props.remind && <ErinnernBlock apiUrl={props.remind.apiUrl} anfang={props.remind.am} lang={lang} t={t} />}
           </>
         )}
-      </section>
+      </section>}
 
-      {props.zweitmeinung && (
+      {!readOnly && props.pdfUrl && (
+        // Kostenübersicht zum Aufbewahren. Eigene Schnittstelle, kein fremder Dienst; das PDF gibt es auf Deutsch.
+        <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" data-testid="pdf">
+          <a href={props.pdfUrl} download="kostenuebersicht.pdf" rel="nofollow" className="btn btn-secondary w-full py-2.5 sm:w-auto" data-testid="pdf-speichern">
+            {t.pdfSave}
+          </a>
+          <p className="mt-2 text-xs text-slate-500" data-testid="pdf-hinweis">{t.pdfNote}</p>
+        </section>
+      )}
+
+      {!readOnly && props.share && <TeilenBlock apiUrl={props.share.apiUrl} anfang={props.share.links} max={props.share.max} lang={lang} t={t} />}
+
+      {!readOnly && props.zweitmeinung && (
         // Der Abschnitt „Zweitmeinung vergleichen“ (eigene Komponente) liegt nur auf Deutsch vor: in jeder
         // Fremdsprache steht ein kurzer Hinweis davor, der Abschnitt selbst ist als Deutsch ausgezeichnet.
         <>
@@ -411,7 +491,7 @@ export function PatientProposalView(props: Props) {
         {t.langNote && <> {t.langNote}</>}
       </p>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 backdrop-blur">
+      {!readOnly && <div className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
           <div>
             <div className="text-xs text-slate-500">{t.barLabel}</div>
@@ -434,9 +514,9 @@ export function PatientProposalView(props: Props) {
             </div>
           )}
         </div>
-      </div>
+      </div>}
 
-      <dialog
+      {!readOnly && <dialog
         ref={dialogRef}
         onClose={() => setRecOpen(false)}
         onClick={(e) => e.target === dialogRef.current && setRecOpen(false)}
@@ -515,7 +595,7 @@ export function PatientProposalView(props: Props) {
             </div>
           </div>
         )}
-      </dialog>
+      </dialog>}
     </main>
   );
 }
