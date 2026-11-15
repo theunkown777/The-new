@@ -10,6 +10,7 @@ import { PROPOSAL_STATUS_LABELS, formatEuro } from "@/lib/proposals";
 import { isDental } from "@/lib/specialties";
 import { journey, STATIONEN } from "@/lib/journey";
 import { loadTermineHeute } from "@/lib/termineLoad";
+import { standortRechtVon } from "@/lib/standortRechte";
 import { uhrzeit, STATUS_LABEL, type TerminStatus } from "@/lib/termine";
 import { canSeeAnalytics } from "@/lib/permissions";
 import { formatCent } from "@/lib/invoices";
@@ -72,7 +73,7 @@ export default async function DashboardPage() {
   ]);
   const monatsStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   const [termine, darfUmsatz, bezahltMonat] = await Promise.all([
-    loadTermineHeute(practiceId),
+    loadTermineHeute(practiceId, new Date(), await standortRechtVon(session!.user.id, practiceId)),
     canSeeAnalytics(session!.user.id),
     prisma.invoice.aggregate({ where: { practiceId, status: "BEZAHLT", paidAt: { gte: monatsStart } }, _sum: { amountCent: true } }),
   ]);

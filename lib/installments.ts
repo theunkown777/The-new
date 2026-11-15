@@ -27,10 +27,19 @@ export function resolveInstallments(raw: unknown): Installments {
   return parsed.success ? parsed.data : DEFAULT_INSTALLMENTS;
 }
 
+/**
+ * Ratenanzeige im Patientenlink ist angehalten. Seit dem 20.11.2026 gilt das Verbraucherkreditrecht auch
+ * für zinsfreie Teilzahlungen über mehr als 50 Tage (§ 506 BGB n. F.), mit Pflichtangaben, Widerrufsrecht,
+ * Prüfung der Kreditwürdigkeit und einem Pflicht-Warnhinweis in der Werbung. Bis eine Kanzlei den Ablauf
+ * freigegeben hat, zeigt Sorrida keine Raten und wirbt nicht mit Teilzahlung; die Praxis bespricht das persönlich.
+ */
+export const RATEN_ANGEHALTEN = true;
+
 export type InstallmentOffer = { kind: "none" } | { kind: "rate"; months: number; monthly: number } | { kind: "ask" };
 
 /** Was zum Eigenanteil angezeigt wird. Raten werden auf volle Euro aufgerundet. */
-export function installmentOffer(eigen: number, cfg: Installments): InstallmentOffer {
+export function installmentOffer(eigen: number, cfg: Installments, angehalten = RATEN_ANGEHALTEN): InstallmentOffer {
+  if (angehalten) return { kind: "none" };
   if (!cfg.enabled || eigen < Math.max(cfg.minEur, 1)) return { kind: "none" };
   if (!cfg.zinsfrei) return { kind: "ask" };
   return { kind: "rate", months: cfg.months, monthly: Math.ceil(eigen / cfg.months) };

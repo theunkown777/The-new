@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { buildAgreementPdf } from "@/lib/pdf";
 import { agreementContext } from "@/lib/agreementContext";
 import { pruefVermerk } from "@/lib/portalPruefung";
+import { istOhneAkte } from "@/lib/ohneAkte";
 
 // Digitales Einverständnis als PDF für die Akte und zum Gegenzeichnen.
 export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
@@ -20,7 +21,7 @@ export async function GET(_req: Request, props: { params: Promise<{ id: string }
   const png = p.agreedSignature?.startsWith("data:image/png;base64,") ? Buffer.from(p.agreedSignature.split(",")[1], "base64") : null;
   const pdf = await buildAgreementPdf({
     practiceName: p.practice.name,
-    patientName: `${p.patient.firstName} ${p.patient.lastName}`,
+    patientName: istOhneAkte(p.patient) ? `Kürzel ${p.patient.lastName} (ohne Akte)` : `${p.patient.firstName} ${p.patient.lastName}`,
     patientBirthDate: p.patient.birthDate ? p.patient.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" }) : null,
     proposalDate: p.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" }),
     text: p.agreedText ?? ctx?.text ?? "",

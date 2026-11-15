@@ -3,6 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
+import { kontoDarf } from "@/lib/permissions";
+
+// Was jedes Konto sieht, auch ohne Zugang zu den Einstellungen der Praxis (Rolle Behandler/in).
+const FUER_ALLE = ["/settings/security", "/settings/lexikon"];
 
 // `nur`: Karte nur für Zahnarztpraxen (Punktwerte GOZ/BEMA, Preise der Zahn-Vorschläge).
 const CARDS: { href: string; title: string; description: string; nur?: "zahn" }[] = [
@@ -59,6 +63,11 @@ const CARDS: { href: string; title: string; description: string; nur?: "zahn" }[
     description: "Patienten buchen selbst und sehen nur freie Zeiten. Kalender der Praxis übertragen (Google, Outlook, Praxisprogramm).",
   },
   {
+    href: "/settings/empfang",
+    title: "Empfang",
+    description: "Empfangs-PIN für das Tablet im Wartezimmer festlegen. Mit ihr kommt die Praxis nach der Übergabe an einen Patienten zurück.",
+  },
+  {
     href: "/settings/standorte",
     title: "Standorte",
     description: "Hauptpraxis und Zweigpraxen mit Behandlungsplätzen und Sprechzeit, für Termine und Auslastung je Standort.",
@@ -86,10 +95,16 @@ export default async function SettingsPage() {
     : therapie
       ? "Sorrida läuft im Browser neben Ihrer Praxissoftware. Hier richten Sie eine Anbindung ein, falls Ihre Software GDT unterstützt."
       : "Sorrida als Fenster aus Medistar, TURBOMED, CGM M1 PRO, x.isynet oder ALBIS öffnen (GDT). Freigegebene Berichte kommen zurück in die Karteikarte.";
-  const karten = CARDS.filter((c) => !c.nur || zahn).map((c) => (c.href === "/settings/connector" ? { ...c, description: anbindung } : c));
+  const praxisEinstellungen = !!session && (await kontoDarf(session.user.id, "einstellungen.ansehen", session.user.practiceId));
+  const karten = CARDS.filter((c) => (!c.nur || zahn) && (praxisEinstellungen || FUER_ALLE.includes(c.href))).map((c) => (c.href === "/settings/connector" ? { ...c, description: anbindung } : c));
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-6 font-display text-3xl text-slate-900">Einstellungen</h1>
+      {!praxisEinstellungen && (
+        <p className="mb-4 rounded-lg bg-[#F5F2EE] px-3 py-2 text-sm text-slate-600" data-testid="einstellungen-eingeschraenkt">
+          Mit Ihrer Rolle sehen Sie hier Ihr eigenes Konto. Die Einstellungen der Praxis verwaltet die Praxisleitung.
+        </p>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         {karten.map((card) => (
           <Link key={card.href} href={card.href} className="card hover:bg-slate-50">

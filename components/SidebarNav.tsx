@@ -39,12 +39,11 @@ export function SidebarNav({ dental, team = false, analyse = false, personPl = "
   const path = usePathname();
   type L = [string, string, string];
   const gruppen: [string, L[]][] = [
-    ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/eingang", "Eingang", "eingang"], ["/mein-bereich", "Mein Bereich", "mein"], ["/termine", "Termine", "termine"], ["/praxismanager", "Praxismanager", "manager"], ["/vorsorge", "Vorsorge fällig", "vorsorge"]]],
+    ["Heute", [["/dashboard", "Übersicht", "dashboard"], ["/eingang", "Eingang", "eingang"], ["/mein-bereich", "Mein Bereich", "mein"], ["/termine", "Termine", "termine"], ["/praxismanager", "Praxismanager", "manager"], ["/vorsorge", "Vorsorge fällig", "vorsorge"], ["/empfang", "Empfang", "eingang"]]],
     [
       personPl,
       [
         ["/patients", `${personPl} und Wege`, "patients"],
-        ["/modelle", "Modelle", "modelle"],
         ["/abschluss/new", `${abschluss} abschließen`, "wrapup"],
         ["/proposals", "Vorschläge", "proposals"],
         ...(dental ? ([["/reports", "Berichte", "reports"]] as L[]) : []),

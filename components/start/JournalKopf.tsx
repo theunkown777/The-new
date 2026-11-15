@@ -4,9 +4,9 @@ import Link from "next/link";
 // Am Handy wandert die Navigation in ein aufklappbares Menü (ohne JavaScript, mit <details>).
 const LINKS: [string, string, string?][] = [
   ["/#fach", "Fachgebiete"],
-  ["/anatomie", "Modelle", "nav-modelle"],
   ["/#preise", "Preise"],
   ["/ratgeber", "Ratgeber"],
+  ["/rechner", "Rechner"],
 ];
 
 export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
@@ -66,7 +66,7 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
 export function JournalFuss() {
   const spalten: [string, [string, string][]][] = [
     ["Sorrida", [["/#fach", "Fachgebiete"], ["/leistungen", "Leistungen A–Z"], ["/anatomie", "Modelle"], ["/#preise", "Preise"]]],
-    ["Ausprobieren", [["/demo", "Demo-Praxis öffnen"], ["/vorschau", "Vorschau"], ["/hilfe", "Hilfe und Kontakt"], ["/ratgeber", "Ratgeber"]]],
+    ["Ausprobieren", [["/demo", "Demo-Praxis öffnen"], ["/vorschau", "Vorschau"], ["/hilfe", "Hilfe und Kontakt"], ["/ratgeber", "Ratgeber"], ["/rechner", "Rechner"]]],
     ["Rechtliches", [["/impressum", "Impressum"], ["/datenschutz", "Datenschutz"], ["/avv", "AVV-Muster"]]],
   ];
   return (

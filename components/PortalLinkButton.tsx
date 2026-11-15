@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { anrede } from "@/lib/ohneAkte";
 
 // Portal-Link für einen Patienten erzeugen: Link, QR-Code und SMS-Text zum Kopieren.
 export function PortalLinkButton({ patientId, firstName, practiceName, label = "Behandlungsweg senden", className = "btn-secondary", onCreated, message, copyLabel = "SMS-Text kopieren" }: {
@@ -18,7 +19,7 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const text = state ? (message ? message(state.url) : `Hallo ${firstName}, unter diesem Link sehen Sie Ihren Behandlungsweg bei ${practiceName}: den nächsten Schritt, Unterlagen und Rechnungen. ${state.url}`) : "";
+  const text = state ? (message ? message(state.url) : `${anrede("Hallo", firstName)}, unter diesem Link sehen Sie Ihren Behandlungsweg bei ${practiceName}: den nächsten Schritt, Unterlagen und Rechnungen. ${state.url}`) : "";
 
   async function create() {
     setBusy(true);

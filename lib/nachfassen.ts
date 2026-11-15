@@ -1,3 +1,4 @@
+import { anrede } from "@/lib/ohneAkte";
 import {
   buildProposal,
   showsJahresvergleich,
@@ -137,5 +138,5 @@ export function nachfassText(a: { firstName: string; practiceName: string; url: 
   const hinweis = a.zahnersatz
     ? " Für Zahnersatz ändern sich zum 1. Januar 2027 die Zuschüsse der Krankenkassen; wir beraten Sie gern dazu."
     : "";
-  return `Hallo ${a.firstName}, Ihr Behandlungsvorschlag von ${a.practiceName} ist noch offen.${hinweis} Unter Ihrem persönlichen Link können Sie ihn in Ruhe ansehen und uns antworten: ${a.url} Bei Fragen rufen Sie uns einfach an.`;
+  return `${anrede("Hallo", a.firstName)}, Ihr Behandlungsvorschlag von ${a.practiceName} ist noch offen.${hinweis} Unter Ihrem persönlichen Link können Sie ihn in Ruhe ansehen und uns antworten: ${a.url} Bei Fragen rufen Sie uns einfach an.`;
 }

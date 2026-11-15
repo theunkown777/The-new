@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -19,6 +20,7 @@ const GRUPPEN: Record<string, { label: string; actions: AuditAction[] }> = {
 };
 
 export default async function ProtokollPage(props: { searchParams: Promise<{ gruppe?: string }> }) {
+  await nurMitEinstellungen();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   if (session?.user.role !== "admin") {

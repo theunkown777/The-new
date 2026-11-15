@@ -102,7 +102,7 @@ export async function WrapUpSummary({
           {proposal ? (
             <>
               <p className="text-sm text-slate-600">
-                Eigenanteil bei empfohlener Versorgung: <b className="tabular-nums">{formatEuro(proposal.eigenanteilCent / 100)}</b>
+                Eigenanteil nach Ihrer Planung: <b className="tabular-nums">{formatEuro(proposal.eigenanteilCent / 100)}</b>
                 {jv?.betroffen && showsJahresvergleich() && jv.mehrkosten > 0.5 && (
                   <span className="text-red-700"> · ab 2027 ca. {formatEuro(jv.mehrkosten)} mehr</span>
                 )}

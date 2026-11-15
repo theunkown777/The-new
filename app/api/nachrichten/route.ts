@@ -10,6 +10,8 @@ import { PORTAL_TTL_MS, nextReminderLevel, reminderText } from "@/lib/invoices";
 import { generateToken } from "@/lib/tokens";
 import { auditFromSession } from "@/lib/audit";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
+import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
+import { darfZahlungen } from "@/lib/permissions";
 
 // Versand per E-Mail für Terminbestätigung, Terminerinnerung und
 // Zahlungserinnerung. Jede Nachricht löst ein Mensch aus (Klick), nichts geht
@@ -38,6 +40,7 @@ export async function POST(req: Request) {
   let nachher: () => Promise<unknown>;
 
   if (art === "zahlungserinnerung") {
+    if (!(await darfZahlungen(session.user.id, practiceId))) return NextResponse.json({ error: "Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben." }, { status: 403 });
     const inv = await prisma.invoice.findFirst({
       where: { id, practiceId, status: { in: ["OFFEN", "GEMELDET"] } },
       include: { patient: { select: { id: true, firstName: true, email: true, contactConsentAt: true } } },
@@ -56,7 +59,7 @@ export async function POST(req: Request) {
     nachher = () => prisma.invoice.update({ where: { id: inv.id }, data: { remindedAt: now, reminderLevel: level } });
   } else {
     const t = await prisma.appointment.findFirst({
-      where: { id, practiceId },
+      where: { id, practiceId, ...terminFilter(await standortRechtVon(session.user.id, practiceId)) },
       include: { patient: { select: { id: true, firstName: true, email: true, contactConsentAt: true } }, location: { select: { name: true } } },
     });
     if (!t) return NextResponse.json({ error: "Termin nicht gefunden" }, { status: 404 });

@@ -24,71 +24,96 @@ model Practice {
   // Praxis vorbelegt; BEMA verhandelt jede KZV regional mit den
   // Krankenkassen ihres Bundeslands, es gibt keinen bundeseinheitlichen
   // Wert - die Praxis muss ihn selbst eintragen.
-  gozPunktwertCent   Float?
-  bemaPunktwertCent  Float?
-  invites            StaffInvite[]
-  proposals          TreatmentProposal[]
-  connectorKeys      ConnectorKey[]
-  gdtAuslieferungen  GdtAuslieferung[]
-  kalenderBelegungen KalenderBelegung[]
+  gozPunktwertCent       Float?
+  bemaPunktwertCent      Float?
+  invites                StaffInvite[]
+  proposals              TreatmentProposal[]
+  connectorKeys          ConnectorKey[]
+  gdtAuslieferungen      GdtAuslieferung[]
+  kalenderBelegungen     KalenderBelegung[]
+  /// Gespeicherte Kombinationen für neue Vorschläge (lib/favoriten.ts)
+  vorschlagFavoriten     Json?
   /// Online-Terminbuchung im Patientenportal
-  buchungAktiv       Boolean             @default(false)
+  buchungAktiv           Boolean             @default(false)
   /// Sprechzeiten je Wochentag: { "1": [["08:00","12:00"]], … } (1 = Montag)
-  sprechzeiten       Json?
-  buchungMinuten     Int                 @default(20)
-  buchungVorlaufStd  Int                 @default(24)
-  buchungTageVoraus  Int                 @default(28)
+  sprechzeiten           Json?
+  buchungMinuten         Int                 @default(20)
+  buchungVorlaufStd      Int                 @default(24)
+  buchungTageVoraus      Int                 @default(28)
   /// Kalender-Abo der Praxis (ICS-Adresse aus Google, Outlook, Praxisprogramm); nur belegte Zeiten werden gelesen
   /// Wirkungsbericht: Schätzung der Praxis vor dem Start ({ vorschlaegeMonat, ohneEntscheidungProzent, tageBisZahlung, erfasstAm })
-  ausgangswert       Json?
+  ausgangswert           Json?
   /// Diktat über den Sprachdienst des Browsers erlauben (Aufnahme verlässt das Gerät). Ohne Schalter nur Erkennung auf dem Gerät.
-  diktatCloud        Boolean             @default(false)
+  diktatCloud            Boolean             @default(false)
   /// Morgen-Mail: tägliche Kurzmeldung an die Praxis, nur Zahlen ohne Namen
-  morgenMail         Boolean             @default(false)
-  morgenMailAn       String?
-  morgenMailZuletzt  DateTime?
-  kalenderUrl        String?
-  kalenderSyncAt     DateTime?
-  kalenderSyncFehler String?
+  morgenMail             Boolean             @default(false)
+  morgenMailAn           String?
+  morgenMailZuletzt      DateTime?
+  kalenderUrl            String?
+  kalenderSyncAt         DateTime?
+  kalenderSyncFehler     String?
   /// Geheimer Link, über den die Praxis Sorrida-Termine in ihrem Kalender abonniert (nur als Hash gespeichert)
-  kalenderFeedHash   String?             @unique
-  modellMarkierungen ModellMarkierung[]
-  launchTokens       LaunchToken[]
-  anamnesisForms     AnamnesisForm[]
-  invoices           Invoice[]
-  locations          Location[]
-  appointments       Appointment[]
+  kalenderFeedHash       String?             @unique
+  modellMarkierungen     ModellMarkierung[]
+  launchTokens           LaunchToken[]
+  anamnesisForms         AnamnesisForm[]
+  invoices               Invoice[]
+  locations              Location[]
+  appointments           Appointment[]
   /// Bankverbindung für den GiroCode im Patientenportal (lib/invoices.ts)
-  accountHolder      String?
-  iban               String?
-  bic                String?
+  accountHolder          String?
+  iban                   String?
+  bic                    String?
   /// Gläubiger-Identifikationsnummer (Bundesbank) für SEPA-Lastschriften
-  glaeubigerId       String?
+  glaeubigerId           String?
   // Praxiseigene Preise für Behandlungsvorschläge (Euro je Preisschlüssel
   // aus lib/proposals.ts PRICE_DEFS). Null bzw. fehlende Schlüssel = die
   // dort hinterlegten Beispielwerte.
-  proposalPrices     Json?
+  proposalPrices         Json?
   /// Ratenzahlung im Patienten-Link (lib/installments.ts)
-  installments       Json?
+  installments           Json?
   /// Fachgebiet (lib/specialties.ts): "zahn", "augen", "haut", … oder "andere"
-  specialty          String              @default("zahn")
+  specialty              String              @default("zahn")
   /// KV-Bezirk (lib/amtlich/gliederung.ts KV_BEZIRKE), z. B. "NO"; bestimmt die regionalen KV-Ziffern im Leistungsverzeichnis
-  kvBezirk           String?
+  kvBezirk               String?
   /// Arztpraxen: Preise je Leistung und eigene Leistungen (lib/medicalProposals.ts)
-  medPrices          Json?
-  customOffers       Json?
+  medPrices              Json?
+  customOffers           Json?
   /// DATEV-Export: Berater-/Mandantennummer, Sachkontenlänge, Konten (mit der Steuerberatung abgestimmt)
-  datev              Json?
+  datev                  Json?
   /// Verbundenes Stripe-Konto der Praxis (Stripe Connect); Online-Zahlungen gehen direkt an die Praxis
-  stripeAccountId    String?             @unique
+  stripeAccountId        String?             @unique
   // Gastzugang: Demo-Praxis mit Beispieldaten, die nach Ablauf automatisch
   // gelöscht wird (lib/demo.ts).
-  isDemo             Boolean             @default(false)
+  isDemo                 Boolean             @default(false)
   /// Zwei-Faktor-Anmeldung auch für Mitarbeitende verlangen (für Admins immer Pflicht)
-  require2faAll      Boolean             @default(false)
-  demoExpiresAt      DateTime?
-  eingaenge          Eingang[]
-  kurzchecks         Kurzcheck[]
+  require2faAll          Boolean             @default(false)
+  demoExpiresAt          DateTime?
+  eingaenge              Eingang[]
+  kurzchecks             Kurzcheck[]
+  /// Warteliste für frei gewordene Termine (lib/warteliste.ts)
+  wartelisten            Warteliste[]
+  /// Terminbuchung für neue Patienten: öffentliche Seite /t/<buchungKennung> (lib/terminanfrage.ts)
+  neupatientenBuchung    Boolean             @default(false)
+  /// Zufällige, nicht erratbare Kennung der Buchungsseite; entsteht beim ersten Einschalten
+  buchungKennung         String?             @unique
+  /// Anlässe, die neue Patienten online wählen können (Liste von Texten); leer = Standardliste
+  buchungAnlaesse        Json?
+  terminanfragen         Terminanfrage[]
+  /// Empfangsmodus (/empfang): vierstellige PIN, nur als Hash; Sperre nach Fehlversuchen (lib/empfang.ts)
+  empfangPinHash         String?
+  empfangPinFehlversuche Int                 @default(0)
+  /// Sperren in Folge seit der letzten richtigen Eingabe
+  empfangPinSperren      Int                 @default(0)
+  empfangPinGesperrtBis  DateTime?
+  /// Registrierung: Wann bestätigt wurde, als Unternehmer (§ 14 BGB) zu handeln (lib/registrierung.ts)
+  unternehmerBestaetigtAt   DateTime?
+  /// Registrierung: Wann AVV-Muster und Zweckbestimmung als gelesen bestätigt wurden, und in welcher Fassung der Texte
+  vertragstexteBestaetigtAt DateTime?
+  vertragstexteFassung      String?
+  /// Angaben der Praxis für Patienten (Anschrift, Telefon, Impressum, Datenschutzhinweise): Fuß von Portal, Patienten-Link,
+  /// Anamnesebogen und Patienten-E-Mails (lib/praxisStammdaten.ts)
+  stammdaten                Json?
 
   @@index([isDemo, demoExpiresAt])
 }
@@ -126,6 +151,8 @@ model User {
   bereichPinGesperrtBis  DateTime?
   /// Patienten, für die dieses Konto Stammbehandler/in ist (Seite "Mein Bereich")
   stammPatienten         Patient[]                @relation("Stammbehandler")
+  /// Zugeordnete Standorte (lib/standortRechte.ts); leer = alle Standorte
+  standorte              UserLocation[]
   // TOTP-Zweitfaktor (RFC 6238). totpSecret wird beim Einrichten gesetzt,
   // aber erst nach erfolgreicher Verifikation ist totpEnabled=true und der
   // Login verlangt zusätzlich zum Passwort einen gültigen Code.
@@ -205,6 +232,8 @@ model Patient {
   firstName          String
   lastName           String
   birthDate          DateTime?
+  /// Schnellvorschlag: nur ein Kürzel, kein Name und kein Geburtsdatum (lib/ohneAkte.ts)
+  ohneAkte           Boolean             @default(false)
   /// "W" | "M" | "D" (divers); steuert geschlechtsbezogene Angebote und Befunde
   geschlecht         String?
   /// Stammbehandler/in (meist Ärztin oder Arzt); bestimmt, wessen "Mein Bereich" den Patienten zeigt
@@ -246,13 +275,21 @@ model Patient {
   // wiedergefunden statt doppelt angelegt wird.
   externalSource     String?
   externalId         String?
+  /// Patientennummer aus einer eingelesenen Liste (/patients/import); dient dort zum Erkennen schon vorhandener Patienten
+  patientNummer      String?
+  /// Einwilligung, an offene Behandlungs- und Kostenvorschläge erinnert zu werden (eigene Einwilligung, Zeitpunkt; null = keine)
+  nachfassConsentAt  DateTime?
+  /// Vermerk je Einwilligung, wer sie aufgenommen hat und auf welchem Weg: { email?: { von, weg }, whatsapp?: …, nachfassen?: … } (lib/kontakt.ts)
+  einwilligungVermerk Json?
   eingaenge          Eingang[]
   kurzchecks         Kurzcheck[]
   portalPruefungen   PortalPruefung[]
+  wartelisten        Warteliste[]
 
   @@unique([practiceId, externalSource, externalId])
   @@index([practiceId])
   @@index([behandlerId])
+  @@index([practiceId, patientNummer])
 }
 
 // Geburtsdatum-Prüfung im Patientenportal (S5): Fehlversuche und Sperre je
@@ -734,39 +771,56 @@ model PatientDocument {
 // Standort einer Praxis (Hauptpraxis, Zweigpraxis). Behandlungsplätze und
 // Sprechzeit pro Tag ergeben die Kapazität für die Auslastung.
 model Location {
-  id            String        @id @default(cuid())
+  id            String         @id @default(cuid())
   practiceId    String
-  practice      Practice      @relation(fields: [practiceId], references: [id])
+  practice      Practice       @relation(fields: [practiceId], references: [id])
   name          String
   address       String?
-  rooms         Int           @default(1)
-  minutesPerDay Int           @default(480)
-  createdAt     DateTime      @default(now())
+  rooms         Int            @default(1)
+  minutesPerDay Int            @default(480)
+  createdAt     DateTime       @default(now())
   appointments  Appointment[]
+  /// Mitarbeitende, die diesem Standort zugeordnet sind
+  mitarbeitende UserLocation[]
 
   @@index([practiceId])
+}
+
+// Zuordnung Mitarbeitende ↔ Standorte. Wer hier Einträge hat, sieht Termine und
+// Terminübersichten nur dieser Standorte; ohne Einträge gelten alle Standorte.
+model UserLocation {
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([userId, locationId])
+  @@index([locationId])
 }
 
 // Termin in Sorrida. Solange keine Terminschnittstelle zur Praxissoftware
 // besteht, werden Termine hier eingetragen; sie werden nicht aus dem PVS
 // gelesen. status: GEPLANT | BESTAETIGT | ERSCHIENEN | ABGESAGT | NICHT_ERSCHIENEN
 model Appointment {
-  id          String    @id @default(cuid())
-  practiceId  String
-  practice    Practice  @relation(fields: [practiceId], references: [id])
-  patientId   String
-  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  locationId  String?
-  location    Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
-  start       DateTime
-  minutes     Int       @default(30)
-  reason      String
-  status      String    @default("GEPLANT")
-  confirmedAt DateTime?
-  remindedAt  DateTime?
+  id             String    @id @default(cuid())
+  practiceId     String
+  practice       Practice  @relation(fields: [practiceId], references: [id])
+  patientId      String
+  patient        Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  locationId     String?
+  location       Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  start          DateTime
+  minutes        Int       @default(30)
+  reason         String
+  status         String    @default("GEPLANT")
+  confirmedAt    DateTime?
+  remindedAt     DateTime?
   /// "PRAXIS" (in Sorrida eingetragen) oder "PATIENT" (online im Patientenportal gebucht)
-  quelle      String    @default("PRAXIS")
-  createdAt   DateTime  @default(now())
+  quelle         String    @default("PRAXIS")
+  /// Online gebucht, nachdem die Praxis in den 30 Tagen davor an die Vorsorge erinnert hat (Seite /vorsorge)
+  nachErinnerung Boolean   @default(false)
+  createdAt      DateTime  @default(now())
 
   @@index([practiceId, start])
   @@index([patientId])
@@ -859,17 +913,20 @@ model KalenderBelegung {
 /// Termin gebucht …). Die Praxis sieht es gesammelt unter /eingang und hakt es ab.
 /// art: siehe lib/eingang.ts. hinweis enthält keine Gesundheitsangaben.
 model Eingang {
-  id          String    @id @default(cuid())
-  practiceId  String
-  practice    Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
-  patientId   String
-  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  art         String
-  entityId    String?
-  hinweis     String?
-  createdAt   DateTime  @default(now())
-  erledigtAt  DateTime?
-  erledigtVon String?
+  id             String    @id @default(cuid())
+  practiceId     String
+  practice       Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  patientId      String
+  patient        Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  art            String
+  entityId       String?
+  hinweis        String?
+  createdAt      DateTime  @default(now())
+  erledigtAt     DateTime?
+  erledigtVon    String?
+  /// Wer den Eintrag übernommen hat („Ich übernehme“)
+  zustaendigId   String?
+  zustaendigName String?
 
   @@index([practiceId, erledigtAt, createdAt])
   @@index([patientId])
@@ -887,4 +944,60 @@ model Kurzcheck {
 
   @@index([patientId, createdAt])
   @@index([practiceId])
+}
+
+/// Warteliste: Patienten, die früher kommen möchten. Wird ein Termin abgesagt, schlägt Sorrida
+/// passende Einträge vor (lib/warteliste.ts). vonTag/bisTag: Kalendertag als Mitternacht UTC.
+/// zeit: "VORMITTAG" | "NACHMITTAG" | null (egal). notiz ohne Gesundheitsangaben.
+model Warteliste {
+  id          String    @id @default(cuid())
+  practiceId  String
+  practice    Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  anlass      String
+  vonTag      DateTime?
+  bisTag      DateTime?
+  zeit        String?
+  notiz       String?
+  createdAt   DateTime  @default(now())
+  /// Zuletzt eine frei gewordene Zeit angeboten (Text erzeugt)
+  angebotenAt DateTime?
+  erledigtAt  DateTime?
+
+  @@index([practiceId, erledigtAt, createdAt])
+  @@index([patientId])
+}
+
+/// Online-Anfrage eines neuen Patienten über die öffentliche Buchungsseite /t/<kennung>.
+/// Erst wenn die Praxis bestätigt, entstehen Patient und Termin. status: OFFEN | BESTAETIGT | ABGELEHNT.
+/// Die gewünschte Zeit ist bis reserviertBis belegt. Unbestätigte Anfragen löscht der Aufräum-Lauf nach 30 Tagen.
+model Terminanfrage {
+  id            String    @id @default(cuid())
+  practiceId    String
+  practice      Practice  @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  firstName     String
+  lastName      String
+  /// Kalendertag als Mitternacht UTC (wie Patient.birthDate)
+  birthDate     DateTime
+  phone         String?
+  email         String?
+  anlass        String
+  start         DateTime
+  minutes       Int
+  status        String    @default("OFFEN")
+  reserviertBis DateTime
+  /// Zeitpunkt des Häkchens „Datenschutzhinweise gelesen“
+  datenschutzAt DateTime
+  /// Anfrage an eine Demo-Praxis (Gastzugang): nur ein Beispiel
+  beispiel      Boolean   @default(false)
+  /// Nach der Bestätigung: der angelegte oder zugeordnete Patient und der Termin
+  patientId     String?
+  appointmentId String?
+  bearbeitetAt  DateTime?
+  bearbeitetVon String?
+  createdAt     DateTime  @default(now())
+
+  @@index([practiceId, status, createdAt])
+  @@index([practiceId, start])
 }

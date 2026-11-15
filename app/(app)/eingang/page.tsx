@@ -3,8 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EINGANG_ARTEN, eingangZiel, istEingangArt } from "@/lib/eingang";
-import { EingangAktion, EingangAlle } from "@/components/EingangAktion";
+import { EingangAktion, EingangAlle, EingangMeldungen, EingangUebernehmen } from "@/components/EingangAktion";
 import { MorgenMail } from "@/components/MorgenMail";
+import { EingangAnfragen } from "@/components/EingangAnfragen";
 import { mailVersandAktiv } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
@@ -13,15 +14,18 @@ export const metadata = { title: "Eingang" };
 const zeit = (d: Date) => d.toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
 const TON: Record<string, string> = { Geld: "bg-emerald-50 text-emerald-800", Unterlagen: "bg-sky-50 text-sky-800", Vorschläge: "bg-brand-50 text-brand-800", Termine: "bg-amber-50 text-amber-800" };
 
-export default async function EingangPage() {
+export default async function EingangPage(props: { searchParams: Promise<{ f?: string }> }) {
+  const nurMeine = (await props.searchParams).f === "meine";
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
-  const sel = { id: true, art: true, entityId: true, hinweis: true, createdAt: true, erledigtAt: true, erledigtVon: true, patientId: true, patient: { select: { firstName: true, lastName: true } } } as const;
+  const sel = { id: true, art: true, entityId: true, hinweis: true, createdAt: true, erledigtAt: true, erledigtVon: true, zustaendigId: true, zustaendigName: true, patientId: true, patient: { select: { firstName: true, lastName: true } } } as const;
   const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { morgenMail: true, morgenMailAn: true, isDemo: true } });
-  const [offen, erledigt] = await Promise.all([
+  const [offenAlle, erledigt] = await Promise.all([
     prisma.eingang.findMany({ where: { practiceId, erledigtAt: null }, orderBy: { createdAt: "desc" }, take: 200, select: sel }),
     prisma.eingang.findMany({ where: { practiceId, erledigtAt: { gte: new Date(Date.now() - 14 * 864e5) } }, orderBy: { erledigtAt: "desc" }, take: 50, select: sel }),
   ]);
+  const meine = offenAlle.filter((e) => e.zustaendigId === session!.user.id);
+  const offen = nurMeine ? meine : offenAlle;
   // Für Termin-Einträge den Tag nachschlagen, damit der Klick direkt im Kalender landet.
   const terminIds = [...offen, ...erledigt].filter((e) => e.art.startsWith("TERMIN_") && e.entityId).map((e) => e.entityId!);
   const termine = terminIds.length ? await prisma.appointment.findMany({ where: { id: { in: terminIds }, practiceId }, select: { id: true, start: true } }) : [];
@@ -43,6 +47,7 @@ export default async function EingangPage() {
             {e.hinweis ? <span className="text-slate-500"> · {e.hinweis}</span> : null}
           </p>
           {!fertig && a && <p className="mt-0.5 text-xs text-slate-500">{a.tun}</p>}
+          {!fertig && <p className="mt-1"><EingangUebernehmen id={e.id} name={e.zustaendigName} meiner={e.zustaendigId === session!.user.id} /></p>}
           {fertig && <p className="mt-0.5 text-xs text-slate-500">abgehakt {e.erledigtAt ? zeit(e.erledigtAt) : ""}{e.erledigtVon ? ` von ${e.erledigtVon}` : ""}</p>}
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -60,11 +65,20 @@ export default async function EingangPage() {
           <h1 className="font-display text-3xl text-slate-900">Eingang</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-500">Alles, was Patienten über ihren Link selbst auslösen, kommt hier an: gemeldete Zahlungen, abgeschickte Anamnesebögen, Rückmeldungen zu Vorschlägen und online gebuchte Termine.</p>
         </div>
-        <EingangAlle anzahl={offen.length} />
+        <EingangAlle anzahl={offenAlle.length} />
+      </div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <nav className="flex gap-1 text-sm" aria-label="Filter">
+          <Link href="/eingang" aria-current={nurMeine ? undefined : "true"} className={`rounded-full px-3 py-1 ${nurMeine ? "text-slate-600 hover:bg-white" : "bg-white font-semibold text-brand-800 ring-1 ring-brand-200"}`}>Alle ({offenAlle.length})</Link>
+          <Link href="/eingang?f=meine" aria-current={nurMeine ? "true" : undefined} className={`rounded-full px-3 py-1 ${nurMeine ? "bg-white font-semibold text-brand-800 ring-1 ring-brand-200" : "text-slate-600 hover:bg-white"}`} data-testid="eingang-filter-meine">Von mir übernommen ({meine.length})</Link>
+        </nav>
+        <EingangMeldungen />
       </div>
 
+      <EingangAnfragen practiceId={practiceId} />
+
       <section className="card mt-5 p-0" data-testid="eingang-offen">
-        <h2 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">Offen ({offen.length})</h2>
+        <h2 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">{nurMeine ? "Von mir übernommen" : "Offen"} ({offen.length})</h2>
         {offen.length === 0 ? (
           <p className="p-5 text-sm text-slate-600">Nichts offen. Sobald ein Patient im Portal etwas abschickt, steht es hier, und in der Seitenleiste erscheint eine Zahl neben „Eingang“.</p>
         ) : (

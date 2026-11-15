@@ -4,8 +4,10 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/permissions";
 import { eigeneSitzungErneuern } from "@/lib/sitzungCookie";
+import { ROLLEN } from "@/lib/rollen";
+import { standortZuordnungSchema, zuordnungPruefen } from "@/lib/standortRechte";
 
-const roleSchema = z.object({ role: z.enum(["admin", "staff"]) });
+const roleSchema = z.object({ role: z.enum(ROLLEN) });
 const analyticsSchema = z.object({ canSeeAnalytics: z.boolean() });
 
 async function countAdmins(practiceId: string): Promise<number> {
@@ -34,6 +36,19 @@ export async function PATCH(req: Request, props: { params: Promise<{ userId: str
     await auditFromSession(session, "team.rolle", { entityType: "Konto", entityId: params.userId, summary: `Analyse-Freigabe ${perm.data.canSeeAnalytics ? "erteilt" : "entzogen"}` });
     return NextResponse.json({ user: updated });
   }
+  // Zuordnung zu Standorten (leer = alle Standorte). Nur Standorte der eigenen Praxis.
+  const orte = standortZuordnungSchema.safeParse(body);
+  if (orte.success) {
+    const praxisStandorte = (await prisma.location.findMany({ where: { practiceId: session.user.practiceId }, select: { id: true } })).map((l) => l.id);
+    const geprueft = zuordnungPruefen(orte.data.standorte, praxisStandorte);
+    if (!geprueft.ok) return NextResponse.json({ error: geprueft.grund }, { status: 404 });
+    await prisma.$transaction([
+      prisma.userLocation.deleteMany({ where: { userId: target.id } }),
+      prisma.userLocation.createMany({ data: geprueft.ids.map((locationId) => ({ userId: target.id, locationId })) }),
+    ]);
+    await auditFromSession(session, "team.rolle", { entityType: "Konto", entityId: params.userId, summary: geprueft.ids.length ? `Standorte zugeordnet: ${geprueft.ids.length}` : "Standorte: alle" });
+    return NextResponse.json({ user: { id: target.id, standortIds: geprueft.ids } });
+  }
   const parsed = roleSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Ungültige Eingabe" }, { status: 400 });
@@ -42,11 +57,11 @@ export async function PATCH(req: Request, props: { params: Promise<{ userId: str
   // Der letzte verbleibende Admin einer Praxis darf sich nicht selbst oder
   // von einem anderen Admin degradieren lassen - sonst gäbe es niemanden
   // mehr, der Team/Abrechnung/Katalog verwalten kann.
-  if (target.role === "admin" && parsed.data.role === "staff") {
+  if (target.role === "admin" && parsed.data.role !== "admin") {
     const adminCount = await countAdmins(session.user.practiceId);
     if (adminCount <= 1) {
       return NextResponse.json(
-        { error: "Der letzte Admin der Praxis kann nicht zu Staff herabgestuft werden." },
+        { error: "Das letzte Konto der Geschäftsführung kann nicht herabgestuft werden." },
         { status: 400 }
       );
     }

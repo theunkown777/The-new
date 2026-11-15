@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MODELL_WERBUNG, hauptModell } from "@/lib/modelle/fach";
-import { MenschKarte } from "@/components/modelle/erklaerung/MenschKarte";
 import { PRICE_SHORT } from "@/lib/pricing";
 import { notFound } from "next/navigation";
 import { SPECIALTIES, isTherapie, specialty } from "@/lib/specialties";
@@ -218,16 +216,6 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
                 </div>
               ))}
             </div>
-          </section>
-
-          <section className="mt-14 rounded-[10px] bg-white p-6 ring-1 ring-[#E9E2DA] sm:p-8" data-testid="fach-modell" data-modell={hauptModell(params.id)}>
-            <MenschKarte fach={params.id} />
-            <p className="mt-6 border-t border-[#E9E2DA] pt-4 text-[15px] text-slate-600">
-              {MODELL_WERBUNG[hauptModell(params.id)].text}{" "}
-              <Link prefetch={false} href={`/anatomie/${hauptModell(params.id)}`} className="font-semibold text-brand-700 underline underline-offset-4">
-                Modell zum Drehen und Markieren öffnen
-              </Link>
-            </p>
           </section>
 
           <section id="automatisch" className="mt-14 grid scroll-mt-6 gap-5 lg:grid-cols-3">

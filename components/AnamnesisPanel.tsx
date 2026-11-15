@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { QUESTIONS, WISHES } from "@/lib/anamnesis";
+import { anrede } from "@/lib/ohneAkte";
 import type { AnamnesisSummary } from "@/lib/anamnesisView";
 import { AnamnesisFlags } from "@/components/AnamnesisFlags";
 
@@ -25,7 +26,7 @@ export function AnamnesisPanel({ patientId, firstName, summary }: { patientId: s
     router.refresh();
   }
 
-  const text = link ? `Guten Tag ${firstName}, bitte füllen Sie vor Ihrem Termin kurz den Anamnesebogen aus: ${link.url}` : "";
+  const text = link ? `${anrede("Guten Tag", firstName)}, bitte füllen Sie vor Ihrem Termin kurz den Anamnesebogen aus: ${link.url}` : "";
   const a = summary.answers;
 
   return (

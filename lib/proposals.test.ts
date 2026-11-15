@@ -51,14 +51,19 @@ describe("Füllungen", () => {
     expect(i.options.map((o) => o.id)).toEqual(["fk", "komp"]);
     expect(i.excluded.join(" ")).toMatch(/Inlay/);
   });
-  it("recommends an inlay for large molar defects", () => {
-    expect(item(input({ teeth: { "16": "karies_gross" } }), "t16").recommended).toBe("inlay");
+  it("wählt auch bei großem Defekt am Backenzahn die Kassenfüllung vor (keine Empfehlung einer Zuzahlungsleistung)", () => {
+    const i = item(input({ teeth: { "16": "karies_gross" } }), "t16");
+    expect(i.options.map((o) => o.id)).toEqual(["fk", "komp", "inlay"]);
+    expect(i.recommended).toBe("fk");
   });
 });
 
 describe("Zahn fehlt", () => {
-  it("recommends an implant when both neighbours are healthy", () => {
-    expect(item(input({ teeth: { "36": "fehlt" } }), "t36").recommended).toBe("impl");
+  it("wählt bei gesunden Nachbarzähnen die Regelversorgung vor und beschreibt den Unterschied zum Implantat nur", () => {
+    const i = item(input({ teeth: { "36": "fehlt" } }), "t36");
+    expect(i.recommended).toBe("br");
+    expect(i.options.map((o) => o.id)).toContain("impl");
+    expect(i.notes.map((n) => n.text).join(" ")).toMatch(/haben keinen Befund\. Für eine Brücke werden sie beschliffen, für ein Implantat nicht\./);
   });
   it("recommends a bridge when a neighbour needs a crown anyway", () => {
     expect(item(input({ teeth: { "36": "fehlt", "37": "zerstoert" } }), "t36").recommended).toBe("br");
@@ -182,19 +187,20 @@ describe("money", () => {
 describe("summarize and letter", () => {
   const inp = input({ teeth: { "16": "karies_gross", "36": "fehlt" }, globals: { zahnstein: true } });
   const items = buildProposal(inp, DEFAULT_PRICES);
-  it("uses the first option as baseline and the recommendation as default choice", () => {
+  it("rechnet ohne Auswahl der Praxis überall mit der Kassen- bzw. Regelleistung", () => {
     const s = summarize(items, {}, GKV10);
     expect(s.baseTotal).toBeCloseTo(85 + 921.6 + 18);
-    expect(s.planTotal).toBe(890 + 3400 + 110);
+    expect(s.planTotal).toBeCloseTo(s.baseTotal);
   });
   it("respects explicit choices", () => {
-    const s = summarize(items, { t36: "br" }, GKV10);
+    const s = summarize(items, { t16: "inlay", gzahnstein: "pzr" }, GKV10);
     expect(s.planTotal).toBeCloseTo(890 + 921.6 + 110);
   });
   it("mentions the legal basis in the letter", () => {
     const text = buildLetter({ items, choices: {}, patient: GKV10, patientName: "Frau Weber", practiceName: "Praxis Test", date: new Date(2026, 9, 30) });
     expect(text).toMatch(/§ 630c Abs. 3 BGB/);
-    expect(text).toMatch(/unsere Empfehlung/);
+    expect(text).not.toMatch(/Empfehlung|empfehlen/i);
+    expect(text).toMatch(/Noch nicht entschieden\. Wir besprechen die Möglichkeiten mit Ihnen\./);
   });
 });
 
@@ -343,8 +349,10 @@ describe("Brief: Wahl und Empfehlung", () => {
   const brief = (choices: Record<string, string>, patient = GKV10) =>
     buildLetter({ items, choices, patient, patientName: "Frau Weber", practiceName: "Praxis Test", date: new Date(2026, 9, 30) });
   it("nennt nur eine wirklich getroffene Auswahl „besprochene Wahl“", () => {
-    expect(brief({})).toMatch(/Noch nicht entschieden\. Unsere Empfehlung: Implantat mit Krone/);
-    expect(brief({})).toMatch(/Wenn Sie überall die zuerst genannte Leistung wählen/);
+    expect(brief({})).toMatch(/Noch nicht entschieden\. Wir besprechen die Möglichkeiten mit Ihnen\./);
+    expect(brief({})).not.toMatch(/Empfehlung/);
+    expect(brief({ t36: "impl" })).toMatch(/← von Ihrer Praxis vorgemerkt/);
+    expect(brief({ t36: "impl" })).toMatch(/Wenn Sie überall die zuerst genannte Leistung wählen/);
     expect(brief({ t36: "br", t25: "fk" })).toMatch(/Besprochene Wahl: Brücke, Regelversorgung/);
     expect(brief({ t36: "br", t25: "fk" })).not.toMatch(/Noch nicht entschieden/);
   });
@@ -390,7 +398,8 @@ describe("Krone mit Stiftaufbau und Teilkrone", () => {
     expect(money(tkk, GKV10).kasse).toBeCloseTo(money(tk, GKV10).kasse, 2);
     expect(money(tkk, GKV10).netto).toBeCloseTo(DEFAULT_PRICES.teilkrone_keramik - 457.27 * 0.75, 1);
     expect(it47.recommended).toBe("tk");
-    expect(item(input({ teeth: { "14": "teilkrone" } }), "t14").recommended).toBe("tkk");
+    // Auch im sichtbaren Bereich bleibt die Regelversorgung die Vorauswahl.
+    expect(item(input({ teeth: { "14": "teilkrone" } }), "t14").recommended).toBe("tk");
   });
 
   it("Härtefall: Krone mit Stiftaufbau in der Regelversorgung ohne Eigenanteil", () => {

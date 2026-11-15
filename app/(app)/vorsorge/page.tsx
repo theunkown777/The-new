@@ -8,6 +8,9 @@ import { loadRecallDue } from "@/lib/recallLoad";
 import { specialty } from "@/lib/specialties";
 import { Laechelbogen } from "@/components/Behandlungsweg";
 import { RecallButton } from "@/components/RecallButton";
+import { Nacheinander } from "@/components/Nacheinander";
+import { darfWhatsapp } from "@/lib/whatsapp";
+import { RECALL_BUCHUNG_TAGE } from "@/lib/recall";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Vorsorge fällig" };
@@ -19,6 +22,18 @@ export default async function VorsorgePage() {
   const practiceId = session!.user.practiceId;
   const { practice, fach, rules, due, now } = await loadRecallDue(practiceId);
   const shown = due.slice(0, 60);
+  // Recall-Kette: Wer schon einen Termin hat, braucht keine Erinnerung mehr; gezählt wird, was nach einer Erinnerung online gebucht wurde.
+  const [einstellung, kontakte, kommende, gebucht] = await Promise.all([
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { buchungAktiv: true } }),
+    prisma.patient.findMany({ where: { practiceId, id: { in: shown.map((x) => x.p.id) } }, select: { id: true, phone: true, whatsappConsentAt: true } }),
+    prisma.appointment.findMany({ where: { practiceId, patientId: { in: shown.map((x) => x.p.id) }, start: { gte: now }, status: { in: ["GEPLANT", "BESTAETIGT"] } }, orderBy: { start: "asc" }, select: { patientId: true, start: true } }),
+    prisma.appointment.count({ where: { practiceId, nachErinnerung: true, status: { not: "ABGESAGT" }, createdAt: { gte: new Date(now.getTime() - RECALL_BUCHUNG_TAGE * 86_400_000) } } }),
+  ]);
+  const buchungAktiv = !!einstellung?.buchungAktiv;
+  const wa = new Map(kontakte.map((k) => { const d = darfWhatsapp(k); return [k.id, d.ok ? d.nummer : null] as const; }));
+  const termin = new Map<string, Date>();
+  for (const t of kommende) if (!termin.has(t.patientId)) termin.set(t.patientId, t.start);
+  const fmtTermin = (d: Date) => d.toLocaleString("de-DE", { timeZone: "Europe/Berlin", weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
   const fmt = (d: Date) => d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" });
 
   return (
@@ -38,7 +53,7 @@ export default async function VorsorgePage() {
         </p>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {rules.map((r) => (
               <div key={r.leistung} className="rounded-3xl bg-salbei-50 p-5">
                 <p className="font-display text-2xl text-slate-900">{r.leistung}</p>
@@ -49,7 +64,32 @@ export default async function VorsorgePage() {
               <p className="text-sm text-slate-500">Jetzt oder in 14 Tagen fällig</p>
               <p className="font-display text-4xl text-slate-900" data-testid="vorsorge-anzahl">{due.length.toLocaleString("de-DE")}</p>
             </div>
+            <div className="rounded-3xl bg-white p-5">
+              <p className="text-sm text-slate-500">Nach Erinnerung online gebucht, letzte {RECALL_BUCHUNG_TAGE} Tage</p>
+              <p className="font-display text-4xl text-slate-900" data-testid="vorsorge-gebucht">{gebucht.toLocaleString("de-DE")}</p>
+            </div>
           </div>
+
+          {buchungAktiv ? (
+            <p className="text-sm text-slate-600" data-testid="vorsorge-kette">
+              Mit „Termin anbieten“ bekommt die Person einen Link, sieht dort nur Ihre freien Zeiten und bucht selbst. Sie kopieren den Text oder öffnen ihn in WhatsApp; von allein verschickt Sorrida nichts.
+            </p>
+          ) : (
+            <p className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700" data-testid="vorsorge-kette-aus">
+              Online-Termine sind ausgeschaltet. Schalten Sie sie ein, dann führt die Erinnerung direkt zu Ihren freien Zeiten und niemand muss anrufen:{" "}
+              <Link href="/settings/termine" className="text-brand-700 underline">Einstellungen → Online-Termine</Link>.
+            </p>
+          )}
+
+          <Nacheinander
+            knopf="Mehrere nacheinander erinnern"
+            eintraege={shown.filter((x) => !termin.has(x.p.id)).map(({ p, r }) => ({
+              id: p.id,
+              titel: `${p.lastName}, ${p.firstName}`,
+              zeile: r.leistung,
+              aktion: <RecallButton patientId={p.id} firstName={p.firstName} practiceName={practice?.name ?? ""} leistung={r.leistung} hinweis={r.hinweis} buchungAktiv={buchungAktiv} whatsappNummer={wa.get(p.id) ?? null} />,
+            }))}
+          />
 
           {due.length === 0 ? (
             <p className="card text-sm text-slate-600">Gerade ist niemand fällig.</p>
@@ -71,7 +111,11 @@ export default async function VorsorgePage() {
                     </span>
                     {p.recallSentAt && <span className="text-slate-500"> · zuletzt erinnert {fmt(p.recallSentAt)}</span>}
                   </span>
-                  <RecallButton patientId={p.id} firstName={p.firstName} practiceName={practice?.name ?? ""} leistung={r.leistung} hinweis={r.hinweis} />
+                  {termin.has(p.id) ? (
+                    <span className="rounded-full bg-salbei-50 px-3 py-1 text-xs font-medium text-salbei-800" data-testid="vorsorge-termin">Termin am {fmtTermin(termin.get(p.id)!)}</span>
+                  ) : (
+                    <RecallButton patientId={p.id} firstName={p.firstName} practiceName={practice?.name ?? ""} leistung={r.leistung} hinweis={r.hinweis} buchungAktiv={buchungAktiv} whatsappNummer={wa.get(p.id) ?? null} />
+                  )}
                 </li>
               ))}
             </ul>

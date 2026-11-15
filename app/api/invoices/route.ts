@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { invoiceCreateSchema, invoiceNumber } from "@/lib/invoices";
+import { darfZahlungen } from "@/lib/permissions";
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -11,6 +12,7 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const practiceId = session.user.practiceId;
+  if (!(await darfZahlungen(session.user.id, practiceId))) return NextResponse.json({ error: "Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben." }, { status: 403 });
   const parsed = invoiceCreateSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Ungültige Eingabe" }, { status: 400 });
   const d = parsed.data;

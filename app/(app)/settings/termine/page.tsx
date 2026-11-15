@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { nurMitEinstellungen } from "@/lib/permissions";
+import { headers } from "next/headers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -6,20 +8,26 @@ import { BuchungSettings } from "@/components/BuchungSettings";
 import { buchungsLage } from "@/lib/buchungLoad";
 import { freieZeiten, tagName, uhr } from "@/lib/buchung";
 import { whatsappApiAktiv } from "@/lib/whatsapp";
+import { NeupatientenBuchung } from "@/components/NeupatientenBuchung";
+import { anlaesseLesen } from "@/lib/terminanfrage";
+import { fachprofil } from "@/lib/fachprofile";
 
 export const dynamic = "force-dynamic";
 
 export default async function TermineOnlinePage() {
+  await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const lage = await buchungsLage(practiceId);
   const [abo, datei, feed] = await Promise.all([
     prisma.kalenderBelegung.count({ where: { practiceId, quelle: "abo" } }),
     prisma.kalenderBelegung.count({ where: { practiceId, quelle: "datei" } }),
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { kalenderFeedHash: true } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { kalenderFeedHash: true, specialty: true } }),
   ]);
   const p = lage!.praxis;
   const tage = p.buchungAktiv ? lage!.tage : freieZeiten(lage!.eingabe);
+  const kopf = await headers();
+  const basis = process.env.NEXTAUTH_URL?.replace(/\/$/, "") || `${kopf.get("x-forwarded-proto") ?? "https"}://${kopf.get("host") ?? ""}`;
   return (
     <div className="mx-auto max-w-3xl">
       <p className="text-sm"><Link href="/settings" className="text-brand-700 hover:underline">← Einstellungen</Link></p>
@@ -33,6 +41,15 @@ export default async function TermineOnlinePage() {
           kalender={{ verbunden: !!p.kalenderUrl, host: p.kalenderUrl ? new URL(p.kalenderUrl).hostname : null, syncAt: p.kalenderSyncAt ? p.kalenderSyncAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Berlin" }) : null, fehler: p.kalenderSyncFehler, abo, datei, feed: !!feed?.kalenderFeedHash }}
           plaetze={lage!.eingabe.plaetze}
           vorschau={tage.map((t) => ({ tag: t.tag, name: tagName(t.tag), zeiten: t.zeiten.map(uhr) }))}
+        />
+      </div>
+      <div className="mt-6">
+        <NeupatientenBuchung
+          admin={session!.user.role === "admin"}
+          demo={p.isDemo}
+          buchungAktiv={p.buchungAktiv}
+          start={{ aktiv: p.neupatientenBuchung, url: p.buchungKennung ? `${basis}/t/${p.buchungKennung}` : null, anlaesse: anlaesseLesen(p.buchungAnlaesse) }}
+          vorschlaege={fachprofil(feed?.specialty ?? "zahn").termine}
         />
       </div>
       <section className="card mt-5 space-y-2 text-sm text-slate-700" data-testid="whatsapp-status">

@@ -14,6 +14,9 @@ import { SepaExport } from "@/components/SepaExport";
 import { DatevExport } from "@/components/DatevExport";
 import { OnlineZahlungEinrichten } from "@/components/OnlineZahlungEinrichten";
 import { onlineZahlungStatus } from "@/lib/onlineZahlung";
+import { darfZahlungen } from "@/lib/permissions";
+import { briefMoeglich } from "@/lib/erstattungsbrief";
+import { isDental } from "@/lib/specialties";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zahlungen" };
@@ -44,6 +47,15 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
+  // Rolle Behandler/in: Zahlungen nur mit Freigabe der Praxisleitung (Einstellungen → Team).
+  if (!(await darfZahlungen(session!.user.id, practiceId))) {
+    return (
+      <div className="mx-auto max-w-xl space-y-3" data-testid="zahlungen-kein-recht">
+        <h1 className="font-display text-3xl text-slate-900">Zahlungen</h1>
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben. Die Praxisleitung kann das unter Einstellungen → Team ändern.</p>
+      </div>
+    );
+  }
   const f = FILTER.find(([k]) => k === searchParams.f)?.[0] ?? "offen";
   const now = new Date();
   const where: Prisma.InvoiceWhereInput =
@@ -58,13 +70,13 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
             : {};
 
   const [practice, all, list, billable] = await Promise.all([
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, accountHolder: true, iban: true, bic: true, glaeubigerId: true, datev: true, stripeAccountId: true } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, accountHolder: true, iban: true, bic: true, glaeubigerId: true, datev: true, stripeAccountId: true, specialty: true } }),
     prisma.invoice.findMany({ where: { practiceId }, select: { status: true, dueDate: true, amountCent: true, paidAt: true, wantsInstallments: true, sepaMandatAt: true, sepaExportedAt: true } }),
     prisma.invoice.findMany({
       where: { practiceId, ...where },
       orderBy: f === "bezahlt" ? { paidAt: "desc" } : { dueDate: "asc" },
       take: 100,
-      include: { patient: { select: { id: true, firstName: true, lastName: true, portalViewedAt: true, portalExpiresAt: true, email: true, contactConsentAt: true, phone: true, whatsappConsentAt: true } } },
+      include: { patient: { select: { id: true, firstName: true, lastName: true, portalViewedAt: true, portalExpiresAt: true, email: true, contactConsentAt: true, phone: true, whatsappConsentAt: true, insuranceType: true, insuranceName: true, insuranceNumber: true } } },
     }),
     // Angenommene Vorschläge mit Eigenanteil, für die es noch keine Rechnung gibt.
     prisma.treatmentProposal.findMany({
@@ -78,6 +90,11 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
   const raten = all.filter((i) => i.wantsInstallments && (i.status === "OFFEN" || i.status === "GEMELDET")).length;
   const isAdmin = session!.user.role === "admin";
   const fmtDate = (d: Date) => d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" });
+  // Begleitbrief an die Versicherung: nur bei privat Versicherten (lib/erstattungsbrief.ts).
+  const briefFuer = (i: (typeof list)[number]) =>
+    briefMoeglich(i.patient.insuranceType)
+      ? { patientName: `${i.patient.firstName} ${i.patient.lastName}`, rechnungNummer: i.number, rechnungDatum: fmtDate(i.createdAt), versicherung: i.patient.insuranceName ?? "", versicherungsnummer: i.patient.insuranceNumber ?? "", gebuehrenordnung: isDental(practice?.specialty) ? ("GOZ" as const) : ("GOAE" as const) }
+      : undefined;
 
   return (
     <div className="space-y-6" data-testid="zahlungen">
@@ -149,7 +166,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <Status tone={v.tone} label={v.label} />
-                      <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} whatsapp={!!i.patient.phone && !!i.patient.whatsappConsentAt} whatsappDirekt={whatsappApiAktiv()} />
+                      <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} whatsapp={!!i.patient.phone && !!i.patient.whatsappConsentAt} whatsappDirekt={whatsappApiAktiv()} brief={briefFuer(i)} />
                     </div>
                   </li>
                 );
@@ -194,7 +211,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
                           <Status tone={v.tone} label={v.label} />
                         </td>
                         <td className="px-4 py-3">
-                          <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} whatsapp={!!i.patient.phone && !!i.patient.whatsappConsentAt} whatsappDirekt={whatsappApiAktiv()} />
+                          <InvoiceActions id={i.id} status={i.status} patientId={i.patient.id} firstName={i.patient.firstName} practiceName={practice?.name ?? ""} level={i.reminderLevel} number={i.number} amountCent={i.amountCent} dueDate={i.dueDate.toISOString()} mail={!!i.patient.email && !!i.patient.contactConsentAt} whatsapp={!!i.patient.phone && !!i.patient.whatsappConsentAt} whatsappDirekt={whatsappApiAktiv()} brief={briefFuer(i)} />
                         </td>
                       </tr>
                     );

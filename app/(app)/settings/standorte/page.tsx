@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -8,6 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Standorte" };
 
 export default async function StandortePage() {
+  await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   if (session?.user.role !== "admin") {
     return <p className="card mx-auto max-w-xl text-sm text-slate-600">Standorte verwaltet die Praxisleitung.</p>;

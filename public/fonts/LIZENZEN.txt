@@ -1,0 +1,48 @@
+Schriften in diesem Ordner
+==========================
+
+Alle Schriftdateien in diesem Ordner stehen unter der SIL Open Font License, Version 1.1 (OFL).
+Urhebervermerk und Lizenzverweis je Schrift sind aus den Metadaten der Dateien selbst gelesen
+(Namenstabelle, Einträge 0 "Copyright" und 14 "License URL"), Stand 15.11.2026.
+
+Die Dateien sind Teilmengen der Originalschriften (Zeichensätze "latin" und "latin-ext") im Format WOFF2.
+Die Namen der Schriften sind unverändert.
+
+Atkinson Hyperlegible (Regular 400, Bold 700)
+  Dateien:  atkinson-hyperlegible-400-latin.woff2, atkinson-hyperlegible-400-latin-ext.woff2,
+            atkinson-hyperlegible-700-latin.woff2, atkinson-hyperlegible-700-latin-ext.woff2
+  Urheber:  Copyright 2020 Braille Institute of America, Inc.
+  Lizenz:   SIL Open Font License 1.1, https://scripts.sil.org/OFL
+
+Caveat (SemiBold 600)
+  Dateien:  caveat-600-latin.woff2, caveat-600-latin-ext.woff2
+  Urheber:  Copyright 2014 The Caveat Project Authors (https://github.com/googlefonts/caveat)
+  Lizenz:   SIL Open Font License 1.1, http://scripts.sil.org/OFL
+
+Cormorant Garamond (Medium 500)
+  Dateien:  cormorant-garamond-500-latin.woff2, cormorant-garamond-500-latin-ext.woff2
+  Urheber:  Copyright 2015 The Cormorant Project Authors (github.com/CatharsisFonts/Cormorant)
+  Lizenz:   SIL Open Font License 1.1, https://openfontlicense.org
+
+JetBrains Mono (Medium 500)
+  Dateien:  jetbrains-mono-500-latin.woff2, jetbrains-mono-500-latin-ext.woff2
+  Urheber:  Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
+  Lizenz:   SIL Open Font License 1.1, https://scripts.sil.org/OFL
+
+Schibsted Grotesk (600, 800)
+  Dateien:  schibsted-grotesk-600-latin.woff2, schibsted-grotesk-600-latin-ext.woff2,
+            schibsted-grotesk-800-latin.woff2, schibsted-grotesk-800-latin-ext.woff2
+  Urheber:  Copyright 2023 The Schibsted-Grotesk Project Authors (https://github.com/schibsted/schibsted-grotesk)
+  Lizenz:   SIL Open Font License 1.1, https://scripts.sil.org/OFL
+
+Wortlaut der Lizenz
+-------------------
+Der vollständige Text der SIL Open Font License 1.1 steht unter https://openfontlicense.org
+Er ist hier noch nicht als Kopie abgelegt. Die OFL verlangt, dass der Lizenztext jeder Kopie beiliegt:
+Bitte den amtlichen Text von der genannten Adresse laden und als OFL.txt in diesen Ordner legen.
+
+Nicht in diesem Ordner
+----------------------
+Open Sans und weitere Schnitte von Cormorant Garamond lädt next/font beim Bauen und liefert sie vom eigenen
+Server aus (app/layout.tsx). Diese Dateien liegen nicht im Repository; ihre Lizenz ist hier deshalb nicht
+aus den Dateien belegt und vor dem Start zu prüfen.

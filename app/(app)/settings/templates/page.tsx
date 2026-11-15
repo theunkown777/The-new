@@ -1,8 +1,10 @@
 import { getServerSession } from "next-auth";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { TemplateList } from "@/components/TemplateList";
 
 export default async function TemplatesSettingsPage() {
+  await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
 
   return (

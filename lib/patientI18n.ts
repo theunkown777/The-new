@@ -113,19 +113,17 @@ export const euro = (n: number, lang: PatientLang) => LOCALES[lang].euro(n);
 export const datum = (d: Date | string, lang: PatientLang) => new Date(d).toLocaleDateString(LOCALES[lang].dateLocale);
 
 /**
- * Empfehlung je Position für die Kontrolle im Patientenvorschlag: Hat die
- * Praxis im Editor eine Option gewählt, gilt diese, sonst die Empfehlung
- * aus dem Regelwerk.
+ * Vormerkung der Praxis je Position für die Kontrolle im Patientenvorschlag: nur was die Praxis im
+ * Editor ausdrücklich gewählt hat. Das Regelwerk selbst merkt nichts vor (keine Empfehlung der Software).
  */
 export function empfehlungJe(
   items: { key: string; recommended?: string | null; options: { id: string }[] }[],
   praxisWahl: Record<string, string>,
 ): Record<string, string> {
   return Object.fromEntries(
-    items.map((i) => {
+    items.flatMap((i) => {
       const p = praxisWahl[i.key];
-      const id = p && i.options.some((o) => o.id === p) ? p : i.options.some((o) => o.id === i.recommended) ? i.recommended! : (i.options[0]?.id ?? "");
-      return [i.key, id];
+      return p && i.options.length > 1 && i.options.some((o) => o.id === p) ? [[i.key, p]] : [];
     }),
   );
 }

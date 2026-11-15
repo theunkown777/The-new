@@ -11,6 +11,7 @@ import { AnamnesisPanel } from "@/components/AnamnesisPanel";
 import { PatientDatenschutz } from "@/components/PatientDatenschutz";
 import { PatientAkte } from "@/components/PatientAkte";
 import { PatientKontakt } from "@/components/PatientKontakt";
+import { AkteAnlegen } from "@/components/AkteAnlegen";
 import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { BefundAuswahl } from "@/components/BefundAuswahl";
 import { befundmodell } from "@/lib/befundmodelle";
@@ -22,6 +23,7 @@ import { BehandlerWahl } from "@/components/BehandlerWahl";
 import { ModellWahl } from "@/components/modelle/ModellWahl";
 import { MODELL_BEFUNDE } from "@/lib/modelle/markierung";
 import { KurzcheckKarte } from "@/components/kurzcheck/KurzcheckKarte";
+import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
 
 export default async function PatientDetailPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -41,7 +43,7 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
   if (!patient) notFound();
   const practiceId = session!.user.practiceId;
   const naechster = await prisma.appointment.findFirst({
-    where: { practiceId, patientId: patient.id, start: { gte: new Date(Date.now() - 2 * 3600e3) }, status: { not: "ABGESAGT" } },
+    where: { practiceId, ...terminFilter(await standortRechtVon(session!.user.id, practiceId)), patientId: patient.id, start: { gte: new Date(Date.now() - 2 * 3600e3) }, status: { not: "ABGESAGT" } },
     orderBy: { start: "asc" },
     select: { start: true, reason: true },
   });
@@ -62,10 +64,11 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
 
   return (
     <div>
+      {patient.ohneAkte && <div className="mb-6"><AkteAnlegen patientId={patient.id} kuerzel={patient.lastName} /></div>}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl text-slate-900">
-            {patient.firstName} {patient.lastName}
+            {patient.ohneAkte ? `${patient.lastName} (ohne Akte)` : `${patient.firstName} ${patient.lastName}`}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
             {patient.birthDate

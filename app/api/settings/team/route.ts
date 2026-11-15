@@ -8,30 +8,37 @@ import { escapeHtml, mailVersandAktiv, sendEmail } from "@/lib/email";
 import { teamEmails } from "@/lib/supportTeam";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { generateToken } from "@/lib/tokens";
+import { ROLLEN } from "@/lib/rollen";
 
 export async function GET() {
   const { session, error } = await requireAdmin();
   if (!session) return error;
 
-  const [users, invites] = await Promise.all([
+  const [konten, invites, standorte] = await Promise.all([
     prisma.user.findMany({
       where: { practiceId: session.user.practiceId },
       orderBy: { createdAt: "asc" },
-      select: { id: true, name: true, email: true, role: true, canSeeAnalytics: true, createdAt: true },
+      select: {
+        id: true, name: true, email: true, role: true, canSeeAnalytics: true, createdAt: true,
+        // Zuordnung zu Standorten (nur der eigenen Praxis); leer = alle Standorte
+        standorte: { where: { location: { practiceId: session.user.practiceId } }, select: { locationId: true } },
+      },
     }),
     prisma.staffInvite.findMany({
       where: { practiceId: session.user.practiceId, acceptedAt: null, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: "desc" },
       select: { id: true, email: true, role: true, createdAt: true, expiresAt: true },
     }),
+    prisma.location.findMany({ where: { practiceId: session.user.practiceId }, orderBy: { createdAt: "asc" }, select: { id: true, name: true } }),
   ]);
+  const users = konten.map(({ standorte: s, ...u }) => ({ ...u, standortIds: s.map((x) => x.locationId) }));
 
-  return NextResponse.json({ users, invites });
+  return NextResponse.json({ users, invites, standorte });
 }
 
 const inviteSchema = z.object({
   email: z.string().email(),
-  role: z.enum(["admin", "staff"]).default("staff"),
+  role: z.enum(ROLLEN).default("staff"),
 });
 
 const INVITE_LIMIT = 10;

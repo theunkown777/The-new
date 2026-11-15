@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BefundDiktat } from "@/components/BefundDiktat";
+import { favoritenFuerFach, type Favorit } from "@/lib/favoriten";
 import { AnlassPicker } from "@/components/AnlassPicker";
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import type { DiktatResult } from "@/lib/befundDiktat";
@@ -35,6 +36,8 @@ import {
   type MedInput,
   type ZuschussJahr,
 } from "@/lib/proposals";
+
+type EntwurfDaten = { patientId: string; kuerzel: string; factors: PatientFactors; teeth: Partial<Record<string, FindingCode>>; globals: Partial<Record<GlobalCode, boolean>>; anlaesse: string[]; choices: Record<string, string> };
 
 type PatientOption = {
   id: string;
@@ -82,7 +85,13 @@ export function ProposalEditor({
   onChange,
   fach: practiceFach,
   med: practiceMed,
+  schnell,
+  favoriten: favoritenStart = [],
 }: {
+  /** Schnellvorschlag ohne Akte: statt eines Patienten nur ein Kürzel (kein Name, kein Geburtsdatum). */
+  schnell?: { vorschlag: string };
+  /** Gespeicherte Kombinationen der Praxis für neue Vorschläge. */
+  favoriten?: Favorit[];
   patients: PatientOption[];
   initialPatientId?: string;
   /** Allgemeine Befunde aus der Anamnese (z. B. Raucher), nur für neue Vorschläge. */
@@ -124,6 +133,13 @@ export function ProposalEditor({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [kuerzel, setKuerzel] = useState(schnell?.vorschlag ?? "");
+  // „Patient schaut mit“: ruhige Ansicht für das Gespräch, ohne Praxiszahlen und ohne Eingabefelder.
+  const [gespraech, setGespraech] = useState(false);
+  const [favoriten, setFavoriten] = useState<Favorit[]>(favoritenStart);
+  const [favName, setFavName] = useState<string | null>(null);
+  const [favMeldung, setFavMeldung] = useState<string | null>(null);
+  const [entwurf, setEntwurf] = useState<{ zeit: number; daten: EntwurfDaten } | null>(null);
 
   const status = existing?.status ?? "ENTWURF";
   const locked = status === "ANGENOMMEN" || status === "ABGELEHNT";
@@ -145,6 +161,67 @@ export function ProposalEditor({
   useEffect(() => {
     onChange?.(input, choices);
   }, [teeth, globals, factors, choices, anlaesse]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Entwurf speichert sich selbst (nur neue Vorschläge, nur in diesem Tab): Klingelt das Telefon, geht nichts verloren.
+  const entwurfKey = !existing && !compact ? `sorrida:entwurf:${schnell ? "schnell" : "neu"}:${fach}` : null;
+  const hatInhalt = Object.keys(teeth).length > 0 || anlaesse.length > 0;
+  useEffect(() => {
+    if (!entwurfKey) return;
+    try {
+      const roh = JSON.parse(window.sessionStorage.getItem(entwurfKey) ?? "null");
+      if (roh && typeof roh.zeit === "number" && Date.now() - roh.zeit < 12 * 3600e3 && roh.daten) setEntwurf(roh);
+    } catch { /* kein Entwurf */ }
+  }, [entwurfKey]);
+  useEffect(() => {
+    if (!entwurfKey || entwurf) return;
+    const t = setTimeout(() => {
+      try {
+        if (hatInhalt) window.sessionStorage.setItem(entwurfKey, JSON.stringify({ zeit: Date.now(), daten: { patientId, kuerzel, factors, teeth, globals, anlaesse, choices } satisfies EntwurfDaten }));
+        else window.sessionStorage.removeItem(entwurfKey);
+      } catch { /* Speicher voll oder gesperrt */ }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [entwurfKey, entwurf, hatInhalt, patientId, kuerzel, factors, teeth, globals, anlaesse, choices]);
+  function entwurfUebernehmen() {
+    if (!entwurf) return;
+    const d = entwurf.daten;
+    if (d.patientId && patients.some((p) => p.id === d.patientId)) setPatientId(d.patientId);
+    if (schnell && d.kuerzel) setKuerzel(d.kuerzel);
+    setFactors(d.factors); setTeeth(d.teeth ?? {}); setGlobals(d.globals ?? {}); setAnlaesse(d.anlaesse ?? []); setChoices(d.choices ?? {});
+    setEntwurf(null);
+  }
+  function entwurfVerwerfen() {
+    if (entwurfKey) try { window.sessionStorage.removeItem(entwurfKey); } catch { /* egal */ }
+    setEntwurf(null);
+  }
+
+  // Favoriten: häufige Kombinationen mit einem Klick übernehmen bzw. die aktuelle Auswahl speichern.
+  const meineFavoriten = favoritenFuerFach(favoriten, fach ?? "zahn");
+  function favoritAnwenden(f: Favorit) {
+    if (dental) {
+      setTeeth(f.teeth as Partial<Record<string, FindingCode>>);
+      setGlobals(Object.fromEntries(f.globals.map((k) => [k, true])));
+    } else setAnlaesse(f.anlaesse);
+    setChoices(f.choices);
+    setFavMeldung(`„${f.name}“ übernommen. Bitte prüfen und anpassen.`);
+  }
+  async function favoritSpeichern() {
+    const name = (favName ?? "").trim();
+    if (name.length < 2) return setFavMeldung("Bitte einen Namen mit mindestens 2 Zeichen eingeben.");
+    const res = await fetch("/api/praxis/vorschlag-favoriten", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, fach: fach ?? "zahn", teeth: dental ? teeth : {}, globals: dental ? Object.entries(globals).filter(([, v]) => v).map(([k]) => k) : [], anlaesse: dental ? [] : anlaesse, choices }),
+    }).catch(() => null);
+    const d = await res?.json().catch(() => null);
+    if (!res?.ok) return setFavMeldung(d?.error ?? "Der Favorit konnte nicht gespeichert werden.");
+    setFavoriten(d.favoriten); setFavName(null); setFavMeldung(`„${name}“ gespeichert.`);
+  }
+  async function favoritLoeschen(id: string) {
+    const res = await fetch("/api/praxis/vorschlag-favoriten", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) }).catch(() => null);
+    const d = await res?.json().catch(() => null);
+    if (res?.ok) { setFavoriten(d.favoriten); setFavMeldung(null); }
+  }
 
   function changePatient(id: string) {
     setPatientId(id);
@@ -194,13 +271,19 @@ export function ProposalEditor({
     : "";
 
   async function save(nextStatus?: string, choicesOverride?: Record<string, string>) {
-    if (!patientId) {
+    if (schnell && !existing) {
+      if (kuerzel.trim().length < 2) {
+        setError("Bitte ein Kürzel mit mindestens 2 Zeichen eingeben.");
+        return;
+      }
+    } else if (!patientId) {
       setError("Bitte zuerst einen Patienten wählen.");
       return;
     }
     setSaving(true);
     setError(null);
-    const body = locked ? { status: nextStatus } : { patientId, input, choices: choicesOverride ?? choices, status: nextStatus ?? status };
+    const wer = schnell && !existing ? { schnell: { kuerzel: kuerzel.trim() } } : { patientId };
+    const body = locked ? { status: nextStatus } : { ...wer, input, choices: choicesOverride ?? choices, status: nextStatus ?? status };
     const res = await fetch(existing ? `/api/proposals/${existing.id}` : "/api/proposals", {
       method: existing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -214,8 +297,10 @@ export function ProposalEditor({
     }
     // Übernommene Wahl auch in der Ansicht zeigen, nicht erst nach dem Neuladen.
     if (choicesOverride) setChoices(choicesOverride);
+    if (entwurfKey) try { window.sessionStorage.removeItem(entwurfKey); } catch { /* egal */ }
     if (existing) router.refresh();
-    else router.push(`${savedHrefPrefix}${data.proposal.id}`);
+    // Schnellvorschlag: gleich den QR-Code zeigen, damit der Patient ihn am Stuhl scannen kann.
+    else router.push(`${savedHrefPrefix}${data.proposal.id}${schnell ? "?qr=1" : ""}`);
   }
 
   async function copyLetter() {
@@ -265,10 +350,35 @@ export function ProposalEditor({
         </p>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
-        <fieldset disabled={locked} className="space-y-6">
+      {entwurf && (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-slate-800" data-testid="entwurf-hinweis">
+          <span>Es gibt einen angefangenen Vorschlag von {new Date(entwurf.zeit).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })} Uhr.</span>
+          <button type="button" className="btn-primary !py-1 text-xs" onClick={entwurfUebernehmen} data-testid="entwurf-uebernehmen">Weiterarbeiten</button>
+          <button type="button" className="btn-secondary !py-1 text-xs" onClick={entwurfVerwerfen} data-testid="entwurf-verwerfen">Verwerfen</button>
+        </div>
+      )}
+      {!compact && (
+        <div className={`flex flex-wrap items-center justify-between gap-3 ${gespraech ? "rounded-xl bg-[#F5F2EE] px-4 py-3" : ""}`}>
+          <p className="text-sm text-slate-600">
+            {gespraech ? "Ansicht für das Gespräch: Praxiszahlen und Eingabefelder sind ausgeblendet." : "Drehen Sie den Bildschirm zum Patienten? Dann blendet diese Ansicht alles aus, was nur die Praxis betrifft."}
+          </p>
+          <button type="button" className={gespraech ? "btn-primary" : "btn-secondary"} aria-pressed={gespraech} onClick={() => setGespraech((g) => !g)} data-testid="gespraech-schalter">
+            {gespraech ? "Zurück zur Praxisansicht" : "Patient schaut mit"}
+          </button>
+        </div>
+      )}
+
+      <div className={gespraech ? "grid gap-6" : "grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]"} data-gespraech={gespraech ? "an" : "aus"}>
+        <fieldset disabled={locked} className={gespraech ? "hidden" : "space-y-6"}>
           <div className="card space-y-4">
-            <h2 className="font-medium text-slate-900">Patient</h2>
+            <h2 className="font-medium text-slate-900">{schnell && !existing ? "Ohne Akte" : "Patient"}</h2>
+            {schnell && !existing ? (
+              <div>
+                <label className="label" htmlFor="proposal-kuerzel">Kürzel</label>
+                <input id="proposal-kuerzel" className="input" maxLength={24} value={kuerzel} onChange={(e) => setKuerzel(e.target.value)} data-testid="schnell-kuerzel" />
+                <p className="mt-1 text-xs text-slate-500">Bitte keinen Namen und kein Geburtsdatum eintragen. Das Kürzel hilft Ihnen, den Vorschlag wiederzufinden, z. B. Zimmer und Uhrzeit.</p>
+              </div>
+            ) : (
             <div>
               <label className="label" htmlFor="proposal-patient">Patient</label>
               <select
@@ -286,6 +396,7 @@ export function ProposalEditor({
                 ))}
               </select>
             </div>
+            )}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label" htmlFor="proposal-age">Alter</label>
@@ -450,9 +561,52 @@ export function ProposalEditor({
           </div>
           </>
           )}
+
+          {!existing && !compact && (
+            <div className="card space-y-3" data-testid="favoriten">
+              <h2 className="font-medium text-slate-900">Favoriten</h2>
+              {meineFavoriten.length === 0 ? (
+                <p className="text-xs text-slate-500">Speichern Sie häufige Kombinationen. Beim nächsten Mal genügt ein Klick.</p>
+              ) : (
+                <ul className="flex flex-wrap gap-2">
+                  {meineFavoriten.map((f) => (
+                    <li key={f.id} className="flex items-center overflow-hidden rounded-full border border-slate-200 bg-white text-sm">
+                      <button type="button" className="px-3 py-1 hover:bg-slate-50" onClick={() => favoritAnwenden(f)} data-testid="favorit-anwenden">{f.name}</button>
+                      <button type="button" className="border-l border-slate-200 px-2 py-1 text-slate-500 hover:bg-slate-50 hover:text-red-700" aria-label={`Favorit ${f.name} löschen`} onClick={() => favoritLoeschen(f.id)}>×</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {favName === null ? (
+                <button type="button" className="btn-secondary !py-1 text-xs" disabled={!hatInhalt} onClick={() => { setFavName(""); setFavMeldung(null); }} data-testid="favorit-neu">Aktuelle Auswahl als Favorit speichern</button>
+              ) : (
+                <div className="flex flex-wrap items-end gap-2">
+                  <div className="min-w-[10rem] flex-1">
+                    <label className="label" htmlFor="favorit-name">Name des Favoriten</label>
+                    <input id="favorit-name" className="input" maxLength={60} value={favName} onChange={(e) => setFavName(e.target.value)} placeholder="z. B. Check-up mit Labor" data-testid="favorit-name" />
+                  </div>
+                  <button type="button" className="btn-primary" onClick={favoritSpeichern} data-testid="favorit-speichern">Speichern</button>
+                  <button type="button" className="btn-secondary" onClick={() => setFavName(null)}>Abbrechen</button>
+                </div>
+              )}
+              {favMeldung && <p className="text-xs text-slate-600" role="status" data-testid="favorit-meldung">{favMeldung}</p>}
+            </div>
+          )}
         </fieldset>
 
         <div className="min-w-0 space-y-4">
+          {gespraech ? (
+            <div className="grid gap-3 sm:grid-cols-2" data-testid="gespraech-summen">
+              <div className="rounded-2xl bg-salbei-50 px-5 py-4">
+                <p className="text-sm text-salbei-800">{factors.insurance === "PKV" ? "Das erstattet Ihre Versicherung voraussichtlich" : "Das übernimmt Ihre Krankenkasse"}</p>
+                <p className="mt-1 font-display text-4xl tabular-nums text-slate-900">{formatEuro(Math.max(0, summary.planTotal - summary.netto))}</p>
+              </div>
+              <div className="rounded-2xl bg-white px-5 py-4 ring-1 ring-slate-200">
+                <p className="text-sm text-slate-600">Ihr Eigenanteil bei dieser Auswahl</p>
+                <p className="mt-1 font-display text-4xl tabular-nums text-slate-900">{formatEuro(summary.netto)}</p>
+              </div>
+            </div>
+          ) : (
           <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-4 [&>div]:bg-white">
             {dental ? <Stat label={factors.insurance === "PKV" ? "Nur Basis" : "Nur Kasse"} value={formatEuro(summary.baseTotal)} /> : <Stat label="Anlässe" value={String(items.length)} />}
             <Stat label="Gewählter Plan" value={formatEuro(summary.planTotal)} />
@@ -464,12 +618,13 @@ export function ProposalEditor({
             />
             <Stat label="Eigenanteil Patient" value={formatEuro(summary.netto)} />
           </div>
+          )}
 
           {zeigeVergleich && jv.betroffen && (
             <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-medium text-slate-900">Festzuschuss sinkt zum 1.1.2027</h2>
-                {showsJahresvergleich() && (
+                {showsJahresvergleich() && !gespraech && (
                   <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
                     {tage === 0 ? "Heute letzter Tag" : `Noch ${tage} Tage`} für Bewilligung zu den alten Sätzen
                   </span>
@@ -501,7 +656,7 @@ export function ProposalEditor({
             </div>
           )}
 
-          {!compact && <div className="flex gap-1 border-b border-slate-200" role="tablist">
+          {!compact && !gespraech && <div className="flex gap-1 border-b border-slate-200" role="tablist">
             {(["praxis", "patient"] as const).map((t) => (
               <button
                 key={t}
@@ -516,7 +671,7 @@ export function ProposalEditor({
             ))}
           </div>}
 
-          {tab === "praxis" ? (
+          {tab === "praxis" || gespraech ? (
             items.length === 0 ? (
               <div className="card text-sm text-slate-500">
                 {dental ? "Noch kein Befund. Wählen Sie im Zahnschema einen Zahn und setzen Sie einen Befund." : "Noch kein Anlass gewählt. Kreuzen Sie links an, worum es im Gespräch geht."}
@@ -525,7 +680,7 @@ export function ProposalEditor({
               items.map((item) => {
                 const chosen = chosenOption(item, choices);
                 return (
-                  <section key={item.key} className="card space-y-3 p-4">
+                  <section key={item.key} className={`card space-y-3 p-4 ${gespraech ? "text-base" : ""}`}>
                     <div className="flex flex-wrap items-baseline gap-2">
                       <span className="rounded bg-slate-800 px-2 py-0.5 text-xs font-medium text-white">{item.where}</span>
                       <h3 className="font-medium text-slate-900">{item.title}</h3>
@@ -554,8 +709,8 @@ export function ProposalEditor({
                                 >
                                   {typeLabelOf(o, factors.insurance)}
                                 </span>
-                                {o.id === item.recommended && (
-                                  <span className="text-[11px] font-semibold text-brand-700">Empfehlung</span>
+                                {o.id === item.recommended && !gespraech && (
+                                  <span className="text-[11px] font-semibold text-slate-500">Vorauswahl</span>
                                 )}
                               </span>
                               <span className="font-medium text-slate-900">{o.name}</span>
@@ -568,9 +723,9 @@ export function ProposalEditor({
                                 </span>
                               )}
                               {o.hinweis && <span className="text-xs text-green-800">Kasse: {o.hinweis}</span>}
-                              {o.nutzen && <span className="text-xs text-amber-800">Nutzen: {o.nutzen}</span>}
-                              <span className="mt-auto flex justify-between border-t border-dashed border-slate-200 pt-2 text-xs text-slate-500">
-                                Eigenanteil
+                              {o.nutzen && !gespraech && <span className="text-xs text-amber-800">Nutzen: {o.nutzen}</span>}
+                              <span className={`mt-auto flex justify-between border-t border-dashed border-slate-200 pt-2 text-slate-500 ${gespraech ? "text-sm" : "text-xs"}`}>
+                                {gespraech ? "Ihr Eigenanteil" : "Eigenanteil"}
                                 <b className="tabular-nums text-amber-700">{formatEuro(m.netto)}</b>
                               </span>
                               {zeigeVergleich && isZahnersatz(o) && (
@@ -581,15 +736,17 @@ export function ProposalEditor({
                                   </span>
                                 </span>
                               )}
+                              {!gespraech && (
                               <span className="flex justify-between text-xs text-slate-500">
                                 Volumen <span className="tabular-nums">{formatEuro(m.total)}</span>
                               </span>
+                              )}
                             </button>
                           );
                         })}
                       </div>
                     )}
-                    {(item.notes.length > 0 || item.excluded.length > 0) && (
+                    {!gespraech && (item.notes.length > 0 || item.excluded.length > 0) && (
                       <ul className="space-y-1 text-sm">
                         {item.notes.map((n) => (
                           <li key={n.text} className={n.kind === "warn" ? "text-amber-800" : "text-slate-700"}>
@@ -620,13 +777,14 @@ export function ProposalEditor({
             </div>
           )}
 
-          <p className="text-xs text-slate-500">
+          {gespraech && <p className="text-sm text-slate-600">Die Beträge sind Schätzungen. Verbindlich sind der Kostenplan und die Vereinbarung Ihrer Praxis.</p>}
+          <p className={gespraech ? "hidden" : "text-xs text-slate-500"}>
             {dental
-              ? "Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Die Empfehlung ist ein Vorschlag des Regelwerks; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware."
+              ? "Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Vorausgewählt ist immer die Kassen- bzw. Regelleistung. Was Sie mit Ihrer Patientin oder Ihrem Patienten vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware."
               : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Empfohlen wird nur die Kassenleistung; ob eine Selbstzahlerleistung sinnvoll ist, entscheiden Sie im Gespräch. ${isTherapie(spec) ? "Selbstzahlerleistungen vereinbaren Sie vor der Behandlung schriftlich." : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
           </p>
 
-          {!compact && patientWahl && (
+          {!compact && !gespraech && patientWahl && (
             <div
               className={`rounded-xl border px-4 py-3 text-sm ${wahlWeichtAb && !locked ? "border-amber-300 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"}`}
               data-testid="patient-wahl"
@@ -648,7 +806,7 @@ export function ProposalEditor({
             </div>
           )}
 
-          {!compact && <div className="flex flex-wrap gap-2">
+          {!compact && !gespraech && <div className="flex flex-wrap gap-2">
             {!locked && (
               <button type="button" disabled={saving} onClick={() => save()} className="btn-primary">
                 {saving ? "Speichert…" : existing ? "Änderungen speichern" : "Vorschlag speichern"}

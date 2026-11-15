@@ -8,10 +8,13 @@ export const AUDIT_ACTIONS = {
   "login.fehlgeschlagen": "Anmeldung fehlgeschlagen",
   "patient.export": "Patientendaten exportiert",
   "patient.geloescht": "Patient gelöscht",
+  "patient.import": "Patientenliste eingelesen",
+  "patient.akte": "Akte aus Schnellvorschlag angelegt",
   "bericht.freigegeben": "Bericht freigegeben",
   "bericht.zurueckgezogen": "Freigabe zurückgenommen",
   "bericht.ki": "Bericht mit KI erstellt",
   "rechnung.status": "Rechnungsstatus geändert",
+  "rechnung.brief": "Begleitbrief für die Versicherung erstellt",
   "team.rolle": "Rolle oder Rechte geändert",
   "team.entfernt": "Konto entfernt",
   "team.einladung": "Mitarbeiter eingeladen",
@@ -33,6 +36,11 @@ export const AUDIT_ACTIONS = {
   "termin.online": "Termin vom Patienten online gebucht oder abgesagt",
   "nachricht.whatsapp": "Nachricht per WhatsApp",
   "katalog.eigen": "Eigene Leistung angelegt",
+  "warteliste.angebot": "Frei gewordene Zeit von der Warteliste angeboten",
+  "terminanfrage": "Online-Anfrage eines neuen Patienten bearbeitet",
+  "empfang.uebergabe": "Empfangs-Tablet an Patient übergeben",
+  "empfang.pin": "Empfangs-PIN gesetzt oder geändert",
+  "empfang.gesperrt": "Empfangs-PIN nach Fehlversuchen gesperrt",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

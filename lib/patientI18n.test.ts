@@ -192,7 +192,7 @@ const MUSTER_BEISPIELE: Record<PatternId, string[]> = {
     "Die Nachbarzähne 35 und 37 brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich.",
     "Die Nachbarzähne 33, 35 und 37 brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich.",
   ],
-  neighboursHealthy: ["Die Nachbarzähne 35 und 37 sind gesund. Ein Implantat erspart das Beschleifen."],
+  neighboursHealthy: ["Die Nachbarzähne 35 und 37 haben keinen Befund. Für eine Brücke werden sie beschliffen, für ein Implantat nicht."],
   coveredOnlyFromAge: ["Kassenleistung erst ab 35 Jahren.", "Kassenleistung erst ab 21 Jahren. Bei Beschwerden Kassenleistung."],
   coveredFromAge: ["Kassenleistung ab 35 Jahren.", "Kassenleistung ab 50 Jahren. Bei Beschwerden Kassenleistung."],
 };
@@ -332,7 +332,7 @@ describe.each(FREMD)("Patientenansicht %s", (lang) => {
 describe("Patientenansicht: einzelne Sprachen", () => {
   it("übersetzt Zahlen und Muster", () => {
     expect(tr("Zahn 36", "en")).toBe("Tooth 36");
-    expect(tr("Die Nachbarzähne 35 und 37 sind gesund. Ein Implantat erspart das Beschleifen.", "en")).toContain("35 and 37");
+    expect(tr("Die Nachbarzähne 35 und 37 haben keinen Befund. Für eine Brücke werden sie beschliffen, für ein Implantat nicht.", "en")).toContain("35 and 37");
     expect(tr("Zahn 36", "tr")).toBe("36 numaralı diş");
     expect(tr("Zahn 36", "pl")).toBe("Ząb 36");
     expect(tr("Brücke (4 Glieder), Regelversorgung", "pl")).toBe("Most 4-punktowy, leczenie standardowe");

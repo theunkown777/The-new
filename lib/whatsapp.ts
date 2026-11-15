@@ -1,3 +1,4 @@
+import { anrede } from "@/lib/ohneAkte";
 import { terminZeit } from "@/lib/termine";
 
 // Nachrichten per WhatsApp. Zwei Wege:
@@ -38,13 +39,13 @@ export function whatsappText(art: WhatsappArt, a: { firstName: string; practiceN
   const ort = a.ort ? ` (${a.ort})` : "";
   switch (art) {
     case "termin-bestaetigung":
-      return `Hallo ${a.firstName}, Ihr Termin bei ${a.practiceName}${ort} ist eingetragen: ${terminZeit(a.start!)} Uhr. Falls Sie nicht kommen können, sagen Sie bitte rechtzeitig ab.`;
+      return `${anrede("Hallo", a.firstName)}, Ihr Termin bei ${a.practiceName}${ort} ist eingetragen: ${terminZeit(a.start!)} Uhr. Falls Sie nicht kommen können, sagen Sie bitte rechtzeitig ab.`;
     case "termin-erinnerung":
-      return `Hallo ${a.firstName}, kurze Erinnerung an Ihren Termin bei ${a.practiceName}${ort} am ${terminZeit(a.start!)} Uhr. Absagen bitte telefonisch.`;
+      return `${anrede("Hallo", a.firstName)}, kurze Erinnerung an Ihren Termin bei ${a.practiceName}${ort} am ${terminZeit(a.start!)} Uhr. Absagen bitte telefonisch.`;
     case "zahlungserinnerung":
-      return `Hallo ${a.firstName}, ${a.practiceName} hat eine offene Rechnung für Sie hinterlegt. Unter diesem persönlichen Link sehen Sie die Details und können direkt bezahlen: ${a.url}`;
+      return `${anrede("Hallo", a.firstName)}, ${a.practiceName} hat eine offene Rechnung für Sie hinterlegt. Unter diesem persönlichen Link sehen Sie die Details und können direkt bezahlen: ${a.url}`;
     default:
-      return `Hallo ${a.firstName}, hier ist Ihr persönlicher Link von ${a.practiceName}: ${a.url} Dort finden Sie Ihre Unterlagen, Termine und Rechnungen. Bitte geben Sie den Link nicht weiter.`;
+      return `${anrede("Hallo", a.firstName)}, hier ist Ihr persönlicher Link von ${a.practiceName}: ${a.url} Dort finden Sie Ihre Unterlagen, Termine und Rechnungen. Bitte geben Sie den Link nicht weiter.`;
   }
 }
 

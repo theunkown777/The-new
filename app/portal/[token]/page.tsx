@@ -222,6 +222,8 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
           </a>
         </section>
 
+        {/* Das Modell erscheint nur, wenn die Praxis dort etwas für diese Person markiert hat. */}
+        {modellMarken.length > 0 && (
         <section className="mt-8" aria-labelledby="modell" data-testid="portal-modell-hinweis">
           <h2 id="modell" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{modellMarken.length ? "Von Ihrer Praxis im Modell markiert" : modellArt === "gebiss" ? "Ihr Gebiss im Modell" : "Im Modell ansehen und verstehen"}</h2>
           <div className="mt-3 rounded-2xl bg-white p-4">
@@ -243,6 +245,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
             <a href={`/portal/${params.token}/modell${lang === "de" ? "" : `?lang=${lang}`}`} className="btn-primary mt-3 inline-block" data-testid="portal-modell-link">Im Modell ansehen</a>
           </div>
         </section>
+        )}
         {openInvoices.length > 0 && (
           <section className="mt-8" aria-labelledby="rechnungen">
             <h2 id="rechnungen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{t.invoices}</h2>

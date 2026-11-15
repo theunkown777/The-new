@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { auditFromSession } from "@/lib/audit";
+import { darfZahlungen } from "@/lib/permissions";
 
 // Schritt 2: bestätigte Zuordnungen als bezahlt buchen, mit Buchungsdatum.
 const schema = z.object({ zahlungen: z.array(z.object({ rechnungId: z.string().min(1).max(40), datum: z.string() })).min(1).max(500) });
@@ -11,6 +12,7 @@ const schema = z.object({ zahlungen: z.array(z.object({ rechnungId: z.string().m
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await darfZahlungen(session.user.id, session.user.practiceId))) return NextResponse.json({ error: "Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben." }, { status: 403 });
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Ungültige Eingabe" }, { status: 400 });
   let gebucht = 0;

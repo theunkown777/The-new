@@ -17,6 +17,9 @@ export const EINGANG_ARTEN = {
   ZWEITMEINUNG: { titel: "Zweitmeinung geteilt", tun: "Im Vorschlag ansehen und im Gespräch darauf eingehen.", gruppe: "Vorschläge" },
   TERMIN_GEBUCHT: { titel: "Termin online gebucht", tun: "Im Kalender ansehen, bei Bedarf bestätigen.", gruppe: "Termine" },
   TERMIN_ABGESAGT: { titel: "Termin online abgesagt", tun: "Die Zeit ist wieder frei; bei Bedarf neu vergeben.", gruppe: "Termine" },
+  // Anfrage über die Buchungsseite für neue Patienten (/t/<kennung>). Dazu gibt es noch keinen Patienten und deshalb
+  // keine Zeile in der Tabelle Eingang: Die offenen Anfragen liefert eingangAnfragen() aus der Tabelle Terminanfrage.
+  TERMINANFRAGE: { titel: "Online-Anfrage eines neuen Patienten", tun: "Unter Termine prüfen, dann bestätigen oder ablehnen. Erst mit der Bestätigung entstehen Patient und Termin.", gruppe: "Termine" },
 } as const;
 
 export type EingangArt = keyof typeof EINGANG_ARTEN;
@@ -32,6 +35,7 @@ export function eingangZiel(e: { art: string; entityId: string | null; patientId
     case "VORSCHLAG_INTERESSE": case "VORSCHLAG_RUECKRUF": case "VEREINBARUNG": case "ZWEITMEINUNG":
       return e.entityId ? `/proposals/${e.entityId}` : `/patients/${e.patientId}`;
     case "TERMIN_GEBUCHT": case "TERMIN_ABGESAGT": return e.tag ? `/termine?tag=${e.tag}` : "/termine";
+    case "TERMINANFRAGE": return "/termine#anfragen";
     default: return `/patients/${e.patientId}`;
   }
 }
@@ -60,7 +64,31 @@ export async function eingangErledigen(practiceId: string, arten: EingangArt[], 
   }
 }
 
-export const eingangOffen = (practiceId: string) => prisma.eingang.count({ where: { practiceId, erledigtAt: null } });
+/** Offene Einträge im Eingang; offene Online-Anfragen neuer Patienten zählen mit. */
+export const eingangOffen = async (practiceId: string) => {
+  const [eintraege, anfragen] = await Promise.all([
+    prisma.eingang.count({ where: { practiceId, erledigtAt: null } }),
+    prisma.terminanfrage.count({ where: { practiceId, status: "OFFEN" } }),
+  ]);
+  return eintraege + anfragen;
+};
+
+const anfrageZeit = (d: Date) => d.toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" }) + " Uhr";
+
+/**
+ * Offene Online-Anfragen neuer Patienten in der Form eines Eingang-Eintrags (Art TERMINANFRAGE).
+ * Sie erledigen sich von selbst, sobald die Praxis unter Termine bestätigt oder ablehnt.
+ */
+export async function eingangAnfragen(practiceId: string) {
+  const anfragen = await prisma.terminanfrage.findMany({
+    where: { practiceId, status: "OFFEN" }, orderBy: { createdAt: "desc" }, take: 50,
+    select: { id: true, firstName: true, lastName: true, start: true, createdAt: true, beispiel: true },
+  });
+  return anfragen.map((a) => ({
+    id: a.id, art: "TERMINANFRAGE" as const, name: `${a.lastName}, ${a.firstName}`, hinweis: `gewünscht: ${anfrageZeit(a.start)}${a.beispiel ? " · Beispiel" : ""}`,
+    createdAt: a.createdAt, ziel: eingangZiel({ art: "TERMINANFRAGE", entityId: a.id, patientId: "" }),
+  }));
+}
 
 /** Für die Demo-Praxis: aus dem Bestand ein paar offene Einträge ableiten, damit der Eingang nicht leer ist. */
 export async function eingangAusBestand(practiceId: string, now = new Date()): Promise<number> {

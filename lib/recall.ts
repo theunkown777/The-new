@@ -1,3 +1,4 @@
+import { anrede } from "@/lib/ohneAkte";
 // Vorsorge-Erinnerungen: Leistungen, die die Kasse regelmäßig bezahlt.
 // Sorrida erinnert die Praxis, wer fällig ist, und liefert den Text für
 // den Patienten. Kasse zuerst: hier geht es nicht um Selbstzahlerleistungen.
@@ -48,5 +49,25 @@ export function recallFor(a: { fach: string; age: number | null; letzterKontakt:
 }
 
 export function recallText(a: { firstName: string; practiceName: string; leistung: string; hinweis: string; url: string }): string {
-  return `Hallo ${a.firstName}, ${a.practiceName} erinnert Sie an Ihre ${a.leistung}. ${a.hinweis} Termin vereinbaren und Unterlagen ansehen: ${a.url}`;
+  return `${anrede("Hallo", a.firstName)}, ${a.practiceName} erinnert Sie an Ihre ${a.leistung}. ${a.hinweis} Termin vereinbaren und Unterlagen ansehen: ${a.url}`;
+}
+
+/** Tage, in denen eine Online-Buchung noch der Erinnerung zugerechnet wird. */
+export const RECALL_BUCHUNG_TAGE = 30;
+
+/** Wurde in den letzten 30 Tagen an die Vorsorge erinnert? Dann zählt eine Online-Buchung als „nach Erinnerung“. */
+export function nachErinnerungGebucht(erinnertAm: Date | null | undefined, gebuchtAm = new Date()): boolean {
+  if (!erinnertAm) return false;
+  const tage = (gebuchtAm.getTime() - erinnertAm.getTime()) / (24 * 60 * 60 * 1000);
+  return tage >= 0 && tage <= RECALL_BUCHUNG_TAGE;
+}
+
+/** Adresse der Terminbuchung im Portal, der Anlass ist schon eingetragen. */
+export function recallTerminUrl(portalUrl: string, leistung: string): string {
+  return `${portalUrl.replace(/\/$/, "")}/termin?anlass=${encodeURIComponent(leistung.slice(0, 80))}`;
+}
+
+/** Erinnerung mit Terminangebot: Der Patient sieht über den Link nur freie Zeiten und bucht selbst. Sachlich, ohne Druck. */
+export function recallTerminText(a: { firstName: string; practiceName: string; leistung: string; hinweis: string; url: string }): string {
+  return `${anrede("Hallo", a.firstName)}, ${a.practiceName} erinnert Sie an Ihre ${a.leistung}. ${a.hinweis} Wenn Sie möchten, suchen Sie sich hier selbst einen freien Termin aus: ${recallTerminUrl(a.url, a.leistung)}`;
 }

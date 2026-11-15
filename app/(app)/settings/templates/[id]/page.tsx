@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -6,6 +7,7 @@ import { sichtbarFuer } from "@/lib/katalogScope";
 import { TemplateEditor } from "@/components/TemplateEditor";
 
 export default async function TemplateEditorPage(props: { params: Promise<{ id: string }> }) {
+  await nurMitEinstellungen();
   const params = await props.params;
   const session = await getServerSession(authOptions);
   const tpl = await prisma.serviceTemplate.findFirst({ where: { id: params.id, ...(await sichtbarFuer(session!.user.practiceId)) }, select: { practiceId: true } });

@@ -6,6 +6,7 @@ import { loadRecallDue } from "@/lib/recallLoad";
 import { canSeeAnalytics } from "@/lib/permissions";
 import { PraxisManager } from "@/components/PraxisManager";
 import { loadTermineHeute } from "@/lib/termineLoad";
+import { standortRechtVon } from "@/lib/standortRechte";
 import { loadBillingCheck } from "@/lib/billingCheckLoad";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +30,7 @@ export default async function PraxisManagerPage() {
     prisma.anamnesisForm.findMany({ where: { patient: { practiceId }, submittedAt: null }, select: { createdAt: true, submittedAt: true, expiresAt: true } }),
     loadRecallDue(practiceId, now),
     canSeeAnalytics(session!.user.id),
-    loadTermineHeute(practiceId, now),
+    loadTermineHeute(practiceId, now, await standortRechtVon(session!.user.id, practiceId)),
     loadBillingCheck(practiceId, now),
   ]);
   const antworten = praxisManager({

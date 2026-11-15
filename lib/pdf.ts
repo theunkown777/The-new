@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import { PassThrough } from "stream";
 import { REPORT_TYPE_LABELS } from "@/lib/reportLabels";
+import type { Brief } from "@/lib/erstattungsbrief";
 
 interface ReportPdfInput {
   practiceName: string;
@@ -196,6 +197,73 @@ export async function buildKosteninfoPdf(input: KosteninfoPdfInput): Promise<Buf
     `Erstellt am ${input.erstelltAm} von ${input.erstelltVon} mit Sorrida. Alle Beträge sind Schätzungen. Verbindlich sind der Heil- und Kostenplan bzw. die schriftliche Vereinbarung vor der Behandlung. Dieses Blatt dokumentiert die Kosteninformation in Textform; es ersetzt nicht das Aufklärungsgespräch.`,
     { width: breite },
   );
+  doc.end();
+  return await new Promise<Buffer>((resolve, reject) => {
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
+  });
+}
+
+/**
+ * Begleitbrief für die Versicherung (lib/erstattungsbrief.ts): Brief im Namen des Patienten,
+ * A4, Anschrift im Fensterbereich. Der Text kommt fertig und druckbar aus briefText().
+ */
+export async function buildErstattungsbriefPdf(b: Brief): Promise<Buffer> {
+  const doc = new PDFDocument({ size: "A4", margins: { top: 56, bottom: 62, left: 71, right: 57 }, info: { Title: b.betreff, Author: b.unterschrift } });
+  const stream = new PassThrough();
+  const chunks: Buffer[] = [];
+  doc.pipe(stream);
+  stream.on("data", (chunk) => chunks.push(chunk as Buffer));
+  const links = doc.page.margins.left;
+  const breite = doc.page.width - links - doc.page.margins.right;
+  const platz = (hoehe: number) => {
+    if (doc.y + hoehe > doc.page.height - doc.page.margins.bottom) doc.addPage();
+  };
+
+  // Absender oben, klein als Zeile über der Anschrift (für Fensterumschläge)
+  doc.font("Helvetica").fontSize(10).fillColor("#000000");
+  for (const z of b.absender) doc.text(z, links, doc.y, { width: breite });
+  doc.y = Math.max(doc.y + 18, 128);
+  doc.fontSize(7.5).fillColor("#555555").text(b.absender.join(" · "), links, doc.y, { width: 240, lineBreak: false, ellipsis: true });
+  doc.moveDown(0.6);
+  doc.fontSize(11).fillColor("#000000");
+  for (const z of b.empfaenger) doc.text(z, links, doc.y, { width: 240 });
+  doc.y = Math.max(doc.y + 24, 250);
+  doc.text(b.ortDatum, links, doc.y, { width: breite, align: "right" });
+  doc.moveDown(1.2);
+
+  doc.font("Helvetica-Bold").text(b.betreff, links, doc.y, { width: breite });
+  doc.font("Helvetica").fontSize(10);
+  for (const z of b.bezugszeilen) doc.text(z, { width: breite });
+  doc.moveDown(1.2);
+
+  doc.fontSize(11).text(b.anrede, { width: breite });
+  doc.moveDown(0.7);
+  for (const a of b.einleitung) {
+    doc.text(a, { width: breite, lineGap: 2.5, align: "left" });
+    doc.moveDown(0.7);
+  }
+  for (const p of b.posten) {
+    platz(doc.heightOfString(p.titel, { width: breite }) + 30);
+    doc.font("Helvetica-Bold").text(p.titel, links, doc.y, { width: breite, lineGap: 2 });
+    doc.font("Helvetica").text(p.text, links + 14, doc.y, { width: breite - 14, lineGap: 2.5 });
+    doc.x = links;
+    doc.moveDown(0.6);
+  }
+  doc.moveDown(0.3);
+  for (const a of b.schluss) {
+    platz(40);
+    doc.text(a, links, doc.y, { width: breite, lineGap: 2.5 });
+    doc.moveDown(0.7);
+  }
+  platz(120);
+  doc.moveDown(0.4);
+  doc.text(b.gruss, links, doc.y, { width: breite });
+  doc.moveDown(3);
+  doc.text("______________________________", { width: breite });
+  doc.text(b.unterschrift, { width: breite });
+  doc.moveDown(1.5);
+  doc.fontSize(8).fillColor("#666666").text(b.fusszeile, { width: breite });
   doc.end();
   return await new Promise<Buffer>((resolve, reject) => {
     stream.on("end", () => resolve(Buffer.concat(chunks)));

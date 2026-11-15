@@ -8,8 +8,9 @@ export const metadata: Metadata = { title: "Termin buchen", robots: { index: fal
 export const dynamic = "force-dynamic";
 
 // Patientenportal: Termin online buchen. Zugang nur über den geheimen Patientenlink.
-export default async function PortalTerminPage(props: { params: Promise<{ token: string }> }) {
+export default async function PortalTerminPage(props: { params: Promise<{ token: string }>; searchParams: Promise<{ anlass?: string }> }) {
   const params = await props.params;
+  const anlassVor = ((await props.searchParams).anlass ?? "").replace(/\s+/g, " ").trim().slice(0, 80);
   const gefunden = /^[A-Za-z0-9_-]{20,128}$/.test(params.token)
     ? await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(params.token) }, select: { portalExpiresAt: true, practice: { select: { name: true } } } })
     : null;
@@ -27,7 +28,7 @@ export default async function PortalTerminPage(props: { params: Promise<{ token:
         <p className="text-sm"><Link href={`/portal/${params.token}`} className="text-brand-700 hover:underline">← Zurück zur Übersicht</Link></p>
         <h1 className="mt-2 font-display text-2xl text-slate-900 sm:text-3xl">Termin buchen</h1>
         <p className="mt-1 text-sm text-slate-600">{gefunden.practice.name}</p>
-        <div className="mt-5"><PortalTermin token={params.token} praxis={gefunden.practice.name} /></div>
+        <div className="mt-5"><PortalTermin token={params.token} praxis={gefunden.practice.name} anlassVor={anlassVor} /></div>
       </div>
     </main>
   );

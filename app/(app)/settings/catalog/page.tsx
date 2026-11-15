@@ -1,10 +1,12 @@
 import { getServerSession } from "next-auth";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { CatalogSettings } from "@/components/CatalogSettings";
 import { prisma } from "@/lib/prisma";
 import { fachprofil, systemGruppe } from "@/lib/fachprofile";
 
 export default async function CatalogSettingsPage() {
+  await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const praxis = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true } });
   const fach = praxis?.specialty ?? "zahn";

@@ -35,11 +35,20 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=(), payment=(), usb=()" },
 ];
 
+// Buchungsseite für neue Patienten (/t/<kennung>): Sie darf als Rahmen (iframe) auf der Website der
+// Praxis laufen. Nur dort gilt deshalb frame-ancestors * und es wird kein X-Frame-Options gesetzt;
+// alle anderen Schutz-Header bleiben gleich. Die Seite zeigt nur freie Zeiten und ein Formular.
+const einbettbar = securityHeaders
+  .filter((h) => h.key !== "X-Frame-Options")
+  .map((h) => (h.key === "Content-Security-Policy" ? { ...h, value: csp.replace("frame-ancestors 'self'", "frame-ancestors *") } : h));
+
 const nextConfig = {
   poweredByHeader: false,
   async headers() {
     return [
-      { source: "/:path*", headers: securityHeaders },
+      // Alle Seiten außer /t/…: Ein einmal gesetztes X-Frame-Options lässt sich je Pfad nicht wieder entfernen.
+      { source: "/((?!t/).*)", headers: securityHeaders },
+      { source: "/t/:path*", headers: [...einbettbar, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
       // Portal- und Freigabe-Links enthalten das Zugangstoken im Pfad.
       { source: "/(portal|p|a)/:path*", headers: [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
     ];

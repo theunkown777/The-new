@@ -6,6 +6,7 @@ import { buchenSchema, istFrei } from "@/lib/buchung";
 import { buchungsLage } from "@/lib/buchungLoad";
 import { audit } from "@/lib/audit";
 import { eingangErledigen, eingangMelden } from "@/lib/eingang";
+import { nachErinnerungGebucht } from "@/lib/recall";
 
 export const dynamic = "force-dynamic";
 const MAX_OFFEN = 2;
@@ -13,7 +14,7 @@ const ABSAGE_BIS_STD = 24;
 
 async function patientVon(token: string) {
   if (!/^[A-Za-z0-9_-]{20,128}$/.test(token)) return null;
-  const p = await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(token) }, select: { id: true, practiceId: true, firstName: true, lastName: true, portalExpiresAt: true } });
+  const p = await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(token) }, select: { id: true, practiceId: true, firstName: true, lastName: true, portalExpiresAt: true, recallSentAt: true } });
   return p && p.portalExpiresAt && p.portalExpiresAt > new Date() ? p : null;
 }
 const terminHinweis = (d: Date) => d.toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" }) + " Uhr";
@@ -52,7 +53,7 @@ export async function POST(req: Request, props: { params: Promise<{ token: strin
   const ort = lage.praxis.locations.length === 1 ? lage.praxis.locations[0].id : null;
   const anlass = parsed.data.anlass.replace(/\s+/g, " ").trim();
   const termin = await prisma.appointment.create({
-    data: { practiceId: patient.practiceId, patientId: patient.id, locationId: ort, start, minutes: minuten, reason: anlass ? `Online gebucht: ${anlass}` : "Online gebucht", quelle: "PATIENT" },
+    data: { practiceId: patient.practiceId, patientId: patient.id, locationId: ort, start, minutes: minuten, reason: anlass ? `Online gebucht: ${anlass}` : "Online gebucht", quelle: "PATIENT", nachErinnerung: nachErinnerungGebucht(patient.recallSentAt) },
     select: { id: true, start: true, minutes: true, reason: true, createdAt: true },
   });
   // Zwei Patienten gleichzeitig: Wer zuletzt kam, tritt zurück, wenn das Fenster dadurch überbucht ist.

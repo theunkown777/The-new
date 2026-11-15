@@ -11,6 +11,7 @@ import { tagesGrenzen, heuteTag, uhrzeit, STATUS_LABEL, type TerminStatus } from
 import { cookies } from "next/headers";
 import { BEREICH_COOKIE, bereichTokenGueltig } from "@/lib/bereichSchutz";
 import { BereichAktionen, BereichSchloss } from "@/components/BereichSchloss";
+import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Mein Bereich" };
@@ -65,7 +66,7 @@ export default async function MeinBereichPage(props: { searchParams: Promise<{ q
       select: { status: true, eigenanteilCent: true, createdAt: true },
     }),
     prisma.appointment.findMany({
-      where: { practiceId, start: { gte: von, lt: bis }, patient: meine },
+      where: { practiceId, ...terminFilter(await standortRechtVon(userId, practiceId)), start: { gte: von, lt: bis }, patient: meine },
       orderBy: { start: "asc" },
       select: { id: true, start: true, reason: true, status: true, patient: { select: { id: true, firstName: true, lastName: true } } },
     }),

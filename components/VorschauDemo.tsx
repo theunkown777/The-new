@@ -121,11 +121,12 @@ export function VorschauDemo() {
                 aria-expanded={recOpen}
                 className="rounded-full border border-salbei-300 bg-salbei-50 px-3 py-2 text-xs text-salbei-800"
               >
-                Hier sehen Sie unsere Empfehlung
+                Was zahlt die Kasse ganz?
               </button>
               {recOpen && (
                 <div className="rounded-xl border border-salbei-200 bg-salbei-50 p-2 text-[11px] text-slate-700" data-testid="vorschau-empfehlung">
                   {items.map((it) => {
+                    // Vorauswahl ist immer die Kassen- bzw. Regelleistung.
                     const rec = it.options.find((o) => o.id === it.recommended);
                     const mine = chosenOption(it, choices);
                     return (

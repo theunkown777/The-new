@@ -5,12 +5,14 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { invoiceActionSchema } from "@/lib/invoices";
 import { eingangErledigen } from "@/lib/eingang";
+import { darfZahlungen } from "@/lib/permissions";
 
 // Status einer Rechnung ändern: bezahlt, storniert, wieder offen oder Erinnerung vermerken.
 export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await darfZahlungen(session.user.id, session.user.practiceId))) return NextResponse.json({ error: "Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben." }, { status: 403 });
   const parsed = invoiceActionSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Ungültige Aktion" }, { status: 400 });
   const now = new Date();

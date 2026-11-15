@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PATIENT_RESPONSE_LABELS, type PatientLinkState } from "@/lib/patientLink";
+import { anrede } from "@/lib/ohneAkte";
 
 const fmt = (iso: string) =>
   new Date(iso).toLocaleString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
 // Patienten-Link erzeugen, als QR zeigen und Rückmeldung des Patienten anzeigen.
-export function PatientLinkPanel({ proposalId, state, firstName }: { proposalId: string; state: PatientLinkState; firstName: string }) {
+export function PatientLinkPanel({ proposalId, state, firstName, sofort = false }: { proposalId: string; state: PatientLinkState; firstName: string; /** Schnellvorschlag: Link und QR-Code gleich nach dem Speichern erzeugen */ sofort?: boolean }) {
   const router = useRouter();
   const [link, setLink] = useState<{ url: string; qr: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -29,6 +30,14 @@ export function PatientLinkPanel({ proposalId, state, firstName }: { proposalId:
     router.refresh();
   }
 
+  // Schnellvorschlag: einmal von selbst erzeugen, damit der QR-Code sofort am Stuhl gescannt werden kann.
+  const erzeugt = useRef(false);
+  useEffect(() => {
+    if (!sofort || erzeugt.current) return;
+    erzeugt.current = true;
+    create();
+  }, [sofort]); // eslint-disable-line react-hooks/exhaustive-deps
+
   async function revoke() {
     setBusy(true);
     await fetch(`/api/proposals/${proposalId}/share`, { method: "DELETE" }).catch(() => null);
@@ -45,7 +54,7 @@ export function PatientLinkPanel({ proposalId, state, firstName }: { proposalId:
   }
 
   const smsText = link
-    ? `Guten Tag ${firstName}, hier ist Ihr Behandlungsvorschlag mit allen Optionen und Kosten: ${link.url}`
+    ? `${anrede("Guten Tag", firstName)}, hier ist Ihr Behandlungsvorschlag mit allen Optionen und Kosten: ${link.url}`
     : "";
 
   return (

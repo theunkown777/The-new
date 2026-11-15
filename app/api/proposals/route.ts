@@ -5,9 +5,13 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolvePrices } from "@/lib/proposals";
 import { choicesSchema, computeProposal, proposalInputSchema, proposalStatusSchema } from "@/lib/proposalSchema";
+import { OHNE_AKTE, kuerzelSchema, nameFuerSchreiben } from "@/lib/ohneAkte";
 
 const createSchema = z.object({
-  patientId: z.string().min(1),
+  /** Entweder ein vorhandener Patient … */
+  patientId: z.string().min(1).optional(),
+  /** … oder ein Schnellvorschlag ohne Akte: nur ein Kürzel, kein Name, kein Geburtsdatum. */
+  schnell: z.object({ kuerzel: kuerzelSchema }).optional(),
   input: proposalInputSchema,
   choices: choicesSchema.default({}),
   status: proposalStatusSchema.default("ENTWURF"),
@@ -47,16 +51,21 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  const { patientId, input, choices, status, reportId } = parsed.data;
+  const { input, choices, status, reportId, schnell } = parsed.data;
+  if (!parsed.data.patientId === !schnell) return NextResponse.json({ error: "Bitte einen Patienten wählen oder ein Kürzel eingeben." }, { status: 400 });
 
-  const [patient, practice] = await Promise.all([
-    prisma.patient.findFirst({ where: { id: patientId, practiceId: session.user.practiceId } }),
-    prisma.practice.findUnique({
-      where: { id: session.user.practiceId },
-      select: { name: true, proposalPrices: true },
-    }),
-  ]);
+  const practice = await prisma.practice.findUnique({
+    where: { id: session.user.practiceId },
+    select: { name: true, proposalPrices: true },
+  });
+  // Schnellvorschlag: Der Datensatz trägt nur das Kürzel; die Versicherungsart kommt aus dem Vorschlag.
+  const patient = schnell
+    ? await prisma.patient.create({
+        data: { practiceId: session.user.practiceId, firstName: OHNE_AKTE, lastName: schnell.kuerzel, ohneAkte: true, insuranceType: input.patient.insurance === "PKV" ? "PKV" : "GKV" },
+      })
+    : await prisma.patient.findFirst({ where: { id: parsed.data.patientId, practiceId: session.user.practiceId } });
   if (!patient) return NextResponse.json({ error: "Patient nicht gefunden" }, { status: 404 });
+  const patientId = patient.id;
   if (reportId) {
     const report = await prisma.report.findFirst({
       where: { id: reportId, practiceId: session.user.practiceId, patientId },
@@ -69,7 +78,7 @@ export async function POST(req: Request) {
     input,
     choices,
     prices: resolvePrices(practice?.proposalPrices),
-    patientName: `${patient.firstName} ${patient.lastName}`,
+    patientName: nameFuerSchreiben(patient),
     practiceName: practice?.name ?? "Ihre Zahnarztpraxis",
     date: new Date(),
   });

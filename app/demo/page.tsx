@@ -108,6 +108,11 @@ export default function DemoPage() {
           {" · "}
           <Link href="/" className="hover:underline">Zur Website</Link>
         </p>
+        <p className="mt-4 text-xs text-slate-500" data-testid="demo-rechtliches">
+          <Link href="/impressum" className="hover:underline">Impressum</Link> ·{" "}
+          <Link href="/datenschutz" className="hover:underline">Datenschutz</Link> ·{" "}
+          <Link href="/avv" className="hover:underline">AVV-Muster</Link>
+        </p>
       </div>
     </main>
   );

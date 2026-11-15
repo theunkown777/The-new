@@ -18,7 +18,7 @@ export const PATTERNS = {
   abutmentNote:
     /^Wird dieser Zahn Pfeiler einer Brücke \((.+)\), ist seine Krone dort enthalten\. Eine eigene Krone braucht er nur, wenn die Lücke anders versorgt wird\.$/,
   neighboursNeedCare: /^Die Nachbarzähne (\d\d(?:, \d\d)*) und (\d\d) brauchen ohnehin eine Versorgung\. Eine Brücke löst beides zugleich\.$/,
-  neighboursHealthy: /^Die Nachbarzähne (\d\d(?:, \d\d)*) und (\d\d) sind gesund\. Ein Implantat erspart das Beschleifen\.$/,
+  neighboursHealthy: /^Die Nachbarzähne (\d\d(?:, \d\d)*) und (\d\d) haben keinen Befund\. Für eine Brücke werden sie beschliffen, für ein Implantat nicht\.$/,
   /** Arztpraxen: Altersgrenze der Kassenleistung, danach ggf. der Hinweis des Angebots. */
   coveredOnlyFromAge: /^Kassenleistung erst ab (\d+) Jahren\.(?: (.+))?$/,
   coveredFromAge: /^Kassenleistung ab (\d+) Jahren\.(?: (.+))?$/,

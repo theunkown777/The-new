@@ -8,8 +8,12 @@ export interface DateiInhalt { name: string; bytes: number; dreiecke: number; ra
 export const ANATOMIE = inhalt as unknown as Record<DateiId, DateiInhalt>;
 export const ANATOMIE_PFAD = "/anatomie-3d";
 
-/** Quellenangabe, wie es die Lizenzen verlangen. */
-export const ANATOMIE_QUELLE = "Anatomie: BodyParts3D, © The Database Center for Life Science, CC BY-SA 2.1 JP · Kopf: Lee Perry-Smith, CC BY 3.0";
+/**
+ * Quellenangabe, wie es die Lizenzen verlangen: Urheber, Lizenz, Hinweis auf die Bearbeitung und die Lizenz der
+ * bearbeiteten Fassung. Mit Links zeigt sie components/modelle/ModellQuelle.tsx unter jedem Modell; Einzelheiten auf /lizenzen.
+ */
+export const ANATOMIE_QUELLE =
+  "3D-Anatomie: bearbeitet nach BodyParts3D, © The Database Center for Life Science, lizenziert unter CC BY-SA 2.1 Japan (aktuelle Fassung der Datenbank: CC Attribution 4.0 International). Kopf: nach „Infinite, 3D Head Scan“ von Lee Perry-Smith, CC BY 3.0. Die Modelle sind vereinfacht und ergänzt. Die bearbeiteten Modelle stehen unter CC BY-SA 4.0.";
 
 /** Kennung (z. B. „lunge:R“, „11“, „mund:zunge“) → Datei, in der sie liegt */
 export const DATEI_VON: Record<string, DateiId> = {};

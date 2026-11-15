@@ -40,7 +40,8 @@ describe("Empfehlung im Patientenvorschlag", () => {
     { key: "b", recommended: null, options: [{ id: "k" }, { id: "y" }] },
     { key: "c", recommended: "z", options: [{ id: "k" }, { id: "z" }] },
   ];
-  it("Wahl der Praxis vor Regelwerk, sonst erste Option; ungültige Wahl wird ignoriert", () => {
-    expect(empfehlungJe(items, { a: "k", c: "gibtsnicht" })).toEqual({ a: "k", b: "k", c: "z" });
+  it("nur was die Praxis ausdrücklich gewählt hat, gilt als vorgemerkt; das Regelwerk merkt nichts vor", () => {
+    expect(empfehlungJe(items, { a: "k", c: "gibtsnicht" })).toEqual({ a: "k" });
+    expect(empfehlungJe(items, {})).toEqual({});
   });
 });

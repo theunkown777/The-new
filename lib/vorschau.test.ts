@@ -35,6 +35,10 @@ describe("Vorschau-Schloss für die eigene Domain", () => {
     expect(freiOhneZugang("/login")).toBe(false);
     expect(freiOhneZugang("/api/auth/session")).toBe(false);
   });
+  it("Impressum, Datenschutz und Lizenzen sind ohne Zugang erreichbar, der Rest der Website nicht", () => {
+    for (const p of ["/impressum", "/datenschutz", "/lizenzen"]) expect(freiOhneZugang(p), p).toBe(true);
+    for (const p of ["/", "/avv", "/hilfe", "/register", "/demo", "/impressum/anderes", "/datenschutzerklaerung"]) expect(freiOhneZugang(p), p).toBe(false);
+  });
   it("Connector aus der Praxissoftware kommt auch im Vorschau-Modus durch", () => {
     expect(freiOhneZugang("/api/connector/launch")).toBe(true);
     expect(freiOhneZugang("/api/connector/ergebnisse")).toBe(true);

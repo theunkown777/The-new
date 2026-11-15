@@ -21,7 +21,10 @@ Die Dateien in diesem Ordner (`*.glb`) sind **bearbeitete Fassungen** fremder Da
 
 Die bearbeiteten Dateien in diesem Ordner stehen unter **CC BY-SA 4.0** (Weitergabe unter gleichen
 Bedingungen, wie es CC BY-SA 2.1 JP verlangt; mit CC BY 4.0 und CC BY 3.0 vereinbar).
-Namensnennung: „Anatomie: BodyParts3D, © The Database Center for Life Science, CC BY-SA 2.1 JP · Kopf: Lee Perry-Smith, CC BY 3.0“.
+Namensnennung (steht so unter jedem Modell und auf der Seite `/lizenzen`): „3D-Anatomie: bearbeitet nach BodyParts3D,
+© The Database Center for Life Science, lizenziert unter CC BY-SA 2.1 Japan (aktuelle Fassung der Datenbank: CC Attribution 4.0
+International). Kopf: nach „Infinite, 3D Head Scan“ von Lee Perry-Smith, CC BY 3.0. Die Modelle sind vereinfacht und ergänzt.
+Die bearbeiteten Modelle stehen unter CC BY-SA 4.0.“
 
 ## Was bearbeitet wurde (ehrlich)
 

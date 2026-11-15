@@ -135,9 +135,12 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
             </h1>
             <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500"><Laechelbogen className="h-2 w-8 text-brand-600" />Jeder auf seinem Behandlungsweg, mit dem nächsten Schritt</p>
           </div>
-          <Link href="/patients/new" className="btn-primary">
-            Neu anlegen
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/patients/import" className="ziel text-sm text-brand-700 underline" data-testid="liste-einlesen">Liste einlesen</Link>
+            <Link href="/patients/new" className="btn-primary">
+              Neu anlegen
+            </Link>
+          </div>
         </div>
 
         {/* Werkzeugleiste: Filter und Suche */}

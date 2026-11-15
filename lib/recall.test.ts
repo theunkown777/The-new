@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { recallFor, recallText } from "@/lib/recall";
+import { nachErinnerungGebucht, recallFor, recallTerminText, recallTerminUrl, recallText } from "@/lib/recall";
 
 const now = new Date(2026, 10, 1);
 const monthsAgo = (m: number) => new Date(now.getTime() - m * 30.44 * 86400000);
@@ -35,5 +35,26 @@ describe("Vorsorge mit Geschlechtsbezug", () => {
     expect(recallFor({ fach: "uro", age: 60, letzterKontakt: alt, geschlecht: "W" }, now)).toBeNull();
     expect(recallFor({ fach: "uro", age: 60, letzterKontakt: alt, geschlecht: "M" }, now)?.leistung).toContain("Männer");
     expect(recallFor({ fach: "uro", age: 60, letzterKontakt: alt, geschlecht: null }, now)).toBeNull();
+  });
+});
+
+describe("Recall-Kette", () => {
+  it("baut den Link zur Terminbuchung mit eingetragenem Anlass", () => {
+    expect(recallTerminUrl("https://x.de/portal/abc/", "Gesundheits-Check-up")).toBe("https://x.de/portal/abc/termin?anlass=Gesundheits-Check-up");
+    expect(recallTerminUrl("https://x.de/portal/abc", "Krebsfrüherkennung (Männer)")).toContain("anlass=Krebsfr%C3%BCherkennung%20(M%C3%A4nner)");
+  });
+  it("bietet im Text den Termin an, ohne Druck und ohne Befund", () => {
+    const t = recallTerminText({ firstName: "Anna", practiceName: "Praxis am Markt", leistung: "Hautkrebs-Screening", hinweis: "Kassenleistung alle zwei Jahre ab 35.", url: "https://x.de/portal/abc" });
+    expect(t).toContain("Hallo Anna");
+    expect(t).toContain("/termin?anlass=Hautkrebs-Screening");
+    expect(t).not.toMatch(/dringend|sofort|letzte Chance|nur noch/i);
+  });
+  it("rechnet eine Buchung 30 Tage lang der Erinnerung zu", () => {
+    const erinnert = new Date("2026-11-01T10:00:00Z");
+    expect(nachErinnerungGebucht(erinnert, new Date("2026-11-02T10:00:00Z"))).toBe(true);
+    expect(nachErinnerungGebucht(erinnert, new Date("2026-12-01T09:00:00Z"))).toBe(true);
+    expect(nachErinnerungGebucht(erinnert, new Date("2026-12-02T11:00:00Z"))).toBe(false);
+    expect(nachErinnerungGebucht(erinnert, new Date("2026-10-31T10:00:00Z"))).toBe(false);
+    expect(nachErinnerungGebucht(null)).toBe(false);
   });
 });

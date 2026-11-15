@@ -8,6 +8,8 @@ import { PORTAL_TTL_MS, nextReminderLevel } from "@/lib/invoices";
 import { generateToken } from "@/lib/tokens";
 import { auditFromSession } from "@/lib/audit";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
+import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
+import { darfZahlungen } from "@/lib/permissions";
 
 // Nachricht per WhatsApp: persönlicher Link, Terminbestätigung, Terminerinnerung, Zahlungserinnerung.
 // Jede Nachricht löst ein Mensch aus. Ohne WhatsApp Business liefert die Antwort einen Link, der
@@ -43,6 +45,7 @@ export async function POST(req: Request) {
     patient = p;
     entity = { entityType: "Patient", entityId: p.id };
   } else if (art === "zahlungserinnerung") {
+    if (!(await darfZahlungen(session.user.id, practiceId))) return NextResponse.json({ error: "Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben." }, { status: 403 });
     const inv = await prisma.invoice.findFirst({ where: { id, practiceId, status: { in: ["OFFEN", "GEMELDET"] } }, include: { patient: { select: PATIENT } } });
     if (!inv) return NextResponse.json({ error: "Offene Rechnung nicht gefunden" }, { status: 404 });
     patient = inv.patient;
@@ -50,7 +53,7 @@ export async function POST(req: Request) {
     nachher = () => prisma.invoice.update({ where: { id: inv.id }, data: { remindedAt: now, reminderLevel: level } });
     entity = { entityType: "Rechnung", entityId: inv.id };
   } else {
-    const t = await prisma.appointment.findFirst({ where: { id, practiceId }, include: { patient: { select: PATIENT }, location: { select: { name: true } } } });
+    const t = await prisma.appointment.findFirst({ where: { id, practiceId, ...terminFilter(await standortRechtVon(session.user.id, practiceId)) }, include: { patient: { select: PATIENT }, location: { select: { name: true } } } });
     if (!t) return NextResponse.json({ error: "Termin nicht gefunden" }, { status: 404 });
     patient = t.patient;
     start = t.start;

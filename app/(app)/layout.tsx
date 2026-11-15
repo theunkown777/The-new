@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { SignOutButton } from "@/components/SignOutButton";
 import { MobileNav } from "@/components/MobileNav";
 import { SidebarNav } from "@/components/SidebarNav";
+import { EingangWaechter } from "@/components/EingangAktion";
 import { VerifyEmailBanner } from "@/components/VerifyEmailBanner";
 import { DemoBanner } from "@/components/DemoBanner";
 import { isDental } from "@/lib/specialties";
@@ -15,6 +16,7 @@ import { canSeeAnalytics } from "@/lib/permissions";
 import { zweiFaktorPflicht } from "@/lib/zweiFaktorPflicht";
 import { TwoFactorSettings } from "@/components/TwoFactorSettings";
 import { eingangOffen } from "@/lib/eingang";
+import { Suche, SucheKnopf } from "@/components/Suche";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -28,6 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Berichte (KI, BEMA/GOZ) gibt es bisher nur für Zahnarztpraxen.
   const dental = isDental(currentUser?.practice.specialty);
   const personen = fachprofil(currentUser?.practice.specialty ?? "zahn").person.pl;
+  const person = fachprofil(currentUser?.practice.specialty ?? "zahn").person.sg;
   const team = await isSupportTeam(session.user.id);
   const analyse = await canSeeAnalytics(session.user.id);
   const eingang = await eingangOffen(session.user.practiceId).catch(() => 0);
@@ -53,6 +56,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <p className="mb-5 mt-3 truncate rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-800" title={session.user.practiceName}>
           {session.user.practiceName}
         </p>
+        <EingangWaechter start={eingang} />
+        {!sperre && <SucheKnopf />}
         <SidebarNav eingang={eingang} dental={dental} team={team} analyse={analyse} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
         <div className="mt-auto border-t border-slate-100 pt-4 text-sm">
           <p className="truncate px-2 text-slate-700">{session.user.name}</p>
@@ -71,6 +76,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <img src="/brand/sorrida-mark-hell.webp" alt="" className="h-8 w-auto shrink-0" />
               <span className="truncate font-semibold tracking-tight text-white">{session.user.practiceName}</span>
             </Link>
+            {!sperre && <SucheKnopf variante="kopf" />}
             <nav className="hidden shrink-0 items-center gap-5 text-sm text-brand-100 sm:flex">
               <Link href="/dashboard" className="hover:text-white">Übersicht</Link>
               <Link href="/eingang" className="hover:text-white">Eingang{eingang > 0 ? ` (${eingang})` : ""}</Link>
@@ -84,6 +90,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <MobileNav eingang={eingang} userName={session.user.name} dental={dental} team={team} analyse={analyse} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
           </div>
         </header>
+        {/* Suche über alles (Strg+K) und Tastenkürzel; ohne eingerichtete Pflicht-2FA nicht verfügbar */}
+        {!sperre && <Suche personPl={personen} personSg={person} />}
         {demo && <DemoBanner expiresAt={demo} role={session.user.role} userName={session.user.name} />}
         {!demo && !currentUser?.emailVerifiedAt && <VerifyEmailBanner />}
         <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-10">

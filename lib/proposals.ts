@@ -198,7 +198,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
         r.recommended = "fk";
       } else {
         r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_klein, benefits: ["zahnfarben, schnell gelegt", "kürzere Haltbarkeit"] });
-        r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_klein, base: P.fk_klein, benefits: ["hochwertige Schichttechnik", "dicht und langlebig", "Kasse zahlt Kassenfüllung anteilig"] });
+        r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_klein, base: P.fk_klein, benefits: ["Füllung in mehreren Schichten", "mit Haftvermittler am Zahn befestigt", "Kasse zahlt Kassenfüllung anteilig"] });
         r.excluded.push("Keramik-Inlay: bei kleinen Defekten müsste unnötig gesunde Zahnsubstanz abgetragen werden.");
         r.recommended = "komp";
       }
@@ -214,7 +214,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
       } else {
         r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_gross, benefits: ["schnelle Lösung", "bei großen Flächen begrenzt haltbar"] });
         r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_gross, base: P.fk_gross, benefits: ["zahnfarben, gute Randdichte", "Kasse zahlt Kassenfüllung anteilig"] });
-        r.options.push({ id: "inlay", type: "mehrkosten", name: "Keramik-Inlay", total: P.inlay, base: P.fk_gross, benefits: ["sehr langlebig", "stabilisiert den geschwächten Zahn", "Kasse zahlt Kassenfüllung anteilig"] });
+        r.options.push({ id: "inlay", type: "mehrkosten", name: "Keramik-Inlay", total: P.inlay, base: P.fk_gross, benefits: ["Keramik, im Labor gefertigt", "wird eingeklebt", "Kasse zahlt Kassenfüllung anteilig"] });
         r.recommended = k === "molar" ? "inlay" : "komp";
         if (g.bruxismus) warn("Knirschen erhöht die Bruchgefahr. Zusätzlich eine Aufbissschiene einplanen.");
       }
@@ -222,7 +222,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
 
     case "wurzel":
       r.options.push({ id: "wk", type: "kasse", name: "Wurzelbehandlung, Kassenleistung", total: P.wk_kasse, benefits: ["erhält den Zahn", "Standardinstrumente"] });
-      r.options.push({ id: "wkplus", type: "privatzusatz", name: "Wurzelbehandlung mit Endo-Zusatz", total: P.wk_kasse + P.wk_plus, base: P.wk_kasse, benefits: ["maschinelle Aufbereitung und Mikroskop", "höhere Erfolgsquote bei gekrümmten Kanälen", "Kasse zahlt Grundleistung"] });
+      r.options.push({ id: "wkplus", type: "privatzusatz", name: "Wurzelbehandlung mit Endo-Zusatz", total: P.wk_kasse + P.wk_plus, base: P.wk_kasse, benefits: ["maschinelle Aufbereitung", "Arbeit unter dem Mikroskop", "Kasse zahlt Grundleistung"] });
       r.recommended = k === "molar" ? "wkplus" : "wk";
       if (k === "molar") info("Seitenzähne brauchen nach einer Wurzelbehandlung meist eine Krone, damit sie nicht brechen.");
       else info("Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus.");
@@ -422,8 +422,8 @@ function lueckenItem(g: LueckenGruppe, input: ProposalInput, P: Prices): Proposa
       r.recommended = "br";
       info(`Die Nachbarzähne ${nb.join()} brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich.`);
     } else if (n === 1 && nf.every((x) => x === undefined || x === "fissur")) {
-      r.recommended = "impl";
-      info(`Die Nachbarzähne ${nb.join()} sind gesund. Ein Implantat erspart das Beschleifen.`);
+      r.recommended = "br";
+      info(`Die Nachbarzähne ${nb.join()} haben keinen Befund. Für eine Brücke werden sie beschliffen, für ein Implantat nicht.`);
     } else {
       r.recommended = "br";
       if (n > 1) info("Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung. Implantate sind möglich, aber deutlich aufwendiger.");
@@ -485,7 +485,22 @@ export function buildProposal(input: ProposalInput, prices: Prices): ProposalIte
       it.excluded = it.excluded.filter((e) => !/Kassen(leistung|-PAR)/.test(e));
     }
   }
-  return items;
+  return items.map(kasseZuerst);
+}
+
+/**
+ * Vorauswahl ist immer die Kassen- bzw. Regelleistung. Sorrida hebt von sich aus keine Leistung mit
+ * Zuzahlung hervor; welche Option die Praxis vormerkt, entscheidet die behandelnde Person per Klick.
+ * (Die Planung der Lücken oben nutzt `recommended` nur intern, um Brückenanker zuzuordnen.)
+ */
+export function kasseZuerst(item: ProposalItem): ProposalItem {
+  if (item.zusatz) return item;
+  const istBasis = (o: ProposalOption) => o.type === "kasse" || o.type === "regel";
+  // Eine Kassen-Vorauswahl aus dem Regelwerk bleibt (z. B. „in der Brücke enthalten“ beim Pfeilerzahn).
+  const vorgabe = item.options.find((o) => o.id === item.recommended);
+  if (vorgabe && istBasis(vorgabe)) return item;
+  const basis = item.options.find(istBasis);
+  return { ...item, recommended: basis ? basis.id : null };
 }
 
 export interface Money {
@@ -788,7 +803,7 @@ export function buildLetter(args: {
   L.push(`${practiceName} – Ihr persönlicher Behandlungsvorschlag`);
   L.push(`Datum: ${date.toLocaleDateString("de-DE")}`);
   L.push("");
-  L.push(`Guten Tag ${patientName},`);
+  L.push(patientName.trim() ? `Guten Tag ${patientName},` : "Guten Tag,");
   L.push("");
   L.push(
     `vielen Dank für Ihren Besuch. Hier finden Sie unsere Befunde und die Behandlungsmöglichkeiten, die wir mit Ihnen besprochen haben. ${dental ? "Bei jedem Punkt steht zuerst die Leistung, die Ihre" : "Wo es eine Kassenleistung gibt, steht zuerst die Leistung, die Ihre"} ${patient.insurance === "GKV" ? "Krankenkasse" : "Versicherung"} übernimmt${dental ? " oder bezuschusst" : ""}.`
@@ -809,6 +824,8 @@ export function buildLetter(args: {
     i++;
     L.push("");
     L.push(`${i}. ${item.where}: ${item.title}${item.zusatz ? " (zusätzlich gewählt)" : ""}`);
+    // Nur was die Praxis ausdrücklich angeklickt hat, gilt als vorgemerkt; das Regelwerk selbst hebt nichts hervor.
+    const praxisWahl = item.options.length > 1 && item.options.some((o) => o.id === choices[item.key]) ? choices[item.key] : null;
     item.options.forEach((o, j) => {
       const m = money(o, patient);
       const later =
@@ -816,7 +833,7 @@ export function buildLetter(args: {
           ? ` (bei Bewilligung ab 1.1.2027: ca. ${formatEuro(money(o, patient, 2027).netto)})`
           : "";
       L.push(
-        `   ${String.fromCharCode(97 + j)}) ${o.name} (${typeLabelOf(o, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${later}${o.id === item.recommended ? "  ← unsere Empfehlung" : ""}`
+        `   ${String.fromCharCode(97 + j)}) ${o.name} (${typeLabelOf(o, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${later}${praxisWahl && o.id === praxisWahl ? "  ← von Ihrer Praxis vorgemerkt" : ""}`
       );
     });
     for (const o of item.options) {
@@ -824,18 +841,18 @@ export function buildLetter(args: {
       if (o.nutzen) L.push(`      Zum Nutzen: ${o.nutzen}`);
     }
     const why = item.notes.filter((n) => n.kind === "info").map((n) => n.text);
-    if (why.length) L.push(`   Warum: ${why.join(" ")}`);
-    // Nur was wirklich ausgewählt wurde, heißt „besprochene Wahl“; sonst steht die Empfehlung der Praxis da.
-    if (item.options.length > 1) L.push(choices[item.key] && item.options.some((o) => o.id === choices[item.key]) ? `   Besprochene Wahl: ${chosen.name}` : `   Noch nicht entschieden. Unsere Empfehlung: ${chosen.name}`);
+    if (why.length) L.push(`   Zur Einordnung: ${why.join(" ")}`);
+    // Nur was wirklich ausgewählt wurde, heißt „besprochene Wahl“; sonst ist die Entscheidung offen.
+    if (item.options.length > 1) L.push(praxisWahl ? `   Besprochene Wahl: ${chosen.name}` : "   Noch nicht entschieden. Wir besprechen die Möglichkeiten mit Ihnen.");
   }
   if (!i) {
     L.push("");
-    L.push("Aktuell besteht kein Behandlungsbedarf.");
+    L.push("Für diesen Termin hat Ihre Praxis keine Leistungen in den Vorschlag aufgenommen.");
   }
   const s = summarize(items, choices, patient);
   L.push("");
   const alleGewaehlt = items.every((it) => it.options.length <= 1 || it.options.some((o) => o.id === choices[it.key]));
-  const wahlWort = alleGewaehlt ? "bei der besprochenen Wahl" : "bei besprochener Wahl bzw. unserer Empfehlung";
+  const wahlWort = alleGewaehlt ? "bei der besprochenen Wahl" : "bei der besprochenen Wahl; wo noch nichts entschieden ist, mit der zuerst genannten Leistung gerechnet";
   L.push(`Summe Ihres Eigenanteils ${wahlWort}: ca. ${formatEuro(s.netto)}`);
   if (!alleGewaehlt) {
     const nurKasse = items.reduce((sum, it) => sum + (it.options.length && !it.zusatz ? money(it.options[0], patient).netto : 0), 0);

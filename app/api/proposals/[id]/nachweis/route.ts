@@ -6,6 +6,7 @@ import { buildKosteninfoPdf } from "@/lib/pdf";
 import { ABGEWAEHLT, PROPOSAL_STATUS_LABELS, buildProposal, chosenOption, formatEuro, money, resolvePrices, summarize, typeLabelOf } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { pruefVermerk } from "@/lib/portalPruefung";
+import { istOhneAkte } from "@/lib/ohneAkte";
 
 const TZ = "Europe/Berlin";
 const zeit = (d: Date) => d.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: TZ });
@@ -46,7 +47,7 @@ export async function GET(_req: Request, props: { params: Promise<{ id: string }
           art: typeLabelOf(o, pat.insurance),
           eigen: formatEuro(money(o, pat).netto),
           markierung: [
-            o.id === it.recommended ? "Empfehlung der Praxis" : "",
+            // „vorgemerkt“ heißt nur, was die Praxis ausdrücklich angeklickt hat; das Regelwerk selbst hebt nichts hervor.
             o.id === praxis?.id && (entschieden || choices.data[it.key]) ? (entschieden ? "vereinbart" : "geplant") : "",
             wahlPatient?.[it.key] === o.id ? "vom Patienten gewählt" : "",
           ].filter(Boolean).join(", "),
@@ -63,13 +64,13 @@ export async function GET(_req: Request, props: { params: Promise<{ id: string }
 
   const pdf = await buildKosteninfoPdf({
     practiceName: p.practice.name,
-    patientName: `${p.patient.firstName} ${p.patient.lastName}`,
+    patientName: istOhneAkte(p.patient) ? `Kürzel ${p.patient.lastName} (ohne Akte)` : `${p.patient.firstName} ${p.patient.lastName}`,
     patientBirthDate: p.patient.birthDate ? p.patient.birthDate.toLocaleDateString("de-DE", { timeZone: TZ }) : null,
     proposalDate: p.createdAt.toLocaleDateString("de-DE", { timeZone: TZ }),
     status: PROPOSAL_STATUS_LABELS[p.status] ?? p.status,
     punkte,
     summe: formatEuro(summarize(items, choices.data, pat).netto),
-    summeHinweis: entschieden ? "Eigenanteil der vereinbarten Versorgung" : "Eigenanteil nach Planung bzw. Empfehlung der Praxis",
+    summeHinweis: entschieden ? "Eigenanteil der vereinbarten Versorgung" : "Eigenanteil nach Planung der Praxis; wo nichts vorgemerkt ist, mit der Kassen- bzw. Regelleistung gerechnet",
     verlauf,
     patientWahl: wahlPatient ? Object.entries(wahlPatient).map(([k, v]) => name(k, v)).filter(Boolean).join(" · ") || null : null,
     patientNotiz: p.patientNote,

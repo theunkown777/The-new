@@ -6,8 +6,11 @@ import { PortalLinkButton } from "@/components/PortalLinkButton";
 import { MailSenden } from "@/components/MailSenden";
 import { WhatsappSenden } from "@/components/WhatsappSenden";
 import { REMINDER_LABELS, nextReminderLevel, reminderText } from "@/lib/invoices";
+import { Erstattungsbrief, type BriefVorgaben } from "@/components/Erstattungsbrief";
 
-export function InvoiceActions({ id, status, patientId, firstName, practiceName, level = 0, number = "", amountCent = 0, dueDate, mail = false, whatsapp = false, whatsappDirekt = false }: {
+export function InvoiceActions({ id, status, patientId, firstName, practiceName, level = 0, number = "", amountCent = 0, dueDate, mail = false, whatsapp = false, whatsappDirekt = false, brief }: {
+  /** Nur bei privat Versicherten: Vorgaben für den Begleitbrief an die Versicherung */
+  brief?: BriefVorgaben;
   mail?: boolean;
   whatsapp?: boolean;
   whatsappDirekt?: boolean;
@@ -57,6 +60,7 @@ export function InvoiceActions({ id, status, patientId, firstName, practiceName,
           Wieder öffnen
         </button>
       )}
+      {brief && status !== "STORNIERT" && <Erstattungsbrief invoiceId={id} vorgaben={brief} className={btn} />}
       {remind && (
         <div className="mt-2 w-full text-left">
           <PortalLinkButton

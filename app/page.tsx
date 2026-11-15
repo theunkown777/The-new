@@ -44,7 +44,7 @@ const GRUPPEN: { titel: string; kacheln: FachKachel[] }[] = [
 ];
 
 const FUER_PATIENTEN: [string, string, string | null][] = [
-  ["Am Modell zeigen", "Gebiss, Körper mit Organen, Auge, Ohr oder Haut, passend zu Ihrem Fach. Sie markieren die Stelle, der Patient sieht sie zu Hause mit Erklärung wieder.", "/anatomie"],
+  ["In der eigenen Sprache", "Den Vorschlag gibt es in sieben Sprachen, darunter Türkisch, Arabisch und Ukrainisch. Die Beträge bleiben dieselben.", null],
   ["Termine ohne Telefon", "Sie übertragen Ihren vorhandenen Kalender. Patienten sehen nur Zeiten, die wirklich frei sind, und buchen selbst.", null],
   ["Nachricht per WhatsApp", "Terminbestätigung, Erinnerung und der persönliche Link mit einem Klick, nur mit Einwilligung und ohne Befunde im Text.", null],
   ["Alles in einem Eingang", "Gemeldete Zahlungen, abgeschickte Anamnesebögen und gebuchte Termine stehen für die Praxis gesammelt auf einer Seite.", null],
@@ -57,7 +57,7 @@ const sym = (d: string) => (
   </svg>
 );
 const SYMBOLE: Record<string, React.ReactNode> = {
-  "Am Modell zeigen": sym("M12 3a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V7a4 4 0 0 1 4-4zM5 21c1-4 4-6 7-6s6 2 7 6"),
+  "In der eigenen Sprache": sym("M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.6-3.8-9S9.500 5.6 12 3Z"),
   "Termine ohne Telefon": sym("M4 6h16v14H4zM4 10h16M8 3v4M16 3v4M9 15l2 2 4-4"),
   "Nachricht per WhatsApp": sym("M4 19l1.5-4A8 8 0 1 1 9 19.5L4 19zM9 10h6M9 13h4"),
   "Alles in einem Eingang": sym("M3 13l3-8h12l3 8v6H3zM3 13h5l1 2h6l1-2h5"),
@@ -219,7 +219,7 @@ export default async function Start() {
                   <p className="j-text mt-2 text-[15px]">{d}</p>
                   {href && (
                     <Link href={href} className="j-link mt-3 inline-block text-[15px] font-semibold text-brand-700">
-                      Modelle ansehen
+                      Mehr dazu
                     </Link>
                   )}
                 </li>

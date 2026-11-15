@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { VorschauLogin } from "@/components/VorschauLogin";
 
 export const metadata: Metadata = {
@@ -26,12 +27,17 @@ export default async function Demnaechst(props: { searchParams: Promise<{ weiter
           <div className="sm:text-left">
             <h1 className="font-brand text-5xl text-white sm:text-6xl">SORRIDA</h1>
             <p className="mt-2 text-base text-brand-100 sm:text-lg">Damit beide Seiten lächeln.</p>
-            <p className="mt-1 text-sm text-brand-300">Praxissoftware für Arzt-, Zahnarzt- und Therapiepraxen</p>
+            <p className="mt-1 text-sm text-brand-300">Software für Kostenaufklärung und Patientenkommunikation in Arzt-, Zahnarzt- und Therapiepraxen</p>
           </div>
         </div>
         <p className="mt-10 font-display text-3xl sm:text-4xl">Wird demnächst veröffentlicht.</p>
         <p className="mx-auto mt-3 max-w-md text-sm text-brand-100">Wir bereiten den Start mit unseren ersten Praxen vor. Bald finden Sie hier alles über Sorrida.</p>
         {zugangAktiv && <VorschauLogin weiter={weiter} />}
+        <p className="mt-10 text-sm text-brand-100" data-testid="demnaechst-rechtliches">
+          <Link href="/impressum" className="underline underline-offset-4 hover:text-white">Impressum</Link>
+          {" · "}
+          <Link href="/datenschutz" className="underline underline-offset-4 hover:text-white">Datenschutz</Link>
+        </p>
       </div>
     </main>
   );

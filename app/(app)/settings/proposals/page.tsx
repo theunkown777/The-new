@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolvePrices } from "@/lib/proposals";
@@ -7,6 +8,7 @@ import { InstallmentSettings } from "@/components/InstallmentSettings";
 import { resolveInstallments } from "@/lib/installments";
 
 export default async function ProposalPricesPage() {
+  await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({
     where: { id: session!.user.practiceId },

@@ -52,7 +52,8 @@ describe("buildNextSteps", () => {
   });
 
   it("needs a Mehrkostenvereinbarung only if the paid composite is chosen", () => {
-    expect(ids(steps({ teeth: { "25": "karies_klein" } }))).toContain("mkv");
+    expect(ids(steps({ teeth: { "25": "karies_klein" } }, { choices: { t25: "komp" } }))).toContain("mkv");
+    expect(ids(steps({ teeth: { "25": "karies_klein" } }))).not.toContain("mkv");
     expect(ids(steps({ teeth: { "25": "karies_klein" } }, { choices: { t25: "fk" } }))).not.toContain("mkv");
   });
 

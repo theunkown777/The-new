@@ -27,7 +27,7 @@ type Props = {
   items: ProposalItem[];
   patient: PatientFactors;
   initialChoices: Record<string, string>;
-  /** Empfehlung der Praxis je Position; erscheint erst auf Wunsch als Kontrolle. */
+  /** Was die Praxis ausdrücklich vorgemerkt hat, je Position; erscheint erst auf Wunsch als Kontrolle. Leer, wenn nichts vorgemerkt ist. */
   empfehlung: Record<string, string>;
   alreadyResponded: string | null;
   showJahresvergleich: boolean;
@@ -125,6 +125,7 @@ export function PatientProposalView(props: Props) {
       setState("idle");
     }
   }, [choices]); // eslint-disable-line react-hooks/exhaustive-deps
+  const hatVormerkung = Object.values(props.empfehlung).some(Boolean);
   const recSum = useMemo(() => summarize(items, props.empfehlung, patient).netto, [items, props.empfehlung, patient]);
   const lowSum = useMemo(() => summarize(items, lowChoices, patient).netto, [items, lowChoices, patient]);
   const gkv = patient.insurance === "GKV";
@@ -188,7 +189,7 @@ export function PatientProposalView(props: Props) {
             ))}
           </nav>
         )}
-        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{t.hello(props.firstName)}</h1>
+        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">{props.firstName && props.firstName !== "ohne Akte" ? t.hello(props.firstName) : t.pageTitle}</h1>
         <p className="text-slate-600">{t.intro(props.arztDativ)}</p>
         {t.langNote && (
           // Rechtlicher Hinweis in jeder Fremdsprache: maßgeblich sind die deutsche Fassung und das Gespräch in der Praxis.
@@ -355,7 +356,7 @@ export function PatientProposalView(props: Props) {
                 {t.installmentsInterest}
               </label>
             )}
-            <button
+            {hatVormerkung && <button
               type="button"
               className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-salbei-300 bg-salbei-50 px-3 py-1.5 text-sm text-salbei-800 hover:bg-salbei-100"
               onClick={() => setRecOpen(true)}
@@ -363,7 +364,7 @@ export function PatientProposalView(props: Props) {
             >
               <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden="true"><path d="M2 9c2 3 10 3 12 0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
               {t.seeRec}
-            </button>
+            </button>}
             <button type="button" className="btn btn-primary mt-4 w-full py-3" disabled={state === "sending"} onClick={() => send("INTERESSE")}>
               {t.discuss}
             </button>
@@ -396,7 +397,7 @@ export function PatientProposalView(props: Props) {
               {...props.zweitmeinung}
               hier={[
                 { label: "Ihre Auswahl", cent: offen.length ? null : Math.round(sum.netto * 100) },
-                { label: "wie empfohlen", cent: Math.round(recSum * 100) },
+                ...(hatVormerkung ? [{ label: "wie von der Praxis vorgemerkt", cent: Math.round(recSum * 100) }] : []),
                 { label: "geringster Eigenanteil", cent: Math.round(lowSum * 100) },
               ]}
             />

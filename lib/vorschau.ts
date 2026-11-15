@@ -94,6 +94,9 @@ export async function zugangPasst(benutzer: string, passwort: string, env: Recor
  */
 const EIGENE_ABSICHERUNG = ["/api/connector/", "/api/cron/", "/api/stripe/webhook", "/api/v1/", "/api/kalender/"];
 const PATIENTENLINK = /^\/(api\/)?(p|portal|a)\/[^/]{16,}(\/|$)/;
+// Pflichtangaben: Die Demnächst-Seite ist schon ein geschäftlicher Auftritt. Impressum (§ 5 DDG), Datenschutzerklärung
+// (Art. 13 DSGVO) und die Lizenzangaben müssen deshalb auch ohne Zugang erreichbar sein.
+const PFLICHTSEITEN = ["/impressum", "/datenschutz", "/lizenzen"];
 export function freiOhneZugang(pfad: string): boolean {
-  return EIGENE_ABSICHERUNG.some((p) => pfad.startsWith(p)) || PATIENTENLINK.test(pfad) || pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
+  return EIGENE_ABSICHERUNG.some((p) => pfad.startsWith(p)) || PATIENTENLINK.test(pfad) || PFLICHTSEITEN.includes(pfad) || pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
 }

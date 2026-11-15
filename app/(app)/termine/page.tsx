@@ -10,6 +10,11 @@ import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { TerminNeu } from "@/components/TerminNeu";
 import { leistungenFuerFach } from "@/lib/leistungskatalog";
 import { fachprofil } from "@/lib/fachprofile";
+import { WartelisteKarte } from "@/components/WartelisteKarte";
+import { WartelisteAngebot } from "@/components/WartelisteAngebot";
+import { TerminAnfragen } from "@/components/TerminAnfragen";
+import { passende, wunschText } from "@/lib/warteliste";
+import { offeneAnfragen } from "@/lib/terminanfrageLoad";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Termine" };
@@ -28,7 +33,7 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
   const { von, bis } = tagesGrenzen(tag);
   const standorte = await prisma.location.findMany({ where: { practiceId }, orderBy: { createdAt: "asc" } });
   const ort = standorte.find((s) => s.id === searchParams.ort)?.id ?? null;
-  const [termine, letzte, practice] = await Promise.all([
+  const [termine, letzte, practice, warteliste, anfragen] = await Promise.all([
     prisma.appointment.findMany({
       where: { practiceId, start: { gte: von, lt: bis }, ...(ort ? { locationId: ort } : {}) },
       orderBy: { start: "asc" },
@@ -36,6 +41,10 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
     }),
     prisma.appointment.findMany({ where: { practiceId, start: { gte: new Date(Date.now() - 60 * 864e5), lt: new Date() } }, select: { status: true } }),
     prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, specialty: true } }),
+    // Warteliste: offene Einträge, wer am längsten wartet zuerst
+    prisma.warteliste.findMany({ where: { practiceId, erledigtAt: null }, orderBy: { createdAt: "asc" }, take: 300, include: { patient: { select: { firstName: true, lastName: true } } } }),
+    // Online-Anfragen neuer Patienten (Buchungsseite /t/<kennung>), mit Vorschlägen aus dem Bestand
+    offeneAnfragen(practiceId),
   ]);
   const a = auslastung(termine, standorte, ort);
   const quote = ausfallquote(letzte);
@@ -43,6 +52,14 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
   const datum = new Date(`${tag}T12:00:00Z`).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Berlin" });
   const kurz = (d: Date) => d.toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
   const q = (t: string, o: string | null = ort) => `/termine?tag=${t}${o ? `&ort=${o}` : ""}`;
+  const tagKurz = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", timeZone: "Europe/Berlin" });
+  const anlaesse = Array.from(new Set([...fachprofil(practice?.specialty ?? "zahn").termine, ...leistungenFuerFach(practice?.specialty ?? "zahn").map((l) => l.name)]));
+  const jetzt = new Date();
+  // Abgesagte Termine in der Zukunft: bis zu zwei passende Personen von der Warteliste vorschlagen
+  const vorschlaege = (t: { start: Date; status: string; patientId: string }) =>
+    t.status === "ABGESAGT" && t.start > jetzt
+      ? passende(warteliste, t).map((w) => ({ id: w.id, name: `${w.patient.lastName}, ${w.patient.firstName}`, anlass: w.anlass, wunsch: wunschText(w), seit: tagKurz(w.createdAt), angeboten: w.angebotenAt ? tagKurz(w.angebotenAt) : null }))
+      : [];
 
   return (
     <div className="space-y-6" data-testid="termine">
@@ -88,6 +105,17 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
         </div>
       </div>
 
+      <TerminAnfragen
+        anfragen={anfragen.map((a) => ({
+          id: a.id, name: `${a.lastName}, ${a.firstName}`, geboren: a.birthDate.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" }),
+          phone: a.phone, email: a.email, anlass: a.anlass,
+          zeit: `${a.start.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", timeZone: "Europe/Berlin" })}, ${uhrzeit(a.start)} Uhr`,
+          tag: a.start.toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" }), eingegangen: kurz(a.createdAt),
+          reserviert: a.reserviert, vergangen: a.vergangen, belegt: a.belegt, beispiel: a.beispiel,
+          kandidaten: a.kandidaten.map((k) => ({ id: k.id, name: `${k.lastName}, ${k.firstName}` })),
+        }))}
+      />
+
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="card divide-y divide-slate-100 p-0">
           {termine.length === 0 && <p className="p-5 text-sm text-slate-600">Für diesen Tag ist nichts eingetragen. Termine tragen Sie rechts ein{standorte.length === 0 ? "; für eine genaue Auslastung legen Sie unter Einstellungen → Standorte Ihre Behandlungsplätze an" : ""}.</p>}
@@ -100,6 +128,7 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
                   <p className="text-sm text-slate-600">{t.reason}{t.location && standorte.length > 1 ? ` · ${t.location.name}` : ""}</p>
                   <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs ${STATUS_CLS[t.status as TerminStatus]}`}>{STATUS_LABEL[t.status as TerminStatus]}</span>
                   {t.quelle === "PATIENT" && <span className="ml-1 mt-1 inline-block rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-800" data-testid="termin-online">online gebucht</span>}
+                  {t.quelle === "NEU" && <span className="ml-1 mt-1 inline-block rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-800" data-testid="termin-neu-online">neu, online angefragt</span>}
                 </div>
               </div>
               <div className="sm:pl-[4.5rem]"><TerminAktionen
@@ -112,7 +141,9 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
                 remindedAt={t.remindedAt ? kurz(t.remindedAt) : null}
                 bestaetigung={bestaetigungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, reason: t.reason })}
                 erinnerung={erinnerungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, fach: practice?.specialty })}
-              /></div>
+              />
+                <WartelisteAngebot terminId={t.id} kandidaten={vorschlaege(t)} />
+              </div>
             </div>
           ))}
         </div>
@@ -120,7 +151,11 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
           <TerminNeu
             tag={tag}
             standorte={standorte.map((s) => ({ id: s.id, name: s.name }))}
-            anlaesse={Array.from(new Set([...fachprofil(practice?.specialty ?? "zahn").termine, ...leistungenFuerFach(practice?.specialty ?? "zahn").map((l) => l.name)]))}
+            anlaesse={anlaesse}
+          />
+          <WartelisteKarte
+            anlaesse={anlaesse}
+            eintraege={warteliste.map((w) => ({ id: w.id, patientId: w.patientId, name: `${w.patient.lastName}, ${w.patient.firstName}`, anlass: w.anlass, wunsch: wunschText(w), notiz: w.notiz, seit: tagKurz(w.createdAt), angeboten: w.angebotenAt ? tagKurz(w.angebotenAt) : null }))}
           />
           <p className="text-xs leading-relaxed text-slate-500">
             Termine werden hier eingetragen und noch nicht aus Ihrer Praxissoftware übernommen. Bestätigungen und Erinnerungen kopieren Sie als Text in SMS,

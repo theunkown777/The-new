@@ -11,14 +11,15 @@ import { PatientLinkPanel } from "@/components/PatientLinkPanel";
 import { patientLinkState } from "@/lib/patientLink";
 import { pruefVermerk } from "@/lib/portalPruefung";
 
-export default async function ProposalDetailPage(props: { params: Promise<{ id: string }> }) {
+export default async function ProposalDetailPage(props: { params: Promise<{ id: string }>; searchParams: Promise<{ qr?: string }> }) {
   const params = await props.params;
+  const qrSofort = (await props.searchParams).qr === "1";
   const session = await getServerSession(authOptions);
 
   const proposal = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, practiceId: session!.user.practiceId },
     include: {
-      patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true, externalId: true, geschlecht: true } },
+      patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true, externalId: true, geschlecht: true, ohneAkte: true } },
       author: { select: { name: true } },
       practice: { select: { name: true, proposalPrices: true } },
       // Nur, was die Patientin bzw. der Patient ausdrücklich geteilt hat.
@@ -40,9 +41,9 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl text-slate-900">
-            Vorschlag für{" "}
+            {p.ohneAkte ? "Schnellvorschlag" : "Vorschlag für"}{" "}
             <Link href={`/patients/${p.id}`} className="hover:underline">
-              {p.firstName} {p.lastName}
+              {p.ohneAkte ? `${p.lastName} (ohne Akte)` : `${p.firstName} ${p.lastName}`}
             </Link>
           </h1>
           <p className="mt-1 text-sm text-slate-500">
@@ -76,7 +77,7 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
       )}
 
       <div className="mt-6">
-        {input.success && <PatientLinkPanel proposalId={proposal.id} state={linkState} firstName={p.firstName} />}
+        {input.success && <PatientLinkPanel proposalId={proposal.id} state={linkState} firstName={p.firstName} sofort={qrSofort && !linkState.active} />}
       </div>
 
       {input.success && (

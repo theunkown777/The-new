@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ConnectorSettings } from "@/components/ConnectorSettings";
@@ -6,6 +7,7 @@ import { PVS_GUIDES } from "@/lib/pvsGuides";
 import { isDental } from "@/lib/specialties";
 
 export default async function ConnectorSettingsPage() {
+  await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const keys = await prisma.connectorKey.findMany({
     where: { practiceId: session!.user.practiceId },

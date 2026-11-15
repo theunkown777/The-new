@@ -10,14 +10,14 @@ const uhr = (iso: string) => new Date(iso).toLocaleTimeString("de-DE", { hour: "
 const termin = (iso: string) => `${new Date(iso).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Berlin" })}, ${uhr(iso)} Uhr`;
 
 /** Patientenportal: freien Termin wählen und buchen. Angeboten wird nur, was wirklich frei ist. */
-export function PortalTermin({ token, praxis }: { token: string; praxis: string }) {
+export function PortalTermin({ token, praxis, anlassVor = "" }: { token: string; praxis: string; /** Aus der Erinnerung der Praxis: Anlass ist schon eingetragen */ anlassVor?: string }) {
   const [tage, setTage] = useState<Tag[] | null>(null);
   const [meine, setMeine] = useState<Meiner[]>([]);
   const [aktiv, setAktiv] = useState(true);
   const [minuten, setMinuten] = useState(20);
   const [tag, setTag] = useState<string | null>(null);
   const [zeit, setZeit] = useState<string | null>(null);
-  const [anlass, setAnlass] = useState("");
+  const [anlass, setAnlass] = useState(anlassVor);
   const [busy, setBusy] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
   const [gebucht, setGebucht] = useState<string | null>(null);

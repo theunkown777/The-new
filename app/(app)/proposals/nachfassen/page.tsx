@@ -6,6 +6,7 @@ import { isDental } from "@/lib/specialties";
 import { formatEuro, resolvePrices, showsJahresvergleich } from "@/lib/proposals";
 import { nachfassListe, nachfassSumme } from "@/lib/nachfassen";
 import { darfWhatsapp } from "@/lib/whatsapp";
+import { Nacheinander } from "@/components/Nacheinander";
 import { NachfassAktionen } from "@/components/NachfassAktionen";
 
 const datum = (d: Date) => d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit" });
@@ -64,6 +65,21 @@ export default async function NachfassenPage() {
       {zeilen.length === 0 ? (
         <div className="card text-sm text-slate-600">Kein offener Vorschlag. Sobald ein Vorschlag auf eine Entscheidung wartet, steht er hier.</div>
       ) : (
+        <>
+        <div className="mb-4">
+          <Nacheinander
+            knopf="Mehrere nacheinander erinnern"
+            eintraege={zeilen.map((z) => {
+              const wa = darfWhatsapp(z.patient);
+              return {
+                id: z.id,
+                titel: `${z.patient.lastName}, ${z.patient.firstName}`,
+                zeile: z.standText,
+                aktion: <NachfassAktionen id={z.id} patientId={z.patient.id} firstName={z.patient.firstName} practiceName={practice?.name ?? ""} zahnersatz={!!z.stichtag} hkp={false} hkpEingereicht={!!z.hkpEingereichtAt} whatsappNummer={wa.ok ? wa.nummer : null} />,
+              };
+            })}
+          />
+        </div>
         <div className="card overflow-x-auto p-0">
           <table className="w-full min-w-[46rem] text-sm" data-testid="nachfass-tabelle">
             <thead>
@@ -124,6 +140,7 @@ export default async function NachfassenPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}
       <p className="mt-4 max-w-3xl text-xs text-slate-500">
         Die Erinnerung nennt weder Befund noch Betrag, nur den persönlichen Link. Bitte nur Patienten anschreiben, die der Kontaktaufnahme zugestimmt haben. Eigenanteile sind Schätzungen{isDental(practice?.specialty) ? "; verbindlich ist der Heil- und Kostenplan" : "; verbindlich ist die schriftliche Vereinbarung vor der Leistung"}.

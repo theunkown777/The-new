@@ -1,5 +1,6 @@
 "use client";
 
+import { ModellQuelle } from "@/components/modelle/ModellQuelle";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type * as DREI from "three";
 import { Buehne, webglDa, type Drei, type Zustand } from "./Buehne";
@@ -136,7 +137,9 @@ export const Modell3D = forwardRef<Modell3DGriff, {
 
   useEffect(() => { buehne.current?.setzen({ gewaehlt, markiert, sichtbar }); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [gewaehlt.join("|"), markiert.join("|"), sichtbarSchluessel, bereit]);
 
+  // Der Lizenzvermerk steht unter der Bühne, nicht darüber gelegt: so bricht er um und wird nie abgeschnitten.
   return (
+    <div className="w-full">
     <div className={`relative w-full ${hoehe}`}>
       <div ref={behaelter} className="absolute inset-0 cursor-grab active:cursor-grabbing" role="img" aria-label={beschriftung} data-testid="modell-3d-buehne" />
       {sichtbarImBild && children}
@@ -153,7 +156,8 @@ export const Modell3D = forwardRef<Modell3DGriff, {
           <p className="mt-1.5 text-xs text-slate-500">{bereit ? t("Ebene wird geladen …") : t("Modell wird aufgebaut …")}</p>
         </div>
       )}
-      {quelle && <p className="pointer-events-none absolute bottom-1.5 left-2 right-2 truncate text-[10px] leading-tight text-slate-500/90" title={quelle} data-testid="modell-quelle">{quelle}</p>}
+    </div>
+    {quelle && <ModellQuelle />}
     </div>
   );
 });

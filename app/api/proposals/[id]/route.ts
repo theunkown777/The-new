@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolvePrices } from "@/lib/proposals";
 import { choicesSchema, computeProposal, proposalInputSchema, proposalStatusSchema } from "@/lib/proposalSchema";
+import { nameFuerSchreiben } from "@/lib/ohneAkte";
 
 const updateSchema = z.object({
   input: proposalInputSchema.optional(),
@@ -68,7 +69,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
       input,
       choices: parsed.data.choices ?? choicesSchema.parse(existing.choices),
       prices: resolvePrices(existing.practice.proposalPrices),
-      patientName: `${existing.patient.firstName} ${existing.patient.lastName}`,
+      patientName: nameFuerSchreiben(existing.patient),
       practiceName: existing.practice.name,
       date: new Date(),
     });

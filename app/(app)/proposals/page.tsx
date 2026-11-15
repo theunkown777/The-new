@@ -28,6 +28,7 @@ export default async function ProposalsPage() {
         <h1 className="font-display text-3xl text-slate-900">Behandlungsvorschläge</h1>
         <div className="flex flex-wrap items-center gap-3">
           <Link href="/proposals/nachfassen" className="btn-secondary" data-testid="link-nachfassen">Nachfassen</Link>
+          <Link href="/proposals/schnell" className="btn-secondary" data-testid="schnellvorschlag">Schnellvorschlag ohne Akte</Link>
           <Link href="/proposals/new" className="btn-primary">Neuer Vorschlag</Link>
         </div>
       </div>

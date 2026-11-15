@@ -1,18 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ROLLEN, ROLLEN_HINWEIS, ROLLEN_LABEL, freigabeLabel, rollenLabel, type Rolle } from "@/lib/rollen";
+import { STANDORT_HINWEIS } from "@/lib/standortRechte";
 
-type Member = { id: string; name: string; email: string; role: string; canSeeAnalytics?: boolean; createdAt: string };
+type Member = { id: string; name: string; email: string; role: string; canSeeAnalytics?: boolean; createdAt: string; standortIds?: string[] };
+type Standort = { id: string; name: string };
 type Invite = { id: string; email: string; role: string; createdAt: string; expiresAt: string };
 
 export function TeamSettings({ currentUserId }: { currentUserId: string }) {
   const [users, setUsers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invite[]>([]);
+  const [standorte, setStandorte] = useState<Standort[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<"admin" | "staff">("staff");
+  const [inviteRole, setInviteRole] = useState<Rolle>("staff");
   const [inviting, setInviting] = useState(false);
   const [inviteMessage, setInviteMessage] = useState<string | null>(null);
   const [inviteUrl, setInviteUrl] = useState<string | null>(null);
@@ -24,6 +28,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
       .then((data) => {
         setUsers(data.users ?? []);
         setInvites(data.invites ?? []);
+        setStandorte(data.standorte ?? []);
       })
       .finally(() => setLoading(false));
   }
@@ -60,8 +65,9 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
     load();
   }
 
-  async function changeRole(userId: string, role: "admin" | "staff") {
+  async function changeRole(userId: string, role: Rolle) {
     setError(null);
+    if (userId === currentUserId && role !== "admin" && !confirm("Sie nehmen sich selbst die Rechte der Geschäftsführung. Danach können Sie Team und Einstellungen nicht mehr verwalten. Fortfahren?")) return;
     const res = await fetch(`/api/settings/team/${userId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -89,6 +95,22 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
       setError(data.error ?? "Ändern fehlgeschlagen.");
       load();
       return;
+    }
+  }
+
+  // Standorte ankreuzen: leer = alle Standorte.
+  async function setOrte(userId: string, standortIds: string[]) {
+    setError(null);
+    setUsers((list) => list.map((u) => (u.id === userId ? { ...u, standortIds } : u)));
+    const res = await fetch(`/api/settings/team/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ standorte: standortIds }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error ?? "Ändern fehlgeschlagen.");
+      load();
     }
   }
 
@@ -126,30 +148,28 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
                 <div className="text-xs text-slate-500 [overflow-wrap:anywhere]">{u.email}</div>
               </div>
               <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-                <span
-                  className={
-                    u.role === "admin"
-                      ? "rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700"
-                      : "rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600"
-                  }
-                >
-                  {u.role === "admin" ? "Geschäftsführung" : "Mitarbeiter/in"}
-                </span>
+                <label className="flex items-center gap-1.5 text-xs text-slate-700">
+                  <span className="sr-only">Rolle von {u.name}</span>
+                  <select
+                    className="input w-auto py-1 text-xs"
+                    value={(ROLLEN as readonly string[]).includes(u.role) ? u.role : "behandler"}
+                    onChange={(e) => changeRole(u.id, e.target.value as Rolle)}
+                    aria-label={`Rolle von ${u.name}`}
+                    data-testid={`rolle-${u.id}`}
+                  >
+                    {ROLLEN.map((r) => (
+                      <option key={r} value={r}>{ROLLEN_LABEL[r]}</option>
+                    ))}
+                  </select>
+                </label>
                 {u.role === "admin" ? (
-                  <span className="text-xs text-slate-500">Analyse: immer</span>
+                  <span className="text-xs text-slate-500">Zahlungen und Analyse: immer</span>
                 ) : (
                   <label className="flex cursor-pointer items-center gap-1.5 text-xs text-slate-700" data-testid={`analyse-freigabe-${u.id}`}>
                     <input type="checkbox" checked={!!u.canSeeAnalytics} onChange={(e) => setAnalytics(u.id, e.target.checked)} />
-                    Analyse freigeben
+                    {freigabeLabel(u.role)}
                   </label>
                 )}
-                <button
-                  type="button"
-                  className="text-xs font-medium text-brand-600 hover:underline"
-                  onClick={() => changeRole(u.id, u.role === "admin" ? "staff" : "admin")}
-                >
-                  {u.role === "admin" ? "Zu Mitarbeiter/in machen" : "Zur Geschäftsführung machen"}
-                </button>
                 {u.id !== currentUserId && (
                   <button
                     type="button"
@@ -160,6 +180,35 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
                   </button>
                 )}
               </div>
+              {standorte.length > 0 && (
+                <fieldset className="w-full border-t border-slate-100 pt-2" data-testid={`standorte-${u.id}`}>
+                  <legend className="sr-only">Standorte von {u.name}</legend>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-700">
+                    <span className="font-medium text-slate-600" aria-hidden="true">Standorte:</span>
+                    {u.role === "admin" ? (
+                      <span className="text-slate-500">alle (Geschäftsführung sieht immer alle Standorte)</span>
+                    ) : (
+                      <>
+                        {standorte.map((o) => {
+                          const an = (u.standortIds ?? []).includes(o.id);
+                          return (
+                            <label key={o.id} className="flex min-h-[24px] cursor-pointer items-center gap-1.5">
+                              <input
+                                type="checkbox"
+                                checked={an}
+                                onChange={(e) => setOrte(u.id, e.target.checked ? [...(u.standortIds ?? []), o.id] : (u.standortIds ?? []).filter((id) => id !== o.id))}
+                                data-testid={`standort-${u.id}-${o.id}`}
+                              />
+                              {o.name}
+                            </label>
+                          );
+                        })}
+                        <span className="text-slate-500" data-testid={`standorte-stand-${u.id}`}>{(u.standortIds ?? []).length === 0 ? "nichts angekreuzt = alle Standorte" : `nur ${(u.standortIds ?? []).length === 1 ? "dieser Standort" : "diese Standorte"}`}</span>
+                      </>
+                    )}
+                  </div>
+                </fieldset>
+              )}
             </div>
           ))}
         </div>
@@ -176,7 +225,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
                 <div>
                   <div className="font-medium text-slate-900">{inv.email}</div>
                   <div className="text-xs text-slate-500">
-                    {inv.role === "admin" ? "Geschäftsführung" : "Mitarbeiter/in"} · gültig bis{" "}
+                    {rollenLabel(inv.role)} · gültig bis{" "}
                     {new Date(inv.expiresAt).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}
                   </div>
                 </div>
@@ -206,9 +255,11 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
               id="invite-role"
               className="input"
               value={inviteRole}
-              onChange={(e) => setInviteRole(e.target.value as "admin" | "staff")}
+              onChange={(e) => setInviteRole(e.target.value as Rolle)}
+              data-testid="einladung-rolle"
             >
               <option value="staff">Mitarbeiter/in (Analyse nur mit Freigabe)</option>
+              <option value="behandler">Behandler/in (ohne Verwaltung)</option>
               <option value="admin">Geschäftsführung (alles inkl. Analyse)</option>
             </select>
           </div>
@@ -222,10 +273,24 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
             {inviteUrl}
           </p>
         )}
-        <p className="mt-3 text-xs text-slate-500">
-          Admins können praxisweite Einstellungen (Abrechnung, Katalog, Team) ändern; Staff kann
-          Patienten und Berichte bearbeiten, aber keine dieser Einstellungen.
-        </p>
+      </div>
+
+      <div className="card space-y-3 text-sm" data-testid="rollen-erklaerung">
+        <h2 className="font-medium text-slate-900">Was die Rollen dürfen</h2>
+        <dl className="space-y-2">
+          {ROLLEN.map((r) => (
+            <div key={r}>
+              <dt className="font-medium text-slate-800">{ROLLEN_LABEL[r]}</dt>
+              <dd className="text-slate-600">{ROLLEN_HINWEIS[r]}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="text-xs text-slate-500">Eine neue Rolle gilt sofort; die Person wird dafür einmal abgemeldet und meldet sich neu an.</p>
+        <h3 className="pt-1 font-medium text-slate-900">Standorte</h3>
+        <p className="text-slate-600" data-testid="standort-hinweis">{STANDORT_HINWEIS}</p>
+        {standorte.length === 0 && (
+          <p className="text-xs text-slate-500">Ihre Praxis hat noch keine Standorte angelegt. Das geht unter Einstellungen → Standorte; danach können Sie hier ankreuzen, wer wo arbeitet.</p>
+        )}
       </div>
     </div>
   );

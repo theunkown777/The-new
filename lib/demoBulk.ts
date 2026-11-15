@@ -63,7 +63,7 @@ export async function seedBulkDemo(args: {
       insuranceName: p.insuranceName,
       geschlecht: p.sex,
       notes: `Beispiel (${fachprofil(fach).person.sg}) im Gastzugang, erfundene Daten`,
-      createdAt: new Date(now.getTime() - Math.floor(r() * 3 * 365) * DAY),
+      createdAt: new Date(now.getTime() - Math.floor(r() * 4 * 365) * DAY),
     })),
     select: { id: true, firstName: true, lastName: true, birthDate: true, insuranceType: true, geschlecht: true },
   });

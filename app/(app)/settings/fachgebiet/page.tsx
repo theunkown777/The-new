@@ -1,4 +1,5 @@
 import { getServerSession } from "next-auth";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolveMed } from "@/lib/practiceMed";
@@ -6,6 +7,7 @@ import { SpecialtySettings } from "@/components/SpecialtySettings";
 import { kostenHinweis, leistungenFuerFach } from "@/lib/leistungskatalog";
 
 export default async function SpecialtySettingsPage() {
+  await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({
     where: { id: session!.user.practiceId },

@@ -1,8 +1,10 @@
 import { getServerSession } from "next-auth";
+import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { TeamSettings } from "@/components/TeamSettings";
 
 export default async function TeamSettingsPage() {
+  await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const isAdmin = session!.user.role === "admin";
 

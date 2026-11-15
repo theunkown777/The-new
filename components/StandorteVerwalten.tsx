@@ -26,7 +26,9 @@ export function StandorteVerwalten({ standorte }: { standorte: S[] }) {
   }
   async function remove(id: string) {
     if (!confirm("Standort entfernen? Termine bleiben erhalten, verlieren aber die Zuordnung.")) return;
-    await fetch(`/api/locations/${id}`, { method: "DELETE" });
+    setError(null);
+    const res = await fetch(`/api/locations/${id}`, { method: "DELETE" });
+    if (!res.ok) return setError((await res.json().catch(() => ({}))).error ?? "Entfernen fehlgeschlagen.");
     router.refresh();
   }
 

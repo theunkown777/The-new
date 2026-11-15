@@ -3,12 +3,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { abgleichen, parseKontoauszug } from "@/lib/bankabgleich";
+import { darfZahlungen } from "@/lib/permissions";
 
 // Schritt 1: Kontoauszug hochladen, Zuordnung vorschlagen. Es wird nichts
 // gespeichert, weder Datei noch Buchungen; erst die Bestätigung bucht.
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await darfZahlungen(session.user.id, session.user.practiceId))) return NextResponse.json({ error: "Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben." }, { status: 403 });
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");
   if (!file || typeof file === "string") return NextResponse.json({ error: "Keine Datei erhalten." }, { status: 400 });
