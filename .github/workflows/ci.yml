@@ -55,3 +55,98 @@ jobs:
 
       - name: Next.js Build
         run: npm run build
+
+  # Browser-Durchläufe (e2e/): die Anwendung wird gebaut, gestartet und mit Chromium durchgeklickt.
+  # Playwright steht bewusst nicht in package.json; es wird nur hier und nur für diesen Lauf installiert.
+  browser:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sorrida_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sorrida_e2e
+      # Fester Wert nur für diesen Testlauf, kein Geheimnis
+      NEXTAUTH_SECRET: e2e-nur-fuer-den-testlauf-kein-geheimnis
+      NEXTAUTH_URL: http://localhost:3000
+      # Registrierung ist sonst geschlossen; die Generalprobe legt eine Praxis an
+      REGISTRIERUNG_OFFEN: "1"
+      # EBM-Stammdatei der KBV im Testlauf nicht laden
+      KBV_STAMMDATEN_LIZENZ: abgelehnt
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Prisma Client generieren
+        run: npx prisma generate
+
+      - name: Migrationen anwenden
+        run: npx prisma migrate deploy
+
+      - name: Grunddaten anlegen (Leistungsvorlagen, amtliche Verzeichnisse)
+        run: npx tsx prisma/seed.ts
+
+      - name: Next.js Build
+        run: npm run build
+        env:
+          ANTHROPIC_API_KEY: dummy-key-for-build
+          ANTHROPIC_MODEL: claude-sonnet-5
+
+      - name: Anwendung im Hintergrund starten
+        run: |
+          nohup npx next start -p 3000 > next-start.log 2>&1 &
+          echo $! > next-start.pid
+          # warten, bis die Anwendung antwortet (höchstens 2 Minuten)
+          for i in $(seq 1 60); do
+            if curl -s -o /dev/null http://localhost:3000/api/status; then echo "Anwendung antwortet"; exit 0; fi
+            sleep 2
+          done
+          echo "Anwendung antwortet nicht"; tail -50 next-start.log; exit 1
+
+      - name: psql bereitstellen
+        run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+
+      - name: Playwright installieren (nur für diesen Lauf, gleiche Hauptversion wie lokal)
+        run: |
+          npm install --no-save playwright@1.63
+          npx playwright install --with-deps chromium
+
+      - name: Browser-Durchläufe
+        run: node e2e/alle.js
+        env:
+          BASIS: http://localhost:3000
+          DB: postgresql://postgres:postgres@localhost:5432/sorrida_e2e
+          BILDER: e2e/.bilder
+
+      - name: Bilder und Server-Protokoll bei Fehlschlag sichern
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-durchlaeufe
+          path: |
+            e2e/.bilder
+            next-start.log
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7

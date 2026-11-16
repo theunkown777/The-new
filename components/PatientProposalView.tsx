@@ -127,6 +127,8 @@ export function PatientProposalView(props: Props) {
   const chosenItems = useMemo(() => items.filter((i) => i.options.some((o) => o.id === choices[i.key])), [items, choices]);
   const offen = items.filter((i) => !choices[i.key] && !istFreiwillig(i));
   const sum = useMemo(() => summarize(chosenItems, choices, patient), [chosenItems, choices, patient]);
+  // Es stehen Entscheidungen aus und noch keine Position ist gewählt: Die Kacheln oben zeigen dann keinen Betrag.
+  const nochNichtsGewaehlt = offen.length > 0 && chosenItems.length === 0;
   const jahre = useMemo(() => vergleicheJahre(chosenItems, choices, patient), [chosenItems, choices, patient]);
   // Für die Kachel oben: was Kasse bzw. Versicherung bei der aktuellen Auswahl voraussichtlich trägt; die geschätzte
   // Erstattung der Zusatzversicherung steht getrennt darunter (zusammen ergeben sie patientAnteile().kasse).
@@ -219,7 +221,7 @@ export function PatientProposalView(props: Props) {
           </nav>
         )}
         <div className="flex flex-wrap gap-1.5" data-testid="lesehilfen">
-          <VorlesenKnopf t={t} teile={() => vorleseTeile({ ueberschrift, items, patient, choices: readOnly ? {} : choices, summe: readOnly ? null : sum.netto, lang, t })} />
+          <VorlesenKnopf t={t} teile={() => vorleseTeile({ ueberschrift, items, patient, choices: readOnly ? {} : choices, summe: readOnly || nochNichtsGewaehlt ? null : sum.netto, lang, t })} />
           {lang === "de" && (
             <button
               type="button"
@@ -250,7 +252,8 @@ export function PatientProposalView(props: Props) {
         )}
       </header>
 
-      {/* Drei ruhige Kacheln: was geplant ist, was Kasse bzw. Versicherung trägt, was selbst zu zahlen ist (folgt der Auswahl). */}
+      {/* Drei ruhige Kacheln: was geplant ist, was Kasse bzw. Versicherung trägt, was selbst zu zahlen ist (folgt der Auswahl).
+          Solange noch nichts gewählt ist, steht dort ein Strich statt „0 €“: Null wäre als Betrag zu lesen. */}
       <dl className={`mt-6 grid grid-cols-1 gap-2 ${readOnly ? "" : "sm:grid-cols-3"}`} data-testid="drei-schritte">
         <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
           <dt className="text-sm text-slate-500">{t.stepPlanned}</dt>
@@ -261,14 +264,14 @@ export function PatientProposalView(props: Props) {
             <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
               <dt className="text-sm text-slate-500">{gkv ? t.stepInsurerGkv : t.stepInsurerPkv}</dt>
               <dd className="font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-lg" data-testid="schritt-kasse">
-                {fmt(anteile.kasse)}
+                {nochNichtsGewaehlt ? <><span aria-hidden="true">–</span><span className="sr-only">{t.open(offen.length)}</span></> : fmt(anteile.kasse)}
                 {anteile.zusatz > 0.5 && <span className="ms-2 text-xs font-normal text-slate-500 sm:ms-0 sm:block">+ {t.supplementary} {fmt(anteile.zusatz)}</span>}
               </dd>
             </div>
             <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
               <dt className="text-sm text-slate-500">{t.stepSelf}</dt>
               <dd className="font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-lg" data-testid="schritt-selbst">
-                {fmt(sum.netto)}
+                {nochNichtsGewaehlt ? <span aria-hidden="true">–</span> : fmt(sum.netto)}
                 {offen.length > 0 && <span className="ms-2 text-xs font-normal text-brand-700 sm:ms-0 sm:block">{t.open(offen.length)}</span>}
               </dd>
             </div>
@@ -506,7 +509,7 @@ export function PatientProposalView(props: Props) {
           <div>
             <div className="text-xs text-slate-500">{t.barLabel}</div>
             <div className="text-xl font-semibold tabular-nums text-slate-900" aria-live="polite">
-              {fmt(sum.netto)}
+              {nochNichtsGewaehlt ? <span aria-hidden="true">–</span> : fmt(sum.netto)}
             </div>
             {offen.length > 0 && <div className="text-xs text-brand-700">{t.open(offen.length)}</div>}
             {offer.kind === "rate" && (

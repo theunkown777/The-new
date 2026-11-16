@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { formatEuro, resolvePrices, showsJahresvergleich } from "@/lib/proposals";
+import { formatEuro, resolvePrices, showsJahresvergleich, wort2027 } from "@/lib/proposals";
 import { nachfassListe, nachfassSumme } from "@/lib/nachfassen";
 
 /** Hinweis auf der Übersicht: offene Vorschläge, vor dem 1.1.2027 mit dem Betrag, um den es beim Zahnersatz geht. */
@@ -33,7 +33,7 @@ export async function NachfassHinweis({ practiceId }: { practiceId: string }) {
             <b>
               {summe.stichtagOffen} {summe.stichtagOffen === 1 ? "Zahnersatz-Vorschlag" : "Zahnersatz-Vorschläge"} vor dem 1.1.2027 offen
             </b>
-            : ohne Bewilligung bis 31.12. voraussichtlich {formatEuro(summe.stichtagMehr)} mehr Eigenanteil für Ihre Patienten (noch {summe.tage} Tage)
+            : ohne Bewilligung bis 31.12. {wort2027("dahinter")}{formatEuro(summe.stichtagMehr)} mehr Eigenanteil für Ihre Patienten (noch {summe.tage} Tage)
           </>
         ) : (
           <>

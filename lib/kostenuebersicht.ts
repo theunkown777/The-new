@@ -9,6 +9,9 @@ import type { Stammdaten } from "@/lib/praxisStammdaten";
 // oder die Praxis ausdrücklich vorgemerkt hat; ohne beides rechnet die Summe mit der Kassen- bzw. Regelleistung.
 
 export const KOSTEN_EINREICHEN = "Zum Einreichen bei Zusatzversicherung oder Beihilfe geeignet; maßgeblich sind Heil- und Kostenplan bzw. Rechnung.";
+/** Dieselbe Zeile für alle anderen Fachrichtungen: Den Heil- und Kostenplan gibt es nur in der Zahnarztpraxis. */
+export const KOSTEN_EINREICHEN_ALLGEMEIN = "Zum Einreichen bei Zusatzversicherung oder Beihilfe geeignet; maßgeblich ist die Rechnung Ihrer Praxis.";
+export const einreichenText = (dental: boolean) => (dental ? KOSTEN_EINREICHEN : KOSTEN_EINREICHEN_ALLGEMEIN);
 
 export interface KostenOption {
   name: string;
@@ -131,6 +134,6 @@ export function kostenuebersicht(a: {
     kasseSumme: `ca. ${formatEuro(kasseSumme)}`,
     zusatzSumme: zusatzSumme > 0 ? `ca. ${formatEuro(zusatzSumme)}` : "",
     hinweis: hinweisText({ gkv, dental: a.dental, therapie: a.therapie }),
-    einreichen: KOSTEN_EINREICHEN,
+    einreichen: einreichenText(a.dental),
   };
 }

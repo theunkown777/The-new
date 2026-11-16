@@ -4,8 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DENTAL_ID, SPECIALTY_LABELS, specialty } from "@/lib/specialties";
 import type { CustomOffer } from "@/lib/proposals";
+import { uebersetzungenBereinigt, type LeistungUebersetzungen } from "@/lib/eigeneLeistung";
+import { LeistungUebersetzungenFeld } from "@/components/LeistungUebersetzungenFeld";
+import { useKiHilfen } from "@/components/useKiHilfen";
 
-type Value = { specialty: string; medPrices: Record<string, number>; customOffers: CustomOffer[] };
+/** Eigene Leistung mit den Übersetzungen für die Patientenansicht (lib/eigeneLeistung.ts). */
+type Angebot = CustomOffer & { uebersetzungen?: LeistungUebersetzungen };
+type Value = { specialty: string; medPrices: Record<string, number>; customOffers: Angebot[] };
 
 const slug = (s: string) =>
   s
@@ -22,6 +27,7 @@ export type KatalogVorschlag = { name: string; kategorie: string; kasse: boolean
 
 export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: { initial: Value; readOnly?: boolean; katalog?: KatalogVorschlag[] }) {
   const [kq, setKq] = useState("");
+  const ki = useKiHilfen();
   const router = useRouter();
   const [v, setV] = useState<Value>(initial);
   const [saving, setSaving] = useState(false);
@@ -29,7 +35,7 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
   const [error, setError] = useState<string | null>(null);
   const spec = specialty(v.specialty);
 
-  function setOffer(i: number, patch: Partial<CustomOffer>) {
+  function setOffer(i: number, patch: Partial<Angebot>) {
     setV((s) => ({ ...s, customOffers: s.customOffers.map((c, j) => (j === i ? { ...c, ...patch } : c)) }));
   }
   function addOffer() {
@@ -50,6 +56,7 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
         kasseWenn: c.kasseWenn?.trim() || undefined,
         nutzen: c.nutzen?.trim() || undefined,
         benefits: c.benefits?.filter(Boolean),
+        uebersetzungen: uebersetzungenBereinigt(c.uebersetzungen),
       }));
     const res = await fetch("/api/settings/specialty", {
       method: "PATCH",
@@ -173,6 +180,7 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
                   <input className="input" placeholder="Kasse zahlt, wenn … (optional)" aria-label="Kasse zahlt wenn" value={c.kasseWenn ?? ""} onChange={(e) => setOffer(i, { kasseWenn: e.target.value })} />
                   <input className="input" placeholder="Hinweis zum Nutzen (optional)" aria-label="Hinweis zum Nutzen" value={c.nutzen ?? ""} onChange={(e) => setOffer(i, { nutzen: e.target.value })} />
                 </div>
+                <LeistungUebersetzungenFeld name={c.name} nutzen={c.nutzen} value={c.uebersetzungen} onChange={(u) => setOffer(i, { uebersetzungen: u })} ki={ki.aktiv} readOnly={readOnly} />
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                   <label className="flex items-center gap-2">
                     <input type="checkbox" checked={!!c.kasse} onChange={(e) => setOffer(i, { kasse: e.target.checked })} />

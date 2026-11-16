@@ -1,0 +1,71 @@
+name: Amtliche Daten prüfen
+
+# Prüft am 2. jedes Monats (und von Hand), ob es neuere amtliche Stände gibt als im Repo
+# (EBM, OPS, UV-GOÄ, BEMA; scripts/amtlich-pruefen.ts). Bei einem neuen Stand öffnet der Lauf ein Issue.
+# Der Lauf ändert nichts am Code und liest nur öffentliche Seiten der Herausgeber.
+
+on:
+  schedule:
+    - cron: "17 5 2 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Stände prüfen
+        id: pruefung
+        run: |
+          set +e
+          npx tsx scripts/amtlich-pruefen.ts | tee amtlich-ergebnis.txt
+          code=${PIPESTATUS[0]}
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          # 0 = keine Änderung, 3 = neuer Stand. Alles andere ist ein Fehler des Skripts.
+          if [ "$code" != "0" ] && [ "$code" != "3" ]; then
+            echo "Unerwarteter Code $code"
+            exit 1
+          fi
+
+      - name: Issue öffnen, wenn es einen neuen Stand gibt
+        if: steps.pruefung.outputs.code == '3'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITEL: "Amtliche Daten: neuer Stand verfügbar"
+        run: |
+          # Nur wenn kein offenes Issue mit demselben Titel besteht
+          offen=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$TITEL\" in:title" --json title --jq "[.[] | select(.title == \"$TITEL\")] | length")
+          if [ "$offen" != "0" ]; then
+            echo "Es gibt schon ein offenes Issue mit diesem Titel. Kein neues."
+            exit 0
+          fi
+          {
+            echo "Die monatliche Prüfung hat einen neueren amtlichen Stand gefunden als im Repo eingelesen ist."
+            echo
+            echo '```'
+            cat amtlich-ergebnis.txt
+            echo '```'
+            echo
+            echo "Was zu tun ist:"
+            echo "- Auf der Seite des Herausgebers nachsehen, ob der Fund stimmt (die Prüfung liest nur Versionsnummern und Datumsangaben)."
+            echo "- Den neuen Stand einlesen (siehe lib/amtlich und docs/BETRIEB.md) und die Tests laufen lassen."
+            echo "- Dieses Issue schließen."
+            echo
+            echo "Lauf: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          } > issue.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITEL" --body-file issue.md

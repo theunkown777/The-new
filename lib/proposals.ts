@@ -1,5 +1,7 @@
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { buildMedicalProposal } from "@/lib/medicalProposals";
+import { tabelle2027 } from "@/lib/festzuschuss2027";
+import festzuschuss2027Datei from "@/data/festzuschuss-2027.json";
 // Behandlungsvorschläge: aus Zahnbefunden und allgemeinen
 // Befunden entstehen je Befund Behandlungsoptionen - immer zuerst die
 // Kassen-/Regelleistung, danach nur Alternativen, die der Befund fachlich
@@ -197,7 +199,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
         r.excluded.push("Mehrschicht-Komposit gegen Aufpreis: im Frontzahnbereich ist Komposit bereits Kassenleistung.");
         r.recommended = "fk";
       } else {
-        r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_klein, benefits: ["zahnfarben, schnell gelegt", "kürzere Haltbarkeit"] });
+        r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_klein, benefits: ["zahnfarben, schnell gelegt"] });
         r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_klein, base: P.fk_klein, benefits: ["Füllung in mehreren Schichten", "mit Haftvermittler am Zahn befestigt", "Kasse zahlt Kassenfüllung anteilig"] });
         r.excluded.push("Keramik-Inlay: bei kleinen Defekten müsste unnötig gesunde Zahnsubstanz abgetragen werden.");
         r.recommended = "komp";
@@ -212,7 +214,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
         warn("Bei sehr großem Defekt am Frontzahn prüfen, ob eine Krone langfristig sinnvoller ist.");
         r.recommended = "fk";
       } else {
-        r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_gross, benefits: ["schnelle Lösung", "bei großen Flächen begrenzt haltbar"] });
+        r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_gross, benefits: ["schnelle Lösung"] });
         r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_gross, base: P.fk_gross, benefits: ["zahnfarben, gute Randdichte", "Kasse zahlt Kassenfüllung anteilig"] });
         r.options.push({ id: "inlay", type: "mehrkosten", name: "Keramik-Inlay", total: P.inlay, base: P.fk_gross, benefits: ["Keramik, im Labor gefertigt", "wird eingeklebt", "Kasse zahlt Kassenfüllung anteilig"] });
         r.recommended = k === "molar" ? "inlay" : "komp";
@@ -232,7 +234,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
       // Befund 1.2: großer Substanzdefekt, aber erhaltene Zahnwand. Regelversorgung ist die metallische Teilkrone.
       const tb = ["1.2"];
       const gkv = input.patient.insurance === "GKV";
-      r.options.push({ id: "tk", type: "regel", name: "Teilkrone aus Metall, Regelversorgung", total: gkv ? regelKosten(tb) : P.teilkrone_regel, regel: P.teilkrone_regel, befunde: tb, benefits: ["erhält die gesunde Zahnwand", "bewährt und haltbar"] });
+      r.options.push({ id: "tk", type: "regel", name: "Teilkrone aus Metall, Regelversorgung", total: gkv ? regelKosten(tb, regelJahr(input.patient)) : P.teilkrone_regel, regel: P.teilkrone_regel, befunde: tb, benefits: ["erhält die gesunde Zahnwand"] });
       r.options.push({ id: "tkk", type: "gleichartig", name: "Keramik-Teilkrone", total: P.teilkrone_keramik, regel: P.teilkrone_regel, befunde: tb, benefits: ["zahnfarben, metallfrei", "erhält die gesunde Zahnwand", "gleicher Festzuschuss"] });
       r.recommended = VERBLENDBEREICH.has(n) ? "tkk" : "tk";
       info("Eine Teilkrone schont mehr Zahnsubstanz als eine Vollkrone. Sie kommt infrage, solange die äußere oder innere Zahnwand stabil ist.");
@@ -251,7 +253,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
       const gkv = input.patient.insurance === "GKV";
       const stiftPreis = mitStift ? P.stift : 0;
       if (mitStift) info(gkv ? "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist. Die Kasse gibt dafür einen eigenen Festzuschuss." : "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist.");
-      r.options.push({ id: "kr", type: "regel", name: mitStift ? "Krone mit Stiftaufbau, Regelversorgung" : "Krone, Regelversorgung", total: gkv ? regelKosten(kb) : P.krone_regel + stiftPreis, regel: P.krone_regel + stiftPreis, befunde: kb, benefits: [sichtbar ? "Metall mit Keramikverblendung auf der sichtbaren Seite" : "Metall, im Seitenzahnbereich unverblendet", "bewährt und haltbar"] });
+      r.options.push({ id: "kr", type: "regel", name: mitStift ? "Krone mit Stiftaufbau, Regelversorgung" : "Krone, Regelversorgung", total: gkv ? regelKosten(kb, regelJahr(input.patient)) : P.krone_regel + stiftPreis, regel: P.krone_regel + stiftPreis, befunde: kb, benefits: [sichtbar ? "Metall mit Keramikverblendung auf der sichtbaren Seite" : "Metall, im Seitenzahnbereich unverblendet"] });
       r.options.push({ id: "krvk", type: "gleichartig", name: mitStift ? "Vollkeramik-Krone mit Stiftaufbau" : "Vollkeramik-Krone", total: P.krone_vk + stiftPreis, regel: P.krone_regel + stiftPreis, befunde: kb, benefits: ["metallfrei, natürliche Optik", "sehr gut verträglich", "gleicher Festzuschuss"] });
       if (!sichtbar) {
         r.recommended = "kr";
@@ -316,7 +318,7 @@ function globalItem(code: GlobalCode, input: ProposalInput, P: Prices): Proposal
       r.recommended = "schiene";
       return r;
     case "bleaching": {
-      r.options.push({ id: "bl", type: "privat", name: "Bleaching", total: P.bleaching, ohneErstattung: true, benefits: ["auf ausdrücklichen Wunsch (§ 2 Abs. 3 GOZ)", "Ergebnis hält 1–3 Jahre"] });
+      r.options.push({ id: "bl", type: "privat", name: "Bleaching", total: P.bleaching, ohneErstattung: true, benefits: ["auf ausdrücklichen Wunsch (§ 2 Abs. 3 GOZ)"] });
       r.recommended = "bl";
       const hasKaries = Object.values(input.teeth).some(
         (f) => f === "karies_klein" || f === "karies_gross" || f === "fuellung_defekt"
@@ -412,7 +414,7 @@ function lueckenItem(g: LueckenGruppe, input: ProposalInput, P: Prices): Proposa
     const glieder = n + g.anker.length;
     const faktor = glieder / 3;
     const brName = glieder === 3 ? "Brücke, Regelversorgung" : `Brücke (${glieder} Glieder), Regelversorgung`;
-    r.options.push({ id: "br", type: "regel", name: brName, total: gkv ? regelKosten(g.befunde) : Math.round(P.bruecke_regel * faktor), regel: P.bruecke_regel, befunde: g.befunde, benefits: ["festsitzend", "Nachbarzähne werden beschliffen"] });
+    r.options.push({ id: "br", type: "regel", name: brName, total: gkv ? regelKosten(g.befunde, regelJahr(input.patient)) : Math.round(P.bruecke_regel * faktor), regel: P.bruecke_regel, befunde: g.befunde, benefits: ["festsitzend", "Nachbarzähne werden beschliffen"] });
     r.options.push({ id: "brvk", type: "gleichartig", name: glieder === 3 ? "Vollkeramik-Brücke" : `Vollkeramik-Brücke (${glieder} Glieder)`, total: Math.round(P.bruecke_vk * faktor), regel: P.bruecke_regel, befunde: g.befunde, benefits: ["zahnfarben, metallfrei", "gleicher Festzuschuss"] });
     r.options.push({ id: "impl", type: "andersartig", name: implantate, total: P.implantat * n, regel: P.bruecke_regel, befunde: g.befunde, benefits: ["Nachbarzähne bleiben unberührt", "Kieferknochen bleibt belastet", "gleicher Festzuschuss"] });
     const nf = g.anker.map((x) => input.teeth[String(x)]);
@@ -429,14 +431,14 @@ function lueckenItem(g: LueckenGruppe, input: ProposalInput, P: Prices): Proposa
       if (n > 1) info("Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung. Implantate sind möglich, aber deutlich aufwendiger.");
     }
   } else if (g.klasse === 3) {
-    r.options.push({ id: "tp", type: "regel", name: "Teilprothese (Modellguss)", total: gkv ? regelKosten(g.befunde) : P.teilprothese, regel: P.teilprothese, befunde: g.befunde, benefits: ["herausnehmbar", n === 1 ? "ersetzt den fehlenden Zahn" : "ersetzt alle fehlenden Zähne des Kiefers"] });
+    r.options.push({ id: "tp", type: "regel", name: "Teilprothese (Modellguss)", total: gkv ? regelKosten(g.befunde, regelJahr(input.patient)) : P.teilprothese, regel: P.teilprothese, befunde: g.befunde, benefits: ["herausnehmbar", n === 1 ? "ersetzt den fehlenden Zahn" : "ersetzt alle fehlenden Zähne des Kiefers"] });
     if (n <= 3) r.options.push({ id: "impl", type: "andersartig", name: implantate, total: P.implantat * n, regel: P.teilprothese, befunde: g.befunde, benefits: ["festsitzend", "Kieferknochen bleibt belastet", "Festzuschuss wie Regelversorgung"] });
     else r.excluded.push("Implantate: bei so vielen fehlenden Zähnen wird individuell geplant, deshalb hier keine Schätzung.");
     r.excluded.push(n > 4 ? "Brücke: mehr als vier fehlende Zähne im Kiefer." : "Brücke: am Ende der Zahnreihe fehlt der hintere Pfeilerzahn.");
     r.recommended = "tp";
     if (n === 1) info("Fehlt nur der letzte Backenzahn, ist ein Ersatz oft nicht nötig (verkürzte Zahnreihe). Bitte im Gespräch klären.");
   } else {
-    r.options.push({ id: "tot", type: "regel", name: zahnlos ? "Totalprothese" : "Deckprothese über den verbliebenen Zähnen", total: gkv ? regelKosten(g.befunde) : P.totalprothese, regel: P.totalprothese, befunde: g.befunde, benefits: ["herausnehmbar", "ersetzt alle Zähne des Kiefers"] });
+    r.options.push({ id: "tot", type: "regel", name: zahnlos ? "Totalprothese" : "Deckprothese über den verbliebenen Zähnen", total: gkv ? regelKosten(g.befunde, regelJahr(input.patient)) : P.totalprothese, regel: P.totalprothese, befunde: g.befunde, benefits: ["herausnehmbar", "ersetzt alle Zähne des Kiefers"] });
     r.excluded.push("Implantatgetragener Zahnersatz: wird individuell geplant, deshalb hier keine Schätzung.");
     r.recommended = "tot";
   }
@@ -547,6 +549,7 @@ export function tageBisStichtag(today = new Date()): number {
  * BAnz AT 04.02.2026 B3), gegengeprüft mit der KZBV-Abrechnungshilfe 2026. Die Euro-Beträge für 2027
  * sind noch nicht veröffentlicht (Stand 12.11.2026); bis dahin rechnet Sorrida 2027 mit diesen
  * Beträgen und den neuen Sätzen und kennzeichnet das Ergebnis als „voraussichtlich“.
+ * Dies ist die Tabelle 2026. Die Tabelle 2027 kommt aus data/festzuschuss-2027.json (siehe FESTZUSCHUSS_2027).
  */
 export const FESTZUSCHUSS_BEFUNDE: Record<string, { name: string; euro: number }> = {
   "1.1": { name: "Krone (stark zerstörter Zahn)", euro: 398.39 },
@@ -569,6 +572,31 @@ export const FESTZUSCHUSS_BEFUNDE: Record<string, { name: string; euro: number }
   "4.4": { name: "Zahnloser Unterkiefer", euro: 1029.54 },
 };
 
+/**
+ * Tabelle 2027 (Euro je Befund bei 100 %), eingelesen mit scripts/festzuschuss-2027-einlesen.ts aus der
+ * Veröffentlichung des GKV-Spitzenverbands. null, solange data/festzuschuss-2027.json leer oder unvollständig ist:
+ * Dann gilt für 2027 weiter die Tabelle 2026 mit den neuen Sätzen, und das Ergebnis heißt „voraussichtlich“.
+ */
+export const FESTZUSCHUSS_2027: Record<string, number> | null = tabelle2027(festzuschuss2027Datei, FESTZUSCHUSS_BEFUNDE);
+
+/** Sind die Euro-Beträge 2027 veröffentlicht und eingelesen? */
+export const festzuschuss2027Amtlich = (tabelle: Record<string, number> | null = FESTZUSCHUSS_2027): boolean => tabelle !== null;
+
+/**
+ * Das Wort für Beträge 2027: „voraussichtlich“, solange mit der Tabelle 2026 gerechnet wird; leer, sobald die
+ * Tabelle 2027 eingelesen ist. `mit` setzt ein Leerzeichen davor oder dahinter, damit der Satz in beiden Fällen stimmt.
+ */
+export function wort2027(mit: "davor" | "dahinter" | "ohne" = "ohne", tabelle: Record<string, number> | null = FESTZUSCHUSS_2027): string {
+  if (festzuschuss2027Amtlich(tabelle)) return "";
+  return mit === "davor" ? " voraussichtlich" : mit === "dahinter" ? "voraussichtlich " : "voraussichtlich";
+}
+
+/** 100-%-Betrag eines Befunds für das Bewilligungsjahr: 2027 aus der eigenen Tabelle, sobald es sie gibt, sonst 2026. */
+export function befundEuro(befund: string, jahr: ZuschussJahr = 2026, tabelle: Record<string, number> | null = FESTZUSCHUSS_2027): number {
+  if (jahr === 2027 && tabelle) return tabelle[befund] ?? 0;
+  return FESTZUSCHUSS_BEFUNDE[befund]?.euro ?? 0;
+}
+
 /** Verblendbereich der Festzuschuss-Richtlinie: Zähne 15 bis 25 und 34 bis 44. */
 export const VERBLENDBEREICH = new Set([15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 34, 33, 32, 31, 41, 42, 43, 44]);
 
@@ -588,13 +616,18 @@ const cent = (x: number) => Math.round(x * 100) / 100;
  * Die Regelversorgung rechnet die Praxis nach BEMA und BEL II ab, nicht nach eigener Preisliste; die tatsächlichen
  * Kosten weichen je nach Punktwert der KZV und Labor leicht ab. Verbindlich ist der Heil- und Kostenplan.
  */
-export const regelKosten = (befunde: string[]): number => cent(befunde.reduce((sum, b) => sum + (FESTZUSCHUSS_BEFUNDE[b]?.euro ?? 0), 0));
+export const regelKosten = (befunde: string[], jahr: ZuschussJahr = 2026): number => cent(befunde.reduce((sum, b) => sum + befundEuro(b, jahr), 0));
+
+/** Bewilligungsjahr, mit dem ein Vorschlag rechnet: das beim Patienten gewählte, sonst das heutige. */
+const regelJahr = (p: { zuschussJahr?: ZuschussJahr }): ZuschussJahr => p.zuschussJahr ?? defaultZuschussJahr();
 
 /** Festzuschuss in Euro für die Befunde einer Option; null, wenn keine Befunde hinterlegt sind. */
-export function festzuschussEuro(o: Pick<ProposalOption, "befunde">, p: PatientFactors, jahr?: ZuschussJahr): number | null {
+export function festzuschussEuro(o: Pick<ProposalOption, "befunde">, p: PatientFactors, jahr?: ZuschussJahr, tabelle: Record<string, number> | null = FESTZUSCHUSS_2027): number | null {
   if (!o.befunde?.length) return null;
-  const q = festzuschussQuote(p, jahr);
-  return cent(o.befunde.reduce((sum, b) => sum + cent((FESTZUSCHUSS_BEFUNDE[b]?.euro ?? 0) * q), 0));
+  // Dasselbe Jahr für Satz und Tabelle: das angegebene, sonst das des Patienten, sonst das heutige
+  const j: ZuschussJahr = jahr ?? p.zuschussJahr ?? defaultZuschussJahr();
+  const q = festzuschussQuote(p, j);
+  return cent(o.befunde.reduce((sum, b) => sum + cent(befundEuro(b, j, tabelle) * q), 0));
 }
 
 /** Festzuschuss-Quote: je nach Bewilligungsjahr und Bonusheft, Härtefall 100 %. */
@@ -861,7 +894,7 @@ export function buildLetter(args: {
   if (vergleich && jv.mehrkosten > 0.5) {
     L.push("");
     L.push(
-      `Bitte beachten: Zum 1. Januar 2027 sinkt der Festzuschuss der gesetzlichen Krankenkassen für Zahnersatz per Gesetz um zehn Prozentpunkte. Maßgeblich ist das Datum, an dem Ihre Krankenkasse den Heil- und Kostenplan bewilligt, nicht der Behandlungstermin. Wird Ihr Plan bis zum 31.12.2026 bewilligt, gilt der oben genannte Eigenanteil. Bei einer Bewilligung ab dem 1.1.2027 steigt er ${wahlWort} voraussichtlich auf ca. ${formatEuro(jv.netto2027)} (ca. ${formatEuro(jv.mehrkosten)} mehr). Die Beträge für 2027 sind vorläufig, weil die neuen Festzuschüsse erst zum Jahresende veröffentlicht werden.`
+      `Bitte beachten: Zum 1. Januar 2027 sinkt der Festzuschuss der gesetzlichen Krankenkassen für Zahnersatz per Gesetz um zehn Prozentpunkte. Maßgeblich ist das Datum, an dem Ihre Krankenkasse den Heil- und Kostenplan bewilligt, nicht der Behandlungstermin. Wird Ihr Plan bis zum 31.12.2026 bewilligt, gilt der oben genannte Eigenanteil. Bei einer Bewilligung ab dem 1.1.2027 steigt er ${wahlWort}${wort2027("davor")} auf ca. ${formatEuro(jv.netto2027)} (ca. ${formatEuro(jv.mehrkosten)} mehr).${festzuschuss2027Amtlich() ? "" : " Die Beträge für 2027 sind vorläufig, weil die neuen Festzuschüsse erst zum Jahresende veröffentlicht werden."}`
     );
   }
   L.push("");

@@ -3,6 +3,7 @@ import { aufraeumen } from "@/lib/aufraeumen";
 import { prisma } from "@/lib/prisma";
 import { kalenderAbgleichen } from "@/lib/kalenderSync";
 import { erinnerungenMelden } from "@/lib/erinnerungWunsch";
+import { fehlerMailSenden } from "@/lib/fehlerSpeicher";
 
 // Täglich von Vercel Cron aufgerufen (vercel.json). Mit gesetztem
 // CRON_SECRET schickt Vercel es als Bearer-Token mit; nur dann läuft der Job.
@@ -22,5 +23,7 @@ export async function GET(req: Request) {
   const erinnerungen = await erinnerungenMelden().catch((err) => { console.error("Erinnerungswünsche konnten nicht gemeldet werden", err); return 0; });
   // Lese-Links für Vertrauenspersonen: 30 Tage nach Ablauf entfernen (sie gelten ohnehin nicht mehr)
   await prisma.leseLink.deleteMany({ where: { expiresAt: { lt: new Date(Date.now() - 30 * 864e5) } } }).catch(() => null);
-  return NextResponse.json({ ok: true, ergebnis, kalender, erinnerungen });
+  // Neue Fehler seit gestern: eine Mail an das Sorrida-Team (nur Zahl, Orte und der Link /betrieb, keine Meldungstexte)
+  const fehlerMail = await fehlerMailSenden().catch(() => ({ neu: 0, versendet: false }));
+  return NextResponse.json({ ok: true, ergebnis, kalender, erinnerungen, fehlerMail });
 }

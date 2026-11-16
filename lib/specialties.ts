@@ -100,11 +100,11 @@ export const ALLE_SPECIALTIES: Specialty[] = [
       },
       {
         id: "reise",
-        label: "Reise mit Impfempfehlung",
+        label: "Reisevorbereitung mit Impfschutz",
         bereich: "Reisemedizin",
         options: [
           { id: "reiseberatung", name: "Reisemedizinische Beratung", type: "igel", price: 30, benefits: ["Impfplan und Malariaschutz für Ihr Reiseziel"], kasseWenn: "Viele Krankenkassen erstatten Reiseimpfungen als Satzungsleistung. Rechnung bei der Kasse einreichen." },
-          { id: "reiseimpfung", name: "Reiseimpfungen nach Plan (je Impfung, zzgl. Impfstoff)", type: "igel", price: 15, benefits: ["Schutz nach aktueller Empfehlung für das Reiseland"], kasseWenn: "Viele Krankenkassen erstatten Reiseimpfungen als Satzungsleistung." },
+          { id: "reiseimpfung", name: "Reiseimpfungen nach Plan (je Impfung, zzgl. Impfstoff)", type: "igel", price: 15, benefits: ["Impfschutz passend zum Reiseziel"], kasseWenn: "Viele Krankenkassen erstatten Reiseimpfungen als Satzungsleistung." },
         ],
       },
       {
@@ -676,7 +676,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         options: [
           { id: "kg_rezept", name: "Krankengymnastik auf Verordnung (6 Einheiten)", type: "kasse", price: 180, zuzahlung: true, benefits: ["Kassenleistung mit gesetzlicher Zuzahlung"] },
           { id: "kg_selbst", zusatz: true, name: "Weitere Krankengymnastik als Selbstzahler (6 Einheiten)", type: "igel", price: 270, benefits: ["ohne Unterbrechung weiterbehandeln"], kasseWenn: "Mit neuer Verordnung wieder Kassenleistung." },
-          { id: "osteopathie", zusatz: true, name: "Osteopathie (je Sitzung)", type: "igel", price: 90, benefits: ["ganzheitliche manuelle Behandlung"], kasseWenn: "Viele Krankenkassen erstatten Osteopathie anteilig als Zusatzleistung, oft mit ärztlicher Empfehlung." },
+          { id: "osteopathie", zusatz: true, name: "Osteopathie (je Sitzung)", type: "igel", price: 90, benefits: ["ganzheitliche manuelle Behandlung"], kasseWenn: "Viele Krankenkassen erstatten Osteopathie anteilig als Zusatzleistung, oft nur mit ärztlicher Bescheinigung." },
         ],
       },
       {

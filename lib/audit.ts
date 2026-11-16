@@ -43,6 +43,12 @@ export const AUDIT_ACTIONS = {
   "empfang.uebergabe": "Empfangs-Tablet an Patient übergeben",
   "empfang.pin": "Empfangs-PIN gesetzt oder geändert",
   "empfang.gesperrt": "Empfangs-PIN nach Fehlversuchen gesperrt",
+  "eingang.antwort": "Antwort auf eine Rückmeldung vorbereitet",
+  "ki.schalter": "KI-Hilfen ein- oder ausgeschaltet",
+  "ki.anlass": "Stichworte mit KI den Anlässen zugeordnet (Entwurf)",
+  "ki.preisliste": "Preisliste mit KI gelesen (Entwurf)",
+  "ki.hilfe": "Frage zur Bedienung mit KI beantwortet (Entwurf)",
+  "ki.uebersetzung": "Eigene Leistung mit KI übersetzt (Entwurf)",
 } as const;
 
 export type AuditAction = keyof typeof AUDIT_ACTIONS;

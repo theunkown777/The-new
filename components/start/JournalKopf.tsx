@@ -67,7 +67,7 @@ export function JournalFuss() {
   const spalten: [string, [string, string][]][] = [
     ["Sorrida", [["/#fach", "Fachgebiete"], ["/leistungen", "Leistungen A–Z"], ["/#preise", "Preise"], ["/neu", "Neu"]]],
     ["Ausprobieren", [["/demo", "Demo-Praxis öffnen"], ["/vorschau", "Vorschau"], ["/hilfe", "Hilfe und Kontakt"], ["/ratgeber", "Ratgeber"], ["/rechner", "Rechner"]]],
-    ["Rechtliches", [["/impressum", "Impressum"], ["/datenschutz", "Datenschutz"], ["/avv", "AVV-Muster"], ["/lizenzen", "Lizenzen und Quellen"], ["/impressum#zweck", "Wofür Sorrida bestimmt ist"]]],
+    ["Rechtliches", [["/impressum", "Impressum"], ["/datenschutz", "Datenschutz"], ["/avv", "AVV-Muster"], ["/vertrauen", "Umgang mit Daten"], ["/status", "Status"], ["/lizenzen", "Lizenzen und Quellen"], ["/impressum#zweck", "Wofür Sorrida bestimmt ist"]]],
   ];
   return (
     <footer className="border-t border-linie">

@@ -1,7 +1,9 @@
 import { isSupportTeam, teamEmailsRaw } from "@/lib/supportTeam";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { cronSecretPasst, kurzfassung, redisPunkt } from "@/lib/betriebsStatus";
+import { anmeldungPunkte, cronSecretPasst, datenbankPunkt, fehlerPunkt, kurzfassung, redisPunkt } from "@/lib/betriebsStatus";
+import { FEHLER_GRENZE_24H } from "@/lib/fehlerlog";
+import { fehlerAnzahl } from "@/lib/fehlerSpeicher";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { datenbankMb } from "@/lib/amtlich/import";
@@ -34,30 +36,11 @@ async function darfDetailsSehen(req: Request): Promise<boolean> {
 
 export async function GET(req: Request) {
   const requestHost = new URL(req.url).host;
-  let nextauthHost: string | null = null;
-  try {
-    nextauthHost = process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).host : null;
-  } catch {
-    nextauthHost = "ungültig";
-  }
+  // Anmeldung und Datenbank: dieselben Prüfungen wie die öffentliche Seite /status (lib/betriebsStatus.ts)
+  const checks: Record<string, { ok: boolean; info: string }> = { ...anmeldungPunkte(requestHost) };
 
-  const checks: Record<string, { ok: boolean; info: string }> = {
-    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET
-      ? { ok: true, info: "gesetzt" }
-      : { ok: false, info: "fehlt: in Vercel als Environment Variable setzen und neu deployen" },
-    NEXTAUTH_URL: !nextauthHost
-      ? { ok: !!process.env.VERCEL_URL, info: process.env.VERCEL_URL ? "nicht gesetzt (Vercel-Adresse wird automatisch genutzt)" : "fehlt" }
-      : nextauthHost === requestHost
-        ? { ok: true, info: nextauthHost }
-        : requestHost?.endsWith(".vercel.app") && !nextauthHost.endsWith(".vercel.app")
-          // Eigene Domain ist eingestellt, geöffnet wurde nur die technische Vercel-Adresse: richtig so
-          ? { ok: true, info: `${nextauthHost} (eigene Domain; Anmeldung führt dorthin)` }
-          : { ok: false, info: `zeigt auf ${nextauthHost}, geöffnet ist aber ${requestHost}: auf https://${requestHost} ändern oder die Seite unter ${nextauthHost} öffnen` },
-  };
-
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    checks.Datenbank = { ok: true, info: "erreichbar" };
+  checks.Datenbank = await datenbankPunkt(() => prisma.$queryRaw`SELECT 1`);
+  if (checks.Datenbank.ok) try {
     const rows = await prisma.$queryRaw<{ name: string }[]>`SELECT migration_name AS name FROM "_prisma_migrations" WHERE finished_at IS NOT NULL ORDER BY finished_at DESC LIMIT 1`;
     const last = rows[0]?.name ?? "keine";
     const current = last >= "20261030210000_guest_demo";
@@ -75,6 +58,12 @@ export async function GET(req: Request) {
       : { ok: false, info: "keine: Seed ist beim Deploy nicht gelaufen" };
     const mb = await datenbankMb(prisma);
     checks.Speicher = mb < 450 ? { ok: true, info: `Datenbank ${mb} MB` } : { ok: false, info: `Datenbank ${mb} MB: Speichergrenze des Neon-Tarifs prüfen` };
+    // Fehler aus dem Betrieb (lib/fehlerlog.ts): nur die Zahl der verschiedenen Fehler, keine Inhalte
+    // Eigene Absicherung: Fehlt die Tabelle noch, soll nicht die ganze Datenbank als „nicht erreichbar“ gelten.
+    checks["Fehler (24 Std.)"] = await fehlerAnzahl(24).then(
+      (anzahl) => fehlerPunkt(anzahl, FEHLER_GRENZE_24H),
+      () => ({ ok: false, info: "nicht lesbar: Migration 20261116100000_fehler_eintrag einspielen (prisma migrate deploy)" }),
+    );
   } catch (err) {
     const code = (err as { code?: string }).code;
     checks.Datenbank = { ok: false, info: `nicht erreichbar${code ? ` (${code})` : ""}: DATABASE_URL prüfen` };

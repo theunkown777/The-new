@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isDental } from "@/lib/specialties";
-import { formatEuro, resolvePrices, showsJahresvergleich } from "@/lib/proposals";
+import { festzuschuss2027Amtlich, formatEuro, resolvePrices, showsJahresvergleich, wort2027 } from "@/lib/proposals";
 import { nachfassListe, nachfassSumme } from "@/lib/nachfassen";
 import { darfWhatsapp } from "@/lib/whatsapp";
 import { Nacheinander } from "@/components/Nacheinander";
@@ -52,12 +52,12 @@ export default async function NachfassenPage() {
             {summe.stichtagOffen} {summe.stichtagOffen === 1 ? "Zahnersatz-Vorschlag" : "Zahnersatz-Vorschläge"} ohne eingereichten Heil- und Kostenplan
           </p>
           <p className="mt-1">
-            Ab 1.1.2027 zahlen die Kassen zehn Prozentpunkte weniger Festzuschuss. Für diese Patienten sind das zusammen voraussichtlich{" "}
+            Ab 1.1.2027 zahlen die Kassen zehn Prozentpunkte weniger Festzuschuss. Für diese Patienten sind das zusammen {wort2027("dahinter")}
             <b>{formatEuro(summe.stichtagMehr)}</b> mehr Eigenanteil, wenn der Plan erst danach bewilligt wird. Bis zum 31.12.2026 sind es noch{" "}
             {summe.tage} Tage; die Kasse braucht für die Bewilligung meist ein bis drei Wochen.
           </p>
           <p className="mt-1 text-xs text-amber-900">
-            Beträge für 2027 sind voraussichtlich (neue Sätze, Festzuschüsse 2026). Maßgeblich ist das Datum der Bewilligung durch die Kasse.
+            {festzuschuss2027Amtlich() ? "" : "Beträge für 2027 sind voraussichtlich (neue Sätze, Festzuschüsse 2026). "}Maßgeblich ist das Datum der Bewilligung durch die Kasse.
           </p>
         </section>
       )}

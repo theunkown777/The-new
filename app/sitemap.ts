@@ -16,6 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/hilfe`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${base}/leistungen`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/neu`, changeFrequency: "weekly", priority: 0.5 },
+    { url: `${base}/vertrauen`, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${base}/status`, changeFrequency: "daily", priority: 0.2 },
     { url: `${base}/avv`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${base}/impressum`, changeFrequency: "yearly", priority: 0.1 },
     { url: `${base}/datenschutz`, changeFrequency: "yearly", priority: 0.1 },

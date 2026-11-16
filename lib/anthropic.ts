@@ -12,7 +12,8 @@ const HAS_REAL_KEY = Boolean(apiKey && apiKey !== "dummy-key-for-build");
 const anthropic = new Anthropic({ apiKey });
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 
-export type ReportType = "BEFUND" | "KRANKENKASSE";
+export type ReportType = "BEFUND" | "KRANKENKASSE" | "UEBERWEISER";
+export const REPORT_TYPES = ["BEFUND", "KRANKENKASSE", "UEBERWEISER"] as const satisfies readonly ReportType[];
 
 interface GenerateReportInput {
   /** Fach der Praxis; bestimmt Stil und Wortwahl (Standard: Zahnmedizin) */
@@ -43,6 +44,23 @@ Gliedere in: Anschrift/Betreff, Anrede, kurze Darstellung des Befunds, Begründu
 Notwendigkeit der geplanten bzw. durchgeführten Behandlung, konkrete Bitte (z. B. um Kostenübernahme
 oder Genehmigung), Grußformel. Formeller, überzeugender, aber sachlicher Stil, wie er gegenüber
 Kostenträgern üblich ist.`,
+  UEBERWEISER: `Verfasse einen kurzen Bericht an die überweisende Praxis, für jedes Fach geeignet. Gliedere in:
+Betreff, Anrede an die Kolleginnen und Kollegen, Anlass der Vorstellung (nur wenn genannt), was gemacht
+wurde (aus den erfassten Leistungen), was die Praxis in ihrer Notiz festgehalten hat, Grußformel.
+Sachlicher, knapper Fachstil.`,
+};
+
+// Strengere Regeln je Berichtstyp. Sie gehen den allgemeinen Regeln vor.
+// Bericht an die überweisende Praxis: nur ausformulieren, was die Praxis notiert hat, nichts ergänzen.
+export const TYPE_ZUSATZREGELN: Partial<Record<ReportType, string>> = {
+  UEBERWEISER: `Für diesen Bericht gilt vorrangig vor allen anderen Regeln:
+- Formuliere ausschließlich aus, was in den erfassten Leistungen und in der Notiz der Praxis steht.
+  Ergänze nichts: keine Anamnese, keinen Befund, keine Diagnose, keine Beurteilung, keine Empfehlung,
+  kein weiteres Vorgehen und keine Medikation, die dort nicht steht.
+- Steht zu einem Abschnitt nichts in den Angaben, lass den Abschnitt weg. Schreibe dafür keinen
+  Platzhalter und keine Floskel wie "unauffällig" oder "ohne Befund".
+- Deute Stichworte nicht aus. Unklare Abkürzungen übernimmst du unverändert.
+- Der Bericht darf kurz sein. Kürze ist kein Fehler; ein erfundener Satz ist einer.`,
 };
 
 // Datenminimierung (Art. 5 und 25 DSGVO, § 203 StGB): An den KI-Dienst gehen
@@ -148,6 +166,7 @@ Erstelle daraus jetzt den vollständigen Bericht.`;
 const TYPE_HEADING: Record<ReportType, string> = {
   BEFUND: "Befund- und Behandlungsbericht",
   KRANKENKASSE: "Bericht an die Krankenkasse zur Kostenübernahme/-erstattung",
+  UEBERWEISER: "Bericht an die überweisende Praxis",
 };
 
 // Kostenlose, rein regelbasierte Alternative zur KI-Formulierung: stellt aus
@@ -220,7 +239,7 @@ fertigen, gut lesbaren Bericht auf Deutsch.
 
 ${TYPE_INSTRUCTIONS[input.reportType]}
 Fachstil dieser Einrichtung: ${profil.berichtStil}.
-
+${TYPE_ZUSATZREGELN[input.reportType] ? `\n${TYPE_ZUSATZREGELN[input.reportType]}\n` : ""}
 Wichtige Regeln:
 - Eine Empfehlung oder ein weiteres Vorgehen schreibst du nur, wenn die Praxis es in ihren Angaben
   oder der Notiz selbst nennt. Schlage nie eigene Diagnosen oder Therapien vor.
@@ -257,6 +276,10 @@ Wichtige Regeln:
 
 /** Ist ein echter KI-Zugang hinterlegt? (Sonst Testmodus.) */
 export const kiVerfuegbar = () => HAS_REAL_KEY;
+
+/** Für die KI-Hilfen (lib/kiHilfen.ts): derselbe Zugang und dasselbe Modell wie bei den Berichten. */
+export const kiClient = () => anthropic;
+export const KI_MODELL = MODEL;
 
 /**
  * Formuliert den regelbasierten Überblick vor dem Termin in drei bis vier

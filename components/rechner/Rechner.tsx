@@ -110,8 +110,8 @@ export function ZahnersatzRechner() {
       </div>
       <Ergebnis
         testid="ze-ergebnis"
-        zeilen={[[`Ihr Eigenanteil bei Bewilligung bis 31.12.2026 (Zuschuss ${pct(r.satz2026)})`, eur(r.eigen2026)], [`ab 1.1.2027, voraussichtlich (Zuschuss ${pct(r.satz2027)})`, eur(r.eigen2027), true], ["Unterschied", `${r.mehr > 0 ? "+" : ""}${eur(r.mehr)}`]]}
-        hinweis={`Festzuschuss der Kasse: ${eur(r.zuschuss2026)} bis 2026, voraussichtlich ${eur(r.zuschuss2027)} ab 2027. Maßgeblich ist der Tag, an dem die Kasse den Plan bewilligt, nicht der Behandlungstermin. Die Euro-Beträge je Befund für 2027 sind noch nicht veröffentlicht; gerechnet ist mit den Beträgen von 2026 und den neuen Sätzen.`}
+        zeilen={[[`Ihr Eigenanteil bei Bewilligung bis 31.12.2026 (Zuschuss ${pct(r.satz2026)})`, eur(r.eigen2026)], [`ab 1.1.2027${r.vorlaeufig2027 ? ", voraussichtlich" : ""} (Zuschuss ${pct(r.satz2027)})`, eur(r.eigen2027), true], ["Unterschied", `${r.mehr > 0 ? "+" : ""}${eur(r.mehr)}`]]}
+        hinweis={`Festzuschuss der Kasse: ${eur(r.zuschuss2026)} bis 2026, ${r.vorlaeufig2027 ? "voraussichtlich " : ""}${eur(r.zuschuss2027)} ab 2027. Maßgeblich ist der Tag, an dem die Kasse den Plan bewilligt, nicht der Behandlungstermin.${r.vorlaeufig2027 ? " Die Euro-Beträge je Befund für 2027 sind noch nicht veröffentlicht; gerechnet ist mit den Beträgen von 2026 und den neuen Sätzen." : ""}`}
       />
     </div>
   );

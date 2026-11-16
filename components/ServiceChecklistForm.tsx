@@ -127,7 +127,7 @@ export function ServiceChecklistForm({
 }) {
   const router = useRouter();
   const [patientId, setPatientId] = useState(initialPatientId ?? patients[0]?.id ?? "");
-  const [type, setType] = useState<"BEFUND" | "KRANKENKASSE">("BEFUND");
+  const [type, setType] = useState<"BEFUND" | "KRANKENKASSE" | "UEBERWEISER">("BEFUND");
   const [treatmentDate, setTreatmentDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [additionalContext, setAdditionalContext] = useState("");
 
@@ -462,10 +462,12 @@ export function ServiceChecklistForm({
             <select
               className="input"
               value={type}
-              onChange={(e) => setType(e.target.value as "BEFUND" | "KRANKENKASSE")}
+              onChange={(e) => setType(e.target.value as "BEFUND" | "KRANKENKASSE" | "UEBERWEISER")}
+              data-testid="berichtstyp"
             >
               <option value="BEFUND">Befund-/Behandlungsbericht</option>
               <option value="KRANKENKASSE">Bericht an Krankenkasse</option>
+              <option value="UEBERWEISER">Bericht an die überweisende Praxis</option>
             </select>
           </div>
         </div>

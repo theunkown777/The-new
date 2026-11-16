@@ -16,6 +16,7 @@ export const LOESCHFRISTEN = [
   { id: "protokoll", daten: "Protokolleinträge", frist: "3 Jahre", tage: 3 * 365, grund: "Nachweis nach Art. 5 Abs. 2 und Art. 32 DSGVO, regelmäßige Verjährung (§ 195 BGB)" },
   { id: "terminanfrage", daten: "Online-Anfragen neuer Patienten, die nicht bestätigt wurden (offen oder abgelehnt); bei bestätigten die Kopie der Anmeldedaten", frist: "30 Tage nach Eingang bzw. Bestätigung", tage: 30, grund: "Nur für die Terminvergabe erhoben; nach der Bestätigung stehen die Daten in Akte und Termin" },
   { id: "warteliste", daten: "Erledigte Einträge der Warteliste", frist: "30 Tage nach Erledigung", tage: 30, grund: "Wunsch ist erfüllt oder zurückgezogen" },
+  { id: "fehlerlog", daten: "Fehlereinträge aus dem Betrieb (bereinigt, ohne Patientendaten)", frist: "30 Tage nach dem letzten Auftreten", tage: 30, grund: "Nur für die Fehlersuche nötig, danach ohne Zweck" },
   { id: "demo", daten: "Demo-Praxen (erfundene Daten)", frist: "nach 24 Stunden", tage: 1, grund: "Gastzugang" },
 ] as const;
 

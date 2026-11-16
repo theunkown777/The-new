@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ABGEWAEHLT, buildProposal, DEFAULT_PRICES, money, type ProposalInput } from "@/lib/proposals";
-import { KOSTEN_EINREICHEN, hinweisText, kostenuebersicht } from "@/lib/kostenuebersicht";
+import { KOSTEN_EINREICHEN, KOSTEN_EINREICHEN_ALLGEMEIN, hinweisText, kostenuebersicht } from "@/lib/kostenuebersicht";
 import { buildKostenuebersichtPdf } from "@/lib/pdf";
 import { LEERE_STAMMDATEN } from "@/lib/praxisStammdaten";
 
@@ -75,6 +75,16 @@ describe("Kostenübersicht für Patienten", () => {
     expect(hinweisText({ gkv: true, dental: false, therapie: true })).toContain("Preisliste");
     const alles = JSON.stringify(k);
     expect(alles).not.toMatch(/Mehrumsatz|Volumen|Rate|Teilzahlung|Empfehlung|empfohlen|sinnvoll|beste|Geburt|Versichertennummer/i);
+  });
+
+  it("nennt den Heil- und Kostenplan nur in der Zahnarztpraxis", () => {
+    const zahn = kostenuebersicht({ ...basis, dental: true, therapie: false, praxisWahl: {}, patientWahl: null });
+    expect(zahn.einreichen).toBe(KOSTEN_EINREICHEN);
+    for (const therapie of [false, true]) {
+      const k = kostenuebersicht({ ...basis, dental: false, therapie, praxisWahl: {}, patientWahl: null });
+      expect(k.einreichen).toBe(KOSTEN_EINREICHEN_ALLGEMEIN);
+      expect(k.einreichen + k.hinweis).not.toMatch(/Heil- und Kostenplan|Zahnersatz|Festzuschuss|Bonusheft/);
+    }
   });
 
   it("erzeugt ein PDF", async () => {

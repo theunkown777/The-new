@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
@@ -20,6 +21,11 @@ export default async function SpecialtySettingsPage() {
       <p className="mb-6 text-sm text-slate-500">
         Sorrida passt Behandlungsvorschläge, Patientenschreiben und Patienten-Link an Ihr Fachgebiet an. Eigene Leistungen ergänzen oder
         ersetzen die mitgelieferten Beispiele.
+      </p>
+      <p className="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700" data-testid="preisliste-link">
+        Sie haben schon eine Preisliste?{" "}
+        <Link href="/settings/fachgebiet/preisliste" className="font-medium text-brand-700 underline">Preisliste einlesen</Link>
+        : Text einfügen oder Datei wählen, prüfen, bestätigen.
       </p>
       <SpecialtySettings initial={{ specialty: fach, medPrices: med.prices ?? {}, customOffers: med.custom ?? [] }} readOnly={session!.user.role !== "admin"}
         katalog={leistungenFuerFach(fach).map((l) => ({

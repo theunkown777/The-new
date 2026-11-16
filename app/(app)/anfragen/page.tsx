@@ -39,6 +39,7 @@ export default async function AnfragenPage(props: { searchParams: Promise<{ f?: 
       <div>
         <h1 className="font-display text-3xl text-slate-900">Anfragen</h1>
         <p className="mt-1 text-sm text-slate-600">Hilfe- und Pilot-Anfragen von der Website. {offen} offen. Nur für das Sorrida-Team sichtbar.</p>
+        <p className="mt-1 text-sm"><Link href="/betrieb" className="text-brand-700 underline" data-testid="zu-betrieb">Fehler aus dem Betrieb ansehen</Link></p>
       </div>
       <nav className="flex flex-wrap gap-2">
         {FILTER.map(([k, l]) => (

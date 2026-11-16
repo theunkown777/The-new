@@ -16,6 +16,7 @@ import {
   type ProposalInput,
 } from "@/lib/proposals";
 import { SPECIALTY_IDS } from "@/lib/specialties";
+import { leistungUebersetzungenSchema } from "@/lib/eigeneLeistung";
 
 export const customOfferSchema = z.object({
   id: z.string().regex(/^[a-z0-9_-]{1,40}$/),
@@ -26,6 +27,8 @@ export const customOfferSchema = z.object({
   kasseWenn: z.string().trim().max(300).optional(),
   nutzen: z.string().trim().max(300).optional(),
   benefits: z.array(z.string().trim().max(120)).max(6).optional(),
+  /** Übersetzungen von Name und Hinweis (lib/eigeneLeistung.ts): Patienten sehen nur geprüfte. */
+  uebersetzungen: leistungUebersetzungenSchema.optional(),
 });
 
 const findingCodes = Object.keys(FINDINGS) as [FindingCode, ...FindingCode[]];

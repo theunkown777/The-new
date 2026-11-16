@@ -34,3 +34,6 @@ next-env.d.ts
 .claude/
 skills-lock.json
 .work-tmp/
+
+# Bildschirmfotos der Browser-Durchläufe (e2e/)
+e2e/.bilder/

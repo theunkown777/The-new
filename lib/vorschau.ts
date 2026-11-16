@@ -117,7 +117,7 @@ export function oeffentlichStufe(env: Record<string, string | undefined> = proce
 }
 
 /** Informationsseiten: dürfen in Suchmaschinen stehen. Keine App, keine Patientendaten, keine Anmeldung. */
-const INFO_GENAU = ["/", "/ratgeber", "/rechner", "/leistungen", "/hilfe", "/avv", "/vorschau", "/neu", "/zahnmedizin", "/fachgebiete", "/sitemap.xml"];
+const INFO_GENAU = ["/", "/ratgeber", "/rechner", "/leistungen", "/hilfe", "/avv", "/vorschau", "/neu", "/zahnmedizin", "/fachgebiete", "/sitemap.xml", "/vertrauen", "/status"];
 const INFO_UNTER = ["/ratgeber/", "/rechner/", "/leistungen/", "/fachgebiete/"];
 export function istInfoSeite(pfad: string): boolean {
   return INFO_GENAU.includes(pfad) || PFLICHTSEITEN.includes(pfad) || INFO_UNTER.some((p) => pfad.startsWith(p));

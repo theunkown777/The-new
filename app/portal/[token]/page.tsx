@@ -193,15 +193,18 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
           {split && split.kasse + split.eigen > 0 && (
             <KassenSockel className="mt-4 text-start" kasse={split.kasse} eigen={split.eigen} labels={{ kasse: privat && lang === "de" ? "Versicherung erstattet" : t.kassePays, eigen: t.yourShare }} />
           )}
-          <p className="mt-3 text-sm text-slate-600">
-            {open.length ? (
-              <>
-                {t.openTotal}: <b className="tabular-nums text-slate-900">{money(openCent)}</b> · {t.nextDue(date(open[0].dueDate))}
-              </>
-            ) : (
-              t.allPaid
-            )}
-          </p>
+          {/* „Alles erledigt“ nur, wenn wirklich nichts aussteht: nicht, solange ein Vorschlag auf die Wahl wartet (der Schritt darüber sagt es). */}
+          {(open.length > 0 || !openProposal) && (
+            <p className="mt-3 text-sm text-slate-600" data-testid="portal-offen">
+              {open.length ? (
+                <>
+                  {t.openTotal}: <b className="tabular-nums text-slate-900">{money(openCent)}</b> · {t.nextDue(date(open[0].dueDate))}
+                </>
+              ) : (
+                t.allPaid
+              )}
+            </p>
+          )}
         </section>
 
         {searchParams.bezahlt && (

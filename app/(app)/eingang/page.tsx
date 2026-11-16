@@ -6,6 +6,8 @@ import { EINGANG_ARTEN, eingangZiel, istEingangArt } from "@/lib/eingang";
 import { EingangAktion, EingangAlle, EingangMeldungen, EingangUebernehmen } from "@/components/EingangAktion";
 import { MorgenMail } from "@/components/MorgenMail";
 import { EingangAnfragen } from "@/components/EingangAnfragen";
+import { EingangAntwort } from "@/components/EingangAntwort";
+import { hatAntwortEntwurf } from "@/lib/antwortBausteine";
 import { mailVersandAktiv } from "@/lib/email";
 import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
 
@@ -51,6 +53,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
           </p>
           {!fertig && a && <p className="mt-0.5 text-xs text-slate-500">{a.tun}</p>}
           {!fertig && <p className="mt-1"><EingangUebernehmen id={e.id} name={e.zustaendigName} meiner={e.zustaendigId === session!.user.id} /></p>}
+          {!fertig && hatAntwortEntwurf(e.art) && <EingangAntwort id={e.id} />}
           {fertig && <p className="mt-0.5 text-xs text-slate-500">abgehakt {e.erledigtAt ? zeit(e.erledigtAt) : ""}{e.erledigtVon ? ` von ${e.erledigtVon}` : ""}</p>}
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">

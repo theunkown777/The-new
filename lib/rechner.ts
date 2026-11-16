@@ -1,6 +1,6 @@
 // Öffentliche Rechner der Website. Sie rechnen mit denselben Regeln wie die Vorschläge in der App.
 // Alle Ergebnisse sind unverbindliche Orientierung; verbindlich sind Heil- und Kostenplan, Verordnung und Bescheid der Kasse.
-import { FESTZUSCHUSS_BEFUNDE, FESTZUSCHUSS_SAETZE, heilmittelZuzahlung, hilfsmittelZuzahlung } from "@/lib/proposals";
+import { FESTZUSCHUSS_2027, FESTZUSCHUSS_BEFUNDE, FESTZUSCHUSS_SAETZE, befundEuro, heilmittelZuzahlung, hilfsmittelZuzahlung } from "@/lib/proposals";
 import { SPANNEN, WERKE, betragCent, pruefeFaktor, type GoaeGruppe } from "@/lib/gebuehren";
 
 const cent = (n: number) => Math.round(n * 100) / 100;
@@ -35,18 +35,19 @@ export const RECHNER_BEFUNDE = ["1.1", "1.2", "2.1", "2.2", "2.3"].filter((b) =>
 
 /**
  * Festzuschuss der Kasse für Zahnersatz bei Bewilligung bis 31.12.2026 und ab 1.1.2027.
- * Die Euro-Beträge je Befund für 2027 sind noch nicht veröffentlicht; gerechnet wird mit den Beträgen 2026
- * und den neuen Sätzen. Das Ergebnis für 2027 ist deshalb „voraussichtlich“.
+ * Solange die Euro-Beträge je Befund für 2027 nicht eingelesen sind (data/festzuschuss-2027.json leer), wird mit den
+ * Beträgen 2026 und den neuen Sätzen gerechnet; das Ergebnis für 2027 ist dann „voraussichtlich“ (vorlaeufig2027 = true).
+ * Mit eingelesener Tabelle gelten für 2027 deren Beträge.
  */
-export function festzuschussVergleich(befund: string, bonus: Bonus, haertefall: boolean, kosten?: number) {
+export function festzuschussVergleich(befund: string, bonus: Bonus, haertefall: boolean, kosten?: number, tabelle2027: Record<string, number> | null = FESTZUSCHUSS_2027) {
   const basis = FESTZUSCHUSS_BEFUNDE[befund]?.euro ?? 0;
-  const zuschuss = (jahr: 2026 | 2027) => cent(basis * (haertefall ? 1 : FESTZUSCHUSS_SAETZE[jahr][bonus]));
+  const zuschuss = (jahr: 2026 | 2027) => cent(befundEuro(befund, jahr, tabelle2027) * (haertefall ? 1 : FESTZUSCHUSS_SAETZE[jahr][bonus]));
   const z26 = zuschuss(2026);
   const z27 = zuschuss(2027);
   // Ohne Angabe der Kosten: Regelversorgung, deren Durchschnittskosten dem 100-%-Betrag entsprechen.
   const gesamt = Number.isFinite(kosten) && (kosten as number) > 0 ? (kosten as number) : basis;
   const eigen = (z: number) => cent(Math.max(0, gesamt - z));
-  return { regelversorgung: basis, gesamt: cent(gesamt), zuschuss2026: z26, zuschuss2027: z27, eigen2026: eigen(z26), eigen2027: eigen(z27), mehr: cent(eigen(z27) - eigen(z26)), satz2026: haertefall ? 1 : FESTZUSCHUSS_SAETZE[2026][bonus], satz2027: haertefall ? 1 : FESTZUSCHUSS_SAETZE[2027][bonus] };
+  return { regelversorgung: basis, gesamt: cent(gesamt), zuschuss2026: z26, zuschuss2027: z27, eigen2026: eigen(z26), eigen2027: eigen(z27), mehr: cent(eigen(z27) - eigen(z26)), vorlaeufig2027: tabelle2027 === null, satz2026: haertefall ? 1 : FESTZUSCHUSS_SAETZE[2026][bonus], satz2027: haertefall ? 1 : FESTZUSCHUSS_SAETZE[2027][bonus] };
 }
 
 /** Betrag einer Rechnungsposition nach GOÄ oder GOZ mit Einordnung des Faktors. */

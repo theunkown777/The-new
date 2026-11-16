@@ -30,7 +30,7 @@ export async function gdtErgebnis(practiceId: string, art: GdtArt, id: string): 
     if (!r) return { fehler: "Bericht nicht gefunden", status: 404 };
     if (r.status !== "FINAL") return { fehler: "Nur freigegebene Berichte gehen an die Praxissoftware.", status: 409 };
     patient = r.patient;
-    titel = r.type === "KRANKENKASSE" ? "Schreiben an die Krankenkasse (Sorrida)" : "Befundbericht (Sorrida)";
+    titel = r.type === "KRANKENKASSE" ? "Schreiben an die Krankenkasse (Sorrida)" : r.type === "UEBERWEISER" ? "Bericht an die überweisende Praxis (Sorrida)" : "Befundbericht (Sorrida)";
     text = `${r.editedText ?? r.generatedText ?? ""}\n\nFreigegeben von ${r.approvedByName ?? "unbekannt"}${r.approvedAt ? ` am ${r.approvedAt.toLocaleString("de-DE", { timeZone: "Europe/Berlin" })}` : ""}.`;
     datum = r.treatmentDate ?? r.createdAt;
   } else {

@@ -106,3 +106,24 @@ describe("Stufe „öffentlich, aber geschützt“", () => {
     expect(istInfoSeite("/impressum")).toBe(true);
   });
 });
+
+describe("Seiten /vertrauen und /status", () => {
+  const aus = {}, seiten = { VORSCHAU_OEFFENTLICH: "1" };
+  it("sind Informationsseiten: in der öffentlichen Stufe frei und in Suchmaschinen erlaubt", () => {
+    for (const p of ["/vertrauen", "/status"]) {
+      expect(istInfoSeite(p), p).toBe(true);
+      expect(oeffentlichFrei(p, seiten, true), p).toBe(true);
+      expect(darfInSuchmaschinen(p, seiten, true), p).toBe(true);
+    }
+  });
+  it("bleiben ohne öffentliche Stufe hinter dem Zugang, und Unterpfade sind nicht frei", () => {
+    for (const p of ["/vertrauen", "/status"]) expect(oeffentlichFrei(p, aus, true), p).toBe(false);
+    for (const p of ["/vertrauen/x", "/status/x", "/statusx", "/betrieb", "/api/fehler"]) {
+      expect(istInfoSeite(p), p).toBe(false);
+      expect(oeffentlichFrei(p, seiten, true), p).toBe(false);
+    }
+  });
+  it("die Selbsttest-Schnittstelle /api/status wird dadurch nicht zur Informationsseite", () => {
+    expect(istInfoSeite("/api/status")).toBe(false);
+  });
+});

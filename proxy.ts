@@ -16,7 +16,7 @@ const auth = withAuth({ pages: { signIn: "/login" }, callbacks: { authorized: ({
 const MFA_FREI = ["/api/auth/", "/api/settings/2fa/"];
 
 // Bereiche, die eine Anmeldung brauchen (next-auth)
-const GESCHUETZT = ["/dashboard", "/patients", "/reports", "/proposals", "/abschluss", "/settings", "/zahlungen", "/analyse", "/anfragen", "/vorsorge", "/praxismanager", "/termine", "/abrechnungspruefung", "/abrechnung", "/mein-bereich", "/leistungsverzeichnis", "/modelle", "/eingang", "/embed", "/empfang"];
+const GESCHUETZT = ["/dashboard", "/patients", "/reports", "/proposals", "/abschluss", "/settings", "/zahlungen", "/analyse", "/anfragen", "/vorsorge", "/praxismanager", "/termine", "/abrechnungspruefung", "/abrechnung", "/mein-bereich", "/leistungsverzeichnis", "/modelle", "/eingang", "/embed", "/empfang", "/betrieb"];
 
 export default async function proxy(req: NextRequest, event: NextFetchEvent) {
   // Eigene Domain im Vorschau-Modus: ohne Zugangs-Cookie nur die Seite „Demnächst“

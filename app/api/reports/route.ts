@@ -24,7 +24,7 @@ const entrySchema = z.object({
 
 const createSchema = z.object({
   patientId: z.string().min(1),
-  type: z.enum(["BEFUND", "KRANKENKASSE"]),
+  type: z.enum(["BEFUND", "KRANKENKASSE", "UEBERWEISER"]),
   treatmentDate: z.string().optional().nullable(),
   serviceTemplateId: z.string().min(1),
   entries: z.array(entrySchema).min(1),

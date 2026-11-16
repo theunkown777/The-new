@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { generateToken, hashToken } from "@/lib/tokens";
 
@@ -44,15 +45,15 @@ export function leseLinkVermerk(links: Zeile[], now = new Date()): string {
 }
 
 /** Hashes der Zugänge, die der Patient gerade hat (Patienten-Link und Portal); Lese-Links zu älteren Zugängen sind erloschen. */
-async function zugaenge(proposalId: string): Promise<string[]> {
-  const p = await prisma.treatmentProposal.findUnique({ where: { id: proposalId }, select: { shareTokenHash: true, patient: { select: { portalTokenHash: true } } } });
+async function zugaenge(proposalId: string, db: Prisma.TransactionClient = prisma): Promise<string[]> {
+  const p = await db.treatmentProposal.findUnique({ where: { id: proposalId }, select: { shareTokenHash: true, patient: { select: { portalTokenHash: true } } } });
   return [p?.shareTokenHash, p?.patient.portalTokenHash].filter((x): x is string => !!x);
 }
 
 /** Aktive Lese-Links eines Vorschlags für die Liste in der Patientenansicht (ohne Token; den kennt nur, wer den Link bekam). */
-export async function leseLinksAktiv(proposalId: string, now = new Date()) {
-  const links = await prisma.leseLink.findMany({
-    where: { proposalId, revokedAt: null, expiresAt: { gt: now }, zugangHash: { in: await zugaenge(proposalId) } },
+export async function leseLinksAktiv(proposalId: string, now = new Date(), db: Prisma.TransactionClient = prisma) {
+  const links = await db.leseLink.findMany({
+    where: { proposalId, revokedAt: null, expiresAt: { gt: now }, zugangHash: { in: await zugaenge(proposalId, db) } },
     orderBy: { createdAt: "asc" },
     select: { id: true, createdAt: true },
   });
@@ -61,11 +62,19 @@ export async function leseLinksAktiv(proposalId: string, now = new Date()) {
 
 /** Neuen Lese-Link anlegen. Der Rohwert des Tokens wird nur hier einmal zurückgegeben. Null, wenn schon drei aktiv sind. */
 export async function leseLinkErzeugen(proposalId: string, quelle: "LINK" | "PORTAL", expiresAt: Date, zugangHash: string) {
-  if ((await leseLinksAktiv(proposalId)).length >= LESE_LINK_MAX) return null;
   const { raw, hash } = generateToken();
-  const l = await prisma.leseLink.create({ data: { proposalId, tokenHash: hash, quelle, expiresAt, zugangHash }, select: { id: true, createdAt: true } });
-  return { id: l.id, createdAt: l.createdAt.toISOString(), raw };
+  // Zählen und Anlegen in einem Schritt: Die Sperre je Vorschlag lässt gleichzeitige Anfragen nacheinander zählen.
+  // Ohne sie könnten mehrere Anfragen im selben Augenblick alle „noch unter drei“ sehen und zusammen mehr Links anlegen.
+  const l = await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${leseLinkSperre(proposalId)}))`;
+    if ((await leseLinksAktiv(proposalId, new Date(), tx)).length >= LESE_LINK_MAX) return null;
+    return tx.leseLink.create({ data: { proposalId, tokenHash: hash, quelle, expiresAt, zugangHash }, select: { id: true, createdAt: true } });
+  });
+  return l ? { id: l.id, createdAt: l.createdAt.toISOString(), raw } : null;
 }
+
+/** Name der Sperre für das Anlegen von Lese-Links eines Vorschlags (eine Sperre je Vorschlag, nicht je Praxis). */
+export const leseLinkSperre = (proposalId: string) => `leselink:${proposalId}`;
 
 export const leseLinkWiderrufen = async (proposalId: string, id: string) =>
   (await prisma.leseLink.updateMany({ where: { id, proposalId, revokedAt: null }, data: { revokedAt: new Date() } })).count > 0;

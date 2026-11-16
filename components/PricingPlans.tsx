@@ -1,7 +1,8 @@
 import { PILOT_ZIEL, PLANS, PRICE_TERMS, VAT_NOTE, eur } from "@/lib/pricing";
 
 // Preistabelle der Website: drei Pakete, alles enthalten. Gesetzt wie eine Preisliste:
-// drei Blätter, das meistgewählte Paket in Bordeaux hervorgehoben.
+// drei Blätter, das mittlere Paket in Bordeaux hervorgehoben. Das Schild nennt nur die Lage in der Liste:
+// keine „Empfehlung“ und keine Aussage dazu, was andere wählen (es gibt noch keine Kunden).
 // Der Knopf führt zur Anfrage eines Pilotplatzes: Eine Testphase zum Selbststarten gibt es nicht.
 export function PricingPlans({ cta = PILOT_ZIEL }: { cta?: string }) {
   return (
@@ -28,7 +29,7 @@ export function PricingPlans({ cta = PILOT_ZIEL }: { cta?: string }) {
               {!hervor && <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 rounded-t-[6px] ${i === 0 ? "bg-[#C9A27E]" : "bg-tinte"}`} />}
               {hervor && (
                 <span className="absolute -top-3 left-7 rounded-full bg-[#E8C9A9] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#5A1D1D] sm:left-9">
-                  Unsere Empfehlung
+                  Mittleres Paket
                 </span>
               )}
               <p className={`j-marke ${hervor ? "!text-[#E8C9A9]" : ""}`}>{p.fuer}</p>

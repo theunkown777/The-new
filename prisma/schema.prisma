@@ -45,6 +45,9 @@ model Practice {
   ausgangswert           Json?
   /// Diktat über den Sprachdienst des Browsers erlauben (Aufnahme verlässt das Gerät). Ohne Schalter nur Erkennung auf dem Gerät.
   diktatCloud            Boolean             @default(false)
+  /// KI-Hilfen (Einstellungen → Sicherheit): Anlässe zuordnen, Preisliste lesen, Fragen zur Bedienung, eigene Leistungen übersetzen.
+  /// Standard aus. Ohne Schalter laufen diese Funktionen nur auf dem festen Weg ohne KI (lib/kiHilfen.ts).
+  kiHilfen               Boolean             @default(false)
   /// Morgen-Mail: tägliche Kurzmeldung an die Praxis, nur Zahlen ohne Namen
   morgenMail             Boolean             @default(false)
   morgenMailAn           String?
@@ -1047,4 +1050,30 @@ model Terminanfrage {
 
   @@index([practiceId, status, createdAt])
   @@index([practiceId, start])
+}
+
+/// Fehler aus dem Betrieb (Server und Browser), nur für das Sorrida-Team (/betrieb).
+/// Ort und Meldung sind vor dem Speichern bereinigt (lib/fehlerlog.ts): keine Namen, Adressen, Nummern oder Tokens.
+/// Gleicher Fingerabdruck → derselbe Eintrag, der Zähler steigt. Gelöscht 30 Tage nach dem letzten Auftreten.
+model FehlerEintrag {
+  id            String    @id @default(cuid())
+  /// Hash aus Quelle, Ort und bereinigter Meldung
+  fingerabdruck String    @unique
+  /// "server" | "browser"
+  quelle        String
+  /// Route bzw. Pfad ohne Abfrage-Teil und ohne Token
+  ort           String
+  meldung       String
+  /// Höchstens drei Zeilen, Dateipfade ohne Parameter
+  stack         String?
+  zaehler       Int       @default(1)
+  /// Nur die ID der Praxis, bewusst ohne Beziehung
+  practiceId    String?
+  /// zuerst gesehen
+  createdAt     DateTime  @default(now())
+  zuletztAt     DateTime  @default(now())
+  erledigtAt    DateTime?
+
+  @@index([zuletztAt])
+  @@index([createdAt])
 }

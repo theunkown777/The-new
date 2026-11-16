@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { BefundDiktat } from "@/components/BefundDiktat";
 import { favoritenFuerFach, type Favorit } from "@/lib/favoriten";
 import { AnlassPicker } from "@/components/AnlassPicker";
+import { AnlassStichworte } from "@/components/AnlassStichworte";
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import type { DiktatResult } from "@/lib/befundDiktat";
 import {
@@ -508,6 +509,8 @@ export function ProposalEditor({
               </p>
             </div>
           )}
+
+          {!dental && <AnlassStichworte spec={spec} custom={medData.custom ?? []} fach={fach} value={anlaesse} onChange={setAnlaesse} patientId={patientId || null} person={patient ? { geschlecht: patient.geschlecht ?? null, alter: ageFromBirthDate(patient.birthDate) } : undefined} />}
 
           {!dental && (
             <AnlassPicker spec={spec} custom={medData.custom ?? []} value={anlaesse} onChange={setAnlaesse} person={patient ? { geschlecht: patient.geschlecht ?? null, alter: ageFromBirthDate(patient.birthDate) } : undefined} />

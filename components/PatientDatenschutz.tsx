@@ -40,6 +40,7 @@ export function PatientDatenschutz({ patientId, lastName }: { patientId: string;
         <a href={`/api/patients/${patientId}/export`} className="btn-secondary" data-testid="export">
           Daten exportieren
         </a>
+        <a href={`/api/patients/${patientId}/fhir`} className="btn-secondary" data-testid="export-fhir" title="Akte als FHIR-Datei für andere Programme">Akte als FHIR-Datei</a>
         {!open && (
           <button type="button" className="text-sm text-red-700 underline" onClick={() => setOpen(true)}>
             Patient löschen …

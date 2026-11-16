@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ArticlePage } from "@/components/ArticlePage";
 import { ratgeber } from "@/lib/ratgeber";
-import { FESTZUSCHUSS_BEFUNDE } from "@/lib/proposals";
+import { FESTZUSCHUSS_BEFUNDE, befundEuro, festzuschuss2027Amtlich } from "@/lib/proposals";
 
 const a = ratgeber("festzuschuss-2027");
 export const metadata: Metadata = { title: `${a.title} – Sorrida`, description: a.description };
@@ -13,6 +13,9 @@ const ROWS = [
 ];
 // Festzuschuss bei 100 % für Befund 2.1 (Lücke mit einem fehlenden Zahn), Stand 1.1.2026.
 const FZ = FESTZUSCHUSS_BEFUNDE["2.1"].euro;
+// Für 2027 der eingelesene Betrag (data/festzuschuss-2027.json), solange es ihn nicht gibt der Betrag 2026.
+const FZ27 = befundEuro("2.1", 2027);
+const AMTLICH_2027 = festzuschuss2027Amtlich();
 const euro = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
 
 export default function Page() {
@@ -69,7 +72,7 @@ export default function Page() {
         <tbody>
           {ROWS.map((r) => {
             const e26 = FZ * (1 - r.s26 / 100);
-            const e27 = FZ * (1 - r.s27 / 100);
+            const e27 = FZ27 * (1 - r.s27 / 100);
             return (
               <tr key={r.bonus}>
                 <td>{r.bonus}</td>
@@ -84,9 +87,9 @@ export default function Page() {
       <p>
         Bei gleich- und andersartiger Versorgung, also etwa einer Vollkeramik-Brücke oder einem Implantat, bleibt der Festzuschuss an
         die Regelversorgung gebunden. Der Mehrbetrag ist deshalb in Euro derselbe, nur der Gesamtbetrag ist höher. Die tatsächlichen
-        Kosten der Regelversorgung weichen je nach Punktwert Ihrer KZV und Labor etwas vom Durchschnitt ab. Die Eurobeträge für
-        2027 veröffentlicht der Gemeinsame Bundesausschuss erst zum Jahresende; die Werte für 2027 sind deshalb mit den Beträgen von 2026
-        gerechnet und voraussichtlich.
+        Kosten der Regelversorgung weichen je nach Punktwert Ihrer KZV und Labor etwas vom Durchschnitt ab. {AMTLICH_2027
+          ? "Die Werte für 2027 sind mit den veröffentlichten Eurobeträgen für 2027 gerechnet."
+          : "Die Eurobeträge für 2027 veröffentlicht der Gemeinsame Bundesausschuss erst zum Jahresende; die Werte für 2027 sind deshalb mit den Beträgen von 2026 gerechnet und voraussichtlich."}
       </p>
 
       <h2>Checkliste für die Rezeption bis Jahresende</h2>

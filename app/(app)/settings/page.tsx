@@ -28,7 +28,7 @@ const CARDS: { href: string; title: string; description: string; nur?: "zahn" }[
   {
     href: "/settings/security",
     title: "Sicherheit",
-    description: "Zwei-Faktor-Anmeldung einrichten und festlegen, wie das Diktat Sprache erkennt.",
+    description: "Zwei-Faktor-Anmeldung einrichten, festlegen, wie das Diktat Sprache erkennt, und KI-Hilfen ein- oder ausschalten.",
   },
   {
     href: "/settings/billing",
@@ -115,6 +115,10 @@ export default async function SettingsPage() {
           Mit Ihrer Rolle sehen Sie hier Ihr eigenes Konto. Die Einstellungen der Praxis verwaltet die Praxisleitung.
         </p>
       )}
+      <p className="mb-4 text-sm text-slate-600" data-testid="frag-sorrida-link">
+        Fragen zur Bedienung?{" "}
+        <Link href="/hilfe-praxis" className="font-medium text-brand-700 underline">Frag Sorrida</Link> durchsucht die Hilfetexte.
+      </p>
       <div className="grid gap-4 sm:grid-cols-2">
         {karten.map((card) => (
           <Link key={card.href} href={card.href} className="card hover:bg-slate-50">
