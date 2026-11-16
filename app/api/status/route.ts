@@ -122,7 +122,12 @@ export async function GET(req: Request) {
     const impressumOk = impressumVollstaendig();
     const stufe = oeffentlichStufe();
     const reg = registrierungOffen() ? "offen" : "geschlossen";
-    checks["Veröffentlichung"] = !process.env.VORSCHAU_HOSTS
+    // Öffentlich ohne täglichen Lauf: Die Löschfristen aus der Datenschutzerklärung (Anfragen, Fehlerprotokoll, Einmal-Links)
+    // liefen dann nur noch zufällig. Das meldet der Bericht als Fehler, damit es vor dem Öffnen auffällt.
+    const ohneLauf = !process.env.CRON_SECRET && (stufe !== "aus" || !process.env.VORSCHAU_HOSTS);
+    checks["Veröffentlichung"] = ohneLauf && impressumOk
+      ? { ok: false, info: "Die Seite ist öffentlich, aber CRON_SECRET fehlt: Der tägliche Lauf für die Löschfristen aus der Datenschutzerklärung ist nicht aktiv. CRON_SECRET in Vercel setzen, dann neu deployen" }
+      : !process.env.VORSCHAU_HOSTS
       ? { ok: impressumOk, info: impressumOk ? `keine Vorschau-Sperre: alles öffentlich; Registrierung ${reg}` : "keine Vorschau-Sperre, aber das Impressum ist unvollständig (Telefonnummer in lib/betreiber.ts fehlt)" }
       : gewollt && !impressumOk
         ? { ok: false, info: "VORSCHAU_OEFFENTLICH ist gesetzt, aber das Impressum ist unvollständig (Telefonnummer fehlt): Die Seite bleibt deshalb verschlossen" }
