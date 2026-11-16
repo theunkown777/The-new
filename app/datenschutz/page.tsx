@@ -18,7 +18,7 @@ export const metadata: Metadata = { title: "Datenschutz – Sorrida" };
 // lib/empfang.ts; Dienste: lib/email.ts, lib/anthropic.ts, lib/whatsapp.ts, lib/rateLimit.ts,
 // lib/onlineZahlung.ts, vercel.json; Fristen: lib/loeschfristen.ts). Dauern und Fristen werden deshalb
 // aus dem Code gelesen. Stripe und WhatsApp erscheinen nur, wenn die Dienste eingerichtet sind.
-const STAND = "15.11.2026";
+const STAND = "16.11.2026";
 
 export default function DatenschutzPage() {
   const b = BETREIBER;
@@ -29,6 +29,7 @@ export default function DatenschutzPage() {
   const terminanfrageTage = LOESCHFRISTEN.find((f) => f.id === "terminanfrage")!.tage;
   const protokollJahre = Math.round(LOESCHFRISTEN.find((f) => f.id === "protokoll")!.tage / 365);
   const sitzungStunden = SITZUNG_MAX_SEKUNDEN / 3600;
+  const fehlerTage = LOESCHFRISTEN.find((f) => f.id === "fehlerlog")!.tage;
   return (
     <LegalPage title="Datenschutzerklärung">
       <p className="text-sm text-slate-500" data-testid="datenschutz-stand">
@@ -56,9 +57,17 @@ export default function DatenschutzPage() {
           Besucherstatistik führen wir nicht.
         </p>
         <p>
-          Zum Schutz vor Missbrauch zählen wir bei Formularen, Anmeldung, Registrierung, Gastzugang und Patienten-Links die Anfragen je
-          IP-Adresse. Diese Zähler verfallen nach spätestens einer Stunde. Ist kein Zähldienst angebunden, liegen sie nur im Arbeitsspeicher
-          des Servers.
+          Zum Schutz vor Missbrauch zählen wir bei Formularen, Anmeldung, Registrierung, Gastzugang, Patienten-Links und Fehlermeldungen die
+          Anfragen je IP-Adresse. Diese Zähler verfallen nach spätestens einer Stunde. Ist kein Zähldienst angebunden, liegen sie nur im
+          Arbeitsspeicher des Servers.
+        </p>
+        <p data-testid="datenschutz-fehlerprotokoll">
+          Fehlerprotokoll: Tritt auf einer Seite ein technischer Fehler auf, speichern wir, wo er auftrat (die Adresse der Seite ohne
+          Abfrage-Teil und ohne persönliche Kennzeichen), eine gekürzte Fehlermeldung, wie oft er vorkam und wann zuletzt. Namen, Adressen,
+          Nummern und Texte in Anführungszeichen entfernen wir vorher. Die IP-Adresse speichern wir im Protokoll nicht. Bei angemeldeten
+          Praxen kommt die interne Kennung der Praxis dazu. Wir brauchen das, um Fehler zu finden und zu beheben (Art. 6 Abs. 1 lit. f
+          DSGVO). Die Einträge liegen in unserer Datenbank, ein weiterer Dienst ist nicht beteiligt. Wir löschen sie {fehlerTage} Tage nach
+          dem letzten Auftreten.
         </p>
         <p>
           Wir setzen keine Analyse- oder Werbewerkzeuge ein und binden keine Inhalte fremder Server ein. Schriften, Bilder und 3D-Modelle
@@ -185,8 +194,11 @@ export default function DatenschutzPage() {
             Einladung, Passwort) und, wenn eine Praxis es auslöst, E-Mails an ihre Patienten (Termin, Zahlungserinnerung).
           </li>
           <li>
-            <b>Anthropic</b> (KI-Dienst, Unternehmen mit Sitz in den USA): Formulierung von Berichtsentwürfen für Praxen. Dorthin gehen keine
-            Namen, kein Geburtsdatum und keine Versichertennummer. Website-Besucher betrifft das nicht.
+            <b>Anthropic</b> (KI-Dienst, Unternehmen mit Sitz in den USA): Formulierung von Berichtsentwürfen für Praxen. Hat die
+            Praxisleitung die KI-Hilfen eingeschaltet (am Anfang sind sie aus), außerdem auf Knopfdruck: Stichworte einem Anlass zuordnen,
+            eine Preisliste ablesen, Fragen zur Bedienung beantworten, eigene Leistungen übersetzen. Namen, Geburtsdatum, Versichertennummer,
+            E-Mail-Adressen und Telefonnummern ersetzen wir vorher durch Platzhalter. Freier Text kann trotzdem Angaben enthalten, die auf
+            eine Person schließen lassen. Website-Besucher betrifft das nicht.
           </li>
           {stripeAktiv && (
             <li>

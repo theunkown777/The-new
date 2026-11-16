@@ -37,7 +37,8 @@ export default function AvvPage() {
         <h2>§ 1 Gegenstand, Zweck und Dauer</h2>
         <p>
           Sorrida stellt der Praxis eine Software über das Internet bereit. Sie umfasst: Erfassung von Leistungen und Befunden,
-          Berichtsentwürfe (auch mit einem KI-Dienst), Behandlungs- und Kostenvorschläge, Patienten-Link und Patientenportal (Vorschlag,
+          Berichtsentwürfe (auch mit einem KI-Dienst), auf Wunsch der Praxisleitung zuschaltbare KI-Hilfen (Stichworte zuordnen, Preisliste
+          ablesen, Fragen zur Bedienung, Übersetzung eigener Leistungen), Behandlungs- und Kostenvorschläge, Patienten-Link und Patientenportal (Vorschlag,
           Rückmeldung, Vorab-Einverständnis mit Unterschrift, Anamnese und Fragebögen, Terminbuchung, Rechnungen, Lastschriftmandat,
           Online-Zahlung, Zweitmeinungs-Vergleich), Terminanfrage neuer Patienten über die Buchungsseite der Praxis, Empfangsmodus am Gerät der Praxis (Kontaktdaten,
           Anamnese, Unterschrift), Nachrichten an Patienten per E-Mail und Messenger, Termine und Aufgaben, Rechnungen,

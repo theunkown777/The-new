@@ -32,6 +32,7 @@ export const ORT: Punkt[] = [
 /** Was an den KI-Dienst geht und was nie. */
 export const KI_GEHT: string[] = [
   "Erfasste Leistungen, Diktat und Akteneinträge, wenn die Praxis einen Entwurf anfordert.",
+  "Nur wenn die Praxisleitung die KI-Hilfen einschaltet und jemand den KI-Knopf drückt: Stichworte aus dem Gespräch, die Preisliste der Praxis, eine Frage zur Bedienung, Name und Hinweis einer eigenen Leistung. Der Schalter steht am Anfang auf aus.",
 ];
 export const KI_NIE: string[] = [
   "Namen",

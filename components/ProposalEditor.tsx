@@ -36,6 +36,7 @@ import {
   type ProposalInput,
   type MedInput,
   type ZuschussJahr,
+  festzuschuss2027Amtlich,
 } from "@/lib/proposals";
 
 type EntwurfDaten = { patientId: string; kuerzel: string; factors: PatientFactors; teeth: Partial<Record<string, FindingCode>>; globals: Partial<Record<GlobalCode, boolean>>; anlaesse: string[]; choices: Record<string, string> };
@@ -642,7 +643,7 @@ export function ProposalEditor({
                 <div className={`rounded-lg bg-white p-3 ${jahr === 2027 ? "ring-2 ring-brand-600" : ""}`}>
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Bewilligt ab 1.1.2027</p>
                   <p className="mt-0.5 text-lg font-semibold tabular-nums text-slate-900">{formatEuro(jv.netto2027)}</p>
-                  <p className="text-xs text-slate-500">Festzuschuss nach Befund, {pct(2027)}; Beträge 2027 voraussichtlich</p>
+                  <p className="text-xs text-slate-500">Festzuschuss nach Befund, {pct(2027)}{festzuschuss2027Amtlich() ? "" : "; Beträge 2027 voraussichtlich"}</p>
                 </div>
                 <div className="rounded-lg bg-white p-3">
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Mehrkosten für den Patienten</p>
@@ -652,9 +653,11 @@ export function ProposalEditor({
               </div>
               <p className="mt-3 text-xs text-slate-600">
                 Maßgeblich ist das Bewilligungsdatum der Krankenkasse, nicht der Behandlungstermin. Härtefälle
-                erhalten weiter den doppelten Festzuschuss. Gerechnet wird mit den Festzuschüssen je Befund ab 1.1.2026
-                (GKV-Spitzenverband); die Beträge für 2027 sind noch nicht veröffentlicht, die Werte für 2027 deshalb
-                voraussichtlich. Grundlage der Kürzung: GKV-Beitragssatzstabilisierungsgesetz.
+                erhalten weiter den doppelten Festzuschuss.{" "}
+                {festzuschuss2027Amtlich()
+                  ? "Gerechnet wird mit den Festzuschüssen je Befund ab 1.1.2026 und ab 1.1.2027 (GKV-Spitzenverband)."
+                  : "Gerechnet wird mit den Festzuschüssen je Befund ab 1.1.2026 (GKV-Spitzenverband); die Beträge für 2027 sind noch nicht veröffentlicht, die Werte für 2027 deshalb voraussichtlich."}{" "}
+                Grundlage der Kürzung: GKV-Beitragssatzstabilisierungsgesetz.
               </p>
             </div>
           )}
