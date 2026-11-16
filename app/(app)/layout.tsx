@@ -21,6 +21,7 @@ import { UntereLeiste } from "@/components/UntereLeiste";
 import { DemoFuehrung } from "@/components/DemoFuehrung";
 import { AnsichtWaechter } from "@/components/Ansicht";
 import { ANSICHT_SKRIPT } from "@/lib/ansicht";
+import { KopfLink } from "@/components/KopfLink";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -94,14 +95,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </Link>
             {!sperre && <SucheKnopf variante="kopf" />}
             <nav className="auf-dunkel hidden shrink-0 items-center gap-5 text-sm text-brand-100 sm:flex" aria-label="Hauptnavigation">
-              <Link href="/dashboard" className="hover:text-white">Übersicht</Link>
-              <Link href="/eingang" className="hover:text-white">Eingang{eingang > 0 ? ` (${eingang})` : ""}</Link>
-              <Link href="/patients" className="hover:text-white">{personen}</Link>
-              {berichte && <Link href="/reports" className="hover:text-white">Berichte</Link>}
-              <Link href="/proposals" className="hover:text-white">Vorschläge</Link>
-              {menue.zahlungen && <Link href="/zahlungen" className="hover:text-white">Zahlungen</Link>}
-              {analyse && <Link href="/analyse" className="hover:text-white">Analyse</Link>}
-              <Link href="/settings" className="hover:text-white">{menue.einstellungen ? "Einstellungen" : "Mein Konto"}</Link>
+              <KopfLink href="/dashboard">Übersicht</KopfLink>
+              <KopfLink href="/eingang">Eingang{eingang > 0 ? ` (${eingang})` : ""}</KopfLink>
+              <KopfLink href="/patients">{personen}</KopfLink>
+              {berichte && <KopfLink href="/reports">Berichte</KopfLink>}
+              <KopfLink href="/proposals">Vorschläge</KopfLink>
+              {menue.zahlungen && <KopfLink href="/zahlungen">Zahlungen</KopfLink>}
+              {analyse && <KopfLink href="/analyse">Analyse</KopfLink>}
+              <KopfLink href="/settings">{menue.einstellungen ? "Einstellungen" : "Mein Konto"}</KopfLink>
             </nav>
             <MobileNav eingang={eingang} userName={session.user.name} dental={dental} berichte={berichte} team={team} analyse={analyse} zahlungen={menue.zahlungen} einstellungen={menue.einstellungen} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
           </div>

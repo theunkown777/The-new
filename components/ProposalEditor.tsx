@@ -38,6 +38,7 @@ import {
   type ZuschussJahr,
   festzuschuss2027Amtlich,
 } from "@/lib/proposals";
+import { PatientAuswahl } from "@/components/PatientAuswahl";
 
 type EntwurfDaten = { patientId: string; kuerzel: string; factors: PatientFactors; teeth: Partial<Record<string, FindingCode>>; globals: Partial<Record<GlobalCode, boolean>>; anlaesse: string[]; choices: Record<string, string> };
 
@@ -383,20 +384,7 @@ export function ProposalEditor({
             ) : (
             <div>
               <label className="label" htmlFor="proposal-patient">Patient</label>
-              <select
-                id="proposal-patient"
-                className="input"
-                value={patientId}
-                disabled={!!existing}
-                onChange={(e) => changePatient(e.target.value)}
-              >
-                <option value="">Bitte wählen…</option>
-                {patients.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.lastName}, {p.firstName}
-                  </option>
-                ))}
-              </select>
+              <PatientAuswahl id="proposal-patient" patients={patients} value={patientId} disabled={!!existing} onChange={changePatient} leer="Bitte wählen…" />
             </div>
             )}
             <div className="grid grid-cols-2 gap-3">

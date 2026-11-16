@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -53,6 +53,29 @@ export function MobileNav({ userName, dental = true, berichte = dental, team = f
     window.addEventListener("keydown", taste);
     return () => window.removeEventListener("keydown", taste);
   }, [open]);
+
+  // Blatt über „Mehr“: Der Fokus geht beim Öffnen ins Blatt, bleibt mit Tab darin und kehrt beim Schließen zurück.
+  const blatt = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (offen !== "leiste") return;
+    const vorher = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const ziele = () => Array.from(blatt.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])") ?? []);
+    ziele()[0]?.focus();
+    const taste = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const z = ziele();
+      if (z.length === 0) return;
+      const jetzt = document.activeElement;
+      if (!blatt.current?.contains(jetzt)) { e.preventDefault(); z[0].focus(); }
+      else if (e.shiftKey && jetzt === z[0]) { e.preventDefault(); z[z.length - 1].focus(); }
+      else if (!e.shiftKey && jetzt === z[z.length - 1]) { e.preventDefault(); z[0].focus(); }
+    };
+    window.addEventListener("keydown", taste);
+    return () => {
+      window.removeEventListener("keydown", taste);
+      vorher?.focus();
+    };
+  }, [offen]);
 
   const inhalt = (
     <>
@@ -136,7 +159,9 @@ export function MobileNav({ userName, dental = true, berichte = dental, team = f
         <div className="lg:hidden">
           <button type="button" aria-label="Menü schließen" onClick={zu} className="ein-schleier fixed inset-0 z-40 cursor-default bg-slate-900/40" data-testid="menue-schleier" />
           <div
+            ref={blatt}
             role="dialog"
+            aria-modal="true"
             aria-label="Menü"
             className="ein-dialog auf-dunkel fixed inset-x-0 z-40 overflow-y-auto rounded-t-xl bg-brand-600 px-4 py-3 shadow-2xl"
             style={{ bottom: "var(--leiste-unten)", maxHeight: "calc(100dvh - var(--leiste-unten) - 3rem)" }}

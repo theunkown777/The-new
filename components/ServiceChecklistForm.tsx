@@ -7,6 +7,7 @@ import { estimateAmountCent, kassenLabel } from "@/lib/billing";
 import { MicButton } from "@/components/MicButton";
 import { LeistungsverzeichnisAuswahl } from "@/components/LeistungsverzeichnisAuswahl";
 import { FREIE_ZUSAMMENSTELLUNG } from "@/lib/amtlich/gliederung";
+import { PatientAuswahl } from "@/components/PatientAuswahl";
 
 function formatEuro(cents: number): string {
   return (cents / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
@@ -401,13 +402,7 @@ export function ServiceChecklistForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="abschluss-patient">Patient</label>
-            <select id="abschluss-patient" className="input" value={patientId} onChange={(e) => setPatientId(e.target.value)}>
-              {patients.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.firstName} {p.lastName}
-                </option>
-              ))}
-            </select>
+            <PatientAuswahl id="abschluss-patient" patients={patients} value={patientId} onChange={setPatientId} nachnameZuerst={false} />
           </div>
           <div>
             <label className="label" htmlFor="abschluss-behandlungsdatum">Behandlungsdatum</label>
