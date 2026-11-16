@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LOCALES, type PatientLang, type Ui } from "@/lib/patientI18n";
-import { SPRECH_SPRACHE, type VorleseTeil } from "@/lib/vorlesen";
+import { SPRECH_SPRACHE, lokaleStimme, type VorleseTeil } from "@/lib/vorlesen";
 
 // Zusätze der Patientenansicht des Vorschlags: Vorlesen, Lese-Link für eine Vertrauensperson und „Erinnern Sie mich“.
 // Alles läuft auf dem Gerät des Patienten bzw. gegen die eigenen Schnittstellen; es wird nichts von fremden Servern geladen
@@ -20,19 +20,29 @@ async function ruf(url: string, method: string, body?: unknown) {
   return { ok: !!res?.ok, status: res?.status ?? 0, data };
 }
 
-/** „Vorlesen“ mit der Sprachausgabe des Browsers. Der Knopf erscheint nur, wenn der Browser sie hat. */
-export function VorlesenKnopf({ teile, t }: { teile: () => VorleseTeil[]; t: Pick<Ui, "readAloud" | "readStop"> }) {
-  const [kann, setKann] = useState(false);
+/**
+ * „Vorlesen“ mit der Sprachausgabe des Browsers. Gesprochen wird nur mit Stimmen, die auf dem Gerät laufen
+ * (lib/vorlesen.ts lokaleStimme); Online-Stimmen des Browsers werden nie verwendet. Der Knopf erscheint nur,
+ * wenn es für die Sprache der Ansicht eine solche Stimme gibt.
+ */
+export function VorlesenKnopf({ teile, lang, t }: { teile: () => VorleseTeil[]; lang: PatientLang; t: Pick<Ui, "readAloud" | "readStop"> }) {
+  const [stimmen, setStimmen] = useState<SpeechSynthesisVoice[]>([]);
   const [liest, setLiest] = useState(false);
   const lauf = useRef(0);
   useEffect(() => {
-    setKann(typeof window !== "undefined" && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window);
+    if (typeof window === "undefined" || !("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) return;
+    const synth = window.speechSynthesis;
+    // Die Liste der Stimmen kommt in manchen Browsern erst nach dem Laden der Seite.
+    const laden = () => setStimmen(synth.getVoices());
+    laden();
+    synth.addEventListener?.("voiceschanged", laden);
     return () => {
+      synth.removeEventListener?.("voiceschanged", laden);
       lauf.current++;
-      if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
+      synth.cancel();
     };
   }, []);
-  if (!kann) return null;
+  if (!lokaleStimme(stimmen, SPRECH_SPRACHE[lang])) return null;
 
   function stopp() {
     lauf.current++;
@@ -42,10 +52,16 @@ export function VorlesenKnopf({ teile, t }: { teile: () => VorleseTeil[]; t: Pic
   function start() {
     const meinLauf = ++lauf.current;
     window.speechSynthesis.cancel();
-    const liste = teile();
+    // Je Teil die Stimme auf dem Gerät für dessen Sprache. Teile ohne solche Stimme werden ausgelassen,
+    // statt sie dem Browser zu überlassen (der könnte eine Online-Stimme wählen).
+    const liste = teile().flatMap((teil) => {
+      const stimme = lokaleStimme(stimmen, SPRECH_SPRACHE[teil.lang]);
+      return stimme ? [{ ...teil, stimme }] : [];
+    });
     liste.forEach((teil, i) => {
       const u = new SpeechSynthesisUtterance(teil.text);
-      u.lang = SPRECH_SPRACHE[teil.lang];
+      u.voice = teil.stimme;
+      u.lang = teil.stimme.lang || SPRECH_SPRACHE[teil.lang];
       u.rate = 0.95;
       if (i === liste.length - 1) u.onend = () => meinLauf === lauf.current && setLiest(false);
       u.onerror = () => meinLauf === lauf.current && setLiest(false);

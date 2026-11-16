@@ -10,6 +10,9 @@ import { signaturSecret } from "@/lib/geheimnis";
 // 3. Zurück in die Praxis-Ansicht führt nur die vierstellige Empfangs-PIN. Nach 5 Fehlversuchen ist sie
 //    5 Minuten gesperrt; nach der dritten Sperre in Folge wird die geparkte Sitzung verworfen und es
 //    hilft nur noch die normale Anmeldung. So bleiben für eine PIN höchstens 15 Versuche.
+// 4. Die geparkte Sitzung gilt nur, solange der Server sie kennt (lib/empfangParkung.ts): Das Cookie trägt
+//    eine zufällige Kennung, in der Datenbank steht ihr Hashwert. Nach dem Entsperren und beim Verwerfen
+//    wird der Eintrag gelöscht. Ein kopierter Cookie-Wert ist danach wertlos.
 
 export const UEBERGABE_MINUTEN = 20;
 export const LEERLAUF_MINUTEN = 3;
@@ -127,13 +130,15 @@ export interface Geparkt {
   practiceId: string;
   cookies: { name: string; value: string }[];
   bis: number;
+  /** Zufällige Kennung dieser Parkung; ihr Hashwert steht in der Datenbank (lib/empfangParkung.ts). Null bei alten Werten ohne Kennung. */
+  kennung: string | null;
 }
 
 /** Sitzungs-Cookies verschlüsseln (AES-256-GCM). Der Wert ist außerhalb des Servers nicht lesbar und nicht als Sitzung nutzbar. */
-export function sitzungParken(a: { practiceId: string; cookies: { name: string; value: string }[] }, now = Date.now()): string {
+export function sitzungParken(a: { practiceId: string; cookies: { name: string; value: string }[]; kennung?: string | null }, now = Date.now()): string {
   const iv = crypto.randomBytes(12);
   const c = crypto.createCipheriv("aes-256-gcm", parkSchluessel(), iv);
-  const klar = JSON.stringify({ p: a.practiceId, c: a.cookies.map((x) => [x.name, x.value]), b: now + PARKEN_STUNDEN * 3600e3 });
+  const klar = JSON.stringify({ p: a.practiceId, c: a.cookies.map((x) => [x.name, x.value]), b: now + PARKEN_STUNDEN * 3600e3, ...(a.kennung ? { k: a.kennung } : {}) });
   const daten = Buffer.concat([c.update(klar, "utf8"), c.final()]);
   return [iv, c.getAuthTag(), daten].map((x) => x.toString("base64url")).join(".");
 }
@@ -147,11 +152,11 @@ export function sitzungHolen(wert: string | null | undefined, now = Date.now()):
     if (iv.length !== 12 || tag.length !== 16) return null;
     const d = crypto.createDecipheriv("aes-256-gcm", parkSchluessel(), iv);
     d.setAuthTag(tag);
-    const j = JSON.parse(Buffer.concat([d.update(daten), d.final()]).toString("utf8")) as { p?: unknown; c?: unknown; b?: unknown };
+    const j = JSON.parse(Buffer.concat([d.update(daten), d.final()]).toString("utf8")) as { p?: unknown; c?: unknown; b?: unknown; k?: unknown };
     if (typeof j.p !== "string" || typeof j.b !== "number" || !Array.isArray(j.c) || now >= j.b) return null;
     const cookies = (j.c as unknown[]).flatMap((x) => (Array.isArray(x) && typeof x[0] === "string" && typeof x[1] === "string" && istSitzungCookie(x[0]) ? [{ name: x[0], value: x[1] }] : []));
     if (cookies.length === 0) return null;
-    return { practiceId: j.p, cookies, bis: j.b };
+    return { practiceId: j.p, cookies, bis: j.b, kennung: typeof j.k === "string" && /^[A-Za-z0-9_-]{16,64}$/.test(j.k) ? j.k : null };
   } catch {
     return null;
   }

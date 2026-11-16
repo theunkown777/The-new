@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { NeupatientTermin } from "@/components/NeupatientTermin";
 import { stempel } from "@/lib/terminanfrage";
 import { oeffentlicheLage, praxisZurKennung } from "@/lib/terminanfrageLoad";
+import { PraxisFuss } from "@/components/PraxisFuss";
+import { leseStammdaten } from "@/lib/praxisStammdaten";
 
 export const dynamic = "force-dynamic";
 // Nicht in Suchmaschinen: Die Seite gehört auf die Website der Praxis, nicht in Trefferlisten.
@@ -33,8 +35,10 @@ export default async function NeupatientSeite(props: { params: Promise<{ kennung
           </p>
         )}
         <div className="mt-5">
-          <NeupatientTermin kennung={params.kennung} praxis={praxis.name} aktiv={l.aktiv} minuten={l.minuten} tage={l.aktiv ? l.tage : []} anlaesse={praxis.anlaesse} stempel={stempel(params.kennung)} beispiel={praxis.isDemo} />
+          <NeupatientTermin kennung={params.kennung} praxis={praxis.name} aktiv={l.aktiv} minuten={l.minuten} tage={l.aktiv ? l.tage : []} anlaesse={praxis.anlaesse} stempel={stempel(params.kennung)} beispiel={praxis.isDemo} datenschutzUrl={leseStammdaten(praxis.stammdaten).datenschutzUrl || null} />
         </div>
+        {/* Wer die Praxis ist (Anschrift, Kontakt, Impressum, Datenschutzhinweise) und wer die Seite technisch bereitstellt. */}
+        <PraxisFuss name={praxis.name} stammdaten={praxis.stammdaten} className="mt-8 border-t border-slate-200 pt-4" />
       </div>
     </main>
   );

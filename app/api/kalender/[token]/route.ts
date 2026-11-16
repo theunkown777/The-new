@@ -4,6 +4,7 @@ import { hashToken } from "@/lib/tokens";
 import { icsSchreiben } from "@/lib/ics";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 
+import { anschluss } from "@/lib/anschluss";
 export const dynamic = "force-dynamic";
 
 // Kalender-Abo für die Praxis: Termine aus Sorrida im eigenen Kalender (Google, Outlook, Apple).
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 // den Link auf ihren eigenen Servern abrufen.
 export async function GET(req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   if (await isRateLimited(`kalenderfeed:${ip}`, 120, 3600e3)) return new NextResponse("Zu viele Abrufe", { status: 429 });
   await recordAttempt(`kalenderfeed:${ip}`, 3600e3);
   const token = params.token.replace(/\.ics$/i, "");

@@ -1,11 +1,12 @@
 import { leseStammdaten } from "@/lib/praxisStammdaten";
 
 /**
- * Fuß der Seiten, die Patienten sehen (Portal, Patienten-Link, Anamnesebogen): wer der Anbieter ist (die Praxis),
+ * Fuß der Seiten, die Patienten sehen (Portal samt Unterseiten, Patienten-Link, Anamnesebogen, Buchungsseite für neue
+ * Patienten, Empfangs-Tablet): wer der Anbieter ist (die Praxis),
  * ihre Angaben, soweit hinterlegt, und wer die Seite technisch bereitstellt (Sorrida). Gezeigt wird nur, was die
  * Praxis unter Einstellungen → Angaben der Praxis eingetragen hat; es gibt keine Platzhalter.
  */
-export function PraxisFuss({ name, stammdaten, className = "" }: { name: string; stammdaten: unknown; className?: string }) {
+export function PraxisFuss({ name, stammdaten, className = "", ohneLinks = false }: { name: string; stammdaten: unknown; className?: string; /** Empfangs-Tablet: Angaben zeigen, aber nichts verlinken (das Gerät bleibt in der Patientenansicht) */ ohneLinks?: boolean }) {
   const s = leseStammdaten(stammdaten);
   const anschrift = [s.strasse, s.plzOrt].filter(Boolean).join(", ");
   const kontakt = [s.telefon ? `Telefon ${s.telefon}` : "", s.email].filter(Boolean).join(" · ");
@@ -20,7 +21,8 @@ export function PraxisFuss({ name, stammdaten, className = "" }: { name: string;
       {anschrift && <p>{anschrift}</p>}
       {kontakt && <p>{kontakt}</p>}
       {beruf && <p>{beruf}</p>}
-      {(s.impressumUrl || s.datenschutzUrl || s.berufsordnungUrl) && (
+      {ohneLinks && <p data-testid="praxis-fuss-ohne-links">Impressum und Datenschutzhinweise der Praxis erhalten Sie am Empfang.</p>}
+      {!ohneLinks && (s.impressumUrl || s.datenschutzUrl || s.berufsordnungUrl) && (
         <p>
           {s.impressumUrl && <a href={s.impressumUrl} target="_blank" rel="noopener noreferrer" className={a}>Impressum der Praxis</a>}
           {s.impressumUrl && (s.datenschutzUrl || s.berufsordnungUrl) && " · "}
@@ -31,7 +33,7 @@ export function PraxisFuss({ name, stammdaten, className = "" }: { name: string;
       )}
       <p>
         Ihre Angaben gehen an {name} und werden dort zur Behandlung und Abrechnung verwendet. Technische Bereitstellung im Auftrag der Praxis:
-        Sorrida (<a href="/impressum" target="_blank" rel="noopener noreferrer" className={a}>Impressum</a>).
+        {ohneLinks ? "Sorrida." : <>Sorrida (<a href="/impressum" target="_blank" rel="noopener noreferrer" className={a}>Impressum</a>).</>}
       </p>
     </div>
   );

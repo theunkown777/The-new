@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 export type AnfrageZeile = {
   id: string; name: string; geboren: string; phone: string | null; email: string | null; anlass: string; zeit: string; tag: string; eingegangen: string;
   reserviert: boolean; vergangen: boolean; belegt: boolean; beispiel: boolean;
-  kandidaten: { id: string; name: string }[];
+  /** Weitere offene Anfragen mit derselben Mobilnummer oder E-Mail-Adresse */
+  gleicherKontakt: number;
+  /** neuerKontakt: Kontaktdaten der Anfrage, die in der Akte dieses Patienten noch fehlen */
+  kandidaten: { id: string; name: string; neuerKontakt: string[] }[];
 };
 type Erledigt = { id: string; name: string; status: "BESTAETIGT" | "ABGELEHNT"; text: string; phone: string | null; email: string | null; tag?: string; patientId?: string; neuAngelegt?: boolean };
 
@@ -19,6 +22,8 @@ export function TerminAnfragen({ anfragen }: { anfragen: AnfrageZeile[] }) {
   const [fehler, setFehler] = useState<string | null>(null);
   const [erledigt, setErledigt] = useState<Erledigt[]>([]);
   const [kopiert, setKopiert] = useState<string | null>(null);
+  // Je Anfrage und Patient: Sollen die ungeprüften Kontaktdaten aus dem Formular in die Akte? Standard: nein.
+  const [uebernehmen, setUebernehmen] = useState<Record<string, boolean>>({});
 
   async function sende(a: AnfrageZeile, body: Record<string, unknown>) {
     setBusy(a.id); setFehler(null);
@@ -68,14 +73,31 @@ export function TerminAnfragen({ anfragen }: { anfragen: AnfrageZeile[] }) {
                 {a.vergangen ? <p className="mt-1 text-xs text-red-700">Die gewünschte Zeit ist vorbei. Bitte ablehnen und einen neuen Termin vereinbaren.</p>
                   : a.belegt ? <p className="mt-1 text-xs text-amber-800" data-testid="terminanfrage-belegt">Zu dieser Zeit ist inzwischen ein anderer Termin eingetragen.</p>
                   : !a.reserviert ? <p className="mt-1 text-xs text-amber-800">Die Reservierung ist abgelaufen. Die Zeit kann inzwischen anders vergeben werden.</p> : null}
+                {a.gleicherKontakt >= 2 && (
+                  <p className="mt-1 text-xs text-amber-800" data-testid="terminanfrage-gleicher-kontakt">Mit diesen Kontaktdaten sind {a.gleicherKontakt} weitere Anfragen offen. Bitte prüfen Sie, ob alle von derselben Person stammen.</p>
+                )}
               </div>
               {a.kandidaten.length > 0 && (
                 <div className="rounded-lg bg-brand-50 p-2 text-xs text-brand-800" data-testid="terminanfrage-vorschlag">
                   <p>Gleicher Name und gleiches Geburtsdatum wie in Ihrem Bestand:</p>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
-                    {a.kandidaten.map((k) => (
-                      <button key={k.id} type="button" className="btn btn-secondary text-xs" disabled={busy === a.id || a.vergangen} onClick={() => sende(a, { aktion: "bestaetigen", patientId: k.id })} data-testid="terminanfrage-zuordnen">Bestätigen für {k.name}</button>
-                    ))}
+                  <div className="mt-1.5 space-y-2">
+                    {a.kandidaten.map((k) => {
+                      const schluessel = `${a.id}:${k.id}`;
+                      return (
+                        <div key={k.id} className="space-y-1.5">
+                          <button type="button" className="btn btn-secondary text-xs" disabled={busy === a.id || a.vergangen} onClick={() => sende(a, { aktion: "bestaetigen", patientId: k.id, kontaktUebernehmen: k.neuerKontakt.length > 0 && !!uebernehmen[schluessel] })} data-testid="terminanfrage-zuordnen">Bestätigen für {k.name}</button>
+                          {k.neuerKontakt.length > 0 && (
+                            <label className="flex items-start gap-2 text-xs text-slate-700">
+                              <input type="checkbox" className="mt-0.5" checked={!!uebernehmen[schluessel]} onChange={(e) => setUebernehmen((u) => ({ ...u, [schluessel]: e.target.checked }))} data-testid="terminanfrage-kontakt-uebernehmen" />
+                              <span>
+                                In der Akte fehlt: <span className="break-all font-medium">{k.neuerKontakt.join(" · ")}</span>. Aus der Anfrage in die Akte übernehmen.
+                                <span className="block text-slate-500">Die Angabe stammt aus dem Online-Formular und ist nicht geprüft. Ohne Häkchen bleibt die Akte unverändert.</span>
+                              </span>
+                            </label>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

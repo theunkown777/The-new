@@ -3,9 +3,10 @@ import { z } from "zod";
 import { VORSCHAU_COOKIE, VORSCHAU_TAGE, vorschauCookie, zugangPasst } from "@/lib/vorschau";
 import { clearAttempts, isRateLimited, recordAttempt } from "@/lib/rateLimit";
 
+import { anschluss } from "@/lib/anschluss";
 // Anmeldung für die Vorschau der eigenen Domain (siehe lib/vorschau.ts).
 export async function POST(req: Request) {
-  const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unbekannt";
+  const ip = anschluss(req.headers);
   const schluessel = `vorschau:${ip}`;
   if (await isRateLimited(schluessel, 8, 15 * 60_000)) {
     return NextResponse.json({ error: "Zu viele Versuche. Bitte in 15 Minuten erneut versuchen." }, { status: 429 });

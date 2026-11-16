@@ -6,10 +6,11 @@ import { portalPatient } from "@/lib/portalAuth";
 import { kurzArt, kurzcheckSchema } from "@/lib/kurzcheck";
 import { eingangMelden } from "@/lib/eingang";
 
+import { anschluss } from "@/lib/anschluss";
 // Kurz-Fragebogen aus dem Patientenlink speichern. Die Praxis sieht ihn im Eingang und in der Akte.
 export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `kurzcheck:${ip}`;
   if (await isRateLimited(key, 12, 60 * 60 * 1000)) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });
   await recordAttempt(key, 60 * 60 * 1000);

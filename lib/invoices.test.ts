@@ -60,7 +60,9 @@ describe("Mahnstufen", () => {
     expect(REMINDER_LABELS[3]).toBe("Letzte Mahnung");
     const base = { firstName: "Martina", practiceName: "Praxis", number: "2026-0007", amountCent: 18640, dueDate: new Date(2026, 9, 1), url: "https://x/portal/t" };
     expect(reminderText({ ...base, level: 1 })).toContain("freundliche Erinnerung");
-    expect(reminderText({ ...base, level: 2 })).toContain("Raten");
+    expect(reminderText({ ...base, level: 2 })).toContain("noch offen");
+    // Keine Stufe wirbt mit Raten oder Teilzahlung (Raten sind angehalten, lib/installments.ts).
+    for (const level of [1, 2, 3]) expect(reminderText({ ...base, level })).not.toMatch(/raten|teilzahlung/i);
     expect(reminderText({ ...base, level: 3 })).toContain("weitere Schritte");
     expect(reminderText({ ...base, level: 3 })).toContain("186,40 €");
   });

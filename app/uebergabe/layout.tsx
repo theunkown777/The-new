@@ -3,6 +3,7 @@ import { geparkteSitzung, uebergabeAktuell } from "@/lib/empfangServer";
 import { LEERLAUF_MINUTEN } from "@/lib/empfang";
 import { EmpfangWaechter } from "@/components/EmpfangWaechter";
 import { EmpfangSperre } from "@/components/EmpfangSperre";
+import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Empfang", robots: { index: false, follow: false }, referrer: "no-referrer" };
@@ -32,6 +33,8 @@ export default async function UebergabeLayout({ children }: { children: React.Re
         </div>
       </header>
       {children}
+      {/* Wer die Praxis ist und wer die Seite technisch bereitstellt. Ohne Links: Das Tablet bleibt in der Patientenansicht. */}
+      <PraxisFussLaden practiceId={a.patient.practiceId} ohneLinks className="mx-auto max-w-2xl px-4 pb-10 pt-2" />
     </div>
   );
 }

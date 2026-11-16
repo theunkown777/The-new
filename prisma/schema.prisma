@@ -120,6 +120,8 @@ model Practice {
   /// Link zum Google-Profil der Praxis für den neutralen Bewertungs-Hinweis nach der Rückmeldung (lib/rueckmeldung.ts)
   googleProfilUrl           String?
   terminRueckmeldungen      TerminRueckmeldung[]
+  /// Empfangsmodus: geparkte Praxis-Sitzungen der Tablets (lib/empfangParkung.ts)
+  empfangParkungen          EmpfangParkung[]
 
   @@index([isDemo, demoExpiresAt])
 }
@@ -1086,4 +1088,19 @@ model FehlerEintrag {
 
   @@index([zuletztAt])
   @@index([createdAt])
+}
+
+/// Empfangsmodus: Eine geparkte Praxis-Sitzung je Übergabe. Das Cookie auf dem Tablet trägt eine zufällige Kennung;
+/// hier steht nur ihr Hashwert. Nach dem Entsperren und nach zu vielen Fehlversuchen wird die Zeile gelöscht:
+/// Ein kopierter Cookie-Wert ist danach wertlos (lib/empfangParkung.ts).
+model EmpfangParkung {
+  /// SHA-256 der Kennung aus dem Cookie
+  id         String   @id
+  practiceId String
+  practice   Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([practiceId])
+  @@index([expiresAt])
 }

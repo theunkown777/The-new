@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { formatEuro } from "@/lib/proposals";
-import { installmentOffer, type Installments } from "@/lib/installments";
+import { RATEN_ANGEHALTEN, installmentOffer, type Installments } from "@/lib/installments";
 
 export function InstallmentSettings({ initial, readOnly = false }: { initial: Installments; readOnly?: boolean }) {
   const [cfg, setCfg] = useState<Installments>(initial);
@@ -24,7 +24,7 @@ export function InstallmentSettings({ initial, readOnly = false }: { initial: In
     const data = await res.json().catch(() => ({}));
     setSaving(false);
     if (!res.ok) setError(data.error ?? "Speichern fehlgeschlagen.");
-    else setMessage("Gespeichert. Patienten-Links zeigen die Ratenzahlung ab sofort an.");
+    else setMessage(RATEN_ANGEHALTEN ? "Gespeichert. Die Anzeige im Patienten-Link bleibt angehalten." : "Gespeichert. Patienten-Links zeigen die Ratenzahlung ab sofort an.");
   }
 
   return (

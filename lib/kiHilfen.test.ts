@@ -207,4 +207,14 @@ describe("Schalter und Grenzen", () => {
     expect(kiHilfenSchluessel("hilfe", "p1")).toBe("ki-hilfe:hilfe:p1");
     expect(kiHilfenSchluessel("hilfe", "p1")).not.toBe(kiHilfenSchluessel("hilfe", "p2"));
   });
+  it("Gastzugang: eine Tagesgrenze für alle Demo-Praxen zusammen, unabhängig von der einzelnen Praxis", async () => {
+    const { KI_HILFEN_DEMO_GESAMT_TAG, KI_HILFEN_PRO_STUNDE, kiHilfenDemoSchluessel } = await import("./kiHilfen");
+    expect(kiHilfenDemoSchluessel("preisliste")).toBe("ki-hilfe-demo-gesamt:preisliste");
+    expect(kiHilfenDemoSchluessel("preisliste")).not.toContain("p1");
+    for (const art of Object.keys(KI_HILFEN_PRO_STUNDE) as (keyof typeof KI_HILFEN_PRO_STUNDE)[]) {
+      // Mehr als eine einzelne Demo-Praxis in der Stunde darf, aber weit weniger als zehn Demo-Praxen einen Tag lang dürften.
+      expect(KI_HILFEN_DEMO_GESAMT_TAG[art]).toBeGreaterThanOrEqual(kiHilfenGrenze(art, true));
+      expect(KI_HILFEN_DEMO_GESAMT_TAG[art]).toBeLessThan(kiHilfenGrenze(art, true) * 24);
+    }
+  });
 });

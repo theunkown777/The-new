@@ -11,7 +11,7 @@ export const REGISTRIERUNG_GESCHLOSSEN =
   "Sorrida nimmt zurzeit nur Pilotpraxen auf. Ein eigenes Konto können Sie noch nicht selbst anlegen. Bitte fragen Sie auf der Seite Hilfe einen Pilotplatz an.";
 
 /** Stand der Texte, die bei der Registrierung bestätigt werden (AVV-Muster, Zweckbestimmung). Wird mit dem Zeitpunkt gespeichert. */
-export const VERTRAGSTEXTE_FASSUNG = "2026-11-15";
+export const VERTRAGSTEXTE_FASSUNG = "2026-11-16";
 
 export const BESTAETIGUNG_UNTERNEHMER = "Ich handle für eine Praxis oder ein anderes Unternehmen (§ 14 BGB) und bin berechtigt, für sie Verträge zu schließen.";
 export const BESTAETIGUNG_VERTRAGSTEXTE =

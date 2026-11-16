@@ -8,6 +8,7 @@ import { DENTAL_ID, SPECIALTY_IDS } from "@/lib/specialties";
 import { sendVerificationEmail } from "@/lib/emailVerification";
 import { REGISTRIERUNG_GESCHLOSSEN, VERTRAGSTEXTE_FASSUNG, registrierungOffen } from "@/lib/registrierung";
 
+import { anschluss } from "@/lib/anschluss";
 const registerSchema = z.object({
   practiceName: z.string().min(2, "Praxisname ist zu kurz"),
   specialty: z.enum(SPECIALTY_IDS as unknown as [string, ...string[]]).default(DENTAL_ID),
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
   // Standard: geschlossen. Solange Nutzungsvertrag und AVV nicht mit jeder Praxis geschlossen werden, legt niemand selbst ein Konto an.
   if (!registrierungOffen()) return NextResponse.json({ error: REGISTRIERUNG_GESCHLOSSEN }, { status: 403 });
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const rateLimitKey = `register:${ip}`;
   if (await isRateLimited(rateLimitKey, REGISTER_LIMIT, REGISTER_WINDOW_MS)) {
     return NextResponse.json(

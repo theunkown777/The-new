@@ -5,6 +5,7 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { escapeHtml, sendEmail } from "@/lib/email";
 import { generateToken } from "@/lib/tokens";
 
+import { anschluss } from "@/lib/anschluss";
 const schema = z.object({ email: z.string().email() });
 
 const LIMIT = 5;
@@ -18,7 +19,7 @@ const GENERIC_MESSAGE =
   "Falls für diese E-Mail-Adresse ein Konto existiert, wurde ein Link zum Zurücksetzen des Passworts verschickt.";
 
 export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const rateLimitKey = `forgot-password:${ip}`;
   if (await isRateLimited(rateLimitKey, LIMIT, WINDOW_MS)) {
     return NextResponse.json(

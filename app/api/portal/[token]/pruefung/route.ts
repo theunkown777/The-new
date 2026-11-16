@@ -6,6 +6,7 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { eingabeTag } from "@/lib/portalPruefung";
 import { geburtsdatumPruefen } from "@/lib/portalPruefungServer";
 
+import { anschluss } from "@/lib/anschluss";
 export const dynamic = "force-dynamic";
 
 const feld = z.union([z.string().max(8), z.number().int().min(0).max(9999)]);
@@ -20,7 +21,7 @@ const antwort = (body: Record<string, unknown>, status: number) => NextResponse.
 export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
   // Grobe Bremse je Absender; die eigentliche Grenze zählt je Link in der Datenbank.
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `portalpruefung:${ip}`;
   if (await isRateLimited(key, 30, 60 * 60 * 1000)) return antwort({ error: "Zu viele Anfragen. Bitte später erneut versuchen.", code: "ZU_VIELE" }, 429);
   await recordAttempt(key, 60 * 60 * 1000);

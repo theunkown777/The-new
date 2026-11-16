@@ -2,13 +2,33 @@ import { money, typeLabelOf, type PatientFactors, type ProposalItem } from "@/li
 import { euro, uebersetzung, type PatientLang, type Ui } from "@/lib/patientI18n";
 
 // Vorlesen in der Patientenansicht: Der Text entsteht hier als reine Funktion, gesprochen wird im Browser mit
-// window.speechSynthesis (auf dem Gerät des Patienten; es wird nichts übertragen). Vorgelesen werden Überschrift,
-// je Position Titel und Möglichkeiten mit Eigenanteil und am Ende die Summe der aktuellen Auswahl.
+// window.speechSynthesis. Verwendet werden nur Stimmen, die der Browser als „auf dem Gerät“ meldet
+// (localService, siehe lokaleStimme): Manche Browser bieten daneben Online-Stimmen an, bei denen der Text an den
+// Anbieter des Browsers ginge. Gibt es für die Sprache keine Stimme auf dem Gerät, erscheint der Knopf nicht.
+// Vorgelesen werden Überschrift, je Position Titel und Möglichkeiten mit Eigenanteil und am Ende die Summe der aktuellen Auswahl.
 
 /** Sprachkennung für die Stimme des Browsers. */
 export const SPRECH_SPRACHE: Record<PatientLang, string> = { de: "de-DE", en: "en-GB", tr: "tr-TR", uk: "uk-UA", ru: "ru-RU", pl: "pl-PL", ar: "ar-SA" };
 
 export type VorleseTeil = { text: string; lang: PatientLang };
+
+/** Was der Browser zu einer Stimme meldet (SpeechSynthesisVoice), soweit hier gebraucht. */
+export interface StimmeAngabe { lang: string; localService: boolean; default?: boolean }
+
+/**
+ * Stimme für eine Sprache, die auf dem Gerät läuft. Online-Stimmen (localService false) kommen nie in Frage:
+ * Dort ginge der vorgelesene Text an den Anbieter des Browsers. Zuerst die genaue Sprachkennung (de-DE),
+ * dann dieselbe Sprache mit anderem Land (de-AT). Null, wenn es keine gibt.
+ */
+export function lokaleStimme<T extends StimmeAngabe>(stimmen: readonly T[], sprache: string): T | null {
+  const norm = (l: string) => l.replace(/_/g, "-").toLowerCase();
+  const ziel = norm(sprache), kurz = ziel.split("-")[0];
+  const lokal = stimmen.filter((s) => s.localService === true);
+  const genau = lokal.filter((s) => norm(s.lang) === ziel);
+  const gleicheSprache = lokal.filter((s) => norm(s.lang).split("-")[0] === kurz);
+  const wahl = genau.length ? genau : gleicheSprache;
+  return wahl.find((s) => s.default) ?? wahl[0] ?? null;
+}
 
 /** Unsichtbare Zeichen für die Schreibrichtung stören manche Stimmen. */
 const sauber = (s: string) => s.replace(/[⁦-⁩‎‏]/g, "").replace(/\s+/g, " ").trim();

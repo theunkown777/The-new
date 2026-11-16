@@ -4,12 +4,13 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { sendEmail } from "@/lib/email";
 import { supportEmailHtml, supportSchema } from "@/lib/leads";
 
+import { anschluss } from "@/lib/anschluss";
 const WINDOW_MS = 60 * 60 * 1000;
 
 // Hilfe-Formular (/hilfe): Fachrichtung nicht gefunden. Wird wie eine
 // Pilot-Anfrage gespeichert (Lead mit kind "hilfe") und an den Support gemeldet.
 export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `support:${ip}`;
   if (await isRateLimited(key, 5, WINDOW_MS)) return NextResponse.json({ error: "Zu viele Anfragen von diesem Anschluss" }, { status: 429 });
   await recordAttempt(key, WINDOW_MS);

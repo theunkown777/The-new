@@ -2,21 +2,24 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { consumeAttempt, releaseAttempt } from "@/lib/rateLimit";
 import { istFrei } from "@/lib/buchung";
-import { LIMIT_IP_STUNDE, LIMIT_PRAXIS_TAG, MAX_OFFEN_JE_KONTAKT, anfrageSchema, geburtstag, lockfeldGefuellt, reserviertBis, sauber, stempel, stempelPruefen } from "@/lib/terminanfrage";
+import { LIMIT_IP_STUNDE, LIMIT_PRAXIS_TAG, STEMPEL_MAX_STD, anfrageSchema, geburtstag, lockfeldGefuellt, reserviertBis, sauber, stempel, stempelPruefen, stempelSchluessel } from "@/lib/terminanfrage";
 import { oeffentlicheLage, praxisZurKennung } from "@/lib/terminanfrageLoad";
 import { audit } from "@/lib/audit";
 
+import { anschluss } from "@/lib/anschluss";
 export const dynamic = "force-dynamic";
 
 // Öffentliche Terminbuchung für neue Patienten (/t/<kennung>). Ohne Anmeldung erreichbar, deshalb:
 // Begrenzung je Anschluss und je Praxis, strenge Prüfung der Eingaben, verstecktes Lockfeld,
-// Mindestzeit zwischen Laden und Absenden. Die Antworten verraten nie, ob es eine Person schon
-// als Patienten gibt: Hier wird nicht im Bestand nachgesehen, es entsteht nur eine Anfrage.
+// Mindestzeit zwischen Laden und Absenden; jeder Zeitstempel gilt für genau eine gespeicherte Anfrage.
+// Die Antworten verraten nie, ob es eine Person schon als Patienten gibt oder ob zu Kontaktdaten schon
+// Anfragen offen sind: Hier wird nicht im Bestand nachgesehen, es entsteht nur eine Anfrage. Mehrere
+// offene Anfragen mit denselben Kontaktdaten sieht die Praxis als Hinweis (lib/terminanfrageLoad.ts).
 
 const STUNDE = 3600e3;
 const kopf = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };
 const antwort = (body: Record<string, unknown>, status = 200) => NextResponse.json(body, { status, headers: kopf });
-const ipVon = (req: Request) => req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+const ipVon = (req: Request) => anschluss(req.headers);
 const gibtEsNicht = () => antwort({ error: "Diese Buchungsseite gibt es nicht oder sie ist ausgeschaltet. Bitte rufen Sie in der Praxis an." }, 404);
 const zuViele = () => antwort({ error: "Zu viele Anfragen. Bitte versuchen Sie es später noch einmal oder rufen Sie in der Praxis an." }, 429);
 const vergeben = () => antwort({ error: "Diese Zeit ist gerade vergeben worden. Bitte wählen Sie eine andere.", vergeben: true }, 409);
@@ -66,17 +69,18 @@ export async function POST(req: Request, props: { params: Promise<{ kennung: str
   const now = new Date();
   const phone = d.mobil ? sauber(d.mobil) : null;
   const email = d.email ? d.email.toLowerCase() : null;
-  const offen = await prisma.terminanfrage.count({
-    where: { practiceId: praxis.id, status: "OFFEN", start: { gte: now }, OR: [...(phone ? [{ phone }] : []), ...(email ? [{ email }] : [])] },
-  });
-  if (offen >= MAX_OFFEN_JE_KONTAKT) return antwort({ error: `Mit diesen Kontaktdaten gibt es schon ${MAX_OFFEN_JE_KONTAKT} offene Anfragen. Bitte warten Sie auf die Rückmeldung der Praxis oder rufen Sie an.` }, 409);
-
   // Echte Anfrage: jetzt zählen (je Anschluss und Stunde, je Praxis und Tag).
   const ipKey = `neuanfrage:${ip}`, praxisKey = `neuanfrage-praxis:${praxis.id}`;
   if (!(await consumeAttempt(ipKey, LIMIT_IP_STUNDE, STUNDE))) return zuViele();
   if (!(await consumeAttempt(praxisKey, LIMIT_PRAXIS_TAG, 24 * STUNDE))) {
     await releaseAttempt(ipKey);
     return antwort({ error: "Heute sind online keine weiteren Anfragen möglich. Bitte rufen Sie in der Praxis an." }, 429);
+  }
+  // Jeder Stempel gilt für eine gespeicherte Anfrage. Ein schon verwendeter führt zu einem neuen Stempel und der Mindestzeit.
+  const stempelKey = stempelSchluessel(d.stempel);
+  if (!(await consumeAttempt(stempelKey, 1, STEMPEL_MAX_STD * STUNDE))) {
+    await Promise.all([releaseAttempt(ipKey), releaseAttempt(praxisKey)]);
+    return antwort({ error: "Diese Seite wurde schon für eine Anfrage verwendet. Bitte senden Sie in ein paar Sekunden noch einmal.", stempel: stempel(params.kennung) }, 400);
   }
 
   const minuten = l.minuten;
@@ -99,7 +103,7 @@ export async function POST(req: Request, props: { params: Promise<{ kennung: str
   const zuletzt = [...ueberlappend].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || (a.id < b.id ? 1 : -1))[0];
   if (ueberlappend.length > l.lage.eingabe.plaetze && zuletzt?.id === anfrage.id) {
     await prisma.terminanfrage.delete({ where: { id: anfrage.id } });
-    await Promise.all([releaseAttempt(ipKey), releaseAttempt(praxisKey)]);
+    await Promise.all([releaseAttempt(ipKey), releaseAttempt(praxisKey), releaseAttempt(stempelKey)]);
     return vergeben();
   }
 

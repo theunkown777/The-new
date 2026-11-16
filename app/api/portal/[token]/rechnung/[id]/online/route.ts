@@ -4,10 +4,11 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { portalPatient } from "@/lib/portalAuth";
 import { STRIPE_API, checkoutParameter, onlineZahlungStatus, stripeForm } from "@/lib/onlineZahlung";
 
+import { anschluss } from "@/lib/anschluss";
 // Patient startet die Online-Zahlung einer offenen Rechnung aus dem Portal.
 export async function POST(req: Request, props: { params: Promise<{ token: string; id: string }> }) {
   const params = await props.params;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   if (await isRateLimited(`online:${ip}`, 20, 60 * 60 * 1000)) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });
   await recordAttempt(`online:${ip}`, 60 * 60 * 1000);
   const patient = await portalPatient(params.token);

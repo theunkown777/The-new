@@ -6,10 +6,11 @@ import { anamnesisSchema } from "@/lib/anamnesis";
 import { portalPatient } from "@/lib/portalAuth";
 import { eingangMelden } from "@/lib/eingang";
 
+import { anschluss } from "@/lib/anschluss";
 // Anamnesebogen aus dem Patientenportal absenden. Danach ist er gesperrt.
 export async function POST(req: Request, props: { params: Promise<{ token: string; id: string }> }) {
   const params = await props.params;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `portal:${ip}`;
   if (await isRateLimited(key, 30, 60 * 60 * 1000)) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });
   await recordAttempt(key, 60 * 60 * 1000);

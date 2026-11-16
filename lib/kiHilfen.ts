@@ -238,11 +238,18 @@ export async function kiLeistungUebersetzen(o: { name: string; kurz?: string | n
 // ---------------------------------------------------------------------------
 // Schalter und Begrenzung je Praxis
 
-/** Höchstzahl der KI-Anfragen je Praxis und Stunde; Gastzugänge bekommen ein Sechstel. */
+/** Höchstzahl der KI-Anfragen je Praxis und Stunde; Gastzugänge bekommen ein Sechstel und teilen sich eine Tagesgrenze. */
 export const KI_HILFEN_PRO_STUNDE = { anlass: 120, preisliste: 20, hilfe: 120, uebersetzung: 60 } as const;
 export type KiHilfeArt = keyof typeof KI_HILFEN_PRO_STUNDE;
 export const kiHilfenGrenze = (art: KiHilfeArt, demo: boolean) => (demo ? Math.max(3, Math.floor(KI_HILFEN_PRO_STUNDE[art] / 6)) : KI_HILFEN_PRO_STUNDE[art]);
 export const kiHilfenSchluessel = (art: KiHilfeArt, practiceId: string) => `ki-hilfe:${art}:${practiceId}`;
+/**
+ * Gastzugang: Höchstzahl der KI-Anfragen je Tag für ALLE Demo-Praxen zusammen. Ein Besucher kann viele Demo-Praxen
+ * anlegen; die Grenze je Praxis allein würde die Kosten beim KI-Dienst nicht begrenzen. Ist sie erreicht, bleibt in
+ * den Demo-Praxen der Weg ohne KI. Echte Praxen sind davon nicht betroffen.
+ */
+export const KI_HILFEN_DEMO_GESAMT_TAG = { anlass: 150, preisliste: 15, hilfe: 150, uebersetzung: 40 } as const;
+export const kiHilfenDemoSchluessel = (art: KiHilfeArt) => `ki-hilfe-demo-gesamt:${art}`;
 
 /** Zustand für die Oberfläche: Ist ein KI-Zugang da, und hat die Praxis die KI-Hilfen eingeschaltet? */
 export const kiHilfenStand = (schalter: boolean | null | undefined, verfuegbar = kiVerfuegbar()) => ({
@@ -265,6 +272,10 @@ export async function kiHilfenZugang(practiceId: string, art: KiHilfeArt): Promi
   const { consumeAttempt } = await import("@/lib/rateLimit");
   if (!(await consumeAttempt(kiHilfenSchluessel(art, practiceId), kiHilfenGrenze(art, praxis.isDemo), 60 * 60 * 1000))) {
     return { ok: false, status: 429, error: "Zu viele KI-Anfragen in dieser Stunde. Bitte später erneut versuchen. Der Weg ohne KI steht bereit." };
+  }
+  // Gastzugang: zusätzlich eine Tagesgrenze für alle Demo-Praxen zusammen (Kostenbremse).
+  if (praxis.isDemo && !(await consumeAttempt(kiHilfenDemoSchluessel(art), KI_HILFEN_DEMO_GESAMT_TAG[art], 24 * 60 * 60 * 1000))) {
+    return { ok: false, status: 429, error: "Im Gastzugang sind die KI-Hilfen für heute aufgebraucht. Der Weg ohne KI steht bereit." };
   }
   return { ok: true };
 }

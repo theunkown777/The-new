@@ -9,7 +9,7 @@ import { SITZUNG_MAX_SEKUNDEN } from "@/lib/sitzung";
 import { BEREICH_MINUTEN } from "@/lib/bereichSchutz";
 import { BESTAETIGUNG_MINUTEN } from "@/lib/portalPruefung";
 import { PARKEN_STUNDEN, UEBERGABE_MINUTEN } from "@/lib/empfang";
-import { VORSCHAU_TAGE } from "@/lib/vorschau";
+import { VORSCHAU_TAGE, infoSeitenOffen } from "@/lib/vorschau";
 
 export const metadata: Metadata = { title: "Datenschutz – Sorrida" };
 
@@ -71,7 +71,7 @@ export default function DatenschutzPage() {
         </p>
         <p>
           Wir setzen keine Analyse- oder Werbewerkzeuge ein und binden keine Inhalte fremder Server ein. Schriften, Bilder und 3D-Modelle
-          kommen von unserem eigenen Server. Die Vorschau unter <Link href="/vorschau">/vorschau</Link> und der Zeitrechner auf der Startseite
+          kommen von unserem eigenen Server. Die Vorschau unter {infoSeitenOffen() ? <Link href="/vorschau">/vorschau</Link> : "/vorschau"} und der Zeitrechner auf der Startseite
           laufen in Ihrem Browser; Ihre Eingaben dort werden nicht übertragen. Für den Gastzugang gilt Abschnitt 5.
         </p>
       </section>

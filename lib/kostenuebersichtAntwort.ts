@@ -7,12 +7,13 @@ import { leseStammdaten } from "@/lib/praxisStammdaten";
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { consumeAttempt } from "@/lib/rateLimit";
 
+import { anschluss } from "@/lib/anschluss";
 const KOPF = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };
 export const pdfFehler = (error: string, status: number) => NextResponse.json({ error }, { status, headers: KOPF });
 
 /** Begrenzung pro IP für das Erzeugen von PDFs über Patienten-Links (20 je Stunde). */
 export async function pdfErlaubt(req: Request): Promise<boolean> {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   return consumeAttempt(`patient-pdf:${ip}`, 20, 60 * 60 * 1000);
 }
 

@@ -12,6 +12,24 @@ export const MAX_ZEILEN = 5000;
 export const MAX_DATEI_BYTES = 8 * 1024 * 1024;
 /** So viele Zeilen gehen je Anfrage an den Server. */
 export const BLOCK = 500;
+/** Gastzugang: So viele Patienten darf eine Demo-Praxis insgesamt haben. Mehr speichert der Import dort nicht. */
+export const DEMO_PATIENTEN_MAX = 200;
+/** Obergrenze neu angelegter Patienten je Praxis in 24 Stunden (alle Wege zusammen); reicht für das Einlesen eines großen Bestands. */
+export const IMPORT_MAX_JE_TAG = 50_000;
+
+/**
+ * Darf dieser Block gespeichert werden? Null = ja, sonst der Grund für die Praxis.
+ * bestand: Patienten der Praxis insgesamt; heute: in den letzten 24 Stunden angelegt; neu: Zeilen, die jetzt dazukämen.
+ */
+export function importGrenze(a: { demo: boolean; bestand: number; heute: number; neu: number }): string | null {
+  if (a.demo && a.bestand + a.neu > DEMO_PATIENTEN_MAX) {
+    return `Im Gastzugang sind höchstens ${DEMO_PATIENTEN_MAX} Patienten möglich. Die Prüfung der Datei sehen Sie oben; gespeichert wird in der Demo-Praxis nichts weiter.`;
+  }
+  if (a.heute + a.neu > IMPORT_MAX_JE_TAG) {
+    return `In 24 Stunden lassen sich höchstens ${IMPORT_MAX_JE_TAG.toLocaleString("de-DE")} Patienten neu anlegen. Bitte lesen Sie den Rest morgen ein.`;
+  }
+  return null;
+}
 
 // --------------------------------------------------------- Zeichensatz ----
 

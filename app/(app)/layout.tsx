@@ -22,6 +22,7 @@ import { DemoFuehrung } from "@/components/DemoFuehrung";
 import { AnsichtWaechter } from "@/components/Ansicht";
 import { ANSICHT_SKRIPT } from "@/lib/ansicht";
 import { KopfLink } from "@/components/KopfLink";
+import { EmpfangWache } from "@/components/EmpfangWache";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -59,6 +60,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     {/* Dunkle Ansicht (Beta): nur wenn ausdrücklich gewählt; vor dem ersten Bild gesetzt, damit nichts aufblitzt. */}
     <script dangerouslySetInnerHTML={{ __html: ANSICHT_SKRIPT }} />
     <AnsichtWaechter />
+    {/* Übergabe an einen Patienten in einem anderen Tab: auch dieser Tab wird leer (components/EmpfangWache.tsx). */}
+    <EmpfangWache />
     <a href="#inhalt" className="sprunglink" data-testid="sprunglink">Zum Inhalt</a>
     <div className="praxis-app min-h-screen lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
       {/* Desktop: feste Seitenleiste */}

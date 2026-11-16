@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildProposal, DEFAULT_PRICES, money, type ProposalInput } from "@/lib/proposals";
 import { PATIENT_LANGS, UI, euro } from "@/lib/patientI18n";
-import { SPRECH_SPRACHE, vorleseTeile, vorleseText } from "@/lib/vorlesen";
+import { SPRECH_SPRACHE, lokaleStimme, vorleseTeile, vorleseText } from "@/lib/vorlesen";
 
 const patient = { age: 45, insurance: "GKV" as const, bonusYears: 0 as const, haertefall: false, erstattungProzent: 0 };
 const items = buildProposal({ teeth: { "36": "zerstoert" }, globals: {}, patient } as unknown as ProposalInput, DEFAULT_PRICES).filter((i) => i.options.length > 0);
@@ -54,5 +54,30 @@ describe("Vorlesen", () => {
     const fremd = [{ ...erste, title: "Diesen Titel kennt keine Sprache" }];
     const teile = vorleseTeile({ ...basis("en"), items: fremd });
     expect(teile.find((x) => x.text.startsWith("Diesen Titel"))?.lang).toBe("de");
+  });
+});
+
+describe("Vorlesen nur mit Stimmen auf dem Gerät", () => {
+  const stimmen = [
+    { name: "Google Deutsch", lang: "de-DE", localService: false },
+    { name: "Anna", lang: "de-DE", localService: true },
+    { name: "Google UK English", lang: "en-GB", localService: false },
+    { name: "Samantha", lang: "en-US", localService: true, default: true },
+    { name: "Yelda", lang: "tr_TR", localService: true },
+    { name: "Google polski", lang: "pl-PL", localService: false },
+  ];
+  it("nimmt nie eine Online-Stimme, auch wenn sie die einzige für die Sprache ist", () => {
+    expect(lokaleStimme(stimmen, "de-DE")?.name).toBe("Anna");
+    expect(lokaleStimme(stimmen, "pl-PL")).toBeNull();
+    expect(lokaleStimme(stimmen.filter((s) => !s.localService), "de-DE")).toBeNull();
+    expect(lokaleStimme([], "de-DE")).toBeNull();
+  });
+  it("gleiche Sprache mit anderem Land und andere Schreibweise der Kennung zählen", () => {
+    expect(lokaleStimme(stimmen, "en-GB")?.name).toBe("Samantha");
+    expect(lokaleStimme(stimmen, "tr-TR")?.name).toBe("Yelda");
+    expect(lokaleStimme(stimmen, "uk-UA")).toBeNull();
+  });
+  it("kennt für jede Sprache der Patientenansicht eine Sprachkennung", () => {
+    for (const l of Object.values(SPRECH_SPRACHE)) expect(l).toMatch(/^[a-z]{2}-[A-Z]{2}$/);
   });
 });

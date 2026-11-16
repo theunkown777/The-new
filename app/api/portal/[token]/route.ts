@@ -7,6 +7,8 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { eingangMelden } from "@/lib/eingang";
 import { pruefLage, pruefungNoetigAntwort } from "@/lib/portalPruefungServer";
 
+import { anschluss } from "@/lib/anschluss";
+import { RATEN_ANGEHALTEN } from "@/lib/installments";
 const schema = z.object({
   invoiceId: z.string().min(1).max(40),
   action: z.enum(["gezahlt", "raten", "lastschrift"]),
@@ -20,10 +22,10 @@ const rechnungHinweis = async (id: string) => {
   return r ? `Rechnung ${r.number}` : null;
 };
 
-// Patientenportal (öffentlich, ohne Login): Zahlung melden oder Ratenzahlung anfragen.
+// Patientenportal (öffentlich, ohne Login): Zahlung melden oder Lastschrift erteilen. Ratenanfragen sind angehalten (lib/installments.ts).
 export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `portal:${ip}`;
   if (await isRateLimited(key, 30, 60 * 60 * 1000)) {
     return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });
@@ -60,6 +62,9 @@ export async function POST(req: Request, props: { params: Promise<{ token: strin
     await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: "LASTSCHRIFT", entityId: parsed.data.invoiceId, hinweis: await rechnungHinweis(parsed.data.invoiceId) });
     return NextResponse.json({ ok: true });
   }
+
+  // Raten sind angehalten (lib/installments.ts): Das Portal zeigt den Knopf nicht, und hier wird nichts angenommen.
+  if (parsed.data.action === "raten" && RATEN_ANGEHALTEN) return NextResponse.json({ error: "Das ist zurzeit online nicht möglich. Bitte sprechen Sie Ihre Praxis an." }, { status: 409 });
 
   const res = await prisma.invoice.updateMany({
     where: { id: parsed.data.invoiceId, patientId: patient.id, status: { in: ["OFFEN", "GEMELDET"] } },

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { hashToken } from "@/lib/tokens";
 
+import { anschluss } from "@/lib/anschluss";
 const schema = z.object({
   token: z.string().min(1),
   password: z.string().min(8, "Passwort muss mindestens 8 Zeichen haben"),
@@ -14,7 +15,7 @@ const LIMIT = 10;
 const WINDOW_MS = 60 * 60 * 1000;
 
 export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const rateLimitKey = `reset-password:${ip}`;
   if (await isRateLimited(rateLimitKey, LIMIT, WINDOW_MS)) {
     return NextResponse.json(

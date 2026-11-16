@@ -116,7 +116,7 @@ export const MATRIX: Eintrag[] = [
   o("p/[token]/zweitmeinung", TOKEN, "vorschlagUeberLink"),
   o("p/[token]/zweitmeinung/[zid]", TOKEN, "vorschlagUeberLink", [{ name: "eigener Link, fremde Zweitmeinung", pfad: { token: "A.linkToken", zid: "B.zweitmeinung" }, body: ZWEIT }]),
   o("kalender/[token]", "Geheimer Kalender-Link der Praxis (nur als Hash gespeichert); liefert nur Zeiten dieser Praxis", "hashToken"),
-  o("t/[kennung]", "Öffentliche Buchungsseite für neue Patienten: zufällige Kennung der Praxis, Begrenzung je Adresse und Praxis; zeigt nur freie Zeiten", "praxisZurKennung"),
+  o("t/[kennung]", "Öffentliche Buchungsseite für neue Patienten: zufällige Kennung der Praxis, Begrenzung je Adresse und Praxis, Zeitstempel gilt für eine Anfrage; zeigt nur freie Zeiten und verrät nichts über vorhandene Anfragen zu Kontaktdaten", "praxisZurKennung"),
   o("portal/[token]", PORTAL, "hashToken"),
   o("portal/[token]/pruefung", PORTAL, "hashToken"),
   o("portal/[token]/termin", PORTAL, "hashToken"),
@@ -149,7 +149,7 @@ export const MATRIX: Eintrag[] = [
   o("support", "Hilfe-Formular; Begrenzung je Adresse, nur Schreiben", "isRateLimited"),
   o("vorschau", "Zugang zur Vorschau-Domain mit eigenem Passwort; Begrenzung, keine Praxisdaten", "zugangPasst"),
   o("status", "Kurzfassung ohne Praxisdaten für alle; Einzelheiten nur mit CRON_SECRET oder für das Sorrida-Team", "cronSecretPasst"),
-  o("fehler", "Fehlermeldung aus dem Browser; nur gleiche Herkunft, Begrenzung je Adresse, höchstens 2 kB, nur Schreiben, gespeichert wird nur Bereinigtes", "consumeAttempt"),
+  o("fehler", "Fehlermeldung aus dem Browser; nur gleiche Herkunft, Begrenzung je Adresse, höchstens 2 kB, nur Schreiben, gespeichert werden nur Wörter von einer festen Liste, Tagesgrenze neuer Einträge", "consumeAttempt"),
 
   // --- Maschinen-Zugänge ---
   o("cron/aufraeumen", "Geheimnis im Kopf (CRON_SECRET), nur von der Zeitsteuerung", "CRON_SECRET"),
@@ -163,7 +163,7 @@ export const MATRIX: Eintrag[] = [
   o("v1/reports/generate", PARTNER, "authenticateAndRateLimitApiRequest"),
 
   // --- Empfangsmodus (Tablet am Tresen) ---
-  o("empfang/entsperren", "Geparkte Sitzung im Cookie und PIN der Praxis; Sperre nach Fehlversuchen", "sitzungHolen"),
+  o("empfang/entsperren", "Geparkte Sitzung im Cookie, auf dem Server geführt und nur einmal gültig, dazu die PIN der Praxis; Sperre nach Fehlversuchen, Prüfung je Praxis nacheinander", "sitzungHolen"),
   o("empfang/patient/fertig", "Löscht nur das Übergabe-Cookie des Geräts", "UEBERGABE_COOKIE"),
   o("empfang/patient/kontakt", UEBERGABE, "uebergabeFuer"),
   // Der Test übergibt zuerst an einen Patienten der Praxis A und ruft dann mit dem Cookie die fremden IDs auf.

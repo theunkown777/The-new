@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { anlaesseSchema, neueKennung } from "@/lib/terminanfrage";
 import { auditFromSession } from "@/lib/audit";
+import { buchungsseiteFehlt, leseStammdaten } from "@/lib/praxisStammdaten";
 
 const schema = z.discriminatedUnion("aktion", [
   z.object({ aktion: z.literal("speichern"), aktiv: z.boolean(), anlaesse: anlaesseSchema }).strict(),
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Ungültige Eingabe" }, { status: 400 });
   const d = parsed.data;
   const practiceId = session.user.practiceId;
-  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { buchungKennung: true, buchungAktiv: true } });
+  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { buchungKennung: true, buchungAktiv: true, isDemo: true, stammdaten: true } });
   if (!praxis) return NextResponse.json({ error: "Praxis nicht gefunden" }, { status: 404 });
   const basis = process.env.NEXTAUTH_URL?.replace(/\/$/, "") || new URL(req.url).origin;
 
@@ -33,6 +34,12 @@ export async function POST(req: Request) {
   }
 
   if (d.aktiv && !praxis.buchungAktiv) return NextResponse.json({ error: "Bitte schalten Sie zuerst oben „Online-Termine anbieten“ ein und speichern Sie die Sprechzeiten." }, { status: 409 });
+  // Die Seite erhebt Daten von Menschen, die noch keine Patienten sind: Sie zeigt Anschrift und Datenschutzhinweise der
+  // Praxis. Ohne diese Angaben lässt sie sich nicht einschalten (Gastzugang ausgenommen: dort ist alles ein Beispiel).
+  if (d.aktiv && !praxis.isDemo) {
+    const fehlt = buchungsseiteFehlt(leseStammdaten(praxis.stammdaten));
+    if (fehlt.length) return NextResponse.json({ error: `Bitte tragen Sie zuerst unter Einstellungen → Angaben der Praxis ein: ${fehlt.join(" und ")}. Die Buchungsseite zeigt diese Angaben den Anfragenden.`, code: "STAMMDATEN" }, { status: 409 });
+  }
   const anlaesse = Array.from(new Set(d.anlaesse.map((a) => a.replace(/\s+/g, " "))));
   const kennung = praxis.buchungKennung ?? (d.aktiv ? neueKennung() : null);
   await prisma.practice.update({ where: { id: practiceId }, data: { neupatientenBuchung: d.aktiv, buchungAnlaesse: anlaesse, buchungKennung: kennung } });

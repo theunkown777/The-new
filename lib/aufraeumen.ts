@@ -28,6 +28,8 @@ export async function aufraeumen(now = new Date()) {
   ]);
   // Fehlereinträge aus dem Betrieb (lib/fehlerlog.ts): 30 Tage nach dem letzten Auftreten
   const fehlerlog = await prisma.fehlerEintrag.deleteMany({ where: { zuletztAt: { lt: stichtag("fehlerlog", now) } } });
+  // Empfangsmodus: abgelaufene geparkte Sitzungen (nur Hashwert einer Kennung, lib/empfangParkung.ts)
+  await prisma.empfangParkung.deleteMany({ where: { expiresAt: { lt: now } } });
   const demos = await cleanupExpiredDemos(now);
   return { token: ev.count + pr.count + inv.count + lt.count, portal: portal.count, anamnese: anam.count, anfragen: leads.count, protokoll: logs.count, terminanfragen: anfragenOffen.count + anfragenBestaetigt.count, warteliste: warteliste.count, fehlerlog: fehlerlog.count, demos };
 }

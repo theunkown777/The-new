@@ -5,6 +5,7 @@ import type { InvoiceView } from "@/lib/invoices";
 import type { PortalUi } from "@/lib/portalI18n";
 import { PRUEFUNG_NOETIG, pruefFehlerText, pruefText, type PruefStatus } from "@/lib/portalPruefung";
 import { GeburtsdatumBestaetigt, GeburtsdatumPruefung } from "@/components/PortalPruefung";
+import { RATEN_ANGEHALTEN } from "@/lib/installments";
 
 /** Geburtsdatum-Prüfung vor dem Lastschriftmandat (S5): Stand beim Laden der Seite. */
 export type PortalPruefungStand = { status: PruefStatus; lang: string; demoDatum?: string | null };
@@ -215,15 +216,18 @@ export function PortalInvoice({ token, inv, bank, t, startOpen, mandat, pruefung
             </div>
           )}
           {sepa && <p className="mt-4 rounded-xl bg-salbei-50 p-3 text-sm text-salbei-900" data-testid="ls-erteilt">Lastschrift erteilt. Die Praxis zieht den Betrag ein, Sie müssen nichts weiter tun.</p>}
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            <button type="button" disabled={busy} onClick={() => send("gezahlt")} className="rounded-xl bg-salbei-600 px-4 py-3 text-sm font-semibold text-white hover:bg-salbei-700 disabled:opacity-60">
+          {/* Ratenanfrage: nur, solange Raten nicht angehalten sind (lib/installments.ts RATEN_ANGEHALTEN). */}
+          <div className={`mt-4 grid gap-2 ${RATEN_ANGEHALTEN ? "" : "sm:grid-cols-2"}`}>
+            <button type="button" disabled={busy} onClick={() => send("gezahlt")} className="rounded-xl bg-salbei-600 px-4 py-3 text-sm font-semibold text-white hover:bg-salbei-700 disabled:opacity-60" data-testid="portal-gezahlt">
               {t.reported}
             </button>
-            <button type="button" disabled={busy || raten} onClick={() => send("raten")} className="rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 hover:border-salbei-600 disabled:opacity-60">
-              {raten ? "✓ " + t.installments : t.installments}
-            </button>
+            {!RATEN_ANGEHALTEN && (
+              <button type="button" disabled={busy || raten} onClick={() => send("raten")} className="rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 hover:border-salbei-600 disabled:opacity-60" data-testid="portal-raten">
+                {raten ? "✓ " + t.installments : t.installments}
+              </button>
+            )}
           </div>
-          {raten && <p className="mt-2 text-xs text-slate-600">{t.installmentsDone}</p>}
+          {!RATEN_ANGEHALTEN && raten && <p className="mt-2 text-xs text-slate-600">{t.installmentsDone}</p>}
         </div>
       )}
       {reported && <p className="mt-3 text-sm text-sky-800" role="status">{t.reportedDone}</p>}

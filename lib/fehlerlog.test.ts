@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MELDUNG_MAX, fehlerAufbereiten, fehlerMail, fingerabdruck, meldungBereinigen, ortBereinigen, stackBereinigen } from "@/lib/fehlerlog";
+import { MELDUNG_MAX, browserMeldungBereinigen, fehlerAufbereiten, fehlerMail, fingerabdruck, meldungBereinigen, ortBereinigen, stackBereinigen } from "@/lib/fehlerlog";
 
 describe("ortBereinigen", () => {
   it("entfernt Abfrage-Teil, Sprungmarke und Herkunft", () => {
@@ -160,6 +160,37 @@ describe("stackBereinigen", () => {
   it("liefert leer bei fehlendem Stack", () => {
     expect(stackBereinigen(undefined)).toBe("");
     expect(stackBereinigen("nur eine Meldung")).toBe("");
+  });
+});
+
+describe("browserMeldungBereinigen: Meldungen aus dem Browser", () => {
+  it("lässt einen Namen ohne Anführungszeichen nicht stehen", () => {
+    const m = browserMeldungBereinigen("Sicherheitspruefung Test zwei: Patientin Erika Mustermann, geb. 03.05.1980, Tel. 0171 2345678, erika@example.org nicht gefunden");
+    for (const wort of ["Erika", "Mustermann", "Patientin", "Sicherheitspruefung", "1980", "0171", "example"]) expect(m).not.toContain(wort);
+    expect(browserMeldungBereinigen("Erika Mustermann")).toBe("Fehler ohne lesbare Meldung");
+    expect(browserMeldungBereinigen("Patient Hans-Peter Müller-Lüdenscheidt not found")).toBe("… not found");
+    expect(browserMeldungBereinigen("Cannot read properties of undefined, user Özgür Yılmaz")).toBe("Cannot read properties of undefined, user …");
+  });
+  it("behält die üblichen Fehlermeldungen von Browser und React lesbar", () => {
+    expect(browserMeldungBereinigen("Cannot read properties of undefined (reading 'lastName')")).toBe("Cannot read properties of undefined (reading …)");
+    expect(browserMeldungBereinigen("Failed to fetch")).toBe("Failed to fetch");
+    expect(browserMeldungBereinigen("TypeError: x is not a function")).toBe("TypeError: … is not a function");
+    expect(browserMeldungBereinigen("ChunkLoadError: Loading chunk 418 failed.")).toBe("ChunkLoadError: Loading chunk 418 failed.");
+    expect(browserMeldungBereinigen("Minified React error #418; visit https://react.dev/errors/418 for the full message")).toBe("Minified React error #418; visit … for the full message");
+    expect(browserMeldungBereinigen("Maximum update depth exceeded")).toBe("Maximum update depth exceeded");
+  });
+  it("erfundene Texte ohne technisches Wort ergeben immer dieselbe Meldung (ein Eintrag, kein neuer je Text)", () => {
+    const a = fehlerAufbereiten({ quelle: "browser", ort: "/x", meldung: "Erika Mustermann wohnt dort" });
+    const b = fehlerAufbereiten({ quelle: "browser", ort: "/x", meldung: "Ganz anderer Satz über Max Beispiel" });
+    expect(a.meldung).toBe("Fehler ohne lesbare Meldung");
+    expect(a.fingerabdruck).toBe(b.fingerabdruck);
+  });
+  it("gilt nur für den Browser: Meldungen des Servers behalten ihre Wörter", () => {
+    expect(fehlerAufbereiten({ quelle: "server", ort: "/x", meldung: "Vorlage nicht gefunden" }).meldung).toBe("Vorlage nicht gefunden");
+    expect(fehlerAufbereiten({ quelle: "browser", ort: "/x", meldung: "Vorlage nicht gefunden" }).meldung).toBe("Fehler ohne lesbare Meldung");
+  });
+  it("kürzt auf 300 Zeichen", () => {
+    expect(browserMeldungBereinigen("failed ".repeat(200)).length).toBeLessThanOrEqual(MELDUNG_MAX);
   });
 });
 

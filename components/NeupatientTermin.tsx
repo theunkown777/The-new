@@ -13,7 +13,7 @@ const termin = (iso: string) => `${new Date(iso).toLocaleDateString("de-DE", { w
  * Es entsteht eine Anfrage; die Praxis bestätigt sie. Kein fremder Dienst, kein Captcha:
  * Schutz über verstecktes Lockfeld, Zeitstempel und Begrenzung auf dem Server.
  */
-export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv: boolean; minuten: number; tage: Tag[]; anlaesse: string[]; stempel: string; beispiel: boolean }) {
+export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv: boolean; minuten: number; tage: Tag[]; anlaesse: string[]; stempel: string; beispiel: boolean; /** Datenschutzhinweise der Praxis, falls hinterlegt (https-Adresse) */ datenschutzUrl?: string | null }) {
   const { kennung, praxis, anlaesse, beispiel } = props;
   const [tage, setTage] = useState<Tag[]>(props.tage);
   const [aktiv, setAktiv] = useState(props.aktiv);
@@ -129,11 +129,15 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
           </div>
           <div className="rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600" data-testid="neutermin-datenschutz-text">
             <b className="text-slate-800">Datenschutz in Kürze:</b> Verantwortlich für Ihre Daten ist {praxis}. Ihre Angaben werden nur für die Terminvergabe verwendet.
-            Kommt kein Termin zustande, werden sie nach spätestens 30 Tagen gelöscht. Die vollständigen Datenschutzhinweise erhalten Sie von der Praxis.
+            Kommt kein Termin zustande, werden sie nach spätestens 30 Tagen gelöscht. Die Seite stellt Sorrida im Auftrag der Praxis technisch bereit.{" "}
+            {props.datenschutzUrl
+              ? <>Die vollständigen <a href={props.datenschutzUrl} target="_blank" rel="noopener noreferrer" className="underline" data-testid="neutermin-datenschutz-link">Datenschutzhinweise der Praxis</a> öffnen sich in einem neuen Fenster.</>
+              : "Die vollständigen Datenschutzhinweise erhalten Sie von der Praxis."}
           </div>
+          {/* Bestätigt wird nur, was die Seite auch zeigt: mit Link die Hinweise der Praxis, sonst der Hinweis oben. */}
           <label className="flex items-start gap-2 text-sm text-slate-800">
             <input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={datenschutz} onChange={(e) => setDatenschutz(e.target.checked)} required data-testid="neutermin-datenschutz" />
-            <span>Ich habe die Datenschutzhinweise der Praxis gelesen.</span>
+            <span data-testid="neutermin-datenschutz-bestaetigung">{props.datenschutzUrl ? "Ich habe die Datenschutzhinweise der Praxis gelesen." : "Ich habe den Hinweis zum Datenschutz oben gelesen."}</span>
           </label>
           <button className="btn btn-primary w-full" disabled={busy} data-testid="neutermin-senden">{busy ? "Sendet …" : "Termin anfragen"}</button>
           <p className="text-center text-xs text-slate-500">Die Zeit wird 24 Stunden für Sie reserviert. Der Termin gilt, sobald die Praxis ihn bestätigt.</p>

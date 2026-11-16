@@ -6,8 +6,10 @@ import { einbettung } from "@/lib/terminEinbettung";
 
 // Einstellungen: Terminbuchung für neue Patienten. Schalter, Anlässe, Link und Einbettungs-Code
 // für die Website der Praxis (Knopf oder Rahmen).
-export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschlaege }: {
+export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschlaege, stammdatenFehlt = [] }: {
   admin: boolean; demo: boolean; buchungAktiv: boolean;
+  /** Angaben der Praxis, die die Buchungsseite zeigen muss und die noch fehlen (lib/praxisStammdaten.ts buchungsseiteFehlt) */
+  stammdatenFehlt?: string[];
   start: { aktiv: boolean; url: string | null; anlaesse: string[] };
   /** Übliche Terminanlässe des Fachs, zum schnellen Übernehmen */
   vorschlaege: string[];
@@ -54,6 +56,13 @@ export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschla
       </div>
       {meldung && <p role={meldung.art === "fehler" ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-sm ${meldung.art === "fehler" ? "bg-red-50 text-red-800" : "bg-salbei-50 text-salbei-900"}`} data-testid="neupatienten-meldung">{meldung.text}</p>}
       {!buchungAktiv && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Dafür müssen oben „Online-Termine anbieten“ eingeschaltet und Sprechzeiten gespeichert sein.</p>}
+      {stammdatenFehlt.length > 0 && (
+        <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="neupatienten-stammdaten-fehlen">
+          Die Buchungsseite zeigt neuen Patienten, wer Ihre Praxis ist und wo Ihre Datenschutzhinweise stehen. Es fehlt noch: {stammdatenFehlt.join(" und ")}.{" "}
+          {demo ? "Im Gastzugang lässt sich die Seite trotzdem ausprobieren." : "Vorher lässt sich die Seite nicht einschalten."}{" "}
+          <a href="/settings/praxis" className="font-medium underline">Angaben der Praxis eintragen</a>
+        </p>
+      )}
 
       <label className="block text-sm"><span className="label">Anlässe zur Auswahl (einer je Zeile, höchstens 12)</span>
         <textarea className="input min-h-[7rem]" value={anlaesse} disabled={!admin} onChange={(e) => setAnlaesse(e.target.value)} data-testid="neupatienten-anlaesse" />

@@ -8,6 +8,7 @@ import { audit } from "@/lib/audit";
 import { eingangErledigen, eingangMelden } from "@/lib/eingang";
 import { nachErinnerungGebucht } from "@/lib/recall";
 
+import { anschluss } from "@/lib/anschluss";
 export const dynamic = "force-dynamic";
 const MAX_OFFEN = 2;
 const ABSAGE_BIS_STD = 24;
@@ -35,7 +36,7 @@ export async function GET(_req: Request, props: { params: Promise<{ token: strin
 // Termin buchen: Das Zeitfenster wird beim Buchen noch einmal geprüft.
 export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   if (await isRateLimited(`buchung:${ip}`, 20, 3600e3)) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });
   await recordAttempt(`buchung:${ip}`, 3600e3);
   const patient = await patientVon(params.token);

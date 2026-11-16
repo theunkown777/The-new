@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { VorschauLogin } from "@/components/VorschauLogin";
 import { oeffentlichStufe } from "@/lib/vorschau";
+import { sichererPfad } from "@/lib/safeRedirect";
 
 export const metadata: Metadata = {
   title: "Sorrida – demnächst",
@@ -10,9 +11,10 @@ export const metadata: Metadata = {
 };
 
 // Seite für die eigene Domain, solange Sorrida noch nicht öffentlich ist (lib/vorschau.ts).
-export default async function Demnaechst(props: { searchParams: Promise<{ weiter?: string }> }) {
+export default async function Demnaechst(props: { searchParams: Promise<{ weiter?: string | string[] }> }) {
   const searchParams = await props.searchParams;
-  const weiter = searchParams.weiter && searchParams.weiter.startsWith("/") && !searchParams.weiter.startsWith("//") ? searchParams.weiter : "/";
+  // Ziel nach der Anmeldung: nur ein Pfad dieser Seite, nie eine fremde Adresse (lib/safeRedirect.ts).
+  const weiter = sichererPfad(searchParams.weiter, "/");
   const zugangAktiv = !!(process.env.VORSCHAU_BENUTZER && process.env.VORSCHAU_PASSWORT);
   // Öffentliche Stufe: Die Website ist offen; hier landet nur, wer App, Anmeldung oder Demo-Praxis aufruft.
   const offen = oeffentlichStufe() !== "aus";

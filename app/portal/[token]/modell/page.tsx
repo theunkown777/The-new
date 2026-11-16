@@ -7,6 +7,7 @@ import { ModellWahl } from "@/components/modelle/ModellWahl";
 import { PORTAL_LANGS, PORTAL_LANG_NAMES, pickPortalLang } from "@/lib/portalI18n";
 import { modellTexte } from "@/lib/modelle/i18n/laden";
 import { MODELL_SPRACHEN_FERTIG, uebersetze } from "@/lib/modelle/i18n/schluessel";
+import { PraxisFuss } from "@/components/PraxisFuss";
 
 export const metadata: Metadata = { title: "Ihr Modell", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -22,7 +23,7 @@ export default async function PortalModellPage(props: { params: Promise<{ token:
   const gueltig = /^[A-Za-z0-9_-]{20,128}$/.test(params.token);
   const gefunden = gueltig ? await prisma.patient.findUnique({
     where: { portalTokenHash: hashToken(params.token) },
-    select: { firstName: true, geschlecht: true, portalExpiresAt: true, practice: { select: { name: true, specialty: true } }, modellMarkierungen: { select: { modell: true, teil: true, notiz: true }, orderBy: { createdAt: "asc" } } },
+    select: { firstName: true, geschlecht: true, portalExpiresAt: true, practice: { select: { name: true, specialty: true, stammdaten: true } }, modellMarkierungen: { select: { modell: true, teil: true, notiz: true }, orderBy: { createdAt: "asc" } } },
   }) : null;
   const patient = gefunden && gefunden.portalExpiresAt && gefunden.portalExpiresAt > new Date() ? gefunden : null;
   if (!patient) {
@@ -57,6 +58,7 @@ export default async function PortalModellPage(props: { params: Promise<{ token:
             <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-brand-700 underline" : "text-slate-600 hover:text-brand-700"}>{PORTAL_LANG_NAMES[l]}</a>
           ))}
         </nav>
+        <PraxisFuss name={patient.practice.name} stammdaten={patient.practice.stammdaten} className="mt-8 border-t border-slate-200 pt-4" />
       </div>
     </main>
   );

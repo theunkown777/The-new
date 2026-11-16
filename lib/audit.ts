@@ -10,6 +10,7 @@ export const AUDIT_ACTIONS = {
   "patient.geloescht": "Patient gelöscht",
   "patient.import": "Patientenliste eingelesen",
   "patient.akte": "Akte aus Schnellvorschlag angelegt",
+  "patient.kontakt": "Kontaktdaten aus Online-Anfrage in die Akte übernommen",
   "bericht.freigegeben": "Bericht freigegeben",
   "bericht.zurueckgezogen": "Freigabe zurückgenommen",
   "bericht.ki": "Bericht mit KI erstellt",

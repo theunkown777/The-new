@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { uebergabeMelden } from "@/components/EmpfangWache";
 
 type P = { id: string; firstName: string; lastName: string; birthDate: string | null };
 type Lage = { anamneseOffen: boolean; anamneseZuletzt: string | null; einverstaendnisse: number };
@@ -50,6 +51,8 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf }: { pinGesetzt: 
     // aus der Praxis-Ansicht im Speicher des Browsers bleibt; holt der Browser sie über „Zurück“ doch
     // noch einmal hervor, lädt sie sofort neu und landet bei der Anmeldung.
     document.body.style.visibility = "hidden";
+    // Andere offene Tabs und Fenster der Praxis-Ansicht auf diesem Gerät: ebenfalls leeren (components/EmpfangWache.tsx).
+    uebergabeMelden();
     window.addEventListener("pageshow", (e) => { if (e.persisted) window.location.reload(); });
     window.location.replace(d.ziel ?? "/uebergabe");
   }
@@ -116,6 +119,7 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf }: { pinGesetzt: 
           <p className="text-xs leading-relaxed text-slate-500">
             <b className="text-slate-700">An Patient übergeben:</b> Das Tablet zeigt danach nur noch die Schritte für diese Person, ohne Menü und ohne andere Patienten. Auf dem Gerät ist so lange niemand angemeldet.
             Nach „Fertig“, nach {leerlauf} Minuten ohne Eingabe oder spätestens nach {minuten} Minuten sperrt es sich. Zurück kommen Sie mit der Empfangs-PIN.
+            {" "}<span data-testid="empfang-hinweis-tabs">Andere offene Tabs von Sorrida in diesem Browser wechseln bei der Übergabe ebenfalls in die Patientenansicht. Bitte schließen Sie vorher andere Fenster mit Patientendaten, auch die anderer Programme.</span>
             {" "}<b className="text-slate-700">QR-Code zeigen:</b> Der Patient scannt den Code und füllt alles am eigenen Handy aus.
           </p>
         </section>

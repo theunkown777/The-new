@@ -3,6 +3,8 @@
 //
 // Grundsatz: Im Fehlerlog dürfen keine Patientendaten landen. Deshalb wird lieber zu viel
 // entfernt als zu wenig. Übrig bleibt, WAS schiefging und WO, nicht MIT WELCHEN Daten.
+// Meldungen des Servers: Muster werden entfernt (meldungBereinigen). Meldungen aus dem Browser:
+// zusätzlich bleibt nur stehen, was auf einer Liste technischer Wörter steht (browserMeldungBereinigen).
 
 export const MELDUNG_MAX = 300;
 export const ORT_MAX = 160;
@@ -125,6 +127,53 @@ export function meldungBereinigen(roh: unknown): string {
   return t.length > MELDUNG_MAX ? `${t.slice(0, MELDUNG_MAX - 1)}${LUECKE}` : t;
 }
 
+// Meldungen aus dem Browser kann jeder ohne Anmeldung schicken (app/api/fehler/route.ts). Ein Name ohne
+// Anführungszeichen sieht aus wie jedes andere Wort; die Regeln oben erkennen ihn nicht. Deshalb gilt für den
+// Browser zusätzlich: Stehen bleibt nur, was auf dieser Liste steht (Fehlerarten und technische Wörter aus den
+// Meldungen von Browser, React und Next). Jedes andere Wort wird zur Lücke, auch jedes deutsche.
+const BROWSER_WOERTER = new Set(
+  `error typeerror referenceerror rangeerror syntaxerror urierror evalerror aggregateerror internalerror chunkloaderror
+  aborterror networkerror securityerror notallowederror notfounderror notsupportederror quotaexceedederror invalidstateerror
+  timeouterror dataclonederror dataerror domexception exception
+  a an the of to in on at for from by with without and or not no is are was were be been being has have had can cannot
+  could should would will may might must do does did done this that these those it its as if when while because before
+  after during into out over under than then there here which what how why but so only also any all some each other same
+  undefined null nan true false object function class module script chunk chunks loading load loaded failed fail failure
+  errors invalid unexpected expected token end input json parse parsing syntax type reference range internal
+  property properties read reading write writing set setting get getting call called calling apply value values key keys
+  index length array string number boolean symbol bigint promise async await iterable iterator iterate spread
+  network request response fetch fetching resource resources server client browser connection offline online timeout timed
+  aborted abort cancelled canceled signal operation render rendering rendered hydration hydrate hydrating react component
+  components hook hooks state effect update updates depth maximum exceeded minified boundary suspense node nodes child
+  children parent element elements dom document window text content html mismatch match matched initial ui tree stack size
+  recursion much too many few more less permission denied allowed blocked security insecure cross origin frame access
+  storage quota found missing required unavailable unsupported supported implemented available css style import export
+  default dynamic static route router navigation page layout app next attempting attempt tried trying unable unhandled
+  rejection uncaught remove removed insert inserted append appended execute executed time date initialization initialized
+  accessed defined declared constructor instance instanceof prototype evaluating near line column position unknown reason
+  message cause code status see visit full more information details loop limit resize observer completed delivering
+  notifications argument arguments parameter parameters convert converted circular structure user aborted didn't doesn't
+  isn't wasn't can't won't didn doesn isn wasn won t s digest boundary boundaries encountered occurred happened while
+  rendering switched fallback entire root because there one two caught thrown throw throws cannot convert view transition`
+    .split(/\s+/).filter(Boolean),
+);
+
+/**
+ * Meldung aus dem Browser: zuerst die allgemeinen Regeln (meldungBereinigen), dann bleibt Wort für Wort nur stehen,
+ * was auf der Liste BROWSER_WOERTER steht. Ziffern bis vier Stellen (z. B. „#418“) und Satzzeichen bleiben.
+ * Ein Name bleibt so nicht stehen, auch ohne Anführungszeichen.
+ */
+export function browserMeldungBereinigen(roh: unknown): string {
+  const t = meldungBereinigen(roh)
+    .replace(/[\p{L}\p{M}]+(?:'[\p{L}]+)?/gu, (wort) => (BROWSER_WOERTER.has(wort.toLowerCase()) ? wort : LUECKE))
+    // Was jetzt noch zwischen Lücken steht, sind Satzzeichen: zusammenziehen
+    .replace(/(?:…[\s,;:.!?/()[\]{}<>=+*|&_-]*){2,}/g, `${LUECKE} `)
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!/[\p{L}]{2,}/u.test(t)) return "Fehler ohne lesbare Meldung";
+  return t.length > MELDUNG_MAX ? `${t.slice(0, MELDUNG_MAX - 1)}${LUECKE}` : t;
+}
+
 /** Dateipfad einer Stack-Zeile: ohne Herkunft, ohne Parameter, nur die letzten drei Teile. */
 function dateiKurz(roh: string): string {
   let d = roh.replace(/^[a-z][a-z0-9+.-]*:\/\/[^/]*/i, "").replace(/^file:\/\//i, "");
@@ -195,12 +244,18 @@ export interface FehlerSauber {
 export function fehlerAufbereiten(roh: FehlerRoh): FehlerSauber {
   const quelle: FehlerQuelle = roh.quelle === "browser" ? "browser" : "server";
   const ort = ortBereinigen(roh.ort);
-  const meldung = meldungBereinigen(roh.meldung);
+  // Browser: zusätzlich nur Wörter von der Liste (siehe browserMeldungBereinigen)
+  const meldung = quelle === "browser" ? browserMeldungBereinigen(roh.meldung) : meldungBereinigen(roh.meldung);
   return { quelle, ort, meldung, stack: stackBereinigen(roh.stack), fingerabdruck: fingerabdruck(quelle, ort, meldung) };
 }
 
-/** Grenze für den Statusbericht: mehr als so viele verschiedene Fehler in 24 Stunden gelten als „nicht ok“. */
+/**
+ * Grenze für den Statusbericht: mehr als so viele verschiedene Fehler des SERVERS in 24 Stunden gelten als „nicht ok“.
+ * Meldungen aus dem Browser zählen dafür nicht: Die kann jeder ohne Anmeldung schicken (app/api/fehler/route.ts).
+ */
 export const FEHLER_GRENZE_24H = 20;
+/** Höchstens so viele NEUE Einträge aus dem Browser je 24 Stunden; weitere Meldungen erhöhen nur vorhandene Zähler. */
+export const BROWSER_NEU_GRENZE_24H = 40;
 
 /**
  * Tägliche Mail an das Sorrida-Team: nur die Zahl, die Orte und der Link zur Ansicht. Keine Meldungstexte.

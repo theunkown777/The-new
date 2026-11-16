@@ -26,4 +26,23 @@ describe("Ratenanzeige angehalten (Verbraucherkreditrecht ab 20.11.2026)", () =>
     expect(installmentOffer(2088, an)).toEqual({ kind: "none" });
     expect(installmentOffer(2088, { ...an, zinsfrei: false })).toEqual({ kind: "none" });
   });
+  it("das Patientenportal zeigt den Knopf „Ratenzahlung anfragen“ nur, wenn Raten nicht angehalten sind, und die Schnittstelle nimmt die Anfrage dann nicht an", async () => {
+    const fs = await import("fs");
+    const path = await import("path");
+    const lies = (datei: string) => fs.readFileSync(path.join(__dirname, "..", datei), "utf8");
+    const portal = lies("components/PortalInvoice.tsx");
+    // Jede Stelle, die den Text des Knopfs oder seine Bestätigung zeigt, hängt am Schalter.
+    const zeilen = portal.split("\n");
+    const stellen = zeilen.map((z, i) => ({ z, i })).filter(({ z }) => /t\.installments(Done)?\b/.test(z));
+    expect(stellen.length).toBeGreaterThan(0);
+    for (const { i } of stellen) expect(zeilen.slice(Math.max(0, i - 3), i + 1).join("\n"), `Zeile ${i + 1}`).toContain("!RATEN_ANGEHALTEN");
+    expect(lies("app/api/portal/[token]/route.ts")).toMatch(/action === "raten" && RATEN_ANGEHALTEN/);
+  });
+  it("die Einstellungen sagen nach dem Speichern nicht, dass Patienten-Links Raten zeigen", async () => {
+    const fs = await import("fs");
+    const path = await import("path");
+    const text = fs.readFileSync(path.join(__dirname, "..", "components/InstallmentSettings.tsx"), "utf8");
+    expect(text).toContain("Die Anzeige im Patienten-Link bleibt angehalten.");
+    expect(text).toMatch(/RATEN_ANGEHALTEN \? "Gespeichert\. Die Anzeige/);
+  });
 });

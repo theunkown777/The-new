@@ -17,7 +17,10 @@ export const MIN_SEKUNDEN = 4;
 export const STEMPEL_MAX_STD = 6;
 export const LIMIT_IP_STUNDE = 5;
 export const LIMIT_PRAXIS_TAG = 40;
-/** Offene Anfragen mit derselben Mobilnummer oder E-Mail je Praxis */
+/**
+ * Ab so vielen offenen Anfragen mit derselben Mobilnummer oder E-Mail sieht die Praxis einen Hinweis an der Anfrage.
+ * Nach außen wird das nicht gemeldet: Die Buchungsseite verrät nie, ob es zu Kontaktdaten schon Anfragen gibt.
+ */
 export const MAX_OFFEN_JE_KONTAKT = 2;
 
 export const ANFRAGE_STATUS = ["OFFEN", "BESTAETIGT", "ABGELEHNT"] as const;
@@ -64,6 +67,12 @@ export function stempelPruefen(wert: string | null | undefined, kennung: string,
   if (alter > STEMPEL_MAX_STD * 3600e3) return "abgelaufen";
   return "ok";
 }
+
+/**
+ * Schlüssel, unter dem ein verwendeter Stempel gemerkt wird (lib/rateLimit.ts): Jeder Stempel gilt für genau
+ * eine gespeicherte Anfrage. Wer mehrere Anfragen stellt, muss die Seite jedes Mal neu laden und die Mindestzeit abwarten.
+ */
+export const stempelSchluessel = (wert: string) => `neuanfrage-stempel:${crypto.createHash("sha256").update(wert).digest("hex").slice(0, 32)}`;
 
 // --- Eingaben des Anmeldenden ---
 
@@ -166,6 +175,25 @@ export function patientAbgleich<T extends AbgleichPatient>(anfrage: { firstName:
     else if (erster && ersterVorname(p.firstName) === erster) aehnlich.push(p);
   }
   return [...genau, ...aehnlich];
+}
+
+// --- Kontaktdaten aus dem öffentlichen Formular: nie still in eine vorhandene Akte ---
+
+/**
+ * Was die Anfrage an Kontaktdaten nennt, die in der Akte des vorhandenen Patienten noch fehlen.
+ * Das Formular prüft nicht, wer es ausfüllt. Deshalb übernimmt Sorrida diese Angaben nur, wenn die Praxis
+ * es beim Bestätigen ausdrücklich anklickt. Vorhandene Angaben werden nie überschrieben.
+ */
+export function neueKontaktdaten(anfrage: { phone: string | null; email: string | null }, patient: { phone: string | null; email: string | null }): { phone?: string; email?: string } {
+  return {
+    ...(anfrage.phone && !patient.phone ? { phone: anfrage.phone } : {}),
+    ...(anfrage.email && !patient.email ? { email: anfrage.email } : {}),
+  };
+}
+
+/** Wie viele ANDERE offene Anfragen derselben Praxis dieselbe Mobilnummer oder E-Mail-Adresse nennen (Hinweis für die Praxis). */
+export function gleicherKontakt<T extends { id: string; phone: string | null; email: string | null }>(anfrage: T, offene: T[]): number {
+  return offene.filter((o) => o.id !== anfrage.id && ((!!anfrage.phone && o.phone === anfrage.phone) || (!!anfrage.email && o.email === anfrage.email))).length;
 }
 
 // --- Texte für die Praxis (zum Kopieren; Sorrida verschickt nichts von allein) ---

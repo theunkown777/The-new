@@ -11,6 +11,7 @@ import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { NeupatientenBuchung } from "@/components/NeupatientenBuchung";
 import { anlaesseLesen } from "@/lib/terminanfrage";
 import { fachprofil } from "@/lib/fachprofile";
+import { buchungsseiteFehlt, leseStammdaten } from "@/lib/praxisStammdaten";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ export default async function TermineOnlinePage() {
   const [abo, datei, feed] = await Promise.all([
     prisma.kalenderBelegung.count({ where: { practiceId, quelle: "abo" } }),
     prisma.kalenderBelegung.count({ where: { practiceId, quelle: "datei" } }),
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { kalenderFeedHash: true, specialty: true } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { kalenderFeedHash: true, specialty: true, stammdaten: true } }),
   ]);
   const p = lage!.praxis;
   const tage = p.buchungAktiv ? lage!.tage : freieZeiten(lage!.eingabe);
@@ -50,6 +51,7 @@ export default async function TermineOnlinePage() {
           buchungAktiv={p.buchungAktiv}
           start={{ aktiv: p.neupatientenBuchung, url: p.buchungKennung ? `${basis}/t/${p.buchungKennung}` : null, anlaesse: anlaesseLesen(p.buchungAnlaesse) }}
           vorschlaege={fachprofil(feed?.specialty ?? "zahn").termine}
+          stammdatenFehlt={buchungsseiteFehlt(leseStammdaten(feed?.stammdaten))}
         />
       </div>
       <section className="card mt-5 space-y-2 text-sm text-slate-700" data-testid="whatsapp-status">

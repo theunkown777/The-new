@@ -6,6 +6,7 @@ import { aufraeumen } from "@/lib/aufraeumen";
 let letztesAufraeumen = 0;
 import { DENTAL_ID, specialty } from "@/lib/specialties";
 
+import { anschluss } from "@/lib/anschluss";
 // Anlegen der Beispieldaten (je nach Fach bis etwa 1800 Einträge) braucht einige Sekunden.
 export const maxDuration = 60;
 
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
 }
 
 async function handle(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `demo:${ip}`;
   if (await isRateLimited(key, LIMIT, WINDOW_MS)) {
     return NextResponse.json({ error: "Zu viele Gastzugänge von diesem Anschluss. Bitte später erneut versuchen." }, { status: 429 });

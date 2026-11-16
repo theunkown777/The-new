@@ -223,7 +223,7 @@ export function PatientProposalView(props: Props) {
           </nav>
         )}
         <div className="flex flex-wrap gap-1.5" data-testid="lesehilfen">
-          <VorlesenKnopf t={t} teile={() => vorleseTeile({ ueberschrift, items, patient, choices: readOnly ? {} : choices, summe: readOnly || nochNichtsGewaehlt ? null : sum.netto, lang, t, zusatz })} />
+          <VorlesenKnopf t={t} lang={lang} teile={() => vorleseTeile({ ueberschrift, items, patient, choices: readOnly ? {} : choices, summe: readOnly || nochNichtsGewaehlt ? null : sum.netto, lang, t, zusatz })} />
           {lang === "de" && (
             <button
               type="button"

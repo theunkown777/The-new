@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   MIN_SEKUNDEN, STANDARD_ANLAESSE, STEMPEL_MAX_STD, absageText, anfrageSchema, anlaesseLesen, einbettung, geburtstag, istReserviert, kennungGueltig, lockfeldGefuellt,
-  namensSchluessel, neueKennung, patientAbgleich, reservierungen, reserviertBis, stempel, stempelPruefen, zusageText,
+  gleicherKontakt, namensSchluessel, neueKennung, neueKontaktdaten, patientAbgleich, reservierungen, reserviertBis, stempel, stempelPruefen, stempelSchluessel, zusageText,
 } from "./terminanfrage";
 import { freieZeiten, istFrei, type FreieZeitenEingabe } from "./buchung";
 
@@ -184,5 +184,29 @@ describe("Neupatienten-Buchung: Kennung, Anlässe, Texte", () => {
     const e = einbettung("https://sorrida.test/t/abc");
     expect(e.knopf).toMatch(/^<a href="https:\/\/sorrida\.test\/t\/abc"/);
     expect(e.rahmen).toMatch(/^<iframe src="https:\/\/sorrida\.test\/t\/abc"/);
+  });
+});
+
+describe("Neupatienten-Buchung: Kontaktdaten und Stempel", () => {
+  it("Kontaktdaten aus dem Formular: nur was in der Akte fehlt, vorhandene Angaben bleiben", () => {
+    const anfrage = { phone: "0171 2345678", email: "neu@example.org" };
+    expect(neueKontaktdaten(anfrage, { phone: null, email: null })).toEqual({ phone: "0171 2345678", email: "neu@example.org" });
+    expect(neueKontaktdaten(anfrage, { phone: "030 111", email: null })).toEqual({ email: "neu@example.org" });
+    expect(neueKontaktdaten(anfrage, { phone: "030 111", email: "alt@example.org" })).toEqual({});
+    expect(neueKontaktdaten({ phone: null, email: null }, { phone: null, email: null })).toEqual({});
+  });
+  it("gleiche Kontaktdaten: zählt andere offene Anfragen mit derselben Nummer oder Adresse, nicht die eigene und keine leeren", () => {
+    const a = { id: "a", phone: "0171 1", email: null }, b = { id: "b", phone: "0171 1", email: "x@example.org" }, c = { id: "c", phone: null, email: "x@example.org" }, d = { id: "d", phone: null, email: null };
+    const alle = [a, b, c, d];
+    expect(gleicherKontakt(a, alle)).toBe(1);
+    expect(gleicherKontakt(b, alle)).toBe(2);
+    expect(gleicherKontakt(c, alle)).toBe(1);
+    expect(gleicherKontakt(d, alle)).toBe(0);
+  });
+  it("Schlüssel eines verwendeten Stempels: fest je Stempel, ohne den Stempel selbst", () => {
+    const s1 = stempel(KENNUNG, 1_800_000_000_000), s2 = stempel(KENNUNG, 1_800_000_000_001);
+    expect(stempelSchluessel(s1)).toBe(stempelSchluessel(s1));
+    expect(stempelSchluessel(s1)).not.toBe(stempelSchluessel(s2));
+    expect(stempelSchluessel(s1)).toMatch(/^neuanfrage-stempel:[0-9a-f]{32}$/);
   });
 });

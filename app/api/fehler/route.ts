@@ -3,6 +3,7 @@ import { z } from "zod";
 import { consumeAttempt } from "@/lib/rateLimit";
 import { fehlerSchreiben, praxisIdAusCookie } from "@/lib/fehlerSpeicher";
 
+import { anschluss } from "@/lib/anschluss";
 // Fehlermeldung aus dem Browser (app/error.tsx, app/(app)/error.tsx, app/global-error.tsx).
 // Ohne Anmeldung erreichbar, deshalb eng begrenzt: nur von der eigenen Seite, höchstens 20 Meldungen
 // je Stunde und IP, höchstens 2 kB. Gespeichert wird nur Bereinigtes (lib/fehlerlog.ts);
@@ -33,7 +34,7 @@ function gleicheHerkunft(req: Request): boolean {
 
 export async function POST(req: Request) {
   if (!gleicheHerkunft(req)) return NextResponse.json({ error: "Nicht erlaubt" }, { status: 403 });
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   if (!(await consumeAttempt(`fehler:${ip}`, 20, 60 * 60 * 1000))) return NextResponse.json({ error: "Zu viele Meldungen" }, { status: 429 });
 
   if (Number(req.headers.get("content-length") ?? 0) > MAX_BYTES) return NextResponse.json({ error: "Zu groß" }, { status: 413 });

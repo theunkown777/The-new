@@ -1,6 +1,6 @@
 import { impressumVollstaendig } from "@/lib/betreiber";
 // Vorschau-Schloss für die eigene Domain, solange Sorrida noch nicht öffentlich ist.
-// Auf den Hosts in VORSCHAU_HOSTS (z. B. "sorrida.de,www.sorrida.de") sehen Besucher nur die
+// Ist VORSCHAU_HOSTS gesetzt (z. B. "sorrida.de,www.sorrida.de"), sehen Besucher auf jedem Host außer dem eigenen Rechner nur die
 // Seite „Demnächst“ mit Anmeldefeld. Wer VORSCHAU_BENUTZER und VORSCHAU_PASSWORT kennt,
 // bekommt ein signiertes Cookie und sieht danach die ganze Seite. Läuft in der Middleware (Edge),
 // deshalb nur Web-Crypto.
@@ -14,17 +14,28 @@ export function vorschauHosts(env: Record<string, string | undefined> = process.
   return (env.VORSCHAU_HOSTS ?? "").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean);
 }
 
+/** Host ohne Port, klein geschrieben, ohne Punkt am Ende („sorrida.de.“ ist derselbe Host wie „sorrida.de“). */
+export function hostName(host: string): string {
+  const h = host.trim().toLowerCase();
+  // IPv6 in Klammern: „[::1]:3000“
+  const ohnePort = h.startsWith("[") ? h.slice(0, h.indexOf("]") + 1) : h.split(":")[0];
+  return ohnePort.replace(/\.+$/, "");
+}
+/** Der eigene Rechner: Hier gilt das Schloss nur, wenn der Host ausdrücklich in VORSCHAU_HOSTS steht. */
+const LOKAL = ["localhost", "127.0.0.1", "[::1]"];
+
 /**
- * Gilt das Vorschau-Schloss für diesen Host? Die eingetragenen Hosts und, solange der Vorschau-Modus
- * aktiv ist, auch jede *.vercel.app-Adresse (Projekt- und Deployment-Adressen). Sonst wäre die Seite
- * über die Vercel-Adresse ohne Zugangsdaten zu sehen.
+ * Gilt das Vorschau-Schloss für diesen Host? Solange der Vorschau-Modus aktiv ist (VORSCHAU_HOSTS gesetzt), gilt es
+ * für JEDEN Host außer dem eigenen Rechner: für die eingetragenen Hosts, jede *.vercel.app-Adresse und auch für jede
+ * weitere Domain, die später am Projekt hängt und in der Liste fehlt. So ist eine vergessene oder anders geschriebene
+ * Adresse („sorrida.de.“) verschlossen statt offen.
  */
 export function istVorschauHost(host: string | null, env: Record<string, string | undefined> = process.env): boolean {
   if (!host) return false;
-  const h = host.toLowerCase().split(":")[0];
   const hosts = vorschauHosts(env);
   if (!hosts.length) return false;
-  return hosts.includes(h) || h.endsWith(".vercel.app");
+  const h = hostName(host);
+  return hosts.map(hostName).includes(h) || !LOKAL.includes(h);
 }
 
 const b64url = (buf: ArrayBuffer) => btoa(String.fromCharCode(...Array.from(new Uint8Array(buf)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -97,7 +108,8 @@ const EIGENE_ABSICHERUNG = ["/api/connector/", "/api/cron/", "/api/stripe/webhoo
 const PATIENTENLINK = /^\/(api\/)?(p|portal|a)\/[^/]{16,}(\/|$)/;
 // Pflichtangaben: Die Demnächst-Seite ist schon ein geschäftlicher Auftritt. Impressum (§ 5 DDG), Datenschutzerklärung
 // (Art. 13 DSGVO) und die Lizenzangaben müssen deshalb auch ohne Zugang erreichbar sein.
-const PFLICHTSEITEN = ["/impressum", "/datenschutz", "/lizenzen"];
+// Das AVV-Muster gehört dazu: Die Datenschutzerklärung verweist darauf, der Verweis darf nicht ins Leere führen.
+const PFLICHTSEITEN = ["/impressum", "/datenschutz", "/lizenzen", "/avv"];
 /**
  * Stufe „öffentlich, aber geschützt“ (Variable VORSCHAU_OEFFENTLICH): Die Informationsseiten der Website sind
  * ohne Zugang erreichbar und dürfen in Suchmaschinen stehen. App, Anmeldung, Registrierung und (ohne den Wert
@@ -114,6 +126,15 @@ export function oeffentlichStufe(env: Record<string, string | undefined> = proce
   if (!impressumOk) return "aus";
   const v = (env.VORSCHAU_OEFFENTLICH ?? "").trim().toLowerCase();
   return v === "demo" ? "demo" : v === "1" || v === "ja" || v === "true" ? "seiten" : "aus";
+}
+
+/**
+ * Sind die Informationsseiten (Hilfe mit Kontaktformular, Vorschau …) für Besucher ohne Zugang erreichbar?
+ * Ja, wenn es kein Vorschau-Schloss gibt oder die öffentliche Stufe gilt. Impressum und Datenschutzerklärung zeigen
+ * Verweise auf solche Seiten nur dann als Link; sonst führte der Verweis auf die Seite „Demnächst“.
+ */
+export function infoSeitenOffen(env: Record<string, string | undefined> = process.env, impressumOk: boolean = impressumVollstaendig()): boolean {
+  return vorschauHosts(env).length === 0 || oeffentlichStufe(env, impressumOk) !== "aus";
 }
 
 /** Informationsseiten: dürfen in Suchmaschinen stehen. Keine App, keine Patientendaten, keine Anmeldung. */

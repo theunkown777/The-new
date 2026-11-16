@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { hashToken } from "@/lib/tokens";
 
+import { anschluss } from "@/lib/anschluss";
 const schema = z.object({
   token: z.string().min(1),
   name: z.string().min(2, "Name ist zu kurz"),
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const rateLimitKey = `accept-invite:${ip}`;
   if (await isRateLimited(rateLimitKey, LIMIT, WINDOW_MS)) {
     return NextResponse.json({ error: "Zu viele Versuche. Bitte später erneut versuchen." }, { status: 429 });

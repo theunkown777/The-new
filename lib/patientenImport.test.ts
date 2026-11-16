@@ -376,3 +376,20 @@ describe("Übertragung in Blöcken", () => {
     expect(serverPruefung({ ...basis, phone: "abc" }, HEUTE)).toBe("Mobilnummer ungültig");
   });
 });
+
+describe("Obergrenzen beim Speichern", () => {
+  it("Gastzugang: höchstens 200 Patienten je Demo-Praxis", async () => {
+    const { DEMO_PATIENTEN_MAX, importGrenze } = await import("./patientenImport");
+    expect(DEMO_PATIENTEN_MAX).toBe(200);
+    expect(importGrenze({ demo: true, bestand: 12, heute: 12, neu: 5 })).toBeNull();
+    expect(importGrenze({ demo: true, bestand: 195, heute: 0, neu: 5 })).toBeNull();
+    expect(importGrenze({ demo: true, bestand: 196, heute: 0, neu: 5 })).toMatch(/Gastzugang/);
+    expect(importGrenze({ demo: true, bestand: 0, heute: 0, neu: 500 })).toMatch(/höchstens 200/);
+  });
+  it("jede Praxis: Grenze je 24 Stunden, ein großer Bestand passt hinein", async () => {
+    const { IMPORT_MAX_JE_TAG, importGrenze } = await import("./patientenImport");
+    expect(importGrenze({ demo: false, bestand: 30_000, heute: 30_000, neu: 500 })).toBeNull();
+    expect(importGrenze({ demo: false, bestand: 0, heute: IMPORT_MAX_JE_TAG - 500, neu: 500 })).toBeNull();
+    expect(importGrenze({ demo: false, bestand: 0, heute: IMPORT_MAX_JE_TAG - 499, neu: 500 })).toMatch(/24 Stunden/);
+  });
+});

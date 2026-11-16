@@ -3,6 +3,7 @@ import Link from "next/link";
 import { LegalPage } from "@/components/LegalPage";
 import { Zweckbestimmung } from "@/components/Zweckbestimmung";
 import { BETREIBER } from "@/lib/betreiber";
+import { infoSeitenOffen } from "@/lib/vorschau";
 
 export const metadata: Metadata = { title: "Impressum – Sorrida" };
 
@@ -34,8 +35,13 @@ export default function ImpressumPage() {
             </>
           )}
           E-Mail: <a href={`mailto:${b.email}`}>{b.email}</a>
-          <br />
-          Anfragen von Praxen auch über das <Link href="/hilfe">Kontaktformular</Link>.
+          {/* Nur nennen, wenn das Formular für Besucher erreichbar ist (lib/vorschau.ts): Sonst führte der Verweis auf „Demnächst“. */}
+          {infoSeitenOffen() && (
+            <>
+              <br />
+              Anfragen von Praxen auch über das <Link href="/hilfe" data-testid="impressum-kontaktformular">Kontaktformular</Link>.
+            </>
+          )}
         </p>
       </section>
       <section>
@@ -66,8 +72,8 @@ export default function ImpressumPage() {
         <h2>Hinweis zu den Inhalten</h2>
         <p>
           Beträge, Festzuschüsse und Beispiele auf dieser Website dienen der Veranschaulichung und sind sorgfältig recherchiert, aber ohne Gewähr.
-          Sie sind keine Abrechnungs-, Rechts- oder Steuerberatung. Verbindlich sind Heil- und Kostenplan, die schriftlichen Vereinbarungen der
-          Praxis und die Bescheide der Kostenträger.
+          Sie sind keine Abrechnungs-, Rechts- oder Steuerberatung. Verbindlich sind die Kostenpläne und schriftlichen Vereinbarungen der Praxis
+          und die Bescheide der Kostenträger.
         </p>
       </section>
       <section>

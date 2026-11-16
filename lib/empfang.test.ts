@@ -137,7 +137,11 @@ describe("Praxis-Sitzung parken", () => {
   const start = t0.getTime();
   it("holt die Sitzung unverändert zurück", () => {
     const wert = sitzungParken({ practiceId: "prax1", cookies }, start);
-    expect(sitzungHolen(wert, start + 60_000)).toEqual({ practiceId: "prax1", cookies, bis: start + PARKEN_STUNDEN * 3600e3 });
+    expect(sitzungHolen(wert, start + 60_000)).toEqual({ practiceId: "prax1", cookies, bis: start + PARKEN_STUNDEN * 3600e3, kennung: null });
+    // Mit Kennung: Sie kommt unverändert zurück; der Server führt dazu einen Eintrag (lib/empfangParkung.ts).
+    const mitKennung = sitzungParken({ practiceId: "prax1", cookies, kennung: "abcDEF0123456789_-xyz" }, start);
+    expect(sitzungHolen(mitKennung, start + 60_000)?.kennung).toBe("abcDEF0123456789_-xyz");
+    expect(sitzungHolen(sitzungParken({ practiceId: "prax1", cookies, kennung: "zu kurz" }, start), start + 60_000)?.kennung).toBeNull();
   });
   it("der geparkte Wert enthält die Sitzung nicht lesbar und ist jedes Mal anders", () => {
     const wert = sitzungParken({ practiceId: "prax1", cookies }, start);

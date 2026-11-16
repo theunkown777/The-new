@@ -6,11 +6,12 @@ import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { anamnesisSchema } from "@/lib/anamnesis";
 import { eingangMelden } from "@/lib/eingang";
 
+import { anschluss } from "@/lib/anschluss";
 // Ausgefüllter Anamnesebogen (öffentlich, ohne Login). Nach dem Absenden
 // ist der Link verbraucht, damit niemand die Angaben nachträglich ändert.
 export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `anamnesis:${ip}`;
   if (await isRateLimited(key, 20, 60 * 60 * 1000)) {
     return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });

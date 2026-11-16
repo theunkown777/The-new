@@ -116,7 +116,8 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
           zeit: `${a.start.toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", timeZone: "Europe/Berlin" })}, ${uhrzeit(a.start)} Uhr`,
           tag: a.start.toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" }), eingegangen: kurz(a.createdAt),
           reserviert: a.reserviert, vergangen: a.vergangen, belegt: a.belegt, beispiel: a.beispiel,
-          kandidaten: a.kandidaten.map((k) => ({ id: k.id, name: `${k.lastName}, ${k.firstName}` })),
+          gleicherKontakt: a.gleicherKontakt,
+          kandidaten: a.kandidaten.map((k) => ({ id: k.id, name: `${k.lastName}, ${k.firstName}`, neuerKontakt: [k.neuerKontakt.phone, k.neuerKontakt.email].filter((x): x is string => !!x) })),
         }))}
       />
 

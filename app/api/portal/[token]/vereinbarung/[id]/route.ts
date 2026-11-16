@@ -7,6 +7,7 @@ import { agreementContext } from "@/lib/agreementContext";
 import { eingangMelden } from "@/lib/eingang";
 import { portalPruefung, pruefungNoetigAntwort } from "@/lib/portalPruefungServer";
 
+import { anschluss } from "@/lib/anschluss";
 // Digitales Einverständnis aus dem Patientenportal speichern. Einmalig:
 // danach ist es fest (Änderungen nur über die Praxis).
 // Der Link allein genügt dafür nicht (S5): Ist ein Geburtsdatum hinterlegt, muss
@@ -15,7 +16,7 @@ import { portalPruefung, pruefungNoetigAntwort } from "@/lib/portalPruefungServe
 // (agreedGeprueftAt bleibt leer) und der Praxis im Eingang gemeldet.
 export async function POST(req: Request, props: { params: Promise<{ token: string; id: string }> }) {
   const params = await props.params;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `portal:${ip}`;
   if (await isRateLimited(key, 30, 60 * 60 * 1000)) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429 });
   await recordAttempt(key, 60 * 60 * 1000);

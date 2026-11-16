@@ -6,13 +6,14 @@ import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 import { eingangErledigen, eingangMelden } from "@/lib/eingang";
 import { MAX_ZWEITMEINUNGEN, alsEintrag, zweitmeinungSchema, zweitmeinungTeilenSchema } from "@/lib/zweitmeinung";
 
+import { anschluss } from "@/lib/anschluss";
 // Gemeinsame Logik für Patienten-Link (/p/<token>) und Portal (/portal/<token>):
 // Der Vorschlag wird allein über den Link des Patienten gefunden.
 
 type Vorschlag = { id: string; practiceId: string };
 
 async function begrenzt(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `zweitmeinung:${ip}`;
   if (await isRateLimited(key, 40, 60 * 60 * 1000)) return true;
   await recordAttempt(key, 60 * 60 * 1000);

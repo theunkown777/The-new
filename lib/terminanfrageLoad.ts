@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { anlaesseLesen, istReserviert, kennungGueltig, patientAbgleich } from "@/lib/terminanfrage";
+import { anlaesseLesen, gleicherKontakt, istReserviert, kennungGueltig, neueKontaktdaten, patientAbgleich } from "@/lib/terminanfrage";
 import { buchungsLage } from "@/lib/buchungLoad";
 
 /** Praxis zur Kennung der öffentlichen Buchungsseite; nur wenn die Buchung für neue Patienten eingeschaltet ist. */
 export async function praxisZurKennung(kennung: string) {
   if (!kennungGueltig(kennung)) return null;
-  const praxis = await prisma.practice.findUnique({ where: { buchungKennung: kennung }, select: { id: true, name: true, isDemo: true, buchungAktiv: true, neupatientenBuchung: true, buchungAnlaesse: true } });
+  const praxis = await prisma.practice.findUnique({ where: { buchungKennung: kennung }, select: { id: true, name: true, isDemo: true, buchungAktiv: true, neupatientenBuchung: true, buchungAnlaesse: true, stammdaten: true } });
   if (!praxis || !praxis.neupatientenBuchung) return null;
   return { ...praxis, anlaesse: anlaesseLesen(praxis.buchungAnlaesse) };
 }
@@ -46,7 +46,10 @@ export async function offeneAnfragen(practiceId: string, now = new Date()) {
     const gleichzeitig = termine.filter((t) => t.start.getTime() < bis && t.start.getTime() + t.minutes * 60000 > von).length;
     out.push({
       ...a,
-      kandidaten: await kandidaten(practiceId, a),
+      // Je Vorschlag: welche Kontaktdaten der Anfrage in der Akte noch fehlen (Übernahme nur auf ausdrücklichen Klick)
+      kandidaten: (await kandidaten(practiceId, a)).map((k) => ({ ...k, neuerKontakt: neueKontaktdaten(a, k) })),
+      // Weitere offene Anfragen mit derselben Mobilnummer oder E-Mail-Adresse (Hinweis nur für die Praxis)
+      gleicherKontakt: gleicherKontakt(a, anfragen),
       reserviert: istReserviert(a, now),
       vergangen: a.start.getTime() <= now.getTime(),
       belegt: gleichzeitig >= plaetze,

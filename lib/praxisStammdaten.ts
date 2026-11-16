@@ -59,3 +59,15 @@ export function stammdatenFehlen(s: Stammdaten): string[] {
   if (!s.datenschutzUrl) fehlt.push("Datenschutzhinweise der Praxis");
   return fehlt;
 }
+
+/**
+ * Was für die öffentliche Buchungsseite für neue Patienten (/t/<kennung>) noch fehlt. Dort geben Menschen
+ * Namen, Geburtsdatum und Kontaktdaten ein, die noch keine Patienten sind: Die Seite muss zeigen, wer die Praxis
+ * ist und wo ihre Datenschutzhinweise stehen. Ohne diese Angaben lässt sich die Seite nicht einschalten.
+ */
+export function buchungsseiteFehlt(s: Stammdaten): string[] {
+  const fehlt: string[] = [];
+  if (!s.strasse || !s.plzOrt) fehlt.push("Anschrift");
+  if (!s.datenschutzUrl) fehlt.push("Link zu den Datenschutzhinweisen der Praxis");
+  return fehlt;
+}

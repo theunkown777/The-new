@@ -5,6 +5,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { GEPARKT_COOKIE, PARKEN_STUNDEN, UEBERGABE_COOKIE, UEBERGABE_MINUTEN, istSitzungCookie, sitzungParken, uebergabeToken, type UebergabeZweck } from "@/lib/empfang";
+import { parkKennungHash, parkKennungNeu } from "@/lib/empfangParkung";
 import { cookieSicher, offeneEinverstaendnisseWhere } from "@/lib/empfangServer";
 import { agreementContext } from "@/lib/agreementContext";
 import { auditFromSession } from "@/lib/audit";
@@ -56,7 +57,9 @@ export async function POST(req: Request) {
   const jar = await cookies();
   const sitzung = jar.getAll().filter((c) => istSitzungCookie(c.name)).map((c) => ({ name: c.name, value: c.value }));
   if (sitzung.length === 0) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
-  const geparkt = sitzungParken({ practiceId, cookies: sitzung });
+  // Die Parkung wird auf dem Server geführt (lib/empfangParkung.ts): Nach dem Entsperren oder Verwerfen gilt das Cookie nicht mehr.
+  const kennung = parkKennungNeu();
+  const geparkt = sitzungParken({ practiceId, cookies: sitzung, kennung });
   if (geparkt.length > 3800) return NextResponse.json({ error: "Die Übergabe ist auf diesem Gerät nicht möglich. Bitte melden Sie sich neu an und versuchen Sie es noch einmal." }, { status: 500 });
 
   const now = Date.now();
@@ -65,6 +68,7 @@ export async function POST(req: Request) {
     const offen = await prisma.anamnesisForm.findFirst({ where: { practiceId, patientId: patient.id, submittedAt: null, expiresAt: { gt: new Date(now + UEBERGABE_MINUTEN * 60_000) } }, select: { id: true } });
     if (!offen) await prisma.anamnesisForm.create({ data: { practiceId, patientId: patient.id, expiresAt: new Date(now + (UEBERGABE_MINUTEN + 5) * 60_000) } });
   }
+  await prisma.empfangParkung.create({ data: { id: parkKennungHash(kennung), practiceId, expiresAt: new Date(now + PARKEN_STUNDEN * 3600e3) } });
   await auditFromSession(session, "empfang.uebergabe", { entityType: "Patient", entityId: patient.id, summary: `Schritte: ${zwecke.join(", ")}` });
 
   const res = NextResponse.json({ ok: true, ziel: "/uebergabe" }, { headers: { "Cache-Control": "no-store" } });

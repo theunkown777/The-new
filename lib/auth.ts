@@ -8,6 +8,7 @@ import { SITZUNG_MAX_SEKUNDEN, tokenAbgleichen } from "@/lib/sitzung";
 import { verifyTotpToken, consumeBackupCode } from "@/lib/twoFactor";
 import { zweiFaktorPflicht } from "@/lib/zweiFaktorPflicht";
 
+import { anschlussAus } from "@/lib/anschluss";
 const LOGIN_ATTEMPT_LIMIT = 5;
 const LOGIN_ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
 // Zusätzlich je Anschluss, damit niemand viele Konten nacheinander durchprobiert.
@@ -40,7 +41,7 @@ export const authOptions: AuthOptions = {
 
         // Vorab gezählt (auch bei vielen gleichzeitigen Versuchen wirksam);
         // gelungene Schritte geben ihren Versuch unten wieder zurück.
-        const ip = String(req?.headers?.["x-forwarded-for"] ?? "").split(",")[0].trim() || "unknown";
+        const ip = anschlussAus(req?.headers as Record<string, string | string[] | undefined> | undefined);
         const ipKey = `login-ip:${ip}`;
         if (!(await consumeAttempt(ipKey, LOGIN_IP_LIMIT, LOGIN_ATTEMPT_WINDOW_MS))) {
           throw new Error("Zu viele Anmeldeversuche von diesem Anschluss. Bitte in 15 Minuten erneut versuchen.");

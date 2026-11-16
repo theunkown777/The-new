@@ -170,7 +170,10 @@ export const REMINDER_LABELS = ["", "Zahlungserinnerung", "2. Erinnerung", "Letz
 /** Nächste Stufe beim Klick auf "Erinnern" (höchstens 3). */
 export const nextReminderLevel = (level: number) => Math.min(3, Math.max(0, level) + 1);
 
-/** SMS-/Nachrichtentext je Stufe. Freundlich bei Stufe 1, klar bei 3. */
+/**
+ * SMS-/Nachrichtentext je Stufe. Freundlich bei Stufe 1, klar bei 3.
+ * Ohne Hinweis auf Raten oder Teilzahlung: Das wäre Werbung für einen Zahlungsaufschub (lib/installments.ts RATEN_ANGEHALTEN).
+ */
 export function reminderText(a: { level: number; firstName: string; practiceName: string; number: string; amountCent: number; dueDate: Date; url: string }): string {
   const betrag = formatCent(a.amountCent);
   const bis = a.dueDate.toLocaleDateString("de-DE");
@@ -179,7 +182,7 @@ export function reminderText(a: { level: number; firstName: string; practiceName
   }
   if (a.level === 2) {
     const seit = a.dueDate.getTime() < Date.now() ? "fällig seit" : "fällig am";
-    return `${anrede("Hallo", a.firstName)}, die Rechnung ${a.number} über ${betrag} von ${a.practiceName} ist noch offen (${seit} ${bis}). Bitte zahlen Sie in den nächsten 7 Tagen. Falls Sie Raten brauchen, sagen Sie es uns im Portal: ${a.url}`;
+    return `${anrede("Hallo", a.firstName)}, die Rechnung ${a.number} über ${betrag} von ${a.practiceName} ist noch offen (${seit} ${bis}). Bitte zahlen Sie in den nächsten 7 Tagen. Bei Fragen zur Zahlung rufen Sie uns bitte an. Zur Rechnung: ${a.url}`;
   }
-  return `${anrede("Guten Tag", a.firstName)}, trotz Erinnerungen ist die Rechnung ${a.number} über ${betrag} von ${a.practiceName} noch offen. Bitte begleichen Sie den Betrag innerhalb von 7 Tagen, sonst müssen wir weitere Schritte einleiten. Zahlung und Ratenanfrage: ${a.url}`;
+  return `${anrede("Guten Tag", a.firstName)}, trotz Erinnerungen ist die Rechnung ${a.number} über ${betrag} von ${a.practiceName} noch offen. Bitte begleichen Sie den Betrag innerhalb von 7 Tagen, sonst müssen wir weitere Schritte einleiten. Bei Fragen zur Zahlung rufen Sie uns bitte an. Zur Rechnung: ${a.url}`;
 }

@@ -43,7 +43,8 @@ describe.skipIf(!process.env.DATABASE_URL)("Fehlerlog in der Datenbank", () => {
   });
 
   it("nimmt keine Praxis-ID an, die keine ist", async () => {
-    await fehlerSchreiben({ quelle: "browser", ort: `${ORT}/b`, meldung: "Browserfehler" }, "Anna Meier <anna@example.org>");
+    // Fester Zeitpunkt in der Vergangenheit: Die Tagesgrenze neuer Browser-Einträge soll diesen Test nicht berühren.
+    await fehlerSchreiben({ quelle: "browser", ort: `${ORT}/b`, meldung: "Browserfehler" }, "Anna Meier <anna@example.org>", new Date("2026-11-09T12:00:00Z"));
     const zeile = (await meine()).find((r) => r.ort === `${ORT}/b`)!;
     expect(zeile.quelle).toBe("browser");
     expect(zeile.practiceId).toBeNull();
@@ -69,6 +70,36 @@ describe.skipIf(!process.env.DATABASE_URL)("Fehlerlog in der Datenbank", () => {
     expect(orte).toContain(`${ORT}/neu`);
     // Der Fehler vom 10.11. ist an diesem Tag nicht „neu seit gestern“
     expect(await neueFehlerOrte(new Date("2026-11-13T00:00:00Z"))).not.toContain(`${ORT}/a/…`);
+  });
+
+  it("Statusbericht: Meldungen aus dem Browser zählen nicht mit", async () => {
+    const jetzt = new Date("2025-03-03T12:00:00Z");
+    const vorher = await fehlerAnzahl(24, jetzt);
+    for (let i = 0; i < 3; i++) expect(await fehlerSchreiben({ quelle: "browser", ort: `${ORT}/status/${"abc"[i]}`, meldung: "Failed to fetch" }, null, jetzt)).toBe(true);
+    expect(await fehlerAnzahl(24, jetzt)).toBe(vorher);
+    await fehlerSchreiben({ quelle: "server", ort: `${ORT}/status/s`, meldung: "Serverfehler" }, null, jetzt);
+    expect(await fehlerAnzahl(24, jetzt)).toBe(vorher + 1);
+  });
+
+  it("Browser: Ein Name ohne Anführungszeichen wird nicht gespeichert; nach der Tagesgrenze entstehen keine neuen Einträge", async () => {
+    const jetzt = new Date("2025-01-05T12:00:00Z");
+    const fenster = { quelle: "browser", createdAt: { gte: new Date(jetzt.getTime() - 24 * 3_600_000) } };
+    await fehlerSchreiben({ quelle: "browser", ort: `${ORT}/name`, meldung: "Sicherheitspruefung Test zwei: Patientin Erika Mustermann, geb. 03.05.1980, Tel. 0171 2345678, erika@example.org nicht gefunden" }, null, jetzt);
+    const zeile = (await meine()).find((r) => r.ort === `${ORT}/name`)!;
+    for (const wort of ["Erika", "Mustermann", "Patientin", "1980", "2345678", "example.org"]) expect(zeile.meldung).not.toContain(wort);
+    // Bis zur Grenze auffüllen, dann kommt nichts Neues mehr dazu.
+    const { BROWSER_NEU_GRENZE_24H } = await import("@/lib/fehlerlog");
+    const schon = await prisma.fehlerEintrag.count({ where: fenster });
+    const buchstaben = "abcdefghijklmnopqrstuvwxyz";
+    for (let i = schon; i < BROWSER_NEU_GRENZE_24H; i++) await fehlerSchreiben({ quelle: "browser", ort: `${ORT}/voll/${buchstaben[i % 26]}${buchstaben[Math.floor(i / 26)]}`, meldung: "Failed to fetch" }, null, jetzt);
+    expect(await prisma.fehlerEintrag.count({ where: fenster })).toBe(BROWSER_NEU_GRENZE_24H);
+    expect(await fehlerSchreiben({ quelle: "browser", ort: `${ORT}/zuviel`, meldung: "Failed to fetch" }, null, jetzt)).toBe(false);
+    expect(await prisma.fehlerEintrag.count({ where: fenster })).toBe(BROWSER_NEU_GRENZE_24H);
+    // Ein schon bekannter Fehler wird weiter gezählt.
+    expect(await fehlerSchreiben({ quelle: "browser", ort: `${ORT}/name`, meldung: "Andere Person Max Beispiel nicht gefunden" }, null, jetzt)).toBe(true);
+    expect((await meine()).find((r) => r.ort === `${ORT}/name`)!.zaehler).toBe(2);
+    // Fehler des Servers sind von der Grenze nicht betroffen.
+    expect(await fehlerSchreiben({ quelle: "server", ort: `${ORT}/server-trotzdem`, meldung: "Serverfehler" }, null, jetzt)).toBe(true);
   });
 
   it("die tägliche Mail geht nur mit Empfänger und aktivem Versand raus", async () => {

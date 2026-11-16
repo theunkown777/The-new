@@ -4,6 +4,7 @@ import { consumeAttempt } from "@/lib/rateLimit";
 import { portalPatient } from "@/lib/portalAuth";
 import { fensterAb, gepruefterGoogleLink, rueckmeldungSchema } from "@/lib/rueckmeldung";
 
+import { anschluss } from "@/lib/anschluss";
 export const dynamic = "force-dynamic";
 const KOPF = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" };
 
@@ -12,7 +13,7 @@ const KOPF = { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" 
 // in der Analyse. Den Link zur öffentlichen Bewertung bekommt JEDE Antwort zurück, unabhängig von der Stufe.
 export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   if (!(await consumeAttempt(`portal-rueckmeldung:${ip}`, 20, 60 * 60 * 1000))) return NextResponse.json({ error: "Zu viele Anfragen. Bitte später erneut versuchen." }, { status: 429, headers: KOPF });
   const patient = await portalPatient(params.token);
   if (!patient) return NextResponse.json({ error: "Dieser Link ist abgelaufen. Bitte wenden Sie sich an Ihre Praxis." }, { status: 404, headers: KOPF });

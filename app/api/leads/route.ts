@@ -5,12 +5,13 @@ import { sendEmail } from "@/lib/email";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { isSpam, leadEmailHtml, leadSchema } from "@/lib/leads";
 
+import { anschluss } from "@/lib/anschluss";
 const LIMIT = 5;
 const WINDOW_MS = 60 * 60 * 1000;
 
 // Formular "Pilotplatz anfragen" der öffentlichen Website (Fachseiten und Hilfe).
 export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   const key = `lead:${ip}`;
   if (await isRateLimited(key, LIMIT, WINDOW_MS)) {
     return NextResponse.json({ error: "Zu viele Anfragen von diesem Anschluss" }, { status: 429 });

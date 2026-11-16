@@ -1,17 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { freiOhneZugang, istVorschauHost, vorschauCookie, vorschauCookieGueltig, vorschauPass, vorschauPassGueltig, zugangPasst } from "./vorschau";
+import { freiOhneZugang, infoSeitenOffen, istVorschauHost, vorschauCookie, vorschauCookieGueltig, vorschauPass, vorschauPassGueltig, zugangPasst } from "./vorschau";
 
 const env = { VORSCHAU_HOSTS: "sorrida.de, www.sorrida.de", VORSCHAU_BENUTZER: "partner", VORSCHAU_PASSWORT: "geheim-123", NEXTAUTH_SECRET: "s" };
 
 describe("Vorschau-Schloss für die eigene Domain", () => {
-  it("greift nur auf den eingetragenen Hosts", () => {
+  it("greift im Vorschau-Modus auf jedem Host außer dem eigenen Rechner", () => {
     expect(istVorschauHost("sorrida.de", env)).toBe(true);
     expect(istVorschauHost("WWW.Sorrida.de:443", env)).toBe(true);
     expect(istVorschauHost("zahnarzt-berichte.vercel.app", env)).toBe(true);
     expect(istVorschauHost("sorrida-gmufub2sm-777-08e6.vercel.app", env)).toBe(true);
-    expect(istVorschauHost("andere-seite.de", env)).toBe(false);
+    // Punkt am Ende ist derselbe Host: Er darf das Schloss nicht umgehen.
+    expect(istVorschauHost("sorrida.de.", env)).toBe(true);
+    expect(istVorschauHost("www.sorrida.de.:443", env)).toBe(true);
+    expect(istVorschauHost("x.vercel.app.", env)).toBe(true);
+    // Eine weitere Domain am Projekt, die in der Liste fehlt: verschlossen, nicht offen.
+    expect(istVorschauHost("andere-seite.de", env)).toBe(true);
+    expect(istVorschauHost("www.sorrida.com", env)).toBe(true);
+    // Der eigene Rechner bleibt frei, außer er steht ausdrücklich in der Liste.
     expect(istVorschauHost("localhost:3000", env)).toBe(false);
+    expect(istVorschauHost("127.0.0.1:3000", env)).toBe(false);
+    expect(istVorschauHost("[::1]:3000", env)).toBe(false);
+    expect(istVorschauHost("localhost:3000", { ...env, VORSCHAU_HOSTS: "localhost" })).toBe(true);
+    expect(istVorschauHost(null, env)).toBe(false);
     expect(istVorschauHost("sorrida.de", {})).toBe(false);
+    expect(istVorschauHost("sorrida.de.", {})).toBe(false);
     // Vorschau-Modus aus (VORSCHAU_HOSTS leer): auch die Vercel-Adressen sind offen
     expect(istVorschauHost("zahnarzt-berichte.vercel.app", {})).toBe(false);
   });
@@ -36,8 +48,9 @@ describe("Vorschau-Schloss für die eigene Domain", () => {
     expect(freiOhneZugang("/api/auth/session")).toBe(false);
   });
   it("Impressum, Datenschutz und Lizenzen sind ohne Zugang erreichbar, der Rest der Website nicht", () => {
-    for (const p of ["/impressum", "/datenschutz", "/lizenzen"]) expect(freiOhneZugang(p), p).toBe(true);
-    for (const p of ["/", "/avv", "/hilfe", "/register", "/demo", "/impressum/anderes", "/datenschutzerklaerung"]) expect(freiOhneZugang(p), p).toBe(false);
+    // /avv: Die Datenschutzerklärung verweist auf das Muster; der Verweis darf nicht auf „Demnächst“ führen.
+    for (const p of ["/impressum", "/datenschutz", "/lizenzen", "/avv"]) expect(freiOhneZugang(p), p).toBe(true);
+    for (const p of ["/", "/avv/anderes", "/hilfe", "/api/support", "/vorschau", "/register", "/demo", "/impressum/anderes", "/datenschutzerklaerung"]) expect(freiOhneZugang(p), p).toBe(false);
   });
   it("Connector aus der Praxissoftware kommt auch im Vorschau-Modus durch", () => {
     expect(freiOhneZugang("/api/connector/launch")).toBe(true);
@@ -149,5 +162,16 @@ describe("Seiten /vertrauen und /status", () => {
   });
   it("die Selbsttest-Schnittstelle /api/status wird dadurch nicht zur Informationsseite", () => {
     expect(istInfoSeite("/api/status")).toBe(false);
+  });
+});
+
+describe("Verweise aus Impressum und Datenschutzerklärung", () => {
+  it("Kontaktformular und Vorschau gelten nur als erreichbar, wenn es kein Schloss gibt oder die öffentliche Stufe gilt", () => {
+    expect(infoSeitenOffen({}, false)).toBe(true);
+    expect(infoSeitenOffen({ VORSCHAU_HOSTS: "sorrida.de" }, true)).toBe(false);
+    // Ohne vollständiges Impressum bleibt die Stufe „aus“, auch wenn die Variable gesetzt ist.
+    expect(infoSeitenOffen({ VORSCHAU_HOSTS: "sorrida.de", VORSCHAU_OEFFENTLICH: "1" }, false)).toBe(false);
+    expect(infoSeitenOffen({ VORSCHAU_HOSTS: "sorrida.de", VORSCHAU_OEFFENTLICH: "1" }, true)).toBe(true);
+    expect(infoSeitenOffen({ VORSCHAU_HOSTS: "sorrida.de", VORSCHAU_OEFFENTLICH: "demo" }, true)).toBe(true);
   });
 });

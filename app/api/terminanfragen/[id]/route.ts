@@ -3,13 +3,14 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { absageText, zusageText } from "@/lib/terminanfrage";
+import { absageText, neueKontaktdaten, zusageText } from "@/lib/terminanfrage";
 import { kandidaten } from "@/lib/terminanfrageLoad";
 import { auditFromSession } from "@/lib/audit";
 
 const schema = z.discriminatedUnion("aktion", [
   // patientId: vorhandener Patient, den Sorrida nach Name und Geburtsdatum vorgeschlagen hat; ohne = neu anlegen
-  z.object({ aktion: z.literal("bestaetigen"), patientId: z.string().min(1).max(40).optional().nullable() }).strict(),
+  // kontaktUebernehmen: Nur mit diesem ausdrücklichen Ja kommen Mobilnummer oder E-Mail aus dem (ungeprüften) Formular in eine vorhandene Akte.
+  z.object({ aktion: z.literal("bestaetigen"), patientId: z.string().min(1).max(40).optional().nullable(), kontaktUebernehmen: z.boolean().optional() }).strict(),
   z.object({ aktion: z.literal("ablehnen") }).strict(),
 ]);
 
@@ -53,6 +54,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     vorhandener = (await kandidaten(practiceId, anfrage)).find((p) => p.id === d.patientId) ?? null;
     if (!vorhandener) return NextResponse.json({ error: "Dieser Patient passt nicht zur Anfrage. Bitte neu anlegen." }, { status: 409 });
   }
+  const neuerKontakt = vorhandener && d.kontaktUebernehmen === true ? neueKontaktdaten(anfrage, vorhandener) : {};
   const ort = praxis?.locations.length === 1 ? praxis.locations[0].id : null;
   const eingang = anfrage.createdAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" });
 
@@ -65,9 +67,9 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       let patientId: string;
       if (vorhandener) {
         patientId = vorhandener.id;
-        // Fehlende Kontaktdaten ergänzen, vorhandene nie überschreiben.
-        const neu = { ...(vorhandener.phone || !anfrage.phone ? {} : { phone: anfrage.phone }), ...(vorhandener.email || !anfrage.email ? {} : { email: anfrage.email }) };
-        if (Object.keys(neu).length) await tx.patient.update({ where: { id: patientId }, data: neu });
+        // Das Formular prüft nicht, wer es ausfüllt: Kontaktdaten kommen nur in die Akte, wenn die Praxis es
+        // ausdrücklich angeklickt hat. Vorhandene Angaben werden nie überschrieben. Einwilligungen bleiben leer.
+        if (Object.keys(neuerKontakt).length) await tx.patient.update({ where: { id: patientId }, data: neuerKontakt });
       } else {
         const p = await tx.patient.create({
           data: {
@@ -90,8 +92,12 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     throw err;
   }
   await auditFromSession(session, "terminanfrage", { entityType: "Terminanfrage", entityId: anfrage.id, summary: vorhandener ? "bestätigt, vorhandenem Patienten zugeordnet" : "bestätigt, Patient neu angelegt" });
+  if (vorhandener && Object.keys(neuerKontakt).length) {
+    // Ohne die Angabe selbst: nur, welches Feld übernommen wurde und woher.
+    await auditFromSession(session, "patient.kontakt", { entityType: "Patient", entityId: vorhandener.id, summary: `${[neuerKontakt.phone ? "Mobilnummer" : null, neuerKontakt.email ? "E-Mail-Adresse" : null].filter(Boolean).join(" und ")} aus Online-Anfrage übernommen, nicht geprüft` });
+  }
   return NextResponse.json({
-    ok: true, status: "BESTAETIGT", ...ergebnis, neuAngelegt: !vorhandener,
+    ok: true, status: "BESTAETIGT", ...ergebnis, neuAngelegt: !vorhandener, kontaktUebernommen: Object.keys(neuerKontakt).length > 0,
     tag: anfrage.start.toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" }),
     text: zusageText({ firstName: anfrage.firstName, practiceName: praxisName, start: anfrage.start }), kontakt,
   });

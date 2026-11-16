@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { kurzArt } from "@/lib/kurzcheck";
 import { Kurzcheck } from "@/components/kurzcheck/Kurzcheck";
+import { PraxisFuss } from "@/components/PraxisFuss";
 
 export const metadata: Metadata = { title: "Fünf Fragen vor dem Termin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 export default async function PortalFragenPage(props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
   const gefunden = /^[A-Za-z0-9_-]{20,128}$/.test(params.token)
-    ? await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(params.token) }, select: { firstName: true, portalExpiresAt: true, practice: { select: { name: true, specialty: true } } } })
+    ? await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(params.token) }, select: { firstName: true, portalExpiresAt: true, practice: { select: { name: true, specialty: true, stammdaten: true } } } })
     : null;
   if (!gefunden || !gefunden.portalExpiresAt || gefunden.portalExpiresAt < new Date()) {
     return (
@@ -29,6 +30,7 @@ export default async function PortalFragenPage(props: { params: Promise<{ token:
         <h1 className="mt-2 font-display text-2xl text-slate-900 sm:text-3xl">Fünf Fragen vor dem Termin</h1>
         <p className="mt-1 text-sm text-slate-600">Dauert etwa eine Minute. So weiß {gefunden.practice.name} schon vorher, worum es geht.</p>
         <div className="mt-5"><Kurzcheck token={params.token} art={kurzArt(gefunden.practice.specialty)} praxis={gefunden.practice.name} vorname={gefunden.firstName} /></div>
+        <PraxisFuss name={gefunden.practice.name} stammdaten={gefunden.practice.stammdaten} className="mt-8 border-t border-slate-200 pt-4" />
       </div>
     </main>
   );

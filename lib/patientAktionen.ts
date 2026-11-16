@@ -7,6 +7,7 @@ import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 import { LESE_LINK_MAX, TOKEN_FORM, leseLinkErzeugen, leseLinkWiderrufen, leseLinksAktiv } from "@/lib/leseLink";
 import { erinnernAm, erinnernMoeglich, istErinnernTage } from "@/lib/erinnerungWunsch";
 
+import { anschluss } from "@/lib/anschluss";
 // Gemeinsame Schnittstellen der Patientenansicht für Patienten-Link (/api/p/<token>/…) und Portal
 // (/api/portal/<token>/vorschlag/<id>/…): Lese-Link für Vertrauenspersonen und „Erinnern Sie mich“.
 // Beides löst der Patient selbst aus; es geht dabei keine Nachricht an irgendwen.
@@ -35,7 +36,7 @@ export async function zugangPortal(token: string, id: string): Promise<PatientZu
 }
 
 async function begrenzt(req: Request): Promise<boolean> {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = anschluss(req.headers);
   return !(await consumeAttempt(`patient-aktion:${ip}`, 40, 60 * 60 * 1000));
 }
 

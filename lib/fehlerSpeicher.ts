@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { fehlerAufbereiten, type FehlerRoh } from "@/lib/fehlerlog";
+import { BROWSER_NEU_GRENZE_24H, fehlerAufbereiten, type FehlerRoh } from "@/lib/fehlerlog";
 
 // Schreibt einen Fehler aus dem Betrieb in die Datenbank. Einziger Weg hinein:
 // Alles läuft vorher durch fehlerAufbereiten (lib/fehlerlog.ts), roh wird nichts gespeichert.
@@ -9,6 +9,12 @@ export async function fehlerSchreiben(roh: FehlerRoh, practiceId?: string | null
   try {
     const f = fehlerAufbereiten(roh);
     const praxis = typeof practiceId === "string" && /^[a-z0-9]{8,40}$/i.test(practiceId) ? practiceId : null;
+    // Browser-Meldungen kommen ohne Anmeldung an. Damit niemand die Ansicht /betrieb mit erfundenen Einträgen füllt:
+    // Ist die Tagesgrenze neuer Browser-Einträge erreicht, zählen weitere Meldungen nur noch bei schon bekannten Fehlern.
+    if (f.quelle === "browser") {
+      const bekannt = await prisma.fehlerEintrag.count({ where: { fingerabdruck: f.fingerabdruck } });
+      if (!bekannt && (await prisma.fehlerEintrag.count({ where: { quelle: "browser", createdAt: { gte: new Date(now.getTime() - 24 * 3_600_000) } } })) >= BROWSER_NEU_GRENZE_24H) return false;
+    }
     await prisma.fehlerEintrag.upsert({
       where: { fingerabdruck: f.fingerabdruck },
       create: { fingerabdruck: f.fingerabdruck, quelle: f.quelle, ort: f.ort, meldung: f.meldung, stack: f.stack || null, practiceId: praxis, createdAt: now, zuletztAt: now },
@@ -23,9 +29,12 @@ export async function fehlerSchreiben(roh: FehlerRoh, practiceId?: string | null
   }
 }
 
-/** Verschiedene Fehler, die in den letzten Stunden aufgetreten sind (für den Statusbericht). */
+/**
+ * Verschiedene Fehler des Servers, die in den letzten Stunden aufgetreten sind (für den Statusbericht).
+ * Meldungen aus dem Browser zählen nicht: Sonst könnte jeder von außen den Statusbericht auf „nicht ok“ bringen.
+ */
 export async function fehlerAnzahl(stunden = 24, now = new Date()): Promise<number> {
-  return prisma.fehlerEintrag.count({ where: { zuletztAt: { gte: new Date(now.getTime() - stunden * 3_600_000) } } });
+  return prisma.fehlerEintrag.count({ where: { quelle: "server", zuletztAt: { gte: new Date(now.getTime() - stunden * 3_600_000) } } });
 }
 
 /** Orte der Fehler, die seit gestern zum ersten Mal aufgetreten sind (für die tägliche Mail). */

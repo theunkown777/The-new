@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRecht } from "@/lib/permissions";
 import { auditFromSession } from "@/lib/audit";
 import { consumeAttempt } from "@/lib/rateLimit";
-import { bestandAus, einordnen, importBlockSchema, serverPruefung, type ImportPatient } from "@/lib/patientenImport";
+import { bestandAus, einordnen, importBlockSchema, importGrenze, serverPruefung, type ImportPatient } from "@/lib/patientenImport";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 // Die Datei selbst kommt hier nie an und wird nicht gespeichert. Vorhandene
 // Patienten werden nie überschrieben. Einwilligungen (E-Mail, WhatsApp) werden
 // nicht gesetzt. Nur die Praxisleitung; Protokoll ohne Namen.
+// Obergrenzen: Gastzugang höchstens 200 Patienten je Demo-Praxis, sonst 50.000 neue je 24 Stunden (lib/patientenImport.ts).
 const ANFRAGEN_PRO_STUNDE = 300;
 
 type Zeile = { zeile: number; status: "neu" | "vorhanden" | "fehler"; grund?: string };
@@ -80,6 +81,15 @@ export async function POST(req: Request) {
   if (nurPruefen || neu.length === 0) {
     return NextResponse.json({ gespeichert: 0, ...zahlen, ergebnis, demo: practice.isDemo });
   }
+
+  // Obergrenzen: Im Gastzugang ist jeder Besucher Praxisleitung; dort bleibt es bei einer kleinen Zahl.
+  // Für jede Praxis gilt außerdem eine Grenze je 24 Stunden.
+  const [bestand, heuteNeu] = await Promise.all([
+    practice.isDemo ? prisma.patient.count({ where: { practiceId } }) : 0,
+    prisma.patient.count({ where: { practiceId, createdAt: { gte: new Date(heute.getTime() - 24 * 3600e3) } } }),
+  ]);
+  const grenze = importGrenze({ demo: practice.isDemo, bestand, heute: heuteNeu, neu: neu.length });
+  if (grenze) return NextResponse.json({ error: grenze, code: "GRENZE", gespeichert: 0, ...zahlen, ergebnis, demo: practice.isDemo }, { status: 409 });
 
   const r = await prisma.patient.createMany({
     data: neu.map((p) => ({
