@@ -81,7 +81,7 @@ export async function GET(req: Request) {
     : { ok: true, info: "kein CRON_SECRET: Fristen laufen nur beim Öffnen eines Gastzugangs. CRON_SECRET in Vercel setzen" };
   // Nur ob gesetzt, nie die Werte: zeigt, ob Pilot- und Hilfe-Anfragen per Mail ankommen.
   checks["E-Mail-Versand"] = process.env.RESEND_API_KEY
-    ? { ok: true, info: `Resend-Schlüssel gesetzt${process.env.RESEND_FROM_EMAIL ? ", eigene Absenderadresse" : ", Absender onboarding@resend.dev (nur an die eigene Resend-Kontoadresse zustellbar)"}` }
+    ? { ok: true, info: `Resend-Schlüssel gesetzt${process.env.RESEND_FROM_EMAIL?.trim() ? ", eigene Absenderadresse" : process.env.VERCEL_ENV === "production" ? ", aber RESEND_FROM_EMAIL fehlt: Im Betrieb wird deshalb nichts verschickt" : ", Absender onboarding@resend.dev (nur an die eigene Resend-Kontoadresse zustellbar)"}` }
     : { ok: true, info: "kein Schlüssel: Mails werden nicht verschickt (im Protokoll nur Empfänger und Betreff), Anfragen landen trotzdem in der Datenbank" };
   checks["Benachrichtigung Support"] = process.env.SUPPORT_NOTIFY_EMAIL
     ? { ok: true, info: "eigene Support-Adresse gesetzt" }
