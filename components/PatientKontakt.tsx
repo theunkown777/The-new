@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Haken } from "@/components/Haken";
 import { useRouter } from "next/navigation";
 import { WhatsappSenden } from "@/components/WhatsappSenden";
 import { EINWILLIGUNG_WEGE, einwilligungsText, vermerkText, type EinwilligungVermerk, type EinwilligungWeg } from "@/lib/kontakt";
@@ -105,7 +106,7 @@ export function PatientKontakt({ patientId, email, phone, einwilligungAm, whatsa
       <div className="flex flex-wrap items-start gap-3">
         <button className="btn-secondary" disabled={busy}>Speichern</button>
         {whatsappAm && phone && <WhatsappSenden art="portal-link" id={patientId} label="Persönlichen Link per WhatsApp senden" className="btn-secondary" direkt={whatsappDirekt} />}
-        {msg && <span className={`text-sm ${msg.ok ? "text-emerald-700" : "text-red-700"}`} data-testid="kontakt-meldung">{msg.text}</span>}
+        {msg && <span className={`text-sm ${msg.ok ? "text-emerald-700" : "text-red-700"}`} data-testid="kontakt-meldung">{msg.ok && <Haken />}{msg.text}</span>}
       </div>
     </form>
   );

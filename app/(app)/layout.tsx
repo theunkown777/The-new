@@ -17,6 +17,10 @@ import { zweiFaktorPflicht } from "@/lib/zweiFaktorPflicht";
 import { TwoFactorSettings } from "@/components/TwoFactorSettings";
 import { eingangOffen } from "@/lib/eingang";
 import { Suche, SucheKnopf } from "@/components/Suche";
+import { UntereLeiste } from "@/components/UntereLeiste";
+import { DemoFuehrung } from "@/components/DemoFuehrung";
+import { AnsichtWaechter } from "@/components/Ansicht";
+import { ANSICHT_SKRIPT } from "@/lib/ansicht";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -29,6 +33,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const demo = currentUser?.practice.isDemo ? currentUser.practice.demoExpiresAt : null;
   // Berichte (KI, BEMA/GOZ) gibt es bisher nur für Zahnarztpraxen.
   const dental = isDental(currentUser?.practice.specialty);
+  // Andere Fächer: Der Menüpunkt erscheint, sobald es einen Bericht gibt (z. B. „Bericht an die überweisende Praxis“
+  // aus „Behandlung abschließen“). Ohne Bericht bleibt das Menü kurz.
+  const berichte = dental || (await prisma.report.findFirst({ where: { practiceId: session.user.practiceId }, select: { id: true } }).catch(() => null)) !== null;
   const personen = fachprofil(currentUser?.practice.specialty ?? "zahn").person.pl;
   const person = fachprofil(currentUser?.practice.specialty ?? "zahn").person.sg;
   const team = await isSupportTeam(session.user.id);
@@ -47,12 +54,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     zweiFaktorPflicht({ role: currentUser.role, require2faAll: currentUser.practice.require2faAll, isDemo: currentUser.practice.isDemo });
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
+    <>
+    {/* Dunkle Ansicht (Beta): nur wenn ausdrücklich gewählt; vor dem ersten Bild gesetzt, damit nichts aufblitzt. */}
+    <script dangerouslySetInnerHTML={{ __html: ANSICHT_SKRIPT }} />
+    <AnsichtWaechter />
+    <a href="#inhalt" className="sprunglink" data-testid="sprunglink">Zum Inhalt</a>
+    <div className="praxis-app min-h-screen lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
       {/* Desktop: feste Seitenleiste */}
-      <aside className="sticky top-0 hidden h-screen flex-col overflow-y-auto border-r border-[#E9E2DA] bg-[#F5F2EE] px-4 py-5 lg:flex [&>*]:shrink-0" data-testid="app-sidebar">
+      <aside className="praxis-leiste sticky top-0 hidden h-screen flex-col overflow-y-auto px-4 py-5 lg:flex [&>*]:shrink-0" data-testid="app-sidebar">
         <Link href="/dashboard" className="flex items-center gap-2 px-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/sorrida-mark.webp" alt="" className="h-10 w-10" />
+          <img src="/brand/sorrida-mark.webp" alt="" className="hell-nur h-10 w-10" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/sorrida-mark-hell.webp" alt="" className="dunkel-nur h-10 w-auto" />
           <span className="font-brand text-brand-700">SORRIDA</span>
         </Link>
         <p className="mb-5 mt-3 truncate rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-800" title={session.user.practiceName}>
@@ -60,8 +74,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </p>
         <EingangWaechter start={eingang} />
         {!sperre && <SucheKnopf />}
-        <SidebarNav eingang={eingang} dental={dental} team={team} analyse={analyse} zahlungen={menue.zahlungen} einstellungen={menue.einstellungen} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
-        <div className="mt-auto border-t border-slate-100 pt-4 text-sm">
+        <SidebarNav eingang={eingang} dental={dental} berichte={berichte} team={team} analyse={analyse} zahlungen={menue.zahlungen} einstellungen={menue.einstellungen} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
+        <div className="mt-auto border-t border-slate-200 pt-4 text-sm">
           <p className="truncate px-2 text-slate-700">{session.user.name}</p>
           <div className="px-2 pt-1">
             <SignOutButton className="text-sm text-slate-500 hover:text-brand-700" />
@@ -79,24 +93,25 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <span className="truncate font-semibold tracking-tight text-white">{session.user.practiceName}</span>
             </Link>
             {!sperre && <SucheKnopf variante="kopf" />}
-            <nav className="hidden shrink-0 items-center gap-5 text-sm text-brand-100 sm:flex">
+            <nav className="auf-dunkel hidden shrink-0 items-center gap-5 text-sm text-brand-100 sm:flex" aria-label="Hauptnavigation">
               <Link href="/dashboard" className="hover:text-white">Übersicht</Link>
               <Link href="/eingang" className="hover:text-white">Eingang{eingang > 0 ? ` (${eingang})` : ""}</Link>
               <Link href="/patients" className="hover:text-white">{personen}</Link>
-              {dental && <Link href="/reports" className="hover:text-white">Berichte</Link>}
+              {berichte && <Link href="/reports" className="hover:text-white">Berichte</Link>}
               <Link href="/proposals" className="hover:text-white">Vorschläge</Link>
               {menue.zahlungen && <Link href="/zahlungen" className="hover:text-white">Zahlungen</Link>}
               {analyse && <Link href="/analyse" className="hover:text-white">Analyse</Link>}
               <Link href="/settings" className="hover:text-white">{menue.einstellungen ? "Einstellungen" : "Mein Konto"}</Link>
             </nav>
-            <MobileNav eingang={eingang} userName={session.user.name} dental={dental} team={team} analyse={analyse} zahlungen={menue.zahlungen} einstellungen={menue.einstellungen} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
+            <MobileNav eingang={eingang} userName={session.user.name} dental={dental} berichte={berichte} team={team} analyse={analyse} zahlungen={menue.zahlungen} einstellungen={menue.einstellungen} personPl={personen} abschluss={abschlussWort(currentUser?.practice.specialty)} />
           </div>
         </header>
         {/* Suche über alles (Strg+K) und Tastenkürzel; ohne eingerichtete Pflicht-2FA nicht verfügbar */}
         {!sperre && <Suche personPl={personen} personSg={person} />}
         {demo && <DemoBanner expiresAt={demo} role={session.user.role} userName={session.user.name} />}
+        {demo && !sperre && <DemoFuehrung />}
         {!demo && !currentUser?.emailVerifiedAt && <VerifyEmailBanner />}
-        <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
+        <main id="inhalt" className="praxis-inhalt px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
           {sperre ? (
             <div className="mx-auto max-w-xl space-y-4" data-testid="zwei-faktor-pflicht">
               <h1 className="font-display text-3xl text-slate-900">Zwei-Faktor-Anmeldung einrichten</h1>
@@ -114,7 +129,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             children
           )}
         </main>
+        {/* Handy und Tablet: vier Ziele am unteren Rand; „Mehr“ öffnet das Menü aus der Kopfzeile. */}
+        {!sperre && <UntereLeiste eingang={eingang} personPl={personen} />}
       </div>
     </div>
+    </>
   );
 }

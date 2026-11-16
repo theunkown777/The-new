@@ -124,8 +124,11 @@ jobs:
           done
           echo "Anwendung antwortet nicht"; tail -50 next-start.log; exit 1
 
-      - name: psql bereitstellen
-        run: command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+      - name: psql und pdftotext bereitstellen
+        # pdftotext (poppler-utils) liest in der Generalprobe den Text der erzeugten PDF-Dateien.
+        run: |
+          command -v psql || (sudo apt-get update && sudo apt-get install -y postgresql-client)
+          command -v pdftotext || (sudo apt-get update && sudo apt-get install -y poppler-utils)
 
       - name: Playwright installieren (nur für diesen Lauf, gleiche Hauptversion wie lokal)
         run: |

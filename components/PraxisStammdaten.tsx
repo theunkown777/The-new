@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Haken } from "@/components/Haken";
 import { useRouter } from "next/navigation";
 import type { Stammdaten } from "@/lib/praxisStammdaten";
 
@@ -66,6 +67,7 @@ export function PraxisStammdaten({ start, fehlt }: { start: Stammdaten; fehlt: s
         </button>
         {msg && (
           <span className={`text-sm ${msg.ok ? "text-emerald-700" : "text-red-700"}`} data-testid="stammdaten-meldung">
+            {msg.ok && <Haken />}
             {msg.text}
           </span>
         )}

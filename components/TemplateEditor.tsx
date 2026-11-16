@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Haken } from "@/components/Haken";
 import { useEffect, useMemo, useState } from "react";
 
 type CatalogItem = {
@@ -133,8 +134,8 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
 
       <form onSubmit={saveMeta} className="card space-y-3">
         <div>
-          <label className="label">Name</label>
-          <input
+          <label className="label" htmlFor="vorlage-name">Name</label>
+          <input id="vorlage-name"
             className="input disabled:opacity-60"
             value={name}
             disabled={readOnly}
@@ -146,8 +147,8 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
           />
         </div>
         <div>
-          <label className="label">Beschreibung (optional)</label>
-          <input
+          <label className="label" htmlFor="vorlage-beschreibung">Beschreibung (optional)</label>
+          <input id="vorlage-beschreibung"
             className="input disabled:opacity-60"
             value={description}
             disabled={readOnly}
@@ -162,7 +163,7 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
             <button type="submit" disabled={savingMeta} className="btn-secondary">
               {savingMeta ? "Speichert…" : "Speichern"}
             </button>
-            {metaSaved && <span className="text-xs text-green-700">Gespeichert.</span>}
+            {metaSaved && <span className="text-xs text-green-700" role="status"><Haken />Gespeichert.</span>}
           </div>
         )}
       </form>
@@ -230,6 +231,7 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
           {addError && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{addError}</p>}
           <div className="flex flex-wrap gap-3">
             <select
+              aria-label="Position hinzufügen"
               className="input flex-1"
               value={addingId}
               onChange={(e) => setAddingId(e.target.value)}

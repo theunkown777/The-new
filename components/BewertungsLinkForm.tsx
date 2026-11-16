@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Haken } from "@/components/Haken";
 
 /** Einstellungen → Rückmeldung: Link zum Google-Profil der Praxis hinterlegen oder entfernen. */
 export function BewertungsLinkForm({ start }: { start: string }) {
@@ -43,7 +44,7 @@ export function BewertungsLinkForm({ start }: { start: string }) {
         {hinterlegt && (
           <button type="button" className="btn btn-secondary" disabled={stand === "speichert"} onClick={() => speichern("")} data-testid="bewertungslink-entfernen">Link entfernen</button>
         )}
-        {stand === "gespeichert" && <span className="text-sm text-emerald-700" role="status" data-testid="bewertungslink-gespeichert">Gespeichert.</span>}
+        {stand === "gespeichert" && <span className="text-sm text-emerald-700" role="status" data-testid="bewertungslink-gespeichert"><Haken />Gespeichert.</span>}
       </div>
       {fehler && <p className="text-sm text-red-700" role="alert" data-testid="bewertungslink-fehler">{fehler}</p>}
     </form>

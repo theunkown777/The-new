@@ -61,6 +61,11 @@ describe("sucheHilfe", () => {
     expect(erster("VORSCHLAEGE NACHFASSEN")).toBe("vorschlag-nachfassen");
     expect(erster("einwilligungen whatsapp")).toBe("patient-einwilligung");
   });
+  it("findet den Import der Patientenliste auch mit dem Wort „importieren“", () => {
+    expect(erster("Patienten aus einer Datei importieren")).toBe("patient-import");
+    expect(erster("Patientenliste importieren")).toBe("patient-import");
+    expect(erster("Preisliste importieren")).toBe("preisliste");
+  });
   it("zeigt höchstens drei Einträge, beste zuerst", () => {
     const t = sucheHilfe("Preise ändern", HILFE_WISSEN);
     expect(t.length).toBeGreaterThan(0);

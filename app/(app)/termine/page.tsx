@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Leer } from "@/components/Leer";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -121,7 +122,7 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="card divide-y divide-slate-100 p-0">
-          {termine.length === 0 && <p className="p-5 text-sm text-slate-600">Für diesen Tag ist nichts eingetragen. Termine tragen Sie rechts ein{standorte.length === 0 ? "; für eine genaue Auslastung legen Sie unter Einstellungen → Standorte Ihre Behandlungsplätze an" : ""}.</p>}
+          {termine.length === 0 && <Leer symbol="kalender" eng>Für diesen Tag ist nichts eingetragen. Termine tragen Sie rechts ein{standorte.length === 0 ? "; für eine genaue Auslastung legen Sie unter Einstellungen → Standorte Ihre Behandlungsplätze an" : ""}.</Leer>}
           {termine.map((t) => (
             <div key={t.id} className="flex flex-col gap-2 p-4" data-testid="termin">
               <div className="flex min-w-0 gap-4">

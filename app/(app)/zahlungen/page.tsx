@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Leer } from "@/components/Leer";
 import { getServerSession } from "next-auth";
 import type { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
@@ -148,7 +149,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
             ))}
           </div>
           {list.length === 0 ? (
-            <p className="p-6 text-sm text-slate-500">Keine Rechnungen in dieser Ansicht.</p>
+            <Leer symbol="karte" eng>Keine Rechnungen in dieser Ansicht.</Leer>
           ) : (
             <>
             {/* Handy: Karten statt Tabelle, damit Status und Aktionen sichtbar bleiben */}
@@ -228,7 +229,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
             <h2 className="font-semibold text-slate-900">Abzurechnen</h2>
             <p className="mt-1 text-sm text-slate-600">Angenommene Vorschläge mit Eigenanteil, die noch keine Rechnung haben.</p>
             {billable.length === 0 ? (
-              <p className="mt-3 text-sm text-slate-500">Alles abgerechnet.</p>
+              <Leer symbol="haken" eng className="mt-1 !px-0">Alles abgerechnet.</Leer>
             ) : (
               <ul className="mt-3 divide-y divide-slate-100">
                 {billable.map((p) => (

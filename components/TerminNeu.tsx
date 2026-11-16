@@ -75,7 +75,7 @@ export function TerminNeu({ tag, standorte, anlaesse = [] }: { tag: string; stan
           </select>
         </label>
       </div>
-      <input className="input w-full" placeholder="Anlass, z. B. Kontrolle, Füllung 36" value={reason} onChange={(e) => setReason(e.target.value)} aria-label="Anlass" data-testid="termin-anlass" list="termin-anlaesse" />
+      <input className="input w-full" placeholder={`Anlass, z. B. ${anlaesse.slice(0, 2).join(", ") || "Kontrolle"}`} value={reason} onChange={(e) => setReason(e.target.value)} aria-label="Anlass" data-testid="termin-anlass" list="termin-anlaesse" />
       <datalist id="termin-anlaesse">
         {anlaesse.map((a) => (
           <option key={a} value={a} />

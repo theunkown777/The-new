@@ -110,8 +110,9 @@ export function JournalFuss() {
 export function JournalRahmen({ children }: { children: React.ReactNode }) {
   return (
     <div className="journal flex min-h-screen flex-col">
+      <a href="#inhalt" className="sprunglink">Zum Inhalt</a>
       <JournalKopf angemeldet={false} />
-      <div className="flex-1">{children}</div>
+      <div id="inhalt" className="flex-1">{children}</div>
       <JournalFuss />
     </div>
   );

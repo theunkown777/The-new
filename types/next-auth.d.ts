@@ -23,6 +23,8 @@ declare module "next-auth" {
     mfaPending?: boolean;
     /** Stand des Kontos bei der Anmeldung (User.sessionVersion). */
     sessionVersion?: number;
+    /** Konto einer Demo-Praxis (Gastzugang). */
+    demo?: boolean;
   }
 }
 
@@ -38,5 +40,7 @@ declare module "next-auth/jwt" {
     sessionVersion?: number;
     /** Sitzung widerrufen: Konto entfernt oder Stand veraltet. */
     widerrufen?: boolean;
+    /** Sitzung einer Demo-Praxis (Gastzugang). Nur für das Vorschau-Schloss in der Stufe „demo“ (lib/vorschau.ts); Rechte hängen nicht daran. */
+    demo?: boolean;
   }
 }

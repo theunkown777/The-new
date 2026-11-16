@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Haken } from "@/components/Haken";
 import { LeistungSchnell } from "@/components/LeistungSchnell";
 
 type CatalogItem = {
@@ -182,6 +183,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                     <div className="w-28">
                       <label className="mb-1 block text-xs text-slate-500">Punktzahl</label>
                       <input
+                        aria-label="Punktzahl"
                         className="input py-1 text-xs disabled:opacity-60"
                         type="number"
                         step="0.1"
@@ -194,6 +196,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                     <div className="w-28">
                       <label className="mb-1 block text-xs text-slate-500">Festbetrag (EUR)</label>
                       <input
+                        aria-label="Festbetrag (EUR)"
                         className="input py-1 text-xs disabled:opacity-60"
                         type="number"
                         step="0.01"
@@ -223,7 +226,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                             {deletingId === item.id ? "Löscht…" : "Löschen"}
                           </button>
                         </div>
-                        {row.saved && <span className="text-xs text-green-700">Gespeichert.</span>}
+                        {row.saved && <span className="text-xs text-green-700" role="status"><Haken />Gespeichert.</span>}
                         {row.error && <span className="text-xs text-red-700">{row.error}</span>}
                         {deleteError[item.id] && (
                           <span className="text-xs text-red-700">{deleteError[item.id]}</span>
@@ -252,8 +255,8 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
               )}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div>
-                  <label className="label">System</label>
-                  <select
+                  <label className="label" htmlFor="katalog-neu-system">System</label>
+                  <select id="katalog-neu-system"
                     className="input"
                     value={newItem.system}
                     onChange={(e) => setNewItem((p) => ({ ...p, system: e.target.value as typeof p.system }))}
@@ -264,8 +267,8 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                   </select>
                 </div>
                 <div>
-                  <label className="label">Ziffer</label>
-                  <input
+                  <label className="label" htmlFor="katalog-neu-ziffer">Ziffer</label>
+                  <input id="katalog-neu-ziffer"
                     className="input"
                     placeholder="z. B. 0010 oder –"
                     value={newItem.code}
@@ -274,8 +277,8 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="label">Titel</label>
-                  <input
+                  <label className="label" htmlFor="katalog-neu-titel">Titel</label>
+                  <input id="katalog-neu-titel"
                     className="input"
                     value={newItem.title}
                     onChange={(e) => setNewItem((p) => ({ ...p, title: e.target.value }))}
@@ -283,8 +286,8 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                   />
                 </div>
                 <div className="col-span-2">
-                  <label className="label">Kategorie</label>
-                  <input
+                  <label className="label" htmlFor="katalog-neu-kategorie">Kategorie</label>
+                  <input id="katalog-neu-kategorie"
                     className="input"
                     placeholder="z. B. Prophylaxe"
                     value={newItem.category}

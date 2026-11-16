@@ -3,6 +3,75 @@ import { PassThrough } from "stream";
 import { REPORT_TYPE_LABELS } from "@/lib/reportLabels";
 import type { Brief } from "@/lib/erstattungsbrief";
 
+// ---------------------------------------------------------------- aus einem Guss --
+// Alle PDFs teilen Kopf und Fuß: Praxisname in Bordeaux, darunter ggf. Stammdaten, Titel und Datum, eine Haarlinie;
+// unten auf jeder Seite eine Hinweiszeile und die Seitenzahl. Die Inhalte der einzelnen Dokumente bleiben, wie sie sind.
+
+/** Farben der PDFs (wie in der App: Bordeaux, Tinte, Haarlinie). */
+export const PDF_FARBEN = { bordeaux: "#5A1D1D", tinte: "#24201F", tinte2: "#5E5650", linie: "#DCD2C6", salbei: "#557350" } as const;
+
+type Doc = InstanceType<typeof PDFDocument>;
+
+/** Dokument anlegen und die Ausgabe einsammeln. Seiten bleiben im Speicher, bis der Fuß gesetzt ist. */
+function pdfStart(optionen: ConstructorParameters<typeof PDFDocument>[0]): { doc: Doc; fertig: () => Promise<Buffer> } {
+  const doc = new PDFDocument({ ...optionen, bufferPages: true });
+  const stream = new PassThrough();
+  const chunks: Buffer[] = [];
+  doc.pipe(stream);
+  stream.on("data", (chunk) => chunks.push(chunk as Buffer));
+  return {
+    doc,
+    fertig: () => {
+      doc.end();
+      return new Promise<Buffer>((resolve, reject) => {
+        stream.on("end", () => resolve(Buffer.concat(chunks)));
+        stream.on("error", reject);
+      });
+    },
+  };
+}
+
+/** Gemeinsamer Kopf: Praxisname, ggf. Stammdaten, Titel des Dokuments, ggf. Datum; darunter eine Haarlinie. */
+export function pdfKopf(doc: Doc, a: { praxis: string; zeilen?: string[]; titel?: string; datum?: string | null }): void {
+  const links = doc.page.margins.left;
+  const breite = doc.page.width - links - doc.page.margins.right;
+  doc.fontSize(16).font("Helvetica-Bold").fillColor(PDF_FARBEN.bordeaux).text(a.praxis, links, doc.y, { width: breite });
+  if (a.zeilen?.length) doc.fontSize(9).font("Helvetica").fillColor(PDF_FARBEN.tinte2).text(a.zeilen.join(" · "), { width: breite });
+  if (a.titel) {
+    doc.moveDown(0.3);
+    doc.fontSize(12).font("Helvetica").fillColor("#333333").text(a.titel, { width: breite });
+  }
+  if (a.datum) doc.fontSize(9).font("Helvetica").fillColor(PDF_FARBEN.tinte2).text(a.datum, { width: breite });
+  const y = doc.y + 7;
+  doc.save().moveTo(links, y).lineTo(links + breite, y).lineWidth(0.6).strokeColor(PDF_FARBEN.linie).stroke().restore();
+  doc.y = y + 9;
+  doc.x = links;
+  doc.font("Helvetica").fontSize(10).fillColor("#000000");
+}
+
+/**
+ * Gemeinsamer Fuß auf jeder Seite: Haarlinie, links eine Hinweiszeile (einzeilig, gekürzt), rechts die Seitenzahl.
+ * Ganz am Ende aufrufen, wenn alle Seiten stehen.
+ */
+export function pdfFuss(doc: Doc, hinweis = ""): number {
+  const bereich = doc.bufferedPageRange();
+  for (let i = 0; i < bereich.count; i++) {
+    doc.switchToPage(bereich.start + i);
+    const links = doc.page.margins.left;
+    const breite = doc.page.width - links - doc.page.margins.right;
+    // Im unteren Rand schreiben, ohne dass pdfkit dafür eine neue Seite beginnt.
+    const unten = doc.page.margins.bottom;
+    doc.page.margins.bottom = 0;
+    const y = doc.page.height - 36;
+    doc.save().moveTo(links, y - 6).lineTo(links + breite, y - 6).lineWidth(0.6).strokeColor(PDF_FARBEN.linie).stroke().restore();
+    doc.font("Helvetica").fontSize(8).fillColor(PDF_FARBEN.tinte2);
+    if (hinweis) doc.text(hinweis, links, y, { width: breite - 90, lineBreak: false, ellipsis: true });
+    doc.text(`Seite ${i + 1} von ${bereich.count}`, links, y, { width: breite, align: "right", lineBreak: false });
+    doc.page.margins.bottom = unten;
+  }
+  return bereich.count;
+}
+
 interface ReportPdfInput {
   practiceName: string;
   authorName: string;
@@ -15,18 +84,11 @@ interface ReportPdfInput {
 }
 
 export async function buildReportPdf(input: ReportPdfInput): Promise<Buffer> {
-  const doc = new PDFDocument({ margin: 56 });
-  const stream = new PassThrough();
-  const chunks: Buffer[] = [];
+  const { doc, fertig } = pdfStart({ margin: 56 });
+  const dokument = REPORT_TYPE_LABELS[input.reportType] ?? input.reportType;
 
-  doc.pipe(stream);
-  stream.on("data", (chunk) => chunks.push(chunk as Buffer));
-
-  doc.fontSize(16).font("Helvetica-Bold").text(input.practiceName);
-  doc.moveDown(0.5);
-  doc.fontSize(11).font("Helvetica").fillColor("#555555");
-  doc.text(REPORT_TYPE_LABELS[input.reportType] ?? input.reportType);
-  doc.moveDown(1);
+  pdfKopf(doc, { praxis: input.practiceName, titel: dokument });
+  doc.moveDown(0.4);
 
   doc.fillColor("#000000").fontSize(10);
   doc.text(`Patient: ${input.patientName}`);
@@ -38,12 +100,8 @@ export async function buildReportPdf(input: ReportPdfInput): Promise<Buffer> {
 
   doc.fontSize(11).font("Helvetica").text(input.text, { align: "left", lineGap: 4 });
 
-  doc.end();
-
-  return await new Promise<Buffer>((resolve, reject) => {
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-    stream.on("error", reject);
-  });
+  pdfFuss(doc, `${input.practiceName} · ${dokument}`);
+  return await fertig();
 }
 
 interface AgreementPdfInput {
@@ -63,17 +121,11 @@ interface AgreementPdfInput {
 
 /** Einverständnis aus dem Patientenportal als PDF, mit Zeile für die Gegenzeichnung der Praxis. */
 export async function buildAgreementPdf(input: AgreementPdfInput): Promise<Buffer> {
-  const doc = new PDFDocument({ margin: 56, info: { Title: `Einverständnis ${input.patientName}` } });
-  const stream = new PassThrough();
-  const chunks: Buffer[] = [];
-  doc.pipe(stream);
-  stream.on("data", (chunk) => chunks.push(chunk as Buffer));
+  const { doc, fertig } = pdfStart({ margin: 56, info: { Title: `Einverständnis ${input.patientName}` } });
   const eur = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
 
-  doc.fontSize(16).font("Helvetica-Bold").fillColor("#6b2a24").text(input.practiceName);
-  doc.moveDown(0.3);
-  doc.fontSize(12).font("Helvetica").fillColor("#333333").text("Einverständnis zum Behandlungsvorschlag (digital auf dem Behandlungsweg)");
-  doc.moveDown(1);
+  pdfKopf(doc, { praxis: input.practiceName, titel: "Einverständnis zum Behandlungsvorschlag (digital auf dem Behandlungsweg)" });
+  doc.moveDown(0.4);
   doc.fillColor("#000000").fontSize(10);
   doc.text(`Patient/in: ${input.patientName}${input.patientBirthDate ? `, geb. ${input.patientBirthDate}` : ""}`);
   doc.text(`Vorschlag vom: ${input.proposalDate}`);
@@ -83,8 +135,8 @@ export async function buildAgreementPdf(input: AgreementPdfInput): Promise<Buffe
   // Kasse zuerst, dann Eigenanteil
   const x = doc.x, y = doc.y, w = 480, total = Math.max(input.kasse + input.eigen, 1);
   const wk = (input.kasse / total) * w;
-  doc.rect(x, y, wk, 10).fill("#6c8c65");
-  doc.rect(x + wk, y, w - wk, 10).fill("#6b2a24");
+  doc.rect(x, y, wk, 10).fill(PDF_FARBEN.salbei);
+  doc.rect(x + wk, y, w - wk, 10).fill(PDF_FARBEN.bordeaux);
   doc.fillColor("#000000").fontSize(10).text(`Kasse zahlt voraussichtlich ${eur(input.kasse)}  ·  Eigenanteil voraussichtlich ${eur(input.eigen)}`, x, y + 16);
   doc.moveDown(2);
   doc.text(`Digital unterschrieben am ${input.signedAt} von ${input.signedName}:`);
@@ -103,11 +155,8 @@ export async function buildAgreementPdf(input: AgreementPdfInput): Promise<Buffe
   doc.text("Gegenzeichnung der Praxis");
   doc.moveDown(2);
   doc.fontSize(8).fillColor("#666666").text("Das digitale Einverständnis dokumentiert die Aufklärung und die Wahl des Patienten. Es ersetzt nicht die schriftliche Mehrkosten- bzw. IGeL-Vereinbarung, die vor der Behandlung unterschrieben wird.");
-  doc.end();
-  return await new Promise<Buffer>((resolve, reject) => {
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-    stream.on("error", reject);
-  });
+  pdfFuss(doc, `${input.practiceName} · Einverständnis zum Behandlungsvorschlag`);
+  return await fertig();
 }
 
 export interface KosteninfoPdfInput {
@@ -135,23 +184,17 @@ export interface KosteninfoPdfInput {
  * ersetzt weder das Aufklärungsgespräch noch den Heil- und Kostenplan oder die schriftliche Vereinbarung.
  */
 export async function buildKosteninfoPdf(input: KosteninfoPdfInput): Promise<Buffer> {
-  const doc = new PDFDocument({ margin: 56, info: { Title: `Kosteninformation ${input.patientName}` } });
-  const stream = new PassThrough();
-  const chunks: Buffer[] = [];
-  doc.pipe(stream);
-  stream.on("data", (chunk) => chunks.push(chunk as Buffer));
+  const { doc, fertig } = pdfStart({ margin: 56, info: { Title: `Kosteninformation ${input.patientName}` } });
   const breite = doc.page.width - 112;
   const titel = (t: string) => {
     doc.moveDown(0.9);
-    doc.fontSize(11).font("Helvetica-Bold").fillColor("#6b2a24").text(t);
+    doc.fontSize(11).font("Helvetica-Bold").fillColor(PDF_FARBEN.bordeaux).text(t);
     doc.moveDown(0.3);
     doc.font("Helvetica").fillColor("#000000").fontSize(10);
   };
 
-  doc.fontSize(16).font("Helvetica-Bold").fillColor("#6b2a24").text(input.practiceName);
+  pdfKopf(doc, { praxis: input.practiceName, titel: "Kosteninformation zum Behandlungsvorschlag (Nachweis für die Akte)" });
   doc.moveDown(0.3);
-  doc.fontSize(12).font("Helvetica").fillColor("#333333").text("Kosteninformation zum Behandlungsvorschlag (Nachweis für die Akte)");
-  doc.moveDown(0.8);
   doc.fillColor("#000000").fontSize(10);
   doc.text(`Patient/in: ${input.patientName}${input.patientBirthDate ? `, geb. ${input.patientBirthDate}` : ""}`);
   doc.text(`Vorschlag vom: ${input.proposalDate}  ·  Stand: ${input.status}`);
@@ -197,11 +240,8 @@ export async function buildKosteninfoPdf(input: KosteninfoPdfInput): Promise<Buf
     `Erstellt am ${input.erstelltAm} von ${input.erstelltVon} mit Sorrida. Alle Beträge sind Schätzungen. Verbindlich sind der Heil- und Kostenplan bzw. die schriftliche Vereinbarung vor der Behandlung. Dieses Blatt dokumentiert die Kosteninformation in Textform; es ersetzt nicht das Aufklärungsgespräch.`,
     { width: breite },
   );
-  doc.end();
-  return await new Promise<Buffer>((resolve, reject) => {
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-    stream.on("error", reject);
-  });
+  pdfFuss(doc, `${input.practiceName} · Kosteninformation zum Behandlungsvorschlag`);
+  return await fertig();
 }
 
 /**
@@ -209,11 +249,7 @@ export async function buildKosteninfoPdf(input: KosteninfoPdfInput): Promise<Buf
  * A4, Anschrift im Fensterbereich. Der Text kommt fertig und druckbar aus briefText().
  */
 export async function buildErstattungsbriefPdf(b: Brief): Promise<Buffer> {
-  const doc = new PDFDocument({ size: "A4", margins: { top: 56, bottom: 62, left: 71, right: 57 }, info: { Title: b.betreff, Author: b.unterschrift } });
-  const stream = new PassThrough();
-  const chunks: Buffer[] = [];
-  doc.pipe(stream);
-  stream.on("data", (chunk) => chunks.push(chunk as Buffer));
+  const { doc, fertig } = pdfStart({ size: "A4", margins: { top: 56, bottom: 62, left: 71, right: 57 }, info: { Title: b.betreff, Author: b.unterschrift } });
   const links = doc.page.margins.left;
   const breite = doc.page.width - links - doc.page.margins.right;
   const platz = (hoehe: number) => {
@@ -264,11 +300,9 @@ export async function buildErstattungsbriefPdf(b: Brief): Promise<Buffer> {
   doc.text(b.unterschrift, { width: breite });
   doc.moveDown(1.5);
   doc.fontSize(8).fillColor("#666666").text(b.fusszeile, { width: breite });
-  doc.end();
-  return await new Promise<Buffer>((resolve, reject) => {
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-    stream.on("error", reject);
-  });
+  // Der Brief geht im Namen des Patienten hinaus: kein Praxiskopf, im Fuß nur Betreff und Seitenzahl.
+  pdfFuss(doc, b.betreff);
+  return await fertig();
 }
 
 /**
@@ -276,22 +310,14 @@ export async function buildErstattungsbriefPdf(b: Brief): Promise<Buffer> {
  * wie in der Patientenansicht, zum Speichern und Einreichen. Ohne Geburtsdatum, Versichertennummer und Praxiszahlen.
  */
 export async function buildKostenuebersichtPdf(k: import("@/lib/kostenuebersicht").Kostenuebersicht): Promise<Buffer> {
-  const doc = new PDFDocument({ size: "A4", margin: 56, info: { Title: "Kostenübersicht zum Behandlungsvorschlag", Author: k.praxis } });
-  const stream = new PassThrough();
-  const chunks: Buffer[] = [];
-  doc.pipe(stream);
-  stream.on("data", (chunk) => chunks.push(chunk as Buffer));
+  const { doc, fertig } = pdfStart({ size: "A4", margin: 56, info: { Title: "Kostenübersicht zum Behandlungsvorschlag", Author: k.praxis } });
   const links = doc.page.margins.left;
   const breite = doc.page.width - 112;
   const platz = (hoehe: number) => {
     if (doc.y + hoehe > doc.page.height - doc.page.margins.bottom) doc.addPage();
   };
 
-  doc.fontSize(16).font("Helvetica-Bold").fillColor("#6b2a24").text(k.praxis, { width: breite });
-  if (k.praxisZeilen.length) doc.fontSize(9).font("Helvetica").fillColor("#555555").text(k.praxisZeilen.join(" · "), { width: breite });
-  doc.moveDown(0.5);
-  doc.fontSize(12).font("Helvetica").fillColor("#333333").text("Kostenübersicht zum Behandlungsvorschlag (unverbindliche Schätzung)", { width: breite });
-  doc.moveDown(0.5);
+  pdfKopf(doc, { praxis: k.praxis, zeilen: k.praxisZeilen, titel: "Kostenübersicht zum Behandlungsvorschlag (unverbindliche Schätzung)" });
   doc.fillColor("#000000").fontSize(10);
   doc.text(`Erstellt am: ${k.datum}`);
   doc.text("Name der versicherten Person: ______________________________");
@@ -326,10 +352,7 @@ export async function buildKostenuebersichtPdf(k: import("@/lib/kostenuebersicht
   doc.moveDown(0.5);
   doc.font("Helvetica-Bold").text(k.einreichen, { width: breite, lineGap: 1.5 });
   doc.font("Helvetica").moveDown(0.8);
-  doc.fontSize(8).fillColor("#666666").text("Erstellt mit Sorrida aus dem Behandlungsvorschlag Ihrer Praxis. Dieses Blatt ist keine Rechnung und kein Heil- und Kostenplan.", { width: breite });
-  doc.end();
-  return await new Promise<Buffer>((resolve, reject) => {
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-    stream.on("error", reject);
-  });
+  doc.fontSize(8).fillColor("#666666").text(k.fuss, { width: breite });
+  pdfFuss(doc, `${k.praxis} · Kostenübersicht, unverbindliche Schätzung`);
+  return await fertig();
 }

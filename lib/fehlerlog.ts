@@ -13,7 +13,8 @@ export type FehlerQuelle = "server" | "browser";
 
 /**
  * Ort des Fehlers: nur der Pfad. Ohne Herkunft, ohne Abfrage-Teil, ohne Sprungmarke.
- * Pfadteile mit 16 oder mehr Zeichen (Tokens, IDs) und reine Zahlen ab 5 Stellen werden durch „…“ ersetzt.
+ * Pfadteile mit 16 oder mehr Zeichen (Tokens, IDs) und Zahlen ab 5 Stellen werden durch „…“ ersetzt;
+ * feste Seitennamen aus Kleinbuchstaben und Bindestrichen bleiben bis 40 Zeichen stehen.
  * Platzhalter einer Route wie [id] oder [token] bleiben stehen.
  */
 export function ortBereinigen(roh: unknown): string {
@@ -27,7 +28,11 @@ export function ortBereinigen(roh: unknown): string {
     if (/^\[{1,2}(\.\.\.)?[A-Za-z0-9_]{1,30}\]{1,2}$/.test(teil) || /^\([A-Za-z0-9_-]{1,30}\)$/.test(teil)) return teil;
     let t = teil;
     try { t = decodeURIComponent(teil); } catch { /* bleibt roh */ }
-    if (t.length >= 16) return LUECKE;
+    // Feste Namen von Seiten bestehen nur aus Kleinbuchstaben und Bindestrichen (z. B. „abrechnungspruefung“,
+    // „leistungsverzeichnis“): Sie bleiben stehen, damit der Ort lesbar ist. IDs und Tokens enthalten Ziffern
+    // oder Großbuchstaben und fallen ab 16 Zeichen weg.
+    const seitenName = /^[a-z]+(-[a-z]+)*$/.test(t) && t.length <= 40;
+    if (t.length >= 16 && !seitenName) return LUECKE;
     if (/\d{5,}/.test(t) || /@/.test(t)) return LUECKE;
     // Nur einfache Zeichen behalten; alles andere könnte ein Suchwort oder ein Name sein
     return /^[A-Za-z0-9._~-]+$/.test(t) ? t : LUECKE;
@@ -98,6 +103,10 @@ export function meldungBereinigen(roh: unknown): string {
     .replace(/\b[a-z][a-z0-9+.-]*:\/\/\S+/gi, LUECKE)
     // E-Mail-Adressen
     .replace(/[^\s<>()[\]{},;:]+@[^\s<>()[\]{},;:]+/g, LUECKE)
+    // Lange Zeichenketten ohne Leerzeichen (IDs, Tokens, Schlüssel). Zuerst, vor den Ziffernregeln: Sonst
+    // schneiden diese nur die Ziffern heraus und Bruchstücke eines Tokens bleiben stehen.
+    .replace(/[A-Za-z0-9_-]*\d[A-Za-z0-9_-]*/g, (w) => (w.length >= 16 ? LUECKE : w))
+    .replace(/\b[A-Za-z0-9_-]{24,}\b/g, LUECKE)
     // IBAN (auch in Vierergruppen)
     .replace(/\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]{4}){2,7}(?:[ ]?[A-Z0-9]{1,4})?\b/g, LUECKE)
     // Datumsangaben (Geburtsdatum): 03.05.1980, 3.5.80, 1980-05-03
@@ -105,9 +114,8 @@ export function meldungBereinigen(roh: unknown): string {
     .replace(/\b\d{4}-\d{2}-\d{2}(?:[T ][\d:.]+Z?)?/g, LUECKE)
     // Ziffernfolgen ab 5 Stellen, auch mit Leerzeichen, Punkt, Schräg- oder Bindestrich gegliedert (Telefon, Versichertennummer)
     .replace(/[A-Za-z]?\d(?:[ ./-]?\d){4,}/g, LUECKE)
-    // Lange Zeichenketten ohne Leerzeichen, die Ziffern enthalten (IDs, Tokens, Schlüssel)
+    // Noch einmal nach den Ziffernregeln: was jetzt noch lang ist und Ziffern enthält
     .replace(/[A-Za-z0-9_-]*\d[A-Za-z0-9_-]*/g, (w) => (w.length >= 16 ? LUECKE : w))
-    .replace(/\b[A-Za-z0-9_-]{24,}\b/g, LUECKE)
     // Mehrere Lücken hintereinander zusammenziehen
     .replace(/(?:…[\s,;:]*){2,}/g, `${LUECKE} `)
     .replace(/\s+/g, " ")

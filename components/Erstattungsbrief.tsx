@@ -147,9 +147,9 @@ export function Erstattungsbrief({ invoiceId, vorgaben, className }: { invoiceId
         Begleitbrief für die Versicherung
       </button>
       {offen && (
-        <div className="fixed inset-0 z-[60] flex items-stretch justify-center bg-slate-900/40 text-left sm:items-start sm:p-6" onMouseDown={(e) => e.target === e.currentTarget && schliessen()}>
+        <div className="ein-schleier fixed inset-0 z-[60] flex items-stretch justify-center bg-slate-900/40 text-left sm:items-start sm:p-6" onMouseDown={(e) => e.target === e.currentTarget && schliessen()}>
           <div ref={box} role="dialog" aria-modal="true" aria-labelledby={`${uid}-titel`} aria-describedby={`${uid}-hinweis`} onKeyDown={taste} data-testid="erstattungsbrief-dialog"
-            className="flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden bg-white shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:rounded-2xl sm:ring-1 sm:ring-slate-200">
+            className="ein-dialog flex max-h-[100dvh] w-full max-w-2xl flex-col overflow-hidden bg-white shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:rounded-2xl sm:ring-1 sm:ring-slate-200">
             <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-3 sm:px-6">
               <div className="min-w-0">
                 <h2 id={`${uid}-titel`} className="font-display text-2xl text-slate-900">Begleitbrief für die Versicherung</h2>

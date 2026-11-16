@@ -180,6 +180,8 @@ model User {
   // aber einen Hinweis, bis die Adresse bestätigt wurde.
   emailVerifiedAt        DateTime?
   createdAt              DateTime                 @default(now())
+
+  @@index([practiceId])
 }
 
 // Einmal-Token zur Bestätigung der E-Mail-Adresse nach der Registrierung.
@@ -714,6 +716,8 @@ model AnamnesisForm {
   answers     Json?
 
   @@index([practiceId, patientId])
+  /// Verknüpfte Daten lädt Prisma ohne Praxis-Filter nach (WHERE … IN (…)); ohne diesen Index läse Postgres die ganze Tabelle.
+  @@index([patientId])
 }
 
 /// Rechnung an einen Patienten, z. B. der Eigenanteil eines angenommenen
@@ -757,6 +761,8 @@ model Invoice {
   @@unique([practiceId, number])
   @@index([practiceId, status])
   @@index([patientId])
+  /// Verknüpfte Daten lädt Prisma ohne Praxis-Filter nach (WHERE … IN (…)); ohne diesen Index läse Postgres die ganze Tabelle.
+  @@index([proposalId])
 }
 
 // Protokoll sicherheitsrelevanter Vorgänge (Art. 32 DSGVO): wer hat wann was
@@ -797,6 +803,8 @@ model PatientEntry {
   createdAt   DateTime  @default(now())
 
   @@index([practiceId, patientId])
+  /// Verknüpfte Daten lädt Prisma ohne Praxis-Filter nach (WHERE … IN (…)); ohne diesen Index läse Postgres die ganze Tabelle.
+  @@index([patientId])
 }
 
 // Dokumente zur Akte (Befunde von extern, Röntgen-PDF, Überweisungen).
@@ -815,6 +823,8 @@ model PatientDocument {
   createdAt  DateTime @default(now())
 
   @@index([practiceId, patientId])
+  /// Verknüpfte Daten lädt Prisma ohne Praxis-Filter nach (WHERE … IN (…)); ohne diesen Index läse Postgres die ganze Tabelle.
+  @@index([patientId])
 }
 
 // Standort einer Praxis (Hauptpraxis, Zweigpraxis). Behandlungsplätze und

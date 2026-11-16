@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 // Seitenleiste der App auf dem Desktop. Sorrida-eigener Aufbau: Gruppen nach
 // dem Arbeitsweg (Heute, Patienten, Geld, Praxis); der aktive Eintrag trägt
 // den Lächelbogen aus dem Logo statt einer gefüllten Fläche.
-const ICONS: Record<string, string> = {
+export const NAV_ICONS: Record<string, string> = {
   dashboard: "M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10",
   patients: "M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM22 19v-1a4 4 0 0 0-3-3.9M16 3.1a3.5 3.5 0 0 1 0 6.8",
   proposals: "M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5",
@@ -25,17 +25,19 @@ const ICONS: Record<string, string> = {
   modelle: "M12 3c-3 0-5 2-5 5 0 2 1 3 1 5s-.5 3 0 5c.4 1.6 1.6 3 2.4 3 1 0 1-3 1.6-3s.6 3 1.6 3c.8 0 2-1.4 2.4-3 .5-2 0-3 0-5s1-3 1-5c0-3-2-5-5-5Z",
   eingang: "M3 13l3-8h12l3 8v6H3zM3 13h5l1.5 3h5L16 13h5",
   mein: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1",
+  hilfe: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM9.6 9.3a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.2-2.4 3.9M12 17h.01",
+  betrieb: "M3 12h4l2-6 4 12 2-6h6",
 };
 
 function Icon({ name }: { name: string }) {
   return (
     <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d={ICONS[name]} />
+      <path d={NAV_ICONS[name]} />
     </svg>
   );
 }
 
-export function SidebarNav({ dental, team = false, analyse = false, zahlungen = true, einstellungen = true, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; dental: boolean; team?: boolean; analyse?: boolean; zahlungen?: boolean; einstellungen?: boolean; personPl?: string; abschluss?: string }) {
+export function SidebarNav({ dental, berichte = dental, team = false, analyse = false, zahlungen = true, einstellungen = true, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; dental: boolean; /** Menüpunkt „Berichte“: in Zahnarztpraxen immer, sonst sobald es einen Bericht gibt. */ berichte?: boolean; team?: boolean; analyse?: boolean; zahlungen?: boolean; einstellungen?: boolean; personPl?: string; abschluss?: string }) {
   const path = usePathname();
   type L = [string, string, string];
   const gruppen: [string, L[]][] = [
@@ -46,7 +48,7 @@ export function SidebarNav({ dental, team = false, analyse = false, zahlungen = 
         ["/patients", `${personPl} und Wege`, "patients"],
         ["/abschluss/new", `${abschluss} abschließen`, "wrapup"],
         ["/proposals", "Vorschläge", "proposals"],
-        ...(dental ? ([["/reports", "Berichte", "reports"]] as L[]) : []),
+        ...(berichte ? ([["/reports", "Berichte", "reports"]] as L[]) : []),
       ],
     ],
     ["Geld", [...(zahlungen ? ([["/zahlungen", "Zahlungen", "zahlungen"]] as L[]) : []), ["/abrechnung", "Abrechnung", "abrechnung"], ["/abrechnungspruefung", "Abrechnungsprüfung", "pruefung"], ...(analyse ? ([["/analyse", "Analyse", "analyse"]] as L[]) : [])]],
@@ -56,7 +58,8 @@ export function SidebarNav({ dental, team = false, analyse = false, zahlungen = 
         ["/leistungsverzeichnis", "Leistungsverzeichnis", "abrechnung"],
         // Ohne Recht auf die Einstellungen der Praxis bleibt das eigene Konto (Passwort, Zwei-Faktor-Anmeldung).
         ["/settings", einstellungen ? "Einstellungen" : "Mein Konto", "settings"],
-        ...(team ? ([["/anfragen", "Anfragen (Team)", "anfragen"]] as L[]) : []),
+        ["/hilfe-praxis", "Frag Sorrida", "hilfe"],
+        ...(team ? ([["/anfragen", "Anfragen (Team)", "anfragen"], ["/betrieb", "Betrieb (Team)", "betrieb"]] as L[]) : []),
         ["/", "Fachauswahl und Website", "start"],
       ],
     ],

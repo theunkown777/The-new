@@ -9,7 +9,8 @@
 //
 // Aufruf einzeln:  node e2e/abnahme-teil3-a.js      Alle nacheinander:  node e2e/alle.js
 // Jeder Durchlauf endet mit Code 1, wenn eine Prüfung fehlschlägt oder der Durchlauf abbricht.
-// Voraussetzung: Die Anwendung läuft (next start), psql ist installiert, playwright ist installiert
+// Voraussetzung: Die Anwendung läuft (next start, mit REGISTRIERUNG_OFFEN=1 für die Generalprobe), psql und pdftotext
+// (poppler-utils) sind installiert, playwright ist installiert
 // (npm install --no-save playwright && npx playwright install chromium). Playwright steht bewusst nicht in package.json.
 const fs = require('fs');
 const path = require('path');

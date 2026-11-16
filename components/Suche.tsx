@@ -251,14 +251,14 @@ export function Suche({ personPl = "Patienten", personSg = "Patient" }: { person
   return (
     <>
       {offen && (
-        <div className="fixed inset-0 z-[70] flex items-start justify-center bg-slate-900/40 p-3 sm:p-6 sm:pt-[10vh]" onMouseDown={(e) => e.target === e.currentTarget && schliessen()} data-testid="suche-hintergrund">
+        <div className="ein-schleier fixed inset-0 z-[70] flex items-start justify-center bg-slate-900/40 p-3 sm:p-6 sm:pt-[10vh]" onMouseDown={(e) => e.target === e.currentTarget && schliessen()} data-testid="suche-hintergrund">
           <div
             ref={box}
             role="dialog"
             aria-modal="true"
             aria-label="Suche"
             data-testid="suche-dialog"
-            className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200 sm:max-h-[75vh]"
+            className="ein-dialog flex max-h-[calc(100dvh-1.5rem)] w-full max-w-xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-slate-200 sm:max-h-[75vh]"
             onKeyDown={(e) => {
               if (e.key === "Escape") {
                 e.preventDefault();
@@ -348,14 +348,14 @@ export function Suche({ personPl = "Patienten", personSg = "Patient" }: { person
       )}
 
       {hilfe && (
-        <div className="fixed inset-0 z-[70] flex items-start justify-center bg-slate-900/40 p-3 sm:p-6 sm:pt-[10vh]" onMouseDown={(e) => e.target === e.currentTarget && schliessen()}>
+        <div className="ein-schleier fixed inset-0 z-[70] flex items-start justify-center bg-slate-900/40 p-3 sm:p-6 sm:pt-[10vh]" onMouseDown={(e) => e.target === e.currentTarget && schliessen()}>
           <div
             ref={hilfeBox}
             role="dialog"
             aria-modal="true"
             aria-labelledby={`${uid}-hilfe-titel`}
             data-testid="kuerzel-dialog"
-            className="max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl ring-1 ring-slate-200"
+            className="ein-dialog max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl ring-1 ring-slate-200"
             onKeyDown={(e) => {
               if (e.key === "Escape") {
                 e.preventDefault();

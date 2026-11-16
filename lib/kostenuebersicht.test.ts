@@ -80,10 +80,12 @@ describe("Kostenübersicht für Patienten", () => {
   it("nennt den Heil- und Kostenplan nur in der Zahnarztpraxis", () => {
     const zahn = kostenuebersicht({ ...basis, dental: true, therapie: false, praxisWahl: {}, patientWahl: null });
     expect(zahn.einreichen).toBe(KOSTEN_EINREICHEN);
+    expect(zahn.fuss).toMatch(/keine Rechnung und kein Heil- und Kostenplan\.$/);
     for (const therapie of [false, true]) {
       const k = kostenuebersicht({ ...basis, dental: false, therapie, praxisWahl: {}, patientWahl: null });
       expect(k.einreichen).toBe(KOSTEN_EINREICHEN_ALLGEMEIN);
-      expect(k.einreichen + k.hinweis).not.toMatch(/Heil- und Kostenplan|Zahnersatz|Festzuschuss|Bonusheft/);
+      expect(k.fuss).toMatch(/Dieses Blatt ist keine Rechnung\.$/);
+      expect(k.einreichen + k.hinweis + k.fuss).not.toMatch(/Heil- und Kostenplan|Zahnersatz|Festzuschuss|Bonusheft/);
     }
   });
 

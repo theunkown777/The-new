@@ -125,7 +125,7 @@ export const MATRIX: Eintrag[] = [
   o("portal/[token]/anamnese/[id]", PORTAL, "portalPatient", [portal("anamnese", { body: ANAMNESE })]),
   o("portal/[token]/rechnung/[id]/online", PORTAL, "portalPatient", [
     portal("rechnung", { erwartet: [404, 503], ohneGegenprobe: "Online-Zahlung ist im Test nicht eingerichtet: Die Route endet mit 503, bevor sie die Rechnung sucht" }),
-  ], "Suche nach der Rechnung nicht erreicht (Online-Zahlung im Test aus); geprüft ist nur: nichts von B in der Antwort, B unverändert"),
+  ], "Suche nach der Rechnung nicht erreicht (Online-Zahlung im Test aus); geprüft ist nur: nichts von B in der Antwort, B unverändert. Am 16.11.2026 von Hand geprüft (zwei Demo-Praxen, Zahlungsdienst lokal ersetzt): eigene Rechnung erreicht den Zahlungsdienst, Rechnung der anderen Praxis und eines anderen Patienten 404"),
   o("portal/[token]/vereinbarung/[id]", PORTAL, "portalPatient", [portal("vorschlagOffen", { body: VEREINBARUNG, vorher: "geburtsdatum" })]),
   o("portal/[token]/vorschlag/[id]", PORTAL, "portalPatient", [portal("vorschlag", { body: { response: "INTERESSE" } })]),
   o("portal/[token]/vorschlag/[id]/pdf", PORTAL, "portalPatient", [portal("vorschlag")]),
@@ -285,7 +285,7 @@ export const MATRIX: Eintrag[] = [
   // Antwortet mit 200 und „gebucht 0“; dass die Rechnung der Praxis B offen bleibt, prüft der Test danach.
   s("bankabgleich/buchen", [{ name: "fremde Rechnung als bezahlt buchen", body: { zahlungen: [ZAHLUNG] }, erwartet: [200] }]),
   s("sepa"),
-  { ...s("datev"), offen: "Der DATEV-Export braucht hinterlegte Berater- und Mandantennummer; im Test nicht eingerichtet. Geprüft: 401 ohne Sitzung, nichts von B in der Antwort, B unverändert. Nicht geprüft: Inhalt der Buchungsliste" },
+  { ...s("datev"), offen: "Der DATEV-Export braucht hinterlegte Berater- und Mandantennummer; im Test nicht eingerichtet. Geprüft: 401 ohne Sitzung, nichts von B in der Antwort, B unverändert. Nicht geprüft: Inhalt der Buchungsliste. Am 16.11.2026 von Hand geprüft (zwei Demo-Praxen mit Nummern): Der Export von A enthält die Rechnung von B nicht, der Export von B enthält sie" },
   s("nachrichten", [
     { name: "Zahlungserinnerung zu fremder Rechnung", body: { art: "zahlungserinnerung", id: "$B.rechnung" } },
     { name: "Erinnerung an fremden Termin", body: { art: "termin-erinnerung", id: "$B.termin" } },

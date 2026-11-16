@@ -46,4 +46,70 @@ describe("E-Mail", () => {
     expect(ausgabe).not.toContain("GEHEIM123");
     expect(ausgabe).not.toContain("<p>");
   });
+  it("Hülle: einspaltig, Papier, Vorschauzeile, Fuß; keine Bilder und nichts von fremden Servern", async () => {
+    const { mailHuelle, sorridaFussHtml, istMailHuelle } = await import("@/lib/email");
+    const html = mailHuelle({ betreff: "Passwort zurücksetzen\n– Sorrida", inhalt: "<p>Hallo Frau Beispiel,</p>", marke: true, fuss: sorridaFussHtml() });
+    // Betreff als Vorschauzeile (einzeilig), noch vor dem sichtbaren Inhalt
+    expect(html).toContain("Passwort zurücksetzen – Sorrida</div>");
+    expect(html.indexOf("Passwort zurücksetzen – Sorrida</div>")).toBeLessThan(html.indexOf("Hallo Frau Beispiel"));
+    expect(html).toContain("<title>Passwort zurücksetzen – Sorrida</title>");
+    // eine Spalte, 600 px, Papier als Hintergrund, dunkle Schrift
+    expect(html).toContain('width="600"');
+    expect(html).toContain("max-width:600px");
+    expect(html).toContain("background-color:#F5F2EE");
+    expect(html).toContain("color:#24201F");
+    // Wortmarke als Text, keine Bilder, keine fremden Schriften oder Stylesheets
+    expect(html).toContain(">SORRIDA</td>");
+    expect(html).not.toMatch(/<img|<link|@import|@font-face|url\(|<script|fonts\.googleapis|background-image/i);
+    // Fuß mit den Absenderangaben von Sorrida
+    expect(html).toContain("Impressum:");
+    expect(html.indexOf("Impressum:")).toBeGreaterThan(html.indexOf("Hallo Frau Beispiel"));
+    expect(istMailHuelle(html)).toBe(true);
+    // nie doppelt einpacken
+    expect(mailHuelle({ betreff: "x", inhalt: html })).toBe(html);
+  });
+
+  it("Hülle: eigene Vorschauzeile, maskierter Betreff, Praxis-Mails ohne Wortmarke", async () => {
+    const { mailHuelle } = await import("@/lib/email");
+    const html = mailHuelle({ betreff: "Ihr Termin bei <Praxis> & Co", inhalt: "<p>Text</p>", vorschau: "Morgen um 9 Uhr" });
+    expect(html).toContain("Morgen um 9 Uhr</div>");
+    expect(html).toContain("<title>Ihr Termin bei &lt;Praxis&gt; &amp; Co</title>");
+    expect(html).not.toContain("SORRIDA");
+    expect(html).not.toContain("Impressum:");
+  });
+
+  it("Knopf: Link mit sichtbarer Adresse darunter, nur http und https", async () => {
+    const { mailKnopf } = await import("@/lib/email");
+    const url = "https://sorrida.test/verify-email?token=abc&x=1";
+    const html = mailKnopf("E-Mail-Adresse bestätigen", url);
+    expect(html).toContain('href="https://sorrida.test/verify-email?token=abc&amp;x=1"');
+    expect(html).toContain(">E-Mail-Adresse bestätigen</a>");
+    expect(html).toContain(">https://sorrida.test/verify-email?token=abc&amp;x=1</a>");
+    expect(html).not.toMatch(/<img/i);
+    const boese = mailKnopf("Klick", "javascript:alert(1)");
+    expect(boese).not.toContain("href=");
+    expect(boese).toContain("javascript:alert(1)");
+  });
+
+  it("jede verschickte Mail steckt in der Hülle; Mails von Sorrida mit Wortmarke und Absenderangaben", async () => {
+    vi.stubEnv("RESEND_API_KEY", "re_test_123");
+    vi.stubEnv("RESEND_FROM_EMAIL", "post@sorrida.test");
+    const send = vi.fn().mockResolvedValue({ error: null });
+    vi.doMock("resend", () => ({ Resend: class { emails = { send }; } }));
+    const { sendEmail, istMailHuelle } = await import("@/lib/email");
+    await sendEmail({ to: "a@x.de", subject: "Einladung – Sorrida", html: "<p>Hallo</p>", sorridaFuss: true });
+    await sendEmail({ to: "b@x.de", subject: "Ihr Termin bei Praxis Beispiel", html: "<p>Guten Tag</p>" });
+    vi.doUnmock("resend");
+    expect(send).toHaveBeenCalledTimes(2);
+    const [eins, zwei] = send.mock.calls.map((c) => c[0] as { html: string; subject: string });
+    expect(istMailHuelle(eins.html)).toBe(true);
+    expect(eins.html).toContain(">SORRIDA</td>");
+    expect(eins.html).toContain("Impressum:");
+    expect(eins.html).toContain("<p>Hallo</p>");
+    expect(eins.subject).toBe("Einladung – Sorrida");
+    expect(istMailHuelle(zwei.html)).toBe(true);
+    expect(zwei.html).toContain("<p>Guten Tag</p>");
+    expect(zwei.html).not.toContain("SORRIDA");
+    expect(zwei.html).not.toContain("Impressum:");
+  });
 });

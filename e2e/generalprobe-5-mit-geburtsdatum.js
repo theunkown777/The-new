@@ -1,6 +1,7 @@
 // Generalprobe 3 (nach dem Fable-Durchgang): Zahnarztpraxis von der Registrierung bis zum Portal, Kassen- und Privatpatient.
 const { chromium, devices } = require('playwright');
 const { generate } = require('otplib');
+const { execFileSync } = require('child_process');
 const { L, D, sql, abbruch } = require('./gemeinsam');
 let fehl = 0;
 const ok = (n, b, x = '') => { console.log(`${b ? 'OK  ' : 'FEHL'} ${n} ${b ? '' : x}`); if (!b) { fehl++; process.exitCode = 1; } };
@@ -15,7 +16,10 @@ const EMAIL = `praxis${Date.now() % 100000}@sonnenberg-test.local`, PW = 'Testpr
 
   // 1 Registrieren, 2FA einrichten, neu anmelden
   await p.goto(L + '/register'); await p.fill('#practiceName', 'Zahnarztpraxis Dr. Sonnenberg (Testpraxis 5)'); await p.selectOption('#specialty', 'zahn');
-  await p.fill('#name', 'Dr. Lea Sonnenberg'); await p.fill('#email', EMAIL); await p.fill('#password', PW); await p.click('button[type=submit]'); await p.waitForURL(/dashboard/, { timeout: 60000 });
+  await p.fill('#name', 'Dr. Lea Sonnenberg'); await p.fill('#email', EMAIL); await p.fill('#password', PW);
+  // Die Registrierung verlangt zwei Bestätigungen (Unternehmer, Vertragstexte gelesen) und braucht REGISTRIERUNG_OFFEN=1.
+  await p.getByTestId('register-unternehmer').check(); await p.getByTestId('register-vertragstexte').check();
+  await p.click('button[type=submit]'); await p.waitForURL(/dashboard/, { timeout: 60000 });
   await p.getByRole('button', { name: '2FA einrichten' }).click(); const secret = (await p.getByText('Schlüssel (manuelle Eingabe)').innerText()).split(':').pop().trim();
   await p.fill('#totp-code', await generate({ secret })); await p.getByRole('button', { name: '2FA aktivieren' }).click(); await p.waitForTimeout(1500);
   await anmelden(secret);
@@ -52,7 +56,8 @@ const EMAIL = `praxis${Date.now() % 100000}@sonnenberg-test.local`, PW = 'Testpr
   await p.locator('main input[type=checkbox]').last().check(); await p.getByRole('button', { name: 'Behandlung abschließen' }).last().click();
   await p.waitForURL(/abschluss\/(?!new)/, { timeout: 60000 }); await p.waitForTimeout(2000);
   const ergebnis = await p.locator('main').innerText();
-  ok('Schreiben: „Noch nicht entschieden. Unsere Empfehlung“ statt „Besprochene Wahl“', /Noch nicht entschieden\. Unsere Empfehlung: Krone, Regelversorgung/.test(ergebnis) && !/Besprochene Wahl/.test(ergebnis));
+  // Die Software empfiehlt nichts. Ohne Wahl der Praxis steht im Schreiben keine Empfehlung.
+  ok('Schreiben: „Noch nicht entschieden. Wir besprechen die Möglichkeiten mit Ihnen.“, keine Empfehlung', /Noch nicht entschieden\. Wir besprechen die Möglichkeiten mit Ihnen\./.test(ergebnis) && !/Besprochene Wahl/.test(ergebnis) && !/Empfehlung/i.test(ergebnis), (ergebnis.match(/.{0,60}Empfehlung.{0,60}/i) || [''])[0]);
   ok('Schreiben: 2027 „per Gesetz“ und vorläufig', /per Gesetz[\s\S]*vorläufig/.test(ergebnis));
   await shot('02-ergebnis', true);
   await p.getByRole('button', { name: 'Link und QR-Code erzeugen' }).click(); await p.waitForTimeout(2000);
@@ -84,7 +89,7 @@ const EMAIL = `praxis${Date.now() % 100000}@sonnenberg-test.local`, PW = 'Testpr
   ok('Nach „Wahl des Patienten annehmen“ zeigt die Ansicht sofort die Wahl', !/Festgehalten ist eine andere Wahl/.test(nachAnnahme) && new RegExp(`EIGENANTEIL PATIENT\\s*${erwartet.toLocaleString('de-DE').replace('.', '\\.')} €`, 'i').test(nachAnnahme), nachAnnahme.match(/Eigenanteil Patient\s*[^\n]*/i)?.[0]);
   // Nachweis-PDF
   const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 20000 }), p.getByTestId('nachweis-pdf').click()]); const pfad = `${D}/kosteninformation.pdf`; await dl.saveAs(pfad);
-  const pdfText = execSync(`pdftotext -layout "${pfad}" -`).toString();
+  const pdfText = execFileSync('pdftotext', ['-layout', pfad, '-']).toString(); // ohne Shell; braucht pdftotext (poppler-utils)
   ok('Nachweis-PDF: Optionen, Verlauf, Wahl des Patienten', /Kosteninformation zum Behandlungsvorschlag/.test(pdfText) && /Vollkeramik-Krone[^\n]*vom Patienten gewählt/.test(pdfText) && /Vom Patienten geöffnet/.test(pdfText) && /Rückmeldung des Patienten/.test(pdfText), pdfText.slice(0, 500));
 
   // Rechnung + Portal

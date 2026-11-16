@@ -12,6 +12,9 @@ export const KOSTEN_EINREICHEN = "Zum Einreichen bei Zusatzversicherung oder Bei
 /** Dieselbe Zeile für alle anderen Fachrichtungen: Den Heil- und Kostenplan gibt es nur in der Zahnarztpraxis. */
 export const KOSTEN_EINREICHEN_ALLGEMEIN = "Zum Einreichen bei Zusatzversicherung oder Beihilfe geeignet; maßgeblich ist die Rechnung Ihrer Praxis.";
 export const einreichenText = (dental: boolean) => (dental ? KOSTEN_EINREICHEN : KOSTEN_EINREICHEN_ALLGEMEIN);
+/** Letzte Zeile des Blatts. Den Heil- und Kostenplan nennt sie nur in der Zahnarztpraxis. */
+export const fussText = (dental: boolean) =>
+  `Erstellt mit Sorrida aus dem Behandlungsvorschlag Ihrer Praxis. Dieses Blatt ist keine Rechnung${dental ? " und kein Heil- und Kostenplan" : ""}.`;
 
 export interface KostenOption {
   name: string;
@@ -49,6 +52,8 @@ export interface Kostenuebersicht {
   zusatzSumme: string;
   hinweis: string;
   einreichen: string;
+  /** Letzte Zeile des Blatts (fussText). */
+  fuss: string;
 }
 
 const TZ = "Europe/Berlin";
@@ -135,5 +140,6 @@ export function kostenuebersicht(a: {
     zusatzSumme: zusatzSumme > 0 ? `ca. ${formatEuro(zusatzSumme)}` : "",
     hinweis: hinweisText({ gkv, dental: a.dental, therapie: a.therapie }),
     einreichen: einreichenText(a.dental),
+    fuss: fussText(a.dental),
   };
 }

@@ -400,8 +400,8 @@ export function ServiceChecklistForm({
       <div className="card space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Patient</label>
-            <select className="input" value={patientId} onChange={(e) => setPatientId(e.target.value)}>
+            <label className="label" htmlFor="abschluss-patient">Patient</label>
+            <select id="abschluss-patient" className="input" value={patientId} onChange={(e) => setPatientId(e.target.value)}>
               {patients.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.firstName} {p.lastName}
@@ -410,8 +410,8 @@ export function ServiceChecklistForm({
             </select>
           </div>
           <div>
-            <label className="label">Behandlungsdatum</label>
-            <input
+            <label className="label" htmlFor="abschluss-behandlungsdatum">Behandlungsdatum</label>
+            <input id="abschluss-behandlungsdatum"
               type="date"
               className="input"
               value={treatmentDate}
@@ -422,8 +422,8 @@ export function ServiceChecklistForm({
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Sitzungstyp / Leistungskomplex</label>
-            <select
+            <label className="label" htmlFor="abschluss-sitzungstyp-leistungskomplex">Sitzungstyp / Leistungskomplex</label>
+            <select id="abschluss-sitzungstyp-leistungskomplex"
               className="input"
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
@@ -458,8 +458,8 @@ export function ServiceChecklistForm({
             )}
           </div>
           <div>
-            <label className="label">Berichtstyp</label>
-            <select
+            <label className="label" htmlFor="abschluss-berichtstyp">Berichtstyp</label>
+            <select id="abschluss-berichtstyp"
               className="input"
               value={type}
               onChange={(e) => setType(e.target.value as "BEFUND" | "KRANKENKASSE" | "UEBERWEISER")}
@@ -691,6 +691,7 @@ export function ServiceChecklistForm({
           />
         </div>
         <textarea
+          aria-label="Zusätzlicher Kontext (optional)"
           className="input min-h-20"
           placeholder="z. B. Empfänger, Anlass des Berichts, Besonderheiten"
           value={additionalContext}

@@ -119,7 +119,7 @@ export const HILFE_WISSEN: HilfeEintrag[] = [
     antwort: "Speichern Sie die Liste dort als CSV-Datei und laden Sie sie unter „Liste einlesen“ hoch. Sorrida erkennt die Spalten und zeigt eine Vorschau. Gespeichert wird erst nach Ihrem Klick. Das kann nur die Praxisleitung.",
     pfad: "Patienten → Liste einlesen",
     href: "/patients/import",
-    stichwoerter: ["Import", "einlesen", "CSV", "übernehmen", "Patientenliste", "bisherige Software", "hochladen"],
+    stichwoerter: ["Import", "importieren", "Patienten importieren", "einlesen", "CSV", "Datei", "übernehmen", "Patientenliste", "bisherige Software", "hochladen"],
   },
   {
     id: "patient-einwilligung",

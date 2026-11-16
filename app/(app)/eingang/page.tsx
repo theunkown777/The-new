@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Hinweis } from "@/components/Hinweis";
+import { Leer } from "@/components/Leer";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -86,7 +88,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
       <section className="card mt-5 p-0" data-testid="eingang-offen">
         <h2 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">{nurMeine ? "Von mir übernommen" : "Offen"} ({offen.length})</h2>
         {offen.length === 0 ? (
-          <p className="p-5 text-sm text-slate-600">Nichts offen. Sobald ein Patient im Portal etwas abschickt, steht es hier, und in der Seitenleiste erscheint eine Zahl neben „Eingang“.</p>
+          <Leer symbol="eingang" eng>Nichts offen. Sobald ein Patient im Portal etwas abschickt, steht es hier, und in der Seitenleiste erscheint eine Zahl neben „Eingang“.</Leer>
         ) : (
           <ul className="divide-y divide-slate-100">{offen.map((e) => zeile(e, false))}</ul>
         )}
@@ -101,16 +103,15 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
 
       {session!.user.role === "admin" && praxis && !praxis.isDemo && <MorgenMail aktiv={praxis.morgenMail} an={praxis.morgenMailAn ?? session!.user.email ?? ""} versandBereit={mailVersandAktiv()} />}
 
-      <section className="card mt-5 text-sm text-slate-700">
-        <h2 className="font-semibold text-slate-900">Was wo ankommt</h2>
-        <ul className="mt-2 space-y-1.5">
+      <Hinweis id="eingang-wege" titel="Was wo ankommt" ebene={2} className="mt-5 text-sm text-slate-700" testid="hinweis-eingang-wege">
+        <ul className="space-y-1.5">
           <li><b>„Ich habe überwiesen“</b> im Portal: Die Rechnung steht unter Zahlungen auf „Gemeldet“. Sie prüfen den Kontoeingang und bestätigen dort; der Eintrag hier hakt sich dann von selbst ab.</li>
           <li><b>Online bezahlt, Ratenwunsch, Lastschriftmandat:</b> unter Zahlungen bei der Rechnung.</li>
           <li><b>Anamnesebogen:</b> in der Akte des Patienten, mit Warnhinweisen (z. B. Allergien) oben.</li>
           <li><b>Rückmeldung zum Vorschlag, Unterschrift, Zweitmeinung:</b> im jeweiligen Vorschlag.</li>
           <li><b>Online gebuchte oder abgesagte Termine:</b> im Kalender unter Termine, mit dem Hinweis „online gebucht“.</li>
         </ul>
-      </section>
+      </Hinweis>
     </div>
   );
 }

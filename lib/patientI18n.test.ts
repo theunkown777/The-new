@@ -443,3 +443,25 @@ describe("Patientenansicht: übrige Fächer (Arztpraxen, Therapie, Versorgung)",
     }
   });
 });
+
+// Eigene Leistungen der Praxis: geprüfte Übersetzungen kommen als zweites Wörterbuch dazu (lib/eigeneLeistung.ts).
+describe("Zusatz-Wörterbuch für eigene Leistungen", () => {
+  const zusatz = { "Stoßwellentherapie Ferse": "Shockwave therapy heel", "Leerer Eintrag": "  " };
+
+  it("übersetzt einen eigenen Text nur über das Zusatz-Wörterbuch", () => {
+    expect(uebersetzung("Stoßwellentherapie Ferse", "en")).toEqual({ text: "Stoßwellentherapie Ferse", stand: "deutsch" });
+    expect(uebersetzung("Stoßwellentherapie Ferse", "en", zusatz)).toEqual({ text: "Shockwave therapy heel", stand: "ganz" });
+    expect(tr("Stoßwellentherapie Ferse", "en", zusatz)).toBe("Shockwave therapy heel");
+  });
+
+  it("lässt Deutsch unverändert und nimmt keine leeren Einträge", () => {
+    expect(uebersetzung("Stoßwellentherapie Ferse", "de", zusatz)).toEqual({ text: "Stoßwellentherapie Ferse", stand: "ganz" });
+    expect(uebersetzung("Leerer Eintrag", "en", zusatz).stand).toBe("deutsch");
+    expect(uebersetzung("toString", "en", zusatz).stand).toBe("deutsch");
+  });
+
+  it("hat Nachrang gegenüber dem Wörterbuch der Regeltexte", () => {
+    const [regeltext, englisch] = Object.entries(CONTENT_EN)[0];
+    expect(uebersetzung(regeltext, "en", { [regeltext]: "falsch" }).text).toBe(englisch);
+  });
+});

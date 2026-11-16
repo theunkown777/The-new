@@ -127,12 +127,12 @@ export function TemplateList({ readOnly = false }: { readOnly?: boolean }) {
                 <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{createError}</p>
               )}
               <div>
-                <label className="label">Name</label>
-                <input className="input" value={name} onChange={(e) => setName(e.target.value)} required />
+                <label className="label" htmlFor="vorlage-neu-name">Name</label>
+                <input id="vorlage-neu-name" className="input" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div>
-                <label className="label">Beschreibung (optional)</label>
-                <input
+                <label className="label" htmlFor="vorlage-neu-beschreibung">Beschreibung (optional)</label>
+                <input id="vorlage-neu-beschreibung"
                   className="input"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}

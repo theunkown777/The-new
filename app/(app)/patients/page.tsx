@@ -1,4 +1,5 @@
 import { fachprofil } from "@/lib/fachprofile";
+import { Leer } from "@/components/Leer";
 import { praxisFach } from "@/lib/katalogScope";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
@@ -168,17 +169,19 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
         </div>
 
         {patients.length === 0 ? (
-          <div className="card text-sm text-slate-500">
-            {all === 0 ? (
-              <>
-                Noch keine {P.pl} angelegt.{" "}
-                <Link href="/patients/new" className="font-medium text-brand-600 hover:underline">
-                  Jetzt anlegen
-                </Link>
-              </>
-            ) : (
-              `Keine ${P.pl} gefunden.`
-            )}
+          <div className="card p-0">
+            <Leer symbol="personen">
+              {all === 0 ? (
+                <>
+                  Noch keine {P.pl} angelegt.{" "}
+                  <Link href="/patients/new" className="font-medium text-brand-600 hover:underline">
+                    Jetzt anlegen
+                  </Link>
+                </>
+              ) : (
+                `Keine ${P.pl} gefunden.`
+              )}
+            </Leer>
           </div>
         ) : (
           <ul className="space-y-2" data-testid="patient-list">

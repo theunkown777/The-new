@@ -122,7 +122,7 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
         <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3 text-sm">
           <span className="text-slate-700">{kalender.datei > 0 ? `Aus hochgeladener Datei: ${kalender.datei} belegte Zeiten.` : "Oder einmalig eine Kalenderdatei (.ics) hochladen:"}</span>
           {admin && <>
-            <input ref={datei} type="file" accept=".ics,text/calendar" className="hidden" data-testid="kalender-datei"
+            <input ref={datei} type="file" accept=".ics,text/calendar" className="hidden" aria-label="Kalenderdatei (.ics)" data-testid="kalender-datei"
               onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; const text = await f.text(); await sende("datei", () => fetch("/api/settings/buchung/datei", { method: "POST", headers: { "Content-Type": "text/calendar" }, body: text }), (d) => `Datei übernommen: ${d.anzahl} belegte Zeiten.`); e.target.value = ""; }} />
             <button type="button" className="btn-secondary text-sm" disabled={busy === "datei"} onClick={() => datei.current?.click()}>{busy === "datei" ? "Liest …" : "Datei wählen"}</button>
             {kalender.datei > 0 && <button type="button" className="ziel text-slate-500 underline" onClick={() => aktion("datei-entfernen", {}, () => "Zeiten aus der Datei gelöscht.")}>entfernen</button>}

@@ -7,6 +7,7 @@ import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
 import { UI, empfehlungJe, langDir, pickLang, type PatientLang } from "@/lib/patientI18n";
+import { uebersetzungsWoerterbuch } from "@/lib/eigeneLeistung";
 import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
@@ -78,6 +79,7 @@ export default async function PortalProposal(props: { params: Promise<{ token: s
       installments={resolveInstallments(proposal.practice.installments)}
       lang={lang}
       dental={dental}
+      zusatz={uebersetzungsWoerterbuch(input.data.med?.custom, lang)}
       therapie={isTherapie(specialty(input.data.fach))}
       arztDativ={specialty(input.data.fach)?.arztDativ}
       zweitmeinung={{

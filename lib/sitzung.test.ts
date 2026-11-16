@@ -35,6 +35,11 @@ describe("tokenAbgleichen", () => {
     expect(tokenAbgleichen(token(), konto({ role: "admin", practice: { name: "P", require2faAll: false, isDemo: true } })).mfaPending).toBe(false);
     expect(tokenAbgleichen(token(), konto()).mfaPending).toBe(false);
   });
+  it("merkt am Token, ob die Sitzung zu einer Demo-Praxis gehört (für das Vorschau-Schloss)", () => {
+    expect(tokenAbgleichen(token(), konto({ practice: { name: "P", require2faAll: false, isDemo: true } })).demo).toBe(true);
+    expect(tokenAbgleichen(token({ demo: true }), konto()).demo).toBe(false);
+    expect(tokenAbgleichen(token(), konto()).demo).toBe(false);
+  });
   it("ein widerrufenes Token bleibt widerrufen", () => {
     expect(tokenAbgleichen(token({ widerrufen: true }), konto()).widerrufen).toBe(true);
   });

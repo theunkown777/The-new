@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Haken } from "@/components/Haken";
 import { useRouter } from "next/navigation";
 import { REPORT_TYPE_LABELS } from "@/lib/reportLabels";
 import { estimateAmountCent, kassenLabel } from "@/lib/billing";
@@ -191,11 +192,12 @@ export function ReportEditor({
 
       {error && <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {message && (
-        <p className="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{message}</p>
+        <p className="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700" role="status"><Haken />{message}</p>
       )}
 
       <div className="card mb-4">
         <textarea
+          aria-label="Berichtstext"
           className="min-h-[420px] w-full resize-y border-0 p-0 text-sm leading-relaxed text-slate-800 focus:outline-none"
           value={text}
           onChange={(e) => setText(e.target.value)}

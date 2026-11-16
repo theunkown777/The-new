@@ -10,8 +10,12 @@ import { PROPOSAL_STATUS_LABELS, formatEuro } from "@/lib/proposals";
 import { isDental } from "@/lib/specialties";
 import { journey, STATIONEN } from "@/lib/journey";
 import { loadTermineHeute } from "@/lib/termineLoad";
-import { standortRechtVon } from "@/lib/standortRechte";
-import { uhrzeit, STATUS_LABEL, type TerminStatus } from "@/lib/termine";
+import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
+import { ausfallquote, uhrzeit, STATUS_LABEL, type TerminStatus } from "@/lib/termine";
+import { veraenderung, vergleichSatz, wochenSummen, zeitraumDavor } from "@/lib/analytics";
+import { verlaufText } from "@/lib/verlauf";
+import { Verlauf } from "@/components/Verlauf";
+import { Leer } from "@/components/Leer";
 import { canSeeAnalytics } from "@/lib/permissions";
 import { formatCent } from "@/lib/invoices";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
@@ -26,10 +30,12 @@ export default async function DashboardPage() {
   // Arzt- und Therapiepraxen arbeiten ohne die zahnärztlichen KI-Berichte.
   const dental = isDental(practice?.specialty);
   const P = fachprofil(practice?.specialty ?? "zahn").person;
-  const [anamnesen30, recentProposals] = dental
-    ? [0, []]
+  const [anamnesen30, anamnesenDavor, recentProposals] = dental
+    ? [0, 0, []]
     : await Promise.all([
         prisma.anamnesisForm.count({ where: { practiceId, submittedAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } } }),
+        // Vergleich: die 30 Tage davor
+        prisma.anamnesisForm.count({ where: { practiceId, submittedAt: { gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } } }),
         prisma.treatmentProposal.findMany({
           where: { practiceId },
           orderBy: { createdAt: "desc" },
@@ -72,11 +78,28 @@ export default async function DashboardPage() {
     }),
   ]);
   const monatsStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const standortRecht = await standortRechtVon(session!.user.id, practiceId);
   const [termine, darfUmsatz, bezahltMonat] = await Promise.all([
-    loadTermineHeute(practiceId, new Date(), await standortRechtVon(session!.user.id, practiceId)),
+    loadTermineHeute(practiceId, new Date(), standortRecht),
     canSeeAnalytics(session!.user.id),
     prisma.invoice.aggregate({ where: { practiceId, status: "BEZAHLT", paidAt: { gte: monatsStart } }, _sum: { amountCent: true } }),
   ]);
+  // Vergleiche zum Zeitraum davor: nur Zahl und Richtung, keine Wertung (lib/analytics.ts).
+  const jetzt = new Date();
+  const TAG = 24 * 60 * 60 * 1000;
+  const vormonatStart = new Date(monatsStart.getFullYear(), monatsStart.getMonth() - 1, 1);
+  // Vormonat bis zum gleichen Tag und zur gleichen Uhrzeit, höchstens bis zum Monatsende
+  const vormonatBis = new Date(Math.min(vormonatStart.getTime() + (jetzt.getTime() - monatsStart.getTime()), monatsStart.getTime()));
+  const [termineDavor, bezahltVormonat, bezahltWochen] = await Promise.all([
+    prisma.appointment.findMany({ where: { practiceId, ...terminFilter(standortRecht), start: { gte: new Date(jetzt.getTime() - 120 * TAG), lt: new Date(jetzt.getTime() - 60 * TAG) } }, select: { status: true } }),
+    // Geldbeträge lädt die Übersicht nur mit Freigabe für die Analyse.
+    darfUmsatz ? prisma.invoice.aggregate({ where: { practiceId, status: "BEZAHLT", paidAt: { gte: vormonatStart, lt: vormonatBis } }, _sum: { amountCent: true } }) : null,
+    darfUmsatz ? prisma.invoice.findMany({ where: { practiceId, status: "BEZAHLT", paidAt: { gte: new Date(jetzt.getTime() - 56 * TAG) } }, select: { paidAt: true, amountCent: true } }) : [],
+  ]);
+  const ausfallVergleich = vergleichSatz(veraenderung(termine.ausfallquote, ausfallquote(termineDavor)), "Punkte", zeitraumDavor(60));
+  const eingangVergleich = bezahltVormonat ? vergleichSatz(veraenderung(Math.round((bezahltMonat._sum.amountCent ?? 0) / 100), Math.round((bezahltVormonat._sum.amountCent ?? 0) / 100)), "€", "dem Vormonat zum gleichen Tag") : null;
+  const eingangWochen = wochenSummen(bezahltWochen.map((r) => ({ datum: r.paidAt, betrag: r.amountCent / 100 })), jetzt, 8);
+  const anamnesenVergleich = dental ? null : vergleichSatz(veraenderung(anamnesen30, anamnesenDavor), "", zeitraumDavor(30));
   const aufgaben = draftCount + termine.morgenUnbestaetigt;
   const acceptedDeltaCent = accepted.reduce((sum, p) => sum + p.planTotalCent - p.baseTotalCent, 0);
 
@@ -126,13 +149,13 @@ export default async function DashboardPage() {
       )}
 
       <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]" data-testid="heute">
-        <div className="card p-0">
+        <div className={`card p-0 ${termine.liste.length === 0 ? "self-start" : ""}`}>
           <div className="flex items-baseline justify-between px-5 pt-4">
             <h2 className="font-semibold text-slate-900">Termine heute</h2>
             <Link href="/termine" className="ziel text-sm text-brand-700 underline">Tagesplan</Link>
           </div>
           {termine.liste.length === 0 ? (
-            <p className="px-5 pb-5 pt-2 text-sm text-slate-600">Für heute ist kein Termin in Sorrida eingetragen. <Link href="/termine" className="text-brand-700 underline">Termin eintragen</Link></p>
+            <Leer symbol="kalender" eng>Für heute ist kein Termin in Sorrida eingetragen. <Link href="/termine" className="text-brand-700 underline">Termin eintragen</Link></Leer>
           ) : (
             <ul className="mt-2 divide-y divide-slate-100">
               {termine.liste.slice(0, 6).map((t) => (
@@ -163,12 +186,15 @@ export default async function DashboardPage() {
             <p className="text-xs text-slate-500">Ausfallquote</p>
             <p className="mt-1 text-xl font-semibold tabular-nums">{termine.ausfallquote == null ? "–" : `${termine.ausfallquote} %`}</p>
             <p className="text-xs text-slate-500">60 Tage</p>
+            {ausfallVergleich && <p className="mt-1 text-xs text-slate-600" data-testid="vergleich-ausfall">{ausfallVergleich}</p>}
           </Link>
           {darfUmsatz ? (
             <Link href="/analyse" className="card hover:bg-slate-50">
               <p className="text-xs text-slate-500">Eingang Monat</p>
               <p className="mt-1 text-xl font-semibold tabular-nums">{formatCent(bezahltMonat._sum.amountCent ?? 0)}</p>
               <p className="text-xs text-slate-500">bezahlte Rechnungen</p>
+              {eingangVergleich && <p className="mt-1 text-xs text-slate-600" data-testid="vergleich-eingang">{eingangVergleich}</p>}
+              {eingangWochen.some((w) => w > 0) && <Verlauf werte={eingangWochen} beschreibung={verlaufText("bezahlte Rechnungen je Woche", eingangWochen, "€")} className="mt-1" testid="verlauf-eingang" />}
             </Link>
           ) : (
             <div className="card"><p className="text-xs text-slate-500">Umsatz</p><p className="mt-1 text-xs text-slate-500">nur mit Freigabe</p></div>
@@ -177,7 +203,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* Sorrida-Signatur: Wege der letzten 90 Tage auf dem Lächelbogen */}
-      <section className="mb-8 rounded-3xl bg-white p-5 sm:p-6" data-testid="wege-trichter">
+      <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-5 sm:p-6" data-testid="wege-trichter">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-semibold text-slate-900">Wo Ihre {P.pl} gerade stehen</h2>
           <Link href="/patients" className="ziel text-sm text-brand-700 underline">Zur Arbeitsliste</Link>
@@ -196,6 +222,7 @@ export default async function DashboardPage() {
         <div className="card">
           <p className="text-sm text-slate-500">{dental ? "Offene Entwürfe" : "Anamnesen (30 Tage)"}</p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">{dental ? draftCount : anamnesen30}</p>
+          {anamnesenVergleich && <p className="mt-1 text-xs text-slate-600" data-testid="vergleich-anamnesen">{anamnesenVergleich}</p>}
         </div>
         <Link href="/proposals" className="card hover:bg-slate-50">
           <p className="text-sm text-slate-500">Offene Vorschläge</p>
@@ -257,9 +284,9 @@ export default async function DashboardPage() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Neueste Vorschläge</h2>
           <div className="card divide-y divide-slate-100 p-0">
             {recentProposals.length === 0 ? (
-              <p className="px-6 py-4 text-sm text-slate-500">
+              <Leer symbol="blatt" eng>
                 Noch keine Vorschläge. <Link href="/abschluss/new" className="font-medium text-brand-600 hover:underline">Ersten Vorschlag erstellen</Link>
-              </p>
+              </Leer>
             ) : (
               recentProposals.map((r) => (
                 <Link key={r.id} href={`/proposals/${r.id}`} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50 sm:px-6">
@@ -281,11 +308,13 @@ export default async function DashboardPage() {
         Zuletzt erstellte Berichte
       </h2>
       {recentReports.length === 0 ? (
-        <div className="card text-sm text-slate-500">
-          Noch keine Berichte vorhanden.{" "}
-          <Link href="/reports/new" className="font-medium text-brand-600 hover:underline">
-            Ersten Bericht erstellen
-          </Link>
+        <div className="card p-0">
+          <Leer symbol="blatt" eng>
+            Noch keine Berichte vorhanden.{" "}
+            <Link href="/reports/new" className="font-medium text-brand-600 hover:underline">
+              Ersten Bericht erstellen
+            </Link>
+          </Leer>
         </div>
       ) : (
         <div className="card divide-y divide-slate-100 p-0">

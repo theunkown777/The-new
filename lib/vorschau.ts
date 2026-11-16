@@ -134,6 +134,19 @@ export function oeffentlichFrei(pfad: string, env: Record<string, string | undef
   if (istInfoSeite(pfad) || INFO_DIENSTE.includes(pfad) || TERMINSEITE.test(pfad)) return true;
   return stufe === "demo" && DEMO_PFADE.some((p) => pfad === p || pfad.startsWith(p + "/"));
 }
+/**
+ * Stufe „demo“: Der Gastzugang muss sich ohne Vorschau-Zugang anmelden können, sonst endet /demo in einer Fehlermeldung.
+ * Frei sind dafür nur die Anmelde-Bausteine von next-auth. Die App selbst öffnet sich danach allein für die Sitzung
+ * einer Demo-Praxis (gastSitzung); Sitzungen echter Konten bleiben hinter dem Zugang, ebenso Anmeldeseite,
+ * Registrierung, Einladung, Passwort-Wege und die öffentlichen Modellseiten.
+ */
+const GAST_ANMELDUNG = ["/api/auth/providers", "/api/auth/csrf", "/api/auth/callback/credentials", "/api/auth/session", "/api/auth/signout", "/api/auth/_log"];
+const NICHT_FUER_GAESTE = ["/login", "/register", "/api/register", "/api/auth", "/accept-invite", "/forgot-password", "/reset-password", "/verify-email", "/anatomie"];
+export function gastFrei(pfad: string, gastSitzung: boolean, env: Record<string, string | undefined> = process.env, impressumOk: boolean = impressumVollstaendig()): boolean {
+  if (oeffentlichStufe(env, impressumOk) !== "demo") return false;
+  if (GAST_ANMELDUNG.includes(pfad)) return true;
+  return gastSitzung && !NICHT_FUER_GAESTE.some((p) => pfad === p || pfad.startsWith(p + "/"));
+}
 /** Darf diese Seite in Suchmaschinen stehen? Nur Informationsseiten, und nur in der öffentlichen Stufe. */
 export function darfInSuchmaschinen(pfad: string, env: Record<string, string | undefined> = process.env, impressumOk: boolean = impressumVollstaendig()): boolean {
   return oeffentlichStufe(env, impressumOk) !== "aus" && istInfoSeite(pfad);

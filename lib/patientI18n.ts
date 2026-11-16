@@ -83,8 +83,13 @@ const eigen = (o: object, k: string) => Object.prototype.hasOwnProperty.call(o, 
  */
 export type UebersetzungsStand = "ganz" | "teilweise" | "deutsch";
 
-/** Übersetzung eines Regeltexts samt Stand. Unbekannte Texte bleiben deutsch statt falsch übersetzt. */
-export function uebersetzung(text: string, lang: PatientLang): { text: string; stand: UebersetzungsStand } {
+/**
+ * Übersetzung eines Regeltexts samt Stand. Unbekannte Texte bleiben deutsch statt falsch übersetzt.
+ * `zusatz` ist ein zweites Wörterbuch „deutscher Text → Übersetzung“ für die eigenen Leistungen der Praxis
+ * (lib/eigeneLeistung.ts, uebersetzungsWoerterbuch): Es enthält nur Übersetzungen, die die Praxis geprüft hat,
+ * und gilt erst, wenn das Regelwerk selbst keine Übersetzung kennt.
+ */
+export function uebersetzung(text: string, lang: PatientLang, zusatz?: Record<string, string>): { text: string; stand: UebersetzungsStand } {
   if (lang === "de") return { text, stand: "ganz" };
   const L = LOCALES[lang];
   if (eigen(L.content, text)) return { text: L.content[text], stand: "ganz" };
@@ -93,19 +98,20 @@ export function uebersetzung(text: string, lang: PatientLang): { text: string; s
     if (!m) continue;
     let ganz = true;
     const out = L.patterns[id](m, (teil) => {
-      const u = uebersetzung(teil, lang);
+      const u = uebersetzung(teil, lang, zusatz);
       if (u.stand !== "ganz") ganz = false;
       // Deutscher Rest in einem Satz von rechts nach links: als eigene Insel, damit Satzzeichen an ihrem Platz bleiben.
       return u.stand === "deutsch" && L.dir === "rtl" ? `\u2066${u.text}\u2069` : u.text;
     });
     return { text: out, stand: ganz ? "ganz" : "teilweise" };
   }
+  if (zusatz && eigen(zusatz, text) && typeof zusatz[text] === "string" && zusatz[text].trim()) return { text: zusatz[text], stand: "ganz" };
   return { text, stand: "deutsch" };
 }
 
 /** Text aus dem Regelwerk übersetzen; unbekannte Texte bleiben deutsch statt falsch übersetzt. */
-export function tr(text: string, lang: PatientLang): string {
-  return uebersetzung(text, lang).text;
+export function tr(text: string, lang: PatientLang, zusatz?: Record<string, string>): string {
+  return uebersetzung(text, lang, zusatz).text;
 }
 
 /** Ob es für den Regeltext in der Sprache eine vollständige Übersetzung gibt (ohne Angabe: Englisch). */

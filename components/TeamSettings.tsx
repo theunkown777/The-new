@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Hinweis } from "@/components/Hinweis";
 import { ROLLEN, ROLLEN_HINWEIS, ROLLEN_LABEL, freigabeLabel, rollenLabel, type Rolle } from "@/lib/rollen";
 import { STANDORT_HINWEIS } from "@/lib/standortRechte";
 
@@ -275,8 +276,8 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
         )}
       </div>
 
-      <div className="card space-y-3 text-sm" data-testid="rollen-erklaerung">
-        <h2 className="font-medium text-slate-900">Was die Rollen dürfen</h2>
+      <Hinweis id="team-rollen" titel="Was die Rollen dürfen" ebene={2} className="text-sm" testid="rollen-erklaerung">
+        <div className="space-y-3">
         <dl className="space-y-2">
           {ROLLEN.map((r) => (
             <div key={r}>
@@ -291,7 +292,8 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
         {standorte.length === 0 && (
           <p className="text-xs text-slate-500">Ihre Praxis hat noch keine Standorte angelegt. Das geht unter Einstellungen → Standorte; danach können Sie hier ankreuzen, wer wo arbeitet.</p>
         )}
-      </div>
+        </div>
+      </Hinweis>
     </div>
   );
 }

@@ -103,6 +103,7 @@ export const authOptions: AuthOptions = {
           practiceName: user.practice.name,
           sessionVersion: user.sessionVersion,
           mfaPending: !user.totpEnabled && zweiFaktorPflicht({ role: user.role, require2faAll: user.practice.require2faAll, isDemo: user.practice.isDemo }),
+          demo: user.practice.isDemo,
         };
       },
     }),
@@ -116,6 +117,7 @@ export const authOptions: AuthOptions = {
         token.practiceName = user.practiceName;
         token.mfaPending = !!user.mfaPending;
         token.sessionVersion = user.sessionVersion;
+        token.demo = !!user.demo;
         return token;
       }
       // Bei jedem Abruf der Sitzung: Konto noch da, Stand unverändert? Rolle

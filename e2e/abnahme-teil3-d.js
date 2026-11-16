@@ -7,13 +7,15 @@ lauf('D Begleitbrief', async (b) => {
   await p.goto(L + '/zahlungen'); await p.waitForTimeout(500);
   const vorher = await p.locator('[data-testid="erstattungsbrief-oeffnen"]:visible').count();
   const gkv = sql(`select count(*) from "Invoice" i join "Patient" p on p.id=i."patientId" where i."practiceId"='${pr}' and coalesce(p."insuranceType",'')<>'PKV'`);
+  // Die Demo-Praxis hat je nach Zufall keine offene Rechnung; die Liste zeigt aber zuerst nur offene. Dann die jüngste Rechnung öffnen.
+  if (sql(`select count(*) from "Invoice" where "practiceId"='${pr}' and status in ('OFFEN','GEMELDET')`) === '0') sql(`update "Invoice" set status='OFFEN', "paidAt"=null where id=(select id from "Invoice" where "practiceId"='${pr}' order by "createdAt" desc limit 1)`);
   const [iid, pid] = sql(`select i.id||'|'||i."patientId" from "Invoice" i where i."practiceId"='${pr}' and i.status in ('OFFEN','GEMELDET') order by i."createdAt" desc limit 1`).split('|');
   sql(`update "Patient" set "insuranceType"='PKV', "insuranceName"='Debeka' where id='${pid}'`);
   const erwartet = Number(sql(`select count(*) from "Invoice" i join "Patient" p on p.id=i."patientId" where i."practiceId"='${pr}' and p."insuranceType"='PKV'`));
   await p.goto(L + '/zahlungen'); await p.waitForTimeout(500);
   const knoepfe = p.locator('[data-testid="erstattungsbrief-oeffnen"]:visible');
   pruef('Knopf nur bei Rechnungen privat Versicherter', (await knoepfe.count()) >= 1 && (await knoepfe.count()) <= erwartet && Number(gkv) > 0, `vorher ${vorher}, jetzt ${await knoepfe.count()} (Rechnungen PKV in der Liste höchstens ${erwartet}, übrige ${gkv})`);
-  await knoepfe.first().click(); const dlg = p.getByTestId('erstattungsbrief-dialog'); await dlg.waitFor();
+  await knoepfe.first().click(); const dlg = p.getByTestId('erstattungsbrief-dialog'); await dlg.waitFor(); await p.waitForTimeout(400);
   const hinweis = await p.getByTestId('erstattungsbrief-hinweis').innerText();
   pruef('Dialog zeigt den Hinweis (Entwurf, bitte prüfen)', hinweis.length > 30, hinweis.slice(0, 110));
   const deckt = async (seite) => seite.evaluate(() => { const d = document.querySelector('[data-testid="erstattungsbrief-dialog"]'); const r = d.getBoundingClientRect(); const pkte = [[r.left + 20, r.top + 20], [r.left + r.width / 2, r.top + r.height / 2], [r.right - 20, r.bottom - 20]]; return { ok: pkte.every(([x, y]) => d.contains(document.elementFromPoint(x, y))), breite: document.documentElement.scrollWidth, r: [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)], vh: innerHeight }; });
@@ -44,6 +46,7 @@ lauf('D Begleitbrief', async (b) => {
   const hc = await b.newContext({ ...HANDY, storageState: await c.storageState() }); const hp = await hc.newPage();
   await hp.goto(L + '/zahlungen'); await hp.waitForTimeout(500);
   await hp.locator('[data-testid="erstattungsbrief-oeffnen"]:visible').first().click(); await hp.getByTestId('erstattungsbrief-dialog').waitFor();
+  await hp.waitForTimeout(400); // der Dialog blendet kurz ein (0,18 s); erst danach messen
   dk = await deckt(hp);
   pruef('390 px: Dialog füllt den Bildschirm über der Karte, kein waagerechtes Scrollen', dk.ok && dk.breite <= 390 && dk.r[2] === 390 && dk.r[3] <= dk.vh, JSON.stringify(dk));
   const unten = await hp.getByTestId('erstattungsbrief-erstellen').boundingBox();

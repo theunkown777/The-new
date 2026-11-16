@@ -34,6 +34,7 @@ export function tokenAbgleichen(token: JWT, konto: SitzungsKonto | null): JWT {
     practiceId: konto.practiceId,
     practiceName: konto.practice.name,
     mfaPending: !!token.mfaPending || pflichtOffen,
+    demo: konto.practice.isDemo,
   };
 }
 

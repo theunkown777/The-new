@@ -24,6 +24,8 @@ export function vorleseTeile(a: {
   summe: number | null;
   lang: PatientLang;
   t: Pick<Ui, "yourShare" | "yourChoice" | "coPayment" | "barLabel">;
+  /** Geprüfte Übersetzungen eigener Leistungen der Praxis (deutscher Text → Übersetzung). */
+  zusatz?: Record<string, string>;
 }): VorleseTeil[] {
   const out: VorleseTeil[] = [];
   const sag = (text: string, lang: PatientLang) => {
@@ -32,7 +34,7 @@ export function vorleseTeile(a: {
   };
   // Was es nur auf Deutsch gibt, wird mit deutscher Stimme gelesen.
   const regel = (text: string) => {
-    const u = uebersetzung(text, a.lang);
+    const u = uebersetzung(text, a.lang, a.zusatz);
     sag(u.text, u.stand === "deutsch" ? "de" : a.lang);
   };
   sag(a.ueberschrift, a.lang);

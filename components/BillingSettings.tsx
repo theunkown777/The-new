@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Haken } from "@/components/Haken";
 
 export function BillingSettings({
   initialGozPunktwertCent,
@@ -58,7 +59,7 @@ export function BillingSettings({
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       {message && (
-        <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{message}</p>
+        <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700" role="status"><Haken />{message}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">

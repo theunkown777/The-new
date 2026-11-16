@@ -71,7 +71,7 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf }: { pinGesetzt: 
     <div className="space-y-4">
       {!pinGesetzt && (
         <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="empfang-keine-pin">
-          Für die Übergabe am Tablet braucht die Praxis eine Empfangs-PIN. {admin ? <Link href="/settings/empfang" className="font-medium underline">Jetzt festlegen</Link> : "Bitte die Geschäftsführung, sie unter Einstellungen → Empfang festzulegen."} Der QR-Code für das eigene Handy geht auch ohne PIN.
+          Für die Übergabe am Tablet braucht die Praxis eine Empfangs-PIN. {admin ? <><Link href="/settings/empfang" className="font-medium underline">Jetzt festlegen</Link>.</> : "Bitte die Geschäftsführung, sie unter Einstellungen → Empfang festzulegen."} Der QR-Code für das eigene Handy geht auch ohne PIN.
         </p>
       )}
 

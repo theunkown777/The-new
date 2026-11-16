@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Hinweis } from "@/components/Hinweis";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -25,14 +26,13 @@ export default async function RueckmeldungEinstellungen() {
           Ihrem Besuch?“, mit fünf Stufen und einem freiwilligen Satz. Sorrida schickt dazu keine Nachricht.
         </p>
       </div>
-      <section className="card text-sm text-slate-600">
-        <h2 className="font-semibold text-slate-900">Was Sie sehen</h2>
-        <ul className="mt-2 list-disc space-y-1 ps-5">
+      <Hinweis id="rueckmeldung-sehen" titel="Was Sie sehen" ebene={2} className="text-sm text-slate-600" testid="hinweis-rueckmeldung-sehen">
+        <ul className="list-disc space-y-1 ps-5">
           <li>In der <Link href="/analyse#rueckmeldungen" className="text-brand-700 underline">Analyse</Link>: Durchschnitt, Verteilung und die Texte der letzten 90 Tage, mit Datum und ohne Namen.</li>
           <li>Erst ab {AUSWERTUNG_MINDESTENS} Antworten, damit einzelne Antworten nicht einzelnen Patienten zugeordnet werden.</li>
           <li>Keine Antwort erscheint im Eingang oder an der Akte.</li>
         </ul>
-      </section>
+      </Hinweis>
       <section className="card text-sm text-slate-600">
         <h2 className="font-semibold text-slate-900">Hinweis auf die öffentliche Bewertung</h2>
         <p className="mt-2">

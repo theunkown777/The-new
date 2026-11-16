@@ -327,3 +327,100 @@ export function analyze(args: {
     staerken,
   };
 }
+
+// ------------------------------------------------- Vergleich und Verlauf --
+// Kennzahlen neben den Zeitraum davor stellen: nur Zahl und Richtung, keine Wertung.
+
+/** Kennzahlen eines Zeitabschnitts (Vorschläge nach Anlagedatum). */
+export interface Kennzahlen {
+  umsatz: number;
+  privat: number;
+  kasse: number;
+  entschieden: number;
+  angenommen: number;
+  /** Annahmequote in Prozent; null ohne entschiedene Vorschläge. */
+  quote: number | null;
+}
+
+/** Kennzahlen der Vorschläge, die in [von, bis) angelegt wurden. Rechnet wie `analyze`. */
+export function kennzahlen(proposals: Pick<ProposalFacts, "id" | "status" | "createdAt">[], rows: Row[], von: Date, bis: Date): Kennzahlen {
+  const im = proposals.filter((p) => p.createdAt >= von && p.createdAt < bis);
+  const ids = new Set(im.map((p) => p.id));
+  const acc = rows.filter((r) => ids.has(r.proposalId) && r.status === "ANGENOMMEN");
+  const privat = acc.reduce((s, r) => s + r.privat, 0);
+  const kasse = acc.reduce((s, r) => s + r.kasse, 0);
+  const entschieden = im.filter((p) => decided(p.status)).length;
+  const angenommen = im.filter((p) => p.status === "ANGENOMMEN").length;
+  return { umsatz: privat + kasse, privat, kasse, entschieden, angenommen, quote: entschieden ? Math.round((angenommen / entschieden) * 100) : null };
+}
+
+export interface Zeitvergleich {
+  /** Der gleich lange Zeitraum direkt davor. */
+  davor: Kennzahlen;
+  /** Verlauf über den gewählten Zeitraum in gleich langen Abschnitten, ältester zuerst. */
+  verlauf: { umsatz: number[]; quote: (number | null)[] };
+}
+
+/** Zeitraum davor und Verlauf für die Analyse. `punkte`: Zahl der Abschnitte der Verlaufslinie (8 bis 12). */
+export function zeitvergleich(args: { proposals: Pick<ProposalFacts, "id" | "status" | "createdAt">[]; rows: Row[]; now?: Date; zeitraumTage: number; punkte?: number }): Zeitvergleich {
+  const now = args.now ?? new Date();
+  const punkte = Math.min(12, Math.max(8, Math.round(args.punkte ?? 10)));
+  const dauer = args.zeitraumTage * DAY;
+  const von = new Date(now.getTime() - dauer);
+  const davor = kennzahlen(args.proposals, args.rows, new Date(von.getTime() - dauer), von);
+  const umsatz: number[] = [];
+  const quote: (number | null)[] = [];
+  for (let i = 0; i < punkte; i++) {
+    const a = new Date(von.getTime() + (dauer * i) / punkte);
+    // Der letzte Abschnitt schließt den jetzigen Augenblick ein.
+    const b = i === punkte - 1 ? new Date(now.getTime() + 1) : new Date(von.getTime() + (dauer * (i + 1)) / punkte);
+    const k = kennzahlen(args.proposals, args.rows, a, b);
+    umsatz.push(k.umsatz);
+    quote.push(k.quote);
+  }
+  return { davor, verlauf: { umsatz, quote } };
+}
+
+export interface Veraenderung {
+  differenz: number;
+  richtung: "mehr" | "weniger" | "gleich";
+}
+
+/** Unterschied zum Wert davor; null, wenn einer der beiden Werte fehlt. */
+export function veraenderung(aktuell: number | null | undefined, davor: number | null | undefined): Veraenderung | null {
+  if (aktuell == null || davor == null || !Number.isFinite(aktuell) || !Number.isFinite(davor)) return null;
+  const differenz = Math.round(aktuell - davor);
+  return { differenz, richtung: differenz > 0 ? "mehr" : differenz < 0 ? "weniger" : "gleich" };
+}
+
+/** „den 30 Tagen davor“, „den 12 Monaten davor“. */
+export const zeitraumDavor = (tage: number) => (tage >= 365 ? `den ${Math.round(tage / 30.4)} Monaten davor` : `den ${tage} Tagen davor`);
+
+/**
+ * Ein Satz zum Vergleich, ohne Wertung: „+4 Punkte gegenüber den 30 Tagen davor“.
+ * `einheit`: „Punkte“ (Prozentpunkte), „€“ oder leer. `gegenueber`: z. B. zeitraumDavor(30) oder „dem Vormonat bis zum gleichen Tag“.
+ */
+export function vergleichSatz(v: Veraenderung | null, einheit: "Punkte" | "€" | "", gegenueber: string): string | null {
+  if (!v) return null;
+  if (v.richtung === "gleich") return `unverändert gegenüber ${gegenueber}`;
+  const betrag = Math.abs(v.differenz).toLocaleString("de-DE");
+  const zahl = einheit === "Punkte" && betrag === "1" ? `${betrag} Punkt` : einheit ? `${betrag} ${einheit}` : betrag;
+  return `${v.richtung === "mehr" ? "+" : "−"}${zahl} gegenüber ${gegenueber}`;
+}
+
+/**
+ * Summen je Woche für eine kleine Verlaufslinie (ältere Woche zuerst, die laufende Woche zuletzt).
+ * Eine „Woche“ sind hier sieben Tage bis jetzt, keine Kalenderwoche.
+ */
+export function wochenSummen(eintraege: { datum: Date | null; betrag: number }[], now = new Date(), wochen = 8): number[] {
+  const n = Math.min(12, Math.max(2, Math.round(wochen)));
+  const aus = new Array<number>(n).fill(0);
+  for (const e of eintraege) {
+    if (!e.datum) continue;
+    const alter = now.getTime() - e.datum.getTime();
+    if (alter < 0) continue;
+    const woche = Math.floor(alter / (7 * DAY));
+    if (woche < n) aus[n - 1 - woche] += e.betrag;
+  }
+  return aus;
+}

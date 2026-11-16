@@ -13,6 +13,20 @@ describe("ortBereinigen", () => {
     expect(ortBereinigen("/rechnung/20261234")).toBe("/rechnung/…");
   });
 
+  it("lässt lange Seitennamen stehen, damit der Ort lesbar bleibt", () => {
+    expect(ortBereinigen("/abrechnungspruefung")).toBe("/abrechnungspruefung");
+    expect(ortBereinigen("/leistungsverzeichnis")).toBe("/leistungsverzeichnis");
+    expect(ortBereinigen("/settings/fachgebiet/preisliste")).toBe("/settings/fachgebiet/preisliste");
+    expect(ortBereinigen("/ratgeber/zahnzusatzversicherung-lohnt-sich")).toBe("/ratgeber/zahnzusatzversicherung-lohnt-sich");
+  });
+
+  it("ersetzt lange Pfadteile mit Ziffern oder Großbuchstaben weiter (IDs, Tokens)", () => {
+    expect(ortBereinigen("/patients/cmwjexath0004gu3otqzk97mh")).toBe("/patients/…");
+    expect(ortBereinigen("/p/AbCdEfGhIjKlMnOpQrStUvWxYz")).toBe("/p/…");
+    expect(ortBereinigen("/p/abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz")).toBe("/p/…");
+    expect(ortBereinigen("/portal/aB3-xY9_kL2mN4pQ6rS8tU0vW")).toBe("/portal/…");
+  });
+
   it("lässt Platzhalter einer Route stehen", () => {
     expect(ortBereinigen("/patients/[id]")).toBe("/patients/[id]");
     expect(ortBereinigen("/api/portal/[token]/pruefung")).toBe("/api/portal/[token]/pruefung");
@@ -83,6 +97,22 @@ describe("meldungBereinigen", () => {
   it("entfernt Tokens und Adressen im Netz", () => {
     expect(meldungBereinigen("Abruf https://example.org/p/abc?name=Meier schlug fehl")).toBe("Abruf … schlug fehl");
     expect(meldungBereinigen("Token a8Kd93hsLq02mNx7Zt51Bv abgelaufen")).toBe("Token … abgelaufen");
+  });
+
+  it("lässt von einem Token keine Bruchstücke stehen", () => {
+    // Früher schnitt die Ziffernregel nur die Ziffern heraus: „AbCdE…AbCdE…AbCdEf01“ blieb stehen.
+    const token = "AbCdEf0123456789AbCdEf0123456789AbCdEf01";
+    const m = meldungBereinigen(`Zugriff fehlgeschlagen, token=${token}, bitte erneut versuchen`);
+    expect(m).toBe("Zugriff fehlgeschlagen, token=…, bitte erneut versuchen");
+    expect(m).not.toMatch(/AbCd/);
+    expect(meldungBereinigen("Link /p/AbCdEf0123456789AbCdEf0123456789 abgelaufen")).not.toMatch(/AbCd|0123/);
+    expect(meldungBereinigen("Patient cmwjexath0004gu3otqzk97mh nicht gefunden")).toBe("Patient … nicht gefunden");
+  });
+
+  it("zählt denselben Fehler mit verschiedenen IDs als einen", () => {
+    const a = fehlerAufbereiten({ quelle: "server", ort: "/api/patients/[id]", meldung: "Kein Eintrag für cmwjexath0004gu3otqzk97mh" });
+    const b = fehlerAufbereiten({ quelle: "server", ort: "/api/patients/[id]", meldung: "Kein Eintrag für cmwjexisi01lvgu3oxxol9ilb" });
+    expect(a.fingerabdruck).toBe(b.fingerabdruck);
   });
 
   it("kürzt auf 300 Zeichen und ist einzeilig", () => {

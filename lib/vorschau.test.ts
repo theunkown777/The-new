@@ -65,7 +65,7 @@ describe("Vorschau-Schloss für die eigene Domain", () => {
   });
 });
 
-import { darfInSuchmaschinen, istInfoSeite, oeffentlichFrei, oeffentlichStufe } from "@/lib/vorschau";
+import { darfInSuchmaschinen, gastFrei, istInfoSeite, oeffentlichFrei, oeffentlichStufe } from "@/lib/vorschau";
 
 describe("Stufe „öffentlich, aber geschützt“", () => {
   const aus = {}, seiten = { VORSCHAU_OEFFENTLICH: "1" }, demo = { VORSCHAU_OEFFENTLICH: "demo" };
@@ -104,6 +104,30 @@ describe("Stufe „öffentlich, aber geschützt“", () => {
     for (const p of ["/demo", "/t/abcdefgh1234", "/api/leads", "/login", "/dashboard", "/anatomie"]) expect(darfInSuchmaschinen(p, demo, true), p).toBe(false);
     expect(darfInSuchmaschinen("/", aus, true)).toBe(false);
     expect(istInfoSeite("/impressum")).toBe(true);
+  });
+});
+
+describe("Stufe „demo“: Gastzugang ohne Vorschau-Zugang", () => {
+  const aus = {}, seiten = { VORSCHAU_OEFFENTLICH: "1" }, demo = { VORSCHAU_OEFFENTLICH: "demo" };
+  const ANMELDUNG = ["/api/auth/providers", "/api/auth/csrf", "/api/auth/callback/credentials", "/api/auth/session", "/api/auth/signout"];
+  const APP = ["/dashboard", "/patients/abc", "/proposals/new", "/settings", "/eingang", "/api/patients", "/api/proposals", "/api/demo/wechsel", "/hilfe-praxis"];
+  it("gibt in der Stufe „demo“ nur die Anmelde-Bausteine frei, nicht die App", () => {
+    for (const p of ANMELDUNG) expect(gastFrei(p, false, demo, true), p).toBe(true);
+    for (const p of APP) expect(gastFrei(p, false, demo, true), p).toBe(false);
+  });
+  it("öffnet die App nur für die Sitzung einer Demo-Praxis", () => {
+    for (const p of APP) expect(gastFrei(p, true, demo, true), p).toBe(true);
+  });
+  it("hält Anmeldung, Registrierung, Einladung, Passwort-Wege und Modellseiten auch für Gäste verschlossen", () => {
+    for (const p of ["/login", "/register", "/api/register", "/accept-invite", "/forgot-password", "/reset-password", "/verify-email", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/auth/accept-invite", "/api/auth/callback/andere", "/anatomie", "/anatomie/gebiss"])
+      expect(gastFrei(p, true, demo, true), p).toBe(false);
+  });
+  it("gilt in keiner anderen Stufe und nie ohne vollständiges Impressum", () => {
+    for (const p of [...ANMELDUNG, ...APP]) {
+      expect(gastFrei(p, true, aus, true), p).toBe(false);
+      expect(gastFrei(p, true, seiten, true), p).toBe(false);
+      expect(gastFrei(p, true, demo, false), p).toBe(false);
+    }
   });
 });
 

@@ -787,7 +787,7 @@ export function ProposalEditor({
           <p className={gespraech ? "hidden" : "text-xs text-slate-500"}>
             {dental
               ? "Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Vorausgewählt ist immer die Kassen- bzw. Regelleistung. Was Sie mit Ihrer Patientin oder Ihrem Patienten vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware."
-              : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Empfohlen wird nur die Kassenleistung; ob eine Selbstzahlerleistung sinnvoll ist, entscheiden Sie im Gespräch. ${isTherapie(spec) ? "Selbstzahlerleistungen vereinbaren Sie vor der Behandlung schriftlich." : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
+              : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Vorausgewählt ist immer die Kassenleistung. Was Sie mit Ihrer Patientin oder Ihrem Patienten vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. ${isTherapie(spec) ? "Selbstzahlerleistungen vereinbaren Sie vor der Behandlung schriftlich." : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
           </p>
 
           {!compact && !gespraech && patientWahl && (

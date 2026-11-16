@@ -99,9 +99,10 @@ export default async function Start() {
           }),
         }}
       />
+      <a href="#inhalt" className="sprunglink">Zum Inhalt</a>
       <JournalKopf angemeldet={!!session} />
 
-      <main>
+      <main id="inhalt">
         {session && (
           <p className={`${rahmen} pt-6 text-[15px] text-tinte-2`}>
             Angemeldet: <b className="font-semibold text-tinte">{session.user.practiceName}</b> ·{" "}

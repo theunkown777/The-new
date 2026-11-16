@@ -5,6 +5,7 @@ import { TwoFactorSettings } from "@/components/TwoFactorSettings";
 import { DiktatSettings } from "@/components/DiktatSettings";
 import { KiHilfenSettings } from "@/components/KiHilfenSettings";
 import { kiVerfuegbar } from "@/lib/anthropic";
+import { AnsichtSchalter } from "@/components/Ansicht";
 
 export default async function SecuritySettingsPage() {
   const session = await getServerSession(authOptions);
@@ -19,6 +20,10 @@ export default async function SecuritySettingsPage() {
       <TwoFactorSettings initialEnabled={user?.totpEnabled ?? false} />
       <DiktatSettings erlaubt={practice?.diktatCloud ?? false} darfAendern={session!.user.role === "admin"} />
       <KiHilfenSettings ein={practice?.kiHilfen ?? false} verfuegbar={kiVerfuegbar()} darfAendern={session!.user.role === "admin"} />
+      {/* Ansicht: gilt für diesen Browser und für jedes Konto, auch ohne Recht auf die Einstellungen der Praxis. */}
+      <section className="card mt-6" aria-label="Ansicht">
+        <AnsichtSchalter />
+      </section>
     </div>
   );
 }

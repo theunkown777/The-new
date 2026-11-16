@@ -2,7 +2,7 @@ import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server
 import { withAuth, type NextRequestWithAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
 import { tokenGueltig } from "@/lib/sitzung";
-import { VORSCHAU_COOKIE, VORSCHAU_TAGE, darfInSuchmaschinen, freiOhneZugang, istVorschauHost, oeffentlichFrei, vorschauCookie, vorschauCookieGueltig, vorschauPassGueltig } from "@/lib/vorschau";
+import { VORSCHAU_COOKIE, VORSCHAU_TAGE, darfInSuchmaschinen, freiOhneZugang, gastFrei, istVorschauHost, oeffentlichFrei, oeffentlichStufe, vorschauCookie, vorschauCookieGueltig, vorschauPassGueltig } from "@/lib/vorschau";
 
 // Website und App sind eins: Unter "/" sehen Besucher ohne Anmeldung die
 // Startseite mit Fachauswahl, angemeldete Nutzer landen in ihrer Übersicht. Alle anderen geschützten Bereiche laufen über next-auth.
@@ -16,7 +16,7 @@ const auth = withAuth({ pages: { signIn: "/login" }, callbacks: { authorized: ({
 const MFA_FREI = ["/api/auth/", "/api/settings/2fa/"];
 
 // Bereiche, die eine Anmeldung brauchen (next-auth)
-const GESCHUETZT = ["/dashboard", "/patients", "/reports", "/proposals", "/abschluss", "/settings", "/zahlungen", "/analyse", "/anfragen", "/vorsorge", "/praxismanager", "/termine", "/abrechnungspruefung", "/abrechnung", "/mein-bereich", "/leistungsverzeichnis", "/modelle", "/eingang", "/embed", "/empfang", "/betrieb"];
+const GESCHUETZT = ["/dashboard", "/patients", "/reports", "/proposals", "/abschluss", "/settings", "/zahlungen", "/analyse", "/anfragen", "/vorsorge", "/praxismanager", "/termine", "/abrechnungspruefung", "/abrechnung", "/mein-bereich", "/leistungsverzeichnis", "/modelle", "/eingang", "/embed", "/empfang", "/betrieb", "/hilfe-praxis"];
 
 export default async function proxy(req: NextRequest, event: NextFetchEvent) {
   // Eigene Domain im Vorschau-Modus: ohne Zugangs-Cookie nur die Seite „Demnächst“
@@ -34,7 +34,7 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
       return res;
     }
     // Stufe „öffentlich, aber geschützt“: Informationsseiten sind frei, App, Anmeldung und Gastzugang bleiben verschlossen.
-    if (!freiOhneZugang(pfad) && !oeffentlichFrei(pfad) && !(await vorschauCookieGueltig(req.cookies.get(VORSCHAU_COOKIE)?.value))) {
+    if (!freiOhneZugang(pfad) && !oeffentlichFrei(pfad) && !(await vorschauCookieGueltig(req.cookies.get(VORSCHAU_COOKIE)?.value)) && !(await gastDarf(req, pfad))) {
       if (pfad.startsWith("/api/")) return NextResponse.json({ error: "Noch nicht veröffentlicht" }, { status: 403, headers: { "X-Robots-Tag": "noindex, nofollow" } });
       const ziel = req.nextUrl.clone();
       ziel.pathname = "/demnaechst";
@@ -44,10 +44,21 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
       return res;
     }
   }
-  const antwort = await weiter(req, event);
+  // next-auth gibt für angemeldete Aufrufe nichts zurück („weiter“). Ohne eigene Antwort bliebe die Kopfzeile
+  // für Suchmaschinen auf den App-Seiten weg.
+  const antwort = (await weiter(req, event)) ?? NextResponse.next();
   // Suchmaschinen: auf der geschützten Domain nur die Informationsseiten, und nur in der öffentlichen Stufe.
-  if (antwort && istVorschauHost(req.headers.get("host")) && !darfInSuchmaschinen(req.nextUrl.pathname)) antwort.headers.set("X-Robots-Tag", "noindex, nofollow");
+  if (istVorschauHost(req.headers.get("host")) && !darfInSuchmaschinen(req.nextUrl.pathname)) antwort.headers.set("X-Robots-Tag", "noindex, nofollow");
   return antwort;
+}
+
+// Stufe „demo“: Der Gastzugang ist öffentlich. Die App öffnet sich dann nur für die Sitzung einer Demo-Praxis;
+// echte Konten brauchen weiter den Zugang für Pilotpraxen. In den anderen Stufen ändert sich nichts.
+async function gastDarf(req: NextRequest, pfad: string): Promise<boolean> {
+  if (oeffentlichStufe() !== "demo") return false;
+  if (gastFrei(pfad, false)) return true;
+  const token = await getToken({ req }).catch(() => null);
+  return gastFrei(pfad, tokenGueltig(token) && token?.demo === true);
 }
 
 async function weiter(req: NextRequest, event: NextFetchEvent) {

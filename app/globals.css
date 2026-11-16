@@ -2,6 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------------------------------------
+   Farben und Rundungen als Variablen (Namen und Rollen: tailwind.config.ts, Regeln: docs/GESTALTUNG.md).
+   Jede Stufe gibt es dreimal: --slate-500 (Schrift), --slate-fl-500 (Fläche), --slate-li-500 (Linie).
+   Außerhalb der App bleibt alles wie gewohnt; die App für die Praxis (.praxis-app) setzt eigene Werte.
+   ------------------------------------------------------------------------------------------------ */
+/* Gewohnte Werte (Website, Patientenseiten, Anmeldung). */
+:root {
+  --slate-50: 248 250 252; --slate-100: 241 245 249; --slate-200: 226 232 240; --slate-300: 203 213 225; --slate-400: 148 163 184; --slate-500: 100 116 139; --slate-600: 71 85 105; --slate-700: 51 65 85; --slate-800: 30 41 59; --slate-900: 15 23 42; --slate-950: 2 6 23;
+  --brand-50: 248 241 240; --brand-100: 240 226 223; --brand-200: 223 194 188; --brand-300: 199 154 145; --brand-400: 168 105 94; --brand-500: 134 67 58; --brand-600: 107 42 36; --brand-700: 90 29 29; --brand-800: 67 21 21;
+  --salbei-50: 242 245 241; --salbei-100: 227 235 224; --salbei-200: 199 214 194; --salbei-300: 162 185 155; --salbei-500: 108 140 101; --salbei-600: 85 115 80; --salbei-700: 67 92 64; --salbei-800: 52 72 50;
+  --emerald-50: 236 253 245; --emerald-100: 209 250 229; --emerald-200: 167 243 208; --emerald-300: 110 231 183; --emerald-400: 52 211 153; --emerald-500: 16 185 129; --emerald-600: 5 150 105; --emerald-700: 4 120 87; --emerald-800: 6 95 70; --emerald-900: 6 78 59; --emerald-950: 2 44 34;
+  --green-50: 240 253 244; --green-100: 220 252 231; --green-200: 187 247 208; --green-300: 134 239 172; --green-400: 74 222 128; --green-500: 34 197 94; --green-600: 22 163 74; --green-700: 21 128 61; --green-800: 22 101 52; --green-900: 20 83 45; --green-950: 5 46 22;
+  --red-50: 254 242 242; --red-100: 254 226 226; --red-200: 254 202 202; --red-300: 252 165 165; --red-400: 248 113 113; --red-500: 239 68 68; --red-600: 220 38 38; --red-700: 185 28 28; --red-800: 153 27 27; --red-900: 127 29 29; --red-950: 69 10 10;
+  --amber-50: 255 251 235; --amber-100: 254 243 199; --amber-200: 253 230 138; --amber-300: 252 211 77; --amber-400: 251 191 36; --amber-500: 245 158 11; --amber-600: 217 119 6; --amber-700: 180 83 9; --amber-800: 146 64 14; --amber-900: 120 53 15; --amber-950: 69 26 3;
+  --orange-50: 255 247 237; --orange-100: 255 237 213; --orange-200: 254 215 170; --orange-300: 253 186 116; --orange-400: 251 146 60; --orange-500: 249 115 22; --orange-600: 234 88 12; --orange-700: 194 65 12; --orange-800: 154 52 18; --orange-900: 124 45 18; --orange-950: 67 20 7;
+  --sky-50: 240 249 255; --sky-100: 224 242 254; --sky-200: 186 230 253; --sky-300: 125 211 252; --sky-400: 56 189 248; --sky-500: 14 165 233; --sky-600: 2 132 199; --sky-700: 3 105 161; --sky-800: 7 89 133; --sky-900: 12 74 110; --sky-950: 8 47 73;
+  --blue-50: 239 246 255; --blue-100: 219 234 254; --blue-200: 191 219 254; --blue-300: 147 197 253; --blue-400: 96 165 250; --blue-500: 59 130 246; --blue-600: 37 99 235; --blue-700: 29 78 216; --blue-800: 30 64 175; --blue-900: 30 58 138; --blue-950: 23 37 84;
+  --weiss-fl: 255 255 255;
+  --rund-lg: 0.5rem; --rund-xl: 0.75rem; --rund-2xl: 1rem; --rund-3xl: 1.5rem;
+}
+/* Flächen und Linien folgen der Schriftfarbe, solange nichts anderes gesetzt ist. */
+:root, .praxis-app {
+  --slate-fl-50: var(--slate-50); --slate-fl-100: var(--slate-100); --slate-fl-200: var(--slate-200); --slate-fl-300: var(--slate-300); --slate-fl-400: var(--slate-400); --slate-fl-500: var(--slate-500); --slate-fl-600: var(--slate-600); --slate-fl-700: var(--slate-700); --slate-fl-800: var(--slate-800); --slate-fl-900: var(--slate-900); --slate-fl-950: var(--slate-950);
+  --slate-li-50: var(--slate-50); --slate-li-100: var(--slate-100); --slate-li-200: var(--slate-200); --slate-li-300: var(--slate-300); --slate-li-400: var(--slate-400); --slate-li-500: var(--slate-500); --slate-li-600: var(--slate-600); --slate-li-700: var(--slate-700); --slate-li-800: var(--slate-800); --slate-li-900: var(--slate-900); --slate-li-950: var(--slate-950);
+  --brand-fl-50: var(--brand-50); --brand-fl-100: var(--brand-100); --brand-fl-200: var(--brand-200); --brand-fl-300: var(--brand-300); --brand-fl-400: var(--brand-400); --brand-fl-500: var(--brand-500); --brand-fl-600: var(--brand-600); --brand-fl-700: var(--brand-700); --brand-fl-800: var(--brand-800);
+  --brand-li-50: var(--brand-50); --brand-li-100: var(--brand-100); --brand-li-200: var(--brand-200); --brand-li-300: var(--brand-300); --brand-li-400: var(--brand-400); --brand-li-500: var(--brand-500); --brand-li-600: var(--brand-600); --brand-li-700: var(--brand-700); --brand-li-800: var(--brand-800);
+  --salbei-fl-50: var(--salbei-50); --salbei-fl-100: var(--salbei-100); --salbei-fl-200: var(--salbei-200); --salbei-fl-300: var(--salbei-300); --salbei-fl-500: var(--salbei-500); --salbei-fl-600: var(--salbei-600); --salbei-fl-700: var(--salbei-700); --salbei-fl-800: var(--salbei-800);
+  --salbei-li-50: var(--salbei-50); --salbei-li-100: var(--salbei-100); --salbei-li-200: var(--salbei-200); --salbei-li-300: var(--salbei-300); --salbei-li-500: var(--salbei-500); --salbei-li-600: var(--salbei-600); --salbei-li-700: var(--salbei-700); --salbei-li-800: var(--salbei-800);
+  --emerald-fl-50: var(--emerald-50); --emerald-fl-100: var(--emerald-100); --emerald-fl-200: var(--emerald-200); --emerald-fl-300: var(--emerald-300); --emerald-fl-400: var(--emerald-400); --emerald-fl-500: var(--emerald-500); --emerald-fl-600: var(--emerald-600); --emerald-fl-700: var(--emerald-700); --emerald-fl-800: var(--emerald-800); --emerald-fl-900: var(--emerald-900); --emerald-fl-950: var(--emerald-950);
+  --emerald-li-50: var(--emerald-50); --emerald-li-100: var(--emerald-100); --emerald-li-200: var(--emerald-200); --emerald-li-300: var(--emerald-300); --emerald-li-400: var(--emerald-400); --emerald-li-500: var(--emerald-500); --emerald-li-600: var(--emerald-600); --emerald-li-700: var(--emerald-700); --emerald-li-800: var(--emerald-800); --emerald-li-900: var(--emerald-900); --emerald-li-950: var(--emerald-950);
+  --green-fl-50: var(--green-50); --green-fl-100: var(--green-100); --green-fl-200: var(--green-200); --green-fl-300: var(--green-300); --green-fl-400: var(--green-400); --green-fl-500: var(--green-500); --green-fl-600: var(--green-600); --green-fl-700: var(--green-700); --green-fl-800: var(--green-800); --green-fl-900: var(--green-900); --green-fl-950: var(--green-950);
+  --green-li-50: var(--green-50); --green-li-100: var(--green-100); --green-li-200: var(--green-200); --green-li-300: var(--green-300); --green-li-400: var(--green-400); --green-li-500: var(--green-500); --green-li-600: var(--green-600); --green-li-700: var(--green-700); --green-li-800: var(--green-800); --green-li-900: var(--green-900); --green-li-950: var(--green-950);
+  --red-fl-50: var(--red-50); --red-fl-100: var(--red-100); --red-fl-200: var(--red-200); --red-fl-300: var(--red-300); --red-fl-400: var(--red-400); --red-fl-500: var(--red-500); --red-fl-600: var(--red-600); --red-fl-700: var(--red-700); --red-fl-800: var(--red-800); --red-fl-900: var(--red-900); --red-fl-950: var(--red-950);
+  --red-li-50: var(--red-50); --red-li-100: var(--red-100); --red-li-200: var(--red-200); --red-li-300: var(--red-300); --red-li-400: var(--red-400); --red-li-500: var(--red-500); --red-li-600: var(--red-600); --red-li-700: var(--red-700); --red-li-800: var(--red-800); --red-li-900: var(--red-900); --red-li-950: var(--red-950);
+  --amber-fl-50: var(--amber-50); --amber-fl-100: var(--amber-100); --amber-fl-200: var(--amber-200); --amber-fl-300: var(--amber-300); --amber-fl-400: var(--amber-400); --amber-fl-500: var(--amber-500); --amber-fl-600: var(--amber-600); --amber-fl-700: var(--amber-700); --amber-fl-800: var(--amber-800); --amber-fl-900: var(--amber-900); --amber-fl-950: var(--amber-950);
+  --amber-li-50: var(--amber-50); --amber-li-100: var(--amber-100); --amber-li-200: var(--amber-200); --amber-li-300: var(--amber-300); --amber-li-400: var(--amber-400); --amber-li-500: var(--amber-500); --amber-li-600: var(--amber-600); --amber-li-700: var(--amber-700); --amber-li-800: var(--amber-800); --amber-li-900: var(--amber-900); --amber-li-950: var(--amber-950);
+  --orange-fl-50: var(--orange-50); --orange-fl-100: var(--orange-100); --orange-fl-200: var(--orange-200); --orange-fl-300: var(--orange-300); --orange-fl-400: var(--orange-400); --orange-fl-500: var(--orange-500); --orange-fl-600: var(--orange-600); --orange-fl-700: var(--orange-700); --orange-fl-800: var(--orange-800); --orange-fl-900: var(--orange-900); --orange-fl-950: var(--orange-950);
+  --orange-li-50: var(--orange-50); --orange-li-100: var(--orange-100); --orange-li-200: var(--orange-200); --orange-li-300: var(--orange-300); --orange-li-400: var(--orange-400); --orange-li-500: var(--orange-500); --orange-li-600: var(--orange-600); --orange-li-700: var(--orange-700); --orange-li-800: var(--orange-800); --orange-li-900: var(--orange-900); --orange-li-950: var(--orange-950);
+  --sky-fl-50: var(--sky-50); --sky-fl-100: var(--sky-100); --sky-fl-200: var(--sky-200); --sky-fl-300: var(--sky-300); --sky-fl-400: var(--sky-400); --sky-fl-500: var(--sky-500); --sky-fl-600: var(--sky-600); --sky-fl-700: var(--sky-700); --sky-fl-800: var(--sky-800); --sky-fl-900: var(--sky-900); --sky-fl-950: var(--sky-950);
+  --sky-li-50: var(--sky-50); --sky-li-100: var(--sky-100); --sky-li-200: var(--sky-200); --sky-li-300: var(--sky-300); --sky-li-400: var(--sky-400); --sky-li-500: var(--sky-500); --sky-li-600: var(--sky-600); --sky-li-700: var(--sky-700); --sky-li-800: var(--sky-800); --sky-li-900: var(--sky-900); --sky-li-950: var(--sky-950);
+  --blue-fl-50: var(--blue-50); --blue-fl-100: var(--blue-100); --blue-fl-200: var(--blue-200); --blue-fl-300: var(--blue-300); --blue-fl-400: var(--blue-400); --blue-fl-500: var(--blue-500); --blue-fl-600: var(--blue-600); --blue-fl-700: var(--blue-700); --blue-fl-800: var(--blue-800); --blue-fl-900: var(--blue-900); --blue-fl-950: var(--blue-950);
+  --blue-li-50: var(--blue-50); --blue-li-100: var(--blue-100); --blue-li-200: var(--blue-200); --blue-li-300: var(--blue-300); --blue-li-400: var(--blue-400); --blue-li-500: var(--blue-500); --blue-li-600: var(--blue-600); --blue-li-700: var(--blue-700); --blue-li-800: var(--blue-800); --blue-li-900: var(--blue-900); --blue-li-950: var(--blue-950);
+}
+/* App für die Praxis, hell: warme Tinte statt kühlem Grau, Haarlinien in Papierfarbe, Grün wird Salbei. */
+.praxis-app {
+  --slate-50: 249 246 242; --slate-100: 236 229 220; --slate-200: 220 210 198; --slate-300: 196 182 166; --slate-400: 154 142 132; --slate-500: 107 98 91; --slate-600: 82 74 69; --slate-700: 63 56 52; --slate-800: 47 42 40; --slate-900: 36 32 31; --slate-950: 23 20 19;
+  --emerald-50: 242 245 241; --emerald-100: 227 235 224; --emerald-200: 199 214 194; --emerald-300: 162 185 155; --emerald-400: 134 163 127; --emerald-500: 108 140 101; --emerald-600: 85 115 80; --emerald-700: 67 92 64; --emerald-800: 52 72 50; --emerald-900: 40 56 38; --emerald-950: 23 33 22;
+  --green-50: 242 245 241; --green-100: 227 235 224; --green-200: 199 214 194; --green-300: 162 185 155; --green-400: 134 163 127; --green-500: 108 140 101; --green-600: 85 115 80; --green-700: 67 92 64; --green-800: 52 72 50; --green-900: 40 56 38; --green-950: 23 33 22;
+  --rund-lg: 6px; --rund-xl: 10px; --rund-2xl: 10px; --rund-3xl: 12px;
+}
+/* App für die Praxis, dunkel (Beta): Klasse „dunkel“ am html-Element, gesetzt nur auf ausdrücklichen Wunsch. */
+.dunkel .praxis-app {
+  --slate-50: 249 246 242; --slate-100: 236 229 220; --slate-200: 220 210 198; --slate-300: 196 182 166; --slate-400: 143 133 123; --slate-500: 163 154 144; --slate-600: 189 179 168; --slate-700: 213 204 194; --slate-800: 230 223 215; --slate-900: 241 236 230; --slate-950: 250 248 245;
+  --slate-fl-50: 43 39 37; --slate-fl-100: 51 46 43; --slate-fl-200: 64 58 54; --slate-fl-300: 85 78 72; --slate-fl-400: 107 98 91; --slate-fl-500: 107 98 91; --slate-fl-600: 94 86 80; --slate-fl-700: 78 71 66; --slate-fl-800: 69 62 58; --slate-fl-900: 87 80 74; --slate-fl-950: 14 12 11;
+  --slate-li-50: 43 39 37; --slate-li-100: 48 43 40; --slate-li-200: 61 55 51; --slate-li-300: 90 83 77; --slate-li-400: 133 124 115; --slate-li-500: 163 154 144; --slate-li-600: 189 179 168; --slate-li-700: 213 204 194; --slate-li-800: 230 223 215; --slate-li-900: 241 236 230; --slate-li-950: 250 248 245;
+  --brand-50: 248 241 240; --brand-100: 240 226 223; --brand-200: 223 194 188; --brand-300: 199 154 145; --brand-400: 201 143 133; --brand-500: 217 160 150; --brand-600: 224 171 161; --brand-700: 230 182 173; --brand-800: 237 196 188;
+  --brand-fl-50: 51 33 31; --brand-fl-100: 63 38 35; --brand-fl-200: 82 48 43; --brand-fl-300: 107 61 54; --brand-fl-400: 134 67 58; --brand-fl-500: 134 67 58; --brand-fl-600: 122 47 40; --brand-fl-700: 138 55 47; --brand-fl-800: 154 64 55;
+  --brand-li-50: 58 38 35; --brand-li-100: 71 44 40; --brand-li-200: 92 56 50; --brand-li-300: 122 74 66; --brand-li-400: 168 105 94; --brand-li-500: 201 143 133; --brand-li-600: 217 160 150; --brand-li-700: 224 171 161; --brand-li-800: 230 182 173;
+  --salbei-50: 242 245 241; --salbei-100: 227 235 224; --salbei-200: 199 214 194; --salbei-300: 162 185 155; --salbei-500: 162 185 155; --salbei-600: 162 185 155; --salbei-700: 162 185 155; --salbei-800: 199 214 194;
+  --salbei-fl-50: 39 42 35; --salbei-fl-100: 42 48 38; --salbei-fl-200: 44 54 41; --salbei-fl-300: 47 60 44; --salbei-fl-500: 108 140 101; --salbei-fl-600: 85 115 80; --salbei-fl-700: 67 92 64; --salbei-fl-800: 52 72 50;
+  --salbei-li-50: 44 52 40; --salbei-li-100: 44 52 40; --salbei-li-200: 47 60 44; --salbei-li-300: 67 92 64; --salbei-li-500: 162 185 155; --salbei-li-600: 162 185 155; --salbei-li-700: 162 185 155; --salbei-li-800: 199 214 194;
+  --emerald-50: 242 245 241; --emerald-100: 227 235 224; --emerald-200: 199 214 194; --emerald-300: 162 185 155; --emerald-400: 134 163 127; --emerald-500: 134 163 127; --emerald-600: 134 163 127; --emerald-700: 162 185 155; --emerald-800: 199 214 194; --emerald-900: 227 235 224; --emerald-950: 242 245 241;
+  --emerald-fl-50: 36 38 32; --emerald-fl-100: 37 42 33; --emerald-fl-200: 38 45 34; --emerald-fl-300: 47 60 44; --emerald-fl-400: 134 163 127; --emerald-fl-500: 108 140 101; --emerald-fl-600: 85 115 80; --emerald-fl-700: 67 92 64; --emerald-fl-800: 52 72 50; --emerald-fl-900: 40 56 38; --emerald-fl-950: 23 33 22;
+  --emerald-li-50: 38 44 34; --emerald-li-100: 38 44 34; --emerald-li-200: 47 60 44; --emerald-li-300: 67 92 64; --emerald-li-400: 134 163 127; --emerald-li-500: 134 163 127; --emerald-li-600: 134 163 127; --emerald-li-700: 162 185 155; --emerald-li-800: 199 214 194; --emerald-li-900: 227 235 224; --emerald-li-950: 242 245 241;
+  --green-50: 242 245 241; --green-100: 227 235 224; --green-200: 199 214 194; --green-300: 162 185 155; --green-400: 134 163 127; --green-500: 134 163 127; --green-600: 134 163 127; --green-700: 162 185 155; --green-800: 199 214 194; --green-900: 227 235 224; --green-950: 242 245 241;
+  --green-fl-50: 36 38 32; --green-fl-100: 37 42 33; --green-fl-200: 38 45 34; --green-fl-300: 47 60 44; --green-fl-400: 134 163 127; --green-fl-500: 108 140 101; --green-fl-600: 85 115 80; --green-fl-700: 67 92 64; --green-fl-800: 52 72 50; --green-fl-900: 40 56 38; --green-fl-950: 23 33 22;
+  --green-li-50: 38 44 34; --green-li-100: 38 44 34; --green-li-200: 47 60 44; --green-li-300: 67 92 64; --green-li-400: 134 163 127; --green-li-500: 134 163 127; --green-li-600: 134 163 127; --green-li-700: 162 185 155; --green-li-800: 199 214 194; --green-li-900: 227 235 224; --green-li-950: 242 245 241;
+  --red-50: 254 242 242; --red-100: 254 226 226; --red-200: 254 202 202; --red-300: 252 165 165; --red-400: 248 113 113; --red-500: 248 113 113; --red-600: 248 113 113; --red-700: 252 165 165; --red-800: 254 202 202; --red-900: 254 226 226; --red-950: 254 242 242;
+  --red-fl-50: 58 31 30; --red-fl-100: 72 31 30; --red-fl-200: 86 30 29; --red-fl-300: 118 29 28; --red-fl-400: 248 113 113; --red-fl-500: 239 68 68; --red-fl-600: 220 38 38; --red-fl-700: 185 28 28; --red-fl-800: 153 27 27; --red-fl-900: 127 29 29; --red-fl-950: 69 10 10;
+  --red-li-50: 81 31 30; --red-li-100: 81 31 30; --red-li-200: 118 29 28; --red-li-300: 185 28 28; --red-li-400: 248 113 113; --red-li-500: 248 113 113; --red-li-600: 248 113 113; --red-li-700: 252 165 165; --red-li-800: 254 202 202; --red-li-900: 254 226 226; --red-li-950: 254 242 242;
+  --amber-50: 255 251 235; --amber-100: 254 243 199; --amber-200: 253 230 138; --amber-300: 252 211 77; --amber-400: 251 191 36; --amber-500: 251 191 36; --amber-600: 251 191 36; --amber-700: 252 211 77; --amber-800: 253 230 138; --amber-900: 254 243 199; --amber-950: 255 251 235;
+  --amber-fl-50: 56 37 26; --amber-fl-100: 69 40 24; --amber-fl-200: 82 44 22; --amber-fl-300: 113 54 19; --amber-fl-400: 251 191 36; --amber-fl-500: 245 158 11; --amber-fl-600: 217 119 6; --amber-fl-700: 180 83 9; --amber-fl-800: 146 64 14; --amber-fl-900: 120 53 15; --amber-fl-950: 69 26 3;
+  --amber-li-50: 78 43 23; --amber-li-100: 78 43 23; --amber-li-200: 113 54 19; --amber-li-300: 180 83 9; --amber-li-400: 251 191 36; --amber-li-500: 251 191 36; --amber-li-600: 251 191 36; --amber-li-700: 252 211 77; --amber-li-800: 253 230 138; --amber-li-900: 254 243 199; --amber-li-950: 255 251 235;
+  --orange-50: 255 247 237; --orange-100: 255 237 213; --orange-200: 254 215 170; --orange-300: 253 186 116; --orange-400: 251 146 60; --orange-500: 251 146 60; --orange-600: 251 146 60; --orange-700: 253 186 116; --orange-800: 254 215 170; --orange-900: 255 237 213; --orange-950: 255 247 237;
+  --orange-fl-50: 57 35 27; --orange-fl-100: 71 37 25; --orange-fl-200: 84 39 23; --orange-fl-300: 118 46 22; --orange-fl-400: 251 146 60; --orange-fl-500: 249 115 22; --orange-fl-600: 234 88 12; --orange-fl-700: 194 65 12; --orange-fl-800: 154 52 18; --orange-fl-900: 124 45 18; --orange-fl-950: 67 20 7;
+  --orange-li-50: 80 39 24; --orange-li-100: 80 39 24; --orange-li-200: 118 46 22; --orange-li-300: 194 65 12; --orange-li-400: 251 146 60; --orange-li-500: 251 146 60; --orange-li-600: 251 146 60; --orange-li-700: 253 186 116; --orange-li-800: 254 215 170; --orange-li-900: 255 237 213; --orange-li-950: 255 247 237;
+  --sky-50: 240 249 255; --sky-100: 224 242 254; --sky-200: 186 230 253; --sky-300: 125 211 252; --sky-400: 56 189 248; --sky-500: 56 189 248; --sky-600: 56 189 248; --sky-700: 125 211 252; --sky-800: 186 230 253; --sky-900: 224 242 254; --sky-950: 240 249 255;
+  --sky-fl-50: 29 43 50; --sky-fl-100: 26 49 62; --sky-fl-200: 22 55 74; --sky-fl-300: 15 72 102; --sky-fl-400: 56 189 248; --sky-fl-500: 14 165 233; --sky-fl-600: 2 132 199; --sky-fl-700: 3 105 161; --sky-fl-800: 7 89 133; --sky-fl-900: 12 74 110; --sky-fl-950: 8 47 73;
+  --sky-li-50: 24 53 70; --sky-li-100: 24 53 70; --sky-li-200: 15 72 102; --sky-li-300: 3 105 161; --sky-li-400: 56 189 248; --sky-li-500: 56 189 248; --sky-li-600: 56 189 248; --sky-li-700: 125 211 252; --sky-li-800: 186 230 253; --sky-li-900: 224 242 254; --sky-li-950: 240 249 255;
+  --blue-50: 239 246 255; --blue-100: 219 234 254; --blue-200: 191 219 254; --blue-300: 147 197 253; --blue-400: 96 165 250; --blue-500: 96 165 250; --blue-600: 96 165 250; --blue-700: 147 197 253; --blue-800: 191 219 254; --blue-900: 219 234 254; --blue-950: 239 246 255;
+  --blue-fl-50: 34 39 57; --blue-fl-100: 33 42 73; --blue-fl-200: 32 46 89; --blue-fl-300: 32 54 132; --blue-fl-400: 96 165 250; --blue-fl-500: 59 130 246; --blue-fl-600: 37 99 235; --blue-fl-700: 29 78 216; --blue-fl-800: 30 64 175; --blue-fl-900: 30 58 138; --blue-fl-950: 23 37 84;
+  --blue-li-50: 33 45 84; --blue-li-100: 33 45 84; --blue-li-200: 32 54 132; --blue-li-300: 29 78 216; --blue-li-400: 96 165 250; --blue-li-500: 96 165 250; --blue-li-600: 96 165 250; --blue-li-700: 147 197 253; --blue-li-800: 191 219 254; --blue-li-900: 219 234 254; --blue-li-950: 239 246 255;
+  --weiss-fl: 35 32 30;
+}
+
+
 body {
   @apply bg-slate-50 font-sans text-[15px] font-normal text-slate-900;
 }
@@ -10,8 +96,11 @@ h1 {
   @apply font-light tracking-tight;
 }
 
-.card {
-  @apply rounded-xl border border-slate-200 bg-white p-6 shadow-sm;
+/* Karte in der Komponenten-Ebene: Hilfsklassen wie p-0, p-4 oder bg-amber-50 an derselben Karte gewinnen. */
+@layer components {
+  .card {
+    @apply rounded-xl border border-slate-200 bg-white p-6 shadow-sm;
+  }
 }
 
 .btn {
@@ -321,3 +410,232 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
   .fach-ein { animation: none; }
   .fach-filter:active { transform: none; }
 }
+
+/* ================================================================================================
+   App für die Praxis: eine Formensprache (Regelblatt: docs/GESTALTUNG.md)
+   Gilt nur innerhalb von .praxis-app (app/(app)/layout.tsx). Website und Patientenseiten bleiben, wie sie sind.
+   Papier als Arbeitsfläche, weiße Karten mit Haarlinie statt Schatten, 6 px für Felder und Knöpfe,
+   10 px für Karten, Bordeaux als einziger Akzent und als Fokusring.
+   ================================================================================================ */
+.praxis-app {
+  --papier: #F5F2EE;
+  --papier-2: #ECE5DC;
+  --akzent: #5A1D1D;
+  --akzent-tief: #431515;
+  --linie: #DCD2C6;
+  --linie-stark: #C4B6A6;
+  --feld: #FFFFFF;
+  --fokus: rgb(90 29 29 / 0.2);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Höhe der unteren Leiste am Handy; ab lg gibt es sie nicht. */
+  --leiste-unten: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+  background-color: var(--papier);
+  color: rgb(var(--slate-900));
+}
+@media (min-width: 1024px) {
+  .praxis-app { --leiste-unten: 0px; }
+}
+html:has(.praxis-app) body { background-color: #F5F2EE; }
+.praxis-app ::selection { background: var(--akzent); color: #F5F2EE; }
+.praxis-leiste { background-color: var(--papier-2); border-right: 1px solid var(--linie); }
+
+/* Karten: Haarlinie statt Schatten. Karten, die Links sind, zeigen das an der Linie. */
+:where(.praxis-app) .card { box-shadow: none; }
+:where(.praxis-app) a.card { transition: border-color 0.16s ease, background-color 0.16s ease; }
+:where(.praxis-app) a.card:hover { border-color: var(--linie-stark); }
+
+/* Knöpfe */
+:where(.praxis-app) .btn,
+:where(.praxis-app) .btn-primary,
+:where(.praxis-app) .btn-secondary {
+  transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, transform 0.16s var(--ease-out);
+}
+:where(.praxis-app) .btn-primary { background-color: var(--akzent); color: #fff; font-weight: 600; }
+:where(.praxis-app) .btn-primary:hover { background-color: var(--akzent-tief); }
+:where(.praxis-app) .btn-secondary:hover { border-color: var(--akzent); color: rgb(var(--brand-700)); background-color: var(--feld); }
+:where(.praxis-app) .btn-primary:active,
+:where(.praxis-app) .btn-secondary:active { transform: scale(0.98); }
+/* Gesperrte Knöpfe bleiben lesbar (mindestens 4,5:1), statt nur blasser zu werden. */
+:where(.praxis-app) .btn:disabled,
+:where(.praxis-app) .btn-primary:disabled,
+:where(.praxis-app) .btn-secondary:disabled {
+  opacity: 1;
+  background-color: rgb(var(--slate-fl-100));
+  border-color: rgb(var(--slate-li-200));
+  color: rgb(var(--slate-500));
+  transform: none;
+}
+
+/* Felder: weiß, Haarlinie, Fokus in Bordeaux. Gilt für Text, Datum, Uhrzeit, Auswahl und mehrzeiligen Text. */
+/* Grundwerte ohne Gewicht: Hilfsklassen an derselben Stelle (bg-*, min-h-*, border-red-*) gewinnen. */
+:where(.praxis-app .input) {
+  background-color: var(--feld);
+  color: rgb(var(--slate-900));
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+:where(.praxis-app .input:not(textarea)) { min-height: 2.375rem; }
+/* Datum und Uhrzeit: Der Browser gibt diesen Feldern innen mehr Höhe (40 statt 38 px). Feste Höhe, damit sie neben Text- und Auswahlfeldern gleich hoch stehen. */
+:where(.praxis-app input.input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"])) { height: 2.375rem; }
+:where(.praxis-app .input:hover:not(:focus):not(:disabled)) { border-color: rgb(var(--slate-li-400)); }
+:where(.praxis-app) .input:focus { border-color: var(--akzent); box-shadow: 0 0 0 3px var(--fokus); outline: none; }
+:where(.praxis-app) .input:disabled { background-color: rgb(var(--slate-fl-100)); color: rgb(var(--slate-600)); cursor: not-allowed; }
+.praxis-app input::placeholder,
+.praxis-app textarea::placeholder { color: rgb(var(--slate-500)); opacity: 1; }
+/* Auswahlfelder: eigener Pfeil statt der grauen Fläche des Browsers (eingebettetes Bild, keine fremde Quelle). */
+:where(.praxis-app) select:where(:not([multiple]):not([size])) {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--feld);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%235A1D1D' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.55rem center;
+  background-size: 1.1rem 1.1rem;
+  cursor: pointer;
+}
+/* Platz für den Pfeil, auch wenn eine Stelle eigene Innenabstände setzt. */
+.praxis-app select:not([multiple]):not([size]) { padding-right: 2.1rem; }
+/* Kästchen und Auswahlpunkte: weiß mit Haarlinie, gewählt in Bordeaux. Größe ohne Gewicht, damit h-4/h-5 gewinnen. */
+:where(.praxis-app input[type="checkbox"], .praxis-app input[type="radio"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border: 1px solid rgb(var(--slate-li-400));
+  border-radius: 4px;
+  background-color: var(--feld);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+:where(.praxis-app input[type="radio"]) { border-radius: 999px; }
+:where(.praxis-app input[type="checkbox"], .praxis-app input[type="radio"]):checked { background-color: var(--akzent); border-color: var(--akzent); }
+:where(.praxis-app input[type="checkbox"]):checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8.4l2.6 2.6L12 5.4'/%3E%3C/svg%3E");
+}
+:where(.praxis-app input[type="radio"]):checked {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='3' fill='%23fff'/%3E%3C/svg%3E");
+}
+:where(.praxis-app input[type="checkbox"]):indeterminate {
+  background-color: var(--akzent);
+  border-color: var(--akzent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' stroke='%23fff' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4.5 8h7'/%3E%3C/svg%3E");
+}
+:where(.praxis-app input[type="checkbox"], .praxis-app input[type="radio"]):disabled { background-color: rgb(var(--slate-fl-100)); border-color: rgb(var(--slate-li-300)); cursor: not-allowed; }
+@media (forced-colors: active) {
+  .praxis-app input[type="checkbox"], .praxis-app input[type="radio"], .praxis-app select { -webkit-appearance: auto; appearance: auto; background-image: none; }
+}
+
+/* Sichtbarer Fokus überall, nur bei Tastatur. Ohne Gewicht: eigene Fokusregeln einer Stelle bleiben gültig. */
+:where(.praxis-app) :where(a, button, summary, select, input, textarea, [role="button"], [role="tab"], [role="switch"], [tabindex]):focus-visible {
+  outline: 2px solid var(--akzent);
+  outline-offset: 2px;
+}
+/* Auf Bordeaux oder dunkler Fläche wäre ein Bordeaux-Ring unsichtbar. */
+:where(.praxis-app) :where(.bg-brand-600, .bg-brand-700, .bg-brand-800, .bg-slate-900, .auf-dunkel) :where(a, button, summary, input, [role="button"]):focus-visible {
+  outline-color: #fff;
+}
+.praxis-app main:focus { outline: none; }
+
+/* Handy: Die untere Leiste verdeckt nichts. Der Inhalt endet darüber, festgesetzte Elemente rücken hoch. */
+.praxis-inhalt { padding-bottom: calc(var(--leiste-unten) + 2rem); }
+@media (max-width: 1023px) {
+  .praxis-app :where(.fixed, .sticky).bottom-0 { bottom: var(--leiste-unten); }
+  .praxis-app :where(.fixed, .sticky).bottom-4 { bottom: calc(var(--leiste-unten) + 1rem); }
+}
+/* Die Leiste selbst (components/UntereLeiste.tsx): fest am unteren Rand, mit Abstand für die Gestenleiste des Handys. */
+.leiste-unten {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Deckend: Durchscheinender Text hinter den Beschriftungen der Leiste wirkt unsauber und stört das Lesen. */
+  background-color: rgb(var(--weiss-fl));
+  border-top: 1px solid var(--linie);
+}
+@media (min-width: 1024px) { .leiste-unten { display: none; } }
+
+/* Sprunglink: erstes Element der Seite, sichtbar erst mit der Tabulatortaste (App und Website). */
+.sprunglink {
+  position: absolute;
+  left: 0.75rem;
+  top: -5rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  background: #5A1D1D;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.sprunglink:focus { top: 0.75rem; outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 4px #5A1D1D; }
+
+/* ---- Bewegung mit Sinn: kurz (150–200 ms), nur wo sie etwas erklärt ---- */
+/* Hinweis (components/Hinweis.tsx) und Dialoge öffnen sich mit einem kurzen Einblenden. */
+@keyframes ein-kurz { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes ein-dialog { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
+@keyframes ein-schleier { from { opacity: 0; } to { opacity: 1; } }
+.hinweis[open] > .hinweis-text { animation: ein-kurz 0.18s cubic-bezier(0.23, 1, 0.32, 1) both; }
+.ein-dialog { animation: ein-dialog 0.18s cubic-bezier(0.23, 1, 0.32, 1) both; }
+.ein-schleier { animation: ein-schleier 0.15s ease-out both; }
+/* Haken nach erfolgreichem Speichern: zeichnet sich einmal (components/Haken.tsx). */
+@keyframes haken-zeichnen { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.haken { display: inline-block; width: 1.05em; height: 1.05em; vertical-align: -0.16em; margin-right: 0.3em; color: rgb(var(--salbei-600)); }
+.haken path { stroke-dasharray: 1; stroke-dashoffset: 0; animation: haken-zeichnen 0.32s cubic-bezier(0.23, 1, 0.32, 1) 0.05s backwards; }
+/* Verlaufslinie neben Kennzahlen: zeichnet sich einmal. */
+.verlauf-linie { stroke-dasharray: 1; stroke-dashoffset: 0; animation: haken-zeichnen 0.6s cubic-bezier(0.23, 1, 0.32, 1) backwards; }
+
+/* Wer weniger Bewegung möchte, bekommt keine: Animationen und Übergänge enden sofort im Endbild. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+  .praxis-app .btn-primary:active, .praxis-app .btn-secondary:active { transform: none; }
+}
+
+/* ---- Dunkle Ansicht (Beta): Flächen und Akzente, die nicht aus den Farbvariablen kommen ---- */
+.dunkel .praxis-app {
+  --papier: #191615;
+  --papier-2: #141211;
+  --akzent: #E0ABA1;
+  --akzent-tief: #EDC4BC;
+  --linie: #3D3733;
+  --linie-stark: #5A534D;
+  --feld: #1D1A19;
+  --fokus: rgb(224 171 161 / 0.3);
+  color-scheme: dark;
+}
+html.dunkel:has(.praxis-app) body { background-color: #191615; }
+.dunkel .praxis-app ::selection { background: #7A2F28; color: #fff; }
+/* Nur bedienbare Knöpfe: Ein gesperrter Knopf behält sein gesperrtes Aussehen (sonst sähe er in der dunklen Ansicht bedienbar aus). */
+.dunkel .praxis-app .btn-primary:not(:disabled) { background-color: rgb(var(--brand-fl-700)); color: #fff; }
+.dunkel .praxis-app .btn-primary:not(:disabled):hover { background-color: rgb(var(--brand-fl-800)); }
+.dunkel .praxis-app select:where(:not([multiple]):not([size])) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23E0ABA1' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+}
+.dunkel .praxis-app :where(input[type="checkbox"], input[type="radio"]):checked { background-color: #8A372F; border-color: #8A372F; }
+/* Feste Papier- und Hinweisfarben einzelner Stellen */
+.dunkel .praxis-app :where(.bg-\[\#F5F2EE\], .bg-\[\#FBFAF8\], .bg-\[\#FBF9F6\], .bg-\[\#FFFDFB\]) { background-color: #2B2725; }
+.dunkel .praxis-app :where(.bg-\[\#F3E4DF\]) { background-color: #3F2623; }
+.dunkel .praxis-app :where(.bg-\[\#E4EDE2\]) { background-color: #2A3329; }
+.dunkel .praxis-app :where(.border-\[\#E9E2DA\]) { border-color: #3D3733; }
+.dunkel .praxis-app :where(.text-\[\#5A1D1D\], .text-\[\#5b3a35\]) { color: #E6B6AD; }
+.dunkel .praxis-app :where(.text-\[\#1f3320\]) { color: #C7D6C2; }
+.dunkel .praxis-app .bg-slate-900\/40 { background-color: rgb(0 0 0 / 0.6); }
+.dunkel .praxis-app img:not([src*="sorrida-mark"]) { filter: brightness(0.92); }
+@media print { .leiste-unten, .sprunglink, .demo-fuehrung { display: none !important; } }
+/* Bildzeichen: in der dunklen Ansicht die helle Fassung. */
+.dunkel-nur { display: none; }
+.dunkel .praxis-app .dunkel-nur { display: block; }
+.dunkel .praxis-app .hell-nur { display: none; }

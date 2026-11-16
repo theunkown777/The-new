@@ -54,8 +54,8 @@ export default function NewPatientPage() {
         {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Vorname</label>
-            <input
+            <label className="label" htmlFor="patient-neu-vorname">Vorname</label>
+            <input id="patient-neu-vorname"
               required
               className="input"
               value={form.firstName}
@@ -63,8 +63,8 @@ export default function NewPatientPage() {
             />
           </div>
           <div>
-            <label className="label">Nachname</label>
-            <input
+            <label className="label" htmlFor="patient-neu-nachname">Nachname</label>
+            <input id="patient-neu-nachname"
               required
               className="input"
               value={form.lastName}
@@ -73,8 +73,8 @@ export default function NewPatientPage() {
           </div>
         </div>
         <div>
-          <label className="label">Geschlecht</label>
-          <select className="input" value={form.geschlecht} onChange={(e) => update("geschlecht", e.target.value)} data-testid="geschlecht">
+          <label className="label" htmlFor="patient-neu-geschlecht">Geschlecht</label>
+          <select id="patient-neu-geschlecht" className="input" value={form.geschlecht} onChange={(e) => update("geschlecht", e.target.value)} data-testid="geschlecht">
             <option value="">nicht angegeben</option>
             <option value="W">weiblich</option>
             <option value="M">männlich</option>
@@ -83,8 +83,8 @@ export default function NewPatientPage() {
           <p className="mt-1 text-xs text-slate-500">Steuert geschlechtsbezogene Vorsorge und Angebote (z. B. Prostata- oder Brust-Früherkennung).</p>
         </div>
         <div>
-          <label className="label">Geburtsdatum</label>
-          <input
+          <label className="label" htmlFor="patient-neu-geburtsdatum">Geburtsdatum</label>
+          <input id="patient-neu-geburtsdatum"
             type="date"
             className="input"
             value={form.birthDate}
@@ -93,8 +93,8 @@ export default function NewPatientPage() {
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">Kassenart</label>
-            <select
+            <label className="label" htmlFor="patient-neu-kassenart">Kassenart</label>
+            <select id="patient-neu-kassenart"
               className="input"
               value={form.insuranceType}
               onChange={(e) => update("insuranceType", e.target.value)}
@@ -104,8 +104,8 @@ export default function NewPatientPage() {
             </select>
           </div>
           <div>
-            <label className="label">Krankenkasse</label>
-            <input
+            <label className="label" htmlFor="patient-neu-krankenkasse">Krankenkasse</label>
+            <input id="patient-neu-krankenkasse"
               className="input"
               value={form.insuranceName}
               onChange={(e) => update("insuranceName", e.target.value)}
@@ -113,8 +113,8 @@ export default function NewPatientPage() {
           </div>
         </div>
         <div>
-          <label className="label">Versichertennummer</label>
-          <input
+          <label className="label" htmlFor="patient-neu-versichertennummer">Versichertennummer</label>
+          <input id="patient-neu-versichertennummer"
             className="input"
             value={form.insuranceNumber}
             onChange={(e) => update("insuranceNumber", e.target.value)}
@@ -122,12 +122,12 @@ export default function NewPatientPage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">E-Mail (optional)</label>
-            <input className="input" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} />
+            <label className="label" htmlFor="patient-neu-e-mail">E-Mail (optional)</label>
+            <input id="patient-neu-e-mail" className="input" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} />
           </div>
           <div>
-            <label className="label">Mobilnummer (optional)</label>
-            <input className="input" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
+            <label className="label" htmlFor="patient-neu-mobilnummer">Mobilnummer (optional)</label>
+            <input id="patient-neu-mobilnummer" className="input" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
           </div>
         </div>
         <label className="flex items-start gap-2 text-sm text-slate-700">
@@ -135,8 +135,8 @@ export default function NewPatientPage() {
           <span>Der Patient willigt ein, Terminbestätigungen, Erinnerungen und Zahlungserinnerungen per E-Mail zu erhalten.</span>
         </label>
         <div>
-          <label className="label">Notizen (optional)</label>
-          <textarea
+          <label className="label" htmlFor="patient-neu-notizen">Notizen (optional)</label>
+          <textarea id="patient-neu-notizen"
             className="input min-h-20"
             value={form.notes}
             onChange={(e) => update("notes", e.target.value)}

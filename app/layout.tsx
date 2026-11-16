@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className={`${openSans.variable} ${cormorant.variable}`}>
+    <html lang="de" className={`${openSans.variable} ${cormorant.variable}`} suppressHydrationWarning>
       <body>
         {children}
         <WegAnimationen />

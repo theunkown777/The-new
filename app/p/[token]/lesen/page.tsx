@@ -6,6 +6,7 @@ import { proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { DEFAULT_INSTALLMENTS } from "@/lib/installments";
 import { UI, langDir, pickLang, type PatientLang } from "@/lib/patientI18n";
+import { uebersetzungsWoerterbuch } from "@/lib/eigeneLeistung";
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { leseLinkVorschlag } from "@/lib/leseLink";
 
@@ -60,6 +61,7 @@ export default async function LeseAnsicht(props: { params: Promise<{ token: stri
         installments={DEFAULT_INSTALLMENTS}
         lang={lang}
         dental={isDental(input.data.fach)}
+        zusatz={uebersetzungsWoerterbuch(input.data.med?.custom, lang)}
         therapie={isTherapie(specialty(input.data.fach))}
         arztDativ={specialty(input.data.fach)?.arztDativ}
       />

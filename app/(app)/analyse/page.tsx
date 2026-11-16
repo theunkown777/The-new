@@ -4,7 +4,9 @@ import { authOptions } from "@/lib/auth";
 import { loadAnalysis } from "@/lib/analyticsLoad";
 import { prisma } from "@/lib/prisma";
 import { formatCent, invoiceTotals } from "@/lib/invoices";
-import type { Risk } from "@/lib/analytics";
+import { MIN_GROUP, veraenderung, vergleichSatz, zeitraumDavor, type Risk } from "@/lib/analytics";
+import { verlaufText } from "@/lib/verlauf";
+import { Verlauf } from "@/components/Verlauf";
 import { AnalyseExplorer } from "@/components/AnalyseExplorer";
 import { canSeeAnalytics } from "@/lib/permissions";
 import { AUSWERTUNG_TAGE, auswertung } from "@/lib/rueckmeldung";
@@ -55,6 +57,18 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
     prisma.invoice.findMany({ where: { practiceId }, select: { status: true, dueDate: true, amountCent: true, paidAt: true } }),
   ]);
   const inv = invoiceTotals(invoices);
+  // Vergleich mit dem gleich langen Zeitraum davor: nur Zahl und Richtung, keine Wertung.
+  const davor = a.vergleich.davor;
+  const gegenueber = zeitraumDavor(tage);
+  const umsatzVergleich =
+    davor.entschieden === 0 && davor.umsatz === 0
+      ? "Kein Vergleich: davor keine entschiedenen Vorschläge"
+      : vergleichSatz(veraenderung(a.umsatz, davor.umsatz), "€", gegenueber);
+  // Quoten werden erst ab MIN_GROUP entschiedenen Fällen je Zeitraum verglichen, damit Zufall nicht wie ein Muster aussieht.
+  const quoteVergleich =
+    a.entschieden >= MIN_GROUP && davor.entschieden >= MIN_GROUP
+      ? vergleichSatz(veraenderung(a.quote, davor.quote), "Punkte", gegenueber)
+      : `Vergleich ab ${MIN_GROUP} entschiedenen Vorschlägen je Zeitraum`;
   // Rückmeldungen nach dem Termin: nur gesammelt, ohne Namen und ohne Bezug zum Termin (lib/rueckmeldung.ts).
   const jetzt = new Date();
   const rueck = auswertung(
@@ -87,13 +101,21 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <div className="card">
           <p className="text-sm text-slate-500">Umsatz aus angenommenen Vorschlägen</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900" data-testid="kpi-umsatz">{eur(a.umsatz)}</p>
+          <div className="mt-1 flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
+            <p className="text-2xl font-semibold tabular-nums text-slate-900" data-testid="kpi-umsatz">{eur(a.umsatz)}</p>
+            <Verlauf werte={a.vergleich.verlauf.umsatz} beschreibung={verlaufText("Umsatz", a.vergleich.verlauf.umsatz, "€")} testid="verlauf-umsatz" />
+          </div>
           <p className="mt-1 text-xs text-slate-500">{eur(a.privat)} selbst bezahlt · {eur(a.kasse)} Kasse</p>
+          {umsatzVergleich && <p className="mt-1 text-xs text-slate-600" data-testid="vergleich-umsatz">{umsatzVergleich}</p>}
         </div>
         <div className="card">
           <p className="text-sm text-slate-500">Annahmequote</p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{a.quote == null ? "–" : `${a.quote} %`}</p>
+          <div className="mt-1 flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
+            <p className="text-2xl font-semibold tabular-nums text-slate-900">{a.quote == null ? "–" : `${a.quote} %`}</p>
+            <Verlauf werte={a.vergleich.verlauf.quote} beschreibung={verlaufText("Annahmequote", a.vergleich.verlauf.quote, "%")} testid="verlauf-quote" />
+          </div>
           <p className="mt-1 text-xs text-slate-500">{a.angenommen} von {a.entschieden} entschiedenen Vorschlägen</p>
+          {quoteVergleich && <p className="mt-1 text-xs text-slate-600" data-testid="vergleich-quote">{quoteVergleich}</p>}
         </div>
         <div className="card">
           <p className="text-sm text-slate-500">Noch offen in Vorschlägen</p>

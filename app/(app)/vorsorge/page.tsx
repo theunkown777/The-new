@@ -1,4 +1,5 @@
 import { fachprofil } from "@/lib/fachprofile";
+import { Leer } from "@/components/Leer";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -47,10 +48,12 @@ export default async function VorsorgePage() {
       </div>
 
       {rules.length === 0 ? (
-        <p className="card text-sm text-slate-600">
-          Für {specialty(fach)?.name ?? "Ihr Fach"} gibt es noch keine regelmäßige Kassen-Vorsorge in Sorrida. Schreiben Sie uns, welche Erinnerung Sie brauchen:{" "}
-          <Link href="/hilfe" className="text-brand-700 underline">Hilfe</Link>.
-        </p>
+        <div className="card p-0">
+          <Leer symbol="herz">
+            Für {specialty(fach)?.name ?? "Ihr Fach"} gibt es noch keine regelmäßige Kassen-Vorsorge in Sorrida. Schreiben Sie uns, welche Erinnerung Sie brauchen:{" "}
+            <Link href="/hilfe" className="text-brand-700 underline">Hilfe</Link>.
+          </Leer>
+        </div>
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -92,7 +95,7 @@ export default async function VorsorgePage() {
           />
 
           {due.length === 0 ? (
-            <p className="card text-sm text-slate-600">Gerade ist niemand fällig.</p>
+            <div className="card p-0"><Leer symbol="haken">Gerade ist niemand fällig.</Leer></div>
           ) : (
             <ul className="space-y-2" data-testid="vorsorge-liste">
               {shown.map(({ p, r, letzter }) => (

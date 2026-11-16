@@ -59,14 +59,16 @@ type Props = {
    * keine Zweitmeinung, kein PDF, kein Vorname, nichts von dem, was der Patient gewählt oder geschrieben hat.
    */
   readOnly?: boolean;
+  /** Geprüfte Übersetzungen eigener Leistungen der Praxis (deutscher Text → Übersetzung), lib/eigeneLeistung.ts. */
+  zusatz?: Record<string, string>;
 };
 
 /**
  * Regeltext in der gewählten Sprache. Was es nur auf Deutsch gibt, wird als Deutsch ausgezeichnet:
  * richtige Schreibrichtung in der arabischen Ansicht und richtige Aussprache in Vorleseprogrammen.
  */
-function Rt({ text, lang }: { text: string; lang: PatientLang }) {
-  const u = uebersetzung(text, lang);
+function Rt({ text, lang, z }: { text: string; lang: PatientLang; z?: Record<string, string> }) {
+  const u = uebersetzung(text, lang, z);
   return u.stand === "deutsch" ? (
     <span lang="de" dir="ltr">
       {u.text}
@@ -77,7 +79,7 @@ function Rt({ text, lang }: { text: string; lang: PatientLang }) {
 }
 
 export function PatientProposalView(props: Props) {
-  const { items, patient, lang } = props;
+  const { items, patient, lang, zusatz } = props;
   const readOnly = !!props.readOnly;
   // „Einfache Sprache“ gibt es nur in der deutschen Ansicht; sie ersetzt die Rahmentexte, nicht die Namen der Leistungen.
   const [einfach, setEinfach] = useState(false);
@@ -94,9 +96,9 @@ export function PatientProposalView(props: Props) {
           i.where,
           ...i.notes.filter((n) => n.kind === "info").map((n) => n.text),
           ...i.options.flatMap((o) => [o.name, typeLabelOf(o, patient.insurance), ...o.benefits, ...(o.hinweis ? [o.hinweis] : []), ...(o.nutzen ? [o.nutzen] : [])]),
-        ].some((x) => uebersetzung(x, lang).stand !== "ganz"),
+        ].some((x) => uebersetzung(x, lang, zusatz).stand !== "ganz"),
       ),
-    [items, lang, patient.insurance],
+    [items, lang, patient.insurance, zusatz],
   );
   // Nichts ist vorausgewählt: Die Patientin oder der Patient entscheidet selbst.
   // Automatisch gesetzt ist nur, wo es ohnehin nur die Kassenleistung gibt. Eine einzelne
@@ -163,7 +165,7 @@ export function PatientProposalView(props: Props) {
 
   async function send(response: "INTERESSE" | "RUECKRUF") {
     if (response === "INTERESSE" && offen.length > 0) {
-      setError(t.missing(offen.map((i) => tr(i.title, lang)).join(", ")));
+      setError(t.missing(offen.map((i) => tr(i.title, lang, zusatz)).join(", ")));
       setState("error");
       document.getElementById(`pos-${offen[0].key}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
@@ -221,7 +223,7 @@ export function PatientProposalView(props: Props) {
           </nav>
         )}
         <div className="flex flex-wrap gap-1.5" data-testid="lesehilfen">
-          <VorlesenKnopf t={t} teile={() => vorleseTeile({ ueberschrift, items, patient, choices: readOnly ? {} : choices, summe: readOnly || nochNichtsGewaehlt ? null : sum.netto, lang, t })} />
+          <VorlesenKnopf t={t} teile={() => vorleseTeile({ ueberschrift, items, patient, choices: readOnly ? {} : choices, summe: readOnly || nochNichtsGewaehlt ? null : sum.netto, lang, t, zusatz })} />
           {lang === "de" && (
             <button
               type="button"
@@ -263,16 +265,17 @@ export function PatientProposalView(props: Props) {
           <>
             <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
               <dt className="text-sm text-slate-500">{gkv ? t.stepInsurerGkv : t.stepInsurerPkv}</dt>
-              <dd className="font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-lg" data-testid="schritt-kasse">
+              <dd className="text-end font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-start sm:text-lg" data-testid="schritt-kasse">
                 {nochNichtsGewaehlt ? <><span aria-hidden="true">–</span><span className="sr-only">{t.open(offen.length)}</span></> : fmt(anteile.kasse)}
-                {anteile.zusatz > 0.5 && <span className="ms-2 text-xs font-normal text-slate-500 sm:ms-0 sm:block">+ {t.supplementary} {fmt(anteile.zusatz)}</span>}
+                {anteile.zusatz > 0.5 && <span className="block text-xs font-normal text-slate-500">+ {t.supplementary} {fmt(anteile.zusatz)}</span>}
               </dd>
             </div>
             <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
               <dt className="text-sm text-slate-500">{t.stepSelf}</dt>
-              <dd className="font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-lg" data-testid="schritt-selbst">
+              <dd className="text-end font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-start sm:text-lg" data-testid="schritt-selbst">
                 {nochNichtsGewaehlt ? <span aria-hidden="true">–</span> : fmt(sum.netto)}
-                {offen.length > 0 && <span className="ms-2 text-xs font-normal text-brand-700 sm:ms-0 sm:block">{t.open(offen.length)}</span>}
+                {/* Auf dem Handy steht der Hinweis unter dem Betrag, sonst bricht er mitten im Satz um. */}
+                {offen.length > 0 && <span className="block text-xs font-normal text-brand-700">{t.open(offen.length)}</span>}
               </dd>
             </div>
           </>
@@ -288,15 +291,15 @@ export function PatientProposalView(props: Props) {
       <div className="mt-8 space-y-6">
         {items.map((item) => {
           const current = gewaehlt(item);
-          const title = tr(item.title, lang);
+          const title = tr(item.title, lang, zusatz);
           const infos = item.notes.filter((n) => n.kind === "info");
           return (
             <section key={item.key} id={`pos-${item.key}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <h2 className="font-semibold text-slate-900">
-                <Rt text={item.title} lang={lang} />
+                <Rt text={item.title} lang={lang} z={zusatz} />
               </h2>
               <p className="text-sm text-slate-500">
-                <Rt text={item.where} lang={lang} />
+                <Rt text={item.where} lang={lang} z={zusatz} />
               </p>
               {!current && !readOnly && <p className="mt-1 text-xs text-brand-700">{istFreiwillig(item) ? t.optional : t.pick}</p>}
               <fieldset className="mt-4 space-y-3">
@@ -328,11 +331,11 @@ export function PatientProposalView(props: Props) {
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium text-slate-900">
-                              <Rt text={o.name} lang={lang} />
+                              <Rt text={o.name} lang={lang} z={zusatz} />
                             </span>
                           </div>
                           <span className="text-xs text-slate-500">
-                            <Rt text={typeLabelOf(o, patient.insurance)} lang={lang} />
+                            <Rt text={typeLabelOf(o, patient.insurance)} lang={lang} z={zusatz} />
                           </span>
                         </div>
                         <div className="text-end">
@@ -351,19 +354,19 @@ export function PatientProposalView(props: Props) {
                         <ul className="mt-2 list-disc space-y-0.5 ps-5 text-sm text-slate-700">
                           {o.benefits.map((b) => (
                             <li key={b}>
-                              <Rt text={b} lang={lang} />
+                              <Rt text={b} lang={lang} z={zusatz} />
                             </li>
                           ))}
                         </ul>
                       )}
                       {o.hinweis && (
                         <p className="mt-2 text-xs text-emerald-800">
-                          {t.kasseWenn} <Rt text={o.hinweis} lang={lang} />
+                          {t.kasseWenn} <Rt text={o.hinweis} lang={lang} z={zusatz} />
                         </p>
                       )}
                       {o.nutzen && (
                         <p className="mt-1 text-xs text-amber-800">
-                          {t.nutzen} <Rt text={o.nutzen} lang={lang} />
+                          {t.nutzen} <Rt text={o.nutzen} lang={lang} z={zusatz} />
                         </p>
                       )}
                       <p className={`mt-2 text-xs text-slate-500 ${o.total === 0 ? "hidden" : ""}`}>
@@ -396,7 +399,7 @@ export function PatientProposalView(props: Props) {
                 <ul className="mt-3 space-y-1 text-sm text-slate-600">
                   {infos.map((n) => (
                     <li key={n.text}>
-                      <Rt text={n.text} lang={lang} />
+                      <Rt text={n.text} lang={lang} z={zusatz} />
                     </li>
                   ))}
                 </ul>
@@ -549,17 +552,17 @@ export function PatientProposalView(props: Props) {
                 return (
                   <li key={item.key} className="rounded-xl border border-slate-200 p-3">
                     <p className="font-medium text-slate-900">
-                      <Rt text={item.title} lang={lang} />
+                      <Rt text={item.title} lang={lang} z={zusatz} />
                     </p>
                     <dl className="mt-1 grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-0.5 text-sm">
                       <dt className="text-slate-500">{t.yourChoice}</dt>
-                      <dd className={mine ? "text-slate-900" : "text-brand-700"}>{mine ? <Rt text={mine.name} lang={lang} /> : t.notChosen}</dd>
+                      <dd className={mine ? "text-slate-900" : "text-brand-700"}>{mine ? <Rt text={mine.name} lang={lang} z={zusatz} /> : t.notChosen}</dd>
                       <dd className="text-end tabular-nums text-slate-700">{mine ? fmt(money(mine, patient).netto) : ""}</dd>
                       {rec && (
                         <>
                           <dt className="text-salbei-700">{t.ourRec}</dt>
                           <dd className="text-slate-900">
-                            <Rt text={rec.name} lang={lang} />
+                            <Rt text={rec.name} lang={lang} z={zusatz} />
                           </dd>
                           <dd className="text-end tabular-nums text-slate-700">{fmt(money(rec, patient).netto)}</dd>
                         </>
@@ -570,7 +573,7 @@ export function PatientProposalView(props: Props) {
                     ) : (
                       rec?.benefits[0] && (
                         <p className="mt-1 text-xs text-slate-600">
-                          {t.why} <Rt text={rec.benefits[0]} lang={lang} />
+                          {t.why} <Rt text={rec.benefits[0]} lang={lang} z={zusatz} />
                         </p>
                       )
                     )}

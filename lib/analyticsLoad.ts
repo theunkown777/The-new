@@ -1,18 +1,25 @@
 import { prisma } from "@/lib/prisma";
 import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
-import { analyze, rowsOf, type ProposalFacts, type Row } from "@/lib/analytics";
+import { analyze, rowsOf, zeitvergleich, type ProposalFacts, type Row } from "@/lib/analytics";
 import { isDental } from "@/lib/specialties";
 
 const DAY = 24 * 60 * 60 * 1000;
 
-/** Daten einer Praxis für die Analyse laden (höchstens die letzten 12 Monate). */
+/**
+ * Daten einer Praxis für die Analyse laden (höchstens die letzten 12 Monate), dazu den gleich langen Zeitraum
+ * davor für den Vergleich. Die Analyse selbst rechnet weiter nur mit den Vorschlägen ab `since`.
+ */
 export async function loadAnalysis(practiceId: string, zeitraumTage: number, now = new Date()) {
   const since = new Date(now.getTime() - Math.max(zeitraumTage, 190) * DAY);
+  // Für den Vergleich reicht der Blick doppelt so weit zurück.
+  const sinceVergleich = new Date(Math.min(since.getTime(), now.getTime() - 2 * zeitraumTage * DAY));
   const [practice, list, invoices] = await Promise.all([
     prisma.practice.findUnique({ where: { id: practiceId }, select: { proposalPrices: true, specialty: true } }),
     prisma.treatmentProposal.findMany({
-      where: { practiceId, createdAt: { gte: since } },
+      where: { practiceId, createdAt: { gte: sinceVergleich } },
+      // Neueste zuerst: Greift die Obergrenze, fehlen alte Vorschläge aus dem Vergleichszeitraum, nicht aktuelle.
+      orderBy: { createdAt: "desc" },
       select: {
         id: true, status: true, createdAt: true, updatedAt: true, input: true, choices: true,
         shareCreatedAt: true, patientViewedAt: true, patientRespondedAt: true, patientWantsInstallments: true,
@@ -45,12 +52,16 @@ export async function loadAnalysis(practiceId: string, zeitraumTage: number, now
     proposals.push(f);
     rows.push(...rowsOf(f, buildProposal(input.data, prices).filter((i) => i.options.length), choices.success ? choices.data : {}));
   }
-  return analyze({
-    proposals,
-    rows,
+  // Die Analyse sieht dieselben Vorschläge wie bisher; nur der Vergleich nutzt den längeren Rückblick.
+  const aktuelle = proposals.filter((p) => p.createdAt >= since);
+  const aktuelleIds = new Set(aktuelle.map((p) => p.id));
+  const analyse = analyze({
+    proposals: aktuelle,
+    rows: rows.filter((r) => aktuelleIds.has(r.proposalId)),
     invoices,
     now,
     zeitraumTage,
     tageBisStichtag: isDental(practice?.specialty) && showsJahresvergleich(now) ? tageBisStichtag(now) : null,
   });
+  return { ...analyse, vergleich: zeitvergleich({ proposals, rows, now, zeitraumTage }) };
 }

@@ -4,6 +4,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REPORT_TYPE_LABELS, REPORT_STATUS_LABELS } from "@/lib/reportLabels";
 
+/** So viele Berichte zeigt die Liste höchstens. */
+const LISTE_MAX = 200;
+
 export default async function ReportsPage(props: {
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
@@ -12,7 +15,7 @@ export default async function ReportsPage(props: {
   const q = searchParams.q?.trim();
   const status = searchParams.status;
 
-  const reports = await prisma.report.findMany({
+  const alle = await prisma.report.findMany({
     where: {
       practiceId: session!.user.practiceId,
       ...(status === "ENTWURF" || status === "FINAL" ? { status } : {}),
@@ -27,8 +30,12 @@ export default async function ReportsPage(props: {
         : {}),
     },
     orderBy: { createdAt: "desc" },
-    include: { patient: true, serviceTemplate: { select: { name: true } } },
+    // Die Liste zeigt die neuesten Berichte und lädt nur, was eine Zeile braucht. Ältere findet die Suche oben.
+    take: LISTE_MAX + 1,
+    select: { id: true, type: true, status: true, createdAt: true, patient: { select: { firstName: true, lastName: true } }, serviceTemplate: { select: { name: true } } },
   });
+  const mehr = alle.length > LISTE_MAX;
+  const reports = mehr ? alle.slice(0, LISTE_MAX) : alle;
 
   return (
     <div>
@@ -79,6 +86,11 @@ export default async function ReportsPage(props: {
         </div>
       ) : (
         <div className="card divide-y divide-slate-100 p-0">
+          {mehr && (
+            <p className="px-4 py-3 text-sm text-slate-500 sm:px-6" data-testid="berichte-begrenzt">
+              Die Liste zeigt die neuesten {LISTE_MAX} Berichte. Ältere finden Sie über die Suche oben oder beim Patienten.
+            </p>
+          )}
           {reports.map((r) => (
             <Link
               key={r.id}
