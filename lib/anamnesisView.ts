@@ -14,7 +14,7 @@ export type AnamnesisSummary = {
 
 /** Letzte ausgefüllte Anamnese und ein ggf. offener Link für einen Patienten der Praxis. */
 export async function loadAnamnesis(practiceId: string, patientId: string): Promise<AnamnesisSummary> {
-  const [done, open, praxis] = await Promise.all([
+  const [done, open] = await Promise.all([
     prisma.anamnesisForm.findFirst({
       where: { practiceId, patientId, submittedAt: { not: null } },
       orderBy: { submittedAt: "desc" },
@@ -23,15 +23,15 @@ export async function loadAnamnesis(practiceId: string, patientId: string): Prom
       where: { practiceId, patientId, submittedAt: null, tokenHash: { not: null }, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: "desc" },
     }),
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }),
   ]);
   const a = done ? parseAnamnesis(done.answers) : null;
+  // Ältere Bögen ohne Fach (Fassung 1): das Fach beim Anlegen, sonst das der Praxis. Nur dann wird die Praxis gelesen.
+  const fach = a && !a.fach && !done?.fach ? (await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }))?.specialty : done?.fach;
   return {
     submittedAt: done?.submittedAt?.toISOString() ?? null,
     open: open ? { createdAt: open.createdAt.toISOString(), viewedAt: open.viewedAt?.toISOString() ?? null, expiresAt: open.expiresAt.toISOString() } : null,
     flags: a ? anamnesisFlags(a) : [],
-    // Ältere Bögen ohne Fach: das Fach beim Anlegen, sonst das der Praxis.
-    globals: a ? anamnesisProposalGlobals(a, done?.fach ?? praxis?.specialty) : [],
+    globals: a ? anamnesisProposalGlobals(a, fach) : [],
     answers: a ? { zeilen: anamneseZeilen(a), anliegen: anliegenTexte(a), ...(a.note ? { note: a.note } : {}), confirmName: a.confirmName, eltern: a.ansprache === "eltern" } : null,
   };
 }

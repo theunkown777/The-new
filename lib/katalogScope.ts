@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma";
 // (practiceId = null) sind Vorgaben je Fach und nur lesbar. Was eine Praxis
 // anlegt oder ändert, gehört ihr allein.
 
+/** Fach der Praxis. Ohne Praxis leer (kein stiller Rückfall auf Zahnmedizin in Texten und Beispielen). */
 export async function praxisFach(practiceId: string): Promise<string> {
   const p = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } });
-  return p?.specialty || "zahn";
+  return p?.specialty ?? "";
 }
 
 /** Sichtbar: Vorgaben des eigenen Fachs und eigene Einträge. */

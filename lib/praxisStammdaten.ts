@@ -89,6 +89,8 @@ const BERUF_BEISPIEL: Record<string, string> = {
   heilpraktiker: "Heilpraktikerin",
 };
 const ARZT = ["hausarzt", "augen", "haut", "gyn", "uro", "ortho", "hno", "kinder", "kardio", "radiologie", "neuro", "gastro", "pneumo", "endo", "chirurgie", "aesthetik", "klinik"];
+/** Fächer, in denen die Kassenärztliche Vereinigung die übliche Aufsicht ist (Kassenpraxen). */
+const KV = ARZT.filter((f) => f !== "klinik" && f !== "aesthetik").concat("psych");
 
 export function stammdatenBeispiele(fach: string | null | undefined): { berufsbezeichnung: string; aufsicht: string } {
   const f = fach ?? "";
@@ -96,8 +98,13 @@ export function stammdatenBeispiele(fach: string | null | undefined): { berufsbe
   const aufsicht =
     f === "zahn"
       ? "Zum Beispiel Ihre Kassenzahnärztliche Vereinigung."
-      : ARZT.includes(f) || f === "psych"
+      : KV.includes(f)
         ? "Zum Beispiel Ihre Kassenärztliche Vereinigung."
-        : "Zum Beispiel das Gesundheitsamt oder eine andere zuständige Behörde.";
+        : f === "aesthetik"
+          ? // Plastische und Ästhetische Chirurgie arbeitet oft ohne Kassenzulassung.
+            "Mit Kassenzulassung zum Beispiel Ihre Kassenärztliche Vereinigung, sonst die zuständige Behörde Ihres Landes."
+          : f === "klinik"
+            ? "Zum Beispiel die zuständige Behörde Ihres Landes."
+            : "Zum Beispiel das Gesundheitsamt oder eine andere zuständige Behörde.";
   return { berufsbezeichnung: `z. B. ${beruf} (verliehen in Deutschland)`, aufsicht };
 }

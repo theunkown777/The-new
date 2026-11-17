@@ -21,6 +21,8 @@ export const ZAHN = "zahn";
 export const NEUTRAL = "neutral";
 /** Bis zu diesem Alter (einschließlich) beantworten Eltern den Bogen, wo das Fach nichts anderes festlegt. */
 export const ELTERN_BIS_ALTER = 15;
+/** Ab diesem Alter beantworten Jugendliche den Bogen in Frauenheilkunde und Hebammenhilfe selbst. */
+export const SELBST_AB_ALTER_VERTRAULICH = 12;
 
 export type Hinweis = { level: "warn" | "info"; text: string };
 export type Bedingung = { geschlecht?: "W" | "M"; abAlter?: number; bisAlter?: number };
@@ -38,6 +40,8 @@ export type AnamneseFrage = {
   hinweis?: Hinweis;
   /** Nur für dieses Geschlecht bzw. Alter gefragt. */
   fuer?: Bedingung;
+  /** Nur, wenn die Person selbst antwortet; nie an Eltern (z. B. Schwangerschaft: vertraulich). */
+  nurSelbst?: boolean;
 };
 
 export type Anliegen = {
@@ -63,7 +67,8 @@ export const ANAMNESE_FRAGEN: Record<string, AnamneseFrage> = fragen([
   { key: "blutdruck", text: "Haben Sie hohen Blutdruck?", textEltern: "Hat Ihr Kind hohen Blutdruck?", hinweis: { level: "info", text: "Bluthochdruck" } },
   { key: "diabetes", text: "Haben Sie Diabetes?", textEltern: "Hat Ihr Kind Diabetes?", hinweis: { level: "info", text: "Diabetes" } },
   { key: "infektion", text: "Haben oder hatten Sie eine Infektionskrankheit (z. B. Hepatitis, HIV, Tuberkulose)?", textEltern: "Hat oder hatte Ihr Kind eine Infektionskrankheit (z. B. Hepatitis, HIV, Tuberkulose)?", detail: "Welche?", hinweis: { level: "warn", text: "Infektionskrankheit" } },
-  { key: "schwanger", text: "Sind Sie schwanger oder könnten Sie schwanger sein?", textEltern: "Ist Ihr Kind schwanger oder könnte es schwanger sein?", hinweis: { level: "warn", text: "Schwangerschaft" }, fuer: { geschlecht: "W", abAlter: 12 } },
+  // Nicht an Eltern: Ob eine Jugendliche schwanger ist, fragt die Praxis sie selbst.
+  { key: "schwanger", text: "Sind Sie schwanger oder könnten Sie schwanger sein?", hinweis: { level: "warn", text: "Schwangerschaft" }, fuer: { geschlecht: "W", abAlter: 12 }, nurSelbst: true },
   { key: "rauchen", text: "Rauchen Sie?", textEltern: "Raucht Ihr Kind?", hinweis: { level: "info", text: "Raucher" }, fuer: { abAlter: 12 } },
 
   // --- Zahnmedizin (bisherige Fragen des zahnärztlichen Bogens) ---
@@ -99,10 +104,12 @@ export const ANAMNESE_FRAGEN: Record<string, AnamneseFrage> = fragen([
   { key: "salben", text: "Verwenden Sie zurzeit Cremes oder Salben, die Ihnen verschrieben wurden?", textEltern: "Verwendet Ihr Kind zurzeit Cremes oder Salben, die verschrieben wurden?", detail: "Welche?", hinweis: { level: "info", text: "Verschriebene Cremes oder Salben" } },
 
   // --- Frauenheilkunde ---
-  { key: "verhuetung", text: "Verhüten Sie zurzeit?", detail: "Womit (z. B. Pille oder Spirale)?", hinweis: { level: "info", text: "Verhütung" } },
-  { key: "letzte_vorsorge", text: "Waren Sie schon einmal zur Krebsfrüherkennung in einer Frauenarztpraxis?", detail: "Wann war das zuletzt?" },
-  { key: "regelblutung", text: "Haben Sie Beschwerden mit der Regelblutung (z. B. starke Schmerzen oder unregelmäßige Blutungen)?", detail: "Welche?", hinweis: { level: "info", text: "Beschwerden mit der Regelblutung" } },
-  { key: "schwangerschaften", text: "Waren Sie schon einmal schwanger?", detail: "Wie oft, und gab es Geburten oder Kaiserschnitte?" },
+  // Erst ab 12 Jahren und nur an die Person selbst (in der Frauenheilkunde ab 12, siehe ANAMNESE_JE_FACH.gyn).
+  { key: "verhuetung", text: "Verhüten Sie zurzeit?", detail: "Womit (z. B. Pille oder Spirale)?", hinweis: { level: "info", text: "Verhütung" }, fuer: { abAlter: 12 }, nurSelbst: true },
+  // Die Krebsfrüherkennung beim Frauenarzt zahlt die Kasse ab 20 Jahren.
+  { key: "letzte_vorsorge", text: "Waren Sie schon einmal zur Krebsfrüherkennung in einer Frauenarztpraxis?", detail: "Wann war das zuletzt?", fuer: { geschlecht: "W", abAlter: 20 }, nurSelbst: true },
+  { key: "regelblutung", text: "Haben Sie Beschwerden mit der Regelblutung (z. B. starke Schmerzen oder unregelmäßige Blutungen)?", detail: "Welche?", hinweis: { level: "info", text: "Beschwerden mit der Regelblutung" }, fuer: { geschlecht: "W", abAlter: 12 }, nurSelbst: true },
+  { key: "schwangerschaften", text: "Waren Sie schon einmal schwanger?", detail: "Wie oft, und gab es Geburten oder Kaiserschnitte?", fuer: { geschlecht: "W", abAlter: 12 }, nurSelbst: true },
 
   // --- Urologie ---
   { key: "wasserlassen", text: "Haben Sie Beschwerden beim Wasserlassen (z. B. häufiger Harndrang, Brennen oder schwacher Strahl)?", textEltern: "Hat Ihr Kind Beschwerden beim Wasserlassen (z. B. häufiger Harndrang oder Brennen)?", detail: "Welche?", hinweis: { level: "info", text: "Beschwerden beim Wasserlassen" } },
@@ -168,8 +175,8 @@ export const ANAMNESE_FRAGEN: Record<string, AnamneseFrage> = fragen([
   { key: "krampfadern", text: "Haben Sie Krampfadern oder oft geschwollene Beine?", hinweis: { level: "info", text: "Krampfadern oder geschwollene Beine" }, fuer: { abAlter: 16 } },
 
   // --- Plastische und Ästhetische Chirurgie ---
-  { key: "aesthetik_vorbehandlung", text: "Hatten Sie schon ästhetische Behandlungen oder Operationen (z. B. Unterspritzungen)?", detail: "Was und wann?", hinweis: { level: "info", text: "Frühere ästhetische Behandlungen" } },
-  { key: "narben", text: "Neigen Sie zu auffälligen oder wulstigen Narben?", hinweis: { level: "info", text: "Neigung zu wulstigen Narben" } },
+  { key: "aesthetik_vorbehandlung", text: "Hatten Sie schon ästhetische Behandlungen oder Operationen (z. B. Unterspritzungen)?", textEltern: "Hatte Ihr Kind schon ästhetische Behandlungen oder Operationen?", detail: "Was und wann?", hinweis: { level: "info", text: "Frühere ästhetische Behandlungen" } },
+  { key: "narben", text: "Neigen Sie zu auffälligen oder wulstigen Narben?", textEltern: "Neigt Ihr Kind zu auffälligen oder wulstigen Narben?", hinweis: { level: "info", text: "Neigung zu wulstigen Narben" } },
 
   // --- Physiotherapie, Ergotherapie, Logopädie, Podologie ---
   { key: "physio_frueher", text: "Hatten Sie wegen dieser Beschwerden schon einmal Physiotherapie?", textEltern: "Hatte Ihr Kind wegen dieser Beschwerden schon einmal Physiotherapie?", detail: "Wann?", hinweis: { level: "info", text: "Frühere Physiotherapie wegen dieser Beschwerden" } },
@@ -178,18 +185,19 @@ export const ANAMNESE_FRAGEN: Record<string, AnamneseFrage> = fragen([
   { key: "ergo_frueher", text: "Hatten Sie schon einmal Ergotherapie?", textEltern: "Hatte Ihr Kind schon einmal Ergotherapie?", detail: "Wann?" },
   { key: "schlucken", text: "Haben Sie Schwierigkeiten beim Schlucken oder verschlucken Sie sich oft?", textEltern: "Hat Ihr Kind Schwierigkeiten beim Schlucken oder verschluckt es sich oft?", hinweis: { level: "info", text: "Schwierigkeiten beim Schlucken" } },
   { key: "sprachen_zuhause", text: "Wird bei Ihnen zu Hause mehr als eine Sprache gesprochen?", textEltern: "Wird bei Ihrem Kind zu Hause mehr als eine Sprache gesprochen?", detail: "Welche?", hinweis: { level: "info", text: "Mehrere Sprachen zu Hause" } },
-  { key: "fuesse_gefuehl", text: "Spüren Sie an den Füßen weniger als früher (z. B. Taubheit oder Kribbeln)?", hinweis: { level: "info", text: "Weniger Gefühl an den Füßen" } },
-  { key: "fuesse_wunden", text: "Haben Sie offene Stellen oder Wunden an den Füßen?", detail: "Wo?", hinweis: { level: "warn", text: "Offene Stellen an den Füßen" } },
-  { key: "orthopaedische_schuhe", text: "Tragen Sie orthopädische Schuhe oder Einlagen?", hinweis: { level: "info", text: "Orthopädische Schuhe oder Einlagen" } },
+  { key: "fuesse_gefuehl", text: "Spüren Sie an den Füßen weniger als früher (z. B. Taubheit oder Kribbeln)?", textEltern: "Spürt Ihr Kind an den Füßen weniger als früher (z. B. Taubheit oder Kribbeln)?", hinweis: { level: "info", text: "Weniger Gefühl an den Füßen" } },
+  { key: "fuesse_wunden", text: "Haben Sie offene Stellen oder Wunden an den Füßen?", textEltern: "Hat Ihr Kind offene Stellen oder Wunden an den Füßen?", detail: "Wo?", hinweis: { level: "warn", text: "Offene Stellen an den Füßen" } },
+  { key: "orthopaedische_schuhe", text: "Tragen Sie orthopädische Schuhe oder Einlagen?", textEltern: "Trägt Ihr Kind orthopädische Schuhe oder Einlagen?", hinweis: { level: "info", text: "Orthopädische Schuhe oder Einlagen" } },
 
   // --- Hebammenhilfe ---
-  { key: "mutterpass", text: "Haben Sie einen Mutterpass?" },
-  { key: "geburten", text: "Haben Sie schon ein Kind geboren?", detail: "Wie oft, und gab es einen Kaiserschnitt?" },
-  { key: "fruehere_schwangerschaft", text: "Gab es in früheren Schwangerschaften oder bei früheren Geburten Besonderheiten?", detail: "Welche?", hinweis: { level: "info", text: "Besonderheiten in früheren Schwangerschaften oder Geburten" } },
+  // An die Frau selbst (Hebammenhilfe ab 12, siehe ANAMNESE_JE_FACH.hebamme).
+  { key: "mutterpass", text: "Haben Sie einen Mutterpass?", fuer: { geschlecht: "W", abAlter: 12 }, nurSelbst: true },
+  { key: "geburten", text: "Haben Sie schon ein Kind geboren?", detail: "Wie oft, und gab es einen Kaiserschnitt?", fuer: { geschlecht: "W", abAlter: 12 }, nurSelbst: true },
+  { key: "fruehere_schwangerschaft", text: "Gab es in früheren Schwangerschaften oder bei früheren Geburten Besonderheiten?", detail: "Welche?", hinweis: { level: "info", text: "Besonderheiten in früheren Schwangerschaften oder Geburten" }, fuer: { geschlecht: "W", abAlter: 12 }, nurSelbst: true },
 
   // --- Ambulante Pflege ---
-  { key: "pflegegrad", text: "Haben Sie einen Pflegegrad?", detail: "Welchen?", hinweis: { level: "info", text: "Pflegegrad" } },
-  { key: "sturz", text: "Sind Sie in den letzten zwölf Monaten gestürzt?", hinweis: { level: "warn", text: "Sturz in den letzten zwölf Monaten" } },
+  { key: "pflegegrad", text: "Haben Sie einen Pflegegrad?", textEltern: "Hat Ihr Kind einen Pflegegrad?", detail: "Welchen?", hinweis: { level: "info", text: "Pflegegrad" } },
+  { key: "sturz", text: "Sind Sie in den letzten zwölf Monaten gestürzt?", textEltern: "Ist Ihr Kind in den letzten zwölf Monaten gestürzt?", hinweis: { level: "warn", text: "Sturz in den letzten zwölf Monaten" } },
 
   // --- Apotheke ---
   { key: "medikationsplan", text: "Haben Sie einen Medikationsplan?", textEltern: "Hat Ihr Kind einen Medikationsplan?", hinweis: { level: "info", text: "Medikationsplan vorhanden" } },
@@ -229,8 +237,8 @@ export const ANLIEGEN: Record<string, Anliegen> = anliegen([
   { key: "impfschutz", text: "Meinen Impfschutz besprechen", textEltern: "Den Impfschutz meines Kindes besprechen" },
   { key: "brillenglaeser_kasse", text: "Wissen, was die Kasse bei Brillengläsern übernimmt" },
   { key: "hautkrebs_screening_kasse", text: "Wissen, ab wann die Kasse das Hautkrebs-Screening übernimmt" },
-  { key: "vorsorge_kasse", text: "Wissen, welche Vorsorge die Kasse in meinem Alter übernimmt" },
-  { key: "verhuetung_kasse", text: "Wissen, was die Kasse bei Verhütungsmitteln übernimmt" },
+  { key: "vorsorge_kasse", text: "Wissen, welche Vorsorge die Kasse in meinem Alter übernimmt", textEltern: "Wissen, welche Vorsorge die Kasse im Alter meines Kindes übernimmt" },
+  { key: "verhuetung_kasse", text: "Wissen, was die Kasse bei Verhütungsmitteln übernimmt", fuer: { abAlter: 12 } },
   { key: "frueherkennung_kasse", text: "Wissen, welche Früherkennung die Kasse übernimmt" },
   { key: "hilfsmittel_kasse", text: "Wissen, was die Kasse bei Hilfsmitteln übernimmt" },
   { key: "hoergeraet_kasse", text: "Wissen, was die Kasse bei einem Hörgerät übernimmt" },
@@ -243,7 +251,7 @@ export const ANLIEGEN: Record<string, Anliegen> = anliegen([
   { key: "rauchstopp", text: "Über einen Rauchstopp sprechen", fuer: { abAlter: 12 } },
   { key: "sensor_kasse", text: "Wissen, wann die Kasse einen Sensor zur Zuckermessung übernimmt" },
   { key: "krampfadern_kasse", text: "Wissen, wann die Kasse die Behandlung von Krampfadern übernimmt", fuer: { abAlter: 16 } },
-  { key: "bedenkzeit", text: "Genug Zeit für meine Entscheidung haben" },
+  { key: "bedenkzeit", text: "Genug Zeit für meine Entscheidung haben", textEltern: "Genug Zeit für die Entscheidung haben" },
   { key: "zuzahlung", text: "Wissen, wie hoch die Zuzahlung ist" },
   { key: "uebungen", text: "Übungen für zu Hause bekommen", textEltern: "Übungen für zu Hause für mein Kind bekommen" },
   { key: "fussbehandlung_kasse", text: "Wissen, wann die Kasse die Fußbehandlung übernimmt" },
@@ -262,8 +270,15 @@ export const BASIS_FRAGEN = ["medikamente", "blutverduenner", "gerinnung", "alle
 /** Anliegen für jedes Fach (außer `ohneAnliegen`): Kasse zuerst, Angst zuletzt. */
 export const BASIS_ANLIEGEN = ["kasse", "kosten_vorher", "angst"] as const;
 
-/** Für den Satz zur Schweigepflicht: Zahnmedizin, ärztliches Fach oder andere Berufe (Therapie, Versorgung, Psychotherapie). */
-export type Berufsgruppe = "zahn" | "arzt" | "neutral";
+/**
+ * Für den Satz zur Schweigepflicht (§ 203 StGB):
+ * - "zahn" und "arzt": zahnärztliche bzw. ärztliche Schweigepflicht.
+ * - "heilberuf": andere Heilberufe mit staatlich geregelter Ausbildung (Psychotherapie, Heilmittel, Hebamme, Pflege,
+ *   Apotheke) sowie Kliniken. Dort gilt die Schweigepflicht, aber nicht „ärztlich“.
+ * - "vertraulich": Berufe, für die § 203 StGB nach herrschender Meinung nicht gilt (Heilpraktik, Augenoptik,
+ *   Hörakustik, Sanitätshaus), und der neutrale Bogen. Dort steht keine Berufspflicht, nur Vertraulichkeit.
+ */
+export type Berufsgruppe = "zahn" | "arzt" | "heilberuf" | "vertraulich";
 export type Ansprache = "patient" | "eltern";
 
 export type FachAnamnese = {
@@ -272,25 +287,35 @@ export type FachAnamnese = {
   fragen: string[];
   /** Eigene Anliegen zwischen „Kosten“ und „Angst“. */
   anliegen: string[];
-  /** Immer an die Eltern bzw. immer an die Person selbst; ohne Angabe entscheidet das Alter. */
-  ansprache?: Ansprache;
+  /** "eltern": immer an die Eltern (Kinder- und Jugendmedizin). Ohne Angabe entscheidet das Alter (`selbstAb`). */
+  ansprache?: "eltern";
+  /** Ab diesem Alter antwortet die Person selbst; jünger antworten die Eltern. Ohne Angabe ab 16 (ELTERN_BIS_ALTER + 1). */
+  selbstAb?: number;
+  /** Fragen aus der Basis, die im Fach nicht passen (z. B. „Sind Sie schwanger?“ bei der Hebamme). */
+  ohneFragen?: string[];
   /** Anliegen aus der Basis, die im Fach nicht passen (z. B. „Angst vor der Behandlung“ in der Apotheke). */
   ohneAnliegen?: string[];
   /** Wozu die Angaben dienen: „…, Sie sicher zu behandeln“. */
   zweck?: "behandeln" | "beraten" | "versorgen" | "betreuen";
-  /** Neutraler Hinweis über den Fragen. */
+  /** Neutraler Hinweis über den Fragen. Telefonnummern darin werden als Link gezeigt (hinweisTeile). */
   hinweis?: string;
+  /** Derselbe Hinweis, wenn Eltern den Bogen ausfüllen. */
+  hinweisEltern?: string;
 };
 
+// Der Bogen liegt auch auf dem Tablet am Empfang. Deshalb „nicht unbedingt sofort“.
 const KRISENHILFE =
-  "Diesen Bogen liest die Praxis nicht sofort. Hilfe in einer akuten Krise gibt es Tag und Nacht kostenlos bei der Telefonseelsorge unter 0800 111 0 111 oder 0800 111 0 222. Im Notfall wählen Sie 112.";
+  "Die Praxis liest diesen Bogen nicht unbedingt sofort. Hilfe in einer akuten Krise gibt es Tag und Nacht kostenlos bei der Telefonseelsorge unter 0800 111 0 111 oder 0800 111 0 222. Im Notfall wählen Sie 112.";
+const KRISENHILFE_ELTERN =
+  "Die Praxis liest diesen Bogen nicht unbedingt sofort. Kinder und Jugendliche erreichen die Nummer gegen Kummer kostenlos unter 116 111. Eltern erreichen das Elterntelefon kostenlos unter 0800 111 0 550. Tag und Nacht hilft die Telefonseelsorge unter 0800 111 0 111 oder 0800 111 0 222. Im Notfall wählen Sie 112.";
 
 export const ANAMNESE_JE_FACH: Record<string, FachAnamnese> = {
   [ZAHN]: { gruppe: "zahn", fragen: ["bisphosphonate", "bestrahlung", "knirschen"], anliegen: ["hell", "luecke", "zahnfleisch"] },
   hausarzt: { gruppe: "arzt", fragen: ["operationen", "dauererkrankung", "familie_erkrankungen"], anliegen: ["checkup_kasse", "impfschutz"] },
   augen: { gruppe: "arzt", fragen: ["brille", "kontaktlinsen", "augen_op", "augen_familie"], anliegen: ["brillenglaeser_kasse"] },
   haut: { gruppe: "arzt", fragen: ["hautkrebs", "sonnenbrand", "hauterkrankung", "salben"], anliegen: ["hautkrebs_screening_kasse"] },
-  gyn: { gruppe: "arzt", ansprache: "patient", fragen: ["verhuetung", "letzte_vorsorge", "regelblutung", "schwangerschaften"], anliegen: ["vorsorge_kasse", "verhuetung_kasse"] },
+  // Jugendliche ab 12 beantworten den Bogen in der Frauenheilkunde selbst (vertraulich, ohne Eltern).
+  gyn: { gruppe: "arzt", selbstAb: SELBST_AB_ALTER_VERTRAULICH, fragen: ["verhuetung", "letzte_vorsorge", "regelblutung", "schwangerschaften"], anliegen: ["vorsorge_kasse", "verhuetung_kasse"] },
   uro: { gruppe: "arzt", fragen: ["wasserlassen", "harnsteine", "uro_op"], anliegen: ["frueherkennung_kasse"] },
   ortho: { gruppe: "arzt", fragen: ["unfall_bewegungsapparat", "gelenkersatz", "osteoporose", "hilfsmittel_bewegung"], anliegen: ["hilfsmittel_kasse"] },
   hno: { gruppe: "arzt", fragen: ["hoergeraet", "ohrgeraeusche", "hno_op", "schnarchen"], anliegen: ["hoergeraet_kasse"] },
@@ -299,25 +324,26 @@ export const ANAMNESE_JE_FACH: Record<string, FachAnamnese> = {
   radiologie: { gruppe: "arzt", fragen: ["metall_im_koerper", "kontrastmittel", "niere_schilddruese", "platzangst"], anliegen: ["mrt_kasse", "befunde"] },
   neuro: { gruppe: "arzt", fragen: ["kopfschmerz", "krampfanfall", "schlaganfall", "taubheit_schwindel"], anliegen: ["befunde"] },
   // Psychotherapie leisten auch Psychologische Psychotherapeutinnen und -therapeuten: Schweigepflicht ohne „ärztlich“.
-  psych: { gruppe: "neutral", fragen: ["psy_vorbehandlung", "psy_klinik", "psy_medikamente"], anliegen: ["therapieplatz_kasse", "kostenerstattung"], hinweis: KRISENHILFE },
+  psych: { gruppe: "heilberuf", fragen: ["psy_vorbehandlung", "psy_klinik", "psy_medikamente"], anliegen: ["therapieplatz_kasse", "kostenerstattung"], hinweis: KRISENHILFE, hinweisEltern: KRISENHILFE_ELTERN },
   gastro: { gruppe: "arzt", fragen: ["spiegelung", "darm_familie", "narkose", "verdauung"], anliegen: ["darmkrebs_vorsorge_kasse", "befunde"] },
   pneumo: { gruppe: "arzt", fragen: ["atemnot_husten", "lungenerkrankung", "inhalieren", "staub_beruf"], anliegen: ["rauchstopp", "befunde"] },
   endo: { gruppe: "arzt", fragen: ["schilddruese", "insulin_sensor", "unterzucker", "gewicht"], anliegen: ["sensor_kasse", "befunde"] },
   chirurgie: { gruppe: "arzt", fragen: ["operationen", "narkose", "thrombose", "krampfadern"], anliegen: ["krampfadern_kasse"] },
-  aesthetik: { gruppe: "arzt", ansprache: "patient", fragen: ["aesthetik_vorbehandlung", "narkose", "thrombose", "narben"], anliegen: ["bedenkzeit"] },
-  physio: { gruppe: "neutral", fragen: ["verordnung", "physio_frueher", "op_unfall_jahr", "gelenkersatz"], anliegen: ["zuzahlung", "uebungen"] },
-  ergo: { gruppe: "neutral", fragen: ["verordnung", "alltag", "hilfsmittel_alltag", "ergo_frueher"], anliegen: ["zuzahlung", "uebungen"] },
-  logo: { gruppe: "neutral", fragen: ["verordnung", "schlucken", "hoergeraet", "sprachen_zuhause"], anliegen: ["zuzahlung", "uebungen"] },
-  podo: { gruppe: "neutral", ansprache: "patient", fragen: ["verordnung", "fuesse_gefuehl", "fuesse_wunden", "orthopaedische_schuhe"], anliegen: ["zuzahlung", "fussbehandlung_kasse"] },
-  hebamme: { gruppe: "neutral", ansprache: "patient", zweck: "betreuen", fragen: ["mutterpass", "geburten", "fruehere_schwangerschaft"], anliegen: ["hebammenhilfe_kasse", "wochenbett"] },
-  pflege: { gruppe: "neutral", ansprache: "patient", zweck: "versorgen", fragen: ["pflegegrad", "sturz", "hilfsmittel_alltag", "vollmacht"], anliegen: ["pflegekasse", "angehoerige"] },
-  apotheke: { gruppe: "neutral", zweck: "beraten", ohneAnliegen: ["angst"], fragen: ["medikationsplan", "ohne_rezept", "mehrere_praxen"], anliegen: ["zuzahlung_befreiung", "medikamente_durchsehen"] },
-  hoerakustik: { gruppe: "neutral", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["hoergeraet", "verordnung", "ohrgeraeusche", "ohr_op_entzuendung"], anliegen: ["hoergeraet_kasse"] },
-  optik: { gruppe: "neutral", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["brille", "kontaktlinsen", "augen_op", "bildschirm"], anliegen: ["brillenglaeser_kasse"] },
-  sanitaetshaus: { gruppe: "neutral", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["verordnung", "hilfsmittel_alltag", "schwellung", "druckstellen"], anliegen: ["hilfsmittel_kasse"] },
-  heilpraktiker: { gruppe: "neutral", fragen: ["aerztliche_behandlung", "naturheilkunde_frueher", "operationen"], anliegen: ["zusatzversicherung"] },
-  klinik: { gruppe: "neutral", fragen: ["operationen", "narkose", "thrombose", "vollmacht"], anliegen: ["wahlleistungen"] },
-  [NEUTRAL]: { gruppe: "neutral", fragen: [], anliegen: [] },
+  aesthetik: { gruppe: "arzt", fragen: ["aesthetik_vorbehandlung", "narkose", "thrombose", "narben"], anliegen: ["bedenkzeit"] },
+  physio: { gruppe: "heilberuf", fragen: ["verordnung", "physio_frueher", "op_unfall_jahr", "gelenkersatz"], anliegen: ["zuzahlung", "uebungen"] },
+  ergo: { gruppe: "heilberuf", fragen: ["verordnung", "alltag", "hilfsmittel_alltag", "ergo_frueher"], anliegen: ["zuzahlung", "uebungen"] },
+  logo: { gruppe: "heilberuf", fragen: ["verordnung", "schlucken", "hoergeraet", "sprachen_zuhause"], anliegen: ["zuzahlung", "uebungen"] },
+  podo: { gruppe: "heilberuf", fragen: ["verordnung", "fuesse_gefuehl", "fuesse_wunden", "orthopaedische_schuhe"], anliegen: ["zuzahlung", "fussbehandlung_kasse"] },
+  // Die Frage „Sind Sie schwanger?“ aus der Basis ist bei der Hebamme selbstverständlich und entfällt.
+  hebamme: { gruppe: "heilberuf", selbstAb: SELBST_AB_ALTER_VERTRAULICH, ohneFragen: ["schwanger"], zweck: "betreuen", fragen: ["mutterpass", "geburten", "fruehere_schwangerschaft"], anliegen: ["hebammenhilfe_kasse", "wochenbett"] },
+  pflege: { gruppe: "heilberuf", zweck: "versorgen", fragen: ["pflegegrad", "sturz", "hilfsmittel_alltag", "vollmacht"], anliegen: ["pflegekasse", "angehoerige"] },
+  apotheke: { gruppe: "heilberuf", zweck: "beraten", ohneAnliegen: ["angst"], fragen: ["medikationsplan", "ohne_rezept", "mehrere_praxen"], anliegen: ["zuzahlung_befreiung", "medikamente_durchsehen"] },
+  hoerakustik: { gruppe: "vertraulich", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["hoergeraet", "verordnung", "ohrgeraeusche", "ohr_op_entzuendung"], anliegen: ["hoergeraet_kasse"] },
+  optik: { gruppe: "vertraulich", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["brille", "kontaktlinsen", "augen_op", "bildschirm"], anliegen: ["brillenglaeser_kasse"] },
+  sanitaetshaus: { gruppe: "vertraulich", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["verordnung", "hilfsmittel_alltag", "schwellung", "druckstellen"], anliegen: ["hilfsmittel_kasse"] },
+  heilpraktiker: { gruppe: "vertraulich", fragen: ["aerztliche_behandlung", "naturheilkunde_frueher", "operationen"], anliegen: ["zusatzversicherung"] },
+  klinik: { gruppe: "heilberuf", fragen: ["operationen", "narkose", "thrombose", "vollmacht"], anliegen: ["wahlleistungen"] },
+  [NEUTRAL]: { gruppe: "vertraulich", fragen: [], anliegen: [] },
 };
 
 /** Übernahme in den Behandlungsvorschlag: nur in der Zahnmedizin (lib/anamnesis.ts prüft das Fach). */
@@ -325,9 +351,10 @@ export const ZAHN_VORSCHLAG_FRAGEN: Record<string, GlobalCode> = { rauchen: "rau
 export const ZAHN_VORSCHLAG_ANLIEGEN: Record<string, GlobalCode> = { hell: "bleaching" };
 
 const SCHWEIGEPFLICHT: Record<Berufsgruppe, string> = {
-  zahn: "Sie unterliegen der zahnärztlichen Schweigepflicht.",
-  arzt: "Sie unterliegen der ärztlichen Schweigepflicht.",
-  neutral: "Sie unterliegen der Schweigepflicht.",
+  zahn: "Ihre Angaben unterliegen der zahnärztlichen Schweigepflicht.",
+  arzt: "Ihre Angaben unterliegen der ärztlichen Schweigepflicht.",
+  heilberuf: "Ihre Angaben unterliegen der Schweigepflicht.",
+  vertraulich: "Wir behandeln Ihre Angaben vertraulich.",
 };
 
 /** Welcher Bogen gilt: "zahn", ein Fach mit eigenem Bogen oder "neutral". Nie "zahn" ohne ausdrückliches Fach. */
@@ -354,7 +381,7 @@ export type AnamneseProfil = {
   anliegen: { key: string; text: string }[];
   /** „Ihre Angaben helfen uns, Sie sicher zu behandeln.“ */
   einleitung: string;
-  /** „Sie unterliegen der ärztlichen Schweigepflicht.“ */
+  /** „Ihre Angaben unterliegen der ärztlichen Schweigepflicht.“ */
   schweigepflicht: string;
   hinweis?: string;
 };
@@ -363,17 +390,19 @@ export type AnamneseProfil = {
 export function anamneseFuer(fach: string | null | undefined, person: Person = {}): AnamneseProfil {
   const f = anamneseFach(fach);
   const d = ANAMNESE_JE_FACH[f];
-  const eltern = d.ansprache === "eltern" || (d.ansprache !== "patient" && person.alter != null && person.alter <= ELTERN_BIS_ALTER);
-  const fragenKeys = [...new Set([...BASIS_FRAGEN, ...d.fragen])];
+  // Unbekanntes Alter: Die Person antwortet selbst (wie bisher).
+  const eltern = d.ansprache === "eltern" || (person.alter != null && person.alter < (d.selbstAb ?? ELTERN_BIS_ALTER + 1));
+  const fragenKeys = [...new Set([...BASIS_FRAGEN, ...d.fragen])].filter((k) => !d.ohneFragen?.includes(k));
   const anliegenKeys = [...new Set(["kasse", "kosten_vorher", ...d.anliegen, "angst"])].filter((k) => !d.ohneAnliegen?.includes(k));
   const zweck = d.zweck ?? "behandeln";
+  const hinweis = eltern ? (d.hinweisEltern ?? d.hinweis) : d.hinweis;
   return {
     fach: f,
     gruppe: d.gruppe,
     ansprache: eltern ? "eltern" : "patient",
     fragen: fragenKeys
       .map((k) => ANAMNESE_FRAGEN[k])
-      .filter((q) => passt(q.fuer, person))
+      .filter((q) => passt(q.fuer, person) && !(eltern && q.nurSelbst))
       .map((q) => ({ key: q.key, text: eltern ? (q.textEltern ?? q.text) : q.text, ...(q.detail ? { detail: q.detail } : {}) })),
     anliegen: anliegenKeys
       .map((k) => ANLIEGEN[k])
@@ -381,6 +410,21 @@ export function anamneseFuer(fach: string | null | undefined, person: Person = {
       .map((a) => ({ key: a.key, text: eltern ? (a.textEltern ?? a.text) : a.text })),
     einleitung: `Ihre Angaben helfen uns, ${eltern ? "Ihr Kind" : "Sie"} sicher zu ${zweck}.`,
     schweigepflicht: SCHWEIGEPFLICHT[d.gruppe],
-    ...(d.hinweis ? { hinweis: d.hinweis } : {}),
+    ...(hinweis ? { hinweis } : {}),
   };
+}
+
+export type HinweisTeil = { text: string; tel?: string };
+
+/** Teilt einen Hinweis in Text und Telefonnummern (z. B. „0800 111 0 111“, „116 111“, „112“), damit sie als tel:-Link erscheinen. */
+export function hinweisTeile(text: string): HinweisTeil[] {
+  const teile: HinweisTeil[] = [];
+  let rest = 0;
+  for (const m of text.matchAll(/\b\d{3,4}(?: \d{1,3})*\b/g)) {
+    if (m.index > rest) teile.push({ text: text.slice(rest, m.index) });
+    teile.push({ text: m[0], tel: m[0].replace(/ /g, "") });
+    rest = m.index + m[0].length;
+  }
+  if (rest < text.length) teile.push({ text: text.slice(rest) });
+  return teile;
 }

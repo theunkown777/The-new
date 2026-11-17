@@ -101,6 +101,7 @@ curl -X POST https://ihre-domain.de/api/v1/reports/generate \
     "reportType": "BEFUND",
     "practiceName": "Zahnarztpraxis Beispiel",
     "authorName": "Dr. Beispiel",
+    "fach": "zahn",
     "patient": { "firstName": "Max", "lastName": "Mustermann" },
     "treatmentDate": "2026-08-08",
     "entries": [
@@ -108,6 +109,11 @@ curl -X POST https://ihre-domain.de/api/v1/reports/generate \
     ]
   }'
 ```
+
+Das Feld `fach` nennt die Fachrichtung der Praxis (Liste in `openapi.yaml`,
+z. B. `hausarzt`, `augen`, `physio`). Es bestimmt Stil und Platzhalter des
+Berichts. Ohne `fach` schreibt die API wie bisher zahnmedizinisch. Praxen
+anderer Fachrichtungen geben das Fach deshalb immer mit.
 
 ## Was diese API nicht ersetzt
 

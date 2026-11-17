@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ANAMNESE_FRAGEN, ANLIEGEN, anamneseFuer } from "@/lib/anamneseProfile";
-import { anamneseZeilen, anamnesePruefen, anamnesisFlags, anamnesisProposalGlobals, anamnesisSchemaFuer, anliegenTexte, parseAnamnesis } from "@/lib/anamnesis";
+import { anamneseFehler, anamneseZeilen, anamnesePruefen, anamnesisFlags, anamnesisProposalGlobals, anamnesisSchemaFuer, anliegenTexte, parseAnamnesis } from "@/lib/anamnesis";
 
 const zahn = anamneseFuer("zahn");
 const hausarzt = anamneseFuer("hausarzt");
@@ -12,8 +12,36 @@ describe("Anamnese", () => {
     expect(schema.safeParse({ q: allNo(zahn), confirmName: "Martina Weber" }).success).toBe(true);
     const fehlt = schema.safeParse({ q: { rauchen: { yes: true } }, confirmName: "Martina Weber" });
     expect(fehlt.success).toBe(false);
-    expect(fehlt.error?.issues[0]?.message).toBe("Bitte alle Fragen beantworten");
+    // Der Browser schickt immer alle Fragen; fehlt eine, hat sich der Bogen seit dem Öffnen geändert.
+    expect(anamneseFehler(fehlt.error!.issues)).toBe("Der Bogen hat sich geändert. Bitte laden Sie die Seite neu.");
     expect(schema.safeParse({ q: allNo(zahn), confirmName: "" }).success).toBe(false);
+  });
+
+  it("meldet Fehler auf Deutsch und passend, nie mit den englischen Texten der Prüfung", () => {
+    const fehler = (body: unknown, opts?: { altbestand?: boolean }) => {
+      const p = anamnesePruefen(body, hausarzt, opts);
+      return p.ok ? "ok" : p.fehler;
+    };
+    const voll = { q: allNo(hausarzt), wishes: [], confirmName: "M. Weber" };
+    expect(fehler(voll)).toBe("ok");
+    // Kein oder kein lesbarer Inhalt
+    for (const b of [undefined, null, [], "x", 3]) expect(fehler(b), String(b)).toBe("Die Angaben konnten nicht gelesen werden. Bitte laden Sie die Seite neu.");
+    // Bogen geändert: eine Frage fehlt (z. B. Geburtstag mit 12 Jahren) oder ist neu
+    const { rauchen: _r, ...ohneRauchen } = allNo(hausarzt);
+    expect(fehler({ ...voll, q: ohneRauchen })).toBe("Der Bogen hat sich geändert. Bitte laden Sie die Seite neu.");
+    expect(fehler({ ...voll, q: { ...allNo(hausarzt), knirschen: { yes: false } } })).toMatch(/geändert/);
+    expect(fehler({ ...voll, wishes: ["hell"] })).toMatch(/geändert/);
+    // Antwort unvollständig
+    expect(fehler({ ...voll, q: { ...allNo(hausarzt), rauchen: null } })).toBe("Bitte alle Fragen beantworten");
+    expect(fehler({ ...voll, q: { ...allNo(hausarzt), rauchen: { yes: "ja" } } })).toBe("Bitte alle Fragen beantworten");
+    // Zu lang oder Name fehlt
+    expect(fehler({ ...voll, q: { ...allNo(hausarzt), medikamente: { yes: true, detail: "x".repeat(301) } } })).toBe("Bitte kürzen Sie Ihre Angabe zu einer Frage auf höchstens 300 Zeichen.");
+    expect(fehler({ ...voll, note: "x".repeat(1001) })).toBe("Bitte kürzen Sie die weiteren Hinweise auf höchstens 1000 Zeichen.");
+    expect(fehler({ ...voll, confirmName: "x".repeat(121) })).toBe("Bitte kürzen Sie den Namen auf höchstens 120 Zeichen.");
+    expect(fehler({ ...voll, confirmName: "M" })).toBe("Bitte Ihren Namen zur Bestätigung eintragen");
+    expect(fehler({ q: allNo(hausarzt), wishes: [] })).toBe("Bitte Ihren Namen zur Bestätigung eintragen");
+    // Nie Englisch
+    for (const b of [undefined, {}, { q: 1 }, { ...voll, wishes: "x" }, { ...voll, note: 5 }]) expect(fehler(b), JSON.stringify(b)).not.toMatch(/Invalid|expected|received|Too big|Unrecognized/);
   });
 
   it("Warnhinweise zuerst, mit Detail", () => {
@@ -85,6 +113,12 @@ describe("Ältere Bögen (Fassung 1)", () => {
     expect(p.daten.wishes).toEqual(["angst"]);
     expect(p.daten.q.bisphosphonate).toEqual({ yes: false });
     expect(anamnesePruefen({ ...alt, q: { medikamente: { yes: false } } }, hausarzt, { altbestand: true }).ok).toBe(false);
+  });
+
+  it("alter Bogen mit zu kurzem Namen: Meldung zum Namen, nicht „Bogen geändert“", () => {
+    const alt = { ...v1, q: Object.fromEntries(Object.entries(v1.q).filter(([k]) => k !== "knirschen")), confirmName: "A" };
+    const p = anamnesePruefen(alt, hausarzt, { altbestand: true });
+    expect(!p.ok && p.fehler).toBe("Bitte Ihren Namen zur Bestätigung eintragen");
   });
 });
 

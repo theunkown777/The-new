@@ -216,6 +216,15 @@ components:
         reportType: { type: string, enum: [BEFUND, KRANKENKASSE] }
         practiceName: { type: string }
         authorName: { type: string }
+        fach:
+          type: string
+          nullable: true
+          enum: [zahn, hausarzt, augen, haut, gyn, uro, ortho, hno, kinder, kardio, radiologie, neuro, psych, gastro, pneumo, endo, chirurgie, aesthetik, physio, ergo, logo, podo, hebamme, pflege, apotheke, hoerakustik, optik, sanitaetshaus, heilpraktiker, klinik, andere]
+          description: >
+            Fachrichtung der Praxis. Bestimmt Stil und Platzhalter des Berichts
+            (z. B. Zahnangaben in der Zahnmedizin, Körperregion in der Hausarztpraxis).
+            Ohne Angabe bleibt es wie bisher bei der Zahnmedizin. Praxen anderer
+            Fachrichtungen geben das Fach bitte immer mit.
         patient:
           type: object
           required: [firstName, lastName]

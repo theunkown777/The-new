@@ -1,34 +1,8 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { authenticateAndRateLimitApiRequest } from "@/lib/apiAuth";
 import { generateReportText } from "@/lib/anthropic";
 import { buildServiceSummary } from "@/lib/serviceSummary";
-
-const entrySchema = z.object({
-  system: z.string().min(1),
-  code: z.string().min(1),
-  title: z.string().min(1),
-  performed: z.boolean(),
-  toothNumbers: z.string().optional().nullable(),
-  quantity: z.number().int().min(1).default(1),
-  note: z.string().optional().nullable(),
-});
-
-const generateSchema = z.object({
-  reportType: z.enum(["BEFUND", "KRANKENKASSE"]),
-  practiceName: z.string().min(1),
-  authorName: z.string().min(1),
-  patient: z.object({
-    firstName: z.string().min(1),
-    lastName: z.string().min(1),
-    birthDate: z.string().optional().nullable(),
-    insuranceName: z.string().optional().nullable(),
-    insuranceNumber: z.string().optional().nullable(),
-  }),
-  treatmentDate: z.string().optional().nullable(),
-  entries: z.array(entrySchema).min(1),
-  additionalContext: z.string().optional().nullable(),
-});
+import { berichtFachFuerApi, generateReportSchema } from "@/lib/berichtApi";
 
 // KI-Berichtsgenerierung als Service: der Partner liefert bereits geprüfte
 // (z. B. über /api/v1/validate freigegebene), strukturierte Leistungsdaten
@@ -41,7 +15,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => null);
-  const parsed = generateSchema.safeParse(body);
+  const parsed = generateReportSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.issues[0]?.message ?? "Ungültige Eingabe" },
@@ -49,7 +23,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const { reportType, practiceName, authorName, patient, treatmentDate, entries, additionalContext } =
+  const { reportType, practiceName, authorName, fach, patient, treatmentDate, entries, additionalContext } =
     parsed.data;
 
   const serviceSummary = buildServiceSummary(
@@ -67,6 +41,8 @@ export async function POST(req: Request) {
       reportType,
       practiceName,
       authorName,
+      // Ohne Angabe wie bisher zahnmedizinisch (lib/berichtApi.ts), nicht still im hausärztlichen Stil.
+      fach: berichtFachFuerApi(fach),
       patient: {
         firstName: patient.firstName,
         lastName: patient.lastName,

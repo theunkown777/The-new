@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { praxisFach } from "@/lib/katalogScope";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
-import { systemGruppe } from "@/lib/fachprofile";
+import { suchBeispiel } from "@/lib/katalogBeispiele";
 import { katalogEintrag, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog";
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 import { LeistungenImport } from "@/components/LeistungenImport";
@@ -21,9 +21,6 @@ const SEITE = 60;
 /** Orientierungswert EBM 2026 in Cent je Punkt (bundeseinheitlich, ohne regionale Zuschläge). */
 const EBM_ORIENTIERUNGSWERT = 12.7404;
 
-/** Beispiele im Suchfeld passend zum Fach; Zahnärztliches nur bei Zahnmedizin. */
-const SUCH_BEISPIEL: Record<string, string> = { zahn: ", z. B. Füllung oder Krone", arzt: ", z. B. Sonographie oder 03000", therapie: ", z. B. Hausbesuch" };
-
 const euro = (c: number) => (c / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 
 export default async function LeistungsverzeichnisPage(props: { searchParams: Promise<{ q?: string; system?: string; kapitel?: string; seite?: string; alle?: string }> }) {
@@ -31,7 +28,7 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const admin = session!.user.role === "admin";
-  const fach = (await praxisFach(practiceId)) || "zahn";
+  const fach = await praxisFach(practiceId);
   const alle = searchParams.alle === "1";
   const q = (searchParams.q ?? "").trim().slice(0, 80);
   const seite = seiteAus(searchParams.seite);
@@ -112,7 +109,7 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
       <form action="/leistungsverzeichnis" className="flex flex-wrap gap-2">
         {system && <input type="hidden" name="system" value={system} />}
         {alle && <input type="hidden" name="alle" value="1" />}
-        <input name="q" defaultValue={q} placeholder={`Suchen: Text oder Ziffer${SUCH_BEISPIEL[systemGruppe(fach)] ?? ""}`} className="input max-w-md flex-1" aria-label="Leistung suchen" />
+        <input name="q" defaultValue={q} placeholder={`Suchen: Text oder Ziffer${suchBeispiel(fach)}`} className="input max-w-md flex-1" aria-label="Leistung suchen" />
         {kapitelListe.length > 1 && (
           <select name="kapitel" defaultValue={kapitel ?? ""} className="input w-auto max-w-xs" aria-label="Kapitel">
             <option value="">Alle Kapitel</option>

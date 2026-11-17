@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { AnamneseProfil } from "@/lib/anamneseProfile";
+import { hinweisTeile, type AnamneseProfil } from "@/lib/anamneseProfile";
 
 type Ans = { yes?: boolean; detail?: string };
 
@@ -69,7 +69,16 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
       </p>
       {profil.hinweis && (
         <p className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700" data-testid="anamnese-hinweis">
-          {profil.hinweis}
+          {/* Telefonnummern als Link: auf dem Handy direkt anrufen. */}
+          {hinweisTeile(profil.hinweis).map((t, i) =>
+            t.tel ? (
+              <a key={i} href={`tel:${t.tel}`} className="whitespace-nowrap font-medium text-brand-700 underline">
+                {t.text}
+              </a>
+            ) : (
+              t.text
+            ),
+          )}
         </p>
       )}
 

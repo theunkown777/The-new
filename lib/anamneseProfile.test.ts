@@ -8,6 +8,7 @@ import {
   NEUTRAL,
   anamneseFach,
   anamneseFuer,
+  hinweisTeile,
   type Person,
 } from "@/lib/anamneseProfile";
 import { anamnesePruefen, anamnesisFlags, anamnesisSchemaFuer, parseAnamnesis } from "@/lib/anamnesis";
@@ -68,25 +69,34 @@ describe("Anamnesebogen je Fach", () => {
     const keys = p.fragen.map((f) => f.key);
     for (const k of ["bisphosphonate", "bestrahlung", "knirschen"]) expect(keys).toContain(k);
     expect(p.anliegen.map((a) => a.key)).toEqual(expect.arrayContaining(["hell", "luecke", "zahnfleisch", "angst"]));
-    expect(p.schweigepflicht).toMatch(/zahnärztlichen Schweigepflicht/);
+    expect(p.schweigepflicht).toBe("Ihre Angaben unterliegen der zahnärztlichen Schweigepflicht.");
   });
 
   it("andere, fehlendes oder unbekanntes Fach: neutraler Bogen, nie Zahnmedizin", () => {
     for (const f of ["andere", "unbekannt", "", null, undefined, "Zahn", "ZAHN"]) {
       expect(anamneseFach(f), String(f)).toBe(NEUTRAL);
-      expect(anamneseFuer(f).schweigepflicht).toBe("Sie unterliegen der Schweigepflicht.");
+      // Ohne bekanntes Fach keine Behauptung einer Berufspflicht, nur Vertraulichkeit.
+      expect(anamneseFuer(f).schweigepflicht).toBe("Wir behandeln Ihre Angaben vertraulich.");
     }
   });
 
-  it("Schweigepflicht je Berufsgruppe: ärztlich nur bei ärztlichen Fächern", () => {
+  it("Schweigepflicht je Berufsgruppe: ärztlich nur bei ärztlichen Fächern, Vertraulichkeit ohne Berufspflicht", () => {
+    const ARZT = "Ihre Angaben unterliegen der ärztlichen Schweigepflicht.";
+    const HEILBERUF = "Ihre Angaben unterliegen der Schweigepflicht.";
+    const VERTRAULICH = "Wir behandeln Ihre Angaben vertraulich.";
+    // § 203 StGB gilt nach herrschender Meinung nicht für Heilpraktik, Augenoptik, Hörakustik und Sanitätshaus.
+    const ohne203 = ["heilpraktiker", "optik", "hoerakustik", "sanitaetshaus"];
+    // Psychotherapie leisten auch Psychologische Psychotherapeutinnen und -therapeuten; Kliniken haben viele Berufe.
+    const heilberuf = ["psych", "physio", "ergo", "logo", "podo", "hebamme", "pflege", "apotheke", "klinik"];
     for (const s of ALLE_SPECIALTIES) {
       const p = anamneseFuer(s.id);
-      if (s.beruf === "therapie") expect(p.schweigepflicht, s.id).toBe("Sie unterliegen der Schweigepflicht.");
-      expect(p.schweigepflicht, s.id).not.toMatch(/zahn/i);
+      const soll = ohne203.includes(s.id) ? VERTRAULICH : heilberuf.includes(s.id) ? HEILBERUF : ARZT;
+      expect(p.schweigepflicht, s.id).toBe(soll);
+      if (s.beruf === "therapie") expect(p.schweigepflicht, s.id).not.toBe(ARZT);
+      // Nicht mehrdeutig: „Sie unterliegen …“ läse sich wie eine Pflicht der Patientin.
+      expect(p.schweigepflicht, s.id).not.toMatch(/^Sie\b/);
     }
-    expect(anamneseFuer("hausarzt").schweigepflicht).toBe("Sie unterliegen der ärztlichen Schweigepflicht.");
-    // Psychotherapie leisten auch Psychologische Psychotherapeutinnen und -therapeuten.
-    expect(anamneseFuer("psych").schweigepflicht).toBe("Sie unterliegen der Schweigepflicht.");
+    expect(anamneseFuer("hausarzt").schweigepflicht).toBe(ARZT);
   });
 
   it("Kasse zuerst, Angst zuletzt; keine Selbstzahler-Werbung in den Anliegen", () => {
@@ -118,14 +128,30 @@ describe("Filter nach Geschlecht und Alter", () => {
   const keys = (fach: string, person: Person) => anamneseFuer(fach, person).fragen.map((f) => f.key);
 
   it("Schwangerschaft nur bei Frauen ab 12; Rauchen ab 12; Unbekanntes schließt nichts aus", () => {
+    // Kinder- und Jugendmedizin fragt die Eltern (nie nach einer Schwangerschaft), die Hebamme fragt nicht, ob jemand schwanger ist.
+    const ohneSchwanger = ["kinder", "hebamme"];
     for (const fach of [DENTAL_ID, ...IDS]) {
       expect(keys(fach, { geschlecht: "M", alter: 40 }), fach).not.toContain("schwanger");
       expect(keys(fach, { geschlecht: "W", alter: 11 }), fach).not.toContain("schwanger");
       expect(keys(fach, { alter: 8 }), fach).not.toContain("rauchen");
+      if (ohneSchwanger.includes(fach)) {
+        expect(keys(fach, { geschlecht: "W", alter: 30 }), fach).not.toContain("schwanger");
+        continue;
+      }
       expect(keys(fach, { geschlecht: "W", alter: 30 }), fach).toContain("schwanger");
       expect(keys(fach, {}), fach).toEqual(expect.arrayContaining(["schwanger", "rauchen"]));
     }
     expect(keys("uro", { geschlecht: "M", alter: 60 })).not.toContain("schwanger");
+  });
+
+  it("nie an Eltern: Schwangerschaft, Verhütung und andere vertrauliche Fragen", () => {
+    const vertraulich = Object.values(ANAMNESE_FRAGEN).filter((f) => f.nurSelbst).map((f) => f.key);
+    expect(vertraulich).toEqual(expect.arrayContaining(["schwanger", "verhuetung", "schwangerschaften", "regelblutung"]));
+    for (const fach of [DENTAL_ID, ...IDS, "andere"])
+      for (const person of [{ geschlecht: "W", alter: 13 }, { geschlecht: "W", alter: 15 }, { alter: 14 }, { geschlecht: "W", alter: 40 }]) {
+        const p = anamneseFuer(fach, person);
+        if (p.ansprache === "eltern") for (const k of vertraulich) expect(keys(fach, person), `${fach} ${JSON.stringify(person)}`).not.toContain(k);
+      }
   });
 
   it("Kinder- und Jugendmedizin: immer an die Eltern", () => {
@@ -135,23 +161,67 @@ describe("Filter nach Geschlecht und Alter", () => {
     expect(p.einleitung).toBe("Ihre Angaben helfen uns, Ihr Kind sicher zu behandeln.");
   });
 
-  it("Eltern-Ansprache: keine Frage spricht das Kind mit „Sie“ an", () => {
-    for (const fach of [DENTAL_ID, ...IDS, "andere"]) {
-      const p = anamneseFuer(fach, { alter: 8 });
-      if (p.ansprache !== "eltern") continue;
-      for (const f of p.fragen) if (/\b(Sie|Ihnen)\b/.test(f.text)) expect(f.text, `${fach}: ${f.key}`).toMatch(/Ihr(em|es|er)? Kind/);
-      for (const a of p.anliegen) {
-        expect(a.text, `${fach}: ${a.key}`).not.toMatch(/\b(ich|mir|mich)\b/i);
-        if (/\bmein(e|en|er|es)?\b/i.test(a.text)) expect(a.text, `${fach}: ${a.key}`).toMatch(/mein(es)? Kind/i);
+  it("Ansprache je Fach und Alter (5, 8, 14, 40 Jahre)", () => {
+    // Frauenheilkunde und Hebammenhilfe: Jugendliche ab 12 antworten selbst. Kinder- und Jugendmedizin: immer die Eltern.
+    const selbstAb12 = ["gyn", "hebamme"];
+    for (const fach of [DENTAL_ID, ...IDS, "andere", null])
+      for (const geschlecht of ["W", "M", null]) {
+        const a = (alter: number) => anamneseFuer(fach, { geschlecht, alter }).ansprache;
+        expect(a(5), `${fach} 5`).toBe("eltern");
+        expect(a(8), `${fach} 8`).toBe("eltern");
+        expect(a(14), `${fach} 14`).toBe(selbstAb12.includes(String(fach)) ? "patient" : "eltern");
+        expect(a(40), `${fach} 40`).toBe(fach === "kinder" ? "eltern" : "patient");
       }
-    }
   });
 
-  it("Erwachsene werden selbst angesprochen; feste Ansprache in Frauenheilkunde und Hebammenhilfe", () => {
+  it("Eltern-Ansprache: keine Frage spricht das Kind mit „Sie“ an (Alter 5, 8 und 14)", () => {
+    for (const fach of [DENTAL_ID, ...IDS, "andere"])
+      for (const person of [{ alter: 5 }, { geschlecht: "W", alter: 8 }, { geschlecht: "M", alter: 8 }, { geschlecht: "W", alter: 14 }, { geschlecht: "M", alter: 14 }]) {
+        const p = anamneseFuer(fach, person);
+        if (p.ansprache !== "eltern") continue;
+        for (const f of p.fragen) if (/\b(Sie|Ihnen)\b/.test(f.text)) expect(f.text, `${fach}: ${f.key}`).toMatch(/Ihr(em|es|er)? Kind/);
+        for (const a of p.anliegen) {
+          expect(a.text, `${fach}: ${a.key}`).not.toMatch(/\b(ich|mir|mich)\b/i);
+          if (/\bmein(e|en|er|em|es)?\b/i.test(a.text)) expect(a.text, `${fach}: ${a.key}`).toMatch(/mein(es)? Kind/i);
+        }
+        expect(p.einleitung, fach).toContain("Ihr Kind");
+      }
+  });
+
+  it("Frauenheilkunde: Verhütung, Regelblutung und frühere Schwangerschaften erst ab 12, Krebsfrüherkennung ab 20", () => {
+    const gyn = (alter: number) => keys("gyn", { geschlecht: "W", alter });
+    const eigene = ["verhuetung", "regelblutung", "schwangerschaften", "letzte_vorsorge"];
+    for (const k of eigene) expect(gyn(8), k).not.toContain(k);
+    expect(anamneseFuer("gyn", { geschlecht: "W", alter: 8 }).anliegen.map((a) => a.key)).not.toContain("verhuetung_kasse");
+    expect(gyn(14)).toEqual(expect.arrayContaining(["verhuetung", "regelblutung", "schwangerschaften"]));
+    expect(gyn(14)).not.toContain("letzte_vorsorge");
+    expect(gyn(25)).toEqual(expect.arrayContaining(eigene));
+  });
+
+  it("Erwachsene werden selbst angesprochen; in Frauenheilkunde und Hebammenhilfe Jugendliche ab 12", () => {
     expect(anamneseFuer("hausarzt", { alter: 40 }).ansprache).toBe("patient");
     expect(anamneseFuer("hausarzt", { alter: 9 }).ansprache).toBe("eltern");
     expect(anamneseFuer("gyn", { alter: 14 }).ansprache).toBe("patient");
     expect(anamneseFuer("hebamme", { alter: 15 }).ansprache).toBe("patient");
+    // Kinder werden in keinem Fach mit „Sie“ angesprochen, auch nicht in Pflege, Podologie oder Ästhetik.
+    for (const fach of ["gyn", "hebamme", "pflege", "podo", "aesthetik"]) expect(anamneseFuer(fach, { alter: 8 }).ansprache, fach).toBe("eltern");
+    expect(anamneseFuer("pflege", { alter: 8 }).fragen.find((f) => f.key === "pflegegrad")?.text).toBe("Hat Ihr Kind einen Pflegegrad?");
+    // Ohne bekanntes Alter antwortet die Person selbst.
+    expect(anamneseFuer("pflege", {}).ansprache).toBe("patient");
+  });
+
+  it("Hinweis zur Krisenhilfe: nicht „sofort“ gelesen, Nummern als Link, für Eltern mit der Nummer gegen Kummer", () => {
+    const patient = anamneseFuer("psych", { alter: 30 }).hinweis!;
+    const eltern = anamneseFuer("psych", { alter: 13 }).hinweis!;
+    for (const h of [patient, eltern]) {
+      expect(h).toMatch(/^Die Praxis liest diesen Bogen nicht unbedingt sofort\./);
+      expect(hinweisTeile(h).filter((t) => t.tel).map((t) => t.tel)).toEqual(expect.arrayContaining(["08001110111", "08001110222", "112"]));
+      expect(hinweisTeile(h).map((t) => t.text).join("")).toBe(h);
+    }
+    expect(eltern).toContain("116 111");
+    expect(hinweisTeile(eltern).some((t) => t.tel === "116111")).toBe(true);
+    expect(patient).not.toContain("116 111");
+    expect(hinweisTeile("Ohne Nummer.")).toEqual([{ text: "Ohne Nummer." }]);
   });
 });
 

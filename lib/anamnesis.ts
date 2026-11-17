@@ -21,30 +21,58 @@ import {
 
 export const ANAMNESIS_LINK_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
+// Meldungen an Patientinnen und Patienten, auf Deutsch (nie die englischen Texte von zod).
 const ALLE_FRAGEN = "Bitte alle Fragen beantworten";
 const FREMD = "Der Bogen hat sich geändert. Bitte laden Sie die Seite neu.";
-const fremdeSchluessel = (iss: { code?: string }) => (iss.code === "unrecognized_keys" ? FREMD : undefined);
+const UNLESBAR = "Die Angaben konnten nicht gelesen werden. Bitte laden Sie die Seite neu.";
+const NAME = "Bitte Ihren Namen zur Bestätigung eintragen";
+const DETAIL_LANG = "Bitte kürzen Sie Ihre Angabe zu einer Frage auf höchstens 300 Zeichen.";
+const HINWEIS_LANG = "Bitte kürzen Sie die weiteren Hinweise auf höchstens 1000 Zeichen.";
+const NAME_LANG = "Bitte kürzen Sie den Namen auf höchstens 120 Zeichen.";
 
-const answer = z.object({ yes: z.boolean(), detail: z.string().trim().max(300).optional() }, { error: ALLE_FRAGEN });
+const answer = z.object({ yes: z.boolean(), detail: z.string().trim().max(300).optional() });
 const note = z.string().trim().max(1000).optional();
-const confirmName = z.string().trim().min(2, "Bitte Ihren Namen zur Bestätigung eintragen").max(120);
+const confirmName = z.string().trim().min(2, NAME).max(120);
 
 /** Prüfung für den Bogen eines Fachs: genau seine Fragen, nur seine Anliegen, fremde Schlüssel werden abgelehnt. */
 export function anamnesisSchemaFuer(profil: Pick<AnamneseProfil, "fragen" | "anliegen">) {
   const anliegen = profil.anliegen.map((a) => a.key) as [string, ...string[]];
-  return z.strictObject(
-    {
-      q: z.strictObject(Object.fromEntries(profil.fragen.map((f) => [f.key, answer])), { error: fremdeSchluessel }),
-      wishes: z
-        .array(z.enum(anliegen, { error: FREMD }))
-        .max(anliegen.length)
-        .default([])
-        .transform((w) => [...new Set(w)]),
-      note,
-      confirmName,
-    },
-    { error: fremdeSchluessel },
-  );
+  return z.strictObject({
+    q: z.strictObject(Object.fromEntries(profil.fragen.map((f) => [f.key, answer]))),
+    wishes: z
+      .array(z.enum(anliegen))
+      .max(anliegen.length)
+      .default([])
+      .transform((w) => [...new Set(w)]),
+    note,
+    confirmName,
+  });
+}
+
+type Problem = { code: string; path: PropertyKey[]; input?: unknown };
+
+/** Eine Meldung zu einem Fehler der Prüfung. */
+function meldung(i: Problem): string {
+  const [feld, frage, teil] = i.path;
+  if (feld === undefined) return i.code === "unrecognized_keys" ? FREMD : UNLESBAR;
+  if (feld === "q") {
+    // Fehlt eine Frage oder ist eine fremd, hat sich der Bogen seit dem Öffnen geändert (z. B. Geburtstag oder
+    // die Praxis hat Geschlecht oder Geburtsdatum nachgetragen). Der Browser prüft die Vollständigkeit selbst.
+    if (frage === undefined) return i.code === "unrecognized_keys" ? FREMD : UNLESBAR;
+    if (teil === undefined) return i.input === undefined ? FREMD : ALLE_FRAGEN;
+    if (teil === "detail" && i.code === "too_big") return DETAIL_LANG;
+    return ALLE_FRAGEN;
+  }
+  if (feld === "wishes") return FREMD;
+  if (feld === "note") return i.code === "too_big" ? HINWEIS_LANG : UNLESBAR;
+  if (feld === "confirmName") return i.code === "too_big" ? NAME_LANG : NAME;
+  return UNLESBAR;
+}
+
+/** Die wichtigste Meldung: Hat sich der Bogen geändert, hilft nur Neuladen; sonst der erste Fehler. */
+export function anamneseFehler(issues: readonly Problem[]): string {
+  const texte = issues.map(meldung);
+  return texte.find((t) => t === UNLESBAR) ?? texte.find((t) => t === FREMD) ?? texte[0] ?? UNLESBAR;
 }
 
 /** Fassung 1 (bis November 2026): fester Fragensatz ohne Fach. Nur, um ältere offene Bögen noch anzunehmen. */
@@ -80,7 +108,8 @@ export type AnamnesePruefung = { ok: true; daten: Anamnese } | { ok: false; fehl
  * beantwortete Fragen bleiben erhalten, weil sie Hinweise wie Blutverdünner tragen.
  */
 export function anamnesePruefen(body: unknown, profil: AnamneseProfil, opts: { altbestand?: boolean } = {}): AnamnesePruefung {
-  const p = anamnesisSchemaFuer(profil).safeParse(body);
+  // reportInput: um eine fehlende Frage (Bogen geändert) von einer falschen Antwort zu unterscheiden.
+  const p = anamnesisSchemaFuer(profil).safeParse(body, { reportInput: true });
   if (p.success) return { ok: true, daten: speicherform(profil, p.data) };
   if (opts.altbestand) {
     const alt = v1Schema.safeParse(body);
@@ -90,8 +119,12 @@ export function anamnesePruefen(body: unknown, profil: AnamneseProfil, opts: { a
       const q = Object.fromEntries(Object.entries(alt.data.q).filter(([k]) => k !== "knirschen" || profil.fach === ZAHN)) as Record<string, { yes: boolean; detail?: string }>;
       return { ok: true, daten: speicherform(profil, { ...alt.data, q, wishes: alt.data.wishes.filter((w) => erlaubt.has(w)) }) };
     }
+    // Ein Bogen der Fassung 1, bei dem nur ein Feld nicht passt (z. B. der Name zu kurz): diese Meldung, nicht „Bogen geändert“.
+    if (!alt.success && alt.error.issues.every((i) => i.path[0] === "confirmName" || i.path[0] === "note" || (i.path[0] === "q" && i.path.length > 2))) {
+      return { ok: false, fehler: anamneseFehler(alt.error.issues) };
+    }
   }
-  return { ok: false, fehler: p.error.issues[0]?.message ?? "Ungültige Angaben" };
+  return { ok: false, fehler: anamneseFehler(p.error.issues) };
 }
 
 function speicherform(profil: AnamneseProfil, e: { q: Record<string, { yes: boolean; detail?: string }>; wishes: string[]; note?: string; confirmName: string }): Anamnese {

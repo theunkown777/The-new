@@ -11,12 +11,14 @@ import { MenschKarte } from "@/components/modelle/erklaerung/MenschKarte";
 export default async function ModellePage() {
   const session = await getServerSession(authOptions);
   const praxis = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true } });
-  const fach = praxis?.specialty ?? "zahn";
+  // Ohne Praxis kein stiller Rückfall auf das Gebiss: "andere" zeigt den Körper (lib/modelle/fach.ts nimmt bei leerem Fach die Zahnmedizin).
+  const fach = praxis?.specialty ?? "andere";
+  const fachName = fach === "andere" ? null : SPECIALTY_LABELS[fach];
   return (
     <div className="mx-auto max-w-6xl">
       <h1 className="font-display text-3xl text-slate-900">Modelle</h1>
       <p className="mt-1 max-w-2xl text-sm text-slate-500">
-        Zeigen Sie am Bildschirm, wo das Problem liegt und was gemacht wird. Das Modell für {SPECIALTY_LABELS[fach] ?? "Ihr Fach"} steht vorn.
+        Zeigen Sie am Bildschirm, wo das Problem liegt und was gemacht wird. Das Modell für {fachName ?? "Ihr Fach"} steht vorn.
         Um eine Stelle für einen Patienten zu markieren, öffnen Sie den Patienten und gehen zu „Am Modell zeigen“.
       </p>
       <div className="journal mt-6 rounded-[10px] p-5 sm:p-8">

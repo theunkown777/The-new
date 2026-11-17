@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Haken } from "@/components/Haken";
 import { LeistungSchnell } from "@/components/LeistungSchnell";
+import { faktorVerzeichnisse, kategorieBeispiel, SYSTEM_LABEL, systemeFuer } from "@/lib/katalogBeispiele";
 
 type CatalogItem = {
   id: string;
@@ -20,22 +21,10 @@ type CatalogItem = {
 
 type RowState = { punktzahl: string; festbetrag: string; saving: boolean; saved: boolean; error: string | null };
 
-const SYSTEME_JE_FACH: Record<string, string[]> = {
-  zahn: ["GOZ", "BEMA", "GOAE", "BEL_II", "SONSTIGES"],
-  therapie: ["HEILMITTEL", "SELBST", "SONSTIGES"],
-  apotheke: ["APO", "HILFSMITTEL", "SELBST", "SONSTIGES"],
-  versorgung: ["HILFSMITTEL", "SELBST", "SONSTIGES"],
-  pflege: ["PFLEGE", "SELBST", "SONSTIGES"],
-  hebamme: ["HEBAMME", "SELBST", "SONSTIGES"],
-  selbst: ["SELBST", "SONSTIGES"],
-  arzt: ["EBM", "GOAE", "UVGOAE", "SELBST", "SONSTIGES"],
-};
-/** Beispiel für das Feld „Kategorie“ je Gruppe; Zahnärztliches nur bei Zahnmedizin. */
-const KATEGORIE_BEISPIEL: Record<string, string> = { zahn: "Prophylaxe", arzt: "Vorsorge", therapie: "Behandlung", apotheke: "Beratung", versorgung: "Versorgung", pflege: "Pflege", hebamme: "Wochenbett", selbst: "Behandlung" };
-const SYSTEM_LABEL: Record<string, string> = { GOAE: "GOÄ", UVGOAE: "UV-GOÄ", HEILMITTEL: "Heilmittel", PFLEGE: "Pflege", HEBAMME: "Hebammenhilfe", APO: "Apotheke", HILFSMITTEL: "Hilfsmittel", SELBST: "Selbstzahler", SONSTIGES: "Sonstiges", BEL_II: "BEL II" };
-
 export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { readOnly?: boolean; systeme: string; regionLabel: string | null }) {
-  const SYSTEMS = SYSTEME_JE_FACH[systeme] ?? SYSTEME_JE_FACH.arzt;
+  const SYSTEMS = systemeFuer(systeme);
+  // Faktor-Feld nur, wo es ein Verzeichnis mit Steigerungsfaktor gibt (GOZ, GOÄ).
+  const faktor = faktorVerzeichnisse(systeme);
   // Gebührenverzeichnisse dieses Fachs für den Hinweis unten (in der Zahnmedizin GOZ/BEMA/GOÄ/BEL II).
   const verzeichnisse = SYSTEMS.filter((x) => x !== "SONSTIGES" && x !== "SELBST").map((x) => SYSTEM_LABEL[x] ?? x).join("/");
   const emptyNewItem = () => ({ system: SYSTEMS[0], code: "", title: "", category: "", toothRelevant: false, hasFaktor: SYSTEMS[0] === "GOZ" || SYSTEMS[0] === "GOAE" });
@@ -293,7 +282,7 @@ export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { re
                   <label className="label" htmlFor="katalog-neu-kategorie">Kategorie</label>
                   <input id="katalog-neu-kategorie"
                     className="input"
-                    placeholder={`z. B. ${KATEGORIE_BEISPIEL[systeme] ?? "Vorsorge"}`}
+                    placeholder={`z. B. ${kategorieBeispiel(systeme)}`}
                     value={newItem.category}
                     onChange={(e) => setNewItem((p) => ({ ...p, category: e.target.value }))}
                     required
@@ -307,14 +296,16 @@ export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { re
                   />
                   {regionLabel ?? "Region"} relevant
                 </label>
-                <label className="flex items-center gap-2 self-end pb-2 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={newItem.hasFaktor}
-                    onChange={(e) => setNewItem((p) => ({ ...p, hasFaktor: e.target.checked }))}
-                  />
-                  Faktor-Feld ({systeme === "zahn" ? "GOZ/GOÄ" : "GOÄ"})
-                </label>
+                {faktor && (
+                  <label className="flex items-center gap-2 self-end pb-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={newItem.hasFaktor}
+                      onChange={(e) => setNewItem((p) => ({ ...p, hasFaktor: e.target.checked }))}
+                    />
+                    Faktor-Feld ({faktor})
+                  </label>
+                )}
               </div>
               <div className="flex gap-3">
                 <button type="submit" disabled={creating} className="btn-primary">
