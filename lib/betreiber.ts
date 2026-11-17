@@ -18,7 +18,7 @@ export const BETREIBER: Betreiber = {
   strasse: "Pastorskamp 19",
   plzOrt: "48485 Neuenkirchen",
   land: "Deutschland",
-  email: "lucakolhoff1@gmail.com",
+  email: "sorrida.com@gmail.com",
   telefon: "",
   wirtschaftsId: "",
 };
