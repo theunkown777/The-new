@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { HILFE_HINWEIS, HILFE_WISSEN, type HilfeArt, type HilfeEintrag } from "@/lib/hilfeWissen";
+import { HILFE_WISSEN, hilfeHinweis, type HilfeArt, type HilfeEintrag, type HinweisArt } from "@/lib/hilfeWissen";
 import { hilfeText, sichtbareHilfe, sucheHilfe } from "@/lib/hilfeSuche";
 import { seiteErlaubt, zeigZiel } from "@/lib/hilfeZeiger";
 import type { MenueRechte } from "@/lib/rollen";
@@ -21,7 +21,7 @@ const GRUPPEN: [HilfeArt, string][] = [
  * „Frag Sorrida“ als Seite: dieselbe Suche wie im Chat (lib/hilfeSuche.ts), gefiltert nach Fach und Rechten,
  * mit „Zeig mir wo“. Mit eingeschalteten KI-Hilfen zusätzlich eine Antwort als Entwurf.
  */
-export function HilfePraxis({ fach, ki, rechte, personPl = "Patienten", abschluss = "Behandlung" }: { fach: "zahn" | "andere"; ki: boolean; rechte?: MenueRechte; personPl?: string; abschluss?: string }) {
+export function HilfePraxis({ fach, hinweisArt, ki, rechte, personPl = "Patienten", abschluss = "Behandlung" }: { fach: "zahn" | "andere"; hinweisArt?: HinweisArt; ki: boolean; rechte?: MenueRechte; personPl?: string; abschluss?: string }) {
   const pfad = usePathname() ?? "/hilfe-praxis";
   const [frage, setFrage] = useState("");
   const [kiAntwort, setKiAntwort] = useState<KiAntwort | null>(null);
@@ -144,7 +144,7 @@ export function HilfePraxis({ fach, ki, rechte, personPl = "Patienten", abschlus
         </ul>
       </section>
 
-      <p className="rounded-lg bg-[#F5F2EE] px-3 py-2 text-sm text-slate-600" data-testid="hilfe-hinweis">{HILFE_HINWEIS}</p>
+      <p className="rounded-lg bg-[#F5F2EE] px-3 py-2 text-sm text-slate-600" data-testid="hilfe-hinweis">{hilfeHinweis(hinweisArt ?? (fach === "zahn" ? "zahn" : "andere"))}</p>
 
       <details className="card" data-testid="hilfe-alle">
         <summary className="cursor-pointer text-sm font-medium text-slate-900">Alle Themen ({alle.length})</summary>

@@ -212,6 +212,7 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     const ergebnis = await hp.getByTestId('angaben-ergebnis').innerText();
     pruef('B: Ergebnis nennt Kopie, Stand und Zahl der Fragen', ergebnis.includes(`Aus „Meine Angaben“ (Stand ${HEUTE}) übernommen: ${GRUND.length} von ${namenB.length} Fragen.`), ergebnis.slice(0, 200));
     pruef('B: Ergebnis sagt, dass die andere Praxis nichts erfährt, und nennt sie nicht', ergebnis.includes('Die Praxis, aus deren Bogen die Kopie stammt, erfährt von der Übernahme nichts.') && !ergebnis.includes('Sonnenberg'), ergebnis.slice(0, 300));
+    pruef('B: Ergebnis sagt, was diese Praxis sieht (Hinweis mit Stand)', ergebnis.includes(`Sie sieht auch den Stand der Kopie: ${HEUTE}.`), ergebnis.slice(0, 400));
     pruef('B: Fokus auf dem Ergebnis', (await aktiv(hp)) === 'angaben-ergebnis');
     const herkunftSatz = hp.getByText(`Aus dem Bogen von ${PRAXIS_A}.`);
     pruef('B: Name der Praxis A nicht offen sichtbar', !(await herkunftSatz.isVisible()));
@@ -232,7 +233,8 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     await hp.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
     const hakenFehler = await hp.locator('#anamnese-fehler').innerText();
     pruef('B: ohne Haken „geprüft“ kein Senden, Meldung und Fokus am Haken', hakenFehler === 'Bitte bestätigen Sie, dass Sie die übernommenen Angaben geprüft haben.' && (await aktivId(hp)) === 'vorbefuellt-geprueft', `${hakenFehler} / ${await aktivId(hp)}`);
-    pruef('B: Haken als ungültig markiert und mit der Meldung verbunden', (await hp.getByTestId('anamnese-geprueft').getAttribute('aria-invalid')) === 'true' && (await hp.getByTestId('anamnese-geprueft').getAttribute('aria-describedby')) === 'anamnese-fehler');
+    pruef('B: Haken als ungültig markiert und mit der Meldung verbunden', (await hp.getByTestId('anamnese-geprueft').getAttribute('aria-invalid')) === 'true' && (await hp.getByTestId('anamnese-geprueft').getAttribute('aria-describedby')) === 'anamnese-fehler vorbefuellt-praxis-sieht');
+    pruef('B: am Haken steht, was diese Praxis sieht (Stand, keine Herkunft)', (await hp.getByTestId('anamnese-praxis-sieht').innerText()).trim() === `Diese Praxis sieht am Bogen, dass Sie Angaben vom Gerät übernommen und geprüft haben. Sie sieht auch den Stand der Kopie: ${HEUTE}. Woher die Angaben stammen, sieht sie nicht.`);
     pruef('B: Haken mit dem Text der Vorgabe', (await hp.locator('label[for="vorbefuellt-geprueft"]').innerText()).trim() === 'Ich habe alle übernommenen Angaben geprüft. Sie sind aktuell.');
     pruef('B: noch nichts gesendet', sql(`select "submittedAt" is null from "AnamnesisForm" where id = '${KENN}-anamB1'`) === 't');
     await hp.getByTestId('anamnese-geprueft').scrollIntoViewIfNeeded();

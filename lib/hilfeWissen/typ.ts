@@ -30,8 +30,24 @@ export interface HilfeEintrag {
   meldungen?: string[];
 }
 
-export const HILFE_HINWEIS =
-  "Frag Sorrida erklärt die Bedienung der Software. Es gibt keine Auskunft zu Abrechnung im Einzelfall, Recht oder Medizin und ersetzt nicht die Beratung durch Kammer, KV oder KZV, Steuerberatung oder Kanzlei.";
+/**
+ * Art der Praxis für den festen Hinweis in der App. Wer zur Abrechnung berät, hängt vom Fach ab: die KZV nur bei
+ * Zahnmedizin, die KV nur bei ärztlichen Fächern (auch Psychotherapie). Therapiepraxen und „andere“ lesen
+ * neutrale Stellen. Bestimmt wird die Art auf dem Server (hinweisArt in lib/praxisKennung.ts).
+ */
+export type HinweisArt = "zahn" | "arzt" | "therapie" | "andere";
+
+const BERATUNG: Record<HinweisArt, string> = {
+  zahn: "Kammer, KZV",
+  arzt: "Kammer, KV",
+  therapie: "Berufsverband",
+  andere: "Kammer, Berufsverband",
+};
+
+/** Fester Hinweis unter „Frag Sorrida“ in der App, passend zum Fach der Praxis. */
+export function hilfeHinweis(art: HinweisArt): string {
+  return `Frag Sorrida erklärt die Bedienung der Software. Es gibt keine Auskunft zu Abrechnung im Einzelfall, Recht oder Medizin und ersetzt nicht die Beratung durch ${BERATUNG[art]}, Steuerberatung oder Kanzlei.`;
+}
 
 export const WEBSITE_HINWEIS =
   "Frag Sorrida beantwortet Fragen zu Sorrida aus festen Texten dieser Website. Es gibt keine Auskunft zu Abrechnung im Einzelfall, Recht oder Medizin. Bitte keine Patientendaten eingeben.";

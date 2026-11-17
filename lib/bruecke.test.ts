@@ -685,8 +685,22 @@ describe("Bogen mit Kopie: Code, Herkunft, Sprache, Hinweise (Prüfung vom 17.11
   });
   it("Texte in der Portalsprache stehen auch im deutschen Bogen mit lang und dir", () => {
     const bogen = ohneKommentare(lies("components/AnamnesisForm.tsx"));
-    expect(bogen.match(/lang=\{geraet\.lang\} dir=\{geraet\.dir\}/g)).toHaveLength(2);
+    expect(bogen.match(/lang=\{geraet\.lang\} dir=\{geraet\.dir\}/g)).toHaveLength(3);
     expect(bogen).toMatch(/lang=\{geraet && error === geraet\.gepruefFehlt \? geraet\.lang : undefined\}/);
     expect(geraet).toMatch(/gepruefFehlt: t\.gepruefFehlt,\s*lang,\s*dir,/);
+  });
+  it("sagt dem Patienten, was die Praxis dieses Bogens sieht: Hinweis mit Stand, keine Herkunft", () => {
+    // Was die Praxis sieht, steht in components/AnamnesisFlags.tsx: „… vorausgefüllt (Stand …), vom Patienten geprüft.“
+    expect(ANGABEN_UI.de.praxisSieht).toBe(
+      "Diese Praxis sieht am Bogen, dass Sie Angaben vom Gerät übernommen und geprüft haben. Sie sieht auch den Stand der Kopie: {datum}. Woher die Angaben stammen, sieht sie nicht.",
+    );
+    // Nach der Übernahme, neben dem Satz zur Praxis der Kopie …
+    expect(geraet).toContain("fuellen(t.praxisSieht, { datum: datum(kopie.stand) }), t.quelleNichts]");
+    expect(geraet).toContain("praxisSieht: (stand) => fuellen(t.praxisSieht, { datum: datum(stand) }),");
+    // … und am Haken „geprüft“ vor dem Senden, mit dem Haken verbunden.
+    const bogen = ohneKommentare(lies("components/AnamnesisForm.tsx"));
+    expect(bogen).toContain("{geraet.praxisSieht(vorbef.stand)}");
+    expect(bogen).toContain('aria-describedby={error === geraet.gepruefFehlt ? "anamnese-fehler vorbefuellt-praxis-sieht" : "vorbefuellt-praxis-sieht"}');
+    expect(bogen).toMatch(/<p id="vorbefuellt-praxis-sieht" lang=\{geraet\.lang\} dir=\{geraet\.dir\}/);
   });
 });

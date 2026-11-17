@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { BEDIENUNG, FEHLER, HILFE_HINWEIS, HILFE_WISSEN, PRAXISMANAGER, WEBSITE_HINWEIS, WEBSITE_WISSEN, type HilfeEintrag } from "@/lib/hilfeWissen";
+import { BEDIENUNG, FEHLER, HILFE_WISSEN, PRAXISMANAGER, WEBSITE_HINWEIS, WEBSITE_WISSEN, hilfeHinweis, type HilfeEintrag, type HinweisArt } from "@/lib/hilfeWissen";
+import { hinweisArt } from "@/lib/praxisKennung";
 import { fragenZurSeite, hilfeText, meldungenErkennen, seitePasst, sichtbareHilfe, sucheHilfe, trennbareVerben } from "@/lib/hilfeSuche";
 import { ankerInfo, PM_THEMEN } from "@/lib/hilfeAnker";
 import { menueRechte } from "@/lib/rollen";
@@ -72,11 +73,33 @@ describe("Wissenssammlung", () => {
     }
   });
   it("der feste Hinweis schließt Abrechnung im Einzelfall, Recht und Medizin aus", () => {
-    for (const h of [HILFE_HINWEIS, WEBSITE_HINWEIS]) {
+    const ARTEN: HinweisArt[] = ["zahn", "arzt", "therapie", "andere"];
+    for (const h of [...ARTEN.map(hilfeHinweis), WEBSITE_HINWEIS]) {
       expect(h).toMatch(/Abrechnung im Einzelfall/);
       expect(h).toMatch(/Recht/);
       expect(h).toMatch(/Medizin/);
+      expect(h).not.toMatch(/ [–—] /);
     }
+  });
+  it("der feste Hinweis passt zum Fach: KZV nur bei Zahnmedizin, KV nur bei ärztlichen Fächern", () => {
+    expect(hilfeHinweis("zahn")).toContain("Beratung durch Kammer, KZV, Steuerberatung oder Kanzlei.");
+    expect(hilfeHinweis("arzt")).toContain("Beratung durch Kammer, KV, Steuerberatung oder Kanzlei.");
+    expect(hilfeHinweis("therapie")).toContain("Beratung durch Berufsverband, Steuerberatung oder Kanzlei.");
+    expect(hilfeHinweis("andere")).toContain("Beratung durch Kammer, Berufsverband, Steuerberatung oder Kanzlei.");
+    for (const a of ["arzt", "therapie", "andere"] as const) expect(hilfeHinweis(a), a).not.toMatch(/KZV|zahn/i);
+    for (const a of ["therapie", "andere"] as const) expect(hilfeHinweis(a), a).not.toMatch(/\bKV\b|Kassenärztlich/);
+    // Art je Fach, wie Layout und /hilfe-praxis sie bestimmen
+    expect(hinweisArt("zahn")).toBe("zahn");
+    expect(hinweisArt("hausarzt")).toBe("arzt");
+    expect(hinweisArt("kinder")).toBe("arzt");
+    expect(hinweisArt("psych")).toBe("arzt");
+    expect(hinweisArt("physio")).toBe("therapie");
+    expect(hinweisArt("logo")).toBe("therapie");
+    expect(hinweisArt("andere")).toBe("andere");
+    // Beide Stellen zeigen den Hinweis passend zum Fach, keine feste Fassung.
+    for (const d of ["components/FragSorrida.tsx", "components/HilfePraxis.tsx"]) expect(readFileSync(d, "utf8"), d).toMatch(/hinweisArt \?\? \(fach === "zahn" \? "zahn" : "andere"\)/);
+    expect(readFileSync("app/(app)/layout.tsx", "utf8")).toContain("hinweisArt={hinweisArt(currentUser?.practice.specialty)}");
+    expect(readFileSync("app/(app)/hilfe-praxis/page.tsx", "utf8")).toContain("hinweisArt={hinweisArt(praxis?.specialty)}");
   });
   it("jede Seite eines Eintrags gibt es, auch die Seiten-Muster und Sprungmarken", () => {
     for (const e of ALLES) {

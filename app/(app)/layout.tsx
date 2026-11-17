@@ -24,6 +24,7 @@ import { ANSICHT_SKRIPT } from "@/lib/ansicht";
 import { KopfLink } from "@/components/KopfLink";
 import { EmpfangWache } from "@/components/EmpfangWache";
 import { FragSorrida } from "@/components/FragSorrida";
+import { hinweisArt } from "@/lib/praxisKennung";
 import { HilfeZeiger } from "@/components/HilfeZeiger";
 import { kiHilfenStand } from "@/lib/kiHilfen";
 import { Suspense } from "react";
@@ -153,6 +154,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <FragSorrida
             modus="app"
             fach={dental ? "zahn" : "andere"}
+            hinweisArt={hinweisArt(currentUser?.practice.specialty)}
             rechte={menue}
             ki={kiHilfenStand(currentUser?.practice.kiHilfen).aktiv}
             personPl={personen}

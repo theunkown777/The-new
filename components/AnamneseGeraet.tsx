@@ -78,6 +78,7 @@ export function AnamneseGeraet({ gruppe, lang, ...form }: Props) {
         ),
         gesendet,
         markiert: (stand) => fuellen(t.markiert, { datum: datum(stand) }),
+        praxisSieht: (stand) => fuellen(t.praxisSieht, { datum: datum(stand) }),
         geprueft: t.geprueft,
         gepruefFehlt: t.gepruefFehlt,
         lang,
@@ -158,7 +159,8 @@ function Uebernahme({ u, t, lang, dir, profil, datum, meinePraxen, onBenutzt }: 
         return;
       }
       onBenutzt(kopie.bezeichnung);
-      const zeilen = [fuellen(t.uebernommen, { name: kopie.bezeichnung, datum: datum(kopie.stand), anzahl, gesamt: profil.fragen.length }), t.quelleNichts];
+      // Was die Praxis dieses Bogens sieht (Hinweis mit Stand) und was die Praxis der Kopie erfährt (nichts).
+      const zeilen = [fuellen(t.uebernommen, { name: kopie.bezeichnung, datum: datum(kopie.stand), anzahl, gesamt: profil.fragen.length }), fuellen(t.praxisSieht, { datum: datum(kopie.stand) }), t.quelleNichts];
       if (anzahl < Object.keys(r.werte).length) zeilen.push(t.beantwortetBleiben);
       setErgebnis(zeilen);
       setHerkunft(inhalt.praxis);

@@ -314,7 +314,105 @@ const AR: KurzPaket = {
 };
 
 export const KURZ_PAKETE: Record<PortalLang, KurzPaket> = { de: DE, en: EN, tr: TR, pl: PL, ru: RU, uk: UK, ar: AR };
-export const kurzPaket = (lang: string): KurzPaket => KURZ_PAKETE[lang as PortalLang] ?? DE;
+
+/**
+ * Fassung für Eltern: Wer für ein Kind antwortet, liest „Ihr Kind“ statt „Sie“. Es gilt dieselbe Regel wie im
+ * Anamnesebogen (anspracheFuer in lib/anamneseProfile.ts): Kinder- und Jugendmedizin immer, sonst jünger als 16 Jahre
+ * bzw. als `selbstAb` des Fachs. Hier stehen nur die Texte, die sich ändern. Die Akte der Praxis bleibt wie sonst.
+ */
+export const KURZ_UI_ELTERN = {
+  wo: "Wo hat Ihr Kind Beschwerden?",
+  seit: "Seit wann hat Ihr Kind das?",
+  wannZahn: "Wann merkt Ihr Kind es?",
+  wieKoerper: "Wie fühlt es sich für Ihr Kind an?",
+  wasSonst: "Was bemerken Sie bei Ihrem Kind?",
+  unterStaerke: "Schieben Sie den Regler: 0 bedeutet keine Beschwerden, 10 die stärksten, die man sich vorstellen kann.",
+  zahnSeite: "Wie beim Blick in den Mund: Die rechte Seite Ihres Kindes liegt links im Bild.",
+  keine: "Mein Kind hat keine Beschwerden",
+  danke: "Danke für Ihre Angaben zu {name}.",
+  dankeText: "{praxis} hat Ihre Antworten erhalten und kann sich auf den Termin Ihres Kindes vorbereiten.",
+  modellKoerper: "Modell eines Körpers, nicht der Ihres Kindes.",
+  modellKopf: "Modell eines Kopfes, nicht der Ihres Kindes.",
+  modellGebiss: "Modell eines Gebisses, nicht das Ihres Kindes.",
+} as const satisfies Partial<Record<KurzUiKey, string>>;
+export type KurzElternKey = keyof typeof KURZ_UI_ELTERN;
+
+/** Antworten in der Ich-Form, die für Eltern anders lauten (deutsches Wort → Fassung für Eltern). */
+export const KURZ_W_ELTERN = ["Ich sehe verschwommen", "Ich höre schlechter", "Ich bin nervös vor der Behandlung"] as const;
+
+export interface KurzEltern {
+  ui: Record<KurzElternKey, string>;
+  w: Record<(typeof KURZ_W_ELTERN)[number], string>;
+}
+
+export const KURZ_ELTERN: Record<PortalLang, KurzEltern> = {
+  de: {
+    ui: KURZ_UI_ELTERN,
+    w: { "Ich sehe verschwommen": "Mein Kind sieht verschwommen", "Ich höre schlechter": "Mein Kind hört schlechter", "Ich bin nervös vor der Behandlung": "Mein Kind ist nervös vor der Behandlung" },
+  },
+  en: {
+    ui: {
+      wo: "Where does your child have symptoms?", seit: "Since when has your child had this?", wannZahn: "When does your child notice it?", wieKoerper: "What does it feel like for your child?", wasSonst: "What do you notice in your child?",
+      unterStaerke: "Move the slider: 0 means no symptoms, 10 the strongest one can imagine.", zahnSeite: "As if looking into your child's mouth: your child's right side is on the left of the picture.",
+      keine: "My child has no symptoms", danke: "Thank you for your answers about {name}.", dankeText: "{praxis} has received your answers and can prepare for your child's appointment.",
+      modellKoerper: "A model of a body, not your child's.", modellKopf: "A model of a head, not your child's.", modellGebiss: "A model of teeth, not your child's.",
+    },
+    w: { "Ich sehe verschwommen": "My child's vision is blurred", "Ich höre schlechter": "My child hears less well", "Ich bin nervös vor der Behandlung": "My child is nervous about the treatment" },
+  },
+  tr: {
+    ui: {
+      wo: "Çocuğunuzun şikâyetleri nerede?", seit: "Çocuğunuzda bu ne zamandan beri var?", wannZahn: "Çocuğunuz bunu ne zaman fark ediyor?", wieKoerper: "Çocuğunuz bunu nasıl hissediyor?", wasSonst: "Çocuğunuzda ne fark ediyorsunuz?",
+      unterStaerke: "Sürgüyü kaydırın: 0 şikâyet yok, 10 hayal edilebilecek en güçlü şikâyet demektir.", zahnSeite: "Çocuğunuzun ağzına bakar gibi: çocuğunuzun sağ tarafı resmin solundadır.",
+      keine: "Çocuğumun şikâyeti yok", danke: "{name} hakkındaki bilgileriniz için teşekkürler.", dankeText: "{praxis} cevaplarınızı aldı ve çocuğunuzun randevusuna hazırlanabilir.",
+      modellKoerper: "Bu bir vücut modelidir, çocuğunuzun vücudu değil.", modellKopf: "Bu bir baş modelidir, çocuğunuzun başı değil.", modellGebiss: "Bu bir diş modelidir, çocuğunuzun dişleri değil.",
+    },
+    w: { "Ich sehe verschwommen": "Çocuğum bulanık görüyor", "Ich höre schlechter": "Çocuğum daha kötü duyuyor", "Ich bin nervös vor der Behandlung": "Çocuğum tedaviden önce gergin" },
+  },
+  pl: {
+    ui: {
+      wo: "Gdzie dziecko ma dolegliwości?", seit: "Od kiedy dziecko to ma?", wannZahn: "Kiedy dziecko odczuwa dolegliwość?", wieKoerper: "Jak dziecko to odczuwa?", wasSonst: "Jakie objawy widać u dziecka?",
+      unterStaerke: "Proszę przesunąć suwak: 0 oznacza brak dolegliwości, 10 najsilniejsze, jakie można sobie wyobrazić.", zahnSeite: "Jak przy zaglądaniu do ust dziecka: prawa strona dziecka jest po lewej stronie obrazka.",
+      keine: "Moje dziecko nie ma dolegliwości", danke: "Dziękujemy za odpowiedzi dotyczące: {name}.", dankeText: "Odpowiedzi trafiły do: {praxis}. Gabinet może przygotować się do wizyty dziecka.",
+      modellKoerper: "Model ciała, a nie ciało dziecka.", modellKopf: "Model głowy, a nie głowa dziecka.", modellGebiss: "Model uzębienia, a nie zęby dziecka.",
+    },
+    w: { "Ich sehe verschwommen": "Dziecko widzi niewyraźnie", "Ich höre schlechter": "Dziecko słyszy gorzej", "Ich bin nervös vor der Behandlung": "Dziecko denerwuje się przed leczeniem" },
+  },
+  ru: {
+    ui: {
+      wo: "Где у вашего ребёнка жалобы?", seit: "С какого времени это у ребёнка?", wannZahn: "Когда ребёнок это замечает?", wieKoerper: "Какое это ощущение у ребёнка?", wasSonst: "Что вы замечаете у ребёнка?",
+      unterStaerke: "Передвиньте ползунок: 0 означает без жалоб, 10 означает самые сильные, какие можно представить.", zahnSeite: "Как при взгляде в рот ребёнка: правая сторона ребёнка слева на картинке.",
+      keine: "У моего ребёнка нет жалоб", danke: "Спасибо за ответы о ребёнке: {name}.", dankeText: "{praxis} получила ваши ответы и может подготовиться к приёму ребёнка.",
+      modellKoerper: "Это модель тела, а не тело вашего ребёнка.", modellKopf: "Это модель головы, а не голова вашего ребёнка.", modellGebiss: "Это модель зубов, а не зубы вашего ребёнка.",
+    },
+    w: { "Ich sehe verschwommen": "Ребёнок видит размыто", "Ich höre schlechter": "Ребёнок слышит хуже", "Ich bin nervös vor der Behandlung": "Ребёнок волнуется перед лечением" },
+  },
+  uk: {
+    ui: {
+      wo: "Де у вашої дитини скарги?", seit: "Відколи це в дитини?", wannZahn: "Коли дитина це помічає?", wieKoerper: "Яке це відчуття в дитини?", wasSonst: "Що ви помічаєте в дитини?",
+      unterStaerke: "Пересуньте повзунок: 0 означає без скарг, 10 означає найсильніші, які можна уявити.", zahnSeite: "Як при погляді в рот дитини: правий бік дитини зліва на зображенні.",
+      keine: "У моєї дитини немає скарг", danke: "Дякуємо за відповіді про дитину: {name}.", dankeText: "{praxis} отримала ваші відповіді і може підготуватися до прийому дитини.",
+      modellKoerper: "Це модель тіла, а не тіло вашої дитини.", modellKopf: "Це модель голови, а не голова вашої дитини.", modellGebiss: "Це модель зубів, а не зуби вашої дитини.",
+    },
+    w: { "Ich sehe verschwommen": "Дитина бачить розмито", "Ich höre schlechter": "Дитина гірше чує", "Ich bin nervös vor der Behandlung": "Дитина хвилюється перед лікуванням" },
+  },
+  ar: {
+    ui: {
+      wo: "أين يشعر طفلكم بالأعراض؟", seit: "منذ متى لدى طفلكم هذا؟", wannZahn: "متى يلاحظ طفلكم ذلك؟", wieKoerper: "كيف يشعر به طفلكم؟", wasSonst: "ماذا تلاحظون لدى طفلكم؟",
+      unterStaerke: "حرّكوا المؤشر: 0 تعني لا أعراض، و10 أشد ما يمكن تخيله.", zahnSeite: "كما عند النظر في فم طفلكم: جهته اليمنى على يسار الصورة.",
+      keine: "ليس لدى طفلي أعراض", danke: "شكرًا على إجاباتكم عن {name}.", dankeText: "استلمت {praxis} إجاباتكم ويمكنها الاستعداد لموعد طفلكم.",
+      modellKoerper: "هذا نموذج لجسم، وليس جسم طفلكم.", modellKopf: "هذا نموذج لرأس، وليس رأس طفلكم.", modellGebiss: "هذا نموذج لأسنان، وليس أسنان طفلكم.",
+    },
+    w: { "Ich sehe verschwommen": "طفلي يرى بشكل ضبابي", "Ich höre schlechter": "طفلي يسمع بشكل أضعف", "Ich bin nervös vor der Behandlung": "طفلي متوتر قبل العلاج" },
+  },
+};
+
+/** Sprachpaket für die Seite. `eltern`: Fassung für Eltern (siehe KURZ_UI_ELTERN) über das Paket der Sprache legen. */
+export const kurzPaket = (lang: string, opts: { eltern?: boolean } = {}): KurzPaket => {
+  const p = KURZ_PAKETE[lang as PortalLang] ?? DE;
+  if (!opts.eltern) return p;
+  const e = KURZ_ELTERN[p.lang];
+  return { ...p, ui: { ...p.ui, ...e.ui }, w: { ...p.w, ...e.w } };
+};
 
 /** Übersetzer für ein Paket: Oberfläche (t), Wörter (w) und Stellen mit Seite (ort). */
 export function kurzUebersetzer(p: KurzPaket) {

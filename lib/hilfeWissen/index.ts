@@ -10,7 +10,7 @@ import { FEHLER } from "./fehler";
 import { PRAXISMANAGER } from "./praxismanager";
 import type { HilfeEintrag } from "./typ";
 
-export { HILFE_HINWEIS, WEBSITE_HINWEIS, type HilfeArt, type HilfeEintrag } from "./typ";
+export { WEBSITE_HINWEIS, hilfeHinweis, type HilfeArt, type HilfeEintrag, type HinweisArt } from "./typ";
 export { WEBSITE_WISSEN } from "./website";
 export { BEDIENUNG, FEHLER, PRAXISMANAGER };
 

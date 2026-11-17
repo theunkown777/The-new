@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { gelenkeFuerFach, kurzArt } from "@/lib/kurzcheck";
 import { kurzPaket, kurzUebersetzer } from "@/lib/kurzcheckTexte";
+import { anspracheFuer } from "@/lib/anamneseProfile";
+import { ageFromBirthDate } from "@/lib/proposals";
 import { PORTAL_LANGS, PORTAL_LANG_NAMES, pickPortalLang } from "@/lib/portalI18n";
 import { Kurzcheck } from "@/components/kurzcheck/Kurzcheck";
 import { PraxisFuss } from "@/components/PraxisFuss";
@@ -23,11 +25,14 @@ export default async function PortalFragenPage(props: { params: Promise<{ token:
   const params = await props.params;
   const searchParams = await props.searchParams;
   const lang = pickPortalLang(searchParams.lang, (await headers()).get("accept-language"));
-  const paket = kurzPaket(lang);
-  const { t, dir } = kurzUebersetzer(paket);
   const gefunden = /^[A-Za-z0-9_-]{20,128}$/.test(params.token)
-    ? await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(params.token) }, select: { firstName: true, portalExpiresAt: true, practice: { select: { name: true, specialty: true, stammdaten: true } } } })
+    ? await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(params.token) }, select: { firstName: true, birthDate: true, portalExpiresAt: true, practice: { select: { name: true, specialty: true, stammdaten: true } } } })
     : null;
+  // Antworten die Eltern für ihr Kind, fragt der Bogen nach „Ihrem Kind“ (dieselbe Regel wie der Anamnesebogen).
+  // Das Geburtsdatum bleibt auf dem Server; an den Browser geht nur das Sprachpaket.
+  const eltern = !!gefunden && anspracheFuer(gefunden.practice.specialty, ageFromBirthDate(gefunden.birthDate)) === "eltern";
+  const paket = kurzPaket(lang, { eltern });
+  const { t, dir } = kurzUebersetzer(paket);
   if (!gefunden || !gefunden.portalExpiresAt || gefunden.portalExpiresAt < new Date()) {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center text-sm text-slate-600">

@@ -6,6 +6,7 @@ import { isDental } from "@/lib/specialties";
 import { kiHilfenStand } from "@/lib/kiHilfen";
 import { menueRechteVon } from "@/lib/permissions";
 import { abschlussWort, fachprofil } from "@/lib/fachprofile";
+import { hinweisArt } from "@/lib/praxisKennung";
 import { HilfePraxis } from "@/components/HilfePraxis";
 import { RundgangStart } from "@/components/RundgangStart";
 
@@ -28,6 +29,7 @@ export default async function HilfePraxisPage() {
       </p>
       <HilfePraxis
         fach={isDental(praxis?.specialty) ? "zahn" : "andere"}
+        hinweisArt={hinweisArt(praxis?.specialty)}
         ki={kiHilfenStand(praxis?.kiHilfen).aktiv}
         rechte={rechte}
         personPl={fachprofil(praxis?.specialty).person.pl}

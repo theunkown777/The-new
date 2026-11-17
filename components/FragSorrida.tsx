@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useId, useMemo, useReducer, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import type { HilfeEintrag } from "@/lib/hilfeWissen/typ";
+import type { HilfeEintrag, HinweisArt } from "@/lib/hilfeWissen/typ";
 import type { ErkannteMeldung } from "@/lib/hilfeSuche";
 import type { MenueRechte } from "@/lib/rollen";
 import { CHAT_START, FRAGE_MAX, chatSchritt, frueheFragen, kiKnopfZeigen, praxismanagerThema, type ChatNachricht } from "@/lib/hilfeChat";
@@ -22,7 +22,8 @@ type Modus = "app" | "website";
 
 interface Paket {
   wissen: HilfeEintrag[];
-  hinweis: string;
+  /** Fester Hinweis; in der App passend zur Art der Praxis (KZV nur bei Zahnmedizin). */
+  hinweis: (art: HinweisArt) => string;
   such: typeof import("@/lib/hilfeSuche");
 }
 
@@ -30,10 +31,10 @@ async function laden(modus: Modus): Promise<Paket> {
   const such = await import("@/lib/hilfeSuche");
   if (modus === "website") {
     const [w, t] = await Promise.all([import("@/lib/hilfeWissen/website"), import("@/lib/hilfeWissen/typ")]);
-    return { wissen: w.WEBSITE_WISSEN, hinweis: t.WEBSITE_HINWEIS, such };
+    return { wissen: w.WEBSITE_WISSEN, hinweis: () => t.WEBSITE_HINWEIS, such };
   }
   const w = await import("@/lib/hilfeWissen");
-  return { wissen: w.HILFE_WISSEN, hinweis: w.HILFE_HINWEIS, such };
+  return { wissen: w.HILFE_WISSEN, hinweis: w.hilfeHinweis, such };
 }
 
 const WEBSITE_START = ["web-was", "web-faecher", "web-kosten", "web-demo"];
@@ -57,6 +58,7 @@ function fokusFalle(e: React.KeyboardEvent, box: HTMLElement | null) {
 export function FragSorrida({
   modus = "app",
   fach,
+  hinweisArt,
   rechte,
   ki = false,
   personPl = "Patienten",
@@ -64,6 +66,8 @@ export function FragSorrida({
 }: {
   modus?: Modus;
   fach?: "zahn" | "andere";
+  /** Art der Praxis für den festen Hinweis (lib/praxisKennung.ts: hinweisArt). Ohne Angabe: zahn bzw. neutral. */
+  hinweisArt?: HinweisArt;
   rechte?: MenueRechte;
   /** KI-Hilfen aktiv (Schalter der Praxis UND KI-Zugang). Auf der Website immer aus. */
   ki?: boolean;
@@ -463,7 +467,7 @@ export function FragSorrida({
                   ) : (
                     <p className="mt-1 text-sm text-slate-600">Stellen Sie unten Ihre Frage, zum Beispiel „Wie lege ich einen Vorschlag an?“.</p>
                   )}
-                  <p className="mt-3 text-xs text-slate-500" data-testid="frag-sorrida-hinweis">{paket.hinweis}</p>
+                  <p className="mt-3 text-xs text-slate-500" data-testid="frag-sorrida-hinweis">{paket.hinweis(hinweisArt ?? (fach === "zahn" ? "zahn" : "andere"))}</p>
                 </div>
               )}
               {!leer && <ul className="space-y-3">{zustand.nachrichten.map(nachricht)}</ul>}

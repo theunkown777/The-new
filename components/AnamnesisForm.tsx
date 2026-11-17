@@ -21,9 +21,11 @@ export type GeraetFelder = {
   /** Nach erfolgreichem Senden (für das Protokoll auf dem Gerät). */
   gesendet: (mitUebernahme: boolean) => void;
   markiert: (stand: string) => string;
+  /** Was die Praxis dieses Bogens von der Übernahme sieht (Hinweis mit Stand), am Haken vor dem Senden. */
+  praxisSieht: (stand: string) => string;
   geprueft: string;
   gepruefFehlt: string;
-  /** Sprache und Schreibrichtung dieser drei Texte (Portalsprache); der Bogen selbst bleibt Deutsch. */
+  /** Sprache und Schreibrichtung dieser Texte (Portalsprache); der Bogen selbst bleibt Deutsch. */
   lang: string;
   dir: "ltr" | "rtl";
 };
@@ -240,7 +242,7 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
                 className="mt-0.5 h-5 w-5 shrink-0 accent-brand-600"
                 checked={geprueft}
                 aria-invalid={error === geraet.gepruefFehlt ? true : undefined}
-                aria-describedby={error === geraet.gepruefFehlt ? "anamnese-fehler" : undefined}
+                aria-describedby={error === geraet.gepruefFehlt ? "anamnese-fehler vorbefuellt-praxis-sieht" : "vorbefuellt-praxis-sieht"}
                 onChange={(e) => {
                   setGeprueft(e.target.checked);
                   if (e.target.checked && error === geraet.gepruefFehlt) setError("");
@@ -249,6 +251,9 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
               />
               <span lang={geraet.lang} dir={geraet.dir} data-testid="anamnese-geprueft-text">{geraet.geprueft}</span>
             </label>
+            <p id="vorbefuellt-praxis-sieht" lang={geraet.lang} dir={geraet.dir} className="mt-2 text-sm text-slate-700" data-testid="anamnese-praxis-sieht">
+              {geraet.praxisSieht(vorbef.stand)}
+            </p>
           </div>
         )}
 

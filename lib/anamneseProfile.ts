@@ -386,12 +386,21 @@ export type AnamneseProfil = {
   hinweis?: string;
 };
 
+/**
+ * Wer antwortet: die Eltern (Kinder- und Jugendmedizin immer, sonst jünger als `selbstAb` des Fachs bzw. 16 Jahre)
+ * oder die Person selbst. Unbekanntes Alter: die Person selbst. Gilt für den Anamnesebogen und für die fünf Fragen
+ * vor dem Termin (app/portal/[token]/fragen).
+ */
+export function anspracheFuer(fach: string | null | undefined, alter: number | null | undefined): Ansprache {
+  const d = ANAMNESE_JE_FACH[anamneseFach(fach)];
+  return d.ansprache === "eltern" || (alter != null && alter < (d.selbstAb ?? ELTERN_BIS_ALTER + 1)) ? "eltern" : "patient";
+}
+
 /** Der Bogen für ein Fach und eine Person: Fragen und Anliegen gefiltert nach Geschlecht und Alter. */
 export function anamneseFuer(fach: string | null | undefined, person: Person = {}): AnamneseProfil {
   const f = anamneseFach(fach);
   const d = ANAMNESE_JE_FACH[f];
-  // Unbekanntes Alter: Die Person antwortet selbst (wie bisher).
-  const eltern = d.ansprache === "eltern" || (person.alter != null && person.alter < (d.selbstAb ?? ELTERN_BIS_ALTER + 1));
+  const eltern = anspracheFuer(fach, person.alter) === "eltern";
   const fragenKeys = [...new Set([...BASIS_FRAGEN, ...d.fragen])].filter((k) => !d.ohneFragen?.includes(k));
   const anliegenKeys = [...new Set(["kasse", "kosten_vorher", ...d.anliegen, "angst"])].filter((k) => !d.ohneAnliegen?.includes(k));
   const zweck = d.zweck ?? "behandeln";

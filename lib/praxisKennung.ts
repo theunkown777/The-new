@@ -1,6 +1,7 @@
 import { ALLE_SPECIALTIES, DENTAL_ID, isDental, isTherapie, specialty } from "@/lib/specialties";
 import { leseStammdaten } from "@/lib/praxisStammdaten";
 import { GRUPPEN_FARBE, GRUPPEN_SYMBOL, type PraxisGruppe } from "@/lib/praxisGruppe";
+import type { HinweisArt } from "@/lib/hilfeWissen/typ";
 
 // Kennzeichen einer Praxis für die Seiten, die Patienten sehen: Name, Fach kurz, Ort, Gruppe, Farbe, Monogramm.
 // Wer bei mehreren Praxen in Behandlung ist (Hausarzt und Zahnarzt), soll die Portale auf einem Gerät
@@ -31,6 +32,11 @@ export const KURZNAME_MAX = 12;
 export function praxisGruppe(fach: string | null | undefined): PraxisGruppe {
   if (isDental(fach)) return "zahn";
   return isTherapie(specialty(fach)) ? "therapie" : "arzt";
+}
+
+/** Art der Praxis für den festen Hinweis von „Frag Sorrida“ (lib/hilfeWissen/typ.ts): wie die Gruppe, „andere“ neutral. */
+export function hinweisArt(fach: string | null | undefined): HinweisArt {
+  return fach === "andere" ? "andere" : praxisGruppe(fach);
 }
 
 /**
