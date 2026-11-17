@@ -72,7 +72,9 @@ Ziel: Jede neue Seite sieht aus wie die vorhandenen, ohne dass jemand Farben ode
 | Verlaufslinie | `components/Verlauf.tsx` | Kleine Linie neben einer Kennzahl, 8 bis 12 Abschnitte |
 | Vergleich | `lib/analytics.ts` (`veraenderung`, `vergleichSatz`) | „+4 Punkte gegenüber den 30 Tagen davor“ |
 | Untere Leiste | `components/UntereLeiste.tsx` | Vier Ziele am Handy und Tablet |
-| Führung im Gastzugang | `components/DemoFuehrung.tsx` | Drei Schritte zum Mitklicken, nur in Demo-Praxen |
+| Führung im Gastzugang | `components/DemoFuehrung.tsx` | Drei Schritte zum Mitklicken, nur in Demo-Praxen; „Überblick“ startet den Rundgang. Beim Laden hält ein unsichtbarer Platzhalter (dieselbe Leiste) den Platz frei, damit nichts verrutscht |
+| Rundgang | `components/AppRundgang.tsx`, `components/RundgangKarte.tsx` | Hauptseiten der Reihe nach, Stand in der Adresse (`?rundgang=n`), nach Rechten gefiltert. Texte in `lib/rundgang.ts` |
+| Rundgang der Website | `components/start/Rundgang.tsx`, `components/RundgangKarte.tsx` | 8 Stationen auf der Startseite. Am Desktop steht die Karte je Station links oder rechts (`seite` in `lib/rundgang.ts`), neben dem, was die Station beschreibt |
 | Mail-Hülle | `lib/email.ts` (`mailHuelle`, `mailKnopf`) | Jede Mail im selben Kleid |
 | PDF-Kopf und -Fuß | `lib/pdf.ts` (`pdfKopf`, `pdfFuss`) | Jedes PDF mit gleichem Kopf und Seitenzahl |
 
@@ -91,6 +93,7 @@ Ziel: Jede neue Seite sieht aus wie die vorhandenen, ohne dass jemand Farben ode
 - Der aktive Menüpunkt trägt `aria-current="page"`.
 - Klickziele sind mindestens 24 px hoch, am Handy 36 px (`ziel`).
 - Knöpfe und wichtige Ausgaben bekommen ein `data-testid`.
+- Rundgang: Solange eine Karte oder die Einladung unten steht, trägt `<html>` das Merkmal `data-rundgang`, die Höhe der Karte in `--rundgang-hoehe` und den Abstand vom unteren Rand bis zur Oberkante der Karte in `--rundgang-oben`. Belegt die Karte die rechte untere Ecke (Handy, Einladung, Website-Karte rechts), kommt `data-rundgang-ecke` dazu. Fest positionierte Bausteine unten rechts bekommen die Klasse `rundgang-ausweichen`. Dann stehen sie knapp über der Karte, statt sie zu verdecken oder von ihr verdeckt zu werden. So hält es der Knopf „Frag Sorrida“ in App und Website (`components/FragSorrida.tsx`). Steht die Karte links (App am Desktop), bleibt der Knopf unten rechts. Esc beendet den Rundgang überall außer in Eingabefeldern und offenen Dialogen (`aria-modal="true"`).
 
 ## Handy (390 px)
 

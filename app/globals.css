@@ -661,3 +661,25 @@ html.dunkel:has(.praxis-app) body { background-color: #191615; }
 @media (prefers-reduced-motion: reduce) {
   .hilfe-ziel { animation: none; }
 }
+
+/* ---- Rundgang (components/RundgangKarte.tsx, components/start/Rundgang.tsx, components/AppRundgang.tsx) ---- */
+/* Solange die Karte unten steht, bekommt die Seite darunter so viel Platz, wie die Karte hoch ist. */
+html[data-rundgang] .journal { padding-bottom: calc(var(--rundgang-hoehe, 0px) + 1.5rem); }
+html[data-rundgang] .praxis-inhalt { padding-bottom: calc(var(--leiste-unten) + 2rem + var(--rundgang-hoehe, 0px)); }
+/* Markierung des Zielabschnitts: 2 px Bordeaux, ohne Abdunkelung, die Seite bleibt lesbar. */
+.rundgang-ziel { outline: 2px solid #5A1D1D; outline-offset: 8px; border-radius: 4px; scroll-margin-top: 1.5rem; }
+/* Abschnitte über die ganze Breite: Umriss nach innen, sonst läge er außerhalb des Bildschirms. */
+.rundgang-ziel-voll { outline-offset: -4px; }
+.rundgang-ziel:is(.bg-tinte, .bg-brand-700) { outline-color: #F5F2EE; }
+/* App: Menüpunkt der aktuellen Station. */
+.praxis-app .rundgang-ziel { outline-color: var(--akzent); outline-offset: 1px; }
+@media print { .rundgang-karte { display: none !important; } }
+/* Andere Bausteine unten rechts im Bild (der Knopf „Frag Sorrida“ in App und Website) weichen der Karte aus, solange sie
+   offen ist: Klasse „rundgang-ausweichen“ an das fest positionierte Element. Die Karte setzt html[data-rundgang], ihre
+   Höhe in --rundgang-hoehe und den Abstand vom unteren Rand bis zu ihrer Oberkante in --rundgang-oben. Belegt sie die
+   rechte untere Ecke (Handy, Einladung, Karte rechts), setzt sie zusätzlich html[data-rundgang-ecke]; dann steht der
+   Baustein knapp über der Karte. Steht sie links (App am Desktop), bleibt er, wo er ist
+   (components/RundgangKarte.tsx, useRundgangPlatz). Siehe docs/GESTALTUNG.md. */
+html[data-rundgang][data-rundgang-ecke] .rundgang-ausweichen { bottom: calc(var(--rundgang-oben, 0px) + 0.75rem); }
+/* Führung im Gastzugang: Platzhalter bis zum Lesen des Stands; weggeklickt (Skript beim Laden) gleich unsichtbar. */
+html[data-fuehrung-zu] .demo-fuehrung-platz { display: none; }

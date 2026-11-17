@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { WebsiteHilfe } from "@/components/WebsiteHilfe";
+import { RUNDGANG_HREF } from "@/lib/rundgang";
+import { gastzugangOffen } from "@/lib/vorschau";
 
 // Kopfzeile der Website im Journal-Stil: Wortmarke links, Textnavigation, ein Knopf.
 // Am Handy wandert die Navigation in ein aufklappbares Menü (ohne JavaScript, mit <details>).
@@ -10,7 +12,8 @@ const LINKS: [string, string, string?][] = [
   ["/rechner", "Rechner"],
 ];
 
-export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
+/** gastzugang: Ist /demo für Besucher offen (lib/vorschau.ts)? Sonst führt der Knopf zur Vorschau. */
+export function JournalKopf({ angemeldet, gastzugang = gastzugangOffen() }: { angemeldet: boolean; gastzugang?: boolean }) {
   return (
     <header className="relative z-20 border-b border-linie">
       <div className="mx-auto flex max-w-[78rem] items-center justify-between gap-6 px-5 py-4 sm:px-8">
@@ -25,6 +28,10 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
               {name}
             </Link>
           ))}
+          {/* Rundgang: einfacher Link (kein next/link), damit die Startseite ihn auch von anderen Seiten aus öffnet. */}
+          <a href={RUNDGANG_HREF} className="j-link text-tinte-2 decoration-transparent hover:text-tinte" data-testid="rundgang-link-kopf">
+            Rundgang
+          </a>
         </nav>
         <div className="flex items-center gap-4">
           {angemeldet ? (
@@ -36,8 +43,8 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
               Anmelden
             </Link>
           )}
-          <Link href="/demo" className="j-knopf j-knopf-voll !min-h-[42px] whitespace-nowrap !px-4 text-sm">
-            Demo öffnen
+          <Link href={gastzugang ? "/demo" : "/vorschau"} className="j-knopf j-knopf-voll !min-h-[42px] whitespace-nowrap !px-4 text-sm" data-testid="kopf-knopf">
+            {gastzugang ? "Demo öffnen" : "Vorschau"}
           </Link>
           <details className="group relative lg:hidden">
             <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-[6px] border border-linie-stark" aria-label="Menü">
@@ -52,6 +59,9 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
                   {name}
                 </Link>
               ))}
+              <a href={RUNDGANG_HREF} className="block border-b border-linie px-3 py-3 text-[15px] hover:text-brand-700" data-testid="rundgang-link-menue">
+                Rundgang
+              </a>
               <Link href={angemeldet ? "/dashboard" : "/login"} className="block px-3 py-3 text-[15px] font-semibold text-brand-700">
                 {angemeldet ? "Zur Übersicht" : "Anmelden"}
               </Link>
@@ -63,11 +73,12 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
   );
 }
 
-/** Fußzeile: Wortmarke, drei Spalten Links, rechtlicher Hinweis. */
-export function JournalFuss() {
+/** Fußzeile: Wortmarke, drei Spalten Links, rechtlicher Hinweis. Den Demo-Link gibt es nur mit offenem Gastzugang. */
+export function JournalFuss({ gastzugang = gastzugangOffen() }: { gastzugang?: boolean } = {}) {
+  const demo: [string, string][] = gastzugang ? [["/demo", "Demo-Praxis öffnen"]] : [];
   const spalten: [string, [string, string][]][] = [
     ["Sorrida", [["/#fach", "Fachgebiete"], ["/leistungen", "Leistungen A–Z"], ["/#preise", "Preise"], ["/neu", "Neu"]]],
-    ["Ausprobieren", [["/demo", "Demo-Praxis öffnen"], ["/vorschau", "Vorschau"], ["/hilfe", "Hilfe und Kontakt"], ["/ratgeber", "Ratgeber"], ["/rechner", "Rechner"]]],
+    ["Ausprobieren", [[RUNDGANG_HREF, "Rundgang"], ...demo, ["/vorschau", "Vorschau"], ["/hilfe", "Hilfe und Kontakt"], ["/ratgeber", "Ratgeber"], ["/rechner", "Rechner"]]],
     ["Rechtliches", [["/impressum", "Impressum"], ["/datenschutz", "Datenschutz"], ["/avv", "AVV-Muster"], ["/vertrauen", "Umgang mit Daten"], ["/status", "Status"], ["/lizenzen", "Lizenzen und Quellen"], ["/impressum#zweck", "Wofür Sorrida bestimmt ist"]]],
   ];
   return (
@@ -89,9 +100,15 @@ export function JournalFuss() {
             <ul className="mt-4 space-y-2.5 text-[15px]">
               {links.map(([href, name]) => (
                 <li key={href}>
-                  <Link prefetch={false} href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700">
-                    {name}
-                  </Link>
+                  {href === RUNDGANG_HREF ? (
+                    <a href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700" data-testid="rundgang-link-fuss">
+                      {name}
+                    </a>
+                  ) : (
+                    <Link prefetch={false} href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700">
+                      {name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

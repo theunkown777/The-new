@@ -111,8 +111,14 @@ export default function DatenschutzPage() {
           verloren geht. Er wird beim Speichern, beim Abmelden und beim Schließen des Browserfensters gelöscht. Wählt eine angemeldete
           Person die dunkle Ansicht oder klappt einen Erklärtext zu, merkt sich der Browser diese Wahl dauerhaft (lokaler Speicher), bis sie
           die Wahl ändert oder die Daten des Browsers löscht. Im Gastzugang merkt sich der Browser bis zum Schließen des Browser-Tabs, welche
-          Schritte der Führung erledigt sind. Nichts davon geht an unseren Server. Auf der öffentlichen Website speichern wir nichts im
-          Speicher Ihres Browsers.
+          Schritte der Führung erledigt sind. Nichts davon geht an unseren Server.
+        </p>
+        <p data-testid="datenschutz-rundgang">
+          Auf der Startseite lädt eine Karte zu einem Rundgang durch Sorrida ein. Wählen Sie dort „Nein danke“ oder beenden Sie den
+          Rundgang, merkt sich der Browser das im Sitzungsspeicher, bis Sie den Browser-Tab schließen: ein Eintrag „sorrida-rundgang“ mit dem
+          Wert „zu“. So kommt die Einladung in diesem Tab nicht wieder. Ohne diesen Klick wird nichts gespeichert; die Startseite liest nur
+          diesen einen Eintrag. Er geht nicht an unseren Server. Sonst speichern wir auf der öffentlichen Website nichts im Speicher Ihres
+          Browsers.
         </p>
       </section>
 

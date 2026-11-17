@@ -296,15 +296,12 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
             </div>
           </section>
 
-          <div id="entlastung" className="scroll-mt-6">
-            <Entlastung therapie={therapie} />
-          </div>
+          {/* Ziel des Inhaltsverzeichnisses ist die Überschrift im Baustein (id="entlastung"); hier keine zweite id. */}
+          <Entlastung therapie={therapie} />
 
           <PilotProgram fach={s.id} kurz={s.kurz} therapie={therapie} dental={dental} />
 
-          <div id="faq" className="scroll-mt-6">
-            <PraxisFaq therapie={therapie} dental={dental} />
-          </div>
+          <PraxisFaq therapie={therapie} dental={dental} />
 
           {ratgeberLinks.length > 0 && (
             <section className="mt-14" data-testid="fach-ratgeber">
