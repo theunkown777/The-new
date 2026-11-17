@@ -3,13 +3,19 @@
 // Bogen einer anderen Praxis vor. Zwei Praxen: A (Zahnarzt, nur in der Datenbank) und B (Hausarzt, Gastzugang mit
 // Sitzung, damit die Akte sichtbar ist). Derselbe Mensch hat in beiden Praxen einen eigenen, unverbundenen Datensatz.
 // Geprüft wird:
-//   - Bogen A (/a): Ohne Klick wird nichts gespeichert. Code zu kurz und ungleich werden abgelehnt. Im Speicher steht
-//     kein Klartext: keine Antwort, keine Ergänzung, kein Name, kein Praxisname, kein Code, kein Link.
+//   - Bogen A (/a): Ohne Klick wird nichts gespeichert. Code zu kurz, nur aus Ziffern, leicht zu erraten und ungleich
+//     werden abgelehnt. Code-Felder ohne Passwort-Vorschlag. Im Speicher steht kein Klartext: keine Antwort, keine
+//     Ergänzung, kein Name, kein Praxisname, kein Code, kein Link.
 //   - Bogen B (Portal): falscher Code, dann Übernahme nur der Grundfragen; markierte Felder; Pflicht-Haken vor dem
-//     Senden mit Fokus; die Anfrage trägt nur den Stand. Beim Öffnen der Kopie kein Aufruf an den Server.
-//   - Akte und Eingang von B zeigen den Hinweis mit Stand und nichts über A. A erfährt nichts.
+//     Senden mit Fokus; die Anfrage trägt nur den Stand. Beim Öffnen der Kopie kein Aufruf an den Server. Der Name
+//     der Praxis A steht nur hinter „Herkunft der Kopie anzeigen“.
+//   - Akte, Abschluss und Eingang von B zeigen den Hinweis mit Stand und nichts über A. A erfährt nichts.
 //   - /meine-praxen: Liste, Protokoll, eine löschen, alles löschen. Zurücknehmen der Übernahme.
-//   - Auf einem Gerät der Praxis gibt es weder Angebot noch Übernahme.
+//   - Auf einem Gerät der Praxis (angemeldet, auch /a) und am Empfangs-Tablet gibt es weder Angebot noch Übernahme;
+//     der Server nimmt dort keinen Stand einer Übernahme an.
+//   - Eltern und Kind: Eigene Angaben und Angaben für ein Kind werden nie vermischt. Speichern nur mit der Tastatur.
+//   - Englisch und Arabisch: Texte der Kopie tragen im deutschen Bogen lang und dir.
+//   - Abgelaufene Kopien: Der Bogen sagt, dass sie gelöscht wurden.
 //   - Handy (390 px) und Bildschirm (1280 px), hell und dunkel, ohne waagerechtes Scrollen.
 // Aufruf: BASIS=http://localhost:3201 BILDER=<Ordner> node e2e/meine-angaben.js
 const crypto = require('crypto');
@@ -18,6 +24,7 @@ const { chromium, L, D, sql, pruef, stand, KONTEXT, HANDY, demo } = require('./g
 const KENN = `e2e-ma-${Date.now().toString(36)}`;
 const SCHLUESSEL = 'sorrida:meine-angaben:v1';
 const CODE = 'Sommer-2026';
+const KIND_CODE = 'Leuchtturm-7';
 const token = () => crypto.randomBytes(32).toString('hex');
 const hash = (t) => crypto.createHash('sha256').update(t).digest('hex');
 const q = (s) => s.replace(/'/g, "''");
@@ -44,8 +51,24 @@ function anlegenA() {
 function anlegenB(pb) {
   const tB = token();
   sql(`insert into "Patient" (id, "practiceId", "firstName", "lastName", "birthDate", email, "portalTokenHash", "portalExpiresAt") values ('${KENN}-pat-b', '${pb}', 'Anna', 'Zwilling', '1980-05-12', 'anna.zwilling@example.org', '${hash(tB)}', now() + interval '60 days')`);
-  for (const n of [1, 2, 3]) sql(`insert into "AnamnesisForm" (id, "practiceId", "patientId", "expiresAt", fach) values ('${KENN}-anamB${n}', '${pb}', '${KENN}-pat-b', now() + interval '7 days', 'hausarzt')`);
+  for (const n of [1, 2, 3, 4]) sql(`insert into "AnamnesisForm" (id, "practiceId", "patientId", "expiresAt", fach) values ('${KENN}-anamB${n}', '${pb}', '${KENN}-pat-b', now() + interval '7 days', 'hausarzt')`);
   return tB;
+}
+/** Bögen von B mit eigenem Link (/a): einer für das angemeldete Praxis-Gerät, einer für das Empfangs-Tablet. */
+function anlegenBLinks(pb) {
+  const t = { a: token(), e: token() };
+  for (const n of ['a', 'e']) sql(`insert into "AnamnesisForm" (id, "practiceId", "patientId", "tokenHash", "expiresAt", fach) values ('${KENN}-anamB${n}', '${pb}', '${KENN}-pat-b', '${hash(t[n])}', now() + interval '7 days', 'hausarzt')`);
+  return t;
+}
+/** Ein Kind (7 Jahre) mit eigenem Datensatz in A und in B. Beide Bögen richten sich an die Eltern. */
+function anlegenKind(pb) {
+  const tA = token();
+  const tP = token();
+  sql(`insert into "Patient" (id, "practiceId", "firstName", "lastName", "birthDate", "portalTokenHash", "portalExpiresAt") values ('${KENN}-zahn-kind', '${KENN}-zahn', 'Mia', 'Zwilling', '2019-03-04', '${hash(token())}', now() + interval '60 days')`);
+  sql(`insert into "AnamnesisForm" (id, "practiceId", "patientId", "tokenHash", "expiresAt", fach) values ('${KENN}-anamAk', '${KENN}-zahn', '${KENN}-zahn-kind', '${hash(tA)}', now() + interval '7 days', 'zahn')`);
+  sql(`insert into "Patient" (id, "practiceId", "firstName", "lastName", "birthDate", "portalTokenHash", "portalExpiresAt") values ('${KENN}-kind-b', '${pb}', 'Mia', 'Zwilling', '2019-03-04', '${hash(tP)}', now() + interval '60 days')`);
+  sql(`insert into "AnamnesisForm" (id, "practiceId", "patientId", "expiresAt", fach) values ('${KENN}-anamBk', '${pb}', '${KENN}-kind-b', now() + interval '7 days', 'hausarzt')`);
+  return { tA, tP };
 }
 function aufraeumen() {
   const ignorieren = (f) => { try { f(); } catch { /* weiter aufräumen */ } };
@@ -67,6 +90,14 @@ const vomGeraet = (p) => p.$$eval('fieldset[data-vom-geraet="ja"] input[type=rad
 const unbeantwortet = (p) => p.$$eval('form fieldset', (fs) => fs.filter((f) => f.querySelector('input[type=radio]') && !f.querySelector('input[type=radio]:checked')).map((f) => f.querySelector('input[type=radio]').name));
 const breiteOk = (p) => p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
 const aktiv = (p) => p.evaluate(() => (document.activeElement && (document.activeElement.dataset.testid || document.activeElement.id)) || '');
+/** Seite öffnen; ein Abbruch durch ein Neuladen des Entwicklungsservers (erstes Übersetzen einer Seite) wird einmal wiederholt. */
+async function gehe(p, url) {
+  try { await p.goto(url); } catch (e) {
+    if (!/ERR_ABORTED/.test(String(e && e.message))) throw e;
+    await p.waitForTimeout(1500);
+    await p.goto(url);
+  }
+}
 const aktivId = (p) => p.evaluate(() => (document.activeElement && document.activeElement.id) || '');
 
 (async () => {
@@ -89,6 +120,8 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     PB = await demo(pp, 'hausarzt');
     const praxisB = sql(`select name from "Practice" where id = '${PB}'`);
     tB = anlegenB(PB);
+    const tBl = anlegenBLinks(PB);
+    const kind = anlegenKind(PB);
     const zaehlenA = () => sql(`select (select count(*) from "AuditLog" where "practiceId" = '${KENN}-zahn') || '/' || (select count(*) from "Eingang" where "practiceId" = '${KENN}-zahn') || '/' || (select coalesce(max("submittedAt")::text, '-') from "AnamnesisForm" where "practiceId" = '${KENN}-zahn')`);
 
     // ---------- Handy, 390 px, hell: Gerät des Patienten ----------
@@ -114,10 +147,23 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     await fotos(hp, '01-a-gesendet-angebot-390');
     await hp.getByTestId('angaben-behalten').click();
     pruef('A: Name der Kopie vorbelegt mit „Meine Angaben“', (await hp.getByTestId('angaben-name').inputValue()) === 'Meine Angaben');
-    await hp.getByTestId('angaben-code-neu').fill('12345');
-    await hp.getByTestId('angaben-code-wdh').fill('12345');
-    await hp.getByTestId('angaben-speichern').click();
-    pruef('A: Code mit 5 Zeichen abgelehnt', (await hp.getByTestId('angaben-behalten-fehler').innerText()) === 'Der Code braucht mindestens 6 Zeichen.');
+    const codeFelder = await hp.$$eval('[data-testid="angaben-code-neu"], [data-testid="angaben-code-wdh"]', (es) => es.map((e) => `${e.dataset.testid}:${e.getAttribute('autocomplete')}:${e.hasAttribute('data-1p-ignore')}:${e.hasAttribute('data-lpignore')}`));
+    pruef('A: Code-Felder ohne Passwort-Vorschlag (autocomplete=off, Passwortmanager ausgenommen)', codeFelder.length === 2 && codeFelder.every((f) => f.endsWith(':off:true:true')), codeFelder.join(', '));
+    pruef('A: nirgends autocomplete="new-password"', (await hp.locator('[autocomplete="new-password"]').count()) === 0);
+    const geteilt = hp.getByTestId('angaben-geteilt');
+    pruef('A: Hinweis zum Tablet der Praxis gut sichtbar (Hinweisfarbe)', (await geteilt.isVisible()) && /Tablet der Praxis/.test(await geteilt.innerText()) && /bg-amber-50/.test(await geteilt.getAttribute('class')));
+    for (const [code, text, was] of [
+      ['1234567', 'Der Code braucht mindestens 8 Zeichen.', '7 Zeichen'],
+      ['12345678', 'Der Code braucht auch Buchstaben. Nur aus Ziffern ist er zu leicht zu erraten.', 'nur Ziffern'],
+      ['Passwort1', 'Dieser Code ist zu leicht zu erraten. Bitte wählen Sie einen anderen.', 'Passwort1'],
+      ['abcdefgh', 'Dieser Code ist zu leicht zu erraten. Bitte wählen Sie einen anderen.', 'abcdefgh'],
+    ]) {
+      await hp.getByTestId('angaben-code-neu').fill(code);
+      await hp.getByTestId('angaben-code-wdh').fill(code);
+      await hp.getByTestId('angaben-speichern').click();
+      const f = await hp.getByTestId('angaben-behalten-fehler').innerText();
+      pruef(`A: Code abgelehnt (${was}), Fokus auf dem Code`, f === text && (await aktiv(hp)) === 'angaben-code-neu', `${f} / ${await aktiv(hp)}`);
+    }
     await hp.getByTestId('angaben-code-neu').fill(CODE);
     await hp.getByTestId('angaben-code-wdh').fill('Sommer-2027');
     await hp.getByTestId('angaben-speichern').click();
@@ -150,6 +196,8 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     await fotos(hp, '04-b-bogen-vor-uebernahme-390', false);
     await hp.getByTestId('angaben-uebernehmen').click();
     pruef('B: Kopie zur Auswahl mit Stand und Art', /Meine Angaben[\s\S]*Zahnarzt/.test(await hp.getByTestId('angaben-uebernahme').innerText()));
+    const codeFeld = hp.getByTestId('angaben-code');
+    pruef('B: Code-Feld ohne Passwort-Vorschlag', (await codeFeld.getAttribute('autocomplete')) === 'off' && (await codeFeld.getAttribute('data-1p-ignore')) !== null);
     const vorOeffnen = anfragen.length;
     await hp.getByTestId('angaben-code').fill('Falsch-123');
     await hp.getByTestId('angaben-oeffnen').click();
@@ -163,8 +211,12 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     pruef('B: Öffnen der Kopie ruft den Server nicht auf', anServer(vorOeffnen).length === 0, anServer(vorOeffnen).join(', '));
     const ergebnis = await hp.getByTestId('angaben-ergebnis').innerText();
     pruef('B: Ergebnis nennt Kopie, Stand und Zahl der Fragen', ergebnis.includes(`Aus „Meine Angaben“ (Stand ${HEUTE}) übernommen: ${GRUND.length} von ${namenB.length} Fragen.`), ergebnis.slice(0, 200));
-    pruef('B: Herkunft nur auf dem Gerät und mit dem Satz, dass A nichts erfährt', ergebnis.includes(`Die Kopie stammt aus dem Bogen von ${PRAXIS_A}. Diese Praxis erfährt von der Übernahme nichts.`));
+    pruef('B: Ergebnis sagt, dass die andere Praxis nichts erfährt, und nennt sie nicht', ergebnis.includes('Die Praxis, aus deren Bogen die Kopie stammt, erfährt von der Übernahme nichts.') && !ergebnis.includes('Sonnenberg'), ergebnis.slice(0, 300));
     pruef('B: Fokus auf dem Ergebnis', (await aktiv(hp)) === 'angaben-ergebnis');
+    const herkunftSatz = hp.getByText(`Aus dem Bogen von ${PRAXIS_A}.`);
+    pruef('B: Name der Praxis A nicht offen sichtbar', !(await herkunftSatz.isVisible()));
+    await hp.getByTestId('angaben-herkunft-zeigen').click();
+    pruef('B: auf Klick „Herkunft der Kopie anzeigen“ steht die Praxis A da', await herkunftSatz.isVisible());
     const markiert = await vomGeraet(hp);
     pruef('B: nur die passenden Grundfragen übernommen', JSON.stringify(markiert) === JSON.stringify(GRUND), markiert.join(','));
     const offenB = await unbeantwortet(hp);
@@ -224,7 +276,13 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     pruef('Akte B: Hinweise aus den Antworten wie sonst (Allergie, Blutverdünner)', /Allergie/.test(akte) && /Blutverdünner/.test(akte));
     await pp.getByTestId('anamnese-vorbefuellt').scrollIntoViewIfNeeded();
     await fotos(pp, '10-akte-b-hinweis-1280', false);
-    await pp.goto(`${L}/eingang`);
+    await pp.goto(`${L}/abschluss/new?patientId=${KENN}-pat-b`);
+    await pp.getByTestId('anamnese-vorbefuellt').waitFor({ timeout: 60000 });
+    pruef('Abschluss B: derselbe Hinweis mit Stand', (await pp.getByTestId('anamnese-vorbefuellt').innerText()) === `Teilweise mit gespeicherten Angaben des Patienten vorausgefüllt (Stand ${HEUTE}), vom Patienten geprüft.`);
+    pruef('Abschluss B: nichts über A', !/Sonnenberg|Meine Angaben|vom Gerät/.test(await pp.locator('main').innerText()));
+    await pp.getByTestId('anamnese-vorbefuellt').scrollIntoViewIfNeeded();
+    await fotos(pp, '10b-abschluss-b-hinweis-1280', false);
+    await gehe(pp, `${L}/eingang`);
     await pp.waitForLoadState('networkidle');
     const eingang = await pp.locator('main').innerText();
     pruef('Eingang B: Anamnese da, nichts über A', /Anamnesebogen abgeschickt/.test(eingang) && !/Sonnenberg|Meine Angaben|Gerät/.test(eingang));
@@ -236,7 +294,58 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     await pp.locator('#confirm').waitFor();
     await pp.waitForTimeout(800);
     pruef('Praxis-Gerät: Bogen ohne Knopf zum Übernehmen', (await pp.getByTestId('angaben-uebernahme').count()) === 0);
+    // Derselbe Browser der Praxis öffnet einen Bogen über den Link /a und sendet ihn: kein Angebot, nichts gespeichert.
+    await pp.goto(`${L}/a/${tBl.a}`);
+    await pp.locator('#confirm').waitFor();
+    await pp.waitForTimeout(800);
+    pruef('Praxis-Gerät: auch /a ohne Knopf zum Übernehmen', (await pp.getByTestId('angaben-uebernahme').count()) === 0 && (await pp.getByTestId('angaben-uebernehmen').count()) === 0);
+    for (const k of await fragen(pp)) await antworten(pp, k, false);
+    await pp.locator('#confirm').fill('Anna Zwilling');
+    await pp.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+    await pp.getByRole('status').filter({ hasText: 'ist bei' }).waitFor({ timeout: 30000 });
+    await pp.waitForTimeout(800);
+    pruef('Praxis-Gerät: nach dem Senden über /a kein Angebot, eine Kopie zu behalten', (await pp.getByTestId('angaben-angebot').count()) === 0 && (await pp.getByTestId('angaben-behalten').count()) === 0);
+    pruef('Praxis-Gerät: Speicher unverändert', (await pp.evaluate((s) => localStorage.getItem(s), SCHLUESSEL)) === ablageHandy);
+
+    // ---------- Empfangs-Tablet: Übergabe an den Patienten, Praxis-Sitzung geparkt ----------
+    const api = (p, m, u, bd) => p.evaluate(async ([m, u, bd]) => {
+      const r = await fetch(u, { method: m, headers: { 'Content-Type': 'application/json' }, body: bd ? JSON.stringify(bd) : undefined });
+      let j = null;
+      try { j = await r.json(); } catch { /* ohne Inhalt */ }
+      return { status: r.status, j };
+    }, [m, u, bd]);
+    await pp.goto(`${L}/settings/empfang`);
+    await pp.getByTestId('empfang-pin-neu').fill('4826');
+    await pp.getByTestId('empfang-pin-nochmal').fill('4826');
+    await pp.getByTestId('empfang-pin-speichern').click();
+    for (let i = 0; i < 30 && sql(`select count(*) from "Practice" where id = '${PB}' and "empfangPinHash" is not null`) !== '1'; i++) await pp.waitForTimeout(300);
+    // Übergeben von einer öffentlichen Seite aus: Die Praxis-Ansicht würde nach dem Parken der Sitzung selbst zur Anmeldung wechseln.
+    await gehe(pp, `${L}/datenschutz`);
+    let r = await api(pp, 'POST', '/api/empfang/uebergabe', { patientId: `${KENN}-pat-b`, kontakt: false, anamnese: true, unterschrift: false });
+    pruef('Empfang: Tablet an den Patienten übergeben', r.status === 200, `${r.status} ${JSON.stringify(r.j)}`);
+    await gehe(pp, `${L}/uebergabe/anamnese`);
+    await pp.locator('#confirm').waitFor();
+    await pp.waitForTimeout(800);
+    pruef('Empfang: Bogen am Tablet ohne Knopf zum Übernehmen', (await pp.getByTestId('angaben-uebernahme').count()) === 0 && !(await pp.locator('body').innerText()).includes('Angaben von diesem Gerät übernehmen'));
+    const namenE = await fragen(pp);
+    await fotos(pp, '11b-empfang-bogen-1280', false);
+    await pp.goto(`${L}/a/${tBl.e}`);
+    await pp.locator('#confirm').waitFor();
+    await pp.waitForTimeout(800);
+    pruef('Empfang: auch /a am Tablet ohne Knopf zum Übernehmen', (await pp.getByTestId('angaben-uebernahme').count()) === 0);
+    await pp.goto(`${L}/portal/${tB}/anamnese/${KENN}-anamB4`);
+    await pp.locator('#confirm').waitFor();
+    await pp.waitForTimeout(800);
+    pruef('Empfang: auch das Portal am Tablet ohne Knopf zum Übernehmen', (await pp.getByTestId('angaben-uebernahme').count()) === 0);
+    const koerper = (mit) => ({ q: Object.fromEntries(namenE.map((k) => [k, { yes: false }])), wishes: [], confirmName: 'Anna Zwilling', ...(mit ? { vorbefuellt: { stand: HEUTE_ISO, geprueft: true } } : {}) });
+    r = await api(pp, 'POST', `/api/empfang/patient/anamnese/${KENN}-anamBe`, koerper(true));
+    pruef('Empfang: Server lehnt einen Stand der Übernahme ab (400), Bogen bleibt offen', r.status === 400 && sql(`select "submittedAt" is null from "AnamnesisForm" where id = '${KENN}-anamBe'`) === 't', `${r.status} ${JSON.stringify(r.j)}`);
+    r = await api(pp, 'POST', `/api/empfang/patient/anamnese/${KENN}-anamBe`, koerper(false));
+    pruef('Empfang: derselbe Bogen ohne Übernahme wird angenommen, ohne Stand', r.status === 200 && sql(`select ("submittedAt" is not null and "vorbefuelltStand" is null)::text from "AnamnesisForm" where id = '${KENN}-anamBe'`) === 'true', `${r.status} ${JSON.stringify(r.j)}`);
+    pruef('Empfang: Speicher unverändert', (await pp.evaluate((s) => localStorage.getItem(s), SCHLUESSEL)) === ablageHandy);
     await pp.evaluate((s) => localStorage.removeItem(s), SCHLUESSEL);
+    r = await api(pp, 'POST', '/api/empfang/entsperren', { pin: '4826' });
+    pruef('Empfang: mit der PIN zurück in die Praxis-Ansicht', r.status === 200, `${r.status} ${JSON.stringify(r.j)}`);
     await hc.close();
 
     // ---------- Bildschirm, 1280 px, hell ----------
@@ -325,6 +434,111 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
       // Englisch
       await p.goto(`${L}/meine-praxen?lang=en`);
       pruef('Englisch: Abschnitt übersetzt', !(await p.getByTestId('meine-angaben').innerText()).includes('Meine Angaben auf diesem Gerät'));
+      await c.close();
+    }
+
+    // ---------- Eltern und Kind: eigene Angaben und Angaben für ein Kind werden nie vermischt ----------
+    {
+      const { c, p } = await neu(HANDY);
+      await p.goto(`${L}/meine-praxen`);
+      await p.evaluate(([s, w]) => localStorage.setItem(s, w), [SCHLUESSEL, ablageHandy]);
+      await p.goto(`${L}/a/${kind.tA}`);
+      await p.getByTestId('angaben-uebernehmen').click();
+      await p.getByTestId('angaben-code').fill(CODE);
+      await p.getByTestId('angaben-oeffnen').click();
+      await p.getByTestId('angaben-fehler').waitFor({ timeout: 30000 });
+      const passtNicht = 'Diese Kopie passt nicht zu diesem Bogen. Angaben für ein Kind und eigene Angaben werden nicht vermischt.';
+      pruef('Kind (A): die eigene Kopie passt nicht zum Bogen für das Kind, nichts übernommen', (await p.getByTestId('angaben-fehler').innerText()) === passtNicht && (await vomGeraet(p)).length === 0);
+      await fotos(p, '22-kind-a-eigene-kopie-passt-nicht-390', false);
+      await p.getByTestId('angaben-uebernahme').getByRole('button', { name: 'Abbrechen' }).click();
+      const namenK = await fragen(p);
+      for (const k of namenK) await antworten(p, k, k === 'allergien', 'Erdnüsse');
+      await p.locator('#confirm').fill('Anna Zwilling');
+      await p.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+      await p.getByTestId('angaben-angebot').waitFor({ timeout: 30000 });
+      // Speichern nur mit der Tastatur: Knopf mit Enter, Tab von Feld zu Feld, Enter zum Speichern.
+      await p.getByTestId('angaben-behalten').focus();
+      await p.keyboard.press('Enter');
+      pruef('Tastatur: nach Enter Fokus im Feld Name, vorbelegt mit „Angaben für mein Kind“', (await aktiv(p)) === 'angaben-name' && (await p.getByTestId('angaben-name').inputValue()) === 'Angaben für mein Kind', await aktiv(p));
+      await p.keyboard.press('Tab');
+      pruef('Tastatur: Tab führt zum Code', (await aktiv(p)) === 'angaben-code-neu', await aktiv(p));
+      await p.keyboard.type(KIND_CODE);
+      await p.keyboard.press('Tab');
+      pruef('Tastatur: Tab führt zur Wiederholung', (await aktiv(p)) === 'angaben-code-wdh', await aktiv(p));
+      await p.keyboard.type(KIND_CODE);
+      await p.keyboard.press('Enter');
+      await p.getByTestId('angaben-gespeichert').waitFor({ timeout: 30000 });
+      pruef('Tastatur: mit Enter gespeichert, Fokus auf der Meldung', (await aktiv(p)) === 'angaben-gespeichert');
+      const ablK = JSON.parse(await p.evaluate((s) => localStorage.getItem(s), SCHLUESSEL));
+      pruef('Kind: zweite Kopie „Angaben für mein Kind“ neben der eigenen', ablK.kopien.map((k) => k.bezeichnung).sort().join('|') === 'Angaben für mein Kind|Meine Angaben', ablK.kopien.map((k) => k.bezeichnung).join('|'));
+      await fotos(p, '23-kind-a-gespeichert-390', false);
+      // Bogen von B für das Kind (Portal): zuerst die eigene Kopie, dann die Kopie für das Kind
+      await p.goto(`${L}/portal/${kind.tP}/anamnese/${KENN}-anamBk`);
+      await p.getByTestId('angaben-uebernehmen').click();
+      const auswahl = p.getByTestId('angaben-uebernahme');
+      await auswahl.getByText('Meine Angaben', { exact: true }).click();
+      await p.getByTestId('angaben-code').fill(CODE);
+      await p.getByTestId('angaben-oeffnen').click();
+      await p.getByTestId('angaben-fehler').waitFor({ timeout: 30000 });
+      pruef('Kind (B): die eigene Kopie wird abgelehnt', (await p.getByTestId('angaben-fehler').innerText()) === passtNicht && (await vomGeraet(p)).length === 0);
+      await auswahl.getByText('Angaben für mein Kind', { exact: true }).click();
+      await p.getByTestId('angaben-code').fill(KIND_CODE);
+      await p.getByTestId('angaben-oeffnen').click();
+      await p.getByTestId('angaben-ergebnis').waitFor({ timeout: 30000 });
+      const markiertK = await vomGeraet(p);
+      pruef('Kind (B): die Kopie für das Kind füllt die passenden Fragen vor', markiertK.includes('allergien') && (await feld(p, 'allergien').locator('input.input').inputValue()) === 'Erdnüsse', markiertK.join(','));
+      pruef('Kind (B): 390 px ohne waagerechtes Scrollen', await breiteOk(p));
+      await fotos(p, '24-kind-b-uebernommen-390', false);
+      await c.close();
+    }
+
+    // ---------- Englisch und Arabisch: Texte der Kopie im deutschen Bogen mit lang und dir ----------
+    {
+      const { c, p } = await neu(HANDY);
+      await p.goto(`${L}/meine-praxen`);
+      await p.evaluate(([s, w]) => localStorage.setItem(s, w), [SCHLUESSEL, ablageHandy]);
+      for (const [lang, dir] of [['en', 'ltr'], ['ar', 'rtl']]) {
+        await p.goto(`${L}/portal/${tB}/anamnese/${KENN}-anamB4?lang=${lang}`);
+        await p.getByTestId('angaben-uebernehmen').waitFor();
+        const abschnitt = p.getByTestId('angaben-uebernahme');
+        pruef(`${lang}: Abschnitt der Kopie mit lang="${lang}" und dir="${dir}"`, (await abschnitt.getAttribute('lang')) === lang && (await abschnitt.getAttribute('dir')) === dir);
+        pruef(`${lang}: Knopf übersetzt`, (await p.getByTestId('angaben-uebernehmen').innerText()).trim() !== 'Angaben von diesem Gerät übernehmen');
+        await p.getByTestId('angaben-uebernehmen').click();
+        await p.getByTestId('angaben-code').fill(CODE);
+        await p.getByTestId('angaben-oeffnen').click();
+        await p.getByTestId('angaben-ergebnis').waitFor({ timeout: 30000 });
+        if (lang === 'en') {
+          const erg = await p.getByTestId('angaben-ergebnis').innerText();
+          pruef('en: Ergebnis auf Englisch, Praxis A nicht genannt', erg.includes('The practice whose form the copy comes from learns nothing about this.') && !erg.includes('Sonnenberg') && (await p.getByTestId('angaben-herkunft-zeigen').innerText()).trim() === 'Show where the copy comes from', erg.slice(0, 200));
+        }
+        const marken = await p.$$eval('[data-testid="anamnese-vom-geraet"]', (es) => es.map((e) => `${e.getAttribute('lang')}/${e.getAttribute('dir')}`));
+        pruef(`${lang}: Markierungen im deutschen Bogen tragen lang und dir`, marken.length === GRUND.length && marken.every((m) => m === `${lang}/${dir}`), [...new Set(marken)].join(','));
+        const haken = p.getByTestId('anamnese-geprueft-text');
+        pruef(`${lang}: Text am Haken „geprüft“ mit lang und dir`, (await haken.getAttribute('lang')) === lang && (await haken.getAttribute('dir')) === dir);
+        for (const k of await unbeantwortet(p)) await antworten(p, k, false);
+        await p.locator('#confirm').fill('Anna Zwilling');
+        await p.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+        const meldung = p.locator('#anamnese-fehler');
+        pruef(`${lang}: Meldung „geprüft fehlt“ in der Sprache des Portals mit lang und dir`, (await meldung.getAttribute('lang')) === lang && (await meldung.getAttribute('dir')) === dir && !(await meldung.innerText()).includes('Bitte bestätigen'));
+        pruef(`${lang}: 390 px ohne waagerechtes Scrollen`, await breiteOk(p));
+        await fotos(p, `25-b-uebernommen-390-${lang}`, false);
+      }
+      await c.close();
+    }
+
+    // ---------- Abgelaufene Kopie: Der Bogen sagt, dass sie gelöscht wurde ----------
+    {
+      const { c, p } = await neu(HANDY);
+      // Abgelegt wird auf einer Seite, die den Speicher nicht liest; /meine-praxen würde die alte Kopie sofort löschen.
+      await p.goto(`${L}/datenschutz`);
+      const alt = JSON.parse(ablageHandy);
+      alt.kopien[0].stand = '2025-01-02';
+      await p.evaluate(([s, w]) => localStorage.setItem(s, w), [SCHLUESSEL, JSON.stringify(alt)]);
+      await p.goto(`${L}/portal/${tB}/anamnese/${KENN}-anamB4`);
+      await p.getByTestId('angaben-abgelaufen').waitFor({ timeout: 30000 });
+      pruef('Abgelaufen: Bogen meldet die gelöschte Kopie, kein Knopf zum Übernehmen', (await p.getByTestId('angaben-abgelaufen').innerText()) === 'Kopien älter als 12 Monate wurden gelöscht: 1.' && (await p.getByTestId('angaben-uebernehmen').count()) === 0);
+      pruef('Abgelaufen: im Speicher keine Kopie mehr', JSON.parse(await p.evaluate((s) => localStorage.getItem(s), SCHLUESSEL)).kopien.length === 0);
+      await fotos(p, '26-b-abgelaufen-390', false);
       await c.close();
     }
     await pc.close();

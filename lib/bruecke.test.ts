@@ -485,7 +485,15 @@ describe("Rechtstexte nennen die Brücke", () => {
       "Ohne diesen Klick wird nichts gespeichert.",
       "PBKDF2 (SHA-256, 600.000 Durchläufe, zufälliger Salt)",
       "AES-GCM (256 Bit, zufälliger Startwert)",
-      "Der Code verlässt Ihr Gerät nicht und wird nirgends gespeichert.",
+      "Der Code verlässt Ihr Gerät nicht, und wir speichern ihn nirgends.",
+      "so gekennzeichnet, dass Browser und Passwort-Manager den Code nicht speichern sollen",
+      "Die Kopie ist nur so sicher wie Ihr Code",
+      "zur Verhütung oder zu verschriebenen Salben, kommen nicht in die Kopie",
+      "Die Seite sagt Ihnen dann, wie viele Kopien gelöscht wurden.",
+      "Einträge im Protokoll löscht Ihr Browser ebenso 12 Monate nach ihrem Tag.",
+      "einen Anamnesebogen, bei einer anderen oder derselben Praxis",
+      "zeigt die Seite nur auf Ihren Klick auf „Herkunft der Kopie anzeigen“",
+      "Ein Tablet der Praxis, auf dem gerade niemand angemeldet ist, erkennt die Seite aber nicht sicher.",
       "Nicht gespeichert werden Ihr Name, Ihr Geburtsdatum, Ihre Wünsche, Ihre Hinweise und der Link.",
       "Es gibt höchstens 5 Kopien.",
       "Ab 12 Monaten nach ihrem Stand",
@@ -500,7 +508,13 @@ describe("Rechtstexte nennen die Brücke", () => {
     const m = await import("@/lib/meineAngaben");
     const seite = lies("app/datenschutz/page.tsx").replace(/\s+/g, " ");
     expect(seite).toContain(`${m.PBKDF2_DURCHLAEUFE.toLocaleString("de-DE")} Durchläufe`);
-    expect(seite).toContain(`mindestens ${m.MIN_CODE} Zeichen`);
+    expect(seite).toContain(`mindestens ${m.MIN_CODE} Zeichen, darunter Buchstaben`);
+    // Die Beispiele für sehr einfache Codes lehnt der Code wirklich ab.
+    for (const beispiel of ["abcdefgh", "Passwort1"]) {
+      expect(seite).toContain(`„${beispiel}“`);
+      expect(m.codeMangel(beispiel), beispiel).toBe("einfach");
+    }
+    expect(seite).toContain(`„${ANGABEN_UI.de.herkunft}“`);
     expect(seite).toContain(`höchstens ${m.MAX_KOPIEN} Kopien`);
     expect(seite).toContain(`Ab ${m.GUELTIG_MONATE} Monaten`);
     expect(seite).toContain(`höchstens ${m.MAX_PROTOKOLL} Einträge`);
@@ -577,12 +591,18 @@ describe("Eigene Angaben mitnehmen: keine Verbindung auf dem Server", () => {
     const sicht = ohneKommentare(lies("lib/anamnesisView.ts"));
     expect(sicht.match(/vorbefuellt\w*/g)?.sort()).toEqual(["vorbefuelltStand", "vorbefuelltStand", "vorbefuelltStand", "vorbefuelltStand"]);
     expect(sicht).toMatch(/vorbefuelltStand: done\?\.vorbefuelltStand \? done\.vorbefuelltStand\.toISOString\(\)\.slice\(0, 10\) : null/);
-    const akte = ohneKommentare(lies("components/AnamnesisPanel.tsx")).replace(/\s+/g, " ");
-    expect(akte).toContain("Teilweise mit gespeicherten Angaben des Patienten vorausgefüllt (Stand {tagFmt(summary.vorbefuelltStand)}), vom Patienten geprüft.");
+    // Der Hinweis steht bei den Hinweisen aus der Anamnese: in der Akte, beim Abschluss und in der Einbettung.
+    const hinweis = ohneKommentare(lies("components/AnamnesisFlags.tsx")).replace(/\s+/g, " ");
+    expect(hinweis).toContain("Teilweise mit gespeicherten Angaben des Patienten vorausgefüllt (Stand {tagFmt(vorbefuelltStand)}), vom Patienten geprüft.");
+    expect(hinweis.replace('data-testid="anamnese-vorbefuellt"', "").match(/vorbefuellt\w*/g)?.every((w) => w === "vorbefuelltStand")).toBe(true);
+    expect(ohneKommentare(lies("components/AnamnesisPanel.tsx"))).toContain("vorbefuelltStand={summary.vorbefuelltStand}");
+    expect(ohneKommentare(lies("components/TreatmentWrapUp.tsx"))).toContain("vorbefuelltStand={anamnesis.vorbefuelltStand}");
+    for (const seite of ["app/(app)/abschluss/new/page.tsx", "app/embed/patient/[id]/page.tsx"]) expect(lies(seite), seite).toMatch(/loadAnamnesis\(/);
     // Eingang, Praxis-App und Empfang wissen nichts von Kopien auf Geräten.
     const praxis = [...lauf("app/(app)"), ...lauf("app/uebergabe"), "lib/eingang.ts", ...QUELLEN.filter((d) => /^components\/(Eingang|Inbox)/.test(d))];
     for (const d of praxis) expect(ohneKommentare(lies(d)), d).not.toMatch(/vorbefuellt|meineAngaben|Meine Angaben auf diesem Gerät/);
-    for (const d of QUELLEN.filter((x) => x !== "components/AnamnesisPanel.tsx" && x !== "lib/anamnesisView.ts" && x !== "lib/anamnesis.ts" && /vorbefuelltStand/.test(lies(x)))) {
+    const ANZEIGE = ["components/AnamnesisPanel.tsx", "components/AnamnesisFlags.tsx", "components/TreatmentWrapUp.tsx", "lib/anamnesisView.ts", "lib/anamnesis.ts"];
+    for (const d of QUELLEN.filter((x) => !ANZEIGE.includes(x) && /vorbefuelltStand/.test(lies(x)))) {
       expect(["app/api/a/[token]/route.ts", "app/api/portal/[token]/anamnese/[id]/route.ts"], d).toContain(d);
     }
   });
@@ -620,11 +640,53 @@ describe("Texte für „Meine Angaben auf diesem Gerät“", () => {
       for (const w of v.replace(PLATZ, "").match(/[A-Za-zÄÖÜäöüß]{2,}/g) ?? []) expect(w, `ar.${k}`).toBe("Sorrida");
     }
   });
-  it("verspricht nichts, was der Code nicht hält: 5 Kopien, 12 Monate, 6 Zeichen", async () => {
+  it("verspricht nichts, was der Code nicht hält: 5 Kopien, 12 Monate, 8 Zeichen", async () => {
     const m = await import("@/lib/meineAngaben");
     expect(ANGABEN_UI.de.voll).toContain(`${m.MAX_KOPIEN} Kopien`);
     expect(ANGABEN_UI.de.verfallen).toContain(`${m.GUELTIG_MONATE} Monate`);
     expect(ANGABEN_UI.de.codeNeu).toContain(`${m.MIN_CODE} Zeichen`);
     expect(ANGABEN_UI.de.codeZuKurz).toContain(`${m.MIN_CODE} Zeichen`);
+  });
+});
+
+describe("Bogen mit Kopie: Code, Herkunft, Sprache, Hinweise (Prüfung vom 17.11.2026)", () => {
+  const geraet = ohneKommentare(lies("components/AnamneseGeraet.tsx"));
+  it("kein Feld für den Code lädt Browser oder Passwort-Manager zum Speichern ein", () => {
+    expect(geraet).not.toMatch(/new-password|current-password/);
+    const merken = /const NICHT_MERKEN = \{([^}]*)\}/.exec(geraet)![1];
+    for (const teil of ['autoComplete: "off"', '"data-1p-ignore": "true"', '"data-lpignore": "true"', '"data-bwignore": "true"']) expect(merken).toContain(teil);
+    const felder = [...geraet.matchAll(/<input[^>]*type="password"[^>]*>/g)].map((m) => m[0]);
+    expect(felder).toHaveLength(3);
+    for (const f of felder) expect(f).toContain("{...NICHT_MERKEN}");
+    expect(ANGABEN_UI.de.codeHinweis).toContain("lehnen Sie bitte ab");
+  });
+  it("prüft den Code mit codeMangel und nennt jeden Grund", () => {
+    expect(geraet).toMatch(/const mangel = codeMangel\(code1\)/);
+    for (const k of ["codeZuKurz", "codeOhneBuchstaben", "codeEinfach"]) expect(geraet).toContain(`t.${k}`);
+    expect(ANGABEN_UI.de.behaltenSicher).toContain("wer den Code kennt oder errät");
+    expect(ANGABEN_UI.de.behaltenSicher).not.toMatch(/kann sie lesen/);
+  });
+  it("zeigt den Namen der ersten Praxis nur auf Klick, den Hinweis „erfährt nichts“ immer", () => {
+    expect(geraet.match(/t\.quelle\b/g)).toHaveLength(1);
+    expect(geraet).toMatch(/<details[^>]*data-testid="angaben-herkunft">\s*<summary[^>]*>\{t\.herkunft\}<\/summary>\s*<p[^>]*>\{fuellen\(t\.quelle, \{ praxis: herkunft \}\)\}<\/p>/);
+    expect(geraet).toContain("t.quelleNichts");
+    expect(ANGABEN_UI.de.quelle).toBe("Aus dem Bogen von {praxis}.");
+  });
+  it("sagt, was lesbar bleibt, und warnt vor geteilten Geräten", () => {
+    expect(ANGABEN_UI.de.behaltenWas).toContain("der Name dieser Praxis");
+    expect(ANGABEN_UI.de.behaltenWas).toContain("Nicht verschlüsselt sind nur der Name der Kopie, der Tag und die Art der Praxis.");
+    expect(ANGABEN_UI.de.bezeichnungHinweis).toContain("nicht verschlüsselt");
+    expect(ANGABEN_UI.de.geteilt).toContain("Tablet der Praxis");
+    expect(geraet).toMatch(/border-amber-200 bg-amber-50[^"]*" data-testid="angaben-geteilt">\{t\.geteilt\}/);
+  });
+  it("meldet abgelaufene Kopien im Bogen und unterscheidet falschen Code, kaputte Kopie und Browser", () => {
+    expect(geraet).toMatch(/stand\.abgelaufen > 0 \? fuellen\(t\.abgelaufenGeloescht/);
+    expect(geraet).toContain("err instanceof FalscherCode ? t.falscherCode : err instanceof KopieKaputt ? t.kopieKaputt : t.oeffnenNichtMoeglich");
+  });
+  it("Texte in der Portalsprache stehen auch im deutschen Bogen mit lang und dir", () => {
+    const bogen = ohneKommentare(lies("components/AnamnesisForm.tsx"));
+    expect(bogen.match(/lang=\{geraet\.lang\} dir=\{geraet\.dir\}/g)).toHaveLength(2);
+    expect(bogen).toMatch(/lang=\{geraet && error === geraet\.gepruefFehlt \? geraet\.lang : undefined\}/);
+    expect(geraet).toMatch(/gepruefFehlt: t\.gepruefFehlt,\s*lang,\s*dir,/);
   });
 });

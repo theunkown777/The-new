@@ -60,7 +60,7 @@ const anliegen = (liste: Anliegen[]) => Object.fromEntries(liste.map((a) => [a.k
 export const ANAMNESE_FRAGEN: Record<string, AnamneseFrage> = fragen([
   // --- Für alle Fächer ---
   { key: "medikamente", text: "Nehmen Sie regelmäßig Medikamente?", textEltern: "Nimmt Ihr Kind regelmäßig Medikamente?", detail: "Welche?" },
-  { key: "blutverduenner", text: "Nehmen Sie blutverdünnende Medikamente (z. B. ASS, Marcumar, Eliquis, Xarelto)?", textEltern: "Nimmt Ihr Kind blutverdünnende Medikamente?", detail: "Welche?", hinweis: { level: "warn", text: "Blutverdünner" } },
+  { key: "blutverduenner", text: "Nehmen Sie blutverdünnende Medikamente (z. B. ASS, Phenprocoumon, Apixaban oder Rivaroxaban)?", textEltern: "Nimmt Ihr Kind blutverdünnende Medikamente?", detail: "Welche?", hinweis: { level: "warn", text: "Blutverdünner" } },
   { key: "gerinnung", text: "Haben Sie eine Blutgerinnungsstörung oder bluten Sie lange nach?", textEltern: "Hat Ihr Kind eine Blutgerinnungsstörung oder blutet es lange nach?", hinweis: { level: "warn", text: "Gerinnungsstörung" } },
   { key: "allergien", text: "Haben Sie Allergien oder Unverträglichkeiten (z. B. gegen Penicillin, Pflaster, Latex oder ein Mittel zur Betäubung)?", textEltern: "Hat Ihr Kind Allergien oder Unverträglichkeiten (z. B. gegen Penicillin, Pflaster, Latex oder ein Mittel zur Betäubung)?", detail: "Welche?", hinweis: { level: "warn", text: "Allergie" } },
   { key: "herz", text: "Haben Sie eine Herzerkrankung, eine künstliche Herzklappe oder einen Herzschrittmacher?", textEltern: "Hat Ihr Kind eine Herzerkrankung, eine künstliche Herzklappe oder einen Herzschrittmacher?", detail: "Welche?", hinweis: { level: "warn", text: "Herzerkrankung, Herzklappe oder Schrittmacher" } },

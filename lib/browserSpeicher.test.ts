@@ -58,14 +58,14 @@ describe("Zugriffe auf den Speicher des Browsers", () => {
   it("„Meine Angaben“: im Speicher stehen keine Antworten, kein Praxisname und keine fremden Felder", async () => {
     const kopie = await kopieVerschluesseln(
       { v: 1, fach: "zahn", ansprache: "patient", praxis: "Zahnarztpraxis Sonnenweg", q: { allergie: { yes: true, detail: "Penicillinunverträglichkeit" }, blutverduenner: { yes: false } } },
-      "geheim-123",
+      "Leuchtturm-123",
       { bezeichnung: "Meine Angaben", stand: "2026-11-01", gruppe: "zahn" },
       250_000,
     );
     // Was eine fremde Hand dazulegen wollte, wird beim Schreiben verworfen.
-    const untergeschoben = { ...kopie, name: "Erika Muster", geburtsdatum: "1980-01-01", token: "abc", code: "geheim-123" } as Kopie;
+    const untergeschoben = { ...kopie, name: "Erika Muster", geburtsdatum: "1980-01-01", token: "abc", code: "Leuchtturm-123" } as Kopie;
     const roh = ablageSchreiben({ kopien: [untergeschoben], protokoll: [] });
-    for (const wort of ["Penicillin", "allergie", "blutverduenner", "Sonnenweg", "geheim-123", "Erika", "1980-01-01", "token", "patient"]) expect(roh).not.toContain(wort);
+    for (const wort of ["Penicillin", "allergie", "blutverduenner", "Sonnenweg", "Leuchtturm-123", "Erika", "1980-01-01", "token", "patient"]) expect(roh).not.toContain(wort);
     const gelesen = ablageLesen(roh, new Date("2026-11-17T12:00:00Z"));
     expect(Object.keys(gelesen.kopien[0]).sort()).toEqual(["bezeichnung", "daten", "gruppe", "id", "iter", "iv", "salt", "stand"]);
   });

@@ -1,9 +1,11 @@
 // „Eigene Angaben mitnehmen“: Verschlüsselung, Ablage, Ablauf und Zuordnung der Fragen (ohne Browser).
 import { describe, expect, it } from "vitest";
-import { anamneseFuer } from "@/lib/anamneseProfile";
+import { ANAMNESE_FRAGEN, anamneseFuer } from "@/lib/anamneseProfile";
 import {
   ANGABEN_SCHLUESSEL,
   FalscherCode,
+  KopieKaputt,
+  MIN_CODE,
   MAX_KOPIEN,
   MAX_PROTOKOLL,
   PBKDF2_DURCHLAEUFE,
@@ -13,6 +15,7 @@ import {
   ablaufTag,
   abgelaufen,
   codeGueltig,
+  codeMangel,
   heute,
   kopieAblegen,
   kopieEntfernen,
@@ -79,11 +82,44 @@ describe("Verschlüsseln und Entschlüsseln", () => {
     await expect(kopieEntschluesseln({ ...k, iter: 1000 }, CODE)).rejects.toThrow();
     await expect(kopieVerschluesseln(INHALT, CODE, META, 100_000)).rejects.toThrow();
   });
-  it("verlangt einen Code mit mindestens 6 Zeichen", async () => {
-    expect(codeGueltig("12345")).toBe(false);
-    expect(codeGueltig("      ")).toBe(false);
-    expect(codeGueltig("123456")).toBe(true);
+  it("verlangt einen Code mit mindestens 8 Zeichen und Buchstaben, keine PIN und keine einfachen Folgen", async () => {
+    expect(MIN_CODE).toBe(8);
+    // Eine Kopie aus dem Speicher lässt sich ohne Begrenzung durchprobieren: Eine 6-stellige PIN wäre in Minuten offen.
+    for (const c of ["1234567", "Abc-123", "        ", ""]) expect(codeMangel(c), c).toBe("kurz");
+    for (const c of ["12345678", "4711 0815", "2026-11-17", "٣٤٥٦٧٨٩٠", "12.34.56.78!"]) expect(codeMangel(c), c).toBe("ohneBuchstaben");
+    for (const c of ["       x", "abcdefgh", "hgfedcba", "qwertzui", "asdfghjk", "QWERTYUIOP", "aaaaaaaa", "abababab", "Passwort1", "passwort123!", "123Sorrida", "geheim2026", "Kennwort!", "Test-2026"])
+      expect(codeMangel(c), c).toBe("einfach");
+    for (const c of [CODE, "Sommer-2026", "Mond und Sterne", "Lena2019!", "Gänseblümchen", "سلام-عليكم"]) expect(codeMangel(c), c).toBeNull();
+    expect(codeGueltig("123456")).toBe(false);
+    expect(codeGueltig(CODE)).toBe(true);
     await expect(kopieVerschluesseln(INHALT, "kurz", META, SCHNELL)).rejects.toThrow();
+    await expect(kopieVerschluesseln(INHALT, "12345678", META, SCHNELL)).rejects.toThrow();
+    await expect(kopieVerschluesseln(INHALT, "Passwort1", META, SCHNELL)).rejects.toThrow();
+  });
+  it("vertauschte Namen zweier Kopien fallen auf: der Name ist an den Inhalt gebunden", async () => {
+    const lena = await kopieVerschluesseln(INHALT, CODE, { ...META, bezeichnung: "Angaben für Lena" }, SCHNELL);
+    const max = await kopieVerschluesseln({ ...INHALT, q: { herz: { yes: true } } }, CODE, { ...META, bezeichnung: "Angaben für Max" }, SCHNELL);
+    await expect(kopieEntschluesseln({ ...lena, bezeichnung: max.bezeichnung }, CODE)).rejects.toBeInstanceOf(FalscherCode);
+    await expect(kopieEntschluesseln({ ...max, bezeichnung: lena.bezeichnung }, CODE)).rejects.toBeInstanceOf(FalscherCode);
+    // Leerzeichen fasst schon das Verschlüsseln zusammen, so wie der Speicher den Namen ablegt.
+    const k = await kopieVerschluesseln(INHALT, CODE, { ...META, bezeichnung: "  Meine   Angaben " }, SCHNELL);
+    expect(k.bezeichnung).toBe("Meine Angaben");
+    const gelesen = ablageLesen(ablageSchreiben({ kopien: [k], protokoll: [] }), new Date(2026, 10, 17, 12)).kopien[0];
+    expect(await kopieEntschluesseln(gelesen, CODE)).toEqual(INHALT);
+  });
+  it("eine Kopie in fremder Form meldet „lässt sich nicht öffnen“, nicht „falscher Code“", async () => {
+    const k = await kopieVerschluesseln(INHALT, CODE, META, SCHNELL);
+    await expect(kopieEntschluesseln({ ...k, salt: "kaputt" }, CODE)).rejects.toBeInstanceOf(KopieKaputt);
+    await expect(kopieEntschluesseln({ ...k, iter: 1000 }, CODE)).rejects.toBeInstanceOf(KopieKaputt);
+    // Richtiger Code, aber der Inhalt hat eine andere Form (etwa aus einer späteren Fassung).
+    const sub = globalThis.crypto.subtle;
+    const salt = Uint8Array.from(atob(k.salt), (c) => c.charCodeAt(0));
+    const iv = Uint8Array.from(atob(k.iv), (c) => c.charCodeAt(0));
+    const basis = await sub.importKey("raw", new TextEncoder().encode(CODE), "PBKDF2", false, ["deriveKey"]);
+    const key = await sub.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt, iterations: k.iter }, basis, { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
+    const zusatz = new TextEncoder().encode(`${ANGABEN_SCHLUESSEL}|${k.id}|${k.stand}|${k.gruppe}|${k.iter}|${k.bezeichnung}`);
+    const fremd = new Uint8Array(await sub.encrypt({ name: "AES-GCM", iv, additionalData: zusatz }, key, new TextEncoder().encode(JSON.stringify({ v: 2 }))));
+    await expect(kopieEntschluesseln({ ...k, daten: btoa(String.fromCharCode(...fremd)) }, CODE)).rejects.toBeInstanceOf(KopieKaputt);
   });
   it("im Speicher steht kein Klartext: keine Antwort, keine Ergänzung, kein Praxisname, kein Fach, kein Code", async () => {
     const k = await kopieVerschluesseln(INHALT, CODE, META, SCHNELL);
@@ -189,6 +225,17 @@ describe("Zuordnung: nur passende Fragen", () => {
     for (const k of NIE_MITNEHMEN) expect(q[k]).toBeUndefined();
   });
 
+  it("Fragen zum Augenblick gehen nie mit: „zurzeit“, „in letzter Zeit“, „in den letzten …“, „zur Hand“", () => {
+    const AUGENBLICK = /\bzurzeit\b|in letzter Zeit|in den letzten|zur Hand|dieser Beschwerden|Ihrer Beschwerden/i;
+    const fehlend = Object.values(ANAMNESE_FRAGEN).filter((f) => AUGENBLICK.test(`${f.text} ${f.textEltern ?? ""}`) && !NIE_MITNEHMEN.includes(f.key)).map((f) => f.key);
+    expect(fehlend).toEqual([]);
+    expect(NIE_MITNEHMEN).toEqual(expect.arrayContaining(["salben", "verhuetung"]));
+    const haut = anamneseFuer("haut", { alter: 40 });
+    expect(haut.fragen.some((f) => f.key === "salben")).toBe(true);
+    expect(angabenAusBogen(haut, { salben: { yes: true, detail: "Kortison" } }).salben).toBeUndefined();
+    expect(uebernahmeFuer({ fach: "haut", ansprache: "patient", q: { salben: { yes: true }, medikamente: { yes: false } } }, haut)).toEqual({ ok: true, werte: { medikamente: { yes: false } } });
+  });
+
   it("Zahnarzt → Hausarzt: nur Grundfragen, keine zahnärztliche Frage", () => {
     const zahn = anamneseFuer("zahn", { geschlecht: "M", alter: 40 });
     const haus = anamneseFuer("hausarzt", { geschlecht: "M", alter: 40 });
@@ -237,7 +284,8 @@ describe("Zuordnung: nur passende Fragen", () => {
     const gyn = anamneseFuer("gyn", { geschlecht: "W", alter: 14 });
     expect(gyn.ansprache).toBe("patient");
     const q = angabenAusBogen(gyn, alleJa(gyn));
-    expect(q.verhuetung).toBeDefined();
+    expect(q.regelblutung).toBeDefined();
+    expect(q.verhuetung).toBeUndefined(); // „zurzeit“: nie gespeichert
     expect(uebernahmeFuer({ fach: "gyn", ansprache: "patient", q }, anamneseFuer("kinder", { geschlecht: "W", alter: 14 }))).toEqual({ ok: false, grund: "ansprache" });
     // Auch wenn eine Kopie in der Eltern-Fassung (von außen verändert) eine solche Antwort enthielte:
     const r = uebernahmeFuer({ fach: "kinder", ansprache: "eltern", q: { verhuetung: ja("Pille"), regelblutung: ja(), medikamente: ja() } }, anamneseFuer("hausarzt", { geschlecht: "W", alter: 14 }));

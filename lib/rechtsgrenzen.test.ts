@@ -22,6 +22,7 @@ import path from "path";
 import { describe, expect, it } from "vitest";
 import { ALLE_SPECIALTIES } from "./specialties";
 import { LEISTUNGEN, leistung } from "./leistungskatalog";
+import { ANAMNESE_FRAGEN } from "./anamneseProfile";
 // Texte vor der Umformulierung vom 17.11.2026 (Beschreibungen und Hinweise), als Gegenprobe für die Prüfmuster
 import ALTE_TEXTE from "./rechtsgrenzen.alte-texte.json";
 
@@ -373,6 +374,17 @@ describe("Rechtsgrenzen im Katalog", () => {
     const l = leistung("innere-medizin-medikamentoese-adipositastherapie")!;
     expect(l.hinweis).toMatch(/ausgeschlossen \(§ 34 Abs\. 1 Satz 8 SGB V\)/);
     expect(l.hinweis).not.toMatch(/fragen/);
+  });
+
+  // Der Anamnesebogen ist öffentlich (/a, /portal, /api/demo): Beispiele nennen den Wirkstoff, keinen Handelsnamen.
+  it("Anamnesefragen nennen Wirkstoffe statt Handelsnamen (§ 10 Abs. 1 HWG)", () => {
+    const GERINNUNG = /(?<!\p{L})(?:Marcumar|Falithrom|Eliquis|Xarelto|Lixiana|Pradaxa|Plavix|Brilique|Efient|Aspirin)(?!\p{L})/iu;
+    const funde = Object.values(ANAMNESE_FRAGEN).flatMap((f) =>
+      [f.text, f.textEltern, f.detail, f.hinweis?.text].filter((t): t is string => !!t && (istMarke(t) || GERINNUNG.test(t))).map((t) => `${f.key}: ${t}`),
+    );
+    expect(funde).toEqual([]);
+    expect(ANAMNESE_FRAGEN.blutverduenner.text).toContain("Phenprocoumon, Apixaban oder Rivaroxaban");
+    expect(GERINNUNG.test("z. B. ASS, Marcumar, Eliquis, Xarelto")).toBe(true);
   });
 
   it("Behandler: Neurochirurgie und Herzchirurgie haben eigene Fachärzte", () => {

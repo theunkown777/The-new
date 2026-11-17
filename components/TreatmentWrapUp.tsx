@@ -38,7 +38,7 @@ export function TreatmentWrapUp({
   /** "/abschluss" in der App, "/embed/abschluss" im Praxissoftware-Fenster. */
   basePath: string;
   /** Hinweise aus der Anamnese über dem Abschluss; Raucher usw. gehen in den Vorschlag. */
-  anamnesis?: Pick<AnamnesisSummary, "flags" | "submittedAt" | "globals">;
+  anamnesis?: Pick<AnamnesisSummary, "flags" | "submittedAt" | "globals"> & Partial<Pick<AnamnesisSummary, "vorbefuelltStand">>;
   fach?: string;
   med?: MedInput;
 }) {
@@ -66,7 +66,7 @@ export function TreatmentWrapUp({
 
   return (
     <div className="space-y-4" data-hilfe="abschluss-start">
-    {anamnesis && <AnamnesisFlags flags={anamnesis.flags} submittedAt={anamnesis.submittedAt} />}
+    {anamnesis && <AnamnesisFlags flags={anamnesis.flags} submittedAt={anamnesis.submittedAt} vorbefuelltStand={anamnesis.vorbefuelltStand} />}
     <ServiceChecklistForm
       // Das Fach kommt immer aus resolveMed (lib/practiceMed.ts). Fehlt es, zeigt diese Ansicht wie isDental(undefined)
       // den zahnärztlichen Abschluss (alte Vorschläge ohne Fach); die Beschriftung passt dazu. Bewusst so belassen.

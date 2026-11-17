@@ -15,6 +15,16 @@ import { SPEICHER_SCHLUESSEL, listeLesen, listeSchreiben, type GemerktePraxis } 
 // Gegenmittel, mittelfristig: eigene Adresse für Patientenseiten, Nonce-CSP oder Trusted Types, oder die Liste mit
 // einer Geräte-PIN verschlüsseln. Bis dahin: Merken nur auf Klick, nur auf Geräten ohne
 // Praxis-Sitzung, jeder Link läuft ab, und die Liste lässt sich jederzeit ganz löschen.
+//
+// Bekanntes Restrisiko 2 (für DSFA und Kanzlei, offen): „Gerät der Praxis“ erkennt die Seite nur an Cookies
+// (lib/meinePraxenSchutz.ts: Sitzung, Gastzugang, Empfangsmodus, gesperrter Bereich). Ein Tablet der Praxis, auf dem
+// gerade niemand angemeldet ist und kein Empfangsmodus läuft (etwa nach dem Abmelden oder mit gelöschten Cookies),
+// sieht aus wie das Gerät eines Patienten. Dort könnte ein Patient eine Liste anlegen oder eine verschlüsselte Kopie
+// seiner Angaben behalten; der nächste Patient sähe die Namen der Kopien und das Protokoll, die Antworten nur mit Code.
+// Gegenmittel heute: Das Angebot warnt sichtbar vor Tablets der Praxis und geteilten Geräten, der Name der Kopie ist
+// als „nicht verschlüsselt“ beschriftet, und der Code muss mindestens 8 Zeichen mit Buchstaben haben. Ein dauerhaftes
+// Kennzeichen „Gerät der Praxis“ (ein Cookie, das beim Abmelden bleibt) wäre wirksamer, ist aber ein neues Cookie mit
+// eigener Rechtsgrundlage und Datenschutztext; das entscheidet der Inhaber.
 
 export type Lesestand = { verfuegbar: boolean; praxen: GemerktePraxis[] };
 

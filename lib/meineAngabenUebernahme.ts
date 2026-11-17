@@ -24,6 +24,8 @@ export const NIE_MITNEHMEN: readonly string[] = [
   "verordnung", // Verordnung für diesen Termin
   "physio_frueher", // „wegen dieser Beschwerden“
   "aerztliche_behandlung", // „wegen Ihrer Beschwerden zurzeit“
+  "salben", // „zurzeit … verschrieben“
+  "verhuetung", // „zurzeit“
   "impfpass", // „zur Hand“
   "u_heft", // „zur Hand“
   "mutterpass", // Schwangerschaft

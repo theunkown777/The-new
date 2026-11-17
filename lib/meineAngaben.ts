@@ -24,8 +24,11 @@ export const ANGABEN_SCHLUESSEL = "sorrida:meine-angaben:v1";
 export const MAX_KOPIEN = 5;
 /** Kopien und Protokoll verfallen nach so vielen Monaten ab ihrem Stand. */
 export const GUELTIG_MONATE = 12;
-/** Mindestlänge des Codes. */
-export const MIN_CODE = 6;
+/**
+ * Mindestlänge des Codes. Die Kopie ist nur so sicher wie der Code: Wer die Kopie aus dem Speicher holt, kann Codes
+ * ohne Begrenzung durchprobieren. Deshalb mindestens 8 Zeichen, nicht nur Ziffern und keine einfachen Folgen (codeMangel).
+ */
+export const MIN_CODE = 8;
 /** Durchläufe für neue Kopien. */
 export const PBKDF2_DURCHLAEUFE = 600_000;
 /** Weniger wird beim Lesen nicht angenommen (gegen eine untergeschobene schwache Kopie). */
@@ -199,8 +202,41 @@ export class FalscherCode extends Error {
   }
 }
 
+/** Die Kopie lässt sich mit dem richtigen Code nicht lesen (anderer Aufbau, beschädigt). Löschen hilft. */
+export class KopieKaputt extends Error {
+  constructor() {
+    super("Die Kopie lässt sich nicht öffnen.");
+    this.name = "KopieKaputt";
+  }
+}
+
+/**
+ * Warum ein Code nicht taugt, oder null. Keine Messung der Stärke, nur die Fälle, die sich schnell durchprobieren
+ * lassen: zu kurz, ohne Buchstaben (etwa eine PIN), wenige verschiedene Zeichen, Folgen wie „abcdefgh“ oder eine
+ * Tastaturreihe, und sehr häufige Wörter mit Zahlen oder Zeichen davor oder dahinter („Passwort123!“).
+ */
+export type CodeMangel = "kurz" | "ohneBuchstaben" | "einfach";
+const REIHEN = ["qwertzuiopü", "asdfghjklöä", "yxcvbnm", "qwertyuiop", "asdfghjkl", "zxcvbnm", "azertyuiop", "qsdfghjklm", "wxcvbn", "1234567890"];
+const HAEUFIG = new Set(["passwort", "password", "kennwort", "geheim", "geheimnis", "hallo", "sorrida", "iloveyou", "letmein", "willkommen", "welcome", "admin", "test", "code", "pin"]);
+
+export function codeMangel(code: string): CodeMangel | null {
+  const zeichen = [...code];
+  if (zeichen.length < MIN_CODE || code.trim() === "") return "kurz";
+  if (!/\p{L}/u.test(code)) return "ohneBuchstaben";
+  const klein = code.normalize("NFC").toLocaleLowerCase("de");
+  const z = [...klein];
+  if (new Set(z).size < 4) return "einfach";
+  const schritte = z.slice(1).map((c, i) => c.codePointAt(0)! - z[i].codePointAt(0)!);
+  if (schritte.every((d) => d === 1) || schritte.every((d) => d === -1)) return "einfach";
+  if (REIHEN.some((r) => r.includes(klein) || [...r].reverse().join("").includes(klein))) return "einfach";
+  // Häufiges Wort, davor oder dahinter nur Ziffern und Zeichen: „Passwort123!“, „123sorrida“.
+  const wort = klein.replace(/[^\p{L}]+/gu, "");
+  if (HAEUFIG.has(wort)) return "einfach";
+  return null;
+}
+
 export function codeGueltig(code: string): boolean {
-  return [...code].length >= MIN_CODE && code.trim() !== "";
+  return codeMangel(code) === null;
 }
 
 const kodierer = new TextEncoder();
@@ -227,8 +263,13 @@ async function schluessel(code: string, salt: Uint8Array<ArrayBuffer>, durchlaeu
   return globalThis.crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt, iterations: durchlaeufe }, basis, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
 }
 
-/** Bindet die lesbaren Felder an den verschlüsselten Inhalt: Wer Stand oder Art im Speicher ändert, bricht die Kopie. */
-const zusatz = (k: Pick<Kopie, "id" | "stand" | "gruppe">) => kodierer.encode(`${ANGABEN_SCHLUESSEL}|${k.id}|${k.stand}|${k.gruppe}`);
+/**
+ * Bindet die lesbaren Felder an den verschlüsselten Inhalt: Wer Name, Stand, Art oder Durchläufe im Speicher ändert
+ * oder die Namen zweier Kopien vertauscht (etwa „Angaben für Lena“ und „Angaben für Max“), bricht die Kopie.
+ * Der Name steht zuletzt, weil nur er „|“ enthalten kann.
+ */
+const zusatz = (k: Pick<Kopie, "id" | "stand" | "gruppe" | "iter" | "bezeichnung">) =>
+  kodierer.encode(`${ANGABEN_SCHLUESSEL}|${k.id}|${k.stand}|${k.gruppe}|${k.iter}|${k.bezeichnung}`);
 
 /** Neue Kopie verschlüsseln. Wirft, wenn der Code zu kurz oder der Inhalt ungültig ist. */
 export async function kopieVerschluesseln(
@@ -237,25 +278,40 @@ export async function kopieVerschluesseln(
   meta: { bezeichnung: string; stand: string; gruppe: PraxisGruppe },
   durchlaeufe: number = PBKDF2_DURCHLAEUFE,
 ): Promise<Kopie> {
-  if (!codeGueltig(code)) throw new Error("Der Code ist zu kurz.");
+  if (!codeGueltig(code)) throw new Error("Der Code taugt nicht.");
   if (durchlaeufe < PBKDF2_MINDESTENS) throw new Error("Zu wenige Durchläufe.");
   const sauber = inhaltSchema.parse(inhalt);
   const id = Array.from(zufall(8), (b) => b.toString(16).padStart(2, "0")).join("");
   const salt = zufall(16);
   const iv = zufall(12);
-  const kopf = { id, stand: meta.stand, gruppe: meta.gruppe };
+  // Der Name so, wie er im Speicher steht (Leerzeichen zusammengefasst): Er ist Teil der Zusatzdaten.
+  const kopf = { id, stand: meta.stand, gruppe: meta.gruppe, iter: durchlaeufe, bezeichnung: kopieSchema.shape.bezeichnung.parse(meta.bezeichnung) };
   const key = await schluessel(code, salt, durchlaeufe);
   const daten = new Uint8Array(await globalThis.crypto.subtle.encrypt({ name: "AES-GCM", iv, additionalData: zusatz(kopf) }, key, kodierer.encode(JSON.stringify(sauber))));
-  return kopieSchema.parse({ ...kopf, bezeichnung: meta.bezeichnung, salt: zuB64(salt), iv: zuB64(iv), iter: durchlaeufe, daten: zuB64(daten) });
+  return kopieSchema.parse({ ...kopf, salt: zuB64(salt), iv: zuB64(iv), daten: zuB64(daten) });
 }
 
-/** Kopie mit dem Code öffnen. Falscher Code oder veränderte Kopie: FalscherCode. */
+/**
+ * Kopie mit dem Code öffnen.
+ *   - FalscherCode: Der Code passt nicht, oder jemand hat die Kopie im Speicher verändert (AES-GCM unterscheidet das
+ *     nicht).
+ *   - KopieKaputt: Die Kopie hat nicht die erwartete Form, oder der Code passt, aber der Inhalt ist nicht lesbar.
+ *   - Andere Fehler: Der Browser kann nicht entschlüsseln (etwa ohne WebCrypto).
+ */
 export async function kopieEntschluesseln(kopie: Kopie, code: string): Promise<AngabenInhalt> {
-  const k = kopieSchema.parse(kopie);
+  const p = kopieSchema.safeParse(kopie);
+  if (!p.success) throw new KopieKaputt();
+  const k = p.data;
+  let salt: Uint8Array<ArrayBuffer>, iv: Uint8Array<ArrayBuffer>, daten: Uint8Array<ArrayBuffer>;
+  try {
+    [salt, iv, daten] = [ausB64(k.salt), ausB64(k.iv), ausB64(k.daten)];
+  } catch {
+    throw new KopieKaputt();
+  }
+  const key = await schluessel(code, salt, k.iter);
   let klar: ArrayBuffer;
   try {
-    const key = await schluessel(code, ausB64(k.salt), k.iter);
-    klar = await globalThis.crypto.subtle.decrypt({ name: "AES-GCM", iv: ausB64(k.iv), additionalData: zusatz(k) }, key, ausB64(k.daten));
+    klar = await globalThis.crypto.subtle.decrypt({ name: "AES-GCM", iv, additionalData: zusatz(k) }, key, daten);
   } catch {
     throw new FalscherCode();
   }
@@ -263,9 +319,9 @@ export async function kopieEntschluesseln(kopie: Kopie, code: string): Promise<A
   try {
     json = JSON.parse(new TextDecoder().decode(klar));
   } catch {
-    throw new FalscherCode();
+    throw new KopieKaputt();
   }
   const r = inhaltSchema.safeParse(json);
-  if (!r.success) throw new FalscherCode();
+  if (!r.success) throw new KopieKaputt();
   return r.data;
 }

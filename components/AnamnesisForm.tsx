@@ -23,6 +23,9 @@ export type GeraetFelder = {
   markiert: (stand: string) => string;
   geprueft: string;
   gepruefFehlt: string;
+  /** Sprache und Schreibrichtung dieser drei Texte (Portalsprache); der Bogen selbst bleibt Deutsch. */
+  lang: string;
+  dir: "ltr" | "rtl";
 };
 
 const gleich = (a: Ans | undefined, b: Ans) => a?.yes === b.yes && (a?.detail ?? "") === (b.detail ?? "");
@@ -165,7 +168,7 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
                 {q.text}
               </p>
               {vomGeraet && geraet && (
-                <p className="mt-2 inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900 ring-1 ring-amber-200" data-testid="anamnese-vom-geraet">
+                <p className="mt-2 inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900 ring-1 ring-amber-200" lang={geraet.lang} dir={geraet.dir} data-testid="anamnese-vom-geraet">
                   {geraet.markiert(vorbef.stand)}
                 </p>
               )}
@@ -244,12 +247,22 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
                 }}
                 data-testid="anamnese-geprueft"
               />
-              <span>{geraet.geprueft}</span>
+              <span lang={geraet.lang} dir={geraet.dir} data-testid="anamnese-geprueft-text">{geraet.geprueft}</span>
             </label>
           </div>
         )}
 
-        {error && <p id="anamnese-fehler" className="text-sm text-red-700" role="alert">{error}</p>}
+        {error && (
+          <p
+            id="anamnese-fehler"
+            className="text-sm text-red-700"
+            role="alert"
+            lang={geraet && error === geraet.gepruefFehlt ? geraet.lang : undefined}
+            dir={geraet && error === geraet.gepruefFehlt ? geraet.dir : undefined}
+          >
+            {error}
+          </p>
+        )}
         <button className="btn btn-primary w-full py-3" disabled={state === "sending"}>
           {state === "sending" ? "Wird gesendet …" : "Anamnesebogen absenden"}
         </button>

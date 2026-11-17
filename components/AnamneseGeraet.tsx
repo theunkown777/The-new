@@ -5,9 +5,10 @@ import { AnamnesisForm, type GeraetUebernahme } from "@/components/AnamnesisForm
 import { meineAngabenLesen, meineAngabenSchreiben, type AngabenStand } from "@/lib/geraeteSpeicher";
 import {
   FalscherCode,
+  KopieKaputt,
   MAX_BEZEICHNUNG,
   ablaufTag,
-  codeGueltig,
+  codeMangel,
   heute,
   kopieAblegen,
   kopieEntschluesseln,
@@ -46,6 +47,10 @@ const FELD = "rounded-2xl border border-slate-200 bg-white p-4";
 const FOKUS = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600";
 const KNOPF_HAUPT = `btn-primary min-h-[44px] ${FOKUS}`;
 const KNOPF_NEBEN = `btn-secondary min-h-[44px] ${FOKUS}`;
+// Felder für den Code: Browser und Passwort-Manager sollen ihn nicht speichern und nicht vorschlagen (autocomplete="off"
+// und die Kennzeichen von 1Password, LastPass, Bitwarden und Dashlane). Ein Browser kann trotzdem fragen; der Hinweis
+// unter dem Feld sagt dann, dass man ablehnt.
+const NICHT_MERKEN = { autoComplete: "off", "data-1p-ignore": "true", "data-lpignore": "true", "data-bwignore": "true", "data-form-type": "other" } as const;
 
 export function AnamneseGeraet({ gruppe, lang, ...form }: Props) {
   const t = ANGABEN_UI[lang];
@@ -75,6 +80,8 @@ export function AnamneseGeraet({ gruppe, lang, ...form }: Props) {
         markiert: (stand) => fuellen(t.markiert, { datum: datum(stand) }),
         geprueft: t.geprueft,
         gepruefFehlt: t.gepruefFehlt,
+        lang,
+        dir,
       }}
     />
   );
@@ -89,25 +96,44 @@ function fachWort(t: AngabenUi, g: PraxisGruppe): string {
 /** Über den Fragen: Kopie wählen, Code eingeben, passende Antworten einsetzen. */
 function Uebernahme({ u, t, lang, dir, profil, datum, meinePraxen, onBenutzt }: Gemeinsam & { u: GeraetUebernahme; onBenutzt: (name: string | null) => void }) {
   const [stand, setStand] = useState<AngabenStand | null>(null);
+  const [krypto, setKrypto] = useState(false);
   const [offen, setOffen] = useState(false);
   const [wahl, setWahl] = useState("");
   const [code, setCode] = useState("");
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState("");
   const [ergebnis, setErgebnis] = useState<string[]>([]);
+  // Name der Praxis, aus deren Bogen die Kopie stammt: nur auf Klick („Herkunft anzeigen“), nicht offen auf dem Bildschirm.
+  const [herkunft, setHerkunft] = useState("");
   const ergebnisRef = useRef<HTMLDivElement>(null);
   const codeRef = useRef<HTMLInputElement>(null);
   const titelRef = useRef<HTMLHeadingElement>(null);
 
-  // Gelesen wird erst im Browser, nach dem Öffnen des Bogens. Ohne Kopie zeigt der Bogen nichts davon.
+  // Gelesen wird erst im Browser, nach dem Öffnen des Bogens. Ohne Kopie zeigt der Bogen nichts davon. Abgelaufene
+  // Kopien löscht das Lesen; das sagt der Bogen dann (auch wenn keine Kopie übrig ist).
   useEffect(() => {
-    setStand(meineAngabenLesen());
+    const s = meineAngabenLesen();
+    // Schon das erste Lesen löscht Abgelaufenes. Liest der Bogen noch einmal (React im Entwicklungsmodus), bleibt die Zahl.
+    setStand((vorher) => ({ ...s, abgelaufen: Math.max(s.abgelaufen, vorher?.abgelaufen ?? 0) }));
+    setKrypto(!!globalThis.crypto?.subtle);
   }, []);
   useEffect(() => {
     if (offen) titelRef.current?.focus();
   }, [offen]);
 
-  if (!stand?.verfuegbar || stand.kopien.length === 0) return null;
+  if (!stand?.verfuegbar) return null;
+  const alt = stand.abgelaufen > 0 ? fuellen(t.abgelaufenGeloescht, { anzahl: stand.abgelaufen }) : "";
+  const altHinweis = alt && (
+    <p className="mt-3 text-sm text-slate-700" role="status" data-testid="angaben-abgelaufen">{alt}</p>
+  );
+  if (stand.kopien.length === 0 || !krypto) {
+    if (!alt) return null;
+    return (
+      <section className={`${FELD} mt-6`} lang={lang} dir={dir} aria-label={t.abschnitt} data-testid="angaben-uebernahme">
+        <p className="text-sm text-slate-700" role="status" data-testid="angaben-abgelaufen">{alt}</p>
+      </section>
+    );
+  }
   const kopie = stand.kopien.find((k) => k.id === wahl) ?? stand.kopien[0];
 
   async function oeffnen(e: React.FormEvent) {
@@ -115,6 +141,7 @@ function Uebernahme({ u, t, lang, dir, profil, datum, meinePraxen, onBenutzt }: 
     if (laeuft) return;
     setFehler("");
     setErgebnis([]);
+    setHerkunft("");
     setLaeuft(true);
     const eingabe = code;
     setCode("");
@@ -131,14 +158,14 @@ function Uebernahme({ u, t, lang, dir, profil, datum, meinePraxen, onBenutzt }: 
         return;
       }
       onBenutzt(kopie.bezeichnung);
-      const zeilen = [fuellen(t.uebernommen, { name: kopie.bezeichnung, datum: datum(kopie.stand), anzahl, gesamt: profil.fragen.length })];
-      if (inhalt.praxis) zeilen.push(fuellen(t.quelle, { praxis: inhalt.praxis }));
+      const zeilen = [fuellen(t.uebernommen, { name: kopie.bezeichnung, datum: datum(kopie.stand), anzahl, gesamt: profil.fragen.length }), t.quelleNichts];
       if (anzahl < Object.keys(r.werte).length) zeilen.push(t.beantwortetBleiben);
       setErgebnis(zeilen);
+      setHerkunft(inhalt.praxis);
       setOffen(false);
       requestAnimationFrame(() => ergebnisRef.current?.focus());
     } catch (err) {
-      setFehler(err instanceof FalscherCode ? t.falscherCode : t.nichtMoeglich);
+      setFehler(err instanceof FalscherCode ? t.falscherCode : err instanceof KopieKaputt ? t.kopieKaputt : t.oeffnenNichtMoeglich);
       requestAnimationFrame(() => codeRef.current?.focus());
     } finally {
       setLaeuft(false);
@@ -149,6 +176,7 @@ function Uebernahme({ u, t, lang, dir, profil, datum, meinePraxen, onBenutzt }: 
     u.zuruecknehmen();
     onBenutzt(null);
     setErgebnis([t.zurueckgenommen]);
+    setHerkunft("");
     requestAnimationFrame(() => ergebnisRef.current?.focus());
   }
 
@@ -162,6 +190,12 @@ function Uebernahme({ u, t, lang, dir, profil, datum, meinePraxen, onBenutzt }: 
               <p key={z}>{z}</p>
             ))}
           </div>
+          {herkunft && (
+            <details className="mt-2 text-sm text-slate-700" data-testid="angaben-herkunft">
+              <summary className={`cursor-pointer rounded py-3 underline ${FOKUS}`} data-testid="angaben-herkunft-zeigen">{t.herkunft}</summary>
+              <p className="mt-1">{fuellen(t.quelle, { praxis: herkunft })}</p>
+            </details>
+          )}
           <button type="button" className={`${KNOPF_NEBEN} mt-3`} onClick={zuruecknehmen} data-testid="angaben-zuruecknehmen">
             {t.zuruecknehmen}
           </button>
@@ -172,6 +206,7 @@ function Uebernahme({ u, t, lang, dir, profil, datum, meinePraxen, onBenutzt }: 
           <button type="button" className={`${KNOPF_NEBEN} w-full`} aria-expanded={false} onClick={() => setOffen(true)} data-testid="angaben-uebernehmen">
             {t.uebernehmen}
           </button>
+          {altHinweis}
           {ergebnis.length > 0 && (
             <div ref={ergebnisRef} tabIndex={-1} role="status" className="mt-3 text-sm text-slate-800 outline-none" data-testid="angaben-ergebnis">
               {ergebnis.map((z) => (
@@ -184,6 +219,7 @@ function Uebernahme({ u, t, lang, dir, profil, datum, meinePraxen, onBenutzt }: 
         <form onSubmit={oeffnen} className="space-y-4" noValidate>
           <h2 id="angaben-titel" ref={titelRef} tabIndex={-1} className="font-medium text-slate-900 outline-none">{t.uebernehmen}</h2>
           <p className="text-sm text-slate-700">{t.uebernehmenText}</p>
+          {altHinweis}
           <fieldset>
             <legend className="label">{t.kopieWaehlen}</legend>
             <ul className="space-y-2" aria-label={t.kopienAria}>
@@ -209,7 +245,7 @@ function Uebernahme({ u, t, lang, dir, profil, datum, meinePraxen, onBenutzt }: 
               id="angaben-code"
               type="password"
               className="input"
-              autoComplete="off"
+              {...NICHT_MERKEN}
               autoCapitalize="none"
               spellCheck={false}
               value={code}
@@ -288,7 +324,8 @@ function Behalten({ antworten, t, lang, dir, profil, practiceName, gruppe, datum
     if (laeuft) return;
     const bezeichnung = name.replace(/\s+/g, " ").trim().slice(0, MAX_BEZEICHNUNG);
     if (!bezeichnung) return fehlerZeigen(t.nameFehlt, "name");
-    if (!codeGueltig(code1)) return fehlerZeigen(t.codeZuKurz, "code1");
+    const mangel = codeMangel(code1);
+    if (mangel) return fehlerZeigen(mangel === "kurz" ? t.codeZuKurz : mangel === "ohneBuchstaben" ? t.codeOhneBuchstaben : t.codeEinfach, "code1");
     if (code1 !== code2) return fehlerZeigen(t.codeUngleich, "code2");
     setFehler(null);
     setLaeuft(true);
@@ -342,11 +379,11 @@ function Behalten({ antworten, t, lang, dir, profil, practiceName, gruppe, datum
         </div>
         <div>
           <label className="label" htmlFor="angaben-code-neu">{t.codeNeu}</label>
-          <input ref={refs.code1} id="angaben-code-neu" type="password" className="input" autoComplete="new-password" autoCapitalize="none" spellCheck={false} value={code1} onChange={(e) => setCode1(e.target.value)} aria-describedby={["angaben-code-hinweis", fehlerId("code1")].filter(Boolean).join(" ")} aria-invalid={fehler?.feld === "code1" || undefined} data-testid="angaben-code-neu" />
+          <input ref={refs.code1} id="angaben-code-neu" type="password" className="input" {...NICHT_MERKEN} autoCapitalize="none" spellCheck={false} value={code1} onChange={(e) => setCode1(e.target.value)} aria-describedby={["angaben-code-hinweis", fehlerId("code1")].filter(Boolean).join(" ")} aria-invalid={fehler?.feld === "code1" || undefined} data-testid="angaben-code-neu" />
         </div>
         <div>
           <label className="label" htmlFor="angaben-code-wdh">{t.codeWiederholen}</label>
-          <input ref={refs.code2} id="angaben-code-wdh" type="password" className="input" autoComplete="new-password" autoCapitalize="none" spellCheck={false} value={code2} onChange={(e) => setCode2(e.target.value)} aria-describedby={fehlerId("code2")} aria-invalid={fehler?.feld === "code2" || undefined} data-testid="angaben-code-wdh" />
+          <input ref={refs.code2} id="angaben-code-wdh" type="password" className="input" {...NICHT_MERKEN} autoCapitalize="none" spellCheck={false} value={code2} onChange={(e) => setCode2(e.target.value)} aria-describedby={fehlerId("code2")} aria-invalid={fehler?.feld === "code2" || undefined} data-testid="angaben-code-wdh" />
           <p id="angaben-code-hinweis" className="mt-1 text-xs text-slate-600">{t.codeHinweis} {t.codeVergessen}</p>
         </div>
         {fehler && <p id="angaben-behalten-fehler" className="text-sm text-red-700" role="alert" data-testid="angaben-behalten-fehler">{fehler.text}</p>}
@@ -366,7 +403,7 @@ function Behalten({ antworten, t, lang, dir, profil, practiceName, gruppe, datum
           <p>{t.behaltenText}</p>
           <p>{t.behaltenWas}</p>
           <p>{t.behaltenSicher}</p>
-          <p className="text-slate-600">{t.geteilt}</p>
+          <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 font-medium text-amber-900" data-testid="angaben-geteilt">{t.geteilt}</p>
         </div>
       )}
       <div className="mt-4">{inhalt}</div>
