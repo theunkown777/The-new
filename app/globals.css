@@ -639,3 +639,16 @@ html.dunkel:has(.praxis-app) body { background-color: #191615; }
 .dunkel-nur { display: none; }
 .dunkel .praxis-app .dunkel-nur { display: block; }
 .dunkel .praxis-app .hell-nur { display: none; }
+
+/* ---- Rundgang (components/RundgangKarte.tsx, components/start/Rundgang.tsx, components/AppRundgang.tsx) ---- */
+/* Solange die Karte unten steht, bekommt die Seite darunter so viel Platz, wie die Karte hoch ist. */
+html[data-rundgang] .journal { padding-bottom: calc(var(--rundgang-hoehe, 0px) + 1.5rem); }
+html[data-rundgang] .praxis-inhalt { padding-bottom: calc(var(--leiste-unten) + 2rem + var(--rundgang-hoehe, 0px)); }
+/* Markierung des Zielabschnitts: 2 px Bordeaux, ohne Abdunkelung, die Seite bleibt lesbar. */
+.rundgang-ziel { outline: 2px solid #5A1D1D; outline-offset: 8px; border-radius: 4px; scroll-margin-top: 1.5rem; }
+/* Abschnitte über die ganze Breite: Umriss nach innen, sonst läge er außerhalb des Bildschirms. */
+.rundgang-ziel-voll { outline-offset: -4px; }
+.rundgang-ziel:is(.bg-tinte, .bg-brand-700) { outline-color: #F5F2EE; }
+/* App: Menüpunkt der aktuellen Station. */
+.praxis-app .rundgang-ziel { outline-color: var(--akzent); outline-offset: 1px; }
+@media print { .rundgang-karte { display: none !important; } }

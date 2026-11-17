@@ -72,7 +72,8 @@ Ziel: Jede neue Seite sieht aus wie die vorhandenen, ohne dass jemand Farben ode
 | Verlaufslinie | `components/Verlauf.tsx` | Kleine Linie neben einer Kennzahl, 8 bis 12 Abschnitte |
 | Vergleich | `lib/analytics.ts` (`veraenderung`, `vergleichSatz`) | „+4 Punkte gegenüber den 30 Tagen davor“ |
 | Untere Leiste | `components/UntereLeiste.tsx` | Vier Ziele am Handy und Tablet |
-| Führung im Gastzugang | `components/DemoFuehrung.tsx` | Drei Schritte zum Mitklicken, nur in Demo-Praxen |
+| Führung im Gastzugang | `components/DemoFuehrung.tsx` | Drei Schritte zum Mitklicken, nur in Demo-Praxen; „Überblick“ startet den Rundgang |
+| Rundgang | `components/AppRundgang.tsx`, `components/RundgangKarte.tsx` | Hauptseiten der Reihe nach, Stand in der Adresse (`?rundgang=n`), nach Rechten gefiltert. Texte in `lib/rundgang.ts` |
 | Mail-Hülle | `lib/email.ts` (`mailHuelle`, `mailKnopf`) | Jede Mail im selben Kleid |
 | PDF-Kopf und -Fuß | `lib/pdf.ts` (`pdfKopf`, `pdfFuss`) | Jedes PDF mit gleichem Kopf und Seitenzahl |
 

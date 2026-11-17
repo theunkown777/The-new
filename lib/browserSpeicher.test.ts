@@ -1,6 +1,7 @@
 // Die Datenschutzerklärung (app/datenschutz/page.tsx, Abschnitt 3) nennt jeden Zugriff auf den Speicher des Browsers
-// und sagt: „Auf der öffentlichen Website speichern wir nichts im Speicher Ihres Browsers.“ § 25 TDDDG erfasst auch
-// das Lesen. Dieser Test hält fest, welche Dateien den Speicher anfassen. Kommt eine dazu, schlägt er fehl:
+// und sagt, dass die öffentliche Website nur einen Eintrag speichert: „sorrida-rundgang“ = „zu“, und nur nach einem Klick
+// auf „Nein danke“ oder „Rundgang beenden“. § 25 TDDDG erfasst auch das Lesen.
+// Dieser Test hält fest, welche Dateien den Speicher anfassen. Kommt eine dazu, schlägt er fehl:
 // Dann gehört der Zugriff in die Erklärung oder aus dem Code.
 import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
@@ -18,6 +19,7 @@ const ERLAUBT: Record<string, string> = {
   "lib/ansicht.ts": "dunkle Ansicht (angemeldete Praxen)",
   "components/HinweisMerker.tsx": "zugeklappte Erklärtexte (angemeldete Praxen)",
   "components/DemoFuehrung.tsx": "Führung im Gastzugang",
+  "components/start/Rundgang.tsx": "Rundgang der Startseite: nur nach „Nein danke“ oder „Rundgang beenden“, Wert „zu“",
   "components/ProposalEditor.tsx": "angefangener Vorschlag (angemeldete Praxen)",
   "components/SignOutButton.tsx": "löscht den angefangenen Vorschlag beim Abmelden",
   // Nur außerhalb des Betriebs (Testschalter für Bildschirmfotos), siehe zweiter Test.
@@ -38,7 +40,15 @@ describe("Zugriffe auf den Speicher des Browsers", () => {
 
   it("die Erklärung nennt die Zugriffe und die Zusage für die öffentliche Website", () => {
     const seite = readFileSync("app/datenschutz/page.tsx", "utf8").replace(/\s+/g, " ");
-    for (const wort of ["Sitzungsspeicher", "dunkle Ansicht", "Erklärtext", "Führung", "Auf der öffentlichen Website speichern wir nichts im Speicher Ihres Browsers."]) expect(seite).toContain(wort);
+    for (const wort of ["Sitzungsspeicher", "dunkle Ansicht", "Erklärtext", "Führung", "„sorrida-rundgang“", "Wert „zu“", "Ohne diesen Klick wird nichts gespeichert", "Sonst speichern wir auf der öffentlichen Website nichts im Speicher Ihres Browsers."]) expect(seite).toContain(wort);
+  });
+
+  it("der Rundgang der Startseite schreibt nur „zu“ und nur beim Beenden", () => {
+    const text = ohneKommentare(readFileSync("components/start/Rundgang.tsx", "utf8"));
+    const schreiben = text.match(/sessionStorage\.setItem\([^)]*\)/g) ?? [];
+    expect(schreiben).toEqual(["sessionStorage.setItem(RUNDGANG_SCHLUESSEL, RUNDGANG_ZU)"]);
+    expect(text).not.toMatch(/localStorage/);
+    expect(text).not.toMatch(/sessionStorage\.(removeItem|clear)/);
   });
 
   it("keine Seite außerhalb der angemeldeten App bindet die dunkle Ansicht oder die Merker ein", () => {

@@ -23,6 +23,9 @@ import { AnsichtWaechter } from "@/components/Ansicht";
 import { ANSICHT_SKRIPT } from "@/lib/ansicht";
 import { KopfLink } from "@/components/KopfLink";
 import { EmpfangWache } from "@/components/EmpfangWache";
+import { Suspense } from "react";
+import { AppRundgang } from "@/components/AppRundgang";
+import { appStationen } from "@/lib/rundgang";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -44,6 +47,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Menü nach Rolle und Freigabe (lib/rollen.ts): Zahlungen, Analyse und Einstellungen der Praxis.
   const menue = await menueRechteVon(session.user.id, session.user.practiceId);
   const analyse = menue.analyse;
+  // Rundgang durch die Hauptseiten (?rundgang=n), nach Rechten gefiltert (lib/rundgang.ts)
+  const rundgang = appStationen({ rechte: menue, personPl: personen, abschluss: abschlussWort(currentUser?.practice.specialty) });
   const eingang = await eingangOffen(session.user.practiceId).catch(() => 0);
   // Ohne eingerichtete Zwei-Faktor-Anmeldung zeigt Sorrida bei Pflicht nur die
   // Einrichtung, keine Patientendaten.
@@ -113,7 +118,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {/* Suche über alles (Strg+K) und Tastenkürzel; ohne eingerichtete Pflicht-2FA nicht verfügbar */}
         {!sperre && <Suche personPl={personen} personSg={person} />}
         {demo && <DemoBanner expiresAt={demo} role={session.user.role} userName={session.user.name} />}
-        {demo && !sperre && <DemoFuehrung />}
+        {demo && !sperre && <DemoFuehrung ueberblick={rundgang.length} />}
         {!demo && !currentUser?.emailVerifiedAt && <VerifyEmailBanner />}
         <main id="inhalt" className="praxis-inhalt px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
           {sperre ? (
@@ -133,6 +138,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             children
           )}
         </main>
+        {!sperre && (
+          <Suspense fallback={null}>
+            <AppRundgang stationen={rundgang} />
+          </Suspense>
+        )}
         {/* Handy und Tablet: vier Ziele am unteren Rand; „Mehr“ öffnet das Menü aus der Kopfzeile. */}
         {!sperre && <UntereLeiste eingang={eingang} personPl={personen} />}
       </div>

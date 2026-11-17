@@ -137,6 +137,16 @@ export function infoSeitenOffen(env: Record<string, string | undefined> = proces
   return vorschauHosts(env).length === 0 || oeffentlichStufe(env, impressumOk) !== "aus";
 }
 
+/**
+ * Führt ein Link auf /demo für die Besucher dieser Website zum Gastzugang (statt auf „Demnächst“)?
+ * Ja ohne Vorschau-Schloss und in der Stufe „demo“. Ja auch in der Stufe „aus“: Dort sehen die Website nur Personen
+ * mit Zugang, und für sie ist /demo offen. Nein in der Stufe „seiten“ (VORSCHAU_OEFFENTLICH=1): Die Informationsseiten
+ * sind öffentlich, der Gastzugang nicht. Der Rundgang der Startseite zeigt den Link nur, wenn hier „ja“ steht.
+ */
+export function gastzugangOffen(env: Record<string, string | undefined> = process.env, impressumOk: boolean = impressumVollstaendig()): boolean {
+  return vorschauHosts(env).length === 0 || oeffentlichStufe(env, impressumOk) !== "seiten";
+}
+
 /** Informationsseiten: dürfen in Suchmaschinen stehen. Keine App, keine Patientendaten, keine Anmeldung. */
 const INFO_GENAU = ["/", "/ratgeber", "/rechner", "/leistungen", "/hilfe", "/avv", "/vorschau", "/neu", "/zahnmedizin", "/fachgebiete", "/sitemap.xml", "/vertrauen", "/status"];
 const INFO_UNTER = ["/ratgeber/", "/rechner/", "/leistungen/", "/fachgebiete/"];

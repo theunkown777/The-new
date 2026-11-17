@@ -15,6 +15,7 @@ const ZEITLIMIT_MIN = Number(process.env.E2E_ZEITLIMIT_MIN || 20);
 
 // Reihenfolge: zuerst die kurzen Prüfungen ohne Registrierung, die große Generalprobe zum Schluss.
 const DURCHLAEUFE = [
+  'rundgang.js',
   'pruefung-4-alle-fachrichtungen.js',
   'pruefung-4-sprachen.js',
   'abnahme-teil3-a.js',

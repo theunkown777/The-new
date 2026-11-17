@@ -1,0 +1,280 @@
+// Browser-Durchlauf: Rundgang auf der Website (Startseite) und in der App (Gastzugang), bei 390 und 1280 px.
+//
+//   node e2e/rundgang.js
+//
+// Umgebung wie in e2e/gemeinsam.js (BASIS, DB, BILDER). Die Website muss ohne Vorschau-Schloss laufen
+// (VORSCHAU_HOSTS leer), sonst landet der Durchlauf auf „Demnächst“.
+// Geprüft wird:
+//   Website  Einladung erscheint, nichts im Speicher; Start; alle 8 Stationen mit Ziel im Blick; kein seitlicher
+//            Überlauf; Pfeiltasten; Ende speichert nur „sorrida-rundgang“ = „zu“; Esc; „Nein danke“; Start über
+//            /#rundgang von einer Unterseite.
+//   App      Gastzugang: Überblick aus der Führung, 10 Stationen, Esc ohne Suche, Kürzel-Dialog, Führung
+//            ausblenden und wieder einblenden; Hinweis auf der Übersicht für ein neues echtes Konto.
+const { L, D, sql, pruef, KONTEXT, HANDY, demo, lauf } = require('./gemeinsam');
+
+const WEBSITE = [
+  ['auftakt', 'So sieht es Ihr Patient'],
+  ['fach', 'Für Ihr Fach'],
+  ['ansichten', 'Ein Weg, zwei Seiten'],
+  ['ablauf', 'Was nach dem Gespräch entsteht'],
+  ['patienten', 'Für Patienten und den Praxisalltag'],
+  ['grundsaetze', 'Fünf Grundsätze'],
+  ['entlastung', 'Was Praxen belastet'],
+  ['preise', 'Preise und Ausprobieren'],
+];
+const APP = ['/dashboard', '/eingang', '/patients', '/abschluss/new', '/proposals', '/termine', '/zahlungen', '/analyse', '/settings', '/hilfe-praxis'];
+
+const speicher = (p) => p.evaluate(() => ({ s: Object.fromEntries(Object.entries(sessionStorage)), l: localStorage.length }));
+const ueberlauf = (p) => p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+const fokus = (p) => p.evaluate(() => {
+  const a = document.activeElement;
+  return a ? `${a.tagName.toLowerCase()}${a.getAttribute('data-testid') ? '#' + a.getAttribute('data-testid') : ''}` : '';
+});
+const warte = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** Ist der markierte Bereich der Station im Blick (oberer Rand im oberen Teil des Fensters, über der Karte)? */
+async function zielImBlick(p, anker) {
+  return p.evaluate((id) => {
+    const el = document.getElementById(id);
+    if (!el) return { ok: false, grund: 'id fehlt' };
+    const ziel = /^H[1-6]$/.test(el.tagName) ? el.closest('section') || el : el;
+    const r = ziel.getBoundingClientRect();
+    const karte = document.querySelector('[data-testid="rundgang-karte"]').getBoundingClientRect();
+    const markiert = ziel.classList.contains('rundgang-ziel');
+    // Oberkante sichtbar und nicht unter der Karte; Abschnitte, die schon oben angeschnitten sind, zählen, wenn sie das Fenster füllen.
+    const oben = r.top >= -2 && r.top < Math.min(karte.top, innerHeight) - 40;
+    const fuellt = r.top < 0 && r.bottom > karte.top;
+    return { ok: markiert && (oben || fuellt), grund: `markiert=${markiert} top=${Math.round(r.top)} kartenTop=${Math.round(karte.top)}` };
+  }, anker);
+}
+
+async function website(b, name, opt, ruhig) {
+  const ctx = await b.newContext({ ...opt, reducedMotion: ruhig ? 'reduce' : 'no-preference' });
+  const p = await ctx.newPage();
+  const fehler = [];
+  p.on('pageerror', (e) => fehler.push(String(e.message || e)));
+  await p.goto(L + '/', { waitUntil: 'networkidle' });
+
+  const einladung = p.getByTestId('rundgang-einladung');
+  await einladung.waitFor({ timeout: 15000 });
+  pruef(`${name}: Einladung erscheint`, await einladung.isVisible());
+  pruef(`${name}: Einladung nennt 8 Stationen`, /Neu hier\?.*8 Stationen/.test(await einladung.innerText()));
+  let sp = await speicher(p);
+  pruef(`${name}: ohne Klick nichts im Speicher`, Object.keys(sp.s).length === 0 && sp.l === 0, JSON.stringify(sp));
+  pruef(`${name}: Einladung nimmt den Fokus nicht`, !(await fokus(p)).includes('rundgang'));
+  pruef(`${name}: kein seitlicher Überlauf (Einladung)`, (await ueberlauf(p)) <= 0);
+  await p.screenshot({ path: `${D}/web-${name}-0-einladung.png` });
+
+  await p.getByTestId('rundgang-einladung-start').click();
+  const karte = p.getByTestId('rundgang-karte');
+  await karte.waitFor();
+  pruef(`${name}: Fokus auf der Überschrift der Karte`, (await fokus(p)) === 'h2#rundgang-titel', await fokus(p));
+
+  for (let i = 0; i < WEBSITE.length; i++) {
+    const [anker, titel] = WEBSITE[i];
+    await p.waitForFunction((n) => document.querySelector('[data-testid="rundgang-karte"]')?.getAttribute('data-station') === String(n), i + 1);
+    await warte(ruhig ? 150 : 1200);
+    const stand = await p.getByTestId('rundgang-stand').textContent();
+    pruef(`${name}: Station ${i + 1} von 8`, stand.trim() === `Station ${i + 1} von 8`, stand);
+    pruef(`${name}: Titel ${i + 1}`, (await p.getByTestId('rundgang-titel').innerText()).trim() === titel);
+    const blick = await zielImBlick(p, anker);
+    pruef(`${name}: Ziel ${anker} markiert und im Blick`, blick.ok, blick.grund);
+    pruef(`${name}: kein seitlicher Überlauf (Station ${i + 1})`, (await ueberlauf(p)) <= 0);
+    const kb = await karte.boundingBox();
+    const vp = p.viewportSize();
+    pruef(`${name}: Karte passt ins Fenster (Station ${i + 1})`, kb.x >= 0 && kb.x + kb.width <= vp.width && kb.y >= 0 && kb.y + kb.height <= vp.height && kb.height <= vp.height * 0.72, JSON.stringify(kb));
+    await p.screenshot({ path: `${D}/web-${name}-${i + 1}-${anker}.png` });
+    if (i === 1) {
+      // Pfeiltasten in der Karte: zurück und wieder vor
+      await p.getByTestId('rundgang-weiter').focus();
+      await p.keyboard.press('ArrowLeft');
+      await p.waitForFunction(() => document.querySelector('[data-testid="rundgang-karte"]')?.getAttribute('data-station') === '1');
+      pruef(`${name}: Pfeil links geht zurück`, true);
+      const angesagt = await p.waitForFunction(() => (document.querySelector('[data-testid="rundgang-ansage"]')?.textContent || '').includes('Station 1 von 8'), null, { timeout: 3000 }).then(() => true, () => false);
+      pruef(`${name}: Ansage nach dem Wechsel`, angesagt);
+      await p.keyboard.press('ArrowRight');
+      await p.waitForFunction(() => document.querySelector('[data-testid="rundgang-karte"]')?.getAttribute('data-station') === '2');
+      pruef(`${name}: Pfeil rechts geht weiter`, true);
+    }
+    if (i < WEBSITE.length - 1) await p.getByTestId('rundgang-weiter').click();
+  }
+  const hrefs = await p.getByTestId('rundgang-links').locator('a').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+  pruef(`${name}: letzte Station verlinkt Vorschau, Pilotplatz und Demo`, ['/vorschau', '/hilfe#pilot', '/demo'].every((h) => hrefs.includes(h)), hrefs.join(' '));
+  pruef(`${name}: noch nichts im Speicher`, Object.keys((await speicher(p)).s).length === 0);
+
+  await p.getByTestId('rundgang-ende').click();
+  await karte.waitFor({ state: 'detached' });
+  sp = await speicher(p);
+  pruef(`${name}: Ende speichert nur sorrida-rundgang = zu`, JSON.stringify(sp.s) === '{"sorrida-rundgang":"zu"}' && sp.l === 0, JSON.stringify(sp));
+  pruef(`${name}: Markierung entfernt`, (await p.locator('.rundgang-ziel').count()) === 0);
+  await warte(100);
+  pruef(`${name}: Fokus nach dem Ende auf der Seite`, (await fokus(p)) !== 'body' && (await fokus(p)) !== '', await fokus(p));
+
+  await p.reload({ waitUntil: 'networkidle' });
+  await warte(800);
+  pruef(`${name}: nach dem Ende keine Einladung mehr in diesem Tab`, (await p.getByTestId('rundgang-einladung').count()) === 0);
+
+  // Wieder aufrufen über den Link in Kopf oder Handy-Menü, dann Esc
+  if (opt.viewport.width >= 1024) {
+    await p.getByTestId('rundgang-link-kopf').click();
+  } else {
+    await p.locator('header details summary').click();
+    await p.getByTestId('rundgang-link-menue').click();
+  }
+  await karte.waitFor();
+  pruef(`${name}: Start über den Link „Rundgang“`, (await p.getByTestId('rundgang-stand').textContent()).includes('Station 1 von 8'));
+  pruef(`${name}: Adresse ohne #rundgang`, !p.url().includes('#'));
+  await p.keyboard.press('Escape');
+  await karte.waitFor({ state: 'detached' });
+  await warte(100);
+  const f = await fokus(p);
+  pruef(`${name}: Esc beendet, Fokus zurück an den Auslöser`, opt.viewport.width >= 1024 ? f === 'a#rundgang-link-kopf' : f === 'summary', f);
+  pruef(`${name}: keine Fehler im Browser`, fehler.length === 0, fehler.join(' | '));
+  await ctx.close();
+}
+
+async function websiteNeinUndAnker(b) {
+  const ctx = await b.newContext(HANDY);
+  const p = await ctx.newPage();
+  await p.goto(L + '/', { waitUntil: 'networkidle' });
+  await p.getByTestId('rundgang-einladung').waitFor();
+  await p.keyboard.press('Tab'); // Fokus bleibt auf der Seite, nicht in der Einladung
+  await p.getByTestId('rundgang-einladung-nein').click();
+  await p.getByTestId('rundgang-einladung').waitFor({ state: 'detached' });
+  const sp = await speicher(p);
+  pruef('Nein danke: Einladung weg, nur „zu“ gespeichert', JSON.stringify(sp.s) === '{"sorrida-rundgang":"zu"}' && sp.l === 0, JSON.stringify(sp));
+  await ctx.close();
+
+  // Start von einer Unterseite: Fußlink „Rundgang“ auf /ratgeber
+  const ctx2 = await b.newContext(KONTEXT);
+  const p2 = await ctx2.newPage();
+  await p2.goto(L + '/ratgeber', { waitUntil: 'networkidle' });
+  await p2.getByTestId('rundgang-link-fuss').click();
+  await p2.getByTestId('rundgang-karte').waitFor({ timeout: 30000 });
+  pruef('Von /ratgeber über den Fuß: Rundgang startet auf der Startseite', new URL(p2.url()).pathname === '/' && (await p2.getByTestId('rundgang-stand').textContent()).includes('Station 1 von 8'));
+  pruef('Von /ratgeber: keine Einladung zusätzlich', (await p2.getByTestId('rundgang-einladung').count()) === 0);
+  pruef('Von /ratgeber: Adresse ohne #rundgang', !p2.url().includes('#'));
+  await p2.screenshot({ path: `${D}/web-start-von-unterseite.png` });
+  await ctx2.close();
+}
+
+async function app(b, name, opt) {
+  const ctx = await b.newContext(opt);
+  const p = await ctx.newPage();
+  const fehler = [];
+  p.on('pageerror', (e) => fehler.push(String(e.message || e)));
+  const praxisId = await demo(p);
+  const breit = opt.viewport.width >= 1024;
+
+  const fuehrung = p.getByTestId('demo-fuehrung');
+  await fuehrung.waitFor();
+  pruef(`${name}: Führung im Gastzugang sichtbar`, await fuehrung.isVisible());
+  pruef(`${name}: Hinweis „Sorrida in … Stationen“ nicht in Demo-Praxen`, (await p.getByTestId('rundgang-hinweis').count()) === 0);
+  const zu = await p.getByTestId('demo-fuehrung-zu').boundingBox();
+  pruef(`${name}: X der Führung mindestens 36 px`, zu.width >= 36 && zu.height >= 36, JSON.stringify(zu));
+
+  await p.getByTestId('demo-fuehrung-ueberblick').click();
+  const karte = p.getByTestId('rundgang-karte');
+  await karte.waitFor();
+  pruef(`${name}: Überblick startet bei Station 1 von 10`, (await p.getByTestId('rundgang-stand').textContent()).trim() === 'Station 1 von 10');
+  pruef(`${name}: Fokus auf der Überschrift`, (await fokus(p)) === 'h2#rundgang-titel', await fokus(p));
+
+  for (let i = 0; i < APP.length; i++) {
+    await p.waitForURL((u) => u.pathname === APP[i] && u.searchParams.get('rundgang') === String(i + 1), { timeout: 60000 });
+    await p.waitForFunction((n) => document.querySelector('[data-testid="rundgang-karte"]')?.getAttribute('data-station') === String(n), i + 1);
+    await p.waitForLoadState('networkidle');
+    pruef(`${name}: Station ${i + 1} auf ${APP[i]}`, (await p.getByTestId('rundgang-stand').textContent()).trim() === `Station ${i + 1} von 10`);
+    if (breit) {
+      const markiert = await p.locator(`[data-testid="app-sidebar"] nav a[href="${APP[i]}"].rundgang-ziel`).count();
+      pruef(`${name}: Menüpunkt ${APP[i]} markiert`, markiert === 1);
+    }
+    pruef(`${name}: kein seitlicher Überlauf auf ${APP[i]}`, (await ueberlauf(p)) <= 0);
+    const kb = await karte.boundingBox();
+    const vp = p.viewportSize();
+    let unten = vp.height;
+    if (!breit) unten = (await p.locator('.leiste-unten').boundingBox())?.y ?? vp.height;
+    pruef(`${name}: Karte im Fenster und über der unteren Leiste (${APP[i]})`, kb.x >= 0 && kb.x + kb.width <= vp.width && kb.y >= 0 && kb.y + kb.height <= unten + 1, `${JSON.stringify(kb)} unten=${unten}`);
+    await p.screenshot({ path: `${D}/app-${name}-${String(i + 1).padStart(2, '0')}${APP[i].replace(/\//g, '-')}.png` });
+    if (i < APP.length - 1) await p.getByTestId('rundgang-weiter').click();
+  }
+  pruef(`${name}: Frag Sorrida bietet den Neustart an`, (await p.getByTestId('rundgang-start-link').count()) === 1);
+  pruef(`${name}: im Gastzugang auch „Führung wieder einblenden“`, (await p.locator('[data-testid="rundgang-start"] [data-testid="demo-fuehrung-wieder"]').count()) === 1);
+
+  // Esc beendet den Rundgang und öffnet nicht die Suche
+  await p.getByTestId('rundgang-titel').focus();
+  await p.keyboard.press('Escape');
+  await karte.waitFor({ state: 'detached' });
+  await p.waitForURL((u) => !u.searchParams.has('rundgang'));
+  pruef(`${name}: Esc beendet, Adresse ohne ?rundgang`, true);
+  pruef(`${name}: Esc öffnet keine Suche`, (await p.getByTestId('suche-dialog').count()) === 0);
+  pruef(`${name}: nichts vom Rundgang im Speicher`, !JSON.stringify(await speicher(p)).includes('rundgang'));
+
+  // Kürzel-Dialog: Rundgang neu starten
+  await p.locator('body').click({ position: { x: 5, y: 300 } }).catch(() => {});
+  await p.keyboard.press('Shift+?');
+  const kuerzel = p.getByTestId('kuerzel-dialog');
+  await kuerzel.waitFor({ timeout: 5000 }).catch(() => {});
+  if (await kuerzel.count()) {
+    await p.getByTestId('kuerzel-rundgang').click();
+    await karte.waitFor();
+    await p.waitForURL((u) => u.pathname === '/dashboard' && u.searchParams.get('rundgang') === '1');
+    pruef(`${name}: Kürzel-Dialog startet den Rundgang`, true);
+    await p.getByTestId('rundgang-x').click();
+    await karte.waitFor({ state: 'detached' });
+  } else pruef(`${name}: Kürzel-Dialog öffnet mit ?`, false);
+
+  // Führung ausblenden und über „Mehr“ wieder einblenden
+  await p.getByTestId('demo-fuehrung-zu').click();
+  await fuehrung.waitFor({ state: 'detached' });
+  await p.reload({ waitUntil: 'networkidle' });
+  await warte(500);
+  pruef(`${name}: ausgeblendete Führung blitzt beim Laden nicht auf`, (await p.getByTestId('demo-fuehrung').count()) === 0);
+  if (breit) await p.getByTestId('demo-banner-mehr').locator('summary').click();
+  else await p.getByTestId('demo-banner-handy').locator('summary').click();
+  await p.locator(breit ? '[data-testid="demo-banner-mehr"] [data-testid="demo-fuehrung-wieder"]' : '[data-testid="demo-banner-handy"] [data-testid="demo-fuehrung-wieder"]').click();
+  await fuehrung.waitFor();
+  pruef(`${name}: Führung wieder eingeblendet`, await fuehrung.isVisible());
+  await p.screenshot({ path: `${D}/app-${name}-fuehrung-wieder.png` });
+  pruef(`${name}: keine Fehler im Browser`, fehler.length === 0, fehler.join(' | '));
+
+  // Hinweis für ein neues echtes Konto: Demo-Praxis kurz als echte Praxis führen, Rolle ohne Zwei-Faktor-Pflicht
+  if (breit) {
+    const sitzung = await p.evaluate(() => fetch('/api/auth/session').then((r) => r.json()));
+    const nutzer = String(sitzung?.user?.id || '').replace(/[^a-z0-9]/gi, '');
+    const rolleVorher = sql(`select role from "User" where id = '${nutzer}'`);
+    sql(`update "Practice" set "isDemo" = false where id = '${praxisId}'`);
+    sql(`update "User" set role = 'behandler' where id = '${nutzer}'`);
+    try {
+      await p.goto(L + '/dashboard', { waitUntil: 'networkidle' });
+      const hinweis = p.getByTestId('rundgang-hinweis');
+      pruef('Neues Konto: Hinweis auf der Übersicht', (await hinweis.count()) === 1 && (await hinweis.innerText()).includes('Sorrida in 8 Stationen'));
+      await p.screenshot({ path: `${D}/app-hinweis-neues-konto.png` });
+      await p.getByTestId('rundgang-hinweis-start').click();
+      await karte.waitFor();
+      pruef('Neues Konto (Behandler): 8 Stationen, ohne Zahlungen und Analyse', (await p.getByTestId('rundgang-stand').textContent()).trim() === 'Station 1 von 8');
+      for (let i = 1; i < 8; i++) {
+        await p.getByTestId('rundgang-weiter').click();
+        await p.waitForFunction((n) => document.querySelector('[data-testid="rundgang-karte"]')?.getAttribute('data-station') === String(n), i + 1);
+      }
+      await p.waitForURL((u) => u.pathname === '/hilfe-praxis');
+      const besucht = await p.evaluate(() => location.pathname);
+      pruef('Neues Konto: letzte Station ist Frag Sorrida', besucht === '/hilfe-praxis');
+      await p.getByTestId('rundgang-zurueck').click();
+      await p.waitForURL((u) => u.pathname === '/settings');
+      pruef('Neues Konto: Station heißt „Mein Konto“', (await p.getByTestId('rundgang-titel').innerText()).trim() === 'Mein Konto');
+      await p.screenshot({ path: `${D}/app-behandler-mein-konto.png` });
+    } finally {
+      sql(`update "User" set role = '${rolleVorher.replace(/[^a-z]/g, '')}' where id = '${nutzer}'`);
+      sql(`update "Practice" set "isDemo" = true where id = '${praxisId}'`);
+    }
+  }
+  await ctx.close();
+}
+
+lauf('Rundgang', async (b) => {
+  await website(b, 'handy', HANDY, false);
+  await website(b, 'desktop', KONTEXT, true);
+  await websiteNeinUndAnker(b);
+  await app(b, 'desktop', KONTEXT);
+  await app(b, 'handy', HANDY);
+});

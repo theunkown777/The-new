@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RUNDGANG_HREF } from "@/lib/rundgang";
 
 // Kopfzeile der Website im Journal-Stil: Wortmarke links, Textnavigation, ein Knopf.
 // Am Handy wandert die Navigation in ein aufklappbares Menü (ohne JavaScript, mit <details>).
@@ -24,6 +25,10 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
               {name}
             </Link>
           ))}
+          {/* Rundgang: einfacher Link (kein next/link), damit die Startseite ihn auch von anderen Seiten aus öffnet. */}
+          <a href={RUNDGANG_HREF} className="j-link text-tinte-2 decoration-transparent hover:text-tinte" data-testid="rundgang-link-kopf">
+            Rundgang
+          </a>
         </nav>
         <div className="flex items-center gap-4">
           {angemeldet ? (
@@ -51,6 +56,9 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
                   {name}
                 </Link>
               ))}
+              <a href={RUNDGANG_HREF} className="block border-b border-linie px-3 py-3 text-[15px] hover:text-brand-700" data-testid="rundgang-link-menue">
+                Rundgang
+              </a>
               <Link href={angemeldet ? "/dashboard" : "/login"} className="block px-3 py-3 text-[15px] font-semibold text-brand-700">
                 {angemeldet ? "Zur Übersicht" : "Anmelden"}
               </Link>
@@ -66,7 +74,7 @@ export function JournalKopf({ angemeldet }: { angemeldet: boolean }) {
 export function JournalFuss() {
   const spalten: [string, [string, string][]][] = [
     ["Sorrida", [["/#fach", "Fachgebiete"], ["/leistungen", "Leistungen A–Z"], ["/#preise", "Preise"], ["/neu", "Neu"]]],
-    ["Ausprobieren", [["/demo", "Demo-Praxis öffnen"], ["/vorschau", "Vorschau"], ["/hilfe", "Hilfe und Kontakt"], ["/ratgeber", "Ratgeber"], ["/rechner", "Rechner"]]],
+    ["Ausprobieren", [[RUNDGANG_HREF, "Rundgang"], ["/demo", "Demo-Praxis öffnen"], ["/vorschau", "Vorschau"], ["/hilfe", "Hilfe und Kontakt"], ["/ratgeber", "Ratgeber"], ["/rechner", "Rechner"]]],
     ["Rechtliches", [["/impressum", "Impressum"], ["/datenschutz", "Datenschutz"], ["/avv", "AVV-Muster"], ["/vertrauen", "Umgang mit Daten"], ["/status", "Status"], ["/lizenzen", "Lizenzen und Quellen"], ["/impressum#zweck", "Wofür Sorrida bestimmt ist"]]],
   ];
   return (
@@ -88,9 +96,15 @@ export function JournalFuss() {
             <ul className="mt-4 space-y-2.5 text-[15px]">
               {links.map(([href, name]) => (
                 <li key={href}>
-                  <Link prefetch={false} href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700">
-                    {name}
-                  </Link>
+                  {href === RUNDGANG_HREF ? (
+                    <a href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700" data-testid="rundgang-link-fuss">
+                      {name}
+                    </a>
+                  ) : (
+                    <Link prefetch={false} href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700">
+                      {name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

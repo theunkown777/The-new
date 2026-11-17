@@ -21,6 +21,7 @@ import { formatCent } from "@/lib/invoices";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { eingangOffen } from "@/lib/eingang";
 import { ungeoeffnetTun } from "@/lib/nachfassen";
+import { RundgangHinweis } from "@/components/RundgangHinweis";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -139,6 +140,7 @@ export default async function DashboardPage() {
         <Link href="/abschluss/new" className="btn-primary">{abschlussWort(practice?.specialty)} abschließen</Link>
       </div>
 
+      <RundgangHinweis userId={session!.user.id} practiceId={practiceId} />
       <Einrichtung practiceId={practiceId} isAdmin={session!.user.role === "admin"} />
       <NachfassHinweis practiceId={practiceId} />
 

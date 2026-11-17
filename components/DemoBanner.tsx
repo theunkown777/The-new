@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DemoPatientButton } from "@/components/DemoPatientButton";
 import { DemoRoleSwitch } from "@/components/DemoRoleSwitch";
+import { FuehrungWiederKnopf } from "@/components/FuehrungWiederKnopf";
 import { registrierungOffen } from "@/lib/registrierung";
 import { rollenLabel } from "@/lib/rollen";
 
@@ -23,6 +24,7 @@ export function DemoBanner({ expiresAt, role, userName }: { expiresAt: Date; rol
         <div className="mt-2 flex flex-col items-start gap-1 [&>*]:min-h-[2.25rem] [&>*]:text-left">
           <DemoRoleSwitch role={role} />
           <DemoPatientButton />
+          <FuehrungWiederKnopf />
           <Link href="/register" className="flex items-center font-medium underline">{eigenePraxis}</Link>
         </div>
       </details>
@@ -43,6 +45,7 @@ export function DemoBanner({ expiresAt, role, userName }: { expiresAt: Date; rol
             </p>
             <div className="mt-3 flex flex-col items-start gap-2 text-brand-800">
               <DemoPatientButton />
+              <FuehrungWiederKnopf />
               <Link href="/register" className="font-medium underline" data-testid="demo-eigene-praxis">{eigenePraxis}</Link>
             </div>
           </div>

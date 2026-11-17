@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   KUERZEL, KUERZEL_START, MIN_ZEICHEN, gruppenTitel, gruppieren, istEingabefeld, kuerzelSchritt, naechsterIndex, startAktionen, zuletztMerken, type KuerzelZustand, type Treffer,
 } from "@/lib/suche";
+import { APP_RUNDGANG_START } from "@/lib/rundgang";
 
 // Suche über alles (Strg+K / ⌘K) und Tastenkürzel für die ganze App.
 // Einmal im App-Layout eingehängt; <SucheKnopf /> öffnet sie von überall.
@@ -384,6 +385,21 @@ export function Suche({ personPl = "Patienten", personSg = "Patient" }: { person
                 </div>
               ))}
             </dl>
+            {/* Rundgang durch die Hauptseiten (components/AppRundgang.tsx) */}
+            <p className="mt-4 border-t border-slate-100 pt-3 text-sm text-slate-600">
+              Neu in Sorrida?{" "}
+              <button
+                type="button"
+                className="ziel font-medium text-brand-700 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                onClick={() => {
+                  schliessen();
+                  router.push(APP_RUNDGANG_START);
+                }}
+                data-testid="kuerzel-rundgang"
+              >
+                Rundgang durch Sorrida starten
+              </button>
+            </p>
           </div>
         </div>
       )}

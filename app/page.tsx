@@ -15,6 +15,9 @@ import { JournalFuss, JournalKopf } from "@/components/start/JournalKopf";
 import { PatientenKarte } from "@/components/start/PatientenKarte";
 import { Laechelbogen } from "@/components/Behandlungsweg";
 import { websiteBasis } from "@/lib/betreiber";
+import { Rundgang } from "@/components/start/Rundgang";
+import { gastzugangOffen } from "@/lib/vorschau";
+import { RUNDGANG_HREF, RUNDGANG_WEBSITE } from "@/lib/rundgang";
 
 export const metadata: Metadata = {
   title: "Sorrida – damit beide Seiten lächeln",
@@ -101,6 +104,8 @@ export default async function Start() {
       />
       <a href="#inhalt" className="sprunglink">Zum Inhalt</a>
       <JournalKopf angemeldet={!!session} />
+      {/* Rundgang in 8 Stationen: Einladung beim ersten Betreten, Start über /#rundgang (components/start/Rundgang.tsx) */}
+      <Rundgang gastzugang={gastzugangOffen()} />
 
       <main id="inhalt">
         {session && (
@@ -111,7 +116,7 @@ export default async function Start() {
         )}
 
         {/* Auftakt: Aussage links, die echte Patientenansicht rechts */}
-        <section className={`${rahmen} grid items-center gap-16 pb-24 pt-16 sm:pt-24 lg:grid-cols-12 lg:gap-8 lg:pb-32`} data-testid="auftakt">
+        <section id="auftakt" className={`${rahmen} grid items-center gap-16 pb-24 pt-16 sm:pt-24 lg:grid-cols-12 lg:gap-8 lg:pb-32`} data-testid="auftakt">
           <div className="j-auftakt lg:col-span-7">
             <p className="flex items-center gap-3 text-[15px] text-tinte-2">
               <Laechelbogen className="h-2 w-10 text-brand-700" />
@@ -130,6 +135,9 @@ export default async function Start() {
               </Link>
               <a href="#fach" className="j-link text-[16px] font-semibold text-tinte">
                 Ihr Fach wählen
+              </a>
+              <a href={RUNDGANG_HREF} className="j-link text-[16px] font-semibold text-tinte" data-rundgang-ausloeser="" data-testid="rundgang-link-start">
+                Rundgang in {RUNDGANG_WEBSITE.length} Stationen
               </a>
             </div>
             <p className="mt-8 text-[14px] text-tinte-2">{PILOT_KURZ} · keine Zähler</p>
@@ -212,12 +220,12 @@ export default async function Start() {
           <Entlastung journal />
         </div>
 
-        <div className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
+        <div id="zeit" className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
           <ZeitRechner />
         </div>
 
         {/* Ablauf und Nutzen für Patienten */}
-        <section className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
+        <section id="ablauf" className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
           <h2 className="j-schau max-w-3xl text-[clamp(2.4rem,4.6vw,3.8rem)]">
             So läuft es <em>in jeder Praxis.</em>
           </h2>
@@ -231,7 +239,7 @@ export default async function Start() {
             ))}
           </ol>
 
-          <div className="mt-24" data-testid="fuer-patienten">
+          <div id="patienten" className="mt-24" data-testid="fuer-patienten">
             <h3 className="j-titel text-[2.2rem] text-tinte">
               Was Ihre Patienten <em className="text-salbei-700">davon haben</em>
             </h3>
@@ -261,7 +269,7 @@ export default async function Start() {
         </div>
 
         {/* Schlussaufruf */}
-        <section className="bg-tinte text-[#F5F2EE]">
+        <section id="ausprobieren" className="bg-tinte text-[#F5F2EE]">
           <div className={`${rahmen} grid items-end gap-10 py-24 sm:py-32 lg:grid-cols-12`}>
             <div className="lg:col-span-8">
               <h2 className="j-schau text-[clamp(2.8rem,6vw,5.4rem)] text-[#F5F2EE]">
