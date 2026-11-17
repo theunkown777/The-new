@@ -5,7 +5,7 @@
 // entfernt als zu wenig. Übrig bleibt, WAS schiefging und WO, nicht MIT WELCHEN Daten.
 // Meldungen des Servers: Muster werden entfernt (meldungBereinigen). Meldungen aus dem Browser:
 // zusätzlich bleibt nur stehen, was auf einer Liste technischer Wörter steht (browserMeldungBereinigen),
-// und vom Ort bleiben nur die festen Namen unserer Seiten (browserOrtBereinigen).
+// vom Ort bleiben nur die festen Namen unserer Seiten (browserOrtBereinigen), ein Stack wird nicht gespeichert.
 
 export const MELDUNG_MAX = 300;
 export const ORT_MAX = 160;
@@ -289,7 +289,10 @@ export function fehlerAufbereiten(roh: FehlerRoh): FehlerSauber {
   // (browserMeldungBereinigen)
   const ort = quelle === "browser" ? browserOrtBereinigen(roh.ort) : ortBereinigen(roh.ort);
   const meldung = quelle === "browser" ? browserMeldungBereinigen(roh.meldung) : meldungBereinigen(roh.meldung);
-  return { quelle, ort, meldung, stack: stackBereinigen(roh.stack), fingerabdruck: fingerabdruck(quelle, ort, meldung) };
+  // Den Stack aus dem Browser schreibt der Absender selbst (ohne Anmeldung): Funktions- und Dateinamen könnten
+  // beliebige Wörter tragen. Er wird deshalb nicht gespeichert. Im ausgelieferten, verkleinerten Code wären die
+  // Namen ohnehin nicht lesbar.
+  return { quelle, ort, meldung, stack: quelle === "browser" ? "" : stackBereinigen(roh.stack), fingerabdruck: fingerabdruck(quelle, ort, meldung) };
 }
 
 /**
@@ -297,8 +300,13 @@ export function fehlerAufbereiten(roh: FehlerRoh): FehlerSauber {
  * Meldungen aus dem Browser zählen dafür nicht: Die kann jeder ohne Anmeldung schicken (app/api/fehler/route.ts).
  */
 export const FEHLER_GRENZE_24H = 20;
-/** Höchstens so viele NEUE Einträge aus dem Browser je 24 Stunden; weitere Meldungen erhöhen nur vorhandene Zähler. */
+/**
+ * Höchstens so viele NEUE Einträge aus dem Browser je 24 Stunden ohne Anmeldung, und je Praxis aus einer angemeldeten
+ * Sitzung. Weitere Meldungen erhöhen vorhandene Zähler oder zählen im Sammeleintrag ihres Bereichs (GRENZE_MELDUNG).
+ */
 export const BROWSER_NEU_GRENZE_24H = 40;
+export const BROWSER_NEU_GRENZE_PRAXIS_24H = 20;
+export const GRENZE_MELDUNG = "Weitere neue Meldungen nach Erreichen der Tagesgrenze";
 
 /**
  * Tägliche Mail an das Sorrida-Team: nur die Zahl, die Orte und der Link zur Ansicht. Keine Meldungstexte.

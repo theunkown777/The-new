@@ -65,7 +65,8 @@ export default function DatenschutzPage() {
         <p data-testid="datenschutz-fehlerprotokoll">
           Fehlerprotokoll: Tritt auf einer Seite ein technischer Fehler auf, speichern wir, wo er auftrat (die Adresse der Seite ohne
           Abfrage-Teil und ohne persönliche Kennzeichen), eine gekürzte Fehlermeldung, wie oft er vorkam und wann zuletzt. Namen, Adressen,
-          Nummern und Texte in Anführungszeichen entfernen wir vorher. Die IP-Adresse speichern wir im Protokoll nicht. Bei angemeldeten
+          Nummern und Texte in Anführungszeichen entfernen wir vorher. Bei Fehlern auf dem Server kommen die betroffenen Stellen im
+          Programmcode dazu. Die IP-Adresse speichern wir im Protokoll nicht. Bei angemeldeten
           Praxen kommt die interne Kennung der Praxis dazu. Wir brauchen das, um Fehler zu finden und zu beheben (Art. 6 Abs. 1 lit. f
           DSGVO). Die Einträge liegen in unserer Datenbank. Über neue Fehler erhalten wir einmal am Tag eine E-Mail mit Anzahl und Ort, ohne
           Meldungstext (E-Mail-Dienst, Abschnitt 7). Wir löschen die Einträge {fehlerTage} Tage nach dem letzten Auftreten.

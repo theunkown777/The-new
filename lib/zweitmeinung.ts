@@ -71,7 +71,7 @@ export function zweitmeinungHinweis(texte: string[], dental: boolean): { titel: 
   if (dental)
     return {
       titel: "Zweitmeinung zum Heil- und Kostenplan",
-      text: "Bei Zahnersatz und größeren Behandlungen holen viele eine zweite Meinung ein. Viele Krankenkassen und die Patientenberatung der Zahnärztekammern bieten das an. Tragen Sie das andere Angebot hier ein und vergleichen Sie in Ruhe.",
+      text: "Bei Zahnersatz und größeren Behandlungen können Sie eine zweite Meinung einholen. Manche Krankenkassen und die Patientenberatung der Zahnärztekammern bieten das an. Tragen Sie das andere Angebot hier ein und vergleichen Sie in Ruhe.",
     };
   return {
     titel: "Eine zweite Meinung einholen",

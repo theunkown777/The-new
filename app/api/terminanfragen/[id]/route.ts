@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { mitPatientenGrenze } from "@/lib/patientenImportSperre";
 import { absageText, neueKontaktdaten, zusageText } from "@/lib/terminanfrage";
 import { kandidaten } from "@/lib/terminanfrageLoad";
 import { auditFromSession } from "@/lib/audit";
@@ -31,7 +32,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
   const [anfrage, praxis] = await Promise.all([
     prisma.terminanfrage.findFirst({ where: { id: params.id, practiceId } }),
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, locations: { select: { id: true } } } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, isDemo: true, locations: { select: { id: true } } } }),
   ]);
   if (!anfrage) return NextResponse.json({ error: "Anfrage nicht gefunden" }, { status: 404 });
   if (anfrage.status !== "OFFEN") return NextResponse.json({ error: "Diese Anfrage ist schon bearbeitet." }, { status: 409 });
@@ -60,7 +61,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
   let ergebnis: { patientId: string; terminId: string };
   try {
-    ergebnis = await prisma.$transaction(async (tx) => {
+    // Gastzugang: Ein neuer Patient zählt zur Obergrenze wie bei Neuanlage und Import (lib/patientenImportSperre.ts).
+    const mit = await mitPatientenGrenze({ practiceId, demo: praxis?.isDemo === true, neu: vorhandener ? 0 : 1 }, async (tx) => {
       // Zuerst die Anfrage festhalten: Zwei gleichzeitige Klicks legen so nicht zwei Patienten an.
       const r = await tx.terminanfrage.updateMany({ where: { id: anfrage.id, practiceId, status: "OFFEN" }, data: { status: "BESTAETIGT", bearbeitetAt: now, bearbeitetVon: von } });
       if (!r.count) throw new SchonBearbeitet();
@@ -87,6 +89,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       await tx.terminanfrage.update({ where: { id: anfrage.id }, data: { patientId, appointmentId: termin.id } });
       return { patientId, terminId: termin.id };
     });
+    if (!mit.ok) return NextResponse.json({ error: mit.grund, code: mit.belegt ? "BELEGT" : "GRENZE" }, { status: 409 });
+    ergebnis = mit.wert;
   } catch (err) {
     if (err instanceof SchonBearbeitet) return NextResponse.json({ error: "Diese Anfrage ist schon bearbeitet." }, { status: 409 });
     throw err;

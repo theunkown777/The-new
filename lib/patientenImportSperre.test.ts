@@ -82,4 +82,25 @@ describe.skipIf(!process.env.DATABASE_URL)("Import-Sperre in der Datenbank", () 
     expect(einer.contactConsentAt).toBeNull();
     expect(einer.whatsappConsentAt).toBeNull();
   });
+
+  it("Einzelanlage im Gastzugang: 60 gleichzeitige Anlagen bei Bestand 195 ergeben höchstens 200", async () => {
+    const id = await praxis(true);
+    await prisma.patient.createMany({ data: zeilen(195, 1).map((p) => ({ practiceId: id, lastName: p.lastName, firstName: p.firstName, insuranceType: "GKV" })) });
+    const laeufe = await Promise.all(
+      Array.from({ length: 60 }, (_, i) => m.mitPatientenGrenze({ practiceId: id, demo: true }, (tx) => tx.patient.create({ data: { practiceId: id, firstName: `Einzel${i}`, lastName: "Ohnegrenze" }, select: { id: true } }), { versuche: 400, pauseMs: 10 })),
+    );
+    expect(laeufe.filter((l) => l.ok)).toHaveLength(5);
+    expect(laeufe.filter((l) => !l.ok && !l.belegt && l.grund === m.DEMO_GRENZE_EINZELN)).toHaveLength(55);
+    expect(await prisma.patient.count({ where: { practiceId: id } })).toBe(DEMO_PATIENTEN_MAX);
+    // Ohne neuen Patienten (neu: 0) geht es auch an der Grenze weiter.
+    expect(await m.mitPatientenGrenze({ practiceId: id, demo: true, neu: 0 }, async () => "vorhanden")).toEqual({ ok: true, wert: "vorhanden" });
+  });
+
+  it("Einzelanlage in einer echten Praxis: keine Grenze beim Bestand", async () => {
+    const id = await praxis(false);
+    await prisma.patient.createMany({ data: zeilen(205, 1).map((p) => ({ practiceId: id, lastName: p.lastName, firstName: p.firstName, insuranceType: "GKV" })) });
+    const r = await m.mitPatientenGrenze({ practiceId: id, demo: false }, (tx) => tx.patient.create({ data: { practiceId: id, firstName: "Neu", lastName: "Echt" }, select: { id: true } }));
+    expect(r.ok).toBe(true);
+    expect(await prisma.patient.count({ where: { practiceId: id } })).toBe(206);
+  });
 });

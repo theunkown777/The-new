@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 export const EINGANG_ARTEN = {
   ZAHLUNG_GEMELDET: { titel: "Zahlung gemeldet", tun: "Kontoeingang prüfen und unter Zahlungen bestätigen.", gruppe: "Geld" },
   ZAHLUNG_ONLINE: { titel: "Online bezahlt", tun: "Nichts zu tun: die Rechnung ist als bezahlt verbucht.", gruppe: "Geld" },
-  RATEN: { titel: "Ratenzahlung gewünscht", tun: "Patient anrufen und Raten vereinbaren.", gruppe: "Geld" },
+  RATEN: { titel: "Ratenzahlung gewünscht", tun: "Den Wunsch persönlich besprechen. Für Raten gelten ab dem 20.11.2026 die Regeln für Verbraucherkredite.", gruppe: "Geld" },
   LASTSCHRIFT: { titel: "Lastschriftmandat erteilt", tun: "Unter Zahlungen in die nächste Lastschrift-Datei übernehmen.", gruppe: "Geld" },
   ANAMNESE: { titel: "Anamnesebogen abgeschickt", tun: "Vor dem Termin in der Akte ansehen.", gruppe: "Unterlagen" },
   KURZCHECK: { titel: "Kurz-Fragebogen ausgefüllt", tun: "Vor dem Termin in der Akte ansehen: wo, wie stark, seit wann.", gruppe: "Unterlagen" },

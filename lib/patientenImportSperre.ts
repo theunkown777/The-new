@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { importGrenze, type ImportPatient } from "@/lib/patientenImport";
+import { DEMO_PATIENTEN_MAX, importGrenze, type ImportPatient } from "@/lib/patientenImport";
 
 // Patientenliste speichern, ein Block nach dem anderen je Praxis.
 //
@@ -69,4 +69,34 @@ export async function importSpeichern(
     })),
   });
   return { ok: true, gespeichert: r.count };
+}
+
+export const DEMO_GRENZE_EINZELN = `Im Gastzugang sind höchstens ${DEMO_PATIENTEN_MAX} Patienten möglich.`;
+export const SPERRE_BELEGT = "Gerade werden andere Patienten gespeichert. Bitte versuchen Sie es gleich noch einmal.";
+
+export type MitGrenze<T> = { ok: true; wert: T } | { ok: false; grund: string; belegt: boolean };
+
+/**
+ * Für jeden Weg, der einzelne Patienten anlegt (Neuanlage, Schnellvorschlag, Terminanfrage, Praxissoftware).
+ * Demo-Praxis: Bestand zählen und anlegen unter derselben Sperre wie der Import, damit gleichzeitige Anfragen
+ * zusammen nicht über DEMO_PATIENTEN_MAX kommen. `neu` ist die Zahl der Patienten, die `arbeit` anlegt (0, wenn
+ * nur vorhandene benutzt werden). Andere Praxen: eine gewöhnliche Transaktion ohne Grenze beim Bestand.
+ */
+export async function mitPatientenGrenze<T>(
+  a: { practiceId: string; demo: boolean; neu?: number },
+  arbeit: (tx: Prisma.TransactionClient) => Promise<T>,
+  o: { versuche?: number; pauseMs?: number } = {},
+): Promise<MitGrenze<T>> {
+  if (!a.demo) return { ok: true, wert: await prisma.$transaction(arbeit) };
+  const neu = a.neu ?? 1;
+  // P2028: Die Transaktion kam bei vielen gleichzeitigen Anfragen nicht rechtzeitig an die Reihe. Das ist „bitte
+  // noch einmal“, kein Fehler des Servers.
+  const r = await mitImportSperre(a.practiceId, async (tx): Promise<MitGrenze<T>> => {
+    if (neu > 0 && (await tx.patient.count({ where: { practiceId: a.practiceId } })) + neu > DEMO_PATIENTEN_MAX) return { ok: false, grund: DEMO_GRENZE_EINZELN, belegt: false };
+    return { ok: true, wert: await arbeit(tx) };
+  }, o).catch((e: unknown) => {
+    if ((e as { code?: unknown } | null)?.code === "P2028") return { belegt: true as const };
+    throw e;
+  });
+  return r.belegt ? { ok: false, grund: SPERRE_BELEGT, belegt: true } : r.wert;
 }

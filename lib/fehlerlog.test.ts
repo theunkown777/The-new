@@ -286,6 +286,14 @@ describe("fingerabdruck und fehlerAufbereiten", () => {
     expect(fingerabdruck("server", "/a", "y")).not.toBe(f);
   });
 
+  it("Browser: der Stack wird nicht gespeichert, auch nicht mit Namen in Funktion oder Datei", () => {
+    const f = fehlerAufbereiten({ quelle: "browser", ort: "/dashboard", meldung: "Error: failed", stack: "at Erika (https://x/Mustermann-diabetes.js:1:1)\nat hat-krebs (a.js:2:3)\nat Mustermann\nladen@https://sorrida.de/_next/static/chunks/0elahojevla9e.js:1:2" });
+    expect(f.stack).toBe("");
+    for (const wort of ["Erika", "Mustermann", "diabetes", "krebs"]) expect(JSON.stringify(f)).not.toContain(wort);
+    // Server: der bereinigte Stack bleibt (er kommt aus dem eigenen Code, nicht von außen)
+    expect(fehlerAufbereiten({ quelle: "server", ort: "/x", meldung: "m", stack: "at laden (/app/.next/server/chunks/a.js:1:2)" }).stack).toBe("laden (server/chunks/a.js:1:2)");
+  });
+
   it("lässt nichts Rohes durch", () => {
     const f = fehlerAufbereiten({ quelle: "browser", ort: "/p/a8Kd93hsLq02mNx7Zt51Bv?x=1", meldung: "Mail an a@b.de, Tel. 030 1234567", stack: "at f (https://x.de/a.js?q=Meier:1:2)" });
     const alles = JSON.stringify(f);

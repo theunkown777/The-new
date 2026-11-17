@@ -247,8 +247,13 @@ Für die Umstellung fehlen:
 - Server: `instrumentation.ts` schreibt jeden Fehler einer Anfrage in die Tabelle `FehlerEintrag`.
 - Browser: Die Fehlerseiten melden an `POST /api/fehler` (nur gleiche Herkunft, 20 Meldungen je Stunde und Adresse, höchstens 2 kB).
 - Vor dem Speichern wird bereinigt (`lib/fehlerlog.ts`): Ort ohne Abfrage-Teil und Token, Meldung ohne E-Mail-Adressen, Ziffernfolgen,
-  Datumsangaben, IBAN und Texte in Anführungszeichen, höchstens 300 Zeichen, höchstens drei Stack-Zeilen.
-  Gespeichert wird außerdem nur die ID der Praxis.
+  Datumsangaben, IBAN und Texte in Anführungszeichen, höchstens 300 Zeichen, höchstens drei Stack-Zeilen (nur vom Server).
+  Aus dem Browser bleiben vom Ort nur feste Seitennamen, von der Meldung nur Wörter einer festen Liste; ein Stack wird nicht gespeichert.
+  Gespeichert wird außerdem nur die ID der Praxis und ob es eine Demo-Praxis ist.
+- Tagesgrenze für neue Browser-Einträge: 40 ohne Anmeldung, 20 je angemeldeter Praxis. Darüber zählt eine Meldung im Sammeleintrag
+  „Weitere neue Meldungen nach Erreichen der Tagesgrenze“ ihres Bereichs.
+- Statusbericht: zählt nur Fehler des Servers, die nicht nur in Demo-Praxen auftraten. Null-Zeichen in Adressen beantwortet `proxy.ts`
+  mit 400; doppelte Parameter auf Seiten leiten auf den jeweils ersten Wert weiter (`lib/adresse.ts`).
 - Gleicher Fehler: gleiche Zeile, der Zähler steigt. Tritt ein erledigter Fehler wieder auf, ist er wieder offen.
 - Löschfrist: 30 Tage nach dem letzten Auftreten.
 - Grenze: Die Bereinigung erkennt Muster, keine Bedeutungen. Ein Name ohne Anführungszeichen in einer eigenen Fehlermeldung würde gespeichert.

@@ -3,15 +3,22 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { consumeAttempt } from "@/lib/rateLimit";
+import { mitPatientenGrenze } from "@/lib/patientenImportSperre";
+
+// Geburtsdatum als Tag (JJJJ-MM-TT, auch mit Uhrzeit); leer erlaubt. Ein ungültiges Datum wäre sonst ein Serverfehler.
+const datum = z.string().trim().max(40).refine((s) => s === "" || (/^\d{4}-\d{2}-\d{2}/.test(s) && !Number.isNaN(new Date(s).getTime())), "Das Geburtsdatum ist ungültig.");
+// Neue Patienten je Praxis und Stunde: Bremse gegen Massenanlage (Gastzugang und gestohlene Sitzungen).
+const ANLAGEN_PRO_STUNDE = { demo: 60, echt: 600 };
 
 const patientSchema = z.object({
-  firstName: z.string().min(1, "Vorname ist erforderlich"),
-  lastName: z.string().min(1, "Nachname ist erforderlich"),
-  birthDate: z.string().optional().nullable(),
+  firstName: z.string().min(1, "Vorname ist erforderlich").max(100),
+  lastName: z.string().min(1, "Nachname ist erforderlich").max(100),
+  birthDate: datum.optional().nullable(),
   insuranceType: z.enum(["GKV", "PKV"]).optional().nullable(),
-  insuranceName: z.string().optional().nullable(),
-  insuranceNumber: z.string().optional().nullable(),
-  notes: z.string().optional().nullable(),
+  insuranceName: z.string().max(120).optional().nullable(),
+  insuranceNumber: z.string().max(40).optional().nullable(),
+  notes: z.string().max(5000).optional().nullable(),
   email: z.string().trim().email("Die E-Mail-Adresse ist ungültig.").optional().nullable().or(z.literal("")),
   phone: z.string().trim().max(40).optional().nullable(),
   einwilligung: z.boolean().optional(),
@@ -57,10 +64,17 @@ export async function POST(req: Request) {
   }
 
   const { firstName, lastName, birthDate, insuranceType, insuranceName, insuranceNumber, notes } = parsed.data;
+  const practiceId = session.user.practiceId;
+  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { isDemo: true } });
+  if (!praxis) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await consumeAttempt(`patient-neu:${practiceId}`, praxis.isDemo ? ANLAGEN_PRO_STUNDE.demo : ANLAGEN_PRO_STUNDE.echt, 60 * 60 * 1000))) {
+    return NextResponse.json({ error: "Zu viele neue Patienten in kurzer Zeit. Bitte später noch einmal versuchen." }, { status: 429 });
+  }
 
-  const patient = await prisma.patient.create({
+  // Gastzugang: höchstens DEMO_PATIENTEN_MAX Patienten, auch bei vielen gleichzeitigen Anfragen (lib/patientenImportSperre.ts).
+  const r = await mitPatientenGrenze({ practiceId, demo: praxis.isDemo }, (tx) => tx.patient.create({
     data: {
-      practiceId: session.user.practiceId,
+      practiceId,
       firstName,
       lastName,
       birthDate: birthDate ? new Date(birthDate) : null,
@@ -73,7 +87,8 @@ export async function POST(req: Request) {
       contactConsentAt: parsed.data.einwilligung && parsed.data.email ? new Date() : null,
       geschlecht: parsed.data.geschlecht || null,
     },
-  });
+  }));
+  if (!r.ok) return NextResponse.json({ error: r.grund, code: r.belegt ? "BELEGT" : "GRENZE" }, { status: 409 });
 
-  return NextResponse.json({ patient });
+  return NextResponse.json({ patient: r.wert });
 }

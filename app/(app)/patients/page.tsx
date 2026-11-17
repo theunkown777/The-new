@@ -17,6 +17,7 @@ import { CreateInvoiceButton } from "@/components/CreateInvoiceButton";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { journey, TONE_STYLE } from "@/lib/journey";
 import { meinePatientenWhere } from "@/lib/meinBereich";
+import { seiteAus } from "@/lib/adresse";
 
 const PAGE_SIZE = 50;
 const DAY = 24 * 60 * 60 * 1000;
@@ -47,7 +48,8 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
   const P = fachprofil(await praxisFach(practiceId)).person;
   const q = (searchParams.q ?? "").trim().slice(0, 60);
   const filter: FilterKey = searchParams.filter && searchParams.filter in FILTERS ? (searchParams.filter as FilterKey) : "alle";
-  const page = Math.max(1, Number(searchParams.page) || 1);
+  // Seitenzahl aus der Adresse begrenzen: Eine riesige Zahl wäre für die Datenbank kein gültiger Versatz.
+  const page = seiteAus(searchParams.page);
   const now = Date.now();
 
   // Suche nach Vor- oder Nachname, auch "Nachname, Vorname" oder "Vorname Nachname".

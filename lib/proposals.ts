@@ -300,7 +300,7 @@ function globalItem(code: GlobalCode, input: ProposalInput, P: Prices): Proposal
         r.recommended = "zst";
         r.excluded.push("PZR vor der PAR-Behandlung: kein Vorschlag, weil die Kasse die Vorbehandlung übernimmt.");
       } else {
-        r.options.push({ id: "pzr", type: "privat", name: "Professionelle Zahnreinigung", total: P.pzr, benefits: ["auch weiche Beläge und Verfärbungen", "Zahnzwischenräume, Politur, Fluorid", "viele Zusatzversicherungen erstatten"] });
+        r.options.push({ id: "pzr", type: "privat", name: "Professionelle Zahnreinigung", total: P.pzr, benefits: ["auch weiche Beläge und Verfärbungen", "Zahnzwischenräume, Politur, Fluorid", "manche Zusatzversicherungen erstatten einen Teil"] });
         r.recommended = "pzr";
       }
       return r;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { uebergabeMelden } from "@/components/EmpfangWache";
 
@@ -19,6 +19,9 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf }: { pinGesetzt: 
   const [qr, setQr] = useState<{ url: string; qr: string } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
+  // Was das Team angeklickt hat, während die Lage des Patienten noch lädt, bleibt so (die Vorschläge kommen später an).
+  const beruehrt = useRef({ anamnese: false, unterschrift: false });
+  const gewaehlt = useRef<string | null>(null);
 
   useEffect(() => {
     if (patient || q.trim().length < 2) return setTreffer([]);
@@ -31,15 +34,18 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf }: { pinGesetzt: 
 
   async function waehlen(p: P) {
     setPatient(p); setTreffer([]); setLage(null); setQr(null); setFehler(null);
+    beruehrt.current = { anamnese: false, unterschrift: false };
+    gewaehlt.current = p.id;
     const r = await fetch(`/api/empfang/uebergabe?patientId=${encodeURIComponent(p.id)}`, { cache: "no-store" }).catch(() => null);
     const d = (await r?.json().catch(() => null)) as Lage | null;
-    if (!r?.ok || !d) return;
+    // Inzwischen ein anderer Patient gewählt: Diese Antwort gilt nicht mehr.
+    if (!r?.ok || !d || gewaehlt.current !== p.id) return;
     setLage(d);
     // Anamnese vorschlagen, wenn ein Bogen offen ist oder noch nie einer ausgefüllt wurde.
-    setAnamnese(d.anamneseOffen || !d.anamneseZuletzt);
-    setUnterschrift(d.einverstaendnisse > 0);
+    if (!beruehrt.current.anamnese) setAnamnese(d.anamneseOffen || !d.anamneseZuletzt);
+    if (!beruehrt.current.unterschrift) setUnterschrift(d.einverstaendnisse > 0);
   }
-  function zuruecksetzen() { setPatient(null); setQ(""); setLage(null); setQr(null); setFehler(null); }
+  function zuruecksetzen() { gewaehlt.current = null; setPatient(null); setQ(""); setLage(null); setQr(null); setFehler(null); }
 
   async function uebergeben() {
     if (!patient) return;
@@ -107,8 +113,8 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf }: { pinGesetzt: 
         <section className="card space-y-3" aria-labelledby="empfang-was">
           <h2 id="empfang-was" className="font-semibold text-slate-900">2. Was soll der Patient erledigen?</h2>
           <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={kontakt} onChange={(e) => setKontakt(e.target.checked)} data-testid="empfang-schritt-kontakt" /><span>Kontaktdaten prüfen<span className="block text-xs text-slate-500">E-Mail, Mobilnummer und Einwilligung in Nachrichten</span></span></label>
-          <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={anamnese} onChange={(e) => setAnamnese(e.target.checked)} data-testid="empfang-schritt-anamnese" /><span>Anamnesebogen ausfüllen<span className="block text-xs text-slate-500">{lage ? (lage.anamneseOffen ? "Ein Bogen ist offen." : lage.anamneseZuletzt ? `Zuletzt ausgefüllt am ${lage.anamneseZuletzt}.` : "Noch nie ausgefüllt.") : "wird geprüft …"}</span></span></label>
-          <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={unterschrift} onChange={(e) => setUnterschrift(e.target.checked)} data-testid="empfang-schritt-unterschrift" /><span>Einverständnis unterschreiben<span className="block text-xs text-slate-500" data-testid="empfang-offene-einverstaendnisse">{lage ? (lage.einverstaendnisse === 0 ? "Zurzeit ist nichts zu unterschreiben." : `${lage.einverstaendnisse} ${lage.einverstaendnisse === 1 ? "Einverständnis ist" : "Einverständnisse sind"} offen.`) : "wird geprüft …"}</span></span></label>
+          <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={anamnese} onChange={(e) => { beruehrt.current.anamnese = true; setAnamnese(e.target.checked); }} data-testid="empfang-schritt-anamnese" /><span>Anamnesebogen ausfüllen<span className="block text-xs text-slate-500">{lage ? (lage.anamneseOffen ? "Ein Bogen ist offen." : lage.anamneseZuletzt ? `Zuletzt ausgefüllt am ${lage.anamneseZuletzt}.` : "Noch nie ausgefüllt.") : "wird geprüft …"}</span></span></label>
+          <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={unterschrift} onChange={(e) => { beruehrt.current.unterschrift = true; setUnterschrift(e.target.checked); }} data-testid="empfang-schritt-unterschrift" /><span>Einverständnis unterschreiben<span className="block text-xs text-slate-500" data-testid="empfang-offene-einverstaendnisse">{lage ? (lage.einverstaendnisse === 0 ? "Zurzeit ist nichts zu unterschreiben." : `${lage.einverstaendnisse} ${lage.einverstaendnisse === 1 ? "Einverständnis ist" : "Einverständnisse sind"} offen.`) : "wird geprüft …"}</span></span></label>
 
           {fehler && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800" role="alert" data-testid="empfang-fehler">{fehler}</p>}
 

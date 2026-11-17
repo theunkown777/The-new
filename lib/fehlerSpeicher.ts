@@ -1,25 +1,36 @@
 import { prisma } from "@/lib/prisma";
-import { BROWSER_NEU_GRENZE_24H, fehlerAufbereiten, type FehlerRoh } from "@/lib/fehlerlog";
+import { BROWSER_NEU_GRENZE_24H, BROWSER_NEU_GRENZE_PRAXIS_24H, GRENZE_MELDUNG, fehlerAufbereiten, fingerabdruck, type FehlerRoh } from "@/lib/fehlerlog";
 
 // Schreibt einen Fehler aus dem Betrieb in die Datenbank. Einziger Weg hinein:
 // Alles läuft vorher durch fehlerAufbereiten (lib/fehlerlog.ts), roh wird nichts gespeichert.
 // Wirft nie: Ein Fehler beim Protokollieren darf die eigentliche Antwort nicht stören.
 
-export async function fehlerSchreiben(roh: FehlerRoh, practiceId?: string | null, now = new Date()): Promise<boolean> {
+export async function fehlerSchreiben(roh: FehlerRoh, practiceId?: string | null, now = new Date(), demo = false): Promise<boolean> {
   try {
-    const f = fehlerAufbereiten(roh);
+    let f = fehlerAufbereiten(roh);
     const praxis = typeof practiceId === "string" && /^[a-z0-9]{8,40}$/i.test(practiceId) ? practiceId : null;
-    // Browser-Meldungen kommen ohne Anmeldung an. Damit niemand die Ansicht /betrieb mit erfundenen Einträgen füllt:
-    // Ist die Tagesgrenze neuer Browser-Einträge erreicht, zählen weitere Meldungen nur noch bei schon bekannten Fehlern.
+    // Browser-Meldungen kommen ohne Anmeldung an. Damit niemand die Ansicht /betrieb mit erfundenen Einträgen füllt,
+    // gibt es eine Tagesgrenze für neue Einträge. Sie gilt getrennt: einmal für alle Meldungen ohne Anmeldung und je
+    // Praxis für Meldungen aus einer angemeldeten Sitzung. So können Fremde ohne Anmeldung die Meldungen der Praxen
+    // nicht verdrängen. Ist die Grenze erreicht, geht eine neue Meldung nicht verloren: Sie zählt in einem Sammeleintrag
+    // je Bereich (erster Teil des Orts), damit sichtbar bleibt, dass und wo weitere Fehler auftreten.
     if (f.quelle === "browser") {
       const bekannt = await prisma.fehlerEintrag.count({ where: { fingerabdruck: f.fingerabdruck } });
-      if (!bekannt && (await prisma.fehlerEintrag.count({ where: { quelle: "browser", createdAt: { gte: new Date(now.getTime() - 24 * 3_600_000) } } })) >= BROWSER_NEU_GRENZE_24H) return false;
+      if (!bekannt) {
+        const grenze = praxis ? BROWSER_NEU_GRENZE_PRAXIS_24H : BROWSER_NEU_GRENZE_24H;
+        const neu = await prisma.fehlerEintrag.count({ where: { quelle: "browser", practiceId: praxis, createdAt: { gte: new Date(now.getTime() - 24 * 3_600_000) } } });
+        if (neu >= grenze) {
+          const bereich = f.ort.split("/").slice(0, 2).join("/") || "/";
+          f = { ...f, ort: bereich, meldung: GRENZE_MELDUNG, stack: "", fingerabdruck: fingerabdruck("browser", bereich, `${GRENZE_MELDUNG}\n${praxis ?? "ohne Anmeldung"}`) };
+        }
+      }
     }
     await prisma.fehlerEintrag.upsert({
       where: { fingerabdruck: f.fingerabdruck },
-      create: { fingerabdruck: f.fingerabdruck, quelle: f.quelle, ort: f.ort, meldung: f.meldung, stack: f.stack || null, practiceId: praxis, createdAt: now, zuletztAt: now },
-      // Tritt ein erledigter Fehler wieder auf, erscheint er wieder in der Ansicht.
-      update: { zaehler: { increment: 1 }, zuletztAt: now, erledigtAt: null, ...(f.stack ? { stack: f.stack } : {}) },
+      create: { fingerabdruck: f.fingerabdruck, quelle: f.quelle, ort: f.ort, meldung: f.meldung, stack: f.stack || null, practiceId: praxis, demo, createdAt: now, zuletztAt: now },
+      // Tritt ein erledigter Fehler wieder auf, erscheint er wieder in der Ansicht. Tritt er auch außerhalb einer
+      // Demo-Praxis auf, zählt er ab dann für den Statusbericht.
+      update: { zaehler: { increment: 1 }, zuletztAt: now, erledigtAt: null, ...(f.stack ? { stack: f.stack } : {}), ...(demo ? {} : { demo: false }) },
     });
     return true;
   } catch {
@@ -31,10 +42,11 @@ export async function fehlerSchreiben(roh: FehlerRoh, practiceId?: string | null
 
 /**
  * Verschiedene Fehler des Servers, die in den letzten Stunden aufgetreten sind (für den Statusbericht).
- * Meldungen aus dem Browser zählen nicht: Sonst könnte jeder von außen den Statusbericht auf „nicht ok“ bringen.
+ * Meldungen aus dem Browser zählen nicht, Fehler, die nur in Demo-Praxen auftraten, auch nicht: Sonst könnte jeder
+ * von außen (ohne Anmeldung oder über den Gastzugang) den Statusbericht auf „nicht ok“ bringen.
  */
 export async function fehlerAnzahl(stunden = 24, now = new Date()): Promise<number> {
-  return prisma.fehlerEintrag.count({ where: { quelle: "server", zuletztAt: { gte: new Date(now.getTime() - stunden * 3_600_000) } } });
+  return prisma.fehlerEintrag.count({ where: { quelle: "server", demo: false, zuletztAt: { gte: new Date(now.getTime() - stunden * 3_600_000) } } });
 }
 
 /** Orte der Fehler, die seit gestern zum ersten Mal aufgetreten sind (für die tägliche Mail). */
@@ -72,18 +84,32 @@ function cookiesAus(kopf: string | string[] | null | undefined): Record<string, 
 }
 
 /**
- * ID der Praxis aus dem Anmelde-Cookie, nur um einen Fehler zuordnen zu können. Das ist keine Zugangsprüfung:
- * Es wird nichts freigegeben und kein Konto nachgeschlagen. Ohne Anmeldung oder bei unlesbarem Cookie: null.
+ * Praxis aus dem Anmelde-Cookie (ID und ob es eine Demo-Praxis ist), nur um einen Fehler zuordnen zu können. Das ist
+ * keine Zugangsprüfung: Es wird nichts freigegeben und kein Konto nachgeschlagen. Ohne Anmeldung oder bei unlesbarem
+ * Cookie: null.
  */
-export async function praxisIdAusCookie(cookieKopf: string | string[] | null | undefined): Promise<string | null> {
+export async function praxisAusCookie(cookieKopf: string | string[] | null | undefined): Promise<{ id: string; demo: boolean } | null> {
   try {
     if (!cookieKopf) return null;
     const { getToken } = await import("next-auth/jwt");
     const token = await getToken({ req: { headers: {}, cookies: cookiesAus(cookieKopf) } as never });
-    return typeof token?.practiceId === "string" ? token.practiceId : null;
+    return typeof token?.practiceId === "string" ? { id: token.practiceId, demo: token.demo === true } : null;
   } catch {
     return null;
   }
+}
+
+/** Nur die ID der Praxis aus dem Anmelde-Cookie (siehe praxisAusCookie). */
+export async function praxisIdAusCookie(cookieKopf: string | string[] | null | undefined): Promise<string | null> {
+  return (await praxisAusCookie(cookieKopf))?.id ?? null;
+}
+
+/**
+ * Fehler, die nur aus einer ungültigen Eingabe entstehen und keinen Fehler im Programm zeigen: ein Null-Zeichen in
+ * Adresse oder Text, das die Datenbank nicht annimmt. Die Adresse prüft schon proxy.ts; das hier fängt Texte ab.
+ */
+export function eingabeFehler(meldung: unknown): boolean {
+  return typeof meldung === "string" && /invalid byte sequence for encoding \\?"?UTF8\\?"?: 0x00/.test(meldung);
 }
 
 /**
@@ -99,9 +125,10 @@ export async function serverFehlerMelden(
   try {
     const fehler = error as { message?: unknown; stack?: unknown; digest?: unknown } | null;
     if (typeof fehler?.digest === "string" && /^(NEXT_REDIRECT|NEXT_NOT_FOUND|NEXT_HTTP_ERROR_FALLBACK)/.test(fehler.digest)) return false;
+    if (eingabeFehler(fehler?.message)) return false;
     // Nur die ID der Praxis, falls jemand angemeldet ist. Kein Name, kein Konto.
-    const practiceId = await praxisIdAusCookie(request.headers.cookie);
-    return await fehlerSchreiben({ quelle: "server", ort: context.routePath || request.path, meldung: fehler?.message ?? "", stack: fehler?.stack }, practiceId);
+    const praxis = await praxisAusCookie(request.headers.cookie);
+    return await fehlerSchreiben({ quelle: "server", ort: context.routePath || request.path, meldung: fehler?.message ?? "", stack: fehler?.stack }, praxis?.id ?? null, new Date(), praxis?.demo ?? false);
   } catch {
     return false;
   }

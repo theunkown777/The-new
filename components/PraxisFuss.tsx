@@ -32,7 +32,7 @@ export function PraxisFuss({ name, stammdaten, className = "", ohneLinks = false
         </p>
       )}
       <p>
-        Ihre Angaben gehen an {name} und werden dort zur Behandlung und Abrechnung verwendet. Technische Bereitstellung im Auftrag der Praxis:
+        Ihre Angaben gehen an {name} und werden dort zur Behandlung und Abrechnung verwendet. Technische Bereitstellung im Auftrag der Praxis:{" "}
         {ohneLinks ? "Sorrida." : <>Sorrida (<a href="/impressum" target="_blank" rel="noopener noreferrer" className={a}>Impressum</a>).</>}
       </p>
     </div>

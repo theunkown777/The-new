@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { consumeAttempt } from "@/lib/rateLimit";
-import { fehlerSchreiben, praxisIdAusCookie } from "@/lib/fehlerSpeicher";
+import { fehlerSchreiben, praxisAusCookie } from "@/lib/fehlerSpeicher";
 
 import { anschluss } from "@/lib/anschluss";
 // Fehlermeldung aus dem Browser (app/error.tsx, app/(app)/error.tsx, app/global-error.tsx).
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Ungültige Meldung" }, { status: 400 });
 
   // Nur die ID der Praxis, falls jemand angemeldet ist (zum Zuordnen, keine Zugangsprüfung). Kein Name, kein Konto.
-  const practiceId = await praxisIdAusCookie(req.headers.get("cookie"));
-  await fehlerSchreiben({ quelle: "browser", ort: parsed.data.ort, meldung: parsed.data.meldung, stack: parsed.data.stack }, practiceId);
+  const praxis = await praxisAusCookie(req.headers.get("cookie"));
+  await fehlerSchreiben({ quelle: "browser", ort: parsed.data.ort, meldung: parsed.data.meldung, stack: parsed.data.stack }, praxis?.id ?? null, new Date(), praxis?.demo ?? false);
   return new NextResponse(null, { status: 204 });
 }

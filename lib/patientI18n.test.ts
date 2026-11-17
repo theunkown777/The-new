@@ -427,6 +427,10 @@ describe("Patientenansicht: einzelne Sprachen", () => {
     expect(pickLang(undefined, "*")).toBe("de");
     expect(pickLang(undefined, "")).toBe("de");
     expect(pickLang(undefined, null)).toBe("de");
+    // Doppelter Parameter (?lang=a&lang=b) kommt als Liste an: kein Absturz, Browser-Sprache gilt
+    expect(pickLang(["a", "b"], "en-GB")).toBe("en");
+    expect(pickLang(["en", "de"], null)).toBe("de");
+    expect(pickLang(42, null)).toBe("de");
   });
 });
 
@@ -437,7 +441,7 @@ describe("Patientenansicht: übrige Fächer (Arztpraxen, Therapie, Versorgung)",
     expect(fach.leistungsarten).toEqual(expect.arrayContaining(["Kassenleistung", "Selbstzahlerleistung (IGeL)", "Selbstzahlerleistung", "Kassenleistung mit Zuzahlung", "Kassenanteil + Aufzahlung", "Leistung der Praxis", "Privatleistung", "Basisleistung"]));
     for (const lang of FREMD) {
       expect(fach.leistungsarten.filter((t) => !hasTranslation(t, lang)), lang).toEqual([]);
-      for (const t of ["Kassenleistung bei Beschwerden", "Bei Beschwerden Kassenleistung.", "Private Zusatzversicherungen übernehmen das oft.", "Ersetzt keine ärztliche Untersuchung.", "Ohne Beschwerden ist ein Nutzen nicht belegt."])
+      for (const t of ["Kassenleistung bei Beschwerden", "Bei Beschwerden Kassenleistung.", "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.", "Ersetzt keine ärztliche Untersuchung.", "Ohne Beschwerden ist ein Nutzen nicht belegt."])
         expect(hasTranslation(t, lang), `${lang}: ${t}`).toBe(true);
     }
   });

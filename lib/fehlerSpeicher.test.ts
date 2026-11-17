@@ -7,7 +7,7 @@ vi.hoisted(() => {
 });
 
 import { prisma } from "@/lib/prisma";
-import { fehlerAnzahl, fehlerMailSenden, fehlerSchreiben, neueFehlerOrte, praxisIdAusCookie, serverFehlerMelden } from "@/lib/fehlerSpeicher";
+import { eingabeFehler, fehlerAnzahl, fehlerMailSenden, fehlerSchreiben, neueFehlerOrte, praxisIdAusCookie, serverFehlerMelden } from "@/lib/fehlerSpeicher";
 import { stichtag } from "@/lib/loeschfristen";
 import { SEITEN_TEILE } from "@/lib/fehlerlog";
 
@@ -18,7 +18,8 @@ const ORT = `/tf${Array.from({ length: 9 }, () => String.fromCharCode(97 + Math.
 // Wort wird zur Lücke. Eigener Ort je Lauf deshalb aus fünf zufälligen Seitennamen.
 const TEILE = [...SEITEN_TEILE];
 const B_ORT = `/${Array.from({ length: 5 }, () => TEILE[Math.floor(Math.random() * TEILE.length)]).join("/")}`;
-const eigene = { OR: [{ ort: { startsWith: ORT } }, { ort: { startsWith: B_ORT } }] };
+// Dazu die Sammeleinträge über der Tagesgrenze: Ihr Ort ist nur der erste Teil, erkennbar an Meldung und festem Zeitpunkt.
+const eigene = { OR: [{ ort: { startsWith: ORT } }, { ort: { startsWith: B_ORT } }, { meldung: "Weitere neue Meldungen nach Erreichen der Tagesgrenze", createdAt: new Date("2025-01-05T12:00:00Z") }] };
 const meine = () => prisma.fehlerEintrag.findMany({ where: eigene, orderBy: { createdAt: "asc" } });
 
 describe.skipIf(!process.env.DATABASE_URL)("Fehlerlog in der Datenbank", () => {
@@ -106,17 +107,50 @@ describe.skipIf(!process.env.DATABASE_URL)("Fehlerlog in der Datenbank", () => {
     const zeile = (await meine()).find((r) => r.ort === `${B_ORT}/patient`)!;
     for (const wort of ["Erika", "Mustermann", "Patientin", "1980", "2345678", "example.org"]) expect(zeile.meldung).not.toContain(wort);
     // Bis zur Grenze auffüllen, dann kommt nichts Neues mehr dazu.
-    const { BROWSER_NEU_GRENZE_24H } = await import("@/lib/fehlerlog");
+    const { BROWSER_NEU_GRENZE_24H, BROWSER_NEU_GRENZE_PRAXIS_24H, GRENZE_MELDUNG } = await import("@/lib/fehlerlog");
     const schon = await prisma.fehlerEintrag.count({ where: fenster });
     for (let i = schon; i < BROWSER_NEU_GRENZE_24H; i++) await fehlerSchreiben({ quelle: "browser", ort: `${B_ORT}/import/${TEILE[i]}`, meldung: "Failed to fetch" }, null, jetzt);
     expect(await prisma.fehlerEintrag.count({ where: fenster })).toBe(BROWSER_NEU_GRENZE_24H);
-    expect(await fehlerSchreiben({ quelle: "browser", ort: `${B_ORT}/neu`, meldung: "Failed to fetch" }, null, jetzt)).toBe(false);
-    expect(await prisma.fehlerEintrag.count({ where: fenster })).toBe(BROWSER_NEU_GRENZE_24H);
+    // Über der Grenze: kein eigener Eintrag mehr, aber der Sammeleintrag des Bereichs zählt mit.
+    expect(await fehlerSchreiben({ quelle: "browser", ort: `${B_ORT}/neu`, meldung: "Failed to fetch" }, null, jetzt)).toBe(true);
+    expect(await fehlerSchreiben({ quelle: "browser", ort: `${B_ORT}/import`, meldung: "Load failed" }, null, jetzt)).toBe(true);
+    const bereich = B_ORT.split("/").slice(0, 2).join("/");
+    const sammel = await prisma.fehlerEintrag.findMany({ where: { ...fenster, ort: bereich, meldung: GRENZE_MELDUNG, practiceId: null } });
+    expect(sammel).toHaveLength(1);
+    expect(sammel[0].zaehler).toBe(2);
+    expect(await prisma.fehlerEintrag.count({ where: fenster })).toBe(BROWSER_NEU_GRENZE_24H + 1);
+    // Meldungen aus einer angemeldeten Praxis haben ihre eigene Grenze: Fremde ohne Anmeldung verdrängen sie nicht.
+    const praxis = "cmhzgrenze0000praxis0001";
+    expect(await fehlerSchreiben({ quelle: "browser", ort: `${B_ORT}/settings`, meldung: "RangeError: Maximum call stack size exceeded" }, praxis, jetzt)).toBe(true);
+    const echt = await prisma.fehlerEintrag.findMany({ where: { ...fenster, practiceId: praxis } });
+    expect(echt.map((r) => r.meldung)).toEqual(["RangeError: Maximum call stack size exceeded"]);
+    for (let i = 1; i < BROWSER_NEU_GRENZE_PRAXIS_24H; i++) await fehlerSchreiben({ quelle: "browser", ort: `${B_ORT}/hilfe/${TEILE[i]}`, meldung: "Failed to fetch" }, praxis, jetzt);
+    expect(await prisma.fehlerEintrag.count({ where: { ...fenster, practiceId: praxis } })).toBe(BROWSER_NEU_GRENZE_PRAXIS_24H);
+    await fehlerSchreiben({ quelle: "browser", ort: `${B_ORT}/termine`, meldung: "Load failed" }, praxis, jetzt);
+    expect(await prisma.fehlerEintrag.count({ where: { ...fenster, practiceId: praxis, meldung: GRENZE_MELDUNG } })).toBe(1);
     // Ein schon bekannter Fehler wird weiter gezählt.
     expect(await fehlerSchreiben({ quelle: "browser", ort: `${B_ORT}/patient`, meldung: "Andere Person Max Beispiel nicht gefunden" }, null, jetzt)).toBe(true);
     expect((await meine()).find((r) => r.ort === `${B_ORT}/patient`)!.zaehler).toBe(2);
     // Fehler des Servers sind von der Grenze nicht betroffen.
     expect(await fehlerSchreiben({ quelle: "server", ort: `${ORT}/server-trotzdem`, meldung: "Serverfehler" }, null, jetzt)).toBe(true);
+  });
+
+  it("Statusbericht: Fehler nur aus Demo-Praxen und Null-Zeichen in der Eingabe zählen nicht", async () => {
+    const jetzt = new Date("2024-03-03T12:00:00Z");
+    const vorher = await fehlerAnzahl(24, jetzt);
+    for (let i = 0; i < 3; i++) await fehlerSchreiben({ quelle: "server", ort: `${ORT}/demo${"abc"[i]}`, meldung: "Serverfehler im Gastzugang" }, "cmhzdemo0000praxis0001", jetzt, true);
+    expect(await fehlerAnzahl(24, jetzt)).toBe(vorher);
+    // Derselbe Fehler auch in einer echten Praxis: Er zählt.
+    await fehlerSchreiben({ quelle: "server", ort: `${ORT}/demoa`, meldung: "Serverfehler im Gastzugang" }, "cmhzecht0000praxis0001", jetzt, false);
+    expect(await fehlerAnzahl(24, jetzt)).toBe(vorher + 1);
+    // Demo-Praxis trifft danach denselben Eintrag: Er zählt weiter.
+    await fehlerSchreiben({ quelle: "server", ort: `${ORT}/demoa`, meldung: "Serverfehler im Gastzugang" }, "cmhzdemo0000praxis0001", jetzt, true);
+    expect(await fehlerAnzahl(24, jetzt)).toBe(vorher + 1);
+    const nul = 'Invalid `prisma.patient.findFirst()` invocation:\n\nError occurred during query execution:\nConnectorError(ConnectorError { user_facing_error: None, kind: QueryError(PostgresError { code: "22021", message: "invalid byte sequence for encoding \\"UTF8\\": 0x00", severity: "ERROR" }) })';
+    expect(eingabeFehler(nul)).toBe(true);
+    expect(eingabeFehler("Cannot read properties of undefined")).toBe(false);
+    expect(await serverFehlerMelden(Object.assign(new Error(nul), {}), { path: `${ORT}/nul`, headers: {} }, { routePath: `${ORT}/nul` })).toBe(false);
+    expect(await prisma.fehlerEintrag.count({ where: { ort: `${ORT}/nul` } })).toBe(0);
   });
 
   it("Server: unlesbares JSON ergibt je Route einen Eintrag, gleich an welcher Stelle der Text kaputt war", async () => {

@@ -193,6 +193,9 @@ describe("keine Aussage zu Haltbarkeit, Erfolg oder Bedarf in den Quellen der An
     // Benannte Ausnahme: „medizinisch notwendig“ ist der Begriff des Gesetzes für die Kassenleistung (§ 12 SGB V).
     const AUSNAHMEN = new Set<string>([]);
     const POSITIV = /verhinder|\bbringt\b|\bhilft\b|ist die basis|\bschützt\b|\bsenkt\b|vor allem bei/i;
+    // Ohne hinterlegte Quelle auch keine Einordnung der Studienlage und kein Rat zum Vorgehen („gemeinsam abwägen“,
+    // „Fachgesellschaften raten davon ab“, „Nutzen begrenzt“, „Ergebnisse uneinheitlich“).
+    const OHNE_QUELLE = /abwägen|fachgesellschaft|\braten\b|begrenzt|uneinheitlich|umstritten|\bgering\b|zufallsbefund/i;
     let texte = 0;
     for (const s of [...ALLE_SPECIALTIES, DENTAL_SHOWCASE]) {
       for (const o of s.anlaesse.flatMap((a) => a.options)) {
@@ -200,11 +203,37 @@ describe("keine Aussage zu Haltbarkeit, Erfolg oder Bedarf in den Quellen der An
         texte++;
         const wo = `${s.id}/${o.id}`;
         if (AUSNAHMEN.has(wo)) continue;
-        for (const muster of [HALTBARKEIT, ERFOLG, BEDARF, POSITIV]) expect(o.nutzen, wo).not.toMatch(muster);
+        for (const muster of [HALTBARKEIT, ERFOLG, BEDARF, POSITIV, OHNE_QUELLE]) expect(o.nutzen, wo).not.toMatch(muster);
         // „belegt“, „gezeigt“, „nachgewiesen“ nur verneint: „ist ein Nutzen nicht belegt“, „kein Nutzen belegt“.
         if (/belegt|gezeigt|nachgewiesen/i.test(o.nutzen)) expect(o.nutzen, wo).toMatch(/\b(nicht|kein|keine)\b/i);
       }
     }
     expect(texte).toBeGreaterThan(30);
+  });
+});
+
+// Erstattung: Ohne hinterlegte Quelle keine Mengenangabe („viele Kassen“, „oft“), die eine Selbstzahlerleistung
+// günstiger erscheinen lässt. Fachseiten: keine Rangangaben und kein Verkaufston gegenüber Praxen.
+describe("keine unbelegten Mengenangaben zur Erstattung und kein Werbeton auf den Fachseiten", () => {
+  const MENGE = /\b(viele|vielen|oft|häufig|meist|meistens|die meisten|fast alle)\b/i;
+  it("Hinweise zur Kasse, Stichpunkte und Nutzen-Kasten", async () => {
+    const { CONTENT_EN } = await import("./patientI18n");
+    let n = 0;
+    for (const s of [...ALLE_SPECIALTIES, DENTAL_SHOWCASE]) {
+      for (const o of s.anlaesse.flatMap((a) => a.options)) {
+        const wo = `${s.id}/${o.id}`;
+        if (o.kasseWenn) { n++; if (/erstatt|zahl|zuschuss|übernehm/i.test(o.kasseWenn)) expect(o.kasseWenn, wo).not.toMatch(MENGE); }
+        for (const b of o.benefits) {
+          expect(b, wo).not.toMatch(/geschützt/i);
+          if (/erstatt|zuschuss|übernehm/i.test(b)) expect(b, wo).not.toMatch(MENGE);
+        }
+        // Der Nutzen-Kasten bewertet nicht: kein „medizinisch nicht notwendig“, kein „kein medizinischer Nutzen“.
+        if (o.nutzen) expect(o.nutzen, wo).not.toMatch(/nicht notwendig|kein medizinischer Nutzen/i);
+      }
+      const m = (s as { marketing?: { headline: string; problem: string; beispiel: string } }).marketing;
+      if (m) for (const t of [m.headline, m.problem, m.beispiel]) expect(t, s.id).not.toMatch(/umsatz|bekannteste|meistkritisiert|lohnen|brechen viele|offen anbieten|\bbeste\b|optimal/i);
+    }
+    expect(n).toBeGreaterThan(20);
+    for (const de of Object.keys(CONTENT_EN)) if (/erstatt|übernehm|zuschuss/i.test(de)) expect(de).not.toMatch(MENGE);
   });
 });

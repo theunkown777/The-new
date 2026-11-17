@@ -90,7 +90,7 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     regeln: ["HKP vor Behandlung von der Kasse genehmigen lassen (Gültigkeit 6 Monate)", "Bonusheft prüfen (5/10 Jahre lückenlos)"],
     begriffe: [["Regelversorgung", "Standardlösung, die der Festzuschuss abbildet"], ["gleichartig", "Regelversorgung plus Zusatzleistungen, Mehrkosten nach GOZ"], ["andersartig", "andere Versorgungsform, z. B. Implantat statt Brücke"], ["Härtefall", "doppelter Festzuschuss bei geringem Einkommen"]],
     geldhebel: [
-      { problem: "Patienten lehnen ab, weil der Eigenanteil unklar ist", massnahme: "Eigenanteil je Option verständlich zeigen, Raten anbieten", inSorrida: "Behandlungsweg, Kassen-Sockel, Ratenwunsch" },
+      { problem: "Patienten lehnen ab, weil der Eigenanteil unklar ist", massnahme: "Eigenanteil je Option verständlich zeigen", inSorrida: "Behandlungsweg, Kassen-Sockel" },
       { problem: "Bonusheft nicht geprüft, Zuschuss zu niedrig angesetzt", massnahme: "Bonus abfragen und im Vorschlag berücksichtigen", inSorrida: "Vorschlag mit Bonusstufe" },
     ],
   },
@@ -113,7 +113,7 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     werk: "GOZ",
     zahler: "Patient, Erstattung durch private Versicherung",
     rechenweg: "Punkte × 5,62421 Cent × Faktor (1,0–3,5, Schwellenwert 2,3); Material und Labor gesondert.",
-    regeln: ["Rechnung nach § 10 GOZ mit Zahnangabe", "Begründung über 2,3 patientenbezogen", "Heil- und Kostenplan bei Kosten über 1.000 € empfehlenswert"],
+    regeln: ["Rechnung nach § 10 GOZ mit Zahnangabe", "Begründung über 2,3 patientenbezogen", "Ob ein schriftlicher Kostenplan vorab nötig ist, regeln Vertrag und Kostenträger des Patienten"],
     begriffe: [["§ 6 Abs. 1 GOZ", "Analogberechnung nicht beschriebener Leistungen"], ["Laborkosten", "nach BEB oder Laborrechnung"], ["§ 2 Abs. 3 GOZ", "Verlangensleistungen auf Wunsch, schriftlich"]],
     geldhebel: [
       { problem: "Analogleistungen werden nicht berechnet", massnahme: "Eigene Leistungen im Katalog mit Analogposition hinterlegen", inSorrida: "Katalog, Vorlagen" },
@@ -126,7 +126,7 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     werk: "GOAE",
     zahler: "Patient; Erstattung anteilig durch Beihilfestelle und Restkostenversicherung",
     rechenweg: "Wie GOÄ/GOZ; Beihilfe erstattet in der Regel bis zum Schwellenwert, darüber nur mit Begründung.",
-    regeln: ["Beihilfe-Regeln des Bundes oder Landes beachten", "Analog- und Verlangensleistungen oft nicht beihilfefähig – vorher sagen"],
+    regeln: ["Beihilfe-Regeln des Bundes oder Landes beachten", "Analog- und Verlangensleistungen sind nicht immer beihilfefähig. Den Patienten vorher darauf hinweisen"],
     begriffe: [["Bemessungssatz", "Anteil, den die Beihilfe erstattet (z. B. 50/70 %)"], ["beihilfefähig", "von der Beihilfe anerkannt"]],
     geldhebel: [{ problem: "Patient zahlt nicht, weil die Beihilfe kürzt", massnahme: "Vorher auf nicht beihilfefähige Anteile hinweisen", inSorrida: "Vereinbarung mit Eigenanteil" }],
   },

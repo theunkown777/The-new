@@ -63,7 +63,7 @@ export const DENTAL_SHOWCASE: Specialty = {
       label: "Zahnreinigung",
       options: [
         { id: "zst", name: "Zahnsteinentfernung", type: "kasse", price: P.zst, benefits: ["einmal im Jahr"] },
-        { id: "pzr", name: "Professionelle Zahnreinigung", type: "igel", price: P.pzr, benefits: ["auch weiche Beläge und Zahnzwischenräume"], kasseWenn: "Viele Kassen und Zusatzversicherungen bezuschussen sie." },
+        { id: "pzr", name: "Professionelle Zahnreinigung", type: "igel", price: P.pzr, benefits: ["auch weiche Beläge und Zahnzwischenräume"], kasseWenn: "Manche Krankenkassen oder Zusatzversicherungen zahlen einen Zuschuss. Bitte vorher dort fragen." },
       ],
     },
   ],

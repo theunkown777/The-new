@@ -18,7 +18,7 @@ export default function Page() {
         </thead>
         <tbody>
           <tr><td>Entfernung harter Beläge (Zahnstein)</td><td>Kasse, einmal im Kalenderjahr</td></tr>
-          <tr><td>Professionelle Zahnreinigung (PZR)</td><td>Patient, abgerechnet nach GOZ; viele Kassen zahlen einen Zuschuss</td></tr>
+          <tr><td>Professionelle Zahnreinigung (PZR)</td><td>Patient, abgerechnet nach GOZ; manche Kassen zahlen einen Zuschuss</td></tr>
           <tr><td>Unterstützende Parodontitistherapie nach PAR-Behandlung</td><td>Kasse, nach den Vorgaben der PAR-Richtlinie</td></tr>
         </tbody>
       </table>
@@ -32,14 +32,14 @@ export default function Page() {
 
       <h2>Kosten und Zuschüsse</h2>
       <p>
-        Die Kosten richten sich nach Aufwand und Zahl der Zähne. Viele gesetzliche Kassen bezuschussen die PZR als Satzungsleistung, und
-        die meisten Zahnzusatzversicherungen erstatten sie ganz oder teilweise. Patienten sollten die Rechnung deshalb immer einreichen.
+        Die Kosten richten sich nach Aufwand und Zahl der Zähne. Manche gesetzlichen Kassen bezuschussen die PZR als Satzungsleistung, manche
+        Zahnzusatzversicherungen erstatten einen Teil. Was gilt, steht in der Satzung der Kasse oder im Tarif. Patienten fragen vorher dort nach.
       </p>
 
       <h2>In zwei Sätzen erklärt</h2>
       <blockquote className="border-l-4 border-brand-300 pl-4 italic text-slate-600">
         „Ihre Kasse übernimmt einmal im Jahr die Zahnsteinentfernung. Die professionelle Reinigung entfernt zusätzlich die weichen
-        Beläge zwischen den Zähnen und kostet bei uns etwa [Betrag], oft zahlt Ihre Kasse oder Zusatzversicherung etwas dazu.“
+        Beläge zwischen den Zähnen und kostet bei uns etwa [Betrag]. Ob Ihre Kasse oder Zusatzversicherung etwas dazu zahlt, erfahren Sie dort.“
       </blockquote>
       <p>
         Wichtig: Die Kassenleistung immer zuerst nennen. Wer nur die Zahnsteinentfernung möchte, soll das ohne schlechtes Gewissen sagen

@@ -7,9 +7,9 @@ import { ZUSATZ_ANLAESSE } from "@/lib/fachangebote";
 //
 // Grundsätze wie beim Zahnarzt, hier noch strenger:
 // - Die Kassenleistung steht immer zuerst, mit dem Hinweis, wann die Kasse zahlt.
-// - Bei jeder Selbstzahlerleistung steht ehrlich, was über ihren Nutzen bekannt ist.
-// - Sorrida empfiehlt keine IGeL von sich aus. Eine Empfehlung setzt nur die Ärztin
-//   oder der Arzt, indem die besprochene Option gewählt wird.
+// - Wo ein Nutzen nicht belegt ist, steht das beim Angebot (Feld `nutzen`). Ohne hinterlegte Quelle steht dort
+//   nur, was nicht belegt ist oder was eine Leistung nicht ersetzt, keine Aussage zu Wirkung oder Therapie.
+// - Sorrida empfiehlt keine IGeL von sich aus. Vorgemerkt ist nur, was die Ärztin oder der Arzt anklickt.
 // - Preise sind Beispielwerte im üblichen GOÄ-Rahmen und in den Einstellungen anpassbar.
 
 export type MedOptionType = "kasse" | "igel";
@@ -95,7 +95,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         options: [
           { id: "checkup35", name: "Gesundheits-Check-up", type: "kasse", price: 70, kasseAbAlter: 18, benefits: ["Kassenleistung: von 18 bis 34 einmal, ab 35 alle drei Jahre", "Blutdruck, Blutzucker, Cholesterin, Urin"] },
           { id: "labor_plus", zusatz: true, name: "Erweitertes Labor ohne Beschwerden (z. B. Vitamin D, Schilddrüse)", type: "igel", price: 45, benefits: ["auf Wunsch, ohne Anlass"], kasseWenn: "Bei Beschwerden oder begründetem Verdacht Kassenleistung.", nutzen: "Ohne Beschwerden ist ein Nutzen für die meisten Werte nicht belegt." },
-          { id: "us_abdomen", zusatz: true, name: "Ultraschall der Bauchorgane ohne Beschwerden", type: "igel", price: 50, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden Kassenleistung.", nutzen: "Als Vorsorge ohne Beschwerden ist kein Nutzen belegt; Zufallsbefunde können verunsichern." },
+          { id: "us_abdomen", zusatz: true, name: "Ultraschall der Bauchorgane ohne Beschwerden", type: "igel", price: 50, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden Kassenleistung.", nutzen: "Als Vorsorge ohne Beschwerden ist kein Nutzen belegt." },
         ],
       },
       {
@@ -103,8 +103,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Reisevorbereitung mit Impfschutz",
         bereich: "Reisemedizin",
         options: [
-          { id: "reiseberatung", name: "Reisemedizinische Beratung", type: "igel", price: 30, benefits: ["Impfplan und Malariaschutz für Ihr Reiseziel"], kasseWenn: "Viele Krankenkassen erstatten Reiseimpfungen als Satzungsleistung. Rechnung bei der Kasse einreichen." },
-          { id: "reiseimpfung", name: "Reiseimpfungen nach Plan (je Impfung, zzgl. Impfstoff)", type: "igel", price: 15, benefits: ["Impfschutz passend zum Reiseziel"], kasseWenn: "Viele Krankenkassen erstatten Reiseimpfungen als Satzungsleistung." },
+          { id: "reiseberatung", name: "Reisemedizinische Beratung", type: "igel", price: 30, benefits: ["Impfplan und Malariaschutz für Ihr Reiseziel"], kasseWenn: "Manche Krankenkassen erstatten Reiseimpfungen als Satzungsleistung. Bitte vorher bei der Kasse fragen." },
+          { id: "reiseimpfung", name: "Reiseimpfungen nach Plan (je Impfung, zzgl. Impfstoff)", type: "igel", price: 15, benefits: ["Impfschutz passend zum Reiseziel"], kasseWenn: "Manche Krankenkassen erstatten Reiseimpfungen als Satzungsleistung. Bitte vorher bei der Kasse fragen." },
         ],
       },
       {
@@ -124,7 +124,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
     arztDativ: "Ihrer Augenärztin oder Ihrem Augenarzt",
     marketing: {
       headline: "Glaukom-Vorsorge und OCT ehrlich erklärt statt am Tresen verkauft",
-      problem: "Die Glaukom-Früherkennung ist die bekannteste IGeL und die meistkritisierte. Patienten fühlen sich schnell überrumpelt.",
+      problem: "Zur Glaukom-Früherkennung haben Patienten Fragen. Sie braucht eine klare Aufklärung, damit sich niemand überrumpelt fühlt.",
       beispiel: "Untersuchung bei Verdacht als Kassenleistung, Vorsorge ohne Verdacht mit offenem Hinweis zum Nutzen.",
     },
     anlaesse: [
@@ -134,7 +134,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "glaukom_kasse", name: "Augendruck und Sehnerv bei Verdacht oder Risiko", type: "kasse", price: 40, benefits: ["Kassenleistung bei Verdacht, Risikofaktoren oder Beschwerden"] },
-          { id: "glaukom_igel", name: "Glaukom-Vorsorge ohne Verdacht (Augendruck und Sehnerv)", type: "igel", price: 40, benefits: ["Messung des Augendrucks", "Beurteilung des Sehnervs"], nutzen: "Ob die Früherkennung ohne Beschwerden mehr nützt als schadet, ist wissenschaftlich nicht geklärt." },
+          { id: "glaukom_igel", name: "Glaukom-Vorsorge ohne Verdacht (Augendruck und Sehnerv)", type: "igel", price: 40, benefits: ["Messung des Augendrucks", "Beurteilung des Sehnervs"], nutzen: "Als Vorsorge ohne Verdacht ist ein Nutzen nicht belegt." },
           { id: "glaukom_oct", zusatz: true, name: "Zusätzlich OCT des Sehnervs", type: "igel", price: 60, benefits: ["Schichtaufnahme des Sehnervs", "Bilder lassen sich später vergleichen"], nutzen: "Ohne Verdacht ist ein Zusatznutzen nicht belegt." },
         ],
       },
@@ -196,7 +196,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
     arztDativ: "Ihrer Frauenärztin oder Ihrem Frauenarzt",
     marketing: {
       headline: "Vorsorge, Ultraschall, Schwangerschaft: ohne Druck und mit ehrlichem Nutzenhinweis",
-      problem: "Der vaginale Ultraschall zur Krebsfrüherkennung ist die umsatzstärkste und umstrittenste IGeL. Wer ihn anbietet, braucht eine saubere Aufklärung.",
+      problem: "Zum vaginalen Ultraschall als Früherkennung haben Patientinnen Fragen. Er braucht eine klare Aufklärung.",
       beispiel: "Krebsfrüherkennung auf Kasse, Ultraschall ohne Beschwerden mit dem Hinweis, dass kein Nutzen belegt ist.",
     },
     anlaesse: [
@@ -207,8 +207,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "kfu_gyn", name: "Krebsfrüherkennung mit Abstrich", type: "kasse", price: 40, benefits: ["Kassenleistung ab 20; ab 35 alle drei Jahre mit HPV-Test"] },
-          { id: "us_vaginal", zusatz: true, name: "Ultraschall von Gebärmutter und Eierstöcken ohne Beschwerden", type: "igel", price: 50, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden oder auffälligem Befund Kassenleistung.", nutzen: "Zur Früherkennung bei beschwerdefreien Frauen ist kein Nutzen belegt; Fehlalarme können zu weiteren Eingriffen führen." },
-          { id: "hpv_u35", zusatz: true, name: "HPV-Test vor dem 35. Lebensjahr", type: "igel", price: 45, benefits: ["Nachweis krebsauslösender Viren"], kasseWenn: "Ab 35 Teil der Kassenleistung, bei auffälligem Abstrich auch vorher.", nutzen: "Unter 35 sind HPV-Infektionen häufig und heilen meist von selbst aus." },
+          { id: "us_vaginal", zusatz: true, name: "Ultraschall von Gebärmutter und Eierstöcken ohne Beschwerden", type: "igel", price: 50, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden oder auffälligem Befund Kassenleistung.", nutzen: "Zur Früherkennung ohne Beschwerden ist kein Nutzen belegt." },
+          { id: "hpv_u35", zusatz: true, name: "HPV-Test vor dem 35. Lebensjahr", type: "igel", price: 45, benefits: ["Nachweis krebsauslösender Viren"], kasseWenn: "Ab 35 Teil der Kassenleistung, bei auffälligem Abstrich auch vorher.", nutzen: "Vor dem 35. Lebensjahr ist ein Nutzen als Vorsorge nicht belegt." },
         ],
       },
       {
@@ -218,7 +218,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "brust_tast", name: "Tastuntersuchung der Brust", type: "kasse", price: 20, kasseAbAlter: 30, benefits: ["Kassenleistung ab 30 jährlich"] },
-          { id: "brust_us", zusatz: true, name: "Ultraschall der Brust ohne Befund", type: "igel", price: 50, benefits: ["ergänzende Bildgebung, z. B. bei dichtem Brustgewebe"], kasseWenn: "Bei Tastbefund oder Verdacht Kassenleistung.", nutzen: "Als alleinige Vorsorge ist ein Nutzen nicht belegt; bei dichtem Gewebe gemeinsam abwägen." },
+          { id: "brust_us", zusatz: true, name: "Ultraschall der Brust ohne Befund", type: "igel", price: 50, benefits: ["ergänzende Bildgebung, z. B. bei dichtem Brustgewebe"], kasseWenn: "Bei Tastbefund oder Verdacht Kassenleistung.", nutzen: "Als alleinige Vorsorge ist ein Nutzen nicht belegt." },
         ],
       },
       {
@@ -228,8 +228,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Schwangerschaft",
         options: [
           { id: "mutterschaft", name: "Vorsorge nach Mutterschafts-Richtlinien", type: "kasse", price: 0, benefits: ["Kassenleistung, inklusive drei Ultraschall-Untersuchungen"] },
-          { id: "toxo", zusatz: true, name: "Toxoplasmose-Test", type: "igel", price: 25, benefits: ["zeigt, ob Sie schon geschützt sind"], kasseWenn: "Bei Verdacht auf eine Infektion Kassenleistung." },
-          { id: "us_extra", zusatz: true, name: "Zusätzlicher Ultraschall (auch 3D) auf Wunsch", type: "igel", price: 80, benefits: ["zusätzliche Bilder Ihres Kindes"], nutzen: "Medizinisch nicht notwendig, eine Wunschleistung." },
+          { id: "toxo", zusatz: true, name: "Toxoplasmose-Test", type: "igel", price: 25, benefits: ["Bestimmung von Antikörpern im Blut"], kasseWenn: "Bei Verdacht auf eine Infektion Kassenleistung." },
+          { id: "us_extra", zusatz: true, name: "Zusätzlicher Ultraschall (auch 3D) auf Wunsch", type: "igel", price: 80, benefits: ["zusätzliche Bilder Ihres Kindes"], nutzen: "Wunschleistung ohne medizinischen Anlass, keine Kassenleistung." },
         ],
       },
     ],
@@ -252,7 +252,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "prostata_tast", name: "Tastuntersuchung der Prostata", type: "kasse", price: 20, kasseAbAlter: 45, benefits: ["Kassenleistung ab 45 jährlich"] },
-          { id: "psa", zusatz: true, name: "PSA-Test zur Früherkennung", type: "igel", price: 30, benefits: ["Bluttest auf das prostataspezifische Antigen"], kasseWenn: "Bei Beschwerden, Verdacht oder zur Verlaufskontrolle Kassenleistung.", nutzen: "Die Früherkennung kann zu Überdiagnosen und weiteren Behandlungen führen. Bitte gemeinsam abwägen." },
+          { id: "psa", zusatz: true, name: "PSA-Test zur Früherkennung", type: "igel", price: 30, benefits: ["Bluttest auf das prostataspezifische Antigen"], kasseWenn: "Bei Beschwerden, Verdacht oder zur Verlaufskontrolle Kassenleistung.", nutzen: "Die Früherkennung kann zu Überdiagnosen führen." },
           { id: "us_uro", zusatz: true, name: "Ultraschall von Nieren und Blase ohne Beschwerden", type: "igel", price: 45, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden Kassenleistung.", nutzen: "Ohne Beschwerden ist kein Nutzen belegt." },
         ],
       },
@@ -276,7 +276,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         options: [
           { id: "ortho_kasse", name: "Behandlung nach Leitlinie (z. B. Physiotherapie, Medikamente)", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
           { id: "eswt", zusatz: true, name: "Stoßwellentherapie (je Sitzung)", type: "igel", price: 80, benefits: ["ohne Operation, meist 3–5 Sitzungen"], kasseWenn: "Bei Fersenschmerz (Plantarfasziitis) nach erfolgloser Vorbehandlung Kassenleistung." },
-          { id: "hyaluron", zusatz: true, name: "Hyaluronsäure-Injektion ins Knie (je Spritze)", type: "igel", price: 90, benefits: ["Spritze in das Kniegelenk"], nutzen: "Der Nutzen bei Kniearthrose ist gering und umstritten." },
+          { id: "hyaluron", zusatz: true, name: "Hyaluronsäure-Injektion ins Knie (je Spritze)", type: "igel", price: 90, benefits: ["Spritze in das Kniegelenk"], nutzen: "Ein Nutzen bei Kniearthrose ist nicht sicher belegt." },
           { id: "akupunktur", zusatz: true, name: "Akupunktur", type: "igel", price: 40, benefits: ["Ergänzung zur Schmerztherapie"], kasseWenn: "Bei chronischen Rücken- oder Knieschmerzen Kassenleistung." },
         ],
       },
@@ -340,7 +340,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "u_kasse", name: "U1 bis U9 und J1", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-          { id: "u_extra", zusatz: true, name: "U10, U11 oder J2", type: "igel", price: 50, benefits: ["Entwicklung, Schule, Pubertät"], kasseWenn: "Viele Krankenkassen zahlen sie über Verträge mit den Kinderärzten. Bitte bei der Kasse nachfragen." },
+          { id: "u_extra", zusatz: true, name: "U10, U11 oder J2", type: "igel", price: 50, benefits: ["Entwicklung, Schule, Pubertät"], kasseWenn: "Manche Krankenkassen zahlen sie über Verträge mit den Kinderärzten. Bitte vorher bei der Kasse fragen." },
         ],
       },
       {
@@ -349,7 +349,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Bescheinigung",
         options: [
           { id: "sporttaugl", name: "Sporttauglichkeits-Bescheinigung", type: "igel", price: 30, benefits: ["für Verein oder Wettkampf"] },
-          { id: "reiseimpf_kind", name: "Reiseimpfungen (je Impfung, zzgl. Impfstoff)", type: "igel", price: 15, benefits: ["Schutz für das Reiseland"], kasseWenn: "Viele Krankenkassen erstatten Reiseimpfungen als Satzungsleistung." },
+          { id: "reiseimpf_kind", name: "Reiseimpfungen (je Impfung, zzgl. Impfstoff)", type: "igel", price: 15, benefits: ["Schutz für das Reiseland"], kasseWenn: "Manche Krankenkassen erstatten Reiseimpfungen als Satzungsleistung. Bitte vorher bei der Kasse fragen." },
         ],
       },
     ],
@@ -372,7 +372,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         options: [
           { id: "kardio_kasse", name: "Abklärung bei Beschwerden oder Risikofaktoren", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
           { id: "ergometrie", name: "Belastungs-EKG ohne Beschwerden", type: "igel", price: 70, benefits: ["zeigt die Belastbarkeit des Herzens"], nutzen: "Ohne Beschwerden ist ein Nutzen für die Vorsorge nicht belegt." },
-          { id: "carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt; Fachgesellschaften raten davon ab." },
+          { id: "carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
         ],
       },
     ],
@@ -395,8 +395,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Schnittbild",
         options: [
           { id: "mrt_kasse", name: "MRT mit Überweisung bei medizinischer Indikation", type: "kasse", price: 450, benefits: ["Kassenleistung mit Überweisung"] },
-          { id: "mrt_igel", name: "MRT ohne Indikation (je Körperregion)", type: "igel", price: 450, benefits: ["ohne Strahlung"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt; Zufallsbefunde können zu weiteren Untersuchungen führen." },
-          { id: "ganzkoerper_mrt", name: "Ganzkörper-MRT zur Vorsorge", type: "igel", price: 950, benefits: ["Übersicht über viele Organe"], nutzen: "Ein Nutzen für Gesunde ist nicht belegt; häufige Zufallsbefunde verunsichern und ziehen Folgeuntersuchungen nach sich." },
+          { id: "mrt_igel", name: "MRT ohne Indikation (je Körperregion)", type: "igel", price: 450, benefits: ["ohne Strahlung"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
+          { id: "ganzkoerper_mrt", name: "Ganzkörper-MRT zur Vorsorge", type: "igel", price: 950, benefits: ["Übersicht über viele Organe"], nutzen: "Ein Nutzen für Gesunde ist nicht belegt." },
         ],
       },
       {
@@ -406,7 +406,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "mammo_screening", name: "Mammographie-Screening", type: "kasse", price: 90, kasseAbAlter: 50, benefits: ["Kassenleistung ab 50 alle zwei Jahre, mit Einladung"] },
-          { id: "mamma_us", zusatz: true, name: "Ultraschall der Brust ergänzend", type: "igel", price: 60, benefits: ["ohne Strahlung"], kasseWenn: "Bei Tastbefund oder Verdacht Kassenleistung.", nutzen: "Als alleinige Vorsorge ist ein Nutzen nicht belegt; bei dichtem Gewebe gemeinsam abwägen." },
+          { id: "mamma_us", zusatz: true, name: "Ultraschall der Brust ergänzend", type: "igel", price: 60, benefits: ["ohne Strahlung"], kasseWenn: "Bei Tastbefund oder Verdacht Kassenleistung.", nutzen: "Als alleinige Vorsorge ist ein Nutzen nicht belegt." },
         ],
       },
       {
@@ -447,7 +447,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "neuro_kasse", name: "Ultraschall bei Beschwerden oder Risikofaktoren", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-          { id: "neuro_carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt; Fachgesellschaften raten davon ab." },
+          { id: "neuro_carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
         ],
       },
       {
@@ -542,14 +542,14 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Diagnostik",
         options: [
           { id: "lufu_kasse", name: "Lungenfunktion bei Beschwerden", type: "kasse", price: 40, benefits: ["Kassenleistung bei Husten, Atemnot"] },
-          { id: "lufu_igel", name: "Lungenfunktion ohne Beschwerden (z. B. Raucher-Check)", type: "igel", price: 40, benefits: ["Ausgangswert für spätere Vergleiche"], nutzen: "Ohne Beschwerden ist der Nutzen begrenzt." },
+          { id: "lufu_igel", name: "Lungenfunktion ohne Beschwerden (z. B. Raucher-Check)", type: "igel", price: 40, benefits: ["Ausgangswert für spätere Vergleiche"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
         ],
       },
       {
         id: "rauchstopp",
         label: "Rauchstopp",
         bereich: "Prävention",
-        options: [{ id: "rauchstopp_kurs", name: "Rauchentwöhnungskurs", type: "igel", price: 150, benefits: ["Gruppenkurs über mehrere Wochen"], kasseWenn: "Zertifizierte Präventionskurse bezuschussen viele Krankenkassen (§ 20 SGB V)." }],
+        options: [{ id: "rauchstopp_kurs", name: "Rauchentwöhnungskurs", type: "igel", price: 150, benefits: ["Gruppenkurs über mehrere Wochen"], kasseWenn: "Krankenkassen bezuschussen zertifizierte Präventionskurse (§ 20 SGB V). Die Höhe legt jede Kasse fest." }],
       },
     ],
   },
@@ -580,14 +580,14 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Diagnostik",
         options: [
           { id: "sd_kasse", name: "Ultraschall und Blutwerte bei Beschwerden oder Befund", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-          { id: "sd_igel", name: "Schilddrüsen-Check ohne Beschwerden", type: "igel", price: 50, benefits: ["Ultraschall und Blutwerte"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt; harmlose Knoten werden häufig gefunden." },
+          { id: "sd_igel", name: "Schilddrüsen-Check ohne Beschwerden", type: "igel", price: 50, benefits: ["Ultraschall und Blutwerte"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
         ],
       },
       {
         id: "ernaehrung",
         label: "Ernährungsberatung",
         bereich: "Prävention",
-        options: [{ id: "ernaehrung_beratung", name: "Ernährungsberatung (je Termin)", type: "igel", price: 60, benefits: ["persönlicher Plan"], kasseWenn: "Viele Kassen bezuschussen Ernährungsberatung mit ärztlicher Bescheinigung." }],
+        options: [{ id: "ernaehrung_beratung", name: "Ernährungsberatung (je Termin)", type: "igel", price: 60, benefits: ["persönlicher Plan"], kasseWenn: "Manche Krankenkassen zahlen mit ärztlicher Bescheinigung einen Zuschuss. Bitte vorher bei der Kasse fragen." }],
       },
     ],
   },
@@ -599,7 +599,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
     arztDativ: "Ihrer Chirurgin oder Ihrem Chirurgen",
     marketing: {
       headline: "Medizinisch notwendig oder kosmetisch? Die Grenze klar zeigen",
-      problem: "Ob eine Krampfader oder ein Muttermal auf Kasse behandelt wird, hängt am Befund. Patienten erfahren es oft zu spät.",
+      problem: "Ob eine Krampfader oder ein Muttermal auf Kasse behandelt wird, hängt am Befund. Patienten wollen das vorher wissen.",
       beispiel: "Behandlung bei Beschwerden auf Kasse, kosmetische Eingriffe mit Preis und ohne Druck.",
     },
     anlaesse: [
@@ -609,7 +609,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Venen",
         options: [
           { id: "venen_kasse", name: "Behandlung von Krampfadern bei Beschwerden", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-          { id: "besenreiser", zusatz: true, name: "Verödung von Besenreisern (je Sitzung)", type: "igel", price: 120, benefits: ["Behandlung aus kosmetischem Wunsch"], nutzen: "Kosmetische Behandlung, kein medizinischer Nutzen." },
+          { id: "besenreiser", zusatz: true, name: "Verödung von Besenreisern (je Sitzung)", type: "igel", price: 120, benefits: ["Behandlung aus kosmetischem Wunsch"], nutzen: "Behandlung aus kosmetischem Wunsch, keine Kassenleistung." },
         ],
       },
       {
@@ -664,8 +664,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
     teaser: "Verordnung mit Zuzahlung, Selbstzahler, Kurse",
     arztDativ: "Ihrer Physiotherapeutin oder Ihrem Physiotherapeuten",
     marketing: {
-      headline: "Rezept zu Ende, Beschwerden nicht: Anschlussbehandlung offen anbieten",
-      problem: "Nach der Verordnung brechen viele Patienten ab, obwohl sie weitermachen würden. Sie wissen nicht, was Selbstzahler-Einheiten kosten und was die Kasse erstattet.",
+      headline: "Rezept zu Ende: Selbstzahler-Einheiten mit Preis zeigen",
+      problem: "Nach dem Ende der Verordnung fragen Patienten, was weitere Einheiten kosten und was die Kasse erstattet.",
       beispiel: "Krankengymnastik auf Verordnung mit gesetzlicher Zuzahlung, Folgeeinheiten als Selbstzahler, Osteopathie mit Hinweis auf Kassenzuschüsse.",
     },
     anlaesse: [
@@ -676,7 +676,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         options: [
           { id: "kg_rezept", name: "Krankengymnastik auf Verordnung (6 Einheiten)", type: "kasse", price: 180, zuzahlung: true, benefits: ["Kassenleistung mit gesetzlicher Zuzahlung"] },
           { id: "kg_selbst", zusatz: true, name: "Weitere Krankengymnastik als Selbstzahler (6 Einheiten)", type: "igel", price: 270, benefits: ["ohne Unterbrechung weiterbehandeln"], kasseWenn: "Mit neuer Verordnung wieder Kassenleistung." },
-          { id: "osteopathie", zusatz: true, name: "Osteopathie (je Sitzung)", type: "igel", price: 90, benefits: ["manuelle Behandlung"], kasseWenn: "Viele Krankenkassen erstatten Osteopathie anteilig als Zusatzleistung, oft nur mit ärztlicher Bescheinigung." },
+          { id: "osteopathie", zusatz: true, name: "Osteopathie (je Sitzung)", type: "igel", price: 90, benefits: ["manuelle Behandlung"], kasseWenn: "Manche Krankenkassen erstatten einen Teil als Zusatzleistung, teils nur mit ärztlicher Bescheinigung. Bitte vorher bei der Kasse fragen." },
         ],
       },
       {
@@ -685,7 +685,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Prävention",
         options: [
           { id: "kgg_karte", name: "Gerätetraining unter Anleitung (10 Termine)", type: "igel", price: 150, benefits: ["Training an Geräten"], kasseWenn: "Gerätegestützte Krankengymnastik ist mit Verordnung Kassenleistung." },
-          { id: "rueckenkurs", name: "Rückenkurs (8 Termine)", type: "igel", price: 120, benefits: ["in der Gruppe"], kasseWenn: "Zertifizierte Präventionskurse bezuschussen viele Krankenkassen (§ 20 SGB V)." },
+          { id: "rueckenkurs", name: "Rückenkurs (8 Termine)", type: "igel", price: 120, benefits: ["in der Gruppe"], kasseWenn: "Krankenkassen bezuschussen zertifizierte Präventionskurse (§ 20 SGB V). Die Höhe legt jede Kasse fest." },
         ],
       },
     ],
@@ -748,7 +748,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
     arztDativ: "Ihrer Podologin oder Ihrem Podologen",
     marketing: {
       headline: "Diabetischer Fuß auf Rezept, Fußpflege privat: ohne Diskussion am Tresen",
-      problem: "Viele wissen nicht, dass podologische Behandlung bei bestimmten Diagnosen Kassenleistung ist, und andere erwarten es fälschlich.",
+      problem: "Ob podologische Behandlung Kassenleistung ist, hängt an der Diagnose. Das ist für Patienten schwer zu erkennen.",
       beispiel: "Podologische Therapie auf Verordnung mit Zuzahlung, medizinische Fußpflege ohne Verordnung mit Preis.",
     },
     anlaesse: [
@@ -880,8 +880,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
     teaser: "Kassenzuschuss für Gläser, Gleitsicht, Zusatzoptionen",
     arztDativ: "Ihrer Augenoptikerin oder Ihrem Augenoptiker",
     marketing: {
-      headline: "Wann die Kasse Brillengläser bezuschusst, und welche Extras sich lohnen",
-      problem: "Viele Kunden wissen nicht, ob ihnen ein Kassenzuschuss zusteht, und können Zusatzoptionen schlecht einordnen.",
+      headline: "Wann die Kasse Brillengläser bezuschusst, und was Extras kosten",
+      problem: "Kunden fragen, ob ihnen ein Kassenzuschuss zusteht, und wollen Zusatzoptionen einordnen können.",
       beispiel: "Hinweis auf den Kassenzuschuss für Kinder und bei starker Sehschwäche, Gleitsicht und Extras mit Preis und ehrlicher Einordnung.",
     },
     anlaesse: [
@@ -950,8 +950,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Naturheilkundliche Behandlung",
         bereich: "Behandlung",
         options: [
-          { id: "hp_anamnese", name: "Ausführliche Erstanamnese", type: "igel", price: 80, benefits: ["etwa 60 Minuten"], kasseWenn: "Gesetzliche Kassen zahlen nicht; private Zusatzversicherungen für Heilpraktiker erstatten oft anteilig." },
-          { id: "hp_akupunktur", name: "Akupunktur (je Sitzung)", type: "igel", price: 50, benefits: ["etwa 30 Minuten"], kasseWenn: "Private Zusatzversicherungen erstatten oft anteilig." },
+          { id: "hp_anamnese", name: "Ausführliche Erstanamnese", type: "igel", price: 80, benefits: ["etwa 60 Minuten"], kasseWenn: "Gesetzliche Kassen zahlen nicht. Manche privaten Zusatzversicherungen für Heilpraktiker erstatten einen Teil. Bitte vorher dort fragen." },
+          { id: "hp_akupunktur", name: "Akupunktur (je Sitzung)", type: "igel", price: 50, benefits: ["etwa 30 Minuten"], kasseWenn: "Manche privaten Zusatzversicherungen erstatten einen Teil. Bitte vorher dort fragen." },
           { id: "hp_verfahren", name: "Weitere naturheilkundliche Verfahren (je Sitzung)", type: "igel", price: 60, benefits: ["nach Absprache"], nutzen: "Für viele naturheilkundliche Verfahren ist ein Nutzen wissenschaftlich nicht belegt." },
         ],
       },
@@ -977,9 +977,9 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Aufnahme",
         options: [
           { id: "allgemein", name: "Allgemeine Krankenhausleistung", type: "kasse", price: 0, benefits: ["Kassenleistung: alle medizinisch notwendigen Leistungen", "gesetzliche Zuzahlung 10 € pro Tag, höchstens 28 Tage im Jahr"] },
-          { id: "zweibett", zusatz: true, name: "Zweibettzimmer (je Tag)", type: "igel", price: 60, benefits: ["Zimmer mit zwei Betten"], kasseWenn: "Private Zusatzversicherungen übernehmen das oft." },
-          { id: "einbett", zusatz: true, name: "Einbettzimmer (je Tag)", type: "igel", price: 110, benefits: ["eigenes Zimmer"], kasseWenn: "Private Zusatzversicherungen übernehmen das oft." },
-          { id: "wahlarzt", zusatz: true, name: "Wahlärztliche Behandlung (geschätzt für den Aufenthalt)", type: "igel", price: 800, benefits: ["Behandlung durch die leitenden Ärztinnen und Ärzte"], kasseWenn: "Private Zusatzversicherungen übernehmen das oft.", nutzen: "Die allgemeine Krankenhausleistung umfasst alle medizinisch notwendigen Leistungen." },
+          { id: "zweibett", zusatz: true, name: "Zweibettzimmer (je Tag)", type: "igel", price: 60, benefits: ["Zimmer mit zwei Betten"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen." },
+          { id: "einbett", zusatz: true, name: "Einbettzimmer (je Tag)", type: "igel", price: 110, benefits: ["eigenes Zimmer"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen." },
+          { id: "wahlarzt", zusatz: true, name: "Wahlärztliche Behandlung (geschätzt für den Aufenthalt)", type: "igel", price: 800, benefits: ["Behandlung durch die leitenden Ärztinnen und Ärzte"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.", nutzen: "Die allgemeine Krankenhausleistung umfasst alle medizinisch notwendigen Leistungen." },
         ],
         notes: ["Wahlleistungen werden vor der Erbringung schriftlich vereinbart."],
       },

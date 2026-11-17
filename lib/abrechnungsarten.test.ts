@@ -24,4 +24,10 @@ describe("Abrechnungsarten", () => {
   it("alle Arten sind vollständig beschrieben", () => {
     for (const a of Object.values(ARTEN)) { expect(a.rechenweg.length).toBeGreaterThan(20); expect(a.regeln.length).toBeGreaterThan(0); }
   });
+  it("kein Text rät zu Raten oder Teilzahlung (Raten sind angehalten, lib/installments.ts)", () => {
+    for (const a of Object.values(ARTEN)) {
+      const texte = [a.zahler, a.rechenweg, ...a.regeln, ...a.begriffe.flat(), ...a.geldhebel.flatMap((g) => [g.problem, g.massnahme, g.inSorrida ?? ""])];
+      for (const t of texte) expect(t, a.id).not.toMatch(/\brate|ratenwunsch|teilzahl|finanzier/i);
+    }
+  });
 });

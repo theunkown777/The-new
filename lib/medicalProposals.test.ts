@@ -74,7 +74,7 @@ describe("Vorschläge für Arztpraxen", () => {
     const input: ProposalInput = { teeth: {}, globals: {}, patient: patient(50), fach: "gyn", anlaesse: ["krebsvorsorge"] };
     const items = buildProposal(input, DEFAULT_PRICES);
     const letter = buildLetter({ items, choices: {}, patient: input.patient, patientName: "Frau Test", practiceName: "Praxis", date: new Date("2026-11-02"), fach: "gyn" });
-    expect(letter).toContain("Zum Nutzen: Zur Früherkennung bei beschwerdefreien Frauen ist kein Nutzen belegt");
+    expect(letter).toContain("Zum Nutzen: Zur Früherkennung ohne Beschwerden ist kein Nutzen belegt");
     expect(letter).toContain("Selbstzahlerleistungen (IGeL) sind freiwillig");
     expect(letter).not.toContain("Heil- und Kostenplan");
   });

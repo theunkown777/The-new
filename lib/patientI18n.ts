@@ -58,8 +58,9 @@ export const langDir = (lang: PatientLang) => LOCALES[lang].dir;
  * Sprache der Ansicht: zuerst `?lang=`, sonst die erste unterstützte Sprache
  * aus Accept-Language (nach q-Wert), sonst Deutsch.
  */
-export function pickLang(param: string | undefined, acceptLanguage: string | null): PatientLang {
-  const p = param?.trim().toLowerCase();
+export function pickLang(param: unknown, acceptLanguage: string | null): PatientLang {
+  // Steht ?lang= doppelt in der Adresse, kommt eine Liste an: dann gilt der Parameter als nicht gesetzt.
+  const p = typeof param === "string" ? param.trim().toLowerCase() : undefined;
   if (isPatientLang(p)) return p;
   const wunsch = (acceptLanguage ?? "")
     .split(",")

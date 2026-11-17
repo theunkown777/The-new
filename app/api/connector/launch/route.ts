@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { mitPatientenGrenze } from "@/lib/patientenImportSperre";
 import { connectorAnmelden, connectorInfoAus } from "@/lib/connectorAuth";
 import { generateToken } from "@/lib/tokens";
 import {
@@ -37,7 +38,13 @@ export async function POST(req: Request) {
     : "abschluss";
 
   const fields = vddsToPatientFields(data);
-  const patient = await prisma.patient.upsert({
+  const kennung = { practiceId: key.practiceId, externalSource: data.PVS.toUpperCase(), externalId: data.PATID };
+  // Gastzugang: Ein neuer Patient zählt zur Obergrenze wie bei Neuanlage und Import (lib/patientenImportSperre.ts).
+  const [praxis, schon] = await Promise.all([
+    prisma.practice.findUnique({ where: { id: key.practiceId }, select: { isDemo: true } }),
+    prisma.patient.findUnique({ where: { practiceId_externalSource_externalId: kennung }, select: { id: true } }),
+  ]);
+  const mit = await mitPatientenGrenze({ practiceId: key.practiceId, demo: praxis?.isDemo === true, neu: schon ? 0 : 1 }, (tx) => tx.patient.upsert({
     where: {
       practiceId_externalSource_externalId: {
         practiceId: key.practiceId,
@@ -54,7 +61,9 @@ export async function POST(req: Request) {
     // Leere Angaben der PVS überschreiben vorhandene Daten nicht.
     update: Object.fromEntries(Object.entries(fields).filter(([, v]) => v != null)),
     select: { id: true },
-  });
+  }));
+  if (!mit.ok) return NextResponse.json({ error: mit.grund }, { status: 409 });
+  const patient = mit.wert;
 
   const info = connectorInfoAus(req);
   await prisma.connectorKey.update({

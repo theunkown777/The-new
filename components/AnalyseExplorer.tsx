@@ -15,7 +15,7 @@ const eur = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
 
 function hinweis(g: Group): string {
   if (g.quote == null) return "Noch zu wenige Entscheidungen für eine Aussage. Ab fünf entschiedenen Vorschlägen zeigt Sorrida die Annahmequote.";
-  if (g.quote >= 70) return "Wird meist angenommen. Prüfen Sie, ob Sie die Leistung allen Patienten anbieten, für die sie passt.";
+  if (g.quote >= 70) return "Wird meist angenommen.";
   if (g.quote >= 45) return "Etwa jede zweite Zusage.";
   return "Wird oft abgelehnt. Preis, Erklärung und Anlass prüfen.";
 }

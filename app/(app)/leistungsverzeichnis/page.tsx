@@ -11,6 +11,7 @@ import { LeistungenImport } from "@/components/LeistungenImport";
 import { LeistungSchnell } from "@/components/LeistungSchnell";
 import { KvBezirkWahl } from "@/components/KvBezirkWahl";
 import { alleFilter, fachFilter, GAST_HINWEIS, sortiereSysteme } from "@/lib/amtlich/gliederung";
+import { seiteAus } from "@/lib/adresse";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Leistungsverzeichnis" };
@@ -29,7 +30,7 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
   const fach = (await praxisFach(practiceId)) || "zahn";
   const alle = searchParams.alle === "1";
   const q = (searchParams.q ?? "").trim().slice(0, 80);
-  const seite = Math.max(1, Number(searchParams.seite) || 1);
+  const seite = seiteAus(searchParams.seite);
 
   const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { kvBezirk: true, isDemo: true } });
   const kvBezirk = praxis?.kvBezirk ?? null;

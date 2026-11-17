@@ -67,7 +67,7 @@ export default function Page() {
 
       <h2>Wann die Kasse doch etwas dazugibt</h2>
       <ul>
-        <li><b>Präventionskurse:</b> Viele Krankenkassen bezuschussen Kurse, etwa Rückenschule, wenn der Kurs zertifiziert ist (§ 20 SGB V). Die Höhe legt jede Kasse selbst fest.</li>
+        <li><b>Präventionskurse:</b> Krankenkassen bezuschussen zertifizierte Kurse, etwa Rückenschule (§ 20 SGB V). Die Höhe legt jede Kasse selbst fest.</li>
         <li><b>Osteopathie und Ähnliches:</b> Manche Kassen erstatten einen Teil als freiwillige Zusatzleistung nach ihrer Satzung, oft mit Bedingungen wie einer ärztlichen Empfehlung. Der Patient sollte vorher bei seiner Kasse nachfragen.</li>
       </ul>
 

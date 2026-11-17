@@ -2,6 +2,7 @@ import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server
 import { withAuth, type NextRequestWithAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
 import { tokenGueltig } from "@/lib/sitzung";
+import { adressePruefen } from "@/lib/adresse";
 import { VORSCHAU_COOKIE, VORSCHAU_TAGE, darfInSuchmaschinen, freiOhneZugang, gastFrei, istVorschauHost, oeffentlichFrei, oeffentlichStufe, vorschauCookie, vorschauCookieGueltig, vorschauPassGueltig } from "@/lib/vorschau";
 
 // Website und App sind eins: Unter "/" sehen Besucher ohne Anmeldung die
@@ -19,6 +20,19 @@ const MFA_FREI = ["/api/auth/", "/api/settings/2fa/"];
 const GESCHUETZT = ["/dashboard", "/patients", "/reports", "/proposals", "/abschluss", "/settings", "/zahlungen", "/analyse", "/anfragen", "/vorsorge", "/praxismanager", "/termine", "/abrechnungspruefung", "/abrechnung", "/mein-bereich", "/leistungsverzeichnis", "/modelle", "/eingang", "/embed", "/empfang", "/betrieb", "/hilfe-praxis"];
 
 export default async function proxy(req: NextRequest, event: NextFetchEvent) {
+  // Null-Zeichen in der Adresse: 400. Doppelte Parameter auf Seiten: Weiterleitung mit dem jeweils ersten Wert
+  // (lib/adresse.ts). Beides würde sonst als Serverfehler enden und den Statusbericht belasten.
+  const adresse = adressePruefen(req.nextUrl.pathname, req.nextUrl.search);
+  if (adresse.art === "ungueltig") {
+    return req.nextUrl.pathname.startsWith("/api/")
+      ? NextResponse.json({ error: "Ungültige Adresse" }, { status: 400 })
+      : new NextResponse("Ungültige Adresse", { status: 400, headers: { "content-type": "text/plain; charset=utf-8", "X-Robots-Tag": "noindex, nofollow" } });
+  }
+  if (adresse.art === "doppelt" && !req.nextUrl.pathname.startsWith("/api/")) {
+    const ziel = req.nextUrl.clone();
+    ziel.search = adresse.search;
+    return NextResponse.redirect(ziel, 307);
+  }
   // Eigene Domain im Vorschau-Modus: ohne Zugangs-Cookie nur die Seite „Demnächst“
   if (istVorschauHost(req.headers.get("host"))) {
     const pfad = req.nextUrl.pathname;

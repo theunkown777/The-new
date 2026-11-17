@@ -71,7 +71,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "akupunktur_hp", label: "Akupunktur", bereich: "Behandlung",
       options: [
-        { id: "hp_akup", name: "Akupunktur (je Sitzung)", type: "igel", price: 55, benefits: ["Orientierung am Gebührenverzeichnis für Heilpraktiker"], kasseWenn: "Private Zusatzversicherungen erstatten oft anteilig." },
+        { id: "hp_akup", name: "Akupunktur (je Sitzung)", type: "igel", price: 55, benefits: ["Orientierung am Gebührenverzeichnis für Heilpraktiker"], kasseWenn: "Manche privaten Zusatzversicherungen erstatten einen Teil. Bitte vorher dort fragen." },
       ],
     },
   ],
@@ -82,7 +82,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
         { id: "uro_inko_diag", name: "Abklärung (Urin, Ultraschall, Restharn)", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
         { id: "uro_inko_bb", name: "Beckenbodentraining in der Physiotherapie", type: "kasse", price: 0, zuzahlung: "heilmittel", benefits: ["Heilmittel auf Verordnung"] },
         { id: "uro_inko_hm", name: "Inkontinenzhilfsmittel auf Rezept", type: "kasse", price: 0, zuzahlung: "hilfsmittel", benefits: ["Kassenleistung mit Zuzahlung"] },
-        { id: "uro_inko_magnet", zusatz: true, name: "Magnetstimulation des Beckenbodens", type: "igel", price: 40, benefits: ["ohne Ausziehen, im Sitzen"], nutzen: "Nur in kleinen Studien untersucht." },
+        { id: "uro_inko_magnet", zusatz: true, name: "Magnetstimulation des Beckenbodens", type: "igel", price: 40, benefits: ["ohne Ausziehen, im Sitzen"], nutzen: "Ein Nutzen ist nicht sicher belegt." },
       ],
     },
     {
@@ -96,7 +96,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "maennergesundheit", geschlecht: "M", label: "Männergesundheit und Erektionsstörung", bereich: "Männergesundheit",
       options: [
         { id: "uro_ed_diag", name: "Abklärung der Ursache (Labor, Gefäße, Hormone)", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
-        { id: "uro_ed_swt", zusatz: true, name: "Stoßwellentherapie bei Erektionsstörung (je Sitzung)", type: "igel", price: 150, benefits: ["ohne Medikamente"], nutzen: "In Studien untersucht; die Ergebnisse sind uneinheitlich." },
+        { id: "uro_ed_swt", zusatz: true, name: "Stoßwellentherapie bei Erektionsstörung (je Sitzung)", type: "igel", price: 150, benefits: ["ohne Medikamente"], nutzen: "Ein Nutzen ist nicht sicher belegt." },
       ],
     },
     {
@@ -118,14 +118,14 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "wechseljahre", geschlecht: "W", abAlter: 40, label: "Wechseljahre", bereich: "Hormone",
       options: [
         { id: "gyn_wj_ber", name: "Beratung und Behandlung bei Beschwerden", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-        { id: "gyn_wj_horm", name: "Hormonstatus ohne Beschwerden", type: "igel", price: 60, benefits: ["Blutwerte"], nutzen: "Ohne Beschwerden ändert der Wert die Behandlung meist nicht." },
+        { id: "gyn_wj_horm", name: "Hormonstatus ohne Beschwerden", type: "igel", price: 60, benefits: ["Blutwerte"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
       ],
     },
     {
       id: "hpv", geschlecht: "W", abAlter: 9, bisAlter: 45, label: "HPV-Impfung", bereich: "Impfung",
       options: [
         { id: "gyn_hpv_kasse", name: "HPV-Impfung nach STIKO (9 bis 14 Jahre, Nachholimpfung bis 17)", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-        { id: "gyn_hpv_privat", name: "HPV-Impfung als Erwachsene (je Dosis)", type: "igel", price: 160, benefits: ["Impfung gegen humane Papillomviren"], kasseWenn: "Viele Kassen erstatten auch später, oft bis 26; vorher fragen." },
+        { id: "gyn_hpv_privat", name: "HPV-Impfung als Erwachsene (je Dosis)", type: "igel", price: 160, benefits: ["Impfung gegen humane Papillomviren"], kasseWenn: "Manche Krankenkassen erstatten die Impfung auch später. Bitte vorher bei der Kasse fragen." },
       ],
     },
   ],
@@ -165,7 +165,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "trockenes_auge", label: "Trockenes Auge", bereich: "Oberfläche",
       options: [
         { id: "au_trocken_kasse", name: "Untersuchung und Behandlung", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
-        { id: "au_ipl", zusatz: true, name: "Lidrandbehandlung mit Lichtimpulsen (IPL, je Sitzung)", type: "igel", price: 120, benefits: ["bei Funktionsstörung der Liddrüsen"], nutzen: "Langzeitdaten sind begrenzt." },
+        { id: "au_ipl", zusatz: true, name: "Lidrandbehandlung mit Lichtimpulsen (IPL, je Sitzung)", type: "igel", price: 120, benefits: ["bei Funktionsstörung der Liddrüsen"], nutzen: "Ein Nutzen auf lange Sicht ist nicht belegt." },
       ],
     },
     {
@@ -218,7 +218,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "u10", abAlter: 7, bisAlter: 17, label: "Zusätzliche Vorsorge (U10, U11, J2)", bereich: "Vorsorge",
       options: [
-        { id: "ki_u10", name: "U10, U11 oder J2", type: "igel", price: 50, benefits: ["Entwicklung, Schule, Pubertät"], kasseWenn: "Viele Kassen zahlen über Sonderverträge; vorher fragen." },
+        { id: "ki_u10", name: "U10, U11 oder J2", type: "igel", price: 50, benefits: ["Entwicklung, Schule, Pubertät"], kasseWenn: "Manche Krankenkassen zahlen über Sonderverträge. Bitte vorher bei der Kasse fragen." },
       ],
     },
   ],

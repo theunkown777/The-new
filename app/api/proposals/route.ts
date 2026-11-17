@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { mitPatientenGrenze } from "@/lib/patientenImportSperre";
 import { resolvePrices } from "@/lib/proposals";
 import { choicesSchema, computeProposal, proposalInputSchema, proposalStatusSchema } from "@/lib/proposalSchema";
 import { OHNE_AKTE, kuerzelSchema, nameFuerSchreiben } from "@/lib/ohneAkte";
@@ -56,14 +57,20 @@ export async function POST(req: Request) {
 
   const practice = await prisma.practice.findUnique({
     where: { id: session.user.practiceId },
-    select: { name: true, proposalPrices: true },
+    select: { name: true, proposalPrices: true, isDemo: true },
   });
   // Schnellvorschlag: Der Datensatz trägt nur das Kürzel; die Versicherungsart kommt aus dem Vorschlag.
-  const patient = schnell
-    ? await prisma.patient.create({
-        data: { practiceId: session.user.practiceId, firstName: OHNE_AKTE, lastName: schnell.kuerzel, ohneAkte: true, insuranceType: input.patient.insurance === "PKV" ? "PKV" : "GKV" },
-      })
-    : await prisma.patient.findFirst({ where: { id: parsed.data.patientId, practiceId: session.user.practiceId } });
+  // Gastzugang: dieselbe Obergrenze für Patienten wie bei Neuanlage und Import (lib/patientenImportSperre.ts).
+  let patient;
+  if (schnell) {
+    const r = await mitPatientenGrenze({ practiceId: session.user.practiceId, demo: practice?.isDemo === true }, (tx) => tx.patient.create({
+      data: { practiceId: session.user.practiceId, firstName: OHNE_AKTE, lastName: schnell.kuerzel, ohneAkte: true, insuranceType: input.patient.insurance === "PKV" ? "PKV" : "GKV" },
+    }));
+    if (!r.ok) return NextResponse.json({ error: r.grund, code: r.belegt ? "BELEGT" : "GRENZE" }, { status: 409 });
+    patient = r.wert;
+  } else {
+    patient = await prisma.patient.findFirst({ where: { id: parsed.data.patientId, practiceId: session.user.practiceId } });
+  }
   if (!patient) return NextResponse.json({ error: "Patient nicht gefunden" }, { status: 404 });
   const patientId = patient.id;
   if (reportId) {

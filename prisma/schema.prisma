@@ -1081,6 +1081,8 @@ model FehlerEintrag {
   zaehler       Int       @default(1)
   /// Nur die ID der Praxis, bewusst ohne Beziehung
   practiceId    String?
+  /// Aus einer Demo-Praxis (Gastzugang): zählt nicht für den Statusbericht
+  demo          Boolean   @default(false)
   /// zuerst gesehen
   createdAt     DateTime  @default(now())
   zuletztAt     DateTime  @default(now())
