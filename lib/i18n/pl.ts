@@ -14,6 +14,7 @@ const ui: Ui = {
     `Można spokojnie sprawdzić, jakie są możliwości i ile będą kosztować. Proszę dotknąć opcji, aby zobaczyć swój udział własny. Decyzja zapada dopiero podczas rozmowy ${arzt ? "w gabinecie" : "ze stomatologiem"}.`,
   kasseWenn: "Kasa chorych płaci:",
   nutzen: "O korzyściach:",
+  quelle: "Źródło:",
   fineMed: (until) =>
     `Niewiążący szacunek kosztów według niemieckiej taryfy opłat lekarskich (Gebührenordnung für Ärzte, GOÄ). Świadczenia płatne samodzielnie (IGeL) są dobrowolne; przed wykonaniem świadczenia zawieramy z Panią/Panem pisemną umowę. Proszę spokojnie przemyśleć decyzję. Ten link jest ważny do ${until}.`,
   deadlineTitle: "Ważne przy koronach, mostach i protezach:",
@@ -232,7 +233,7 @@ const content: Record<string, string> = {
   "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.": "Niektóre prywatne ubezpieczenia dodatkowe to pokrywają. Prosimy wcześniej zapytać ubezpieczyciela.",
   "Manche privaten Zusatzversicherungen erstatten einen Teil. Bitte vorher dort fragen.": "Niektóre prywatne ubezpieczenia dodatkowe zwracają część kosztów. Prosimy wcześniej zapytać ubezpieczyciela.",
   "Ersetzt keine ärztliche Untersuchung.": "Nie zastępuje badania lekarskiego.",
-  "Ohne Beschwerden ist ein Nutzen nicht belegt.": "Bez dolegliwości korzyść nie jest udowodniona.",
+  "Fragen Sie in der Praxis, was diese Leistung in Ihrer Situation leisten kann.": "Proszę zapytać w gabinecie, co ta usługa może dać w Pani/Pana sytuacji.",
   "Mit neuer Verordnung wieder Kassenleistung.": "Z nowym zleceniem lekarskim ponownie na koszt kasy chorych.",
 };
 

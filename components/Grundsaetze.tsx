@@ -1,11 +1,19 @@
 import { Behandlungsweg } from "@/components/Behandlungsweg";
 import { KassenSockel } from "@/components/KassenSockel";
+import { NutzenQuelleLink } from "@/components/NutzenQuelleLink";
+import { igelMonitor } from "@/lib/nutzenQuelle";
+
+/** Beispiel für den Kasten „Zum Nutzen“: wörtlich wie beim PSA-Test im Katalog (lib/specialties.ts), mit Quelle. */
+const BEISPIEL_NUTZEN = {
+  text: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „PSA-Test zur Früherkennung von Prostatakrebs“ mit „tendenziell negativ“.",
+  quelle: igelMonitor("PSA-Test zur Früherkennung von Prostatakrebs", "psa-test-zur-frueherkennung-von-prostatakrebs", "17.11.2026"),
+};
 
 // Sorridas Haltung in fünf Sätzen, gesetzt wie ein Inhaltsverzeichnis: große Ziffer, Grundsatz, Erklärung,
 // und wo es das Produkt zeigt, das Bildelement, an dem man ihn wiedererkennt.
 const SAETZE: { titel: string; text: string; bild?: "sockel" | "nutzen" | "weg" }[] = [
   { titel: "Kasse zuerst", text: "Jeder Betrag baut auf dem Kassenanteil auf: erst was die Kasse zahlt, dann der eigene Anteil. Nie umgekehrt.", bild: "sockel" },
-  { titel: "Ehrlich zum Nutzen", text: "Wo ein Nutzen nicht belegt ist, steht das beim Angebot. Wer vertraut, kommt wieder.", bild: "nutzen" },
+  { titel: "Ehrlich zum Nutzen", text: "Wo der IGeL-Monitor des Medizinischen Dienstes eine Leistung bewertet, steht seine Bewertung mit Quelle beim Angebot. Eine eigene Wertung gibt Sorrida nicht ab. Wer vertraut, kommt wieder.", bild: "nutzen" },
   { titel: "Ein Weg statt Listen", text: "Gespräch, Vorschlag, Entscheidung, Vereinbart, Bezahlt. Praxis und Patient sehen denselben Weg und den nächsten Schritt.", bild: "weg" },
   { titel: "Das Geld bleibt in der Praxis", text: "Bei Zahlung per GiroCode geht der volle Betrag direkt aufs Praxiskonto. Sorrida behält nichts ein und finanziert nichts vor. Für Kartenzahlung berechnet der Zahlungsdienst der Praxis seine eigenen Gebühren." },
   { titel: "Ein Preis, keine Zähler", text: "Kein Kontingent, das abläuft, keine Einheiten zum Nachkaufen. Was im Paket steht, ist drin." },
@@ -31,7 +39,7 @@ export function Grundsaetze() {
                 <p className="j-text mt-3 max-w-lg">{s.text}</p>
               </div>
               {s.bild === "sockel" && <KassenSockel kasse={85} eigen={155} />}
-              {s.bild === "nutzen" && <p className="text-[14px] leading-snug text-amber-900"><span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-800">Zum Nutzen</span>Ohne konkreten Verdacht ist ein Zusatznutzen nicht belegt.</p>}
+              {s.bild === "nutzen" && <p className="text-[14px] leading-snug text-amber-900"><span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-800">Zum Nutzen</span>{BEISPIEL_NUTZEN.text}<NutzenQuelleLink quelle={BEISPIEL_NUTZEN.quelle} /></p>}
               {s.bild === "weg" && (
                 <div>
                   <Behandlungsweg erreicht={3} aktuell={3} size="gross" labels={["", "", "", "", ""]} animate />

@@ -3,7 +3,7 @@ import type { MedInput, ProposalInput, ProposalItem, ProposalOption } from "@/li
 
 // Vorschläge für Arztpraxen außerhalb der Zahnmedizin: je gewähltem Anlass
 // die Kassenleistung zuerst, dann Selbstzahlerleistungen (IGeL) mit Hinweis,
-// wann die Kasse zahlt, und ehrlicher Angabe zum Nutzen. Empfohlen wird nur
+// wann die Kasse zahlt, und dem Kasten zum Nutzen (mit Quelle oder neutral). Empfohlen wird nur
 // die Kassenleistung; eine IGeL wird erst durch die Wahl der Ärztin/des Arztes
 // zur besprochenen Option.
 
@@ -32,9 +32,9 @@ function toOption(o: MedOption, med: MedInput, age: number | null, therapie: boo
       : undefined;
   // Festbetrag + Aufzahlung (z. B. höherwertiges Hörgerät): Kasse zahlt den Anteil, Patient die Differenz.
   if (o.kasseAnteil != null && type === "igel") {
-    return { id: o.id, type: "mehrkosten", base: o.kasseAnteil, name: o.name, total: price, benefits: o.benefits, hinweis, nutzen: o.nutzen, zuzahlung: o.zuzahlung, typeLabel: "Kassenanteil + Aufzahlung" };
+    return { id: o.id, type: "mehrkosten", base: o.kasseAnteil, name: o.name, total: price, benefits: o.benefits, hinweis, nutzen: o.nutzen, nutzenQuelle: o.nutzenQuelle, zuzahlung: o.zuzahlung, typeLabel: "Kassenanteil + Aufzahlung" };
   }
-  return { id: o.id, type, name: o.name, total: price, benefits: o.benefits, hinweis, nutzen: o.nutzen, zuzahlung: o.zuzahlung, typeLabel };
+  return { id: o.id, type, name: o.name, total: price, benefits: o.benefits, hinweis, nutzen: o.nutzen, nutzenQuelle: o.nutzenQuelle, zuzahlung: o.zuzahlung, typeLabel };
 }
 
 export function buildMedicalProposal(input: ProposalInput): ProposalItem[] {

@@ -14,6 +14,7 @@ const ui: Ui = {
     `Вы можете спокойно посмотреть, какие есть возможности и сколько они будут стоить для Вас. Нажмите на вариант, чтобы увидеть Вашу долю расходов. Решение принимается только в беседе ${arzt ? "в Вашей практике" : "с Вашим стоматологом"}.`,
   kasseWenn: "Больничная касса оплачивает:",
   nutzen: "О пользе:",
+  quelle: "Источник:",
   fineMed: (until) =>
     `Предварительный расчёт стоимости, не имеющий обязательной силы, по немецкому тарифу оплаты врачебных услуг (Gebührenordnung für Ärzte, GOÄ). Услуги за собственный счёт (IGeL) добровольны; перед оказанием услуги мы заключаем с Вами письменное соглашение. Не торопитесь с решением. Эта ссылка действительна до ${until}.`,
   deadlineTitle: "Важно для зубного протезирования:",
@@ -232,7 +233,7 @@ const content: Record<string, string> = {
   "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.": "Некоторые частные дополнительные страховки это покрывают. Пожалуйста, заранее уточните у страховщика.",
   "Manche privaten Zusatzversicherungen erstatten einen Teil. Bitte vorher dort fragen.": "Некоторые частные дополнительные страховки возмещают часть расходов. Пожалуйста, заранее уточните у страховщика.",
   "Ersetzt keine ärztliche Untersuchung.": "Не заменяет осмотра врача.",
-  "Ohne Beschwerden ist ein Nutzen nicht belegt.": "При отсутствии жалоб польза не доказана.",
+  "Fragen Sie in der Praxis, was diese Leistung in Ihrer Situation leisten kann.": "Спросите в Вашей практике, что эта услуга может дать в Вашей ситуации.",
   "Mit neuer Verordnung wieder Kassenleistung.": "По новому назначению врача снова оплачивает больничная касса.",
 };
 

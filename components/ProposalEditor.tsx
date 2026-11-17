@@ -40,6 +40,7 @@ import {
   festzuschussSaetzeText,
 } from "@/lib/proposals";
 import { PatientAuswahl } from "@/components/PatientAuswahl";
+import { NutzenQuelleLink } from "@/components/NutzenQuelleLink";
 
 type EntwurfDaten = { patientId: string; kuerzel: string; factors: PatientFactors; teeth: Partial<Record<string, FindingCode>>; globals: Partial<Record<GlobalCode, boolean>>; anlaesse: string[]; choices: Record<string, string> };
 
@@ -719,7 +720,12 @@ export function ProposalEditor({
                                 </span>
                               )}
                               {o.hinweis && <span className="text-xs text-green-800">Kasse: {o.hinweis}</span>}
-                              {o.nutzen && !gespraech && <span className="text-xs text-amber-800">Nutzen: {o.nutzen}</span>}
+                              {o.nutzen && !gespraech && (
+                                <span className="text-xs text-amber-800">
+                                  Nutzen: {o.nutzen}
+                                  <NutzenQuelleLink quelle={o.nutzenQuelle} link={false} />
+                                </span>
+                              )}
                               <span className={`mt-auto flex justify-between border-t border-dashed border-slate-200 pt-2 text-slate-500 ${gespraech ? "text-sm" : "text-xs"}`}>
                                 {gespraech ? "Ihr Eigenanteil" : "Eigenanteil"}
                                 <b className="tabular-nums text-amber-700">{formatEuro(m.netto)}</b>

@@ -11,6 +11,7 @@ const ui: Ui = {
     `Take your time to look at the options and what each one costs you. Tap an option to see your share of the cost. Nothing is decided until you have talked it through ${arzt ? "at your practice" : "with your dentist"}.`,
   kasseWenn: "Covered by your insurer:",
   nutzen: "About the benefit:",
+  quelle: "Source:",
   fineMed: (until) =>
     `Non-binding cost estimate based on the German medical fee schedule (Gebührenordnung für Ärzte, GOÄ). Self-pay services (IGeL) are voluntary; before the service we make a written agreement with you. Take your time to decide. This link is valid until ${until}.`,
   deadlineTitle: "Important for dentures, crowns and bridges:",
@@ -228,7 +229,7 @@ const content: Record<string, string> = {
   "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.": "Some private supplementary insurers cover this. Please ask them beforehand.",
   "Manche privaten Zusatzversicherungen erstatten einen Teil. Bitte vorher dort fragen.": "Some private supplementary insurers reimburse part of the cost. Please ask them beforehand.",
   "Ersetzt keine ärztliche Untersuchung.": "Does not replace an examination by a doctor.",
-  "Ohne Beschwerden ist ein Nutzen nicht belegt.": "Without symptoms, a benefit has not been proven.",
+  "Fragen Sie in der Praxis, was diese Leistung in Ihrer Situation leisten kann.": "Ask your practice what this service can do in your situation.",
   "Mit neuer Verordnung wieder Kassenleistung.": "With a new prescription, covered by your insurer again.",
 };
 

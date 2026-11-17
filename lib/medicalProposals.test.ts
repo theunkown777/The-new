@@ -74,7 +74,11 @@ describe("Vorschläge für Arztpraxen", () => {
     const input: ProposalInput = { teeth: {}, globals: {}, patient: patient(50), fach: "gyn", anlaesse: ["krebsvorsorge"] };
     const items = buildProposal(input, DEFAULT_PRICES);
     const letter = buildLetter({ items, choices: {}, patient: input.patient, patientName: "Frau Test", practiceName: "Praxis", date: new Date("2026-11-02"), fach: "gyn" });
-    expect(letter).toContain("Zum Nutzen: Zur Früherkennung ohne Beschwerden ist kein Nutzen belegt");
+    expect(letter).toContain(
+      "Zum Nutzen: Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Ultraschall der Eierstöcke zur Krebsfrüherkennung“ mit „negativ“ und die IGeL „Ultraschall zur Früherkennung von Gebärmutterkörperkrebs“ mit „tendenziell negativ“.",
+    );
+    // Mit Quelle samt Adresse, damit der Satz im Schreiben nachprüfbar ist.
+    expect(letter).toContain("(Quellen: IGeL-Monitor (Medizinischer Dienst Bund), https://igel-monitor.de/igel-a-z/igel/show/ultraschall-der-eierstoecke-zur-krebsfrueherkennung.html, Stand 17.11.2026; ");
     expect(letter).toContain("Selbstzahlerleistungen (IGeL) sind freiwillig");
     expect(letter).not.toContain("Heil- und Kostenplan");
   });

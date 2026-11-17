@@ -1,4 +1,5 @@
 import { ZUSATZ_ANLAESSE } from "@/lib/fachangebote";
+import { NUTZEN_FRAGEN, igelMonitor, type NutzenQuellen } from "@/lib/nutzenQuelle";
 // Fachgebiete für Arztpraxen. Sorrida begann als Zahnarzt-Werkzeug; in
 // anderen Fächern heißt das Gegenstück zur Mehrkostenvereinbarung
 // "Individuelle Gesundheitsleistung" (IGeL): vom Patienten selbst bezahlt,
@@ -7,8 +8,12 @@ import { ZUSATZ_ANLAESSE } from "@/lib/fachangebote";
 //
 // Grundsätze wie beim Zahnarzt, hier noch strenger:
 // - Die Kassenleistung steht immer zuerst, mit dem Hinweis, wann die Kasse zahlt.
-// - Wo ein Nutzen nicht belegt ist, steht das beim Angebot (Feld `nutzen`). Ohne hinterlegte Quelle steht dort
-//   nur, was nicht belegt ist oder was eine Leistung nicht ersetzt, keine Aussage zu Wirkung oder Therapie.
+// - Der Kasten „Zum Nutzen“ (Feld `nutzen`) beschreibt, er bewertet nicht. Eine Aussage zu Nutzen, Studienlage
+//   oder Rechtslage steht dort nur mit Quelle (Feld `nutzenQuelle`, lib/nutzenQuelle.ts) und gibt wieder, was die
+//   Quelle sagt, z. B. „Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „…“ mit „tendenziell negativ“.“
+//   Ohne Quelle steht dort nur ein neutraler Satz („Fragen Sie in der Praxis, …“) oder eine reine
+//   Abrechnungstatsache („keine Kassenleistung“), keine eigene Aussage zu Nutzen, Wirkung oder Therapie.
+//   Geprüft in lib/haltbarkeit.test.ts.
 // - Sorrida empfiehlt keine IGeL von sich aus. Vorgemerkt ist nur, was die Ärztin oder der Arzt anklickt.
 // - Preise sind Beispielwerte im üblichen GOÄ-Rahmen und in den Einstellungen anpassbar.
 
@@ -25,8 +30,10 @@ export interface MedOption {
   kasseWenn?: string;
   /** Ab diesem Alter Kassenleistung (z. B. Hautkrebs-Screening ab 35). */
   kasseAbAlter?: number;
-  /** Ehrlicher Hinweis zum belegten Nutzen. */
+  /** Kasten „Zum Nutzen“: mit Quelle das, was die Quelle sagt; ohne Quelle nur neutral (siehe Kopf der Datei). */
   nutzen?: string;
+  /** Quelle der Aussage in `nutzen`; Pflicht, sobald dort eine Aussage zu Nutzen, Studienlage oder Recht steht. */
+  nutzenQuelle?: NutzenQuellen;
   /**
    * Gesetzliche Zuzahlung für Erwachsene: true/"heilmittel" = 10 % der Kosten + 10 € (ab 2027: 15 €) je Verordnung;
    * "hilfsmittel" = 10 %, mindestens 5 €, höchstens 10 €, ab 2027 mindestens 7,50 €, höchstens 15 € (auch Arzneimittel je Packung).
@@ -76,6 +83,31 @@ export interface Specialty {
 
 export const DENTAL_ID = "zahn";
 
+/** Tag, an dem die Quellen im Kasten „Zum Nutzen“ gelesen wurden. */
+const NUTZEN_STAND = "17.11.2026";
+/** Bewertungen des IGeL-Monitors (Medizinischer Dienst Bund), Titel wie auf der jeweiligen Seite. */
+const IGEL = {
+  vitaminD: igelMonitor("Früherkennungsuntersuchung auf Vitamin-D-Mangel", "frueherkennungsuntersuchung-auf-vitamin-d-mangel", NUTZEN_STAND),
+  schilddrueseBlut: igelMonitor("Blutuntersuchung zur Früherkennung von Schilddrüsenfunktionsstörungen", "blutuntersuchung-zur-frueherkennung-von-schilddruesenfunktionsstoerungen", NUTZEN_STAND),
+  schilddrueseUltraschall: igelMonitor("Ultraschall zur Früherkennung von Veränderungen der Schilddrüse", "ultraschall-zur-frueherkennung-von-veraenderungen-der-schilddruese", NUTZEN_STAND),
+  glaukom: igelMonitor("Augenspiegelung mit Augeninnendruckmessung zur Glaukom-Früherkennung", "augenspiegelung-mit-augeninnendruckmessung-zur-glaukom-frueherkennung", NUTZEN_STAND),
+  glaukomOct: igelMonitor("OCT zur Früherkennung eines Glaukoms", "oct-zur-frueherkennung-eines-glaukoms", NUTZEN_STAND),
+  amdOct: igelMonitor("OCT zur Früherkennung einer feuchten, altersbedingten Makuladegeneration (nAMD)", "oct-zur-frueherkennung-einer-feuchten-altersbedingten-makuladegeneration-namd", NUTZEN_STAND),
+  eierstoecke: igelMonitor("Ultraschall der Eierstöcke zur Krebsfrüherkennung", "ultraschall-der-eierstoecke-zur-krebsfrueherkennung", NUTZEN_STAND),
+  gebaermutter: igelMonitor("Ultraschall zur Früherkennung von Gebärmutterkörperkrebs", "ultraschall-zur-frueherkennung-von-gebaermutterkoerperkrebs", NUTZEN_STAND),
+  brust: igelMonitor("Ultraschall der Brust zur Krebsfrüherkennung", "ultraschall-der-brust-zur-krebsfrueherkennung", NUTZEN_STAND),
+  psa: igelMonitor("PSA-Test zur Früherkennung von Prostatakrebs", "psa-test-zur-frueherkennung-von-prostatakrebs", NUTZEN_STAND),
+  nieren: igelMonitor("Ultraschall der Nieren zur Früherkennung von Nierenkrebs", "ultraschall-der-nieren-zur-frueherkennung-von-nierenkrebs", NUTZEN_STAND),
+  blase: igelMonitor("Ultraschall der Blase zur Früherkennung von Harnblasenkrebs", "ultraschall-der-blase-zur-frueherkennung-von-harnblasenkrebs", NUTZEN_STAND),
+  ekg: igelMonitor("EKG zur Früherkennung einer koronaren Herzerkrankung", "ekg-zur-frueherkennung-einer-koronaren-herzerkrankung", NUTZEN_STAND),
+  halsschlagadern: igelMonitor("Ultraschall der Halsschlagadern zur Schlaganfallvorsorge", "ultraschall-der-halsschlagadern-zur-schlaganfallvorsorge", NUTZEN_STAND),
+  demenz: igelMonitor("Hirnleistungs-Check zur Früherkennung einer Demenz", "hirnleistungs-check-zur-frueherkennung-einer-demenz", NUTZEN_STAND),
+  spirometrie: igelMonitor("Spirometrie zur Überprüfung der Lungenfunktion", "spirometrie-zur-ueberpruefung-der-lungenfunktion", NUTZEN_STAND),
+  akupunkturSchwangerschaft: igelMonitor("Akupunktur in der Schwangerschaft", "akupunktur-in-der-schwangerschaft", NUTZEN_STAND),
+};
+const NUTZEN_HALSSCHLAGADERN = "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Ultraschall der Halsschlagadern zur Schlaganfallvorsorge“ für Menschen ohne Beschwerden mit „tendenziell negativ“.";
+const NUTZEN_BRUST = "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Ultraschall der Brust zur Krebsfrüherkennung“ für erwachsene Frauen ohne erhöhtes Brustkrebs-Risiko mit „unklar“.";
+
 export const ALLE_SPECIALTIES: Specialty[] = [
   {
     id: "hausarzt",
@@ -94,8 +126,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "checkup35", name: "Gesundheits-Check-up", type: "kasse", price: 70, kasseAbAlter: 18, benefits: ["Kassenleistung: von 18 bis 34 einmal, ab 35 alle drei Jahre", "Blutdruck, Blutzucker, Cholesterin, Urin"] },
-          { id: "labor_plus", zusatz: true, name: "Erweitertes Labor ohne Beschwerden (z. B. Vitamin D, Schilddrüse)", type: "igel", price: 45, benefits: ["auf Wunsch, ohne Anlass"], kasseWenn: "Bei Beschwerden oder begründetem Verdacht Kassenleistung.", nutzen: "Ohne Beschwerden ist ein Nutzen für die meisten Werte nicht belegt." },
-          { id: "us_abdomen", zusatz: true, name: "Ultraschall der Bauchorgane ohne Beschwerden", type: "igel", price: 50, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden Kassenleistung.", nutzen: "Als Vorsorge ohne Beschwerden ist kein Nutzen belegt." },
+          { id: "labor_plus", zusatz: true, name: "Erweitertes Labor ohne Beschwerden (z. B. Vitamin D, Schilddrüse)", type: "igel", price: 45, benefits: ["auf Wunsch, ohne Anlass"], kasseWenn: "Bei Beschwerden oder begründetem Verdacht Kassenleistung.", nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Früherkennungsuntersuchung auf Vitamin-D-Mangel“ mit „unklar“ und die IGeL „Blutuntersuchung zur Früherkennung von Schilddrüsenfunktionsstörungen“ mit „tendenziell negativ“.", nutzenQuelle: [IGEL.vitaminD, IGEL.schilddrueseBlut] },
+          { id: "us_abdomen", zusatz: true, name: "Ultraschall der Bauchorgane ohne Beschwerden", type: "igel", price: 50, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden Kassenleistung.", nutzen: NUTZEN_FRAGEN },
         ],
       },
       {
@@ -134,8 +166,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "glaukom_kasse", name: "Augendruck und Sehnerv bei Verdacht oder Risiko", type: "kasse", price: 40, benefits: ["Kassenleistung bei Verdacht, Risikofaktoren oder Beschwerden"] },
-          { id: "glaukom_igel", name: "Glaukom-Vorsorge ohne Verdacht (Augendruck und Sehnerv)", type: "igel", price: 40, benefits: ["Messung des Augendrucks", "Beurteilung des Sehnervs"], nutzen: "Als Vorsorge ohne Verdacht ist ein Nutzen nicht belegt." },
-          { id: "glaukom_oct", zusatz: true, name: "Zusätzlich OCT des Sehnervs", type: "igel", price: 60, benefits: ["Schichtaufnahme des Sehnervs", "Bilder lassen sich später vergleichen"], nutzen: "Ohne Verdacht ist ein Zusatznutzen nicht belegt." },
+          { id: "glaukom_igel", name: "Glaukom-Vorsorge ohne Verdacht (Augendruck und Sehnerv)", type: "igel", price: 40, benefits: ["Messung des Augendrucks", "Beurteilung des Sehnervs"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Augenspiegelung mit Augeninnendruckmessung zur Glaukom-Früherkennung“ mit „tendenziell negativ“.", nutzenQuelle: IGEL.glaukom },
+          { id: "glaukom_oct", zusatz: true, name: "Zusätzlich OCT des Sehnervs", type: "igel", price: 60, benefits: ["Schichtaufnahme des Sehnervs", "Bilder lassen sich später vergleichen"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „OCT zur Früherkennung eines Glaukoms“ mit „tendenziell negativ“.", nutzenQuelle: IGEL.glaukomOct },
         ],
       },
       {
@@ -144,7 +176,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Netzhaut",
         options: [
           { id: "oct_kasse", name: "OCT zur Behandlung bei feuchter AMD oder diabetischem Makulaödem", type: "kasse", price: 80, benefits: ["Kassenleistung zur Steuerung der Behandlung"] },
-          { id: "oct_igel", name: "OCT der Netzhaut zur Vorsorge", type: "igel", price: 80, benefits: ["Schichtaufnahme der Netzhaut"], nutzen: "Als Vorsorge ohne Beschwerden ist ein Nutzen nicht belegt." },
+          { id: "oct_igel", name: "OCT der Netzhaut zur Vorsorge", type: "igel", price: 80, benefits: ["Schichtaufnahme der Netzhaut"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „OCT zur Früherkennung einer feuchten, altersbedingten Makuladegeneration (nAMD)“ mit „tendenziell negativ“.", nutzenQuelle: IGEL.amdOct },
         ],
       },
       {
@@ -207,8 +239,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "kfu_gyn", name: "Krebsfrüherkennung mit Abstrich", type: "kasse", price: 40, benefits: ["Kassenleistung ab 20; ab 35 alle drei Jahre mit HPV-Test"] },
-          { id: "us_vaginal", zusatz: true, name: "Ultraschall von Gebärmutter und Eierstöcken ohne Beschwerden", type: "igel", price: 50, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden oder auffälligem Befund Kassenleistung.", nutzen: "Zur Früherkennung ohne Beschwerden ist kein Nutzen belegt." },
-          { id: "hpv_u35", zusatz: true, name: "HPV-Test vor dem 35. Lebensjahr", type: "igel", price: 45, benefits: ["Nachweis krebsauslösender Viren"], kasseWenn: "Ab 35 Teil der Kassenleistung, bei auffälligem Abstrich auch vorher.", nutzen: "Vor dem 35. Lebensjahr ist ein Nutzen als Vorsorge nicht belegt." },
+          { id: "us_vaginal", zusatz: true, name: "Ultraschall von Gebärmutter und Eierstöcken ohne Beschwerden", type: "igel", price: 50, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden oder auffälligem Befund Kassenleistung.", nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Ultraschall der Eierstöcke zur Krebsfrüherkennung“ mit „negativ“ und die IGeL „Ultraschall zur Früherkennung von Gebärmutterkörperkrebs“ mit „tendenziell negativ“.", nutzenQuelle: [IGEL.eierstoecke, IGEL.gebaermutter] },
+          { id: "hpv_u35", zusatz: true, name: "HPV-Test vor dem 35. Lebensjahr", type: "igel", price: 45, benefits: ["Nachweis krebsauslösender Viren"], kasseWenn: "Ab 35 Teil der Kassenleistung, bei auffälligem Abstrich auch vorher.", nutzen: NUTZEN_FRAGEN },
         ],
       },
       {
@@ -218,7 +250,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "brust_tast", name: "Tastuntersuchung der Brust", type: "kasse", price: 20, kasseAbAlter: 30, benefits: ["Kassenleistung ab 30 jährlich"] },
-          { id: "brust_us", zusatz: true, name: "Ultraschall der Brust ohne Befund", type: "igel", price: 50, benefits: ["ergänzende Bildgebung, z. B. bei dichtem Brustgewebe"], kasseWenn: "Bei Tastbefund oder Verdacht Kassenleistung.", nutzen: "Als alleinige Vorsorge ist ein Nutzen nicht belegt." },
+          { id: "brust_us", zusatz: true, name: "Ultraschall der Brust ohne Befund", type: "igel", price: 50, benefits: ["ergänzende Bildgebung, z. B. bei dichtem Brustgewebe"], kasseWenn: "Bei Tastbefund oder Verdacht Kassenleistung.", nutzen: NUTZEN_BRUST, nutzenQuelle: IGEL.brust },
         ],
       },
       {
@@ -252,8 +284,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "prostata_tast", name: "Tastuntersuchung der Prostata", type: "kasse", price: 20, kasseAbAlter: 45, benefits: ["Kassenleistung ab 45 jährlich"] },
-          { id: "psa", zusatz: true, name: "PSA-Test zur Früherkennung", type: "igel", price: 30, benefits: ["Bluttest auf das prostataspezifische Antigen"], kasseWenn: "Bei Beschwerden, Verdacht oder zur Verlaufskontrolle Kassenleistung.", nutzen: "Die Früherkennung kann zu Überdiagnosen führen." },
-          { id: "us_uro", zusatz: true, name: "Ultraschall von Nieren und Blase ohne Beschwerden", type: "igel", price: 45, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden Kassenleistung.", nutzen: "Ohne Beschwerden ist kein Nutzen belegt." },
+          { id: "psa", zusatz: true, name: "PSA-Test zur Früherkennung", type: "igel", price: 30, benefits: ["Bluttest auf das prostataspezifische Antigen"], kasseWenn: "Bei Beschwerden, Verdacht oder zur Verlaufskontrolle Kassenleistung.", nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „PSA-Test zur Früherkennung von Prostatakrebs“ mit „tendenziell negativ“.", nutzenQuelle: IGEL.psa },
+          { id: "us_uro", zusatz: true, name: "Ultraschall von Nieren und Blase ohne Beschwerden", type: "igel", price: 45, benefits: ["ohne Strahlung"], kasseWenn: "Bei Beschwerden Kassenleistung.", nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Ultraschall der Nieren zur Früherkennung von Nierenkrebs“ und die IGeL „Ultraschall der Blase zur Früherkennung von Harnblasenkrebs“ jeweils mit „tendenziell negativ“.", nutzenQuelle: [IGEL.nieren, IGEL.blase] },
         ],
       },
     ],
@@ -276,7 +308,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         options: [
           { id: "ortho_kasse", name: "Behandlung nach Leitlinie (z. B. Physiotherapie, Medikamente)", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
           { id: "eswt", zusatz: true, name: "Stoßwellentherapie (je Sitzung)", type: "igel", price: 80, benefits: ["ohne Operation, meist 3–5 Sitzungen"], kasseWenn: "Bei Fersenschmerz (Plantarfasziitis) nach erfolgloser Vorbehandlung Kassenleistung." },
-          { id: "hyaluron", zusatz: true, name: "Hyaluronsäure-Injektion ins Knie (je Spritze)", type: "igel", price: 90, benefits: ["Spritze in das Kniegelenk"], nutzen: "Ein Nutzen bei Kniearthrose ist nicht sicher belegt." },
+          { id: "hyaluron", zusatz: true, name: "Hyaluronsäure-Injektion ins Knie (je Spritze)", type: "igel", price: 90, benefits: ["Spritze in das Kniegelenk"], nutzen: NUTZEN_FRAGEN },
           { id: "akupunktur", zusatz: true, name: "Akupunktur", type: "igel", price: 40, benefits: ["Ergänzung zur Schmerztherapie"], kasseWenn: "Bei chronischen Rücken- oder Knieschmerzen Kassenleistung." },
         ],
       },
@@ -286,7 +318,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Knochen",
         options: [
           { id: "dxa_kasse", name: "Knochendichtemessung (DXA) bei Verdacht", type: "kasse", price: 50, benefits: ["Kassenleistung nach Knochenbruch ohne Unfall oder bei begründetem Verdacht"] },
-          { id: "dxa_igel", name: "Knochendichtemessung (DXA) zur Vorsorge", type: "igel", price: 50, benefits: ["Röntgenmessung, wenige Minuten"], nutzen: "Ohne Risikofaktoren ist ein Nutzen nicht belegt." },
+          { id: "dxa_igel", name: "Knochendichtemessung (DXA) zur Vorsorge", type: "igel", price: 50, benefits: ["Röntgenmessung, wenige Minuten"], nutzen: NUTZEN_FRAGEN },
         ],
       },
     ],
@@ -371,8 +403,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "kardio_kasse", name: "Abklärung bei Beschwerden oder Risikofaktoren", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-          { id: "ergometrie", name: "Belastungs-EKG ohne Beschwerden", type: "igel", price: 70, benefits: ["zeigt die Belastbarkeit des Herzens"], nutzen: "Ohne Beschwerden ist ein Nutzen für die Vorsorge nicht belegt." },
-          { id: "carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
+          { id: "ergometrie", name: "Belastungs-EKG ohne Beschwerden", type: "igel", price: 70, benefits: ["zeigt die Belastbarkeit des Herzens"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „EKG zur Früherkennung einer koronaren Herzerkrankung“ für Menschen ohne Beschwerden mit „tendenziell negativ“.", nutzenQuelle: IGEL.ekg },
+          { id: "carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: NUTZEN_HALSSCHLAGADERN, nutzenQuelle: IGEL.halsschlagadern },
         ],
       },
     ],
@@ -395,8 +427,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Schnittbild",
         options: [
           { id: "mrt_kasse", name: "MRT mit Überweisung bei medizinischer Indikation", type: "kasse", price: 450, benefits: ["Kassenleistung mit Überweisung"] },
-          { id: "mrt_igel", name: "MRT ohne Indikation (je Körperregion)", type: "igel", price: 450, benefits: ["ohne Strahlung"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
-          { id: "ganzkoerper_mrt", name: "Ganzkörper-MRT zur Vorsorge", type: "igel", price: 950, benefits: ["Übersicht über viele Organe"], nutzen: "Ein Nutzen für Gesunde ist nicht belegt." },
+          { id: "mrt_igel", name: "MRT ohne Indikation (je Körperregion)", type: "igel", price: 450, benefits: ["ohne Strahlung"], nutzen: NUTZEN_FRAGEN },
+          { id: "ganzkoerper_mrt", name: "Ganzkörper-MRT zur Vorsorge", type: "igel", price: 950, benefits: ["Übersicht über viele Organe"], nutzen: NUTZEN_FRAGEN },
         ],
       },
       {
@@ -406,7 +438,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "mammo_screening", name: "Mammographie-Screening", type: "kasse", price: 90, kasseAbAlter: 50, benefits: ["Kassenleistung ab 50 alle zwei Jahre, mit Einladung"] },
-          { id: "mamma_us", zusatz: true, name: "Ultraschall der Brust ergänzend", type: "igel", price: 60, benefits: ["ohne Strahlung"], kasseWenn: "Bei Tastbefund oder Verdacht Kassenleistung.", nutzen: "Als alleinige Vorsorge ist ein Nutzen nicht belegt." },
+          { id: "mamma_us", zusatz: true, name: "Ultraschall der Brust ergänzend", type: "igel", price: 60, benefits: ["ohne Strahlung"], kasseWenn: "Bei Tastbefund oder Verdacht Kassenleistung.", nutzen: NUTZEN_BRUST, nutzenQuelle: IGEL.brust },
         ],
       },
       {
@@ -415,7 +447,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Knochen",
         options: [
           { id: "dxa_rad_kasse", name: "Knochendichtemessung (DXA) bei Verdacht", type: "kasse", price: 50, benefits: ["Kassenleistung nach Bruch ohne Unfall oder bei begründetem Verdacht"] },
-          { id: "dxa_rad_igel", name: "Knochendichtemessung (DXA) zur Vorsorge", type: "igel", price: 50, benefits: ["Röntgenmessung, wenige Minuten"], nutzen: "Ohne Risikofaktoren ist ein Nutzen nicht belegt." },
+          { id: "dxa_rad_igel", name: "Knochendichtemessung (DXA) zur Vorsorge", type: "igel", price: 50, benefits: ["Röntgenmessung, wenige Minuten"], nutzen: NUTZEN_FRAGEN },
         ],
       },
     ],
@@ -438,7 +470,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Diagnostik",
         options: [
           { id: "demenz_kasse", name: "Abklärung bei Beschwerden oder Verdacht", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-          { id: "demenz_check", name: "Gedächtnis-Check ohne Beschwerden", type: "igel", price: 80, benefits: ["Tests zu Gedächtnis und Aufmerksamkeit"], nutzen: "Als Vorsorge ohne Beschwerden ist ein Nutzen nicht belegt." },
+          { id: "demenz_check", name: "Gedächtnis-Check ohne Beschwerden", type: "igel", price: 80, benefits: ["Tests zu Gedächtnis und Aufmerksamkeit"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Hirnleistungs-Check zur Früherkennung einer Demenz“ für Menschen unter 70 Jahren ohne Anzeichen einer Demenz mit „tendenziell negativ“.", nutzenQuelle: IGEL.demenz },
         ],
       },
       {
@@ -447,7 +479,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "neuro_kasse", name: "Ultraschall bei Beschwerden oder Risikofaktoren", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-          { id: "neuro_carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
+          { id: "neuro_carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: NUTZEN_HALSSCHLAGADERN, nutzenQuelle: IGEL.halsschlagadern },
         ],
       },
       {
@@ -509,7 +541,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "koloskopie", name: "Vorsorge-Darmspiegelung", type: "kasse", price: 300, kasseAbAlter: 50, benefits: ["Kassenleistung ab 50 Jahren"] },
-          { id: "ifobt", name: "Stuhltest auf verstecktes Blut", type: "igel", price: 30, benefits: ["Test zu Hause"], kasseWenn: "Ab 50 im Rahmen der Vorsorge Kassenleistung.", nutzen: "Ersetzt die Darmspiegelung nicht." },
+          { id: "ifobt", name: "Stuhltest auf verstecktes Blut", type: "igel", price: 30, benefits: ["Test zu Hause"], kasseWenn: "Ab 50 im Rahmen der Vorsorge Kassenleistung.", nutzen: NUTZEN_FRAGEN },
         ],
         notes: ["Bei Beschwerden oder familiärer Belastung ist die Darmspiegelung auch vor 50 Kassenleistung."],
       },
@@ -519,7 +551,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Diagnostik",
         options: [
           { id: "atemtest_kasse", name: "Atemtest bei Beschwerden", type: "kasse", price: 45, benefits: ["Kassenleistung"] },
-          { id: "atemtest_igel", name: "Atemtest ohne Beschwerden", type: "igel", price: 45, benefits: ["Laktose oder Fruktose"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
+          { id: "atemtest_igel", name: "Atemtest ohne Beschwerden", type: "igel", price: 45, benefits: ["Laktose oder Fruktose"], nutzen: NUTZEN_FRAGEN },
         ],
       },
     ],
@@ -542,7 +574,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Diagnostik",
         options: [
           { id: "lufu_kasse", name: "Lungenfunktion bei Beschwerden", type: "kasse", price: 40, benefits: ["Kassenleistung bei Husten, Atemnot"] },
-          { id: "lufu_igel", name: "Lungenfunktion ohne Beschwerden (z. B. Raucher-Check)", type: "igel", price: 40, benefits: ["Ausgangswert für spätere Vergleiche"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
+          { id: "lufu_igel", name: "Lungenfunktion ohne Beschwerden (z. B. Raucher-Check)", type: "igel", price: 40, benefits: ["Ausgangswert für spätere Vergleiche"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Spirometrie zur Überprüfung der Lungenfunktion“ für Menschen ohne Atembeschwerden mit „tendenziell negativ“.", nutzenQuelle: IGEL.spirometrie },
         ],
       },
       {
@@ -571,7 +603,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Diabetes",
         options: [
           { id: "cgm_kasse", name: "Kontinuierliche Glukosemessung bei intensivierter Insulintherapie", type: "kasse", price: 0, benefits: ["Kassenleistung nach Antrag"] },
-          { id: "cgm_igel", name: "Glukosesensor ohne Insulintherapie (je Monat)", type: "igel", price: 60, benefits: ["Verlauf des Zuckers im Alltag sehen"], nutzen: "Ohne Insulintherapie ist ein Nutzen für die Behandlung nicht belegt." },
+          { id: "cgm_igel", name: "Glukosesensor ohne Insulintherapie (je Monat)", type: "igel", price: 60, benefits: ["Verlauf des Zuckers im Alltag sehen"], nutzen: NUTZEN_FRAGEN },
         ],
       },
       {
@@ -580,7 +612,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Diagnostik",
         options: [
           { id: "sd_kasse", name: "Ultraschall und Blutwerte bei Beschwerden oder Befund", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-          { id: "sd_igel", name: "Schilddrüsen-Check ohne Beschwerden", type: "igel", price: 50, benefits: ["Ultraschall und Blutwerte"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
+          { id: "sd_igel", name: "Schilddrüsen-Check ohne Beschwerden", type: "igel", price: 50, benefits: ["Ultraschall und Blutwerte"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Ultraschall zur Früherkennung von Veränderungen der Schilddrüse“ und die IGeL „Blutuntersuchung zur Früherkennung von Schilddrüsenfunktionsstörungen“ jeweils mit „tendenziell negativ“.", nutzenQuelle: [IGEL.schilddrueseUltraschall, IGEL.schilddrueseBlut] },
         ],
       },
       {
@@ -786,7 +818,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
           { id: "gv_kurs", name: "Geburtsvorbereitungskurs und Wochenbettbetreuung", type: "kasse", price: 0, benefits: ["Kassenleistung für die Schwangere"] },
           { id: "partner", zusatz: true, name: "Partnergebühr für den Geburtsvorbereitungskurs", type: "igel", price: 90, benefits: ["Begleitperson nimmt teil"], kasseWenn: "Manche Krankenkassen erstatten die Partnergebühr; bitte nachfragen." },
           { id: "babymassage", zusatz: true, name: "Babymassage-Kurs", type: "igel", price: 90, benefits: ["in der Gruppe, mehrere Termine"], kasseWenn: "Einige Kassen bezuschussen Kurse rund um die Geburt." },
-          { id: "akupunktur_geburt", zusatz: true, name: "Akupunktur zur Geburtsvorbereitung (je Sitzung)", type: "igel", price: 25, benefits: ["ab der 36. Woche"], nutzen: "Ein Nutzen ist wissenschaftlich nicht sicher belegt." },
+          { id: "akupunktur_geburt", zusatz: true, name: "Akupunktur zur Geburtsvorbereitung (je Sitzung)", type: "igel", price: 25, benefits: ["ab der 36. Woche"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Akupunktur in der Schwangerschaft“ mit „unklar“.", nutzenQuelle: IGEL.akupunkturSchwangerschaft },
         ],
       },
     ],
@@ -892,7 +924,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         options: [
           { id: "einstaerke", name: "Einstärkenbrille (Gläser und Fassung)", type: "igel", price: 180, benefits: ["für Ferne oder Nähe"], kasseWenn: "Für Kinder und Jugendliche sowie bei starker Sehschwäche zahlt die Kasse die Gläser bis zum Festbetrag; die Fassung zahlen alle selbst." },
           { id: "gleitsicht", name: "Gleitsichtbrille", type: "igel", price: 600, benefits: ["Ferne und Nähe in einem Glas"] },
-          { id: "blaufilter", name: "Zusätzlicher Blaulichtfilter", type: "igel", price: 60, benefits: ["Beschichtung der Gläser"], nutzen: "Ein Nutzen für die Augengesundheit ist nicht belegt." },
+          { id: "blaufilter", name: "Zusätzlicher Blaulichtfilter", type: "igel", price: 60, benefits: ["Beschichtung der Gläser"] },
         ],
       },
     ],
@@ -952,7 +984,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         options: [
           { id: "hp_anamnese", name: "Ausführliche Erstanamnese", type: "igel", price: 80, benefits: ["etwa 60 Minuten"], kasseWenn: "Gesetzliche Kassen zahlen nicht. Manche privaten Zusatzversicherungen für Heilpraktiker erstatten einen Teil. Bitte vorher dort fragen." },
           { id: "hp_akupunktur", name: "Akupunktur (je Sitzung)", type: "igel", price: 50, benefits: ["etwa 30 Minuten"], kasseWenn: "Manche privaten Zusatzversicherungen erstatten einen Teil. Bitte vorher dort fragen." },
-          { id: "hp_verfahren", name: "Weitere naturheilkundliche Verfahren (je Sitzung)", type: "igel", price: 60, benefits: ["nach Absprache"], nutzen: "Für viele naturheilkundliche Verfahren ist ein Nutzen wissenschaftlich nicht belegt." },
+          { id: "hp_verfahren", name: "Weitere naturheilkundliche Verfahren (je Sitzung)", type: "igel", price: 60, benefits: ["nach Absprache"], nutzen: NUTZEN_FRAGEN },
         ],
       },
     ],
@@ -979,7 +1011,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
           { id: "allgemein", name: "Allgemeine Krankenhausleistung", type: "kasse", price: 0, benefits: ["Kassenleistung: alle medizinisch notwendigen Leistungen", "gesetzliche Zuzahlung 10 € pro Tag, höchstens 28 Tage im Jahr"] },
           { id: "zweibett", zusatz: true, name: "Zweibettzimmer (je Tag)", type: "igel", price: 60, benefits: ["Zimmer mit zwei Betten"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen." },
           { id: "einbett", zusatz: true, name: "Einbettzimmer (je Tag)", type: "igel", price: 110, benefits: ["eigenes Zimmer"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen." },
-          { id: "wahlarzt", zusatz: true, name: "Wahlärztliche Behandlung (geschätzt für den Aufenthalt)", type: "igel", price: 800, benefits: ["Behandlung durch die leitenden Ärztinnen und Ärzte"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.", nutzen: "Die allgemeine Krankenhausleistung umfasst alle medizinisch notwendigen Leistungen." },
+          { id: "wahlarzt", zusatz: true, name: "Wahlärztliche Behandlung (geschätzt für den Aufenthalt)", type: "igel", price: 800, benefits: ["Behandlung durch die leitenden Ärztinnen und Ärzte"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.", nutzen: "§ 2 Abs. 2 Satz 1 KHEntgG: „Allgemeine Krankenhausleistungen sind die Krankenhausleistungen, die unter Berücksichtigung der Leistungsfähigkeit des Krankenhauses im Einzelfall nach Art und Schwere der Krankheit für die medizinisch zweckmäßige und ausreichende Versorgung des Patienten notwendig sind.“", nutzenQuelle: { name: "§ 2 Abs. 2 KHEntgG", url: "https://www.gesetze-im-internet.de/khentgg/__2.html", stand: NUTZEN_STAND } },
         ],
         notes: ["Wahlleistungen werden vor der Erbringung schriftlich vereinbart."],
       },

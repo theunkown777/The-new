@@ -20,6 +20,7 @@ import { EINFACH_SCHALTER } from "@/lib/i18n/de-einfach";
 import { vorleseTeile } from "@/lib/vorlesen";
 import { ErinnernBlock, TeilenBlock, VorlesenKnopf, type LeseLinkZeile } from "@/components/PatientExtras";
 import { ZweitmeinungVergleich, type ZweitmeinungProps } from "@/components/ZweitmeinungVergleich";
+import { NutzenQuelleLink } from "@/components/NutzenQuelleLink";
 
 type Props = {
   token: string;
@@ -371,6 +372,7 @@ export function PatientProposalView(props: Props) {
                       {o.nutzen && (
                         <p className="mt-1 text-xs text-amber-800">
                           {t.nutzen} <Rt text={o.nutzen} lang={lang} z={zusatz} />
+                          <NutzenQuelleLink quelle={o.nutzenQuelle} label={t.quelle} />
                         </p>
                       )}
                       <p className={`mt-2 text-xs text-slate-500 ${o.total === 0 ? "hidden" : ""}`}>

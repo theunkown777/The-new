@@ -25,6 +25,7 @@ const ui: Ui = {
     `يمكنكم الاطلاع بهدوء على الخيارات المتاحة وتكلفتها عليكم. اضغطوا على أحد الخيارات لرؤية حصتكم من التكاليف. لا يُتخذ القرار إلا بعد الحديث ${arzt ? "في عيادتكم" : "مع طبيب أسنانكم"}.`,
   kasseWenn: "يدفع التأمين الصحي:",
   nutzen: "عن الفائدة:",
+  quelle: "المصدر:",
   fineMed: (until) =>
     `تقدير غير ملزم للتكاليف وفق لائحة أتعاب الأطباء الألمانية (Gebührenordnung für Ärzte, GOÄ). الخدمات التي يدفعها المريض بنفسه (IGeL) اختيارية؛ قبل تقديم الخدمة نبرم معكم اتفاقًا كتابيًا. خذوا وقتكم في اتخاذ القرار. هذا الرابط صالح حتى ${until}.`,
   deadlineTitle: "مهم للتيجان والجسور وأطقم الأسنان:",
@@ -242,7 +243,7 @@ const content: Record<string, string> = {
   "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.": "بعض التأمينات الإضافية الخاصة تغطي ذلك. يُرجى السؤال لديها مسبقًا.",
   "Manche privaten Zusatzversicherungen erstatten einen Teil. Bitte vorher dort fragen.": "بعض التأمينات الإضافية الخاصة تعوّض جزءًا من التكلفة. يُرجى السؤال لديها مسبقًا.",
   "Ersetzt keine ärztliche Untersuchung.": "لا يغني عن الفحص الطبي.",
-  "Ohne Beschwerden ist ein Nutzen nicht belegt.": "عند عدم وجود أعراض لم تثبت فائدة ذلك.",
+  "Fragen Sie in der Praxis, was diese Leistung in Ihrer Situation leisten kann.": "اسألوا عيادتكم عمّا يمكن أن تقدّمه هذه الخدمة في حالتكم.",
   "Mit neuer Verordnung wieder Kassenleistung.": "بوصفة طبية جديدة تعود على نفقة التأمين الصحي.",
 };
 

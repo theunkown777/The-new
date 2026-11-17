@@ -12,6 +12,7 @@ const ui: Ui = {
     `Sie können sich in Ruhe ansehen, welche Möglichkeiten es gibt und was sie für Sie kosten. Tippen Sie eine Option an, um Ihren Eigenanteil zu sehen. Entschieden wird erst im Gespräch mit ${arzt ?? "Ihrer Zahnärztin oder Ihrem Zahnarzt"}.`,
   kasseWenn: "Kasse zahlt:",
   nutzen: "Zum Nutzen:",
+  quelle: "Quelle:",
   fineMed: (until) =>
     `Unverbindliche Kostenschätzung nach der Gebührenordnung für Ärzte (GOÄ). Selbstzahlerleistungen (IGeL) sind freiwillig; vor der Leistung schließen wir eine schriftliche Vereinbarung mit Ihnen. Nehmen Sie sich Zeit für Ihre Entscheidung. Dieser Link ist gültig bis ${until}.`,
   deadlineTitle: "Wichtig für Zahnersatz:",

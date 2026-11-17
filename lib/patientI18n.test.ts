@@ -441,7 +441,7 @@ describe("Patientenansicht: übrige Fächer (Arztpraxen, Therapie, Versorgung)",
     expect(fach.leistungsarten).toEqual(expect.arrayContaining(["Kassenleistung", "Selbstzahlerleistung (IGeL)", "Selbstzahlerleistung", "Kassenleistung mit Zuzahlung", "Kassenanteil + Aufzahlung", "Leistung der Praxis", "Privatleistung", "Basisleistung"]));
     for (const lang of FREMD) {
       expect(fach.leistungsarten.filter((t) => !hasTranslation(t, lang)), lang).toEqual([]);
-      for (const t of ["Kassenleistung bei Beschwerden", "Bei Beschwerden Kassenleistung.", "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.", "Ersetzt keine ärztliche Untersuchung.", "Ohne Beschwerden ist ein Nutzen nicht belegt."])
+      for (const t of ["Kassenleistung bei Beschwerden", "Bei Beschwerden Kassenleistung.", "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.", "Ersetzt keine ärztliche Untersuchung.", "Fragen Sie in der Praxis, was diese Leistung in Ihrer Situation leisten kann."])
         expect(hasTranslation(t, lang), `${lang}: ${t}`).toBe(true);
     }
   });

@@ -14,6 +14,8 @@ export type Ui = {
   intro: (arzt: string | undefined) => string;
   kasseWenn: string;
   nutzen: string;
+  /** Vor dem Link zur Quelle im Kasten „Zum Nutzen“ (z. B. „Quelle: IGeL-Monitor“). */
+  quelle: string;
   fineMed: (until: string) => string;
   deadlineTitle: string;
   deadline: (days: number) => string;

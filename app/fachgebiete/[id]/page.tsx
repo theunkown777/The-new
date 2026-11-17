@@ -8,6 +8,7 @@ import { SpecialtyIcon } from "@/components/SpecialtyIcon";
 import { PilotProgram } from "@/components/PilotProgram";
 import { Entlastung } from "@/components/Entlastung";
 import { PraxisFaq } from "@/components/PraxisFaq";
+import { NutzenQuelleLink } from "@/components/NutzenQuelleLink";
 import { DENTAL_SHOWCASE } from "@/lib/dentalShowcase";
 import { festzuschussRegelText, heilmittelPauschale, hilfsmittelZuzahlungText } from "@/lib/proposals";
 import { bereicheFuerFach, katalogFuerAnlass, slugBereich } from "@/lib/leistungskatalog";
@@ -204,7 +205,12 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
                         </div>
                         {o.benefits.length > 0 && <p className="mt-1 text-sm text-slate-600">{o.benefits.join(" · ")}</p>}
                         {o.kasseWenn && <p className="mt-1 text-sm text-green-800">Kasse zahlt: {o.kasseWenn}</p>}
-                        {o.nutzen && <p className="mt-1 text-sm text-amber-800">Zum Nutzen: {o.nutzen}</p>}
+                        {o.nutzen && (
+                          <p className="mt-1 text-sm text-amber-800">
+                            Zum Nutzen: {o.nutzen}
+                            <NutzenQuelleLink quelle={o.nutzenQuelle} />
+                          </p>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -272,7 +278,7 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
                   <b>Kein Druck:</b> Vorausgewählt ist immer die Kassenleistung. Was hervorgehoben wird, klickt die Praxis an. Sorrida lädt zur Bedenkzeit ein.
                 </li>
                 <li>
-                  <b>Ehrlich zum Nutzen:</b> Wo kein Nutzen belegt ist, steht das beim Angebot.
+                  <b>Ehrlich zum Nutzen:</b> Wo der IGeL-Monitor des Medizinischen Dienstes eine Leistung bewertet, steht seine Bewertung mit Quelle beim Angebot.
                 </li>
                 <li>
                   <b>Kasse zuerst:</b> Wann die Kasse zahlt, steht bei jeder Leistung.

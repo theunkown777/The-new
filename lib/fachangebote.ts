@@ -6,6 +6,7 @@
 // wo eine Regel je Kasse verschieden ist, steht das dabei.
 
 import type { Anlass } from "@/lib/specialties";
+import { NUTZEN_FRAGEN } from "@/lib/nutzenQuelle";
 
 export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
   kardio: [
@@ -13,7 +14,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "rhythmus", label: "Herzrhythmusstörung und Vorhofflimmern", bereich: "Rhythmus",
       options: [
         { id: "ka_lzekg", name: "Langzeit-EKG und Abklärung", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden oder Verdacht"] },
-        { id: "ka_smartwatch", name: "Auswertung von Smartwatch-EKGs ohne Beschwerden", type: "igel", price: 40, benefits: ["Einordnung eigener Aufzeichnungen"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
+        { id: "ka_smartwatch", name: "Auswertung von Smartwatch-EKGs ohne Beschwerden", type: "igel", price: 40, benefits: ["Einordnung eigener Aufzeichnungen"], nutzen: NUTZEN_FRAGEN },
       ],
     },
     {
@@ -82,7 +83,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
         { id: "uro_inko_diag", name: "Abklärung (Urin, Ultraschall, Restharn)", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
         { id: "uro_inko_bb", name: "Beckenbodentraining in der Physiotherapie", type: "kasse", price: 0, zuzahlung: "heilmittel", benefits: ["Heilmittel auf Verordnung"] },
         { id: "uro_inko_hm", name: "Inkontinenzhilfsmittel auf Rezept", type: "kasse", price: 0, zuzahlung: "hilfsmittel", benefits: ["Kassenleistung mit Zuzahlung"] },
-        { id: "uro_inko_magnet", zusatz: true, name: "Magnetstimulation des Beckenbodens", type: "igel", price: 40, benefits: ["ohne Ausziehen, im Sitzen"], nutzen: "Ein Nutzen ist nicht sicher belegt." },
+        { id: "uro_inko_magnet", zusatz: true, name: "Magnetstimulation des Beckenbodens", type: "igel", price: 40, benefits: ["ohne Ausziehen, im Sitzen"], nutzen: NUTZEN_FRAGEN },
       ],
     },
     {
@@ -96,7 +97,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "maennergesundheit", geschlecht: "M", label: "Männergesundheit und Erektionsstörung", bereich: "Männergesundheit",
       options: [
         { id: "uro_ed_diag", name: "Abklärung der Ursache (Labor, Gefäße, Hormone)", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
-        { id: "uro_ed_swt", zusatz: true, name: "Stoßwellentherapie bei Erektionsstörung (je Sitzung)", type: "igel", price: 150, benefits: ["ohne Medikamente"], nutzen: "Ein Nutzen ist nicht sicher belegt." },
+        { id: "uro_ed_swt", zusatz: true, name: "Stoßwellentherapie bei Erektionsstörung (je Sitzung)", type: "igel", price: 150, benefits: ["ohne Medikamente"], nutzen: NUTZEN_FRAGEN },
       ],
     },
     {
@@ -118,7 +119,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "wechseljahre", geschlecht: "W", abAlter: 40, label: "Wechseljahre", bereich: "Hormone",
       options: [
         { id: "gyn_wj_ber", name: "Beratung und Behandlung bei Beschwerden", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-        { id: "gyn_wj_horm", name: "Hormonstatus ohne Beschwerden", type: "igel", price: 60, benefits: ["Blutwerte"], nutzen: "Ohne Beschwerden ist ein Nutzen nicht belegt." },
+        { id: "gyn_wj_horm", name: "Hormonstatus ohne Beschwerden", type: "igel", price: 60, benefits: ["Blutwerte"], nutzen: NUTZEN_FRAGEN },
       ],
     },
     {
@@ -156,7 +157,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "akne", label: "Akne und Hautbild", bereich: "Haut",
       options: [
         { id: "haut_akne_kasse", name: "Medizinische Aknetherapie", type: "kasse", price: 0, benefits: ["Kassenleistung bei Akne"] },
-        { id: "haut_peeling", zusatz: true, name: "Chemisches Peeling (je Sitzung)", type: "igel", price: 90, benefits: ["Peeling der oberen Hautschicht"], nutzen: "Ergänzung, ersetzt keine Aknetherapie." },
+        { id: "haut_peeling", zusatz: true, name: "Chemisches Peeling (je Sitzung)", type: "igel", price: 90, benefits: ["Peeling der oberen Hautschicht"], nutzen: NUTZEN_FRAGEN },
       ],
     },
   ],
@@ -165,7 +166,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "trockenes_auge", label: "Trockenes Auge", bereich: "Oberfläche",
       options: [
         { id: "au_trocken_kasse", name: "Untersuchung und Behandlung", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
-        { id: "au_ipl", zusatz: true, name: "Lidrandbehandlung mit Lichtimpulsen (IPL, je Sitzung)", type: "igel", price: 120, benefits: ["bei Funktionsstörung der Liddrüsen"], nutzen: "Ein Nutzen auf lange Sicht ist nicht belegt." },
+        { id: "au_ipl", zusatz: true, name: "Lidrandbehandlung mit Lichtimpulsen (IPL, je Sitzung)", type: "igel", price: 120, benefits: ["bei Funktionsstörung der Liddrüsen"], nutzen: NUTZEN_FRAGEN },
       ],
     },
     {

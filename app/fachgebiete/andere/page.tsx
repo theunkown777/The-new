@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PublicShell } from "@/components/PublicShell";
 import { PilotProgram } from "@/components/PilotProgram";
 import { FACH_ZAHL } from "@/lib/fachZahl";
+import { NUTZEN_FRAGEN } from "@/lib/nutzenQuelle";
 
 export const metadata: Metadata = {
   title: "Sorrida für jedes Fach – mit eigenen Leistungen",
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 
 const BEISPIEL = [
   { anlass: "Darmkrebs-Vorsorge", name: "Darmspiegelung", preis: "Kasse", kasse: "Kassenleistung ab 50 Jahren", nutzen: "" },
-  { anlass: "Darmkrebs-Vorsorge", name: "Zusätzlicher Stuhltest auf Wunsch", preis: "35 €", kasse: "Ab 50 im Rahmen der Vorsorge Kassenleistung", nutzen: "Ersetzt die Darmspiegelung nicht." },
+  { anlass: "Darmkrebs-Vorsorge", name: "Zusätzlicher Stuhltest auf Wunsch", preis: "35 €", kasse: "Ab 50 im Rahmen der Vorsorge Kassenleistung", nutzen: NUTZEN_FRAGEN },
   { anlass: "Unverträglichkeit", name: "Atemtest ohne Beschwerden", preis: "45 €", kasse: "Bei Beschwerden Kassenleistung", nutzen: "" },
 ];
 

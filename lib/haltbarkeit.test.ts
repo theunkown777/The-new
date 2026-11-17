@@ -9,6 +9,8 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_PRICES, FINDINGS, GLOBAL_FINDINGS, buildProposal, type FindingCode, type GlobalCode, type PatientFactors, type ProposalInput } from "./proposals";
 import { ALLE_SPECIALTIES, DENTAL_ID, type Specialty } from "./specialties";
 import { DENTAL_SHOWCASE } from "./dentalShowcase";
+import { IGEL_MONITOR, NUTZEN_FRAGEN, quellenListe, quellenText } from "./nutzenQuelle";
+import { readFileSync } from "node:fs";
 
 const HALTBARKEIT = /haltbar|langlebig|lebensdauer|hält\s+(\d|lange|länger|am längsten|ein leben)|jahre haltbar/i;
 /** Aussagen zu Erfolg und Wirkung. „Nach erfolgloser Vorbehandlung“ ist eine Regel der Kasse und kein Treffer. */
@@ -19,7 +21,7 @@ const WERTUNG = /\bmodern|ganzheitlich|schnelle[rnsm]? termin|ohne wartezeit|\bk
 const BEDARF = /\bbrauch(t|en|st)\b|\breicht\b[^.]*\baus\b|ausreichend|gleichwertig|vollwertig|nicht nötig|unnötig|\bnötig\b|ohnehin|aufwendiger|sinnvoll|empfehl|empfohlen|optimal|\bbeste[nrs]?\b/i;
 const VERBOTEN = [HALTBARKEIT, ERFOLG, WERTUNG, BEDARF];
 /**
- * Die Überschrift einer Position ist der Befund, den die Praxis angeklickt hat („Stark zerstört, Krone nötig“),
+ * Die Überschrift einer Position ist der Befund, den die Praxis angeklickt hat („Stark zerstört (Krone)“),
  * oder der gewählte Anlass. Das ist eine Angabe der Praxis; für sie gilt die Liste BEDARF nicht.
  */
 const pruefe = (t: string, wo: string) => {
@@ -186,12 +188,13 @@ describe("keine Aussage zu Haltbarkeit, Erfolg oder Bedarf in den Quellen der An
     expect(texte).toBeGreaterThan(10);
   });
 
-  // Der Kasten „Zum Nutzen“ sagt, wo ein Nutzen nicht belegt ist oder was eine Leistung nicht ersetzt. Er sagt nicht,
-  // dass etwas wirkt oder hilft, und nicht, was stattdessen zu tun wäre („am meisten bringt der Rauchstopp“,
-  // „Beckenbodentraining ist die Basis“, „Kann Todesfälle verhindern“, „Belegt vor allem bei …“).
+  // Der Kasten „Zum Nutzen“ gibt mit Quelle wieder, was die Quelle sagt (IGeL-Monitor, Gesetz), und ist ohne Quelle
+  // neutral. Er sagt nicht, dass etwas wirkt oder hilft, und nicht, was stattdessen zu tun wäre („am meisten bringt
+  // der Rauchstopp“, „Beckenbodentraining ist die Basis“, „Kann Todesfälle verhindern“, „Belegt vor allem bei …“).
   it("der Kasten „Nutzen“: keine Aussage zu Haltbarkeit, Erfolg, Wirkung oder Bedarf und keine Therapieaussage", () => {
-    // Benannte Ausnahme: „medizinisch notwendig“ ist der Begriff des Gesetzes für die Kassenleistung (§ 12 SGB V).
-    const AUSNAHMEN = new Set<string>([]);
+    // Benannte Ausnahme nur für die Liste BEDARF: wörtliches Zitat aus § 2 Abs. 2 KHEntgG („zweckmäßige und
+    // ausreichende Versorgung“), mit Quelle.
+    const AUSNAHMEN = new Set<string>(["klinik/wahlarzt"]);
     const POSITIV = /verhinder|\bbringt\b|\bhilft\b|ist die basis|\bschützt\b|\bsenkt\b|vor allem bei/i;
     // Ohne hinterlegte Quelle auch keine Einordnung der Studienlage und kein Rat zum Vorgehen („gemeinsam abwägen“,
     // „Fachgesellschaften raten davon ab“, „Nutzen begrenzt“, „Ergebnisse uneinheitlich“).
@@ -202,13 +205,117 @@ describe("keine Aussage zu Haltbarkeit, Erfolg oder Bedarf in den Quellen der An
         if (!o.nutzen) continue;
         texte++;
         const wo = `${s.id}/${o.id}`;
-        if (AUSNAHMEN.has(wo)) continue;
-        for (const muster of [HALTBARKEIT, ERFOLG, BEDARF, POSITIV, OHNE_QUELLE]) expect(o.nutzen, wo).not.toMatch(muster);
+        for (const muster of [HALTBARKEIT, ERFOLG, BEDARF, POSITIV, OHNE_QUELLE]) {
+          if (muster === BEDARF && AUSNAHMEN.has(wo)) continue;
+          expect(o.nutzen, wo).not.toMatch(muster);
+        }
         // „belegt“, „gezeigt“, „nachgewiesen“ nur verneint: „ist ein Nutzen nicht belegt“, „kein Nutzen belegt“.
         if (/belegt|gezeigt|nachgewiesen/i.test(o.nutzen)) expect(o.nutzen, wo).toMatch(/\b(nicht|kein|keine)\b/i);
       }
     }
     expect(texte).toBeGreaterThan(30);
+  });
+});
+
+// Prüfbefund R5: Der Kasten „Zum Nutzen“ macht keine Aussage zu Nutzen oder Studienlage ohne Quelle. Steht dort ein
+// Wort dieser Art, braucht das Angebot `nutzenQuelle` mit https-Adresse, und der Satz gibt wieder, was die Quelle sagt.
+describe("der Kasten „Zum Nutzen“: Aussagen zu Nutzen und Studienlage nur mit Quelle", () => {
+  /** Wörter, die eine Aussage zu Nutzen, Studienlage, Bewertung oder Recht anzeigen. */
+  const BELEGWORT = /belegt|nachgewiesen|gezeigt|nutzen|überdiagnos|übertherapie|wirksam|wirkung|studie|evidenz|empfohlen|empfehl|leitlinie|bewerte|bewertung|igel-monitor|schaden|risiko|§/i;
+  /** Die Bewertungsstufen des IGeL-Monitors, wie sie auf seinen Seiten stehen. */
+  const STUFEN = ["positiv", "tendenziell positiv", "unklar", "tendenziell negativ", "negativ"];
+  const alle = () =>
+    [...ALLE_SPECIALTIES, DENTAL_SHOWCASE].flatMap((s) => s.anlaesse.flatMap((a) => a.options.map((o) => ({ wo: `${s.id}/${o.id}`, o }))));
+
+  it("jeder Satz mit Belegwort hat eine Quelle mit https-Adresse und Stand", () => {
+    let mitQuelle = 0;
+    for (const { wo, o } of alle()) {
+      if (!o.nutzen) {
+        expect(o.nutzenQuelle, `${wo}: Quelle ohne Satz`).toBeUndefined();
+        continue;
+      }
+      const quellen = quellenListe(o.nutzenQuelle);
+      if (BELEGWORT.test(o.nutzen)) expect(quellen.length, `${wo}: „${o.nutzen}“ braucht nutzenQuelle`).toBeGreaterThan(0);
+      for (const q of quellen) {
+        mitQuelle++;
+        expect(q.url, wo).toMatch(/^https:\/\/[a-z0-9.-]+\.[a-z]{2,}\//);
+        expect(q.name.trim().length, wo).toBeGreaterThan(3);
+        expect(q.stand, wo).toMatch(/^\d{2}\.\d{2}\.\d{4}$/);
+      }
+    }
+    expect(mitQuelle).toBeGreaterThan(15);
+  });
+
+  it("IGeL-Monitor: Seite des Medizinischen Dienstes, Titel und Bewertungsstufe stehen wörtlich im Satz", () => {
+    let n = 0;
+    for (const { wo, o } of alle()) {
+      const igel = quellenListe(o.nutzenQuelle).filter((q) => q.name === IGEL_MONITOR);
+      if (!igel.length) {
+        // Ohne Quelle des IGeL-Monitors nennt der Satz ihn auch nicht.
+        if (o.nutzen) expect(o.nutzen, wo).not.toMatch(/IGeL-Monitor/);
+        continue;
+      }
+      n++;
+      expect(o.nutzen, wo).toMatch(/^Der IGeL-Monitor des Medizinischen Dienstes bewertet /);
+      for (const q of igel) {
+        expect(q.url, wo).toMatch(/^https:\/\/igel-monitor\.de\/igel-a-z\/igel\/show\/[a-z0-9-]+\.html$/);
+        expect(o.nutzen, wo).toContain(`„${q.titel}“`);
+      }
+      // Jede genannte Stufe ist eine Stufe des IGeL-Monitors; je Quelle mindestens eine.
+      const genannt = [...o.nutzen!.matchAll(/mit „([^“]+)“/g)].map((m) => m[1]);
+      expect(genannt.length, wo).toBeGreaterThan(0);
+      for (const stufe of genannt) expect(STUFEN, `${wo}: „${stufe}“`).toContain(stufe);
+      if (!/jeweils/.test(o.nutzen!)) expect(genannt.length, wo).toBe(igel.length);
+    }
+    expect(n).toBeGreaterThan(10);
+  });
+
+  it("Rechtslage nur als wörtliches Zitat mit Norm und Adresse (Wahlarzt: § 2 Abs. 2 KHEntgG)", () => {
+    const wahlarzt = alle().find((x) => x.wo === "klinik/wahlarzt")!.o;
+    const [q] = quellenListe(wahlarzt.nutzenQuelle);
+    expect(q.name).toBe("§ 2 Abs. 2 KHEntgG");
+    expect(q.url).toBe("https://www.gesetze-im-internet.de/khentgg/__2.html");
+    expect(wahlarzt.nutzen).toMatch(/^§ 2 Abs\. 2 Satz 1 KHEntgG: „Allgemeine Krankenhausleistungen sind die Krankenhausleistungen, die .+ notwendig sind\.“$/);
+    // Ohne Quelle keine Norm im Kasten.
+    for (const { wo, o } of alle()) if (o.nutzen && /§/.test(o.nutzen)) expect(quellenListe(o.nutzenQuelle).length, wo).toBeGreaterThan(0);
+  });
+
+  it("ohne Quelle nur der neutrale Satz oder eine reine Abrechnungstatsache", () => {
+    const ERLAUBT_OHNE_QUELLE = new Set([
+      NUTZEN_FRAGEN,
+      "Ersetzt keine ärztliche Untersuchung.",
+      "Keine Krankenbehandlung und keine Kassenleistung.",
+      "Behandlung aus kosmetischem Wunsch, keine Kassenleistung.",
+      "Training ohne Krankheitswert, keine Kassenleistung.",
+      "Wunschleistung ohne medizinischen Anlass, keine Kassenleistung.",
+    ]);
+    for (const { wo, o } of alle()) {
+      if (!o.nutzen || quellenListe(o.nutzenQuelle).length) continue;
+      expect(ERLAUBT_OHNE_QUELLE.has(o.nutzen), `${wo}: „${o.nutzen}“`).toBe(true);
+    }
+  });
+
+  it("jede Stelle, die den Kasten zeigt, zeigt auch die Quelle (als Link: neues Fenster, ohne Referrer; im Schreiben mit Adresse)", () => {
+    const link = readFileSync("components/NutzenQuelleLink.tsx", "utf8");
+    expect(link).toContain('target="_blank"');
+    expect(link).toContain('rel="noopener noreferrer"');
+    // Website (Fachseiten) und Patientenansicht als Link; im Editor steht der Kasten in einem Knopf, dort als Text mit Tooltip.
+    for (const datei of ["app/fachgebiete/[id]/page.tsx", "components/PatientProposalView.tsx", "components/ProposalEditor.tsx"]) {
+      const text = readFileSync(datei, "utf8");
+      expect(text, datei).toMatch(/\{o\.nutzen\}|text=\{o\.nutzen\}/);
+      expect(text, datei).toMatch(/<NutzenQuelleLink quelle=\{o\.nutzenQuelle\}/);
+    }
+    // Schreiben an den Patienten: Quelle mit Adresse im Text
+    const items = buildProposal({ teeth: {}, globals: {}, patient: basis, fach: "uro", anlaesse: ["prostata"] }, DEFAULT_PRICES);
+    const psa = items.flatMap((i) => i.options).find((o) => o.id === "psa")!;
+    expect(psa.nutzenQuelle).toBeDefined();
+    // Das Beispiel auf der Startseite (Grundsätze) ist wörtlich der Satz aus dem Katalog, mit derselben Quelle.
+    const grundsaetze = readFileSync("components/Grundsaetze.tsx", "utf8");
+    expect(grundsaetze).toContain(psa.nutzen!);
+    expect(grundsaetze).toContain("<NutzenQuelleLink quelle={BEISPIEL_NUTZEN.quelle} />");
+    expect(quellenText(psa.nutzenQuelle)).toBe(
+      "Quelle: IGeL-Monitor (Medizinischer Dienst Bund), https://igel-monitor.de/igel-a-z/igel/show/psa-test-zur-frueherkennung-von-prostatakrebs.html, Stand 17.11.2026",
+    );
   });
 });
 

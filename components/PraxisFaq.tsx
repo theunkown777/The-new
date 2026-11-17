@@ -13,7 +13,7 @@ export function PraxisFaq({ therapie = false, dental = false, journal = false, a
       "Ist das nicht Verkaufen am Patienten?",
       therapie
         ? "Nein. Sorrida zeigt zuerst, was auf Verordnung möglich ist, und rechnet die gesetzliche Zuzahlung nach § 32 und § 61 SGB V. Selbstzahler-Einheiten stehen daneben, mit Preis und Hinweis auf Kassenzuschüsse. Empfohlen wird nichts von sich aus."
-        : "Nein. Die Kassenleistung steht immer zuerst und ist immer vorausgewählt. Wo ein Nutzen nicht belegt ist, steht das beim Angebot. Was hervorgehoben wird, klickt die Praxis an; Sorrida empfiehlt nichts von sich aus. Das entspricht dem, was Patientenvertreter fordern: Information, Bedenkzeit und Kosten vorab.",
+        : "Nein. Die Kassenleistung steht immer zuerst und ist immer vorausgewählt. Wo der IGeL-Monitor des Medizinischen Dienstes eine Leistung bewertet, steht seine Bewertung mit Quelle beim Angebot. Was hervorgehoben wird, klickt die Praxis an; Sorrida empfiehlt nichts von sich aus. Das entspricht dem, was Patientenvertreter fordern: Information, Bedenkzeit und Kosten vorab.",
     ],
     [
       // Keine Aussage „erfüllt § 630c“: Ob die Information im Einzelfall genügt, entscheidet die Praxis (Prüfbericht A16, T10).

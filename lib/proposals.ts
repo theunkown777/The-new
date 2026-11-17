@@ -1,6 +1,7 @@
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { buildMedicalProposal } from "@/lib/medicalProposals";
 import { tabelle2027 } from "@/lib/festzuschuss2027";
+import { quellenText, type NutzenQuellen } from "@/lib/nutzenQuelle";
 import festzuschuss2027Datei from "@/data/festzuschuss-2027.json";
 // Behandlungsvorschläge: aus Zahnbefunden und allgemeinen
 // Befunden entstehen je Befund Behandlungsoptionen - immer zuerst die
@@ -91,8 +92,10 @@ export interface ProposalOption {
   befunde?: string[];
   /** Wann die Kasse eine Selbstzahlerleistung doch übernimmt (Arztpraxen). */
   hinweis?: string;
-  /** Ehrliche Angabe zum belegten Nutzen (Arztpraxen). */
+  /** Kasten „Zum Nutzen“ (Arztpraxen): mit Quelle das, was die Quelle sagt, sonst neutral (lib/specialties.ts). */
   nutzen?: string;
+  /** Quelle der Aussage in `nutzen` (lib/nutzenQuelle.ts). */
+  nutzenQuelle?: NutzenQuellen;
   /** Gesetzliche Zuzahlung für Erwachsene (siehe zuzahlungBetrag). */
   zuzahlung?: boolean | "heilmittel" | "hilfsmittel";
   /** Eigene Bezeichnung der Leistungsart, z. B. "Selbstzahlerleistung" in Therapiepraxen. */
@@ -822,6 +825,12 @@ export function optionTypeLabel(t: OptionType, insurance: "GKV" | "PKV"): string
 
 export const formatEuro = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
 
+/** Zeile „Zum Nutzen“ im Schreiben, mit Quelle samt Adresse, wenn eine hinterlegt ist. */
+function nutzenZeile(o: ProposalOption): string {
+  const quelle = quellenText(o.nutzenQuelle);
+  return `      Zum Nutzen: ${o.nutzen}${quelle ? ` (${quelle})` : ""}`;
+}
+
 export function buildLetter(args: {
   items: ProposalItem[];
   choices: Record<string, string>;
@@ -856,7 +865,7 @@ export function buildLetter(args: {
       const o = item.options[0];
       L.push(`   Auf Wunsch zusätzlich: ${o.name} (${typeLabelOf(o, patient.insurance)}): ca. ${formatEuro(money(o, patient).netto)}`);
       if (o.hinweis) L.push(`      ${o.name}: ${o.hinweis}`);
-      if (o.nutzen) L.push(`      Zum Nutzen: ${o.nutzen}`);
+      if (o.nutzen) L.push(nutzenZeile(o));
       continue;
     }
     if (!chosen) continue;
@@ -877,7 +886,7 @@ export function buildLetter(args: {
     });
     for (const o of item.options) {
       if (o.hinweis) L.push(`      ${o.name}: ${o.hinweis}`);
-      if (o.nutzen) L.push(`      Zum Nutzen: ${o.nutzen}`);
+      if (o.nutzen) L.push(nutzenZeile(o));
     }
     const why = item.notes.filter((n) => n.kind === "info").map((n) => n.text);
     if (why.length) L.push(`   Zur Einordnung: ${why.join(" ")}`);
