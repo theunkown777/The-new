@@ -50,8 +50,8 @@ const nextConfig = {
       { source: "/((?!t/).*)", headers: securityHeaders },
       // :path+ (mindestens ein Teil): Für die nackte Adresse /t gilt die Regel darüber, sonst bekäme sie beide.
       { source: "/t/:path+", headers: [...einbettbar, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
-      // Portal- und Freigabe-Links enthalten das Zugangstoken im Pfad.
-      { source: "/(portal|p|a)/:path*", headers: [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      // Portal- und Freigabe-Links enthalten das Zugangstoken im Pfad. „Meine Praxen auf diesem Gerät“ verlinkt auf solche Links.
+      { source: "/(portal|p|a|meine-praxen)/:path*", headers: [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
     ];
   },
   serverExternalPackages: ["pdfkit"],

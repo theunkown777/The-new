@@ -22,6 +22,33 @@ const DAUER_MS = BESTAETIGUNG_MINUTEN * 60_000;
 /** Eigener Cookie-Name je Link, damit mehrere Links auf einem Gerät (z. B. Eltern und Kind) sich nicht überschreiben. */
 export const pruefCookieName = (linkHash: string) => `sorrida_pp_${linkHash.slice(0, 16)}`;
 
+const TOKEN_FORM = /^[A-Za-z0-9_-]{20,128}$/;
+
+/**
+ * Pfade, unter denen der Browser das Cookie mitschickt: nur die Seiten und Schnittstellen dieses einen Links.
+ * Nie "/": Sonst ginge die Kennung des Links von Praxis B 30 Minuten lang bei jedem Aufruf an Praxis A mit
+ * (und an /meine-praxen). Der Server bekäme dann in einer Anfrage Links zweier Praxen (AVV, Anlage 1).
+ */
+export function pruefCookiePfade(token: string): string[] {
+  if (!TOKEN_FORM.test(token)) throw new Error("Ungültiger Portal-Link");
+  return [`/portal/${token}`, `/api/portal/${token}`];
+}
+
+/**
+ * Fertige Set-Cookie-Zeilen für die Bestätigung: je Pfad des Links eine, dazu eine, die ein früher unter "/"
+ * gesetztes Cookie desselben Links löscht. Als Zeilen statt über NextResponse.cookies, weil Next.js dort je Name
+ * nur einen Eintrag hält (zwei Pfade mit gleichem Namen gingen verloren).
+ */
+export function pruefCookieZeilen(token: string, cookie: { name: string; wert: string; maxAge: number }, sicher: boolean): string[] {
+  if (!/^sorrida_pp_[0-9a-f]{16}$/.test(cookie.name) || !/^[0-9A-Za-z._-]+$/.test(cookie.wert)) throw new Error("Ungültiges Cookie");
+  const zusatz = `; HttpOnly; SameSite=Lax${sicher ? "; Secure" : ""}`;
+  const dauer = Math.max(0, Math.floor(cookie.maxAge));
+  return [
+    ...pruefCookiePfade(token).map((pfad) => `${cookie.name}=${cookie.wert}; Path=${pfad}; Max-Age=${dauer}${zusatz}`),
+    `${cookie.name}=; Path=/; Max-Age=0${zusatz}`,
+  ];
+}
+
 const sig = (b: PruefBindung, zeiten: string, secret: string) =>
   crypto.createHmac("sha256", secret).update(`portal-pruefung:${b.linkHash}:${b.patientId}:${b.geburtstag}:${zeiten}`).digest("base64url");
 

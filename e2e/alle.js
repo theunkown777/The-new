@@ -18,6 +18,7 @@ const DURCHLAEUFE = [
   'rundgang.js',
   'pruefung-4-alle-fachrichtungen.js',
   'pruefung-4-sprachen.js',
+  'meine-praxen.js',
   'abnahme-teil3-a.js',
   'abnahme-teil3-b.js',
   'abnahme-teil3-c.js',

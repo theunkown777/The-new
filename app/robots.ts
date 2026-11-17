@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: ["/"],
       disallow: [
-        "/api/", "/p/", "/a/", "/t/", "/portal/", "/embed/", "/uebergabe", "/empfang",
+        "/api/", "/p/", "/a/", "/t/", "/portal/", "/meine-praxen", "/embed/", "/uebergabe", "/empfang",
         "/login", "/register", "/demo", "/demnaechst", "/verify-email", "/reset-password", "/forgot-password", "/accept-invite",
         "/dashboard", "/patients", "/reports", "/proposals", "/abschluss", "/settings", "/zahlungen", "/analyse", "/anfragen", "/vorsorge",
         "/praxismanager", "/termine", "/abrechnungspruefung", "/abrechnung", "/mein-bereich", "/leistungsverzeichnis", "/modelle", "/eingang", "/anatomie",

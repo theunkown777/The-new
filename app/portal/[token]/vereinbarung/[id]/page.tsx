@@ -8,9 +8,14 @@ import { SignAgreement } from "@/components/SignAgreement";
 import { KassenSockel } from "@/components/KassenSockel";
 import { pickPortalLang } from "@/lib/portalI18n";
 import { pruefLage } from "@/lib/portalPruefungServer";
+import { PraxisBand } from "@/components/PraxisKennung";
+import { portalKennung, portalSymbole } from "@/lib/portalKopf";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Einverständnis", robots: { index: false, follow: false }, referrer: "no-referrer" };
+export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const k = await portalKennung((await props.params).token);
+  return { title: k ? `Einverständnis · ${k.name}` : "Einverständnis", icons: k ? portalSymbole(k) : undefined, robots: { index: false, follow: false }, referrer: "no-referrer" };
+}
 
 export default async function Vereinbarung(props: { params: Promise<{ token: string; id: string }>; searchParams: Promise<{ lang?: string }> }) {
   const params = await props.params;
@@ -45,8 +50,10 @@ export default async function Vereinbarung(props: { params: Promise<{ token: str
     demoDatum: stamm?.practice.isDemo && stamm.birthDate ? stamm.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" }) : null,
   };
 
+  const kennung = await portalKennung(params.token);
   return (
     <main className="min-h-screen bg-[#F5F2EE]" data-testid="vereinbarung">
+      {kennung && <PraxisBand k={kennung} />}
       <div className="mx-auto max-w-xl px-4 pb-16 pt-6 sm:pt-10">
         <a href={back} className="text-sm text-salbei-700 underline">← Zurück zu Ihrem Behandlungsweg</a>
         <h1 className="font-display mt-6 text-4xl leading-tight text-slate-900">Ihr Einverständnis</h1>

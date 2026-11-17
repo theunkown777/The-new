@@ -98,8 +98,9 @@ export default function DatenschutzPage() {
             {UEBERGABE_MINUTEN} Minuten offen; ein zweites bewahrt die Anmeldung der Praxis verschlüsselt auf, bis sie mit der PIN zurückkehrt, höchstens {PARKEN_STUNDEN} Stunden.
           </li>
           <li>
-            <b>Patientenportal:</b> ein Cookie für {BESTAETIGUNG_MINUTEN} Minuten, nachdem Sie Ihr Geburtsdatum bestätigt haben. Ohne diese
-            Bestätigung setzt das Portal kein Cookie.
+            <b>Patientenportal:</b> ein Cookie für {BESTAETIGUNG_MINUTEN} Minuten, nachdem Sie Ihr Geburtsdatum bestätigt haben. Ihr Browser
+            schickt es nur an die Seiten dieses einen Links, nie an die Portale anderer Praxen. Ohne diese Bestätigung setzt das Portal kein
+            Cookie.
           </li>
           <li>
             <b>Zugang vor dem Start:</b> Solange diese Website nur mit Zugangsdaten erreichbar ist, merkt sich ein Cookie für {VORSCHAU_TAGE}{" "}
@@ -119,6 +120,23 @@ export default function DatenschutzPage() {
           Wert „zu“. So kommt die Einladung in diesem Tab nicht wieder. Ohne diesen Klick wird nichts gespeichert; die Startseite liest nur
           diesen einen Eintrag. Er geht nicht an unseren Server. Sonst speichern wir auf der öffentlichen Website nichts im Speicher Ihres
           Browsers.
+        </p>
+        {/* Gleiche Felder wie lib/meinePraxen.ts (eintragSchema); Schutzregel: lib/meinePraxenSchutz.ts.
+            Offen bei der Kanzlei: die Rechtsgrundlage (Frage 2) und wer gegenüber dem Patienten Anbieter dieser Liste ist
+            (Frage 1; Abschnitt 1 nennt für das Portal die Praxis). Die Wir-Form und die Nennung von § 25 Abs. 2 Nr. 2 TDDDG
+            sind bis dahin unsere Einschätzung und nach der Antwort anzupassen. */}
+        <p id="meine-praxen" data-testid="datenschutz-meine-praxen">
+          Meine Praxen auf diesem Gerät: Im Patientenportal können Sie eine Praxis auf Ihrem Gerät merken. Erst wenn Sie dafür auf „Diese
+          Praxis auf diesem Gerät merken“ tippen, legt Ihr Browser einen Eintrag im lokalen Speicher an. Das geschieht nur auf Ihren Wunsch;
+          nach unserer Einschätzung ist dafür keine weitere Einwilligung nötig (§ 25 Abs. 2 Nr. 2 TDDDG). Darin stehen der Link zum Portal,
+          der Vorname der Person, für die der Link gilt, Name, Fach und Ort der Praxis, die Art der Praxis (Zahnarzt, Arzt oder Therapie),
+          bis wann der Link gilt und wann Sie ihn gemerkt haben. Auf Wunsch kommt ein eigener Name für die Karte dazu. Das Portal zeigt
+          diese Angaben ohnehin. Die Liste unter /meine-praxen liest Ihr Browser selbst. Sie geht weder an unseren Server noch an eine
+          Praxis. Sorrida verbindet die Einträge nicht, und keine Praxis erfährt von einer anderen. Jeder Eintrag öffnet genau ein Portal.
+          Die Liste gilt nur in diesem Browser auf diesem Gerät; ein anderer Browser oder eine Web-App auf dem Home-Bildschirm hat eine
+          eigene. Sie können einzelne Einträge oder alles dort jederzeit löschen, ebenso über die Einstellungen Ihres Browsers. Ist auf dem
+          Gerät eine Praxis angemeldet, ein Gastzugang offen oder der Empfangsmodus aktiv, bieten wir das Merken nicht an. Wer Ihr Gerät
+          benutzt, kann die Liste sehen.
         </p>
       </section>
 

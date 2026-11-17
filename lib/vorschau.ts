@@ -101,8 +101,9 @@ export async function zugangPasst(benutzer: string, passwort: string, env: Recor
  * Pfade, die auch ohne Zugang erreichbar sein müssen: die Demnächst-Seite und ihre Bausteine sowie
  * Zugänge mit eigener Absicherung, die keine Website-Inhalte zeigen:
  * Sorrida-Connector (Praxis-Schlüssel), nächtliche Aufgabe (CRON_SECRET), Stripe (Signatur),
- * Schnittstelle v1 (API-Schlüssel), Kalender-Abo der Praxis (geheimer Link, ohne Patientennamen) und
- * Patientenlinks (geheimer Link je Patient, nur dessen Daten).
+ * Schnittstelle v1 (API-Schlüssel), Kalender-Abo der Praxis (geheimer Link, ohne Patientennamen),
+ * Patientenlinks (geheimer Link je Patient, nur dessen Daten) und „Meine Praxen auf diesem Gerät“ (/meine-praxen:
+ * zeigt nur, was im Browser des Patienten liegt, lädt nichts vom Server; sonst führte jede Karte ins Leere).
  */
 const EIGENE_ABSICHERUNG = ["/api/connector/", "/api/cron/", "/api/stripe/webhook", "/api/v1/", "/api/kalender/"];
 const PATIENTENLINK = /^\/(api\/)?(p|portal|a)\/[^/]{16,}(\/|$)/;
@@ -183,6 +184,7 @@ export function darfInSuchmaschinen(pfad: string, env: Record<string, string | u
   return oeffentlichStufe(env, impressumOk) !== "aus" && istInfoSeite(pfad);
 }
 
+const MEINE_PRAXEN = /^\/meine-praxen(\/manifest\.webmanifest)?$/;
 export function freiOhneZugang(pfad: string): boolean {
-  return EIGENE_ABSICHERUNG.some((p) => pfad.startsWith(p)) || PATIENTENLINK.test(pfad) || PFLICHTSEITEN.includes(pfad) || pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
+  return EIGENE_ABSICHERUNG.some((p) => pfad.startsWith(p)) || PATIENTENLINK.test(pfad) || MEINE_PRAXEN.test(pfad) || PFLICHTSEITEN.includes(pfad) || pfad === "/demnaechst" || pfad === "/api/vorschau" || pfad.startsWith("/_next/") || pfad.startsWith("/brand/") || pfad.startsWith("/fonts/") || pfad === "/favicon.ico" || pfad === "/robots.txt" || pfad === "/icon.svg";
 }

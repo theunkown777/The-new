@@ -22,6 +22,7 @@ const ERLAUBT: Record<string, string> = {
   "components/start/Rundgang.tsx": "Rundgang der Startseite: nur nach „Nein danke“ oder „Rundgang beenden“, Wert „zu“",
   "components/ProposalEditor.tsx": "angefangener Vorschlag (angemeldete Praxen)",
   "components/SignOutButton.tsx": "löscht den angefangenen Vorschlag beim Abmelden",
+  "lib/geraeteSpeicher.ts": "„Meine Praxen auf diesem Gerät“ (Patientenportal, nur nach Klick)",
   // Nur außerhalb des Betriebs (Testschalter für Bildschirmfotos), siehe zweiter Test.
   "components/modelle/drei/Buehne.ts": "Testschalter, im ausgelieferten Code abgeschaltet",
 };
@@ -40,7 +41,7 @@ describe("Zugriffe auf den Speicher des Browsers", () => {
 
   it("die Erklärung nennt die Zugriffe und die Zusage für die öffentliche Website", () => {
     const seite = readFileSync("app/datenschutz/page.tsx", "utf8").replace(/\s+/g, " ");
-    for (const wort of ["Sitzungsspeicher", "dunkle Ansicht", "Erklärtext", "Führung", "„sorrida-rundgang“", "Wert „zu“", "Ohne diesen Klick wird nichts gespeichert", "Sonst speichern wir auf der öffentlichen Website nichts im Speicher Ihres Browsers."]) expect(seite).toContain(wort);
+    for (const wort of ["Sitzungsspeicher", "dunkle Ansicht", "Erklärtext", "Führung", "„sorrida-rundgang“", "Wert „zu“", "Ohne diesen Klick wird nichts gespeichert", "Sonst speichern wir auf der öffentlichen Website nichts im Speicher Ihres Browsers.", "Meine Praxen auf diesem Gerät", "Erst wenn Sie dafür auf „Diese Praxis auf diesem Gerät merken“ tippen"]) expect(seite).toContain(wort);
   });
 
   it("der Rundgang der Startseite schreibt nur „zu“ und nur beim Beenden", () => {

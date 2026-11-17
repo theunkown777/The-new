@@ -53,7 +53,7 @@ export const SEITEN_TEILE: ReadonlySet<string> = new Set(
   gebiss goae-rechnung goae-rechnung-erklaeren haertefall-zahnersatz heil-und-kostenplan-verstehen heilmittel-zuzahlung
   hilfe hilfe-praxis hilfsmittel-zuzahlung-mehrkosten igel-vereinbarung import impressum koerper
   kostenerstattung-psychotherapie launch leistungen leistungsverzeichnis lesen lexikon lizenzen login
-  manifest.webmanifest mehrkostenvereinbarung mein-bereich modell modelle nachfassen neu new p patient patients portal
+  manifest.webmanifest mehrkostenvereinbarung meine-praxen mein-bereich modell modelle nachfassen neu new p patient patients portal
   praxis praxismanager preisliste privatpatienten-beihilfe-erstattung professionelle-zahnreinigung proposal proposals
   protokoll ratgeber rechner register report reports reset-password rueckmeldung schnell security
   selbstzahler-physiotherapie settings standorte status t team templates termin termine uebergabe unterschrift

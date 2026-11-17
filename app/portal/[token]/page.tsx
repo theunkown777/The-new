@@ -1,6 +1,6 @@
 import { PraxisFussLaden } from "@/components/PraxisFussLaden";
-import type { Metadata } from "next";
-import { headers } from "next/headers";
+import type { Metadata, Viewport } from "next";
+import { cookies, headers } from "next/headers";
 import { mandatsReferenz, mandatsText } from "@/lib/sepa";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/prisma";
@@ -8,7 +8,7 @@ import { hashToken } from "@/lib/tokens";
 import { MODELLE, teilBezeichnung, type Modell } from "@/lib/modelle/markierung";
 import { hauptModell } from "@/lib/modelle/fach";
 import { epcPayload, formatIban, invoiceView, isOutstanding, paymentReference } from "@/lib/invoices";
-import { PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, PORTAL_UI, pickPortalLang, portalDir, portalStatus, reminderLabel } from "@/lib/portalI18n";
+import { GERAET_UI, PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, PORTAL_UI, pickPortalLang, portalDir, portalStatus, reminderLabel } from "@/lib/portalI18n";
 import { PortalRueckmeldung } from "@/components/PortalRueckmeldung";
 import { kurzPaket, kurzUebersetzer } from "@/lib/kurzcheckTexte";
 import { fensterAb, offenerTermin } from "@/lib/rueckmeldung";
@@ -20,25 +20,64 @@ import { KassenSockel } from "@/components/KassenSockel";
 import { journey } from "@/lib/journey";
 import { buildProposal, patientAnteile, resolvePrices } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
+import { praxisKennzeichen } from "@/lib/praxisKennung";
+import { portalKennung, portalSymbole } from "@/lib/portalKopf";
+import { darfAufGeraetMerken } from "@/lib/meinePraxenSchutz";
+import { PraxisKennzeile, PraxisStreifen } from "@/components/PraxisKennung";
+import { GemerktEntfernen, PraxisMerken } from "@/components/PraxisMerken";
 
 export const dynamic = "force-dynamic";
+// Tab-Titel, Titel der Web-App auf dem iPhone und Symbol tragen Praxisname und Gruppe (lib/praxisKennung.ts), damit
+// Hausarzt und Zahnarzt auf einem Gerät nicht zweimal „Mein Portal“ heißen.
+// Abwägung Diskretion, vollständig:
+//   - Startbildschirm: Der kurze Praxisname steht sichtbar dort, aber nur, wenn der Patient das Portal selbst ablegt.
+//     Auf dem iPhone kann er den Namen dabei ändern; im Installationsdialog von Chrome unter Android nicht immer.
+//     Das Manifest (name) nennt Praxis und Fach; Android zeigt das beim Start der Web-App.
+//   - Tab-Titel (auch auf den Unterseiten): Er erscheint bei jedem Besuch ohne Zutun des Patienten, im Verlauf, in der
+//     Tab-Übersicht, im synchronisierten Verlauf (Google- oder Apple-Konto) und bei geteiltem Bildschirm.
+//   - Dafür spricht: Ohne Namen sehen Portale verschiedener Praxen gleich aus, und Patienten öffnen leichter das falsche.
+//     Der Link selbst steht ohnehin im Verlauf. Der Name des Patienten und Gesundheitsangaben stehen nie im Titel.
+//   - Offene Rechtsfrage (Kanzlei): Ist der Praxisname im Titel ohne Wahl zulässig, gerade bei sensiblen Fächern?
+//     Möglich wäre später, rein hinzufügend, ein neutraler Titel je Praxis (Einstellung der Praxis).
+// Die Vorschau beim Teilen (openGraph) bleibt ohne Praxisnamen.
 export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
   const params = await props.params;
+  const k = await portalKennung(params.token);
   return {
-    title: "Ihr Behandlungsweg",
+    title: k ? `${k.name} · Ihr Behandlungsweg` : "Ihr Behandlungsweg",
     robots: { index: false, follow: false },
     referrer: "no-referrer",
     openGraph: { title: "Ihr Behandlungsweg", description: "Ihr Behandlungsweg, Unterlagen und Zahlungen Ihrer Praxis." },
-    manifest: /^[A-Za-z0-9_-]{20,128}$/.test(params.token) ? `/portal/${params.token}/manifest.webmanifest` : undefined,
-    appleWebApp: { capable: true, title: "Mein Portal", statusBarStyle: "default" },
+    manifest: k ? `/portal/${params.token}/manifest.webmanifest` : undefined,
+    appleWebApp: { capable: true, title: k?.kurzName ?? "Mein Portal", statusBarStyle: "default" },
+    icons: k ? portalSymbole(k) : undefined,
   };
 }
 
-function Expired() {
+export async function generateViewport(props: { params: Promise<{ token: string }> }): Promise<Viewport> {
+  const k = await portalKennung((await props.params).token);
+  return k ? { themeColor: k.farbe } : {};
+}
+
+/**
+ * „Dieser Link ist nicht mehr gültig“: abgelaufen oder von der Praxis durch einen neuen Link ersetzt (jede neue
+ * Nachricht oder Freigabe erzeugt einen neuen Link). Auf dem Gerät des Patienten (keine Praxis-Sitzung) dazu der
+ * Hinweis, den neuen Link zu merken, und auf Wunsch das Entfernen dieses Links aus „Meine Praxen auf diesem Gerät“.
+ */
+async function Expired({ token, lang }: { token: string; lang?: string }) {
+  const sprache = pickPortalLang(lang, (await headers()).get("accept-language"));
+  const g = GERAET_UI[sprache];
+  const aufGeraet = /^[A-Za-z0-9_-]{20,128}$/.test(token) && darfAufGeraetMerken((await cookies()).getAll().map((c) => c.name));
   return (
-    <main className="mx-auto max-w-xl px-4 py-16 text-center">
-      <h1 className="text-xl font-semibold text-slate-900">Dieser Link ist nicht mehr gültig</h1>
-      <p className="mt-3 text-slate-600">Aus Datenschutzgründen sind diese Links nur begrenzt gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen Link.</p>
+    <main className="mx-auto max-w-xl px-4 py-16 text-center" lang={sprache} dir={portalDir(sprache)} data-testid="portal-ungueltig">
+      <h1 className="text-xl font-semibold text-slate-900">{g.ungueltigTitel}</h1>
+      <p className="mt-3 text-slate-600">{g.ungueltigText}</p>
+      {aufGeraet && (
+        <>
+          <p className="mt-3 text-slate-600" data-testid="portal-ungueltig-hinweis">{g.ungueltigHinweis}</p>
+          <GemerktEntfernen token={token} t={{ ungueltigEntfernen: g.ungueltigEntfernen, ungueltigEntfernt: g.ungueltigEntfernt, ungueltigNichtGemerkt: g.ungueltigNichtGemerkt, nichtMoeglich: g.nichtMoeglich }} />
+        </>
+      )}
     </main>
   );
 }
@@ -48,7 +87,7 @@ function Expired() {
 export default async function PortalPage(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string; bezahlt?: string }> }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <Expired />;
+  if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <Expired token={params.token} lang={searchParams.lang} />;
   const now = new Date();
   const patient = await prisma.patient.findUnique({
     where: { portalTokenHash: hashToken(params.token) },
@@ -59,7 +98,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
       birthDate: true,
       portalExpiresAt: true,
       portalViewedAt: true,
-      practice: { select: { isDemo: true, name: true, specialty: true, buchungAktiv: true, accountHolder: true, iban: true, bic: true, proposalPrices: true, glaeubigerId: true, stripeAccountId: true } },
+      practice: { select: { isDemo: true, name: true, specialty: true, stammdaten: true, buchungAktiv: true, accountHolder: true, iban: true, bic: true, proposalPrices: true, glaeubigerId: true, stripeAccountId: true } },
       invoices: { where: { status: { not: "STORNIERT" } }, orderBy: { dueDate: "asc" }, take: 50 },
       proposals: {
         where: { OR: [{ shareCreatedAt: { not: null } }, { status: { in: ["BESPROCHEN", "ANGENOMMEN"] } }] },
@@ -72,7 +111,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
       appointments: { where: { start: { gte: now }, status: { in: ["GEPLANT", "BESTAETIGT"] } }, orderBy: { start: "asc" }, take: 1, select: { start: true, minutes: true } },
     },
   });
-  if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < now) return <Expired />;
+  if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < now) return <Expired token={params.token} lang={searchParams.lang} />;
   if (!patient.portalViewedAt) await prisma.patient.update({ where: { id: patient.id }, data: { portalViewedAt: now } });
 
   const lang = pickPortalLang(searchParams.lang, (await headers()).get("accept-language"));
@@ -82,6 +121,10 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
   const date = (d: Date) => d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
   const money = (c: number) => (c / 100).toLocaleString(locale, { style: "currency", currency: "EUR" });
   const { practice } = patient;
+  const kennung = praxisKennzeichen(practice);
+  // „Diese Praxis auf diesem Gerät merken“ nur auf Geräten ohne Praxis-Sitzung und ohne Empfangsmodus (lib/meinePraxenSchutz.ts).
+  const merkenErlaubt = darfAufGeraetMerken((await cookies()).getAll().map((c) => c.name));
+  const geraet = GERAET_UI[lang];
   const bank = practice.iban ? { name: practice.accountHolder || practice.name, iban: practice.iban, bic: practice.bic } : null;
 
   const onlineAktiv = onlineZahlungStatus().aktiv;
@@ -171,12 +214,15 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
 
   return (
     <main className="min-h-screen bg-[#F5F2EE]" lang={lang} dir={dir} data-testid="portal">
+      {/* Farbstreifen der Praxis-Gruppe (Zahn, Arzt, Therapie): Portale verschiedener Praxen sehen verschieden aus. */}
+      <PraxisStreifen k={kennung} />
       <div className="mx-auto max-w-xl px-4 pb-16 pt-6 sm:pt-10">
         {/* Sorrida-Portal: mittig aufgebaut, der Behandlungsweg zuerst, dann die Begrüßung und der eine nächste Schritt */}
         <header className="flex flex-col items-center gap-1 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/sorrida-mark.webp" alt="" className="h-10 w-10" />
-          <span className="text-sm font-medium text-slate-600">{practice.name}</span>
+          <span className="text-sm font-medium text-slate-600" data-testid="portal-praxisname">{practice.name}</span>
+          <PraxisKennzeile k={kennung} />
         </header>
 
         <section className="mt-5 rounded-[2rem] bg-salbei-50 px-5 pb-5 pt-6 text-center" aria-labelledby="weg" data-testid="portal-weg">
@@ -373,6 +419,24 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
           <p>{t.privacy}</p>
           <p data-testid="startbildschirm">{t.homescreen}</p>
           <p>{t.valid(date(patient.portalExpiresAt))}</p>
+          {merkenErlaubt && (
+            <PraxisMerken
+              eintrag={{ token: params.token, vorname: patient.firstName, praxisName: practice.name, fachKurz: kennung.fachKurz, gruppe: kennung.gruppe, ort: kennung.ort, gueltigBis: patient.portalExpiresAt.toISOString() }}
+              t={{
+                merken: geraet.merken,
+                merkenHinweis: geraet.merkenHinweis,
+                gemerkt: geraet.gemerkt,
+                voll: geraet.voll,
+                nichtMoeglich: geraet.nichtMoeglich,
+                nichtGemerkt: geraet.nichtGemerkt,
+                liste: geraet.liste,
+                aehnlichFrage: geraet.aehnlichFrage,
+                aehnlichErsetzen: geraet.aehnlichErsetzen,
+                aehnlichBeide: geraet.aehnlichBeide,
+              }}
+              listeHref={lang === "de" ? "/meine-praxen" : `/meine-praxen?lang=${lang}`}
+            />
+          )}
           {/* Anbieter gegenüber dem Patienten ist die Praxis: ihre Angaben und der Hinweis auf Sorrida als technischen Dienst */}
           <PraxisFussLaden patientId={patient.id} className="!mt-4 border-t border-slate-200 pt-4" />
         </footer>
