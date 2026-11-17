@@ -3,6 +3,7 @@ import { withAuth, type NextRequestWithAuth } from "next-auth/middleware";
 import { getToken } from "next-auth/jwt";
 import { tokenGueltig } from "@/lib/sitzung";
 import { adressePruefen } from "@/lib/adresse";
+import { leistungssucheOhneHandelsnamen } from "@/lib/handelsnamen";
 import { VORSCHAU_COOKIE, VORSCHAU_TAGE, darfInSuchmaschinen, freiOhneZugang, gastFrei, istVorschauHost, oeffentlichFrei, oeffentlichStufe, vorschauCookie, vorschauCookieGueltig, vorschauPassGueltig } from "@/lib/vorschau";
 
 // Website und App sind eins: Unter "/" sehen Besucher ohne Anmeldung die
@@ -32,6 +33,18 @@ export default async function proxy(req: NextRequest, event: NextFetchEvent) {
     const ziel = req.nextUrl.clone();
     ziel.search = adresse.search;
     return NextResponse.redirect(ziel, 307);
+  }
+  // Öffentliche Leistungssuche mit dem Handelsnamen eines verschreibungspflichtigen Arzneimittels (§ 10 Abs. 1 HWG): weiter
+  // zur Suche mit dem Wirkstoff, ohne dass die Seite mit dem Handelsnamen gerendert wird.
+  if (req.nextUrl.pathname === "/leistungen") {
+    const ohne = leistungssucheOhneHandelsnamen(req.nextUrl.searchParams);
+    if (ohne) {
+      const ziel = req.nextUrl.clone();
+      ziel.search = `?${ohne}`;
+      const res = NextResponse.redirect(ziel, 307);
+      res.headers.set("X-Robots-Tag", "noindex, nofollow");
+      return res;
+    }
   }
   // Eigene Domain im Vorschau-Modus: ohne Zugangs-Cookie nur die Seite „Demnächst“
   if (istVorschauHost(req.headers.get("host"))) {

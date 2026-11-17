@@ -1,6 +1,9 @@
 import roh from "@/data/leistungskatalog/sorrida-leistungskatalog.json";
 import zuordnung from "@/data/leistungskatalog/zuordnung-anlaesse.json";
+import fruehere from "@/data/leistungskatalog/fruehere-namen.json";
 import type { KostentraegerCode, Leistung, Leistungskatalog } from "@/data/leistungskatalog/sorrida-leistungskatalog.types";
+import type { KatalogVorschlag } from "@/lib/katalogUebernahme";
+export { ohneHandelsnamen } from "@/lib/handelsnamen";
 
 export type { Leistung, Leistungskatalog, KostentraegerCode };
 
@@ -50,7 +53,7 @@ export function normalisieren(s: string): string {
     .trim();
 }
 
-const STOPP = new Set(["der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "und", "oder", "bei", "beim", "fuer", "mit", "von", "vom", "im", "in", "am", "an", "zu", "zum", "zur", "auf", "ich", "mein", "meine", "was", "wie"]);
+const STOPP = new Set(["der", "die", "das", "den", "dem", "des", "ein", "eine", "einen", "und", "oder", "bei", "beim", "fuer", "mit", "von", "vom", "im", "in", "am", "an", "zu", "zum", "zur", "auf", "gegen", "ich", "mein", "meine", "was", "wie"]);
 
 /** Tippfehlerabstand (Damerau-Levenshtein, optimal string alignment) mit Abbruch über `max`. */
 export function abstand(a: string, b: string, max = 2): number {
@@ -84,8 +87,10 @@ const NUR_SUCHE_JE_LEISTUNG: Record<string, string[]> = {
   "zahnmedizin-frueherkennung-karies": ["DIAGNOdent"],
   "zahnmedizin-fluoridierung": ["Zahnschutz"],
   "zahnmedizin-zahnersatz-in-einer-sitzung-cerec": ["CEREC", "Same-Day-Krone"],
-  "zahnmedizin-kariesinfiltration": ["Icon"],
+  "zahnmedizin-kariesinfiltration": ["Icon", "Initialkaries ohne Bohren"],
   "zahnmedizin-regenerative-parodontaltherapie": ["Emdogain"],
+  "zahnmedizin-plaettchenreiches-fibrin-prf": ["A-PRF"],
+  "zahnmedizin-sofortimplantat": ["Implantat am selben Tag"],
   "zahnmedizin-feste-zaehne-an-einem-tag": ["Feste Zähne an einem Tag", "All-on-4", "All-on-6"],
   "zahnmedizin-vollkeramikkrone": ["Emax"],
   "zahnmedizin-implantatgetragene-prothese": ["Locator"],
@@ -94,15 +99,17 @@ const NUR_SUCHE_JE_LEISTUNG: Record<string, string[]> = {
   "aesthetische-zahnmedizin-zahnschmuck": ["Twinkles"],
   "aesthetische-zahnmedizin-keramik-veneers": ["Hollywood-Lächeln"],
   "aesthetische-zahnmedizin-non-prep-veneers": ["Lumineers"],
-  "aesthetische-zahnmedizin-digitales-smile-design": ["Smile Makeover"],
+  "aesthetische-zahnmedizin-digitales-smile-design": ["Smile Makeover", "Digital Smile Design", "DSD"],
   "aesthetische-zahnmedizin-komplettes-smile-makeover": ["neues Lächeln", "Smile Makeover"],
   "kieferorthopaedie-unsichtbare-zahnspange": ["unsichtbare Zahnspange", "Invisalign"],
   "kieferorthopaedie-innenliegende-zahnspange": ["Incognito"],
-  "aesthetische-medizin-minimal-invasiv-brauenlifting-mit-botox": ["Fox Eyes", "Brauenlifting", "Browlift"],
+  "aesthetische-medizin-minimal-invasiv-brauenlifting-mit-botox": ["Fox Eyes", "Brauenlifting", "Browlift", "Chemisches Browlift", "Augenbrauen anheben", "Brauen anheben"],
   "aesthetische-medizin-minimal-invasiv-lip-flip": ["Lippen voller wirken lassen ohne Filler"],
   "aesthetische-medizin-minimal-invasiv-botox-hals": ["Nefertiti Lift"],
-  "aesthetische-medizin-minimal-invasiv-gesicht-verschmaelern-masseter-botox": ["V-Shape", "Jawline slimming", "Gesicht verschmälern"],
+  "aesthetische-medizin-minimal-invasiv-gesicht-verschmaelern-masseter-botox": ["V-Shape", "Jawline slimming", "Gesicht verschmälern", "Kaumuskel verkleinern", "Masseter-Reduktion"],
   "aesthetische-medizin-minimal-invasiv-lippenunterspritzung": ["volle Lippen"],
+  "aesthetische-medizin-minimal-invasiv-wangenaufbau": ["Wangenknochen betonen"],
+  "aesthetische-medizin-minimal-invasiv-kinnaufbau-mit-filler": ["Kinn vergrößern"],
   "aesthetische-medizin-minimal-invasiv-nasenkorrektur-ohne-op": ["Nasenkorrektur ohne OP", "Liquid Nose Job", "15-Minuten-Nase"],
   "aesthetische-medizin-minimal-invasiv-handverjuengung": ["Hände jünger", "Handverjüngung"],
   "aesthetische-medizin-minimal-invasiv-full-face-behandlung": ["Liquid Facelift", "Liquid Lift", "8-Punkt-Lift"],
@@ -117,26 +124,46 @@ const NUR_SUCHE_JE_LEISTUNG: Record<string, string[]> = {
   "aesthetische-medizin-minimal-invasiv-ipl-photoverjuengung": ["Photoverjüngung"],
   "aesthetische-medizin-minimal-invasiv-laser-haarentfernung": ["Haare weglasern"],
   "aesthetische-medizin-minimal-invasiv-tattooentfernung": ["Tattoo weglasern"],
+  "aesthetische-medizin-minimal-invasiv-aknenarben-behandeln": ["Narben glätten"],
   "aesthetische-medizin-minimal-invasiv-ultraschall-lifting": ["Facelift ohne OP", "Ultraschall-Lifting", "Ultherapy"],
   "aesthetische-medizin-minimal-invasiv-radiofrequenz-straffung": ["Radiofrequenz-Straffung", "RF-Straffung", "Thermage"],
   "aesthetische-medizin-minimal-invasiv-fett-wegfrieren": ["Fett wegfrieren", "Fettabbau Kälte", "CoolSculpting"],
-  "aesthetische-medizin-minimal-invasiv-muskelaufbau-fettreduktion-per-geraet": ["Muskelaufbau per Gerät", "Body Contouring", "Emsculpt"],
+  "aesthetische-medizin-minimal-invasiv-muskelaufbau-fettreduktion-per-geraet": ["Muskelaufbau per Gerät", "Body Contouring", "Emsculpt", "HIFEM"],
+  "aesthetische-medizin-minimal-invasiv-haartransplantation": ["DHI"],
   "plastische-aesthetische-chirurgie-fettabsaugung": ["Vaser"],
   "plastische-aesthetische-chirurgie-bauchdeckenstraffung": ["Mommy Makeover"],
   "plastische-aesthetische-chirurgie-intimbereich-verjuengung": ["Intimverjüngung", "Intimbereich-Verjüngung"],
   "weitere-selbstzahler-eingriffe-augenlasern-lasik-femto-lasik": ["Brille weg"],
-  "weitere-selbstzahler-eingriffe-augenlasern-smile": ["SMILE", "ReLEx SMILE"],
+  "weitere-selbstzahler-eingriffe-augenlasern-smile": ["SMILE", "ReLEx SMILE", "schnittarmes Lasern"],
+  "weitere-selbstzahler-eingriffe-linsentausch": ["ICL"],
   "weitere-selbstzahler-eingriffe-hydrafacial": ["Hydrafacial", "Aquafacial"],
   "impfungen-reisemedizin-guertelrose-impfung": ["Shingrix"],
+  "allgemeinmedizin-hausarzt-ernaehrungs-und-gewichtsberatung": ["Abnehmspritze"],
+  "innere-medizin-medikamentoese-adipositastherapie": ["Abnehmspritze"],
+  "sportmedizin-kinesio-taping": ["Kinesiotape"],
   "dermatologie-medizinisch-muttermal-check-mit-auflichtmikroskop": ["Fotofinder"],
   "hilfsmittel-gesundheitshandwerk-hoertest-beim-hoerakustiker": ["Hörtest kostenlos"],
 };
 
+/**
+ * Frühere Namen umbenannter Leistungen (id → Name) und frühere Kategorien (alt → neu), vom Generator aus id_name geschrieben.
+ * Nur für die Suche und für den Abgleich mit Leistungen, die eine Praxis früher übernommen hat; nie zum Anzeigen.
+ */
+export const FRUEHERE_NAMEN: Record<string, string> = fruehere.namen;
+export const FRUEHERE_KATEGORIEN: Record<string, string> = fruehere.kategorien;
+
 /** Wer „Botox“ sucht, findet jede Leistung mit dem Wirkstoff Botulinumtoxin; angezeigt wird nur der Wirkstoff. */
 export const BOTULINUMTOXIN_IDS = LEISTUNGEN.filter((l) => /Botulinumtoxin/.test(`${l.kategorie} ${l.name} ${l.fachbegriff}`)).map((l) => l.id);
 
-export const NUR_SUCHE: Record<string, string[]> = { ...NUR_SUCHE_JE_LEISTUNG };
-for (const id of BOTULINUMTOXIN_IDS) NUR_SUCHE[id] = [...(NUR_SUCHE[id] ?? []), "Botox"];
+export const NUR_SUCHE: Record<string, string[]> = {};
+const nurSuche = (id: string, w: string) => {
+  const liste = (NUR_SUCHE[id] ??= []);
+  if (!liste.some((x) => normalisieren(x) === normalisieren(w))) liste.push(w);
+};
+for (const [id, woerter] of Object.entries(NUR_SUCHE_JE_LEISTUNG)) for (const w of woerter) nurSuche(id, w);
+// Wer den früheren Namen kennt („Botox gegen Zähneknirschen“), findet die Leistung weiter.
+for (const [id, alt] of Object.entries(FRUEHERE_NAMEN)) nurSuche(id, alt);
+for (const id of BOTULINUMTOXIN_IDS) nurSuche(id, "Botox");
 
 type Index = { l: Leistung; felder: { text: string; woerter: string[]; gewicht: number }[] };
 const INDEX: Index[] = LEISTUNGEN.map((l) => ({
@@ -257,6 +284,16 @@ export function alsEigeneLeistung(l: Leistung): { name: string; kategorie: strin
     kasse: l.kostentraeger_code === "GKV" || l.kostentraeger_code === "GKV_EA",
     kasseWenn: l.kostentraeger_code === "IND" ? kostenHinweis(l) : undefined,
   };
+}
+
+/**
+ * Vorschlag im Feld „Aus dem Leistungskatalog übernehmen“: dazu der frühere Name (eine Praxis, die die Leistung unter dem
+ * alten Namen übernommen hat, bekommt sie nicht doppelt angeboten) und die Suchwörter. Die Seite ist nur für die Praxis
+ * (Fachkreise), deshalb dürfen dort auch Handelsnamen gefunden werden („Botox“).
+ */
+export function katalogVorschlag(l: Leistung): KatalogVorschlag {
+  const suche = (NUR_SUCHE[l.id] ?? []).join(" "); // enthält auch den früheren Namen
+  return { ...alsEigeneLeistung(l), ...(FRUEHERE_NAMEN[l.id] ? { frueher: FRUEHERE_NAMEN[l.id] } : {}), ...(suche ? { suche } : {}) };
 }
 
 export const KT_LABEL: Record<KostentraegerCode, string> = {

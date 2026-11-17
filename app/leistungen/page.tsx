@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PublicShell } from "@/components/PublicShell";
+import { leistungssucheOhneHandelsnamen } from "@/lib/handelsnamen";
 import {
   AUSFALLZEITEN,
   BEREICHE,
@@ -17,12 +19,21 @@ import {
   LEISTUNGEN,
 } from "@/lib/leistungskatalog";
 
-export const metadata: Metadata = {
-  title: "Leistungen von A bis Z – Sorrida",
-  description: "Behandlungen und Untersuchungen in Laiensprache: was dahinter steckt, wer sie macht und wer sie bezahlt.",
-};
+type SP = { q?: string; bereich?: string; kt?: string; inv?: string; ausfall?: string; ws?: string };
 
-type SP = { q?: string; bereich?: string; kt?: string; inv?: string; ausfall?: string };
+// Suchergebnisse und Filter gehören nicht in Suchmaschinen: Eine Suche nach einem Handelsnamen wäre sonst eine eigene Seite
+// mit dem Handelsnamen über der Ergebnisliste (§ 10 Abs. 1 HWG). Die Seite selbst und die Bereiche bleiben auffindbar.
+export async function generateMetadata(props: { searchParams: Promise<SP> }): Promise<Metadata> {
+  const sp = await props.searchParams;
+  const suche = !!(sp.q || sp.kt || sp.inv || sp.ausfall);
+  return {
+    title: "Leistungen von A bis Z – Sorrida",
+    description: "Behandlungen und Untersuchungen in Laiensprache: was dahinter steckt, wer sie macht und wer sie bezahlt.",
+    ...(suche
+      ? { robots: { index: false, follow: true } }
+      : { alternates: { canonical: sp.bereich && bereichAusSlug(sp.bereich) ? `/leistungen?bereich=${slugBereich(bereichAusSlug(sp.bereich)!)}` : "/leistungen" } }),
+  };
+}
 
 const KT_CLS: Record<KostentraegerCode, string> = {
   GKV: "bg-salbei-100 text-salbei-800",
@@ -51,6 +62,10 @@ function Karte({ l }: { l: Leistung }) {
 export default async function LeistungenPage(props: { searchParams: Promise<SP> }) {
   const searchParams = await props.searchParams;
   const q = (searchParams.q ?? "").slice(0, 80);
+  // Handelsname eines verschreibungspflichtigen Arzneimittels: Suche mit dem Wirkstoff, auch in der Adresse. Die Weiterleitung
+  // macht schon proxy.ts; hier nur zur Sicherheit, falls die Seite ohne Proxy aufgerufen wird.
+  const ohne = leistungssucheOhneHandelsnamen(new URLSearchParams(Object.entries(searchParams).filter((e): e is [string, string] => typeof e[1] === "string")));
+  if (ohne) redirect(`/leistungen?${ohne}`);
   const bereich = searchParams.bereich ? bereichAusSlug(searchParams.bereich) : null;
   const kt = (Object.keys(KT_LABEL) as KostentraegerCode[]).find((k) => k === searchParams.kt) ?? null;
   const inv = (Object.keys(INV_LABEL) as Leistung["invasivitaet"][]).find((k) => k === searchParams.inv) ?? null;
@@ -133,6 +148,11 @@ export default async function LeistungenPage(props: { searchParams: Promise<SP> 
             {q && ` zu „${q}“`}
             {bereich && ` in ${bereich}`}
           </h2>
+          {q && searchParams.ws === "1" && (
+            <p className="mt-1 text-xs text-slate-500" data-testid="suche-wirkstoff">
+              Gesucht wird mit dem Wirkstoff, nicht mit dem Handelsnamen.
+            </p>
+          )}
           {treffer.length === 0 && <p className="mt-2 text-sm text-slate-600">Tipp: ein anderes Wort versuchen, etwa den Körperteil oder die Beschwerde.</p>}
           <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {treffer.map((l) => (

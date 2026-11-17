@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolveMed } from "@/lib/practiceMed";
 import { SpecialtySettings } from "@/components/SpecialtySettings";
-import { alsEigeneLeistung, leistungenFuerFach } from "@/lib/leistungskatalog";
+import { FRUEHERE_KATEGORIEN, katalogVorschlag, leistungenFuerFach } from "@/lib/leistungskatalog";
 
 export default async function SpecialtySettingsPage() {
   await nurMitEinstellungen();
@@ -28,7 +28,8 @@ export default async function SpecialtySettingsPage() {
         : Text einfügen oder Datei wählen, prüfen, bestätigen.
       </p>
       <SpecialtySettings initial={{ specialty: fach, medPrices: med.prices ?? {}, customOffers: med.custom ?? [] }} readOnly={session!.user.role !== "admin"}
-        katalog={leistungenFuerFach(fach).map(alsEigeneLeistung)}
+        katalog={leistungenFuerFach(fach).map(katalogVorschlag)}
+        kategorienFrueher={FRUEHERE_KATEGORIEN}
       />
     </div>
   );

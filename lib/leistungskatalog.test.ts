@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { BEREICHE, BOTULINUMTOXIN_IDS, KATALOG, LEISTUNGEN, NUR_SUCHE, abstand, alsEigeneLeistung, filtern, kostenHinweis, leistung, navigation, normalisieren, suchen, vorherNachherErlaubt } from "./leistungskatalog";
+import { BEREICHE, BOTULINUMTOXIN_IDS, FRUEHERE_KATEGORIEN, FRUEHERE_NAMEN, KATALOG, LEISTUNGEN, NUR_SUCHE, abstand, alsEigeneLeistung, filtern, katalogVorschlag, kostenHinweis, leistung, navigation, normalisieren, ohneHandelsnamen, suchen, vorherNachherErlaubt } from "./leistungskatalog";
+import { neueKatalogBezeichnung, passtZuSuche, schonUebernommen } from "./katalogUebernahme";
+import { leistungssucheOhneHandelsnamen } from "./handelsnamen";
 
 const erster = (q: string) => suchen(q)[0]?.id;
 
@@ -36,7 +38,7 @@ describe("Leistungskatalog", () => {
     expect(erster("hüftprotese")).toBe("orthopaedie-unfallchirurgie-kuenstliches-hueftgelenk");
     expect(erster("Grauer Star")).toBe("augenheilkunde-grauer-star-op");
     expect(erster("gelber Schein")).toBe("allgemeinmedizin-hausarzt-krankschreibung");
-    // steht als Synonym bei beiden Leistungen
+    // nur Suchwort (Umgangswort für GLP-1-Mittel), bei beiden Leistungen
     expect(suchen("Abnehmspritze").slice(0, 2).map((l) => l.id)).toContain("innere-medizin-medikamentoese-adipositastherapie");
     expect(suchen("Zecke").map((l) => l.id)).toContain("impfungen-reisemedizin-fsme-impfung");
     expect(suchen("xyzqv")).toEqual([]);
@@ -84,9 +86,68 @@ describe("Leistungskatalog", () => {
   });
   it("umbenannte Leistungen behalten ihre Adresse (id_name)", () => {
     expect(leistung("aesthetische-medizin-minimal-invasiv-fett-weg-spritze")?.name).toBe("Injektionslipolyse");
-    expect(leistung("zahnmedizin-feste-zaehne-an-einem-tag")?.name).toBe("Sofortversorgung auf Implantaten");
+    expect(leistung("zahnmedizin-feste-zaehne-an-einem-tag")?.name).toBe("Feste Brücke auf Implantaten im zahnlosen Kiefer");
+    expect(leistung("sportmedizin-kinesio-taping")?.name).toBe("Kinesiologisches Taping");
     expect(leistung("kieferorthopaedie-unsichtbare-zahnspange")?.name).toBe("Durchsichtige Zahnschienen (Aligner)");
     expect(leistung("urologie-andrologie-botox-in-die-blase")?.name).toBe("Botulinumtoxin in die Blase");
+  });
+  it("frühere Namen finden ihre Leistung (auch mit „gegen“)", () => {
+    expect(Object.keys(FRUEHERE_NAMEN).length).toBe(28);
+    for (const [id, alt] of Object.entries(FRUEHERE_NAMEN)) {
+      expect(leistung(id), id).not.toBeNull();
+      expect(erster(alt), alt).toBe(id);
+      expect(NUR_SUCHE[id].map(normalisieren), id).toContain(normalisieren(alt));
+    }
+    expect(erster("Botox gegen Zähneknirschen")).toBe("zahnmedizin-botox-gegen-zaehneknirschen");
+    expect(erster("Botox gegen Schwitzen")).toBe("aesthetische-medizin-minimal-invasiv-behandlung-von-starkem-schwitzen");
+    expect(erster("Komplettes Smile Makeover")).toBe("aesthetische-zahnmedizin-komplettes-smile-makeover");
+    expect(erster("Chemisches Browlift")).toBe("aesthetische-medizin-minimal-invasiv-brauenlifting-mit-botox");
+    expect(erster("Masseter-Reduktion")).toBe("aesthetische-medizin-minimal-invasiv-gesicht-verschmaelern-masseter-botox");
+    // frühere Kategorien gibt es nicht mehr
+    for (const [alt, neu] of Object.entries(FRUEHERE_KATEGORIEN)) {
+      expect(LEISTUNGEN.some((l) => l.kategorie === alt), alt).toBe(false);
+      expect(LEISTUNGEN.some((l) => l.kategorie === neu), neu).toBe(true);
+    }
+  });
+  it("öffentliche Suche: Handelsname wird zum Wirkstoff", () => {
+    expect(ohneHandelsnamen("Botox")).toBe("Botulinumtoxin");
+    expect(ohneHandelsnamen("botox zornesfalte")).toBe("Botulinumtoxin zornesfalte");
+    expect(ohneHandelsnamen("Masseter-Botox")).toBe("Masseter-Botulinumtoxin");
+    expect(ohneHandelsnamen("BOTOXBEHANDLUNG Stirn")).toBe("Botulinumtoxin Stirn");
+    expect(ohneHandelsnamen("Wegovy")).toBe("GLP-1");
+    expect(ohneHandelsnamen("Shingrix")).toBe("Gürtelrose-Impfung");
+    expect(ohneHandelsnamen("Zahnreinigung")).toBe("Zahnreinigung");
+    expect(new Set(suchen("Botulinumtoxin").map((l) => l.id))).toEqual(new Set(suchen("Botox").map((l) => l.id)));
+    expect(erster(ohneHandelsnamen("Botox Zornesfalte"))).toBe("aesthetische-medizin-minimal-invasiv-botox-zornesfalte");
+    expect(erster(ohneHandelsnamen("Wegovy"))).toBe("innere-medizin-medikamentoese-adipositastherapie");
+    expect(erster(ohneHandelsnamen("Shingrix"))).toBe("impfungen-reisemedizin-guertelrose-impfung");
+    // Adresse der öffentlichen Suche (proxy.ts und app/leistungen/page.tsx)
+    expect(leistungssucheOhneHandelsnamen(new URLSearchParams("q=Botox&bereich=x&kt=SZ&foo=1"))?.toString()).toBe("bereich=x&kt=SZ&q=Botulinumtoxin&ws=1");
+    expect(leistungssucheOhneHandelsnamen(new URLSearchParams("q=Botulinumtoxin&ws=1"))).toBeNull();
+    expect(leistungssucheOhneHandelsnamen(new URLSearchParams("q=Zahnreinigung"))).toBeNull();
+    expect(leistungssucheOhneHandelsnamen(new URLSearchParams("bereich=zahnmedizin"))).toBeNull();
+  });
+  it("Übernahme in der Praxis: früher übernommene Leistung wird erkannt und nicht doppelt angeboten", () => {
+    const k = katalogVorschlag(leistung("aesthetische-medizin-minimal-invasiv-botox-zornesfalte")!);
+    expect(k).toMatchObject({ name: "Botulinumtoxin an der Zornesfalte", kategorie: "Botulinumtoxin", frueher: "Botox Zornesfalte" });
+    expect(k.suche).toMatch(/Botox/);
+    const alt = { name: "Botox Zornesfalte", anlass: "Botulinumtoxin (Botox)" };
+    expect(schonUebernommen(k, [alt])).toBe(true);
+    expect(schonUebernommen(k, [{ name: k.name, anlass: "x" }])).toBe(true);
+    expect(schonUebernommen(k, [{ name: "Botox Stirnfalten", anlass: "x" }])).toBe(false);
+    expect(neueKatalogBezeichnung(alt, [k], FRUEHERE_KATEGORIEN)).toEqual({ name: "Botulinumtoxin an der Zornesfalte", anlass: "Botulinumtoxin" });
+    // nur der Anlass ist alt (Leistung nicht umbenannt)
+    expect(neueKatalogBezeichnung({ name: "Lip Flip", anlass: "Botulinumtoxin (Botox)" }, [k], FRUEHERE_KATEGORIEN)).toEqual({ name: "Lip Flip", anlass: "Botulinumtoxin" });
+    // eigene Namen der Praxis und heutige Namen bleiben
+    expect(neueKatalogBezeichnung({ name: k.name, anlass: k.kategorie }, [k], FRUEHERE_KATEGORIEN)).toBeNull();
+    expect(neueKatalogBezeichnung({ name: "Faltenbehandlung", anlass: "constructor" }, [k], FRUEHERE_KATEGORIEN)).toBeNull();
+    // Suche im Übernahme-Feld findet den Handelsnamen (Seite nur für die Praxis)
+    expect(passtZuSuche(k, "botox")).toBe(true);
+    expect(passtZuSuche(k, "zornes")).toBe(true);
+    expect(passtZuSuche(k, "stirn")).toBe(false);
+    expect(passtZuSuche(k, "  ")).toBe(true);
+    // nicht umbenannte Leistung: kein früherer Name
+    expect(katalogVorschlag(leistung("zahnmedizin-kontrolluntersuchung")!).frueher).toBeUndefined();
   });
   it("HWG: keine Galerie bei Lippenunterspritzung", () => {
     const l = suchen("Lippenunterspritzung")[0];

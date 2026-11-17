@@ -631,7 +631,7 @@
       "id": "zahnmedizin-zahnersatz-in-einer-sitzung-cerec",
       "bereich": "Zahnmedizin",
       "kategorie": "Füllungen & Zahnerhaltung",
-      "name": "Zahnersatz in einer Sitzung (CAD/CAM)",
+      "name": "In der Praxis gefräster Zahnersatz (CAD/CAM)",
       "fachbegriff": "CAD/CAM-Chairside-Restauration",
       "synonyme": [
         "Chairside-Krone",
@@ -698,7 +698,7 @@
       "fachbegriff": "Kariesinfiltration mit Kunststoff",
       "synonyme": [
         "White Spots",
-        "Initialkaries ohne Bohren"
+        "beginnende Karies"
       ],
       "beschreibung": "Einbringen von Kunststoff in beginnende Karies ohne Bohren, mit dem Ziel, sie aufzuhalten.",
       "behandler": "Zahnarzt",
@@ -929,7 +929,6 @@
       "name": "Regenerative Parodontaltherapie",
       "fachbegriff": "GTR / Schmelzmatrixproteine",
       "synonyme": [
-        "Schmelzmatrixproteine",
         "Knochenregeneration Zahnfleisch"
       ],
       "beschreibung": "Operation mit dem Ziel, verlorenen Zahnhalteapparat wieder aufzubauen.",
@@ -1221,8 +1220,7 @@
       "name": "Plättchenreiches Fibrin (PRF)",
       "fachbegriff": "PRF / Eigenblutkonzentrat",
       "synonyme": [
-        "Eigenblut Wundheilung",
-        "A-PRF"
+        "Eigenblut Wundheilung"
       ],
       "beschreibung": "Einbringen von Fibrin aus Eigenblut in die Wunde mit dem Ziel, die Heilung zu unterstützen.",
       "behandler": "Oralchirurg / MKG-Chirurg / Implantologe",
@@ -1284,7 +1282,7 @@
       "name": "Sofortimplantat",
       "fachbegriff": "Sofortimplantation",
       "synonyme": [
-        "Implantat am selben Tag"
+        "Implantat direkt nach dem Zahnziehen"
       ],
       "beschreibung": "Implantat direkt nach der Zahnentfernung.",
       "behandler": "Oralchirurg / MKG-Chirurg / Implantologe",
@@ -1301,7 +1299,7 @@
       "id": "zahnmedizin-feste-zaehne-an-einem-tag",
       "bereich": "Zahnmedizin",
       "kategorie": "Implantologie",
-      "name": "Sofortversorgung auf Implantaten",
+      "name": "Feste Brücke auf Implantaten im zahnlosen Kiefer",
       "fachbegriff": "Implantatgetragene Sofortversorgung des zahnlosen Kiefers",
       "synonyme": [
         "Sofortbelastung",
@@ -2307,7 +2305,7 @@
       "bereich": "Ästhetische Zahnmedizin",
       "kategorie": "Lächeln-Planung",
       "name": "Digitales Smile Design",
-      "fachbegriff": "Digital Smile Design (DSD)",
+      "fachbegriff": "Digitale Ästhetikplanung (Fotos, Scan, Simulation)",
       "synonyme": [
         "Lächeln planen"
       ],
@@ -2787,10 +2785,10 @@
       "id": "aesthetische-medizin-minimal-invasiv-brauenlifting-mit-botox",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Botulinumtoxin",
-      "name": "Augenbrauen anheben mit Botulinumtoxin",
+      "name": "Botulinumtoxin an den Augenbrauen",
       "fachbegriff": "Botulinumtoxin an den Brauenabsenkern",
       "synonyme": [
-        "Brauen anheben"
+        "Augenbrauen Botulinumtoxin"
       ],
       "beschreibung": "Injektion mit dem Ziel, die Augenbrauen leicht anzuheben.",
       "behandler": "Arzt (approbiert)",
@@ -2873,7 +2871,7 @@
       "fachbegriff": "Masseter-Behandlung (ästhetisch)",
       "synonyme": [
         "Masseter-Injektion",
-        "Kaumuskel verkleinern"
+        "Kaumuskel Botulinumtoxin"
       ],
       "beschreibung": "Injektion in die Kaumuskeln mit dem Ziel, sie zu verkleinern und das Gesicht schmaler zu machen.",
       "behandler": "Arzt (approbiert)",
@@ -3015,8 +3013,8 @@
       "name": "Wangenaufbau",
       "fachbegriff": "Midface-Volumisierung",
       "synonyme": [
-        "Wangenknochen betonen",
-        "Cheekbones"
+        "Wangen Filler",
+        "Wangenknochen"
       ],
       "beschreibung": "Filler-Injektion mit dem Ziel, Volumen im Mittelgesicht aufzubauen.",
       "behandler": "Arzt (approbiert)",
@@ -3057,7 +3055,7 @@
       "name": "Kinnaufbau mit Filler",
       "fachbegriff": "Kinnaugmentation",
       "synonyme": [
-        "Kinn vergrößern",
+        "Kinn Filler",
         "Profil"
       ],
       "beschreibung": "Filler-Injektion mit dem Ziel, das Kinn zu betonen oder zu verlängern.",
@@ -3245,8 +3243,7 @@
       "name": "Polynukleotide",
       "fachbegriff": "PN-/PDRN-Behandlung",
       "synonyme": [
-        "Lachs-DNA",
-        "PDRN"
+        "Lachs-DNA"
       ],
       "beschreibung": "Injektionen mit Polynukleotiden in die Haut, auch um die Augen.",
       "behandler": "Arzt (approbiert)",
@@ -3542,7 +3539,7 @@
       "fachbegriff": "Narbentherapie (Laser, Subzision, Needling)",
       "synonyme": [
         "Aknenarben",
-        "Narben glätten"
+        "Narbenbehandlung"
       ],
       "beschreibung": "Laser, Subzision oder Needling mit dem Ziel, eingesunkene Aknenarben zu glätten.",
       "behandler": "Facharzt Dermatologie",
@@ -3580,7 +3577,7 @@
       "id": "aesthetische-medizin-minimal-invasiv-ultraschall-lifting",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Gerätebehandlungen an Haut und Körper",
-      "name": "Ultraschall-Behandlung der Haut",
+      "name": "Fokussierter Ultraschall (HIFU) an Gesicht und Hals",
       "fachbegriff": "Hochintensiver fokussierter Ultraschall (HIFU)",
       "synonyme": [
         "HIFU",
@@ -3642,10 +3639,11 @@
       "id": "aesthetische-medizin-minimal-invasiv-muskelaufbau-fettreduktion-per-geraet",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Gerätebehandlungen an Haut und Körper",
-      "name": "Muskelstimulation per Gerät (HIFEM/EMS)",
-      "fachbegriff": "Hochintensive elektromagnetische Muskelstimulation (HIFEM) / EMS",
+      "name": "Muskelstimulation per Gerät",
+      "fachbegriff": "Elektromagnetische oder elektrische Muskelstimulation (EMS)",
       "synonyme": [
-        "elektromagnetische Muskelstimulation"
+        "EMS",
+        "Magnetstimulation Muskeln"
       ],
       "beschreibung": "Elektromagnetische Stimulation der Muskeln.",
       "behandler": "Fachpersonal mit Fachkunde nach § 7 NiSV",
@@ -3706,7 +3704,7 @@
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Haare",
       "name": "Haartransplantation",
-      "fachbegriff": "FUE / DHI-Haartransplantation",
+      "fachbegriff": "Haartransplantation mit Einzelentnahme (FUE)",
       "synonyme": [
         "Haartransplantation",
         "Geheimratsecken",
@@ -4461,7 +4459,7 @@
       "name": "Augenlasern (Lentikelextraktion)",
       "fachbegriff": "Refraktive Lentikelextraktion (KLEx)",
       "synonyme": [
-        "schnittarmes Lasern"
+        "Augenlasern mit kleinem Schnitt"
       ],
       "beschreibung": "Laserbehandlung der Hornhaut über einen kleinen Schnitt, ohne Flap.",
       "behandler": "Facharzt Augenheilkunde",
@@ -4500,10 +4498,9 @@
       "bereich": "Weitere Selbstzahler-Eingriffe",
       "kategorie": "Augen",
       "name": "Linsentausch",
-      "fachbegriff": "Refraktiver Linsenaustausch / ICL",
+      "fachbegriff": "Refraktiver Linsenaustausch / phake Intraokularlinse",
       "synonyme": [
         "Kunstlinse",
-        "ICL",
         "Linsenimplantat"
       ],
       "beschreibung": "Ersatz oder Ergänzung der Linse bei starker Fehlsichtigkeit.",
@@ -5337,8 +5334,7 @@
       "fachbegriff": "Adipositas-Beratung",
       "synonyme": [
         "Abnehmen",
-        "Übergewicht",
-        "Abnehmspritze"
+        "Übergewicht"
       ],
       "beschreibung": "Medizinische Beratung und Therapie bei Übergewicht.",
       "behandler": "Facharzt Allgemeinmedizin / Hausarzt",
@@ -5441,8 +5437,7 @@
       "name": "Gürtelrose-Impfung",
       "fachbegriff": "Herpes-zoster-Impfung",
       "synonyme": [
-        "Gürtelrose",
-        "Herpes zoster"
+        "Gürtelrose"
       ],
       "beschreibung": "Impfung gegen Gürtelrose ab 60.",
       "behandler": "Hausarzt / Reisemediziner",
@@ -6135,8 +6130,8 @@
       "name": "Medikamentöse Adipositastherapie",
       "fachbegriff": "Therapie mit GLP-1-Agonisten",
       "synonyme": [
-        "Abnehmspritze",
-        "GLP-1-Agonist"
+        "GLP-1-Agonist",
+        "Medikament bei Übergewicht"
       ],
       "beschreibung": "Medikamente mit dem Ziel, das Körpergewicht zu senken, unter ärztlicher Aufsicht.",
       "behandler": "Facharzt Innere Medizin",
@@ -7680,11 +7675,11 @@
       "id": "sportmedizin-kinesio-taping",
       "bereich": "Sportmedizin",
       "kategorie": "Sportmedizin",
-      "name": "Kinesio-Taping",
-      "fachbegriff": "Kinesiologisches Taping",
+      "name": "Kinesiologisches Taping",
+      "fachbegriff": "Taping mit elastischen Klebebändern",
       "synonyme": [
         "Tape",
-        "Kinesiotape"
+        "elastisches Tape"
       ],
       "beschreibung": "Aufkleben elastischer Tapes auf die Haut.",
       "behandler": "Facharzt mit Zusatzbezeichnung Sportmedizin",

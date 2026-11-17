@@ -17,6 +17,8 @@
 // - VO (EG) 1223/2009, Anhang III lfd. Nr. 12 (gelesen auf publications.europa.eu, VO (EU) 344/2013 und RL 2011/84/EU):
 //   Zahnaufheller mit mehr als 0,1 % bis 6 % Wasserstoffperoxid „Nicht bei Personen unter 18 Jahren anwenden“; nur an
 //   Zahnärzte abzugeben, erste Anwendung je Behandlungszyklus durch Zahnärzte oder unter ihrer direkten Aufsicht.
+import { readFileSync, readdirSync, statSync } from "fs";
+import path from "path";
 import { describe, expect, it } from "vitest";
 import { ALLE_SPECIALTIES } from "./specialties";
 import { LEISTUNGEN, leistung } from "./leistungskatalog";
@@ -94,16 +96,21 @@ describe("Rechtsgrenzen im Katalog", () => {
         "langlebig\\p{L}*|schnell(?:e[mnrs]?|er|ere[mnrs]?)?|sofortig\\p{L}*|sichere?[mnrs]?|harmonisch\\p{L}*|premium\\p{L}*|hauchdünn\\p{L}*|perfekt\\p{L}*|" +
         "ideal\\p{L}*|optimal\\p{L}*|strahlend\\p{L}*|effektiv\\p{L}*|umfassend\\p{L}*|dauerhaft\\p{L}*|markant\\p{L}*|jünger\\p{L}*|\\p{L}*verjüng\\p{L}*|" +
         "rejuvenation|hochkonzentriert\\p{L}*|regenerier\\p{L}*|leichtere[nrs]?|aggressiv\\p{L}*|gelenkschmiere|hydro-boost|slimming|fox eyes|v-shape|" +
-        "hollywood\\p{L}*|\\p{L}*(?:facelift|lifting|korrektur) ohne op|neue[nsm]? lächeln\\p{L}*|an einem tag|in einem tag|\\p{L}*wegfrier\\p{L}*|" +
+        "hollywood\\p{L}*|\\p{L}*(?:facelift|lifting|korrektur|straffung) ohne op|neue[nsm]? lächeln\\p{L}*|an einem tag|in einem tag|\\p{L}*wegfrier\\p{L}*|" +
         // Geräte- und Spritzenbehandlungen, die eine Wirkung im Namen tragen („Ultraschall-Lifting“, „Vampir-Lifting“)
         "\\p{L}*weglaser\\p{L}*|\\p{L}*makeover|vampir\\p{L}*|liquid[- ](?:face)?lift\\p{L}*|\\d+-punkt-lift|nefertiti[- ]lift|\\p{L}*browlift|" +
-        "body[- ]?contouring|same-?day\\p{L}*|\\d+-minuten-\\p{L}+|(?:ultraschall|radiofrequenz|rf|hifu)-?(?:lifting|straffung)",
+        "body[- ]?contouring|same-?day\\p{L}*|\\d+-minuten-\\p{L}+|(?:ultraschall|radiofrequenz|rf|hifu)-?(?:lifting|straffung)|" +
+        // „Fett weg“ in jeder Schreibweise („Fett-Weg-Spritze“, „Fettwegspritze“) und das Umgangswort für GLP-1-Mittel
+        "\\p{L}*fett[- ]?weg\\p{L}*|\\p{L}*abnehmspritze\\p{L}*",
     ),
     "iu",
   );
   // Preis als Lockmittel („Hörtest kostenlos“). Nur in Namen, Fachbegriffen und Synonymen: Eine Beschreibung darf sagen,
   // dass eine Pflichtleistung nichts kostet („Kostenlose Beratung“ nach § 7a SGB XI).
   const PREIS = /(?<!\p{L})(?:kostenlos\p{L}*|gratis|umsonst)(?!\p{L})/iu;
+  // Tempo oder „ohne Eingriff“ als Vorteil („Implantat am selben Tag“, „ohne Bohren“). Nur in Namen, Fachbegriffen und
+  // Synonymen: Eine Beschreibung darf sagen, was in einer Sitzung geschieht oder dass ohne Operation behandelt wird.
+  const TEMPO = new RegExp(W("ohne (?:op|operation|skalpell|bohren)|am (?:selben|gleichen) tag|in einer sitzung|schnittarm\\p{L}*"), "iu");
   // „Fett weg“, „Brille weg“; nur klein geschrieben, „auf dem Weg zur Arbeit“ ist kein Treffer.
   const WEG = /(?<!\p{L})weg(?!\p{L})/u;
   // Mengen ohne Quelle
@@ -138,7 +145,7 @@ describe("Rechtsgrenzen im Katalog", () => {
     return muster.map((r) => x.match(r)?.[0]).filter((m): m is string => !!m);
   };
   /** Für Namen, Kategorien, Fachbegriffe und Synonyme (Stichworte, keine Sätze). */
-  const begriffsfund = (t: string) => wortfund(t, [WERBUNG, WEG, MENGE, PREIS]);
+  const begriffsfund = (t: string) => wortfund(t, [WERBUNG, WEG, MENGE, PREIS, TEMPO]);
   /** Für Beschreibungen und Hinweise. */
   const satzfund = (t: string) => {
     const x = ohneFachwort(t);
@@ -181,12 +188,19 @@ describe("Rechtsgrenzen im Katalog", () => {
     for (const t of ["Facelift ohne OP", "Brille weg", "Doppelkinn weg", "Hautverjüngung Laser", "sanfte Osteopathie", "Fox Eyes", "V-Shape", "Jawline slimming", "Hydro-Boost", "Hände jünger", "neues Lächeln",
       // frühere Namen und Synonyme, umbenannt am 17.11.2026
       "Vampir-Lifting", "Komplettes Smile Makeover", "Mommy Makeover", "Ultraschall-Lifting", "Radiofrequenz-Straffung", "RF-Straffung", "Liquid Facelift", "Liquid Lift", "8-Punkt-Lift",
-      "Nefertiti Lift", "Chemisches Browlift", "Body Contouring", "Same-Day-Krone", "15-Minuten-Nase", "Haare weglasern", "Tattoo weglasern", "Hörtest kostenlos"])
+      "Nefertiti Lift", "Chemisches Browlift", "Body Contouring", "Same-Day-Krone", "15-Minuten-Nase", "Haare weglasern", "Tattoo weglasern", "Hörtest kostenlos",
+      // Funde der zweiten Prüfung vom 17.11.2026
+      "Fett-Weg-Spritze", "Fettweg-Spritze", "Fettwegspritze", "Fett Weg", "FETT-WEG", "Straffung ohne OP", "Abnehmspritze", "Abnehmspritzen",
+      "Zahnersatz in einer Sitzung (CAD/CAM)", "Implantat am selben Tag", "Initialkaries ohne Bohren", "schnittarmes Lasern", "Nase ohne Operation"])
       expect(begriffsfund(t), t).not.toEqual([]);
     // Fachbezeichnungen von Operationen und neutrale neue Namen schlagen nicht an
     for (const t of ["Facelift", "Fadenlifting", "Sinuslift", "Bodylift", "Lippenlift", "Bruststraffung", "Kryolipolyse (Kältebehandlung)", "Radiofrequenz-Behandlung der Haut",
-      "Ultraschall-Behandlung der Haut", "Eigenbluttherapie (PRP) im Gesicht", "Arbeits- und Wegeunfall", "Wegeunfall"])
+      "Ultraschall-Behandlung der Haut", "Eigenbluttherapie (PRP) im Gesicht", "Arbeits- und Wegeunfall", "Wegeunfall", "Fettgewebe", "Fett absaugen",
+      "Abnehmen", "Sofortimplantat", "Veneers ohne Beschleifen", "Physio ohne Rezept", "In der Praxis gefräster Zahnersatz (CAD/CAM)",
+      "Feste Brücke auf Implantaten im zahnlosen Kiefer", "Fokussierter Ultraschall (HIFU) an Gesicht und Hals", "Muskelstimulation per Gerät"])
       expect(begriffsfund(t), t).toEqual([]);
+    // In Sätzen bleibt „ohne Operation“ eine Beschreibung (konservative Therapie)
+    expect(verbotsfund("Behandlung ohne OP: Medikamente, Spritzen, Physio."), "Rückenschmerz-Therapie").toBe(false);
     expect(verbotsfund("Kostenlose Beratung für Pflegebedürftige und Angehörige."), "Pflichtleistung nach § 7a SGB XI").toBe(false);
     for (const t of [
       "Bestimmung der Sehstärke.",
@@ -242,6 +256,23 @@ describe("Rechtsgrenzen im Katalog", () => {
     expect(funde).toEqual([]);
   });
 
+  // Bei Spritzen und Geräten (Ästhetische Medizin, weitere Selbstzahler-Eingriffe) ist die Wirkung nicht sicher. Namen,
+  // Fachbegriffe und Synonyme nennen deshalb Wirkstoff, Ort oder Verfahren („Botulinumtoxin an den Augenbrauen“), nicht die
+  // Wirkung als Stichwort („Augenbrauen anheben“, „Kinn vergrößern“). Bei Operationen und am Zahn ist das Verb der Eingriff
+  // selbst („Oberschenkel innen straffen“, „Zahnkanten glätten“) und bleibt.
+  const ZIELVERB = new RegExp(
+    W("anheben|heben|liften|verschmälern|schmaler|betonen|vergrößern|verkleinern|glätten|straffen|verjüngen|verlängern|verschönern|aufpolstern|definieren"),
+    "iu",
+  );
+  const MIT_UNSICHERER_WIRKUNG = ["Ästhetische Medizin (minimal-invasiv)", "Weitere Selbstzahler-Eingriffe"];
+  it("Spritzen und Geräte: keine Wirkung als Stichwort (§ 3 HWG)", () => {
+    for (const t of ["Augenbrauen anheben mit Botulinumtoxin", "Brauen anheben", "Kaumuskel verkleinern", "Gesicht verschmälern", "Kinn vergrößern", "Wangenknochen betonen", "Narben glätten"])
+      expect(ZIELVERB.test(t), t).toBe(true);
+    for (const t of ["Botulinumtoxin an den Augenbrauen", "Nasolabialfalten auffüllen", "Filler auflösen", "Kinnaufbau mit Filler", "Narbenbehandlung"]) expect(ZIELVERB.test(t), t).toBe(false);
+    const funde = LEISTUNGEN.filter((l) => MIT_UNSICHERER_WIRKUNG.includes(l.bereich)).flatMap((l) => [l.name, l.fachbegriff, ...l.synonyme].filter((t) => ZIELVERB.test(t)).map((t) => `${l.id}: ${t}`));
+    expect(funde).toEqual([]);
+  });
+
   // § 10 Abs. 1 HWG: keine Publikumswerbung für verschreibungspflichtige Arzneimittel. Kein Handelsname steht in einem
   // angezeigten Feld (Seite, Titel und Meta-Angaben von /leistungen/<id>, Karten, „Auch gesucht als“, Fachseiten); genannt wird
   // der Wirkstoff. Dasselbe gilt für Handelsnamen von Geräten und Medizinprodukten.
@@ -253,12 +284,15 @@ describe("Rechtsgrenzen im Katalog", () => {
         "Juv[eé]derm|Restylane|Belotero|Profhilo|Sculptra|Radiesse|Rejuran|" +
         // Geräte und Verfahren mit Markennamen
         "Invisalign|Incognito|Lumineers|Emax|e\\.max|CEREC|iTero|DIAGNOdent|Air-?Flow|Emdogain|The Wand|Locator|All-on-[46]|Twinkles|" +
-        "Ultherapy|Thermage|Morpheus8|Potenza|Fraxel|Dermapen|Vaser|CoolSculpting|Emsculpt|Hydra-?facial|Aquafacial|Vampire Facial|Fotofinder|ReLEx",
+        "Ultherapy|Thermage|Morpheus8|Potenza|Fraxel|Dermapen|Vaser|CoolSculpting|Emsculpt|Hydra-?facial|Aquafacial|Vampire Facial|Fotofinder|ReLEx|" +
+        // Verfahrens- und Produktnamen von Herstellern (HIFEM: BTL; Kinesio: Kinesio Holding; Digital Smile Design; A-PRF)
+        "HIFEM|Kinesio[- ]?tap\\p{L}*|Digital Smile Design|A-PRF\\+?|i-PRF",
     ),
     "iu",
   );
   // In Großbuchstaben oder als Eigenname eindeutig („SMILE“ von Zeiss, „Icon“ von DMG); klein geschrieben sind es Wörter.
-  const MARKE_GROSS = /(?<!\p{L})(?:SMILE|Icon)(?!\p{L})/u;
+  // Dazu Abkürzungen, die als Marke eingetragen sind (DHI, DSD, ICL).
+  const MARKE_GROSS = /(?<!\p{L})(?:SMILE|Icon|DHI|DSD|ICL)(?!\p{L})/u;
   const istMarke = (t: string) => MARKE.test(t) || MARKE_GROSS.test(t);
   const angezeigt = (l: (typeof LEISTUNGEN)[number]) => [l.bereich, l.kategorie, l.name, l.fachbegriff, ...l.synonyme, l.beschreibung, l.hinweis, l.behandler, l.kostentraeger];
 
@@ -276,9 +310,47 @@ describe("Rechtsgrenzen im Katalog", () => {
       "HIFU (z. B. Ultherapy)", "Monopolare Radiofrequenz (z. B. Thermage)", "Hyaluron-Skinbooster (z. B. Profhilo)", "Liposuktion (Tumeszenz, Vaser)",
       "Computergestützte Anästhesie (z. B. The Wand)", "Implantatprothese (Locator/Steg)", "Dental Jewelry / Twinkles", "Zirkonkrone, Keramikkrone, Emax",
       "Invisalign", "CoolSculpting", "Emsculpt", "Juvederm", "Shingrix", "Fotofinder", "Vampire Facial", "Morpheus8, Potenza",
+      // Funde der zweiten Prüfung vom 17.11.2026
+      "Muskelstimulation per Gerät (HIFEM/EMS)", "FUE / DHI-Haartransplantation", "Kinesio-Taping", "Kinesiotape", "Digital Smile Design (DSD)",
+      "Refraktiver Linsenaustausch / ICL", "Eigenblut Wundheilung, A-PRF",
     ])
       expect(istMarke(t), t).toBe(true);
-    for (const t of ["Digitales Smile Design", "Gummy Smile", "Botulinumtoxin an der Stirn", "Lentikelextraktion", "Wandern", "Lokator"]) expect(istMarke(t), t).toBe(false);
+    for (const t of ["Digitales Smile Design", "Gummy Smile", "Botulinumtoxin an der Stirn", "Lentikelextraktion", "Wandern", "Lokator", "Kinesiologisches Taping", "Kinesiologie",
+      "Elektromagnetische oder elektrische Muskelstimulation (EMS)", "phake Intraokularlinse", "Plättchenreiches Fibrin (PRF)"]) expect(istMarke(t), t).toBe(false);
+  });
+
+  // Nicht nur der Katalog: Kein angezeigter Text nennt „Botox“ oder „Fett weg“, in keiner Sprache. Durchsucht werden alle
+  // Quellen der Seiten (app, components, lib mit Fachseiten, Ratgeber und Übersetzungen). Adressen (/leistungen/…-botox-…)
+  // bleiben gleich und zählen nicht.
+  it("„Botox“ und „Fett weg“ stehen in keinem angezeigten Text", () => {
+    const ERLAUBT: Record<string, string> = {
+      "lib/leistungskatalog.ts": "NUR_SUCHE, nur im Suchindex, nie angezeigt",
+      "lib/anlassErkennung.ts": "Erkennungswort für den Freitext der Praxis (Fachkreise); wird nicht angezeigt",
+      "lib/handelsnamen.ts": "Umleitung der öffentlichen Suche vom Handelsnamen auf den Wirkstoff; nie angezeigt",
+    };
+    const wurzel = path.resolve(__dirname, "..");
+    const dateien: string[] = [];
+    const lauf = (d: string) => {
+      for (const n of readdirSync(d)) {
+        const p = path.join(d, n);
+        if (statSync(p).isDirectory()) {
+          if (n !== "__fixtures__" && n !== "node_modules") lauf(p);
+        } else if (/\.(tsx?|json|md)$/.test(n) && !/\.test\.tsx?$/.test(n)) dateien.push(path.relative(wurzel, p));
+      }
+    };
+    for (const d of ["app", "components", "lib"]) lauf(path.join(wurzel, d));
+    expect(dateien.length).toBeGreaterThan(300);
+    const funde: string[] = [];
+    for (const f of dateien) {
+      if (ERLAUBT[f]) continue;
+      const text = readFileSync(path.join(wurzel, f), "utf8");
+      for (const m of text.matchAll(/[\p{L}\d-]*(?:botox|fett[- ]?weg)[\p{L}\d-]*/giu)) {
+        if (/^[a-z0-9]+(?:-[a-z0-9]+)+$/.test(m[0])) continue; // Adresse /leistungen/<id>
+        funde.push(`${f}: ${m[0]}`);
+      }
+    }
+    expect(funde).toEqual([]);
+    for (const f of Object.keys(ERLAUBT)) expect(dateien, f).toContain(f);
   });
 
   it("Bleaching: Bedingungen nach VO (EG) 1223/2009, Anhang III Nr. 12 stehen beim Angebot", () => {

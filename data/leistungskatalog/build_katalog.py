@@ -19,6 +19,15 @@ AUS = {"0": "keine", "1": "1–3 Tage", "2": "bis 1 Woche", "3": "1–3 Wochen",
 
 items = []
 _bereich = None
+# Frühere Namen umbenannter Leistungen (id → Name), gesammelt aus id_name. Sie stehen nur in fruehere-namen.json: Die Suche
+# findet die Leistung auch unter dem alten Namen, und Praxen, die die Leistung früher übernommen haben, sehen den neuen Namen.
+fruehere_namen = OrderedDict()
+# Umbenannte Kategorien: (Bereich, neue Kategorie) → frühere Kategorie
+FRUEHERE_KATEGORIEN = {
+    ("Ästhetische Medizin (minimal-invasiv)", "Botulinumtoxin"): "Botulinumtoxin (Botox)",
+    ("Ästhetische Medizin (minimal-invasiv)", "Gerätebehandlungen an Haut und Körper"): "Straffung ohne OP",
+    ("Ästhetische Medizin (minimal-invasiv)", "Infusionen"): "Wellness-Medizin",
+}
 
 
 def B(name):
@@ -34,6 +43,8 @@ def slug(s):
 
 def E(kat, name, fach, syn, desc, beh, kt, gebo, inv, aus, hwg="nein", ust=False, hinweis="", id_name=None):
     # id_name: früherer Name, wenn eine Leistung umbenannt wurde. So bleibt die Adresse /leistungen/<id> gleich.
+    if id_name:
+        fruehere_namen[slug(f"{_bereich}-{id_name}")] = id_name
     items.append(OrderedDict(
         id=slug(f"{_bereich}-{id_name or name}"),
         bereich=_bereich,
@@ -101,10 +112,10 @@ E(k, "Glasionomer-Füllung", "Glasionomerzement-Füllung", "provisorische Füllu
 E(k, "Keramik-Inlay", "Vollkeramisches Inlay", "Keramikfüllung, Inlay", "Im Labor oder chairside gefertigte Keramikfüllung.", ZA, "GKV_EA", "GOZ 2150–2170", "M", "0")
 E(k, "Gold-Inlay", "Goldgussfüllung", "Goldfüllung, Inlay Gold", "Füllung aus Goldlegierung, im Labor gefertigt.", ZA, "GKV_EA", "GOZ 2150–2170", "M", "0")
 E(k, "Onlay / Teilkrone", "Onlay / Overlay / Teilkrone", "Teilkrone, Keramik-Onlay", "Ersetzt größere Zahnbereiche inkl. Höcker.", ZA, "GKV_EA", "GOZ 2150–2170, 2200", "M", "0")
-E(k, "Zahnersatz in einer Sitzung (CAD/CAM)", "CAD/CAM-Chairside-Restauration", "Chairside-Krone, CAD/CAM-Krone", "Inlay oder Krone in einer Sitzung gefräst.", ZA, "PKV", "GOZ + Material", "M", "0", id_name="Zahnersatz in einer Sitzung (CEREC)")
+E(k, "In der Praxis gefräster Zahnersatz (CAD/CAM)", "CAD/CAM-Chairside-Restauration", "Chairside-Krone, CAD/CAM-Krone", "Inlay oder Krone in einer Sitzung gefräst.", ZA, "PKV", "GOZ + Material", "M", "0", id_name="Zahnersatz in einer Sitzung (CEREC)")
 E(k, "Zahnhalsfüllung", "Zahnhalsrestauration", "freiliegende Zahnhälse, Keildefekt", "Versorgung empfindlicher oder abgenutzter Zahnhälse.", ZA, "GKV", "BEMA 13 / GOZ 2060 ff.", "M", "0")
 E(k, "Behandlung empfindlicher Zähne", "Desensibilisierung", "Schmerzempfindliche Zähne, Kälteempfindlichkeit", "Versiegelung offener Dentinkanälchen.", ZA, "GKV", "BEMA 10 (üZ) / GOZ 2010", "N", "0")
-E(k, "Kariesinfiltration", "Kariesinfiltration mit Kunststoff", "White Spots, Initialkaries ohne Bohren", "Einbringen von Kunststoff in beginnende Karies ohne Bohren, mit dem Ziel, sie aufzuhalten.", ZA, "SZ", "GOZ analog", "N", "0")
+E(k, "Kariesinfiltration", "Kariesinfiltration mit Kunststoff", "White Spots, beginnende Karies", "Einbringen von Kunststoff in beginnende Karies ohne Bohren, mit dem Ziel, sie aufzuhalten.", ZA, "SZ", "GOZ analog", "N", "0")
 E(k, "Aufbaufüllung", "Plastischer Aufbau / Stiftaufbau", "Stumpfaufbau, Glasfaserstift", "Aufbau eines stark zerstörten Zahns vor einer Krone.", ZA, "GKV_EA", "BEMA 13, 18 / GOZ 2180, 2195", "M", "0")
 
 k = "Wurzelbehandlung (Endodontie)"
@@ -119,7 +130,7 @@ k = "Zahnfleisch & Parodontologie"
 E(k, "Parodontitis-Behandlung", "Systematische PAR-Therapie (AIT)", "Parodontose, Zahnfleischentzündung, Tiefenreinigung", "Reinigung tiefer Zahnfleischtaschen nach PAR-Richtlinie.", ZA, "GKV", "BEMA Teil 4 (ATG, MHU, AIT, BEV) / GOZ Abschnitt E", "M", "1")
 E(k, "Parodontitis-Nachsorge", "Unterstützende Parodontitistherapie (UPT)", "UPT, PA-Nachsorge", "Regelmäßige Nachsorge nach PAR-Behandlung über 2 Jahre.", ZA, "GKV", "BEMA UPTa–g", "N", "0")
 E(k, "Chirurgische Parodontaltherapie", "Offene Kürettage / Lappenoperation", "PA-Chirurgie, Lappen-OP", "Operative Reinigung sehr tiefer Taschen.", "Zahnarzt (Parodontologe)", "GKV", "BEMA CPT / GOZ 4090, 4100", "O", "2")
-E(k, "Regenerative Parodontaltherapie", "GTR / Schmelzmatrixproteine", "Schmelzmatrixproteine, Knochenregeneration Zahnfleisch", "Operation mit dem Ziel, verlorenen Zahnhalteapparat wieder aufzubauen.", "Zahnarzt (Parodontologe)", "PKV", "GOZ 4138 + Material", "O", "2")
+E(k, "Regenerative Parodontaltherapie", "GTR / Schmelzmatrixproteine", "Knochenregeneration Zahnfleisch", "Operation mit dem Ziel, verlorenen Zahnhalteapparat wieder aufzubauen.", "Zahnarzt (Parodontologe)", "PKV", "GOZ 4138 + Material", "O", "2")
 E(k, "Laser-Parodontaltherapie", "Laserunterstützte PA-Therapie / aPDT", "Laser Zahnfleisch, photodynamische Therapie", "Behandlung von Zahnfleischtaschen mit Laser oder Licht mit dem Ziel, Keime zu verringern.", ZA, "SZ", "GOZ 0120 / analog", "M", "0")
 E(k, "Bakterientest Zahnfleisch", "Mikrobiologische Keimbestimmung", "Markerkeimtest, PA-Test", "Bestimmung von Parodontitis-Bakterien in Zahnfleischtaschen.", ZA, "SZ", "GOÄ Labor", "N", "0")
 E(k, "Zahnfleischrückgang decken", "Rezessionsdeckung", "Zahnfleischtransplantat, freiliegende Zahnhälse decken", "Plastische Deckung freiliegender Zahnhälse.", "Zahnarzt (Parodontologe)", "PKV", "GOZ 4130, 4133", "O", "2", hwg="prüfen")
@@ -135,13 +146,13 @@ E(k, "Abszessbehandlung", "Inzision / Drainage", "dicke Backe, Eiter, Schwellung
 E(k, "Lippenbändchen-Korrektur", "Frenektomie", "Zungenbändchen, Lippenbändchen durchtrennen", "Korrektur störender Bändchen.", OC, "GKV", "BEMA Teil 1 / GOZ Abschnitt D", "O", "1")
 E(k, "Probeentnahme", "Biopsie", "Gewebeprobe Mund", "Entnahme verdächtigen Gewebes zur Untersuchung.", OC, "GKV", "BEMA / GOÄ 2401", "O", "1")
 E(k, "Kieferkammerhalt nach Zahnentfernung", "Socket Preservation", "Alveolenschutz, Kieferkamm erhalten", "Füllen der Zahnlücke mit Knochenersatz für spätere Implantate.", OC, "PKV", "GOZ Abschnitt K / analog", "O", "2")
-E(k, "Plättchenreiches Fibrin (PRF)", "PRF / Eigenblutkonzentrat", "Eigenblut Wundheilung, A-PRF", "Einbringen von Fibrin aus Eigenblut in die Wunde mit dem Ziel, die Heilung zu unterstützen.", OC, "SZ", "GOZ/GOÄ analog", "M", "0")
+E(k, "Plättchenreiches Fibrin (PRF)", "PRF / Eigenblutkonzentrat", "Eigenblut Wundheilung", "Einbringen von Fibrin aus Eigenblut in die Wunde mit dem Ziel, die Heilung zu unterstützen.", OC, "SZ", "GOZ/GOÄ analog", "M", "0")
 
 k = "Implantologie"
 E(k, "Zahnimplantat (Einzelzahn)", "Enossales Implantat", "Implantat, künstliche Zahnwurzel", "Titan- oder Keramikschraube als Ersatz der Zahnwurzel.", OC, "GKV_EA", "GOZ 9000–9040 / BEMA-Festzuschuss für Krone", "O", "2", hinweis="Kasse zahlt nur Festzuschuss auf Suprakonstruktion.")
 E(k, "Keramikimplantat", "Zirkonoxid-Implantat", "Metallfreies Implantat, Keramikimplantat", "Weißes, metallfreies Implantat.", OC, "GKV_EA", "GOZ 9000 ff.", "O", "2")
-E(k, "Sofortimplantat", "Sofortimplantation", "Implantat am selben Tag", "Implantat direkt nach der Zahnentfernung.", OC, "GKV_EA", "GOZ 9010 ff.", "O", "2")
-E(k, "Sofortversorgung auf Implantaten", "Implantatgetragene Sofortversorgung des zahnlosen Kiefers", "Sofortbelastung, feste dritte Zähne", "Vier bis sechs Implantate in einem zahnlosen Kiefer. Sitzen sie beim Einsetzen fest genug im Knochen, wird am selben Tag eine provisorische feste Brücke befestigt; die endgültige Brücke folgt nach der Einheilung.", OC, "GKV_EA", "GOZ Abschnitt K + F", "O", "3", id_name="Feste Zähne an einem Tag")
+E(k, "Sofortimplantat", "Sofortimplantation", "Implantat direkt nach dem Zahnziehen", "Implantat direkt nach der Zahnentfernung.", OC, "GKV_EA", "GOZ 9010 ff.", "O", "2")
+E(k, "Feste Brücke auf Implantaten im zahnlosen Kiefer", "Implantatgetragene Sofortversorgung des zahnlosen Kiefers", "Sofortbelastung, feste dritte Zähne", "Vier bis sechs Implantate in einem zahnlosen Kiefer. Sitzen sie beim Einsetzen fest genug im Knochen, wird am selben Tag eine provisorische feste Brücke befestigt; die endgültige Brücke folgt nach der Einheilung.", OC, "GKV_EA", "GOZ Abschnitt K + F", "O", "3", id_name="Feste Zähne an einem Tag")
 E(k, "Mini-Implantate", "Durchmesserreduzierte Implantate", "Miniimplantat Prothese", "Implantate mit kleinem Durchmesser, z. B. zum Halt von Prothesen.", OC, "GKV_EA", "GOZ 9000 ff.", "O", "1")
 E(k, "Navigierte Implantation", "Schablonengeführte Implantation", "3D-geplante Implantation, Bohrschablone", "Implantation nach Planung im DVT, z. B. mit Bohrschablone.", OC, "PKV", "GOZ 9003, 9005", "O", "2")
 E(k, "Knochenaufbau", "Augmentation", "Knochenaufbau Kiefer, Knochentransplantat", "Aufbau von Kieferknochen vor/bei Implantation.", OC, "PKV", "GOZ 9100, 9140", "O", "3")
@@ -207,7 +218,7 @@ E(k, "Zähne glätten / konturieren", "Einschleifen / Enameloplastik", "Zahnkant
 E(k, "Schwarze Dreiecke schließen", "Interdentale Rekonstruktion", "Black Triangles, Lücken am Zahnfleisch", "Füllen dunkler Zwischenräume am Zahnfleisch.", ZA, "SZ", "GOZ analog", "N", "0", ust=True)
 
 k = "Lächeln-Planung"
-E(k, "Digitales Smile Design", "Digital Smile Design (DSD)", "Lächeln planen", "Digitale Simulation des geplanten Ergebnisses.", ZA, "SZ", "GOZ analog", "N", "0", ust=True)
+E(k, "Digitales Smile Design", "Digitale Ästhetikplanung (Fotos, Scan, Simulation)", "Lächeln planen", "Digitale Simulation des geplanten Ergebnisses.", ZA, "SZ", "GOZ analog", "N", "0", ust=True)
 E(k, "Probe-Lächeln (Mock-up)", "Mock-up / Wax-up", "Test-Veneers, Probetragen", "Vorläufige Anprobe der geplanten Zahnform im Mund.", ZA, "SZ", "GOZ analog + Labor", "N", "0", ust=True)
 E(k, "Kombinierte ästhetische Zahnbehandlung", "Ästhetische Gesamtrehabilitation", "Gesamtplanung Zahnästhetik", "Kombination aus Bleaching, Veneers, KFO, Zahnfleisch.", ZA, "SZ", "GOZ diverse", "M", "1", ust=True, hwg="prüfen", id_name="Komplettes Smile Makeover")
 
@@ -247,11 +258,11 @@ for name, fach, syn, desc, alt in [
     ("Botulinumtoxin an der Zornesfalte", "Glabella-Behandlung", "Zornesfalte, Falte zwischen Augenbrauen", "Injektion mit dem Ziel, die senkrechten Falten zwischen den Augenbrauen zu glätten.", "Botox Zornesfalte"),
     ("Botulinumtoxin an der Stirn", "Frontalis-Behandlung", "Stirnfalten, Querfalten Stirn", "Injektion mit dem Ziel, waagerechte Stirnfalten zu glätten.", "Botox Stirnfalten"),
     ("Botulinumtoxin an den Augenfältchen (Krähenfüße)", "Lateral-Canthal-Behandlung", "Lachfalten Augen, Krähenfüße", "Injektion mit dem Ziel, Fältchen an den äußeren Augenwinkeln zu glätten.", "Botox Krähenfüße"),
-    ("Augenbrauen anheben mit Botulinumtoxin", "Botulinumtoxin an den Brauenabsenkern", "Brauen anheben", "Injektion mit dem Ziel, die Augenbrauen leicht anzuheben.", "Brauenlifting mit Botox"),
+    ("Botulinumtoxin an den Augenbrauen", "Botulinumtoxin an den Brauenabsenkern", "Augenbrauen Botulinumtoxin", "Injektion mit dem Ziel, die Augenbrauen leicht anzuheben.", "Brauenlifting mit Botox"),
     ("Lip Flip", "Botulinumtoxin Oberlippe", "Oberlippe Botulinumtoxin", "Injektion in den Lippenmuskel mit dem Ziel, die Oberlippe leicht nach außen zu drehen.", None),
     ("Botulinumtoxin an Kinn und Mundwinkeln", "Mentalis/DAO-Behandlung", "Pflasterstein-Kinn, hängende Mundwinkel", "Injektion in Kinn- und Mundwinkelmuskeln mit dem Ziel, sie zu entspannen.", "Botox Kinn & Mundwinkel"),
     ("Botulinumtoxin am Hals", "Platysma-Behandlung", "Halsfalten, Platysmabänder", "Injektion in den Halsmuskel mit dem Ziel, Halsbänder zu glätten und die Kieferlinie zu straffen.", "Botox Hals"),
-    ("Botulinumtoxin in den Kaumuskel (Masseter)", "Masseter-Behandlung (ästhetisch)", "Masseter-Injektion, Kaumuskel verkleinern", "Injektion in die Kaumuskeln mit dem Ziel, sie zu verkleinern und das Gesicht schmaler zu machen.", "Gesicht verschmälern (Masseter-Botox)"),
+    ("Botulinumtoxin in den Kaumuskel (Masseter)", "Masseter-Behandlung (ästhetisch)", "Masseter-Injektion, Kaumuskel Botulinumtoxin", "Injektion in die Kaumuskeln mit dem Ziel, sie zu verkleinern und das Gesicht schmaler zu machen.", "Gesicht verschmälern (Masseter-Botox)"),
     ("Bunny Lines", "Nasalis-Behandlung", "Nasenfalten", "Injektion mit dem Ziel, Fältchen am Nasenrücken zu glätten.", None),
 ]:
     E(k, name, fach, syn, desc, ARZT, "SZ", "GOÄ analog (§6 Abs. 2)", "M", "0", ust=True, hwg="prüfen", id_name=alt)
@@ -263,9 +274,9 @@ for name, fach, syn, desc, alt in [
     ("Lippenunterspritzung", "Lippenaugmentation mit Hyaluronsäure", "Lippen aufspritzen, Russian Lips", "Filler-Injektion in die Lippen mit dem Ziel, Volumen und Kontur zu geben.", None),
     ("Nasolabialfalten auffüllen", "Nasolabialfalten-Behandlung", "Falten Nase-Mund", "Filler-Injektion mit dem Ziel, die Falten zwischen Nase und Mund zu mildern.", None),
     ("Marionettenfalten auffüllen", "Marionettenfalten-Behandlung", "Mundwinkelfalten", "Filler-Injektion mit dem Ziel, die Falten von den Mundwinkeln abwärts zu mildern.", None),
-    ("Wangenaufbau", "Midface-Volumisierung", "Wangenknochen betonen, Cheekbones", "Filler-Injektion mit dem Ziel, Volumen im Mittelgesicht aufzubauen.", None),
+    ("Wangenaufbau", "Midface-Volumisierung", "Wangen Filler, Wangenknochen", "Filler-Injektion mit dem Ziel, Volumen im Mittelgesicht aufzubauen.", None),
     ("Tränenrinne", "Tear-Trough-Behandlung", "Augenringe, Tränensäcke Filler", "Filler-Injektion unter dem Auge mit dem Ziel, eingefallene Augenringe zu mildern.", None),
-    ("Kinnaufbau mit Filler", "Kinnaugmentation", "Kinn vergrößern, Profil", "Filler-Injektion mit dem Ziel, das Kinn zu betonen oder zu verlängern.", None),
+    ("Kinnaufbau mit Filler", "Kinnaugmentation", "Kinn Filler, Profil", "Filler-Injektion mit dem Ziel, das Kinn zu betonen oder zu verlängern.", None),
     ("Jawline / Kieferkontur", "Kieferwinkel-Konturierung", "Jawline Filler, Kieferwinkel Filler", "Filler-Injektion mit dem Ziel, die Kieferlinie zu betonen.", None),
     ("Nasenkorrektur mit Filler", "Nicht-chirurgische Rhinoplastik", "Nase unterspritzen, Höcker ausgleichen", "Filler-Injektion mit dem Ziel, Höcker und Asymmetrien der Nase auszugleichen.", "Nasenkorrektur ohne OP"),
     ("Schläfen auffüllen", "Temporale Volumisierung", "eingefallene Schläfen", "Filler-Injektion mit dem Ziel, eingefallene Schläfen aufzufüllen.", None),
@@ -279,7 +290,7 @@ E(k, "Filler auflösen", "Hyaluronidase-Behandlung", "Filler entfernen, Lippen a
 k = "Hautqualität & Kollagen"
 E(k, "Skinbooster", "Hyaluron-Injektionen in die Haut", "Hyaluron Haut, Feuchtigkeit Haut", "Feine Hyaluron-Injektionen in die Haut mit dem Ziel, Feuchtigkeit und Elastizität zu erhöhen.", ARZT, "SZ", "GOÄ analog", "M", "1", ust=True, hwg="ja")
 E(k, "Kollagen-Stimulator", "Biostimulatoren (PLLA, CaHA)", "Biostimulator, Poly-L-Milchsäure, Calciumhydroxylapatit", "Injektion von Stoffen wie PLLA oder CaHA, die die körpereigene Kollagenbildung anregen sollen.", ARZT, "SZ", "GOÄ analog", "M", "1", ust=True, hwg="ja")
-E(k, "Polynukleotide", "PN-/PDRN-Behandlung", "Lachs-DNA, PDRN", "Injektionen mit Polynukleotiden in die Haut, auch um die Augen.", ARZT, "SZ", "GOÄ analog", "M", "1", ust=True, hwg="ja")
+E(k, "Polynukleotide", "PN-/PDRN-Behandlung", "Lachs-DNA", "Injektionen mit Polynukleotiden in die Haut, auch um die Augen.", ARZT, "SZ", "GOÄ analog", "M", "1", ust=True, hwg="ja")
 E(k, "Eigenbluttherapie (PRP) im Gesicht", "PRP-Behandlung (Eigenblut)", "Eigenblut Gesicht, PRP", "Injektion von Plasma aus Eigenblut in die Haut mit dem Ziel, die Hauterneuerung anzuregen.", ARZT, "SZ", "GOÄ analog", "M", "1", ust=True, hwg="ja", id_name="Vampir-Lifting")
 E(k, "Mesotherapie", "Mesotherapie", "Vitamin-Cocktail Haut, Meso", "Mikroinjektionen mit Wirkstoffen in die Haut.", ARZT, "SZ", "GOÄ analog", "M", "1", ust=True, hwg="prüfen")
 E(k, "Injektionslipolyse", "Deoxycholsäure-Injektion", "Doppelkinn Injektion, Lipolyse", "Injektion eines Wirkstoffs in kleine Fettpolster, z. B. am Doppelkinn, mit dem Ziel, sie abzubauen.", ARZT, "SZ", "GOÄ analog", "M", "2", ust=True, hwg="ja", id_name="Fett-weg-Spritze")
@@ -295,19 +306,19 @@ E(k, "Laser-Haarentfernung", "Laser-Epilation (Dioden-/Alexandrit-Laser)", "Lase
 E(k, "Tattooentfernung", "Pikosekunden-/Q-Switch-Laser", "Tattoo lasern, Permanent-Make-up entfernen", "Laserbehandlung mit dem Ziel, Farbpigmente in der Haut zu zerkleinern.", ARZT, "SZ", "GOÄ analog", "M", "1", ust=True, hinweis="§ 5 Abs. 2 NiSV: Die Entfernung von Tätowierungen oder Permanent-Make-up mit Laser oder intensiven Lichtquellen dürfen nur approbierte Ärztinnen und Ärzte mit entsprechender ärztlicher Weiterbildung oder Fortbildung durchführen.")
 E(k, "Couperose & Besenreiser", "Gefäßlaser / Sklerotherapie", "rote Äderchen, Besenreiser, Rosazea", "Verödung sichtbarer Äderchen mit Laser oder durch Einspritzen eines Verödungsmittels.", "Dermatologe / Phlebologe", "SZ", "GOÄ analog", "M", "1", ust=True)
 E(k, "Pigmentflecken entfernen", "Pigmentlaser / Melasma-Therapie", "Altersflecken, Sonnenflecken, Melasma", "Behandlung mit Laser oder Wirkstoffen mit dem Ziel, Pigmentflecken aufzuhellen.", DERM, "SZ", "GOÄ analog", "M", "1", ust=True)
-E(k, "Aknenarben behandeln", "Narbentherapie (Laser, Subzision, Needling)", "Aknenarben, Narben glätten", "Laser, Subzision oder Needling mit dem Ziel, eingesunkene Aknenarben zu glätten.", DERM, "SZ", "GOÄ analog", "M", "2", ust=True)
+E(k, "Aknenarben behandeln", "Narbentherapie (Laser, Subzision, Needling)", "Aknenarben, Narbenbehandlung", "Laser, Subzision oder Needling mit dem Ziel, eingesunkene Aknenarben zu glätten.", DERM, "SZ", "GOÄ analog", "M", "2", ust=True)
 E(k, "Akne-Behandlung", "Medizinische Aknetherapie", "Pickel, unreine Haut", "Medizinische Behandlung aktiver Akne.", DERM, "IND", "GOÄ / EBM", "N", "0")
 
 k = "Gerätebehandlungen an Haut und Körper"
-E(k, "Ultraschall-Behandlung der Haut", "Hochintensiver fokussierter Ultraschall (HIFU)", "HIFU, HIFU Gesicht", "Fokussierter Ultraschall, der tiefere Hautschichten erwärmt.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "N", "0", ust=True, hwg="prüfen", id_name="Ultraschall-Lifting", hinweis="§ 9 Abs. 2 NiSV: Ultraschallanwendungen zur gezielten thermischen Gewebekoagulation oder Fettgewebereduktion dürfen nur approbierte Ärztinnen und Ärzte durchführen.")
+E(k, "Fokussierter Ultraschall (HIFU) an Gesicht und Hals", "Hochintensiver fokussierter Ultraschall (HIFU)", "HIFU, HIFU Gesicht", "Fokussierter Ultraschall, der tiefere Hautschichten erwärmt.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "N", "0", ust=True, hwg="prüfen", id_name="Ultraschall-Lifting", hinweis="§ 9 Abs. 2 NiSV: Ultraschallanwendungen zur gezielten thermischen Gewebekoagulation oder Fettgewebereduktion dürfen nur approbierte Ärztinnen und Ärzte durchführen.")
 E(k, "Radiofrequenz-Behandlung der Haut", "Monopolare Radiofrequenz", "RF-Behandlung, Radiofrequenz Gesicht", "Erwärmung der Haut durch Hochfrequenz, mit dem Ziel, sie zu straffen.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "N", "0", ust=True, id_name="Radiofrequenz-Straffung")
 E(k, "Kryolipolyse (Kältebehandlung)", "Kontrollierte Kühlung des Fettgewebes", "Kältebehandlung Fettpolster", "Kühlung von Fettpolstern mit dem Ziel, Fettzellen abzubauen.", "Arzt / Fachpersonal", "SZ", "GOÄ analog", "N", "0", ust=True, hwg="prüfen", id_name="Fett wegfrieren")
-E(k, "Muskelstimulation per Gerät (HIFEM/EMS)", "Hochintensive elektromagnetische Muskelstimulation (HIFEM) / EMS", "elektromagnetische Muskelstimulation", "Elektromagnetische Stimulation der Muskeln.", "Fachpersonal mit Fachkunde nach § 7 NiSV", "SZ", "–", "N", "0", ust=True, hinweis="§ 7 NiSV regelt die Fachkunde für Muskelstimulation zum Muskelaufbau und zur Muskelstraffung. Hochfrequenzanwendungen zur thermischen Fettgewebereduktion dürfen nach § 6 Abs. 2 NiSV nur approbierte Ärztinnen und Ärzte mit entsprechender Weiterbildung oder Fortbildung durchführen.", id_name="Muskelaufbau & Fettreduktion per Gerät")
+E(k, "Muskelstimulation per Gerät", "Elektromagnetische oder elektrische Muskelstimulation (EMS)", "EMS, Magnetstimulation Muskeln", "Elektromagnetische Stimulation der Muskeln.", "Fachpersonal mit Fachkunde nach § 7 NiSV", "SZ", "–", "N", "0", ust=True, hinweis="§ 7 NiSV regelt die Fachkunde für Muskelstimulation zum Muskelaufbau und zur Muskelstraffung. Hochfrequenzanwendungen zur thermischen Fettgewebereduktion dürfen nach § 6 Abs. 2 NiSV nur approbierte Ärztinnen und Ärzte mit entsprechender Weiterbildung oder Fortbildung durchführen.", id_name="Muskelaufbau & Fettreduktion per Gerät")
 E(k, "Cellulite-Behandlung", "Cellulite-Therapie (Stoßwelle, Subzision)", "Orangenhaut, Cellulite", "Stoßwelle oder Subzision im Bereich von Cellulite an Po und Oberschenkeln.", "Arzt (Subzision); Stoßwelle auch Fachpersonal", "SZ", "GOÄ analog", "M", "1", ust=True)
 
 k = "Haare"
 E(k, "Haarausfall-Behandlung", "PRP / Mesotherapie Kopfhaut", "Haarausfall, Haare dünner, PRP Haare", "Injektion von Eigenblutplasma oder Wirkstoffen in die Kopfhaut mit dem Ziel, die Haarwurzeln anzuregen.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "M", "0", ust=True)
-E(k, "Haartransplantation", "FUE / DHI-Haartransplantation", "Haartransplantation, Geheimratsecken, Bart", "Verpflanzung eigener Haarfollikel.", "Arzt (Haarchirurg)", "SZ", "GOÄ analog", "O", "2", ust=True, hwg="ja")
+E(k, "Haartransplantation", "Haartransplantation mit Einzelentnahme (FUE)", "Haartransplantation, Geheimratsecken, Bart", "Verpflanzung eigener Haarfollikel.", "Arzt (Haarchirurg)", "SZ", "GOÄ analog", "O", "2", ust=True, hwg="ja")
 
 k = "Infusionen"
 E(k, "Infusionstherapie", "Vitamin-/Mikronährstoff-Infusion", "IV-Drip, Vitamininfusion, NAD+", "Infusion mit Vitaminen und Mineralstoffen.", ARZT, "SZ", "GOÄ", "M", "0", ust=True, hinweis="Infusionen ohne medizinischen Anlass zahlen Sie selbst.")
@@ -370,9 +381,9 @@ E(k, "Hautanhängsel entfernen", "Fibrom-/Stielwarzen-Entfernung", "Stielwarzen,
 B("Weitere Selbstzahler-Eingriffe")
 k = "Augen"
 E(k, "Augenlasern (LASIK/Femto-LASIK)", "Femto-LASIK", "Augen lasern, Kurzsichtigkeit lasern", "Laserbehandlung der Hornhaut mit dem Ziel, eine Fehlsichtigkeit zu korrigieren.", AUG, "SZ", "GOÄ", "M", "1")
-E(k, "Augenlasern (Lentikelextraktion)", "Refraktive Lentikelextraktion (KLEx)", "schnittarmes Lasern", "Laserbehandlung der Hornhaut über einen kleinen Schnitt, ohne Flap.", AUG, "SZ", "GOÄ", "M", "1", id_name="Augenlasern (SMILE)")
+E(k, "Augenlasern (Lentikelextraktion)", "Refraktive Lentikelextraktion (KLEx)", "Augenlasern mit kleinem Schnitt", "Laserbehandlung der Hornhaut über einen kleinen Schnitt, ohne Flap.", AUG, "SZ", "GOÄ", "M", "1", id_name="Augenlasern (SMILE)")
 E(k, "Augenlasern (PRK/LASEK)", "Oberflächenbehandlung", "PRK, Trans-PRK", "Laser auf der Hornhautoberfläche, für dünne Hornhaut.", AUG, "SZ", "GOÄ", "M", "2")
-E(k, "Linsentausch", "Refraktiver Linsenaustausch / ICL", "Kunstlinse, ICL, Linsenimplantat", "Ersatz oder Ergänzung der Linse bei starker Fehlsichtigkeit.", AUG, "SZ", "GOÄ", "O", "2")
+E(k, "Linsentausch", "Refraktiver Linsenaustausch / phake Intraokularlinse", "Kunstlinse, Linsenimplantat", "Ersatz oder Ergänzung der Linse bei starker Fehlsichtigkeit.", AUG, "SZ", "GOÄ", "O", "2")
 
 k = "Kosmetik (nicht ärztlich)"
 E(k, "Hautreinigung mit Wasser-Peeling", "Hydradermabrasion", "Gesichtsreinigung", "Reinigung, Peeling und Auftragen von Pflegestoffen in einer Behandlung.", KOS, "SZ", "–", "N", "0", ust=True, id_name="Hydrafacial")
@@ -423,6 +434,17 @@ def main(out):
             lines[-1] += ", ".join(x["name"] for x in items if x["bereich"] == cur_b and x["kategorie"] == cur_k)
     with open(f"{out}/uebersicht.md", "w", encoding="utf-8") as f:
         f.write("\n".join(lines).strip() + "\n")
+    # Frühere Namen und Kategorien (nur für Suche und Abgleich, nicht zum Anzeigen)
+    kats = {(i["bereich"], i["kategorie"]) for i in items}
+    assert set(FRUEHERE_KATEGORIEN) <= kats, set(FRUEHERE_KATEGORIEN) - kats
+    assert not set(FRUEHERE_KATEGORIEN.values()) & {k for (_, k) in kats}  # frühere Kategorie gibt es nicht mehr
+    assert set(fruehere_namen) <= set(ids)
+    with open(f"{out}/fruehere-namen.json", "w", encoding="utf-8") as f:
+        json.dump(OrderedDict(
+            namen=fruehere_namen,
+            kategorien=OrderedDict((alt, neu) for (_, neu), alt in FRUEHERE_KATEGORIEN.items()),
+        ), f, ensure_ascii=False, indent=2)
+        f.write("\n")
     from collections import Counter
     print(len(items), "Leistungen")
     print(Counter(i["bereich"] for i in items))

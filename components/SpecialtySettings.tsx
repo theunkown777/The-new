@@ -7,6 +7,7 @@ import type { CustomOffer } from "@/lib/proposals";
 import { uebersetzungenBereinigt, type LeistungUebersetzungen } from "@/lib/eigeneLeistung";
 import { LeistungUebersetzungenFeld } from "@/components/LeistungUebersetzungenFeld";
 import { useKiHilfen } from "@/components/useKiHilfen";
+import { neueKatalogBezeichnung, passtZuSuche, schonUebernommen, type KatalogVorschlag } from "@/lib/katalogUebernahme";
 
 /** Eigene Leistung mit den Übersetzungen für die Patientenansicht (lib/eigeneLeistung.ts). */
 type Angebot = CustomOffer & { uebersetzungen?: LeistungUebersetzungen };
@@ -23,9 +24,20 @@ const slug = (s: string) =>
     .replace(/^-|-$/g, "")
     .slice(0, 32) || "leistung";
 
-export type KatalogVorschlag = { name: string; kategorie: string; kasse: boolean; kasseWenn?: string };
+export type { KatalogVorschlag };
 
-export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: { initial: Value; readOnly?: boolean; katalog?: KatalogVorschlag[] }) {
+export function SpecialtySettings({
+  initial,
+  readOnly = false,
+  katalog = [],
+  kategorienFrueher = {},
+}: {
+  initial: Value;
+  readOnly?: boolean;
+  katalog?: KatalogVorschlag[];
+  /** Frühere Katalog-Kategorie → heutige (für Anlässe, die eine Praxis früher übernommen hat) */
+  kategorienFrueher?: Record<string, string>;
+}) {
   const [kq, setKq] = useState("");
   const ki = useKiHilfen();
   const router = useRouter();
@@ -134,13 +146,13 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
             {katalog.length > 0 && v.specialty === initial.specialty && (
               <details className="rounded-lg border border-salbei-200 bg-salbei-50 p-3" data-testid="katalog-uebernehmen">
                 <summary className="cursor-pointer text-sm font-medium text-salbei-800">
-                  Aus dem Leistungskatalog übernehmen ({katalog.filter((k) => !v.customOffers.some((c) => c.name === k.name)).length} Leistungen für Ihr Fach)
+                  Aus dem Leistungskatalog übernehmen ({katalog.filter((k) => !schonUebernommen(k, v.customOffers)).length} Leistungen für Ihr Fach)
                 </summary>
                 <input className="input mt-2" placeholder="Leistung suchen" aria-label="Katalog durchsuchen" value={kq} onChange={(e) => setKq(e.target.value)} />
                 <ul className="mt-2 max-h-72 space-y-1 overflow-y-auto text-sm">
                   {katalog
-                    .filter((k) => !v.customOffers.some((c) => c.name === k.name))
-                    .filter((k) => !kq || `${k.name} ${k.kategorie}`.toLowerCase().includes(kq.toLowerCase()))
+                    .filter((k) => !schonUebernommen(k, v.customOffers))
+                    .filter((k) => passtZuSuche(k, kq))
                     .map((k) => (
                       <li key={k.name} className="flex items-center justify-between gap-2 rounded bg-white px-2 py-1">
                         <span className="min-w-0 [overflow-wrap:anywhere]">
@@ -169,8 +181,21 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
               </details>
             )}
             {v.customOffers.length === 0 && <p className="text-sm text-slate-500">Noch keine eigenen Leistungen.</p>}
-            {v.customOffers.map((c, i) => (
+            {v.customOffers.map((c, i) => {
+              const neu = neueKatalogBezeichnung(c, katalog, kategorienFrueher);
+              return (
               <div key={c.id} className="space-y-2 rounded-lg border border-slate-200 p-3" data-testid="custom-offer">
+                {neu && (
+                  <p className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900" data-testid="katalog-neuer-name">
+                    <span>
+                      Im Leistungskatalog heißt das jetzt „{neu.name}“{neu.anlass !== c.anlass ? <> (Anlass „{neu.anlass}“)</> : null}. Der Katalog nennt keine
+                      Handelsnamen und keine Werbeversprechen mehr.
+                    </span>
+                    <button type="button" className="shrink-0 text-brand-700 underline" disabled={readOnly} onClick={() => setOffer(i, neu)}>
+                      Neuen Namen übernehmen
+                    </button>
+                  </p>
+                )}
                 <div className="grid gap-2 sm:grid-cols-[1fr_1fr_7rem]">
                   <input className="input" placeholder="Anlass, z. B. Trockenes Auge" aria-label="Anlass" value={c.anlass} onChange={(e) => setOffer(i, { anlass: e.target.value })} />
                   <input className="input" placeholder="Leistung, z. B. Lidrandpflege" aria-label="Leistung" value={c.name} onChange={(e) => setOffer(i, { name: e.target.value })} />
@@ -195,7 +220,8 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
                   </button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </fieldset>

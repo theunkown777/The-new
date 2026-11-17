@@ -4,7 +4,7 @@
 
 **Kinderzahnheilkunde:** Früherkennung Kleinkind, Individualprophylaxe Kinder, Fissurenversiegelung, Milchzahnbehandlung, Kinderkrone, Lückenhalter, Behandlung Kreidezähne, Kinderbehandlung unter Lachgas oder Narkose
 
-**Füllungen & Zahnerhaltung:** Kunststofffüllung (Kassenstandard), Komposit-Füllung (Mehrschicht), Glasionomer-Füllung, Keramik-Inlay, Gold-Inlay, Onlay / Teilkrone, Zahnersatz in einer Sitzung (CAD/CAM), Zahnhalsfüllung, Behandlung empfindlicher Zähne, Kariesinfiltration, Aufbaufüllung
+**Füllungen & Zahnerhaltung:** Kunststofffüllung (Kassenstandard), Komposit-Füllung (Mehrschicht), Glasionomer-Füllung, Keramik-Inlay, Gold-Inlay, Onlay / Teilkrone, In der Praxis gefräster Zahnersatz (CAD/CAM), Zahnhalsfüllung, Behandlung empfindlicher Zähne, Kariesinfiltration, Aufbaufüllung
 
 **Wurzelbehandlung (Endodontie):** Wurzelkanalbehandlung, Wurzelbehandlung mit Mikroskop, Revision einer Wurzelbehandlung, Wurzelspitzenresektion, Vitalerhaltung des Zahnnervs, Zahnaufhellung von innen
 
@@ -12,7 +12,7 @@
 
 **Oralchirurgie:** Zahnentfernung, Weisheitszahn-OP, Freilegung verlagerter Zähne, Zystenentfernung, Abszessbehandlung, Lippenbändchen-Korrektur, Probeentnahme, Kieferkammerhalt nach Zahnentfernung, Plättchenreiches Fibrin (PRF)
 
-**Implantologie:** Zahnimplantat (Einzelzahn), Keramikimplantat, Sofortimplantat, Sofortversorgung auf Implantaten, Mini-Implantate, Navigierte Implantation, Knochenaufbau, Sinuslift, Implantatkrone / -brücke, Implantat-Entzündung behandeln, Implantat-Nachsorge
+**Implantologie:** Zahnimplantat (Einzelzahn), Keramikimplantat, Sofortimplantat, Feste Brücke auf Implantaten im zahnlosen Kiefer, Mini-Implantate, Navigierte Implantation, Knochenaufbau, Sinuslift, Implantatkrone / -brücke, Implantat-Entzündung behandeln, Implantat-Nachsorge
 
 **Zahnersatz (Prothetik):** Vollkeramikkrone, Metallkeramikkrone, Goldkrone, Brücke, Klebebrücke, Teilprothese, Teleskop- oder Geschiebeprothese, Vollprothese, Implantatgetragene Prothese, Prothese unterfüttern / reparieren, Provisorium
 
@@ -44,7 +44,7 @@
 
 ### Ästhetische Medizin (minimal-invasiv) (49)
 
-**Botulinumtoxin:** Botulinumtoxin an der Zornesfalte, Botulinumtoxin an der Stirn, Botulinumtoxin an den Augenfältchen (Krähenfüße), Augenbrauen anheben mit Botulinumtoxin, Lip Flip, Botulinumtoxin an Kinn und Mundwinkeln, Botulinumtoxin am Hals, Botulinumtoxin in den Kaumuskel (Masseter), Bunny Lines, Behandlung von starkem Schwitzen, Botulinumtoxin bei chronischer Migräne
+**Botulinumtoxin:** Botulinumtoxin an der Zornesfalte, Botulinumtoxin an der Stirn, Botulinumtoxin an den Augenfältchen (Krähenfüße), Botulinumtoxin an den Augenbrauen, Lip Flip, Botulinumtoxin an Kinn und Mundwinkeln, Botulinumtoxin am Hals, Botulinumtoxin in den Kaumuskel (Masseter), Bunny Lines, Behandlung von starkem Schwitzen, Botulinumtoxin bei chronischer Migräne
 
 **Hyaluron-Filler:** Lippenunterspritzung, Nasolabialfalten auffüllen, Marionettenfalten auffüllen, Wangenaufbau, Tränenrinne, Kinnaufbau mit Filler, Jawline / Kieferkontur, Nasenkorrektur mit Filler, Schläfen auffüllen, Filler am Handrücken, Full-Face-Behandlung, Filler auflösen
 
@@ -52,7 +52,7 @@
 
 **Haut & Laser:** Microneedling, Radiofrequenz-Microneedling, Chemisches Peeling, Laser-Skin-Resurfacing, IPL-Behandlung der Haut, Laser-Haarentfernung, Tattooentfernung, Couperose & Besenreiser, Pigmentflecken entfernen, Aknenarben behandeln, Akne-Behandlung
 
-**Gerätebehandlungen an Haut und Körper:** Ultraschall-Behandlung der Haut, Radiofrequenz-Behandlung der Haut, Kryolipolyse (Kältebehandlung), Muskelstimulation per Gerät (HIFEM/EMS), Cellulite-Behandlung
+**Gerätebehandlungen an Haut und Körper:** Fokussierter Ultraschall (HIFU) an Gesicht und Hals, Radiofrequenz-Behandlung der Haut, Kryolipolyse (Kältebehandlung), Muskelstimulation per Gerät, Cellulite-Behandlung
 
 **Haare:** Haarausfall-Behandlung, Haartransplantation
 
@@ -134,7 +134,7 @@
 
 ### Sportmedizin (6)
 
-**Sportmedizin:** Sportmedizinische Untersuchung, Leistungsdiagnostik, Sportverletzungen, Return-to-Sport-Test, Laufanalyse, Kinesio-Taping
+**Sportmedizin:** Sportmedizinische Untersuchung, Leistungsdiagnostik, Sportverletzungen, Return-to-Sport-Test, Laufanalyse, Kinesiologisches Taping
 
 ### Chirurgie (15)
 

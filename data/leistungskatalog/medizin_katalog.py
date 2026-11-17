@@ -16,6 +16,7 @@ GEBO_DEFAULT = {
 # Die ID entsteht aus dem alten Namen, damit die Adresse /leistungen/<id> gleich bleibt.
 FRUEHERE_NAMEN = {
     ("Urologie & Andrologie", "Botulinumtoxin in die Blase"): "Botox in die Blase",
+    ("Sportmedizin", "Kinesiologisches Taping"): "Kinesio-Taping",
 }
 _frueher_benutzt = set()
 
@@ -85,7 +86,7 @@ Wundversorgung | Wundbehandlung / Naht | Wunde nähen, Verbandswechsel | Versorg
 Atteste & Bescheinigungen | Ärztliche Atteste | Attest, Sportattest, Bescheinigung | Gesundheitsbescheinigungen (Schule, Sport, Reise). | SZ | N | 0
 Führerschein-Untersuchung | Untersuchung für Fahrerlaubnis | Sehtest Führerschein, LKW-Führerschein | Ärztliche Untersuchung für Führerscheinklassen. | SZ | N | 0
 Raucherentwöhnung | Tabakentwöhnung | Rauchen aufhören | Ärztliche Begleitung beim Rauchstopp. | SZ | N | 0
-Ernährungs- und Gewichtsberatung | Adipositas-Beratung | Abnehmen, Übergewicht, Abnehmspritze | Medizinische Beratung und Therapie bei Übergewicht. | IND | N | 0
+Ernährungs- und Gewichtsberatung | Adipositas-Beratung | Abnehmen, Übergewicht | Medizinische Beratung und Therapie bei Übergewicht. | IND | N | 0
 """)
 
 F("Impfungen & Reisemedizin", "Hausarzt / Reisemediziner", """
@@ -94,7 +95,7 @@ Standardimpfungen | Impfungen nach STIKO | Tetanus, Diphtherie, Keuchhusten, Pol
 Grippeimpfung | Influenza-Impfung | Grippeschutz | Jährliche Impfung gegen Grippe. | GKV | M | 0
 Corona-Impfung | COVID-19-Impfung | Covid Booster | Impfung gegen COVID-19. | GKV | M | 0
 Pneumokokken-Impfung | Pneumokokken-Impfung | Lungenentzündung Impfung | Impfung gegen Pneumokokken, Erreger von Lungenentzündungen. | GKV | M | 0
-Gürtelrose-Impfung | Herpes-zoster-Impfung | Gürtelrose, Herpes zoster | Impfung gegen Gürtelrose ab 60. | GKV | M | 0
+Gürtelrose-Impfung | Herpes-zoster-Impfung | Gürtelrose | Impfung gegen Gürtelrose ab 60. | GKV | M | 0
 HPV-Impfung | HPV-Impfung | Gebärmutterhalskrebs Impfung | Impfung gegen humane Papillomviren (HPV), die bestimmte Krebsarten auslösen können. | GKV | M | 0
 RSV-Impfung | RSV-Impfung | RSV | Impfung oder Antikörpergabe gegen das RS-Virus (Ältere, Säuglinge). | GKV | M | 0
 FSME-Impfung | FSME-Impfung | Zeckenimpfung | Impfung gegen FSME, eine durch Zecken übertragene Hirnhautentzündung. | GKV | M | 0
@@ -135,7 +136,7 @@ Diabetes-Behandlung | Diabetologie | Zucker, Diabetes Typ 1, Diabetes Typ 2, Ins
 Schilddrüsen-Sprechstunde | Schilddrüsendiagnostik | Schilddrüse, Unterfunktion, Überfunktion, Hashimoto | Ultraschall und Laborwerte der Schilddrüse. | GKV | N | 0
 Hormonsprechstunde | Endokrinologische Diagnostik | Hormone, Testosteron, Cortisol | Abklärung hormoneller Störungen. | GKV | N | 0
 Osteoporose-Diagnostik | Knochendichtemessung (DXA) | Knochendichte, Osteoporose | Messung der Knochendichte. | IND | N | 0 | Ohne Krankheitszeichen und ohne konkreten Verdacht ist die Messung Früherkennung mit Röntgenstrahlung. Sie ist nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht; für die Osteoporose gibt es keine (Stand 17.11.2026).
-Medikamentöse Adipositastherapie | Therapie mit GLP-1-Agonisten | Abnehmspritze, GLP-1-Agonist | Medikamente mit dem Ziel, das Körpergewicht zu senken, unter ärztlicher Aufsicht. | SZ | M | 0 | Arzneimittel zur Gewichtsabnahme sind von der Versorgung durch die gesetzliche Krankenkasse ausgeschlossen (§ 34 Abs. 1 Satz 8 SGB V).
+Medikamentöse Adipositastherapie | Therapie mit GLP-1-Agonisten | GLP-1-Agonist, Medikament bei Übergewicht | Medikamente mit dem Ziel, das Körpergewicht zu senken, unter ärztlicher Aufsicht. | SZ | M | 0 | Arzneimittel zur Gewichtsabnahme sind von der Versorgung durch die gesetzliche Krankenkasse ausgeschlossen (§ 34 Abs. 1 Satz 8 SGB V).
 ## Nephrologie (Niere)
 Nierensprechstunde | Nephrologie | Nierenwerte, Niereninsuffizienz | Abklärung von Nierenerkrankungen. | GKV | N | 0
 Dialyse | Hämodialyse / Peritonealdialyse | Blutwäsche | Ersatz der Nierenfunktion. | GKV | M | 0
@@ -234,7 +235,7 @@ Leistungsdiagnostik | Laktat- / Spiroergometrie | Laktattest, VO2max, Spiroergom
 Sportverletzungen | Sporttraumatologie | Bänderriss, Muskelfaserriss, Umknicken | Diagnose und Behandlung von Sportverletzungen. | GKV | N | 0
 Return-to-Sport-Test | Funktionelle Testung nach Verletzung | Return to Play | Test, ob nach Verletzung wieder voll belastbar. | SZ | N | 0
 Laufanalyse | Lauf- und Ganganalyse | Laufband Analyse | Analyse des Laufstils, Einlagenberatung. | SZ | N | 0
-Kinesio-Taping | Kinesiologisches Taping | Tape, Kinesiotape | Aufkleben elastischer Tapes auf die Haut. | SZ | N | 0
+Kinesiologisches Taping | Taping mit elastischen Klebebändern | Tape, elastisches Tape | Aufkleben elastischer Tapes auf die Haut. | SZ | N | 0
 """)
 
 F("Chirurgie", "Facharzt Chirurgie (Allgemein-/Viszeral-/Gefäßchirurgie)", """
