@@ -78,6 +78,8 @@ const SCHRITTE = [
 export default async function Start() {
   const session = await getServerSession(authOptions);
   const rahmen = "mx-auto max-w-[78rem] px-5 sm:px-8";
+  // Gastzugang (/demo) für Besucher offen? Sonst führen die Demo-Links zur Vorschau bzw. zum Pilotprogramm.
+  const gast = gastzugangOffen();
 
   return (
     <div className="journal min-h-screen">
@@ -103,9 +105,7 @@ export default async function Start() {
         }}
       />
       <a href="#inhalt" className="sprunglink">Zum Inhalt</a>
-      <JournalKopf angemeldet={!!session} />
-      {/* Rundgang in 8 Stationen: Einladung beim ersten Betreten, Start über /#rundgang (components/start/Rundgang.tsx) */}
-      <Rundgang gastzugang={gastzugangOffen()} />
+      <JournalKopf angemeldet={!!session} gastzugang={gast} />
 
       <main id="inhalt">
         {session && (
@@ -117,7 +117,8 @@ export default async function Start() {
 
         {/* Auftakt: Aussage links, die echte Patientenansicht rechts */}
         <section id="auftakt" className={`${rahmen} grid items-center gap-16 pb-24 pt-16 sm:pt-24 lg:grid-cols-12 lg:gap-8 lg:pb-32`} data-testid="auftakt">
-          <div className="j-auftakt lg:col-span-7">
+          {/* Anker „rundgang“: Ohne JavaScript führt „/#rundgang“ hierher, zum Anfang der Seite. */}
+          <div id="rundgang" className="j-auftakt lg:col-span-7">
             <p className="flex items-center gap-3 text-[15px] text-tinte-2">
               <Laechelbogen className="h-2 w-10 text-brand-700" />
               Für Praxen jeder Fachrichtung
@@ -130,8 +131,8 @@ export default async function Start() {
               Zu Hause vergleichen sie in Ruhe und antworten mit einem Fingertipp.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-              <Link href="/demo" className="j-knopf j-knopf-voll">
-                Demo-Praxis öffnen <span className="j-pfeil" aria-hidden="true">→</span>
+              <Link href={gast ? "/demo" : "/vorschau"} className="j-knopf j-knopf-voll">
+                {gast ? "Demo-Praxis öffnen" : "Vorschau ansehen"} <span className="j-pfeil" aria-hidden="true">→</span>
               </Link>
               <a href="#fach" className="j-link text-[16px] font-semibold text-tinte">
                 Ihr Fach wählen
@@ -152,6 +153,10 @@ export default async function Start() {
           </div>
         </section>
 
+        {/* Rundgang in 8 Stationen: Einladung beim ersten Betreten, Start über /#rundgang (components/start/Rundgang.tsx).
+            Hier nach dem Auftakt, damit Überschriften und Tab-Reihenfolge stimmen (h1 vor den h2 der Karte). */}
+        <Rundgang gastzugang={gast} />
+
         {/* Fachauswahl als Register */}
         <section id="fach" className="scroll-mt-6 border-t border-linie bg-[#F8F5F1]">
           <div className={`${rahmen} py-24 sm:py-32`}>
@@ -167,12 +172,16 @@ export default async function Start() {
               <FachWahl gruppen={GRUPPEN} />
             </div>
             <div className="mt-16 grid gap-4 md:grid-cols-3" data-testid="zugaenge">
-              <Link href="/demo" className="j-kachel group block rounded-[6px] bg-[#F3E4DF] p-7" data-testid="zugang-praxis">
+              <Link href={gast ? "/demo" : PILOT_ZIEL} className="j-kachel group block rounded-[6px] bg-[#F3E4DF] p-7" data-testid="zugang-praxis">
                 <span className="j-marke text-brand-700">Für Praxen</span>
                 <span className="j-titel mt-3 flex items-center gap-2 text-[1.7rem] text-tinte group-hover:text-brand-700">
-                  Demo-Praxis ansehen <span className="j-pfeil" aria-hidden="true">→</span>
+                  {gast ? "Demo-Praxis ansehen" : "Pilotplatz anfragen"} <span className="j-pfeil" aria-hidden="true">→</span>
                 </span>
-                <span className="j-text mt-2 block text-[15px]">Das ganze System mit Beispieldaten einer typischen Praxis Ihres Fachs. Von dort öffnen Sie auch die Patientenansicht.</span>
+                <span className="j-text mt-2 block text-[15px]">
+                  {gast
+                    ? "Das ganze System mit Beispieldaten einer typischen Praxis Ihres Fachs. Von dort öffnen Sie auch die Patientenansicht."
+                    : "Die Demo-Praxis ist zurzeit nur für Pilotpraxen und Partner geöffnet. Fragen Sie hier einen Pilotplatz an."}
+                </span>
               </Link>
               <div className="rounded-[6px] bg-[#E4EDE2] p-7" data-testid="hinweis-patienten">
                 <span className="j-marke text-salbei-700">Für Patienten</span>
@@ -281,15 +290,15 @@ export default async function Start() {
               <Link href={PILOT_ZIEL} className="j-knopf j-knopf-hell">
                 Pilotplatz anfragen
               </Link>
-              <Link href="/demo" className="j-knopf border border-[#F5F2EE]/40 text-[#F5F2EE] hover:border-[#F5F2EE]">
-                Demo öffnen
+              <Link href={gast ? "/demo" : "/vorschau"} className="j-knopf border border-[#F5F2EE]/40 text-[#F5F2EE] hover:border-[#F5F2EE]">
+                {gast ? "Demo öffnen" : "Vorschau ansehen"}
               </Link>
             </div>
           </div>
         </section>
       </main>
 
-      <JournalFuss />
+      <JournalFuss gastzugang={gast} />
     </div>
   );
 }

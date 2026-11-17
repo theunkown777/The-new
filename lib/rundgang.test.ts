@@ -10,15 +10,34 @@ import { PILOT_ZIEL } from "./pricing";
 
 const lesen = (datei: string) => readFileSync(datei, "utf8");
 
-// Alles, was auf der Startseite gerendert wird und eine id tragen kann.
-const STARTSEITE = [
-  "app/page.tsx",
-  "components/ZweiAnsichten.tsx",
-  "components/Grundsaetze.tsx",
-  "components/Entlastung.tsx",
-  "components/ZeitRechner.tsx",
-  "components/PricingPlans.tsx",
-  "components/PraxisFaq.tsx",
+/** Fassung einer Datei mit zwei Zweigen: `if (journal) return (…)` (Startseite) und danach `return (…)` (Fachseiten). */
+function zweig(datei: string, journal: boolean): string {
+  const text = lesen(datei);
+  const a = text.indexOf("if (journal)");
+  const b = text.indexOf("\n  return (", a);
+  expect(a, datei).toBeGreaterThan(0);
+  expect(b, datei).toBeGreaterThan(a);
+  return journal ? text.slice(a, b) : text.slice(b);
+}
+
+/** Feste ids in einem Quelltext. Leerzeichen davor: data-testid="…" zählt nicht. */
+const ids = (text: string) => [...text.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+const doppelte = (liste: string[]) => liste.filter((id, i) => liste.indexOf(id) !== i);
+
+// Alles, was auf der Startseite gerendert wird und eine feste id tragen kann. Entlastung und PraxisFaq nur in der
+// Fassung der Startseite (journal), JournalKopf ohne JournalRahmen (den nutzen nur die übrigen Seiten).
+const startseite = () => [
+  lesen("app/page.tsx"),
+  lesen("components/ZweiAnsichten.tsx"),
+  lesen("components/Grundsaetze.tsx"),
+  zweig("components/Entlastung.tsx", true),
+  lesen("components/ZeitRechner.tsx"),
+  lesen("components/PricingPlans.tsx"),
+  zweig("components/PraxisFaq.tsx", true),
+  lesen("components/FachWahl.tsx"),
+  lesen("components/start/PatientenKarte.tsx"),
+  lesen("components/start/Rundgang.tsx"),
+  lesen("components/start/JournalKopf.tsx").split("export function JournalRahmen")[0],
 ];
 
 const ALLE_RECHTE: AppKontext = { rechte: { zahlungen: true, analyse: true, einstellungen: true }, personPl: "Patienten", abschluss: "Behandlung" };
@@ -42,26 +61,44 @@ describe("Rundgang auf der Website", () => {
     }
   });
 
-  it("jeder Anker steht als id auf der Startseite", () => {
-    const quelltext = STARTSEITE.map(lesen).join("\n");
-    for (const anker of RUNDGANG_WEBSITE.flatMap((s) => s.anker)) {
-      // Leerzeichen davor: data-testid="…" zählt nicht.
-      expect(quelltext, anker).toMatch(new RegExp(`\\sid="${anker}"`));
-    }
+  it("die Startseite nutzt Entlastung und Häufige Fragen in der Fassung „journal“", () => {
+    const seite = lesen("app/page.tsx");
+    expect(seite).toMatch(/<Entlastung journal \/>/);
+    expect(seite).toMatch(/<PraxisFaq journal alle \/>/);
   });
 
-  it("jeder Anker kommt in app/page.tsx nur einmal vor (keine doppelten ids)", () => {
-    const seite = lesen("app/page.tsx");
-    for (const anker of RUNDGANG_WEBSITE.flatMap((s) => s.anker)) {
-      expect(seite.match(new RegExp(`\\sid="${anker}"`, "g"))?.length ?? 0, anker).toBeLessThanOrEqual(1);
+  it("jeder Anker steht genau einmal als id auf der Startseite, keine id doppelt", () => {
+    const alle = startseite().flatMap(ids);
+    for (const anker of [...RUNDGANG_WEBSITE.flatMap((s) => s.anker), "rundgang", "inhalt"]) {
+      expect(alle.filter((id) => id === anker), anker).toHaveLength(1);
     }
+    expect(doppelte(alle)).toEqual([]);
   });
 
-  it("die Startseite bindet den Rundgang ein und verlinkt ihn neben „Ihr Fach wählen“", () => {
+  it("die Startseite bindet den Rundgang im Inhalt nach der Hauptüberschrift ein und verlinkt ihn neben „Ihr Fach wählen“", () => {
     const seite = lesen("app/page.tsx");
-    expect(seite).toMatch(/<Rundgang gastzugang=\{gastzugangOffen\(\)\} \/>/);
+    expect(seite).toMatch(/const gast = gastzugangOffen\(\);/);
+    expect(seite.match(/<Rundgang gastzugang=\{gast\} \/>/g)).toHaveLength(1);
+    const rundgang = seite.indexOf("<Rundgang gastzugang={gast} />");
+    expect(rundgang).toBeGreaterThan(seite.indexOf('<main id="inhalt">'));
+    expect(rundgang).toBeGreaterThan(seite.indexOf("</h1>"));
+    expect(rundgang).toBeLessThan(seite.indexOf("</main>"));
     expect(seite).toMatch(/href=\{RUNDGANG_HREF\}[^>]*data-rundgang-ausloeser/);
     expect(RUNDGANG_HREF).toBe("/#rundgang");
+  });
+
+  it("ohne Gastzugang führt die Startseite nicht auf /demo", () => {
+    const seite = lesen("app/page.tsx");
+    // Jeder Link auf /demo hängt an gast; Kopf und Fuß bekommen denselben Wert.
+    for (const m of seite.matchAll(/href=\{?"\/demo"/g)) expect(seite.slice(Math.max(0, m.index - 10), m.index + 20), "fester Link auf /demo").toMatch(/gast \?/);
+    expect(seite).toMatch(/<JournalKopf angemeldet=\{!!session\} gastzugang=\{gast\} \/>/);
+    expect(seite).toMatch(/<JournalFuss gastzugang=\{gast\} \/>/);
+    expect(lesen("components/start/JournalKopf.tsx")).not.toMatch(/href="\/demo"/);
+  });
+
+  it("die Karte steht links oder rechts, je nachdem, wo der Abschnitt frei ist", () => {
+    for (const s of RUNDGANG_WEBSITE) expect(["links", "rechts", undefined], s.id).toContain(s.seite);
+    expect(lesen("components/start/Rundgang.tsx")).toContain("seite={s.seite}");
   });
 
   it("Kopf, Handy-Menü und Fuß verlinken den Rundgang als einfachen Link", () => {
@@ -92,6 +129,26 @@ describe("Rundgang auf der Website", () => {
     const karte = lesen("components/start/PatientenKarte.tsx");
     for (const wort of ["Hautarztpraxis", "Hautkrebs-Screening", "Auflichtmikroskopie", "35 €", "Kassenleistung", "Selbstzahlerleistung"]) expect(karte).toContain(wort);
     expect(RUNDGANG_WEBSITE[0].text.join(" ")).toContain("Hautkrebs-Screening als Kassenleistung für 0 €");
+  });
+});
+
+describe("Fachseiten", () => {
+  it("jedes Ziel der Inhaltsnavigation steht genau einmal als id, keine id doppelt", () => {
+    const seite = lesen("app/fachgebiete/[id]/page.tsx");
+    expect(seite).toMatch(/<Entlastung therapie=\{therapie\} \/>/);
+    expect(seite).toMatch(/<PraxisFaq therapie=\{therapie\} dental=\{dental\} \/>/);
+    const ziele = [...(seite.match(/const nav[^;]*;/)?.[0] ?? "").matchAll(/\["#([\w-]+)"/g)].map((m) => m[1]);
+    expect(ziele).toEqual(["beispiel", "automatisch", "entlastung", "pilot", "faq"]);
+    const alle = [
+      seite,
+      zweig("components/Entlastung.tsx", false),
+      lesen("components/PilotProgram.tsx"),
+      zweig("components/PraxisFaq.tsx", false),
+      lesen("components/PublicShell.tsx"),
+      lesen("components/start/JournalKopf.tsx"),
+    ].flatMap(ids);
+    for (const z of ziele) expect(alle.filter((id) => id === z), z).toHaveLength(1);
+    expect(doppelte(alle)).toEqual([]);
   });
 });
 
@@ -155,7 +212,7 @@ describe("Rundgang in der App", () => {
     for (const falsch of [null, "", "0", "11", "-1", "1.5", "abc", "999", " 2"]) expect(rundgangNummer(falsch, 10), String(falsch)).toBeNull();
   });
 
-  it("der Hinweis erscheint nur für neue Konten echter Praxen", () => {
+  it("der Hinweis erscheint nur für echte Praxen, deren Konto jünger als 30 Tage ist (Alter der Praxis, nicht der Person)", () => {
     const jetzt = new Date("2026-11-17T10:00:00Z");
     const tage = (n: number) => new Date(jetzt.getTime() - n * 86_400_000);
     expect(rundgangHinweisZeigen(tage(1), false, jetzt)).toBe(true);
@@ -176,6 +233,7 @@ describe("Rundgang in der App", () => {
     expect(lesen("app/(app)/hilfe-praxis/page.tsx")).toContain("<RundgangStart ");
     expect(lesen("components/Suche.tsx")).toMatch(/router\.push\(APP_RUNDGANG_START\)/);
     expect(lesen("app/(app)/dashboard/page.tsx")).toContain("<RundgangHinweis ");
+    expect(lesen("components/RundgangHinweis.tsx")).toMatch(/rundgangHinweisZeigen\(praxis\?\.createdAt,/);
     expect(lesen("components/DemoFuehrung.tsx")).toContain("APP_RUNDGANG_START");
   });
 });

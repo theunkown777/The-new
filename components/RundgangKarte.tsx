@@ -4,17 +4,20 @@ import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 
 // Begleitkarte für den Rundgang (Website und App). Nicht modal: Die Seite dahinter bleibt lesbar und bedienbar,
-// es gibt keine Abdunkelung und keine Fokusfalle. Bedienung: Zurück, Weiter, Beenden; in der Karte zusätzlich
-// Pfeil links/rechts und Esc. Beim Start springt der Fokus auf die Überschrift, Wechsel meldet ein aria-live-Bereich.
+// es gibt keine Abdunkelung und keine Fokusfalle. Bedienung: Zurück, Weiter, Beenden; Esc beendet überall auf der
+// Seite (außer in Eingabefeldern und offenen Dialogen), Pfeil links/rechts wechseln nur in der Karte.
+// Beim Start springt der Fokus auf die Überschrift, Wechsel meldet ein aria-live-Bereich.
 // Solange eine Karte offen ist, bekommt die Seite unten so viel Platz, wie die Karte hoch ist (app/globals.css,
-// html[data-rundgang]); so verdeckt sie am Ende der Seite nichts.
+// html[data-rundgang]); so verdeckt sie am Ende der Seite nichts. Am Desktop steht die Website-Karte je Station
+// links oder rechts (lib/rundgang.ts, seite), damit sie neben dem steht, was die Station beschreibt.
 
 export type RundgangVariante = "website" | "app";
+export type RundgangSeite = "links" | "rechts";
 
 const STIL: Record<RundgangVariante, { karte: string; stand: string; titel: string; text: string; link: string; zu: string; zurueck: string; weiter: string }> = {
   website: {
     karte:
-      "fixed inset-x-3 bottom-3 z-40 flex max-h-[45dvh] flex-col rounded-[10px] border border-linie-stark bg-papier text-tinte shadow-[0_24px_48px_-24px_rgba(60,40,30,.55)] sm:inset-x-auto sm:bottom-6 sm:left-6 sm:max-h-[min(36rem,70dvh)] sm:w-[27rem]",
+      "fixed inset-x-3 bottom-3 z-40 flex max-h-[45dvh] flex-col rounded-[10px] border border-linie-stark bg-papier text-tinte shadow-[0_24px_48px_-24px_rgba(60,40,30,.55)] sm:inset-x-auto sm:bottom-6 sm:max-h-[min(30rem,50dvh)] sm:w-[27rem]",
     stand: "j-marke",
     titel: "j-titel text-[1.65rem] leading-tight text-tinte focus:outline-none",
     text: "text-[15px] leading-relaxed text-[#5E5650]",
@@ -55,8 +58,15 @@ export function useRundgangPlatz(ref: React.RefObject<HTMLElement | null>, an: b
   }, [ref, an]);
 }
 
-/** Fokus nach dem Ende zurückgeben: an den Auslöser, sonst an den Knopf seines Menüs, sonst an den Start-Link, sonst an den Inhalt. */
-export function fokusZurueck(ausloeser: HTMLElement | null) {
+/** Am Desktop: Seite der Website-Karte. Feste Klassen, damit Tailwind sie findet. */
+const SEITE: Record<RundgangSeite, string> = { links: "sm:left-6", rechts: "sm:right-6" };
+
+/**
+ * Fokus nach dem Ende zurückgeben: an den Auslöser, sonst an den Knopf seines Menüs, sonst an den Ersatz (Website:
+ * der zuletzt gezeigte Abschnitt, damit der Bildschirm und die Tab-Reihenfolge dort bleiben), sonst an den
+ * Start-Link, sonst an den Inhalt. Ersatz und Inhalt bekommen dafür tabindex="-1".
+ */
+export function fokusZurueck(ausloeser: HTMLElement | null, ersatz: HTMLElement | null = null) {
   // Sichtbar heißt: im Dokument, mit Fläche und nicht im Inhalt eines zugeklappten <details> (dessen <summary> zählt).
   const sichtbar = (x: Element | null | undefined): x is HTMLElement => {
     if (!x || !document.contains(x) || (x as HTMLElement).getClientRects().length === 0) return false;
@@ -65,10 +75,21 @@ export function fokusZurueck(ausloeser: HTMLElement | null) {
     const pruefen = (x as HTMLElement & { checkVisibility?: () => boolean }).checkVisibility;
     return pruefen ? pruefen.call(x) : true;
   };
-  let ziel: HTMLElement | null = sichtbar(ausloeser) && !ausloeser.closest(".rundgang-karte") ? ausloeser : null;
+  // Mit Ersatz zählt der Auslöser nur, wenn er im Blick ist: Sonst bliebe der Bildschirm unten und der nächste
+  // Tab spränge nach oben.
+  const imBlick = (x: HTMLElement) => {
+    const r = x.getBoundingClientRect();
+    return r.bottom > 0 && r.top < window.innerHeight;
+  };
+  const passt = (x: Element | null | undefined): x is HTMLElement => sichtbar(x) && !x.closest(".rundgang-karte") && (!ersatz || imBlick(x));
+  let ziel: HTMLElement | null = passt(ausloeser) ? ausloeser : null;
   if (!ziel && ausloeser) {
     const summary = ausloeser.closest("details")?.querySelector("summary");
-    if (sichtbar(summary)) ziel = summary;
+    if (passt(summary)) ziel = summary;
+  }
+  if (!ziel && ersatz && sichtbar(ersatz)) {
+    if (!ersatz.hasAttribute("tabindex")) ersatz.setAttribute("tabindex", "-1");
+    ziel = ersatz;
   }
   if (!ziel) {
     const start = document.querySelector("[data-rundgang-ausloeser]");
@@ -86,6 +107,12 @@ export function fokusZurueck(ausloeser: HTMLElement | null) {
 
 const istFeld = (el: EventTarget | null) => el instanceof HTMLElement && !!el.closest("input, textarea, select, [contenteditable='true']");
 
+/** Element mit dem Fokus, bevor die Karte ihn nimmt; null für die Seite selbst und für die Karte. */
+const fokusVorher = (): HTMLElement | null => {
+  const aktiv = document.activeElement;
+  return aktiv instanceof HTMLElement && aktiv !== document.body && !aktiv.closest(".rundgang-karte") ? aktiv : null;
+};
+
 export function RundgangKarte({
   variante,
   nr,
@@ -94,7 +121,9 @@ export function RundgangKarte({
   text,
   punkte,
   links,
+  seite = "links",
   fokusBeimStart = true,
+  onStart,
   onZurueck,
   onWeiter,
   onEnde,
@@ -106,7 +135,14 @@ export function RundgangKarte({
   text: string[];
   punkte?: string[];
   links?: { href: string; name: string }[];
+  /** Nur Website, ab 640 px Breite: Seite der Karte. */
+  seite?: RundgangSeite;
   fokusBeimStart?: boolean;
+  /**
+   * Einmal beim Aufbau der Karte, bevor sie den Fokus nimmt: das Element, das ihn bis dahin hatte (sonst null).
+   * Eltern brauchen das für den Fokus am Ende; ihre eigenen Effekte liefen erst nach dem der Karte.
+   */
+  onStart?: (vorher: HTMLElement | null) => void;
   onZurueck: () => void;
   onWeiter: () => void;
   onEnde: () => void;
@@ -122,10 +158,34 @@ export function RundgangKarte({
   const letzte = nr >= anzahl;
   useRundgangPlatz(karte, true);
 
-  // Beim Start: Fokus auf die Überschrift (sie liest Station und Titel vor).
+  // Beim Start: erst melden, wo der Fokus war, dann Fokus auf die Überschrift (sie liest Station und Titel vor).
+  // Nur einmal melden: Im Entwicklungsmodus läuft der Effekt doppelt, beim zweiten Mal läge der Fokus schon in der Karte.
+  const start = useRef(onStart);
+  const gestartet = useRef(false);
   useEffect(() => {
+    if (!gestartet.current) {
+      gestartet.current = true;
+      start.current?.(fokusVorher());
+    }
     if (fokusBeimStart) kopf.current?.focus({ preventScroll: true });
   }, [fokusBeimStart]);
+
+  // Esc beendet den Rundgang auch, wenn der Fokus auf der Seite liegt. Nicht in Eingabefeldern, nicht bei offenem
+  // Dialog (Suche, Kürzel, Menü am Handy) und nicht, wenn schon jemand anderes die Taste verarbeitet hat.
+  const ende = useRef(onEnde);
+  useEffect(() => {
+    ende.current = onEnde;
+  }, [onEnde]);
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented || e.isComposing || istFeld(e.target)) return;
+      if (document.querySelector('[aria-modal="true"]')) return;
+      e.preventDefault();
+      ende.current();
+    };
+    document.addEventListener("keydown", esc);
+    return () => document.removeEventListener("keydown", esc);
+  }, []);
 
   // Wechsel der Station melden (nicht beim Start, da liest die Überschrift) und den Text nach oben rollen.
   useEffect(() => {
@@ -164,9 +224,10 @@ export function RundgangKarte({
       ref={karte}
       aria-labelledby={`${uid}-titel`}
       aria-describedby={`${uid}-stand`}
-      className={`rundgang-karte ein-dialog ${s.karte}`}
+      className={`rundgang-karte ein-dialog ${s.karte} ${variante === "website" ? SEITE[seite] : ""}`}
       data-testid="rundgang-karte"
       data-station={nr}
+      data-seite={variante === "website" ? seite : undefined}
       onKeyDown={taste}
     >
       <div className={`flex shrink-0 items-center justify-between gap-3 pl-5 pr-2 pt-2 ${variante === "app" ? "border-b border-slate-100 pb-1" : "pb-0"}`}>

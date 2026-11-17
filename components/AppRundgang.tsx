@@ -14,18 +14,9 @@ export function AppRundgang({ stationen }: { stationen: AppStationFertig[] }) {
   const router = useRouter();
   const nr = rundgangNummer(params.get(RUNDGANG_PARAM), stationen.length);
   const station = nr ? stationen[nr - 1] : null;
+  // Von wo aus der Rundgang geöffnet wurde (für den Fokus am Ende). Die Karte meldet es beim Aufbau, bevor sie den
+  // Fokus nimmt (onStart). Ein eigener Effekt hier käme zu spät: Effekte der Karte laufen vor denen dieser Komponente.
   const ausloeser = useRef<HTMLElement | null>(null);
-  const laeuft = useRef(false);
-
-  // Start: merken, von wo aus der Rundgang geöffnet wurde (für den Fokus am Ende).
-  useEffect(() => {
-    if (station && !laeuft.current) {
-      laeuft.current = true;
-      const aktiv = document.activeElement;
-      ausloeser.current = aktiv instanceof HTMLElement && aktiv !== document.body && !aktiv.closest(".rundgang-karte") ? aktiv : null;
-    }
-    if (!station) laeuft.current = false;
-  }, [station]);
 
   // Adresse mit Station, aber andere Seite (z. B. von Hand eingegeben): zur Seite der Station wechseln.
   useEffect(() => {
@@ -49,7 +40,6 @@ export function AppRundgang({ stationen }: { stationen: AppStationFertig[] }) {
     rest.delete(RUNDGANG_PARAM);
     const q = rest.toString();
     router.replace(q ? `${pfad}?${q}` : pfad, { scroll: false });
-    laeuft.current = false;
     fokusZurueck(ausloeser.current);
     ausloeser.current = null;
   };
@@ -61,6 +51,9 @@ export function AppRundgang({ stationen }: { stationen: AppStationFertig[] }) {
       anzahl={stationen.length}
       titel={station.titel}
       text={station.text}
+      onStart={(vorher) => {
+        ausloeser.current = vorher;
+      }}
       onZurueck={() => gehe(Math.max(1, nr - 1))}
       onWeiter={() => gehe(Math.min(stationen.length, nr + 1))}
       onEnde={beenden}

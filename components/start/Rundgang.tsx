@@ -25,6 +25,8 @@ export function Rundgang({ gastzugang }: { gastzugang: boolean }) {
   // Zählt die Starts: Ein neuer Start setzt die Karte neu auf, damit der Fokus wieder auf die Überschrift springt.
   const [lauf, setLauf] = useState(0);
   const ausloeser = useRef<HTMLElement | null>(null);
+  // Zuletzt gezeigter Abschnitt: Ersatz für den Fokus am Ende, wenn der Auslöser fehlt oder nicht im Blick ist.
+  const letzterBereich = useRef<HTMLElement | null>(null);
 
   const starten = useCallback((von: HTMLElement | null) => {
     ausloeser.current = von;
@@ -84,14 +86,32 @@ export function Rundgang({ gastzugang }: { gastzugang: boolean }) {
   useEffect(() => {
     if (modus !== "lauf") return;
     const station = stationen[nr - 1];
-    const ziele = station.anker.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el).map(bereich);
+    const roh = station.anker.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
+    const ziele = roh.map(bereich);
     const breite = document.documentElement.clientWidth;
     for (const z of ziele) {
       z.classList.add(ZIEL);
       if (z.getBoundingClientRect().width >= breite - 2) z.classList.add(ZIEL_VOLL);
     }
+    letzterBereich.current = ziele[0] ?? null;
     const ruhig = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    ziele[0]?.scrollIntoView({ block: "start", behavior: ruhig ? "auto" : "smooth" });
+    const erstes = ziele[0];
+    if (erstes) {
+      const oben = erstes.getBoundingClientRect().top + window.scrollY - (parseFloat(getComputedStyle(erstes).scrollMarginTop) || 0);
+      // Überschrift der Station: der Anker selbst oder die erste große Überschrift im Abschnitt.
+      const kopf = /^H[1-6]$/.test(roh[0].tagName) ? roh[0] : roh[0].querySelector<HTMLElement>("h1, h2");
+      // Eine klebende Überschrift (sticky) zeigt nicht ihre eigentliche Lage: Dann gilt nur der Anfang des Abschnitts.
+      const klebt = (el: HTMLElement) => {
+        for (let x: HTMLElement | null = el; x && x !== erstes; x = x.parentElement) if (getComputedStyle(x).position === "sticky") return true;
+        return false;
+      };
+      const kopfOben = kopf && !klebt(kopf) ? kopf.getBoundingClientRect().top + window.scrollY : oben;
+      // Ziele am Anfang der Seite (Auftakt): ganz nach oben, damit Kopf und Link „Rundgang“ im Blick bleiben.
+      // Sonst an den Anfang des Abschnitts. Steht viel Luft über der Überschrift, davon höchstens 2rem, damit der Inhalt
+      // über der Karte steht und nicht von ihr verdeckt wird.
+      const ziel = oben < window.innerHeight * 0.3 ? 0 : Math.max(oben, kopfOben - 2 * parseFloat(getComputedStyle(document.documentElement).fontSize));
+      window.scrollTo({ top: ziel, behavior: ruhig ? "auto" : "smooth" });
+    }
     return () => {
       for (const z of ziele) z.classList.remove(ZIEL, ZIEL_VOLL);
     };
@@ -109,7 +129,7 @@ export function Rundgang({ gastzugang }: { gastzugang: boolean }) {
   const beenden = () => {
     merkenZu();
     setModus("aus");
-    fokusZurueck(ausloeser.current);
+    fokusZurueck(ausloeser.current, letzterBereich.current);
     ausloeser.current = null;
   };
 
@@ -138,6 +158,7 @@ export function Rundgang({ gastzugang }: { gastzugang: boolean }) {
       text={s.text}
       punkte={s.punkte}
       links={s.links}
+      seite={s.seite}
       onZurueck={() => setNr((n) => Math.max(1, n - 1))}
       onWeiter={() => setNr((n) => Math.min(stationen.length, n + 1))}
       onEnde={beenden}

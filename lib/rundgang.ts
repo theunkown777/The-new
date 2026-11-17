@@ -7,7 +7,7 @@
 // „optimal“, keine „Empfehlung“. Kasse zuerst. Kein Satz darf versprechen, dass Sorrida von selbst Nachrichten an
 // Patienten schickt. Die räumlichen Modelle kommen nicht vor (docs/GESTALTUNG.md).
 
-import { PILOT_KURZ, PILOT_ZIEL, PLANS, eur } from "@/lib/pricing";
+import { PILOT_KURZ, PILOT_ZIEL, PLANS, PRICE_SHORT, SETUP_EUR, VAT_NOTE, eur } from "@/lib/pricing";
 
 /**
  * Eintrag im Sitzungsspeicher der Website. Er wird nur geschrieben, wenn jemand bei der Einladung „Nein danke“ wählt
@@ -43,6 +43,11 @@ export interface WebsiteStation {
   /** Aufzählung unter dem Text. */
   punkte?: string[];
   links?: RundgangLink[];
+  /**
+   * Seite, an der die Karte am Desktop steht (ab 640 px Breite). Sie soll neben dem stehen, was die Station beschreibt,
+   * nicht darauf. Ohne Angabe: links. Am Handy steht die Karte immer unten über die volle Breite.
+   */
+  seite?: "links" | "rechts";
 }
 
 export const RUNDGANG_WEBSITE: WebsiteStation[] = [
@@ -82,7 +87,7 @@ export const RUNDGANG_WEBSITE: WebsiteStation[] = [
     titel: "Was nach dem Gespräch entsteht",
     text: ["Der Ablauf ist in jeder Praxis gleich:"],
     punkte: [
-      "Sie öffnen Sorrida aus Ihrer Praxissoftware: Arztpraxen über GDT, Zahnarztpraxen über VDDS-media. Ohne Anbindung geht es genauso.",
+      `Sie öffnen Sorrida aus Ihrer Praxissoftware: Arztpraxen über GDT, Zahnarztpraxen über VDDS-media. Die Anbindung gibt es ab dem Paket „${PLANS[1].name}“. Ohne Anbindung wählen Sie die Person direkt in Sorrida.`,
       "Sie wählen Befund oder Anlass. Die Kassenleistung steht zuerst, daneben die Leistungen aus Ihrer Preisliste mit dem Eigenanteil.",
       "Der Patient bekommt seinen Link per QR-Code oder SMS und entscheidet zu Hause.",
       "Vereinbarungen, Anträge, Fristen und Termine stehen danach auf der To-do-Liste des Teams.",
@@ -104,6 +109,8 @@ export const RUNDGANG_WEBSITE: WebsiteStation[] = [
       "Zahlungen: Rechnung, GiroCode, Raten, Lastschrift, Bankabgleich und DATEV-Export",
       "Analyse mit Vergleich zum Zeitraum davor, ohne Wertung",
       "Empfang am Tablet im Wartezimmer",
+      "Berichte aus der Akte, auf Wunsch per Diktat, und eine Abrechnungsprüfung: Sie zeigt, was in den letzten zwölf Monaten nicht abgerechnet oder fehlerhaft erfasst wurde.",
+      `Patientenliste aus der bisherigen Software einlesen. Im Paket „${PLANS[2].name}“ mehrere Standorte mit Terminen und Auslastung je Standort.`,
       "Suche über alles mit Strg+K, Rollen und Zwei-Faktor-Anmeldung",
       "KI-Hilfen, je Praxis zuschaltbar und anfangs ausgeschaltet. Namen und Kontaktdaten gehen nie an den KI-Dienst.",
     ],
@@ -135,10 +142,13 @@ export const RUNDGANG_WEBSITE: WebsiteStation[] = [
   {
     id: "preise",
     anker: ["preise", "ausprobieren"],
+    // Rechts: So bleiben Einzelpraxis und Praxis mit allen Preisen frei; die Karte steht über der Liste des MVZ.
+    seite: "rechts",
     titel: "Preise und Ausprobieren",
     text: [
-      `Es gibt drei Pakete mit festem Monatspreis, ab ${eur(PLANS[0].preis)} für Einzelpraxen. Alles ist enthalten, es gibt keine Zähler.`,
-      `Zurzeit nehmen wir nur Pilotpraxen auf. ${PILOT_KURZ}.`,
+      `Drei Pakete mit festem Monatspreis: ${PRICE_SHORT}. Was im Paket steht, ist drin. Es gibt keine Zähler.`,
+      `Das sind die geplanten Preise ab dem allgemeinen Start. Zurzeit nehmen wir nur Pilotpraxen auf. ${PILOT_KURZ}. Die Einrichtung kostet einmalig ${eur(SETUP_EUR)}, für Pilotpraxen ist sie kostenlos.`,
+      VAT_NOTE,
       "Zum Ausprobieren und Weiterlesen:",
     ],
     links: [
@@ -181,6 +191,7 @@ export const RUNDGANG_APP: AppStation[] = [
     text: [
       "Hier beginnt der Tag. Oben stehen die Termine von heute, daneben Auslastung, Aufgaben und Ausfallquote.",
       "Darunter sehen Sie, wie viele {personen} an welcher Station ihres Wegs stehen. Neue Rückmeldungen meldet ein Hinweis zum Eingang.",
+      "Im Menü stehen außerdem: Mein Bereich mit nur Ihren eigenen {personen} und Zahlen, der Praxismanager mit Antworten aus Ihren Daten nach festen Regeln und der Empfang für das Tablet im Wartezimmer.",
     ],
   },
   {
@@ -198,7 +209,8 @@ export const RUNDGANG_APP: AppStation[] = [
     titel: "{personen} und Wege",
     text: [
       "Die Liste aller {personen}. Jede Zeile zeigt den Weg mit fünf Stationen: Gespräch, Vorschlag, Entscheidung, Vereinbart, Bezahlt.",
-      "In der Akte stehen Vorschläge, Rechnungen, Anamnese, Termine und Einwilligungen. Neue {personen} legen Sie hier an.",
+      "In der Akte stehen Vorschläge, Rechnungen, Anamnese, Termine und Einwilligungen. Dort legen Sie auch Berichte an, auf Wunsch per Diktat.",
+      "Neue {personen} legen Sie hier an. Eine Liste aus Ihrer bisherigen Software liest die Praxisleitung hier ein.",
     ],
   },
   {
@@ -217,6 +229,7 @@ export const RUNDGANG_APP: AppStation[] = [
     text: [
       "Alle Vorschläge mit ihrem Stand. Ein Vorschlag zeigt zuerst die Kassenleistung und dann die weiteren Leistungen mit dem Eigenanteil.",
       "Den persönlichen Link erzeugen Sie im Vorschlag. Er geht per QR-Code, SMS oder E-Mail raus, wenn Sie das auslösen.",
+      "Im Menü finden Sie außerdem die Abrechnung mit den Abrechnungsarten Ihres Fachs und die Abrechnungsprüfung. Sie zeigt, was in den letzten zwölf Monaten nicht abgerechnet oder fehlerhaft erfasst wurde.",
     ],
   },
   {
@@ -254,12 +267,14 @@ export const RUNDGANG_APP: AppStation[] = [
     titel: "Einstellungen",
     text: [
       "Fachgebiet und Preise, Angaben der Praxis, Team und Rollen, Online-Termine und die Anbindung an die Praxissoftware.",
+      "Das Leistungsverzeichnis im Menü zeigt die amtlichen Leistungen Ihres Fachs. Was Ihre Praxis anbietet, übernehmen Sie von dort in Ihren Katalog.",
       "Unter Sicherheit richten Sie die Zwei-Faktor-Anmeldung ein und schalten die KI-Hilfen ein oder aus. Sie sind anfangs aus.",
     ],
     ohneEinstellungen: {
       titel: "Mein Konto",
       text: [
         "Ihr eigenes Konto: Unter Sicherheit richten Sie die Zwei-Faktor-Anmeldung ein. Dazu gibt es das Leistungslexikon zum Nachschlagen.",
+        "Im Leistungsverzeichnis im Menü schlagen Sie die amtlichen Leistungen Ihres Fachs nach.",
         "Die Einstellungen der Praxis verwaltet die Praxisleitung.",
       ],
     },
@@ -312,9 +327,9 @@ export function rundgangNummer(wert: string | null | undefined, anzahl: number):
   return n >= 1 && n <= anzahl ? n : null;
 }
 
-/** Hinweis auf dem Dashboard: nur echte Praxen, nur Konten, die jünger als 30 Tage sind. */
+/** Hinweis auf dem Dashboard: nur echte Praxen, deren Konto (die Praxis, nicht die Person) jünger als 30 Tage ist. */
 export const RUNDGANG_HINWEIS_TAGE = 30;
-export function rundgangHinweisZeigen(kontoSeit: Date | null | undefined, demo: boolean, jetzt: Date = new Date()): boolean {
-  if (demo || !kontoSeit) return false;
-  return jetzt.getTime() - kontoSeit.getTime() < RUNDGANG_HINWEIS_TAGE * 86_400_000;
+export function rundgangHinweisZeigen(praxisSeit: Date | null | undefined, demo: boolean, jetzt: Date = new Date()): boolean {
+  if (demo || !praxisSeit) return false;
+  return jetzt.getTime() - praxisSeit.getTime() < RUNDGANG_HINWEIS_TAGE * 86_400_000;
 }

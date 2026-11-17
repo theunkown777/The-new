@@ -652,3 +652,9 @@ html[data-rundgang] .praxis-inhalt { padding-bottom: calc(var(--leiste-unten) + 
 /* App: Menüpunkt der aktuellen Station. */
 .praxis-app .rundgang-ziel { outline-color: var(--akzent); outline-offset: 1px; }
 @media print { .rundgang-karte { display: none !important; } }
+/* Andere Bausteine unten im Bild (z. B. ein Chat-Knopf unten rechts) weichen der Karte aus, solange sie offen ist:
+   Klasse „rundgang-ausweichen“ an das fest positionierte Element. Die Karte setzt html[data-rundgang] und ihre Höhe
+   in --rundgang-hoehe (components/RundgangKarte.tsx, useRundgangPlatz). Siehe docs/GESTALTUNG.md. */
+html[data-rundgang] .rundgang-ausweichen { bottom: calc(var(--rundgang-hoehe, 0px) + 2rem); }
+/* Führung im Gastzugang: Platzhalter bis zum Lesen des Stands; weggeklickt (Skript beim Laden) gleich unsichtbar. */
+html[data-fuehrung-zu] .demo-fuehrung-platz { display: none; }

@@ -5,11 +5,15 @@
 // Umgebung wie in e2e/gemeinsam.js (BASIS, DB, BILDER). Die Website muss ohne Vorschau-Schloss laufen
 // (VORSCHAU_HOSTS leer), sonst landet der Durchlauf auf „Demnächst“.
 // Geprüft wird:
-//   Website  Einladung erscheint, nichts im Speicher; Start; alle 8 Stationen mit Ziel im Blick; kein seitlicher
-//            Überlauf; Pfeiltasten; Ende speichert nur „sorrida-rundgang“ = „zu“; Esc; „Nein danke“; Start über
-//            /#rundgang von einer Unterseite.
-//   App      Gastzugang: Überblick aus der Führung, 10 Stationen, Esc ohne Suche, Kürzel-Dialog, Führung
-//            ausblenden und wieder einblenden; Hinweis auf der Übersicht für ein neues echtes Konto.
+//   Website  Einladung erscheint, nichts im Speicher; keine doppelten ids; Start; alle 8 Stationen mit Ziel im Blick;
+//            am Desktop verdeckt die Karte das Kernelement der Station nicht; kein seitlicher Überlauf; Pfeiltasten;
+//            Ende speichert nur „sorrida-rundgang“ = „zu“, Fokus auf dem letzten Abschnitt; Esc mit Fokus in der
+//            Karte und nach einem Klick auf die Seite; „Nein danke“; Start über /#rundgang von einer Unterseite;
+//            Fachseite ohne doppelte ids, jedes Ziel der Inhaltsnavigation genau einmal.
+//   App      Gastzugang: Führung verschiebt beim Laden nichts (Platzhalter gleich hoch); Überblick per Tastatur, Esc
+//            auf Station 1 gibt den Fokus an den Link zurück; 10 Stationen; Esc nach Klick auf die Seite, ohne Suche;
+//            Kürzel-Dialog; Führung ausblenden (blitzt beim Laden nicht auf) und wieder einblenden; Hinweis auf der
+//            Übersicht für ein neues echtes Konto.
 const { L, D, sql, pruef, KONTEXT, HANDY, demo, lauf } = require('./gemeinsam');
 
 const WEBSITE = [
@@ -22,6 +26,17 @@ const WEBSITE = [
   ['entlastung', 'Was Praxen belastet'],
   ['preise', 'Preise und Ausprobieren'],
 ];
+// Kernelemente je Station: Am Desktop darf die Karte sie nicht verdecken (Seite der Karte: lib/rundgang.ts, seite).
+const KERN = {
+  auftakt: ['[data-testid="seite-patient"]'],
+  fach: ['#fach h2', '[data-testid="fach-kacheln"]'],
+  ansichten: ['#ansichten'],
+  ablauf: ['#ablauf > h2', '#ablauf > ol > li > *'],
+  patienten: ['[data-testid="fuer-patienten"] :is(h3, h4, p)'],
+  grundsaetze: ['#grundsaetze', '[data-testid="grundsaetze"] h3'],
+  entlastung: ['#entlastung'],
+  preise: ['#preise-titel', '[data-testid="preise"] h3', '[data-testid="preise"] .j-zahl'],
+};
 const APP = ['/dashboard', '/eingang', '/patients', '/abschluss/new', '/proposals', '/termine', '/zahlungen', '/analyse', '/settings', '/hilfe-praxis'];
 
 const speicher = (p) => p.evaluate(() => ({ s: Object.fromEntries(Object.entries(sessionStorage)), l: localStorage.length }));
@@ -31,6 +46,30 @@ const fokus = (p) => p.evaluate(() => {
   return a ? `${a.tagName.toLowerCase()}${a.getAttribute('data-testid') ? '#' + a.getAttribute('data-testid') : ''}` : '';
 });
 const warte = (ms) => new Promise((r) => setTimeout(r, ms));
+const doppelteIds = (p) => p.evaluate(() => {
+  const ids = [...document.querySelectorAll('[id]')].map((e) => e.id);
+  return ids.filter((id, i) => ids.indexOf(id) !== i);
+});
+
+/** Welche der Elemente verdeckt die Karte? Dazu die Selektoren, die nichts finden (dann wäre die Prüfung leer). */
+async function verdeckt(p, selektoren) {
+  return p.evaluate((sel) => {
+    const k = document.querySelector('[data-testid="rundgang-karte"]').getBoundingClientRect();
+    const treffer = [];
+    const leer = [];
+    for (const s of sel) {
+      const els = [...document.querySelectorAll(s)].filter((e) => e.getClientRects().length > 0);
+      if (els.length === 0) leer.push(s);
+      for (const e of els) {
+        const r = e.getBoundingClientRect();
+        const x = Math.min(k.right, r.right) - Math.max(k.left, r.left);
+        const y = Math.min(k.bottom, r.bottom) - Math.max(k.top, r.top);
+        if (x > 1 && y > 1) treffer.push(`${e.tagName.toLowerCase()}${e.id ? '#' + e.id : ''}: ${(e.textContent || '').trim().slice(0, 30)}`);
+      }
+    }
+    return { treffer, leer };
+  }, selektoren);
+}
 
 /** Ist der markierte Bereich der Station im Blick (oberer Rand im oberen Teil des Fensters, über der Karte)? */
 async function zielImBlick(p, anker) {
@@ -63,6 +102,7 @@ async function website(b, name, opt, ruhig) {
   pruef(`${name}: ohne Klick nichts im Speicher`, Object.keys(sp.s).length === 0 && sp.l === 0, JSON.stringify(sp));
   pruef(`${name}: Einladung nimmt den Fokus nicht`, !(await fokus(p)).includes('rundgang'));
   pruef(`${name}: kein seitlicher Überlauf (Einladung)`, (await ueberlauf(p)) <= 0);
+  pruef(`${name}: keine doppelten ids auf der Startseite`, (await doppelteIds(p)).length === 0, (await doppelteIds(p)).join(' '));
   await p.screenshot({ path: `${D}/web-${name}-0-einladung.png` });
 
   await p.getByTestId('rundgang-einladung-start').click();
@@ -83,6 +123,11 @@ async function website(b, name, opt, ruhig) {
     const kb = await karte.boundingBox();
     const vp = p.viewportSize();
     pruef(`${name}: Karte passt ins Fenster (Station ${i + 1})`, kb.x >= 0 && kb.x + kb.width <= vp.width && kb.y >= 0 && kb.y + kb.height <= vp.height && kb.height <= vp.height * 0.72, JSON.stringify(kb));
+    if (vp.width >= 1024) {
+      const v = await verdeckt(p, KERN[anker]);
+      pruef(`${name}: Karte verdeckt das Kernelement nicht (Station ${i + 1}, ${anker})`, v.treffer.length === 0 && v.leer.length === 0, [...v.treffer, ...v.leer.map((s) => 'leer: ' + s)].join(' | '));
+    }
+    if (i === 0) pruef(`${name}: keine doppelten ids mit offener Karte`, (await doppelteIds(p)).length === 0, (await doppelteIds(p)).join(' '));
     await p.screenshot({ path: `${D}/web-${name}-${i + 1}-${anker}.png` });
     if (i === 1) {
       // Pfeiltasten in der Karte: zurück und wieder vor
@@ -108,7 +153,8 @@ async function website(b, name, opt, ruhig) {
   pruef(`${name}: Ende speichert nur sorrida-rundgang = zu`, JSON.stringify(sp.s) === '{"sorrida-rundgang":"zu"}' && sp.l === 0, JSON.stringify(sp));
   pruef(`${name}: Markierung entfernt`, (await p.locator('.rundgang-ziel').count()) === 0);
   await warte(100);
-  pruef(`${name}: Fokus nach dem Ende auf der Seite`, (await fokus(p)) !== 'body' && (await fokus(p)) !== '', await fokus(p));
+  // Gestartet über die Einladung, also ohne Auslöser: Der Fokus bleibt beim zuletzt gezeigten Abschnitt.
+  pruef(`${name}: Fokus nach dem Ende auf dem letzten Abschnitt`, (await fokus(p)) === 'section#preise', await fokus(p));
 
   await p.reload({ waitUntil: 'networkidle' });
   await warte(800);
@@ -129,6 +175,18 @@ async function website(b, name, opt, ruhig) {
   await warte(100);
   const f = await fokus(p);
   pruef(`${name}: Esc beendet, Fokus zurück an den Auslöser`, opt.viewport.width >= 1024 ? f === 'a#rundgang-link-kopf' : f === 'summary', f);
+
+  // Esc wirkt auch, wenn der Fokus nach einem Klick auf die Seite nicht mehr in der Karte liegt.
+  await p.getByTestId('rundgang-link-start').click();
+  await karte.waitFor();
+  await p.locator('#auftakt h1').click({ position: { x: 4, y: 4 } });
+  const vorEsc = await fokus(p);
+  await p.keyboard.press('Escape');
+  const zu = await karte.waitFor({ state: 'detached', timeout: 3000 }).then(() => true, () => false);
+  pruef(`${name}: Esc nach Klick auf die Seite beendet den Rundgang`, zu && !vorEsc.includes('rundgang'), `Fokus vor Esc: ${vorEsc}`);
+  await warte(100);
+  const f2 = await fokus(p);
+  pruef(`${name}: danach Fokus am Start-Link oder am Abschnitt`, f2 === 'a#rundgang-link-start' || f2 === 'section#auftakt', f2);
   pruef(`${name}: keine Fehler im Browser`, fehler.length === 0, fehler.join(' | '));
   await ctx.close();
 }
@@ -155,6 +213,13 @@ async function websiteNeinUndAnker(b) {
   pruef('Von /ratgeber: keine Einladung zusätzlich', (await p2.getByTestId('rundgang-einladung').count()) === 0);
   pruef('Von /ratgeber: Adresse ohne #rundgang', !p2.url().includes('#'));
   await p2.screenshot({ path: `${D}/web-start-von-unterseite.png` });
+
+  // Fachseite: jedes Ziel der Inhaltsnavigation genau einmal, keine doppelten ids
+  await p2.goto(L + '/fachgebiete/hausarzt', { waitUntil: 'networkidle' });
+  const nav = await p2.evaluate(() => [...document.querySelectorAll('nav[aria-label="Inhalt"] a')].map((a) => a.getAttribute('href')));
+  const anzahl = await p2.evaluate((ziele) => ziele.map((h) => document.querySelectorAll(h).length), nav);
+  pruef('Fachseite: Inhaltsnavigation mit 5 Zielen, jedes genau einmal', nav.length === 5 && anzahl.every((n) => n === 1), `${nav.join(' ')} → ${anzahl.join(' ')}`);
+  pruef('Fachseite: keine doppelten ids', (await doppelteIds(p2)).length === 0, (await doppelteIds(p2)).join(' '));
   await ctx2.close();
 }
 
@@ -173,8 +238,32 @@ async function app(b, name, opt) {
   const zu = await p.getByTestId('demo-fuehrung-zu').boundingBox();
   pruef(`${name}: X der Führung mindestens 36 px`, zu.width >= 36 && zu.height >= 36, JSON.stringify(zu));
 
-  await p.getByTestId('demo-fuehrung-ueberblick').click();
+  // Beim Laden verrutscht nichts: Ohne JavaScript steht der Platzhalter da, danach die Leiste in gleicher Höhe.
+  const inhaltOben = async (q) => Math.round((await q.locator('#inhalt').boundingBox()).y);
+  const mitJs = await inhaltOben(p);
+  const ctxOhne = await b.newContext({ ...opt, javaScriptEnabled: false });
+  await ctxOhne.addCookies(await ctx.cookies());
+  const ohne = await ctxOhne.newPage();
+  await ohne.goto(L + '/dashboard', { waitUntil: 'load' });
+  const platz = await ohne.getByTestId('demo-fuehrung-platz').count();
+  const ohneJs = await inhaltOben(ohne);
+  await ctxOhne.close();
+  pruef(`${name}: Führung: Platzhalter beim Laden, Inhalt verrutscht nicht`, platz === 1 && Math.abs(mitJs - ohneJs) <= 1, `mit JS ${mitJs}, beim Laden ${ohneJs}, Platzhalter ${platz}`);
+
+  // Tastatur: Überblick mit Enter öffnen, auf Station 1 Esc: Der Fokus geht zurück an den Link.
   const karte = p.getByTestId('rundgang-karte');
+  await p.getByTestId('demo-fuehrung-ueberblick').focus();
+  await p.keyboard.press('Enter');
+  await karte.waitFor();
+  await p.waitForURL((u) => u.searchParams.get('rundgang') === '1');
+  await p.waitForFunction(() => document.activeElement?.getAttribute('data-testid') === 'rundgang-titel', null, { timeout: 5000 }).catch(() => {});
+  await p.keyboard.press('Escape');
+  await karte.waitFor({ state: 'detached' });
+  await p.waitForURL((u) => !u.searchParams.has('rundgang'));
+  await warte(150);
+  pruef(`${name}: Esc auf Station 1: Fokus zurück auf „Überblick“`, (await fokus(p)) === 'a#demo-fuehrung-ueberblick', await fokus(p));
+
+  await p.getByTestId('demo-fuehrung-ueberblick').click();
   await karte.waitFor();
   pruef(`${name}: Überblick startet bei Station 1 von 10`, (await p.getByTestId('rundgang-stand').textContent()).trim() === 'Station 1 von 10');
   pruef(`${name}: Fokus auf der Überschrift`, (await fokus(p)) === 'h2#rundgang-titel', await fokus(p));
@@ -200,12 +289,15 @@ async function app(b, name, opt) {
   pruef(`${name}: Frag Sorrida bietet den Neustart an`, (await p.getByTestId('rundgang-start-link').count()) === 1);
   pruef(`${name}: im Gastzugang auch „Führung wieder einblenden“`, (await p.locator('[data-testid="rundgang-start"] [data-testid="demo-fuehrung-wieder"]').count()) === 1);
 
-  // Esc beendet den Rundgang und öffnet nicht die Suche
-  await p.getByTestId('rundgang-titel').focus();
+  // Esc nach einem Klick auf die Seite (Fokus nicht in der Karte) beendet den Rundgang und öffnet nicht die Suche
+  await p.locator('#inhalt h1').first().click({ position: { x: 2, y: 2 } });
+  const vorEsc = await fokus(p);
   await p.keyboard.press('Escape');
   await karte.waitFor({ state: 'detached' });
   await p.waitForURL((u) => !u.searchParams.has('rundgang'));
-  pruef(`${name}: Esc beendet, Adresse ohne ?rundgang`, true);
+  pruef(`${name}: Esc nach Klick auf die Seite beendet, Adresse ohne ?rundgang`, !vorEsc.includes('rundgang'), `Fokus vor Esc: ${vorEsc}`);
+  await warte(150);
+  pruef(`${name}: danach Fokus zurück auf „Überblick“`, (await fokus(p)) === 'a#demo-fuehrung-ueberblick', await fokus(p));
   pruef(`${name}: Esc öffnet keine Suche`, (await p.getByTestId('suche-dialog').count()) === 0);
   pruef(`${name}: nichts vom Rundgang im Speicher`, !JSON.stringify(await speicher(p)).includes('rundgang'));
 
@@ -223,12 +315,22 @@ async function app(b, name, opt) {
     await karte.waitFor({ state: 'detached' });
   } else pruef(`${name}: Kürzel-Dialog öffnet mit ?`, false);
 
-  // Führung ausblenden und über „Mehr“ wieder einblenden
+  // Führung ausblenden und über „Mehr“ wieder einblenden. Beim Laden wird beobachtet, ob der Platzhalter oder die
+  // Leiste je zu sehen wären: Das Merkmal am html-Element muss gesetzt sein, bevor der Platzhalter im Dokument steht.
   await p.getByTestId('demo-fuehrung-zu').click();
   await fuehrung.waitFor({ state: 'detached' });
+  await p.addInitScript(() => {
+    window.__beobachtung = { platz: null, leiste: false };
+    new MutationObserver(() => {
+      const b = window.__beobachtung;
+      if (b.platz === null && document.querySelector('[data-testid="demo-fuehrung-platz"]')) b.platz = document.documentElement.hasAttribute('data-fuehrung-zu');
+      if (document.querySelector('[data-testid="demo-fuehrung"]')) b.leiste = true;
+    }).observe(document, { childList: true, subtree: true });
+  });
   await p.reload({ waitUntil: 'networkidle' });
   await warte(500);
-  pruef(`${name}: ausgeblendete Führung blitzt beim Laden nicht auf`, (await p.getByTestId('demo-fuehrung').count()) === 0);
+  const beob = await p.evaluate(() => window.__beobachtung);
+  pruef(`${name}: ausgeblendete Führung blitzt beim Laden nicht auf`, (await p.getByTestId('demo-fuehrung').count()) === 0 && beob.platz === true && !beob.leiste, JSON.stringify(beob));
   if (breit) await p.getByTestId('demo-banner-mehr').locator('summary').click();
   else await p.getByTestId('demo-banner-handy').locator('summary').click();
   await p.locator(breit ? '[data-testid="demo-banner-mehr"] [data-testid="demo-fuehrung-wieder"]' : '[data-testid="demo-banner-handy"] [data-testid="demo-fuehrung-wieder"]').click();

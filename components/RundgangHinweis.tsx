@@ -5,16 +5,17 @@ import { Hinweis } from "@/components/Hinweis";
 import { APP_RUNDGANG_START, appStationen, rundgangHinweisZeigen } from "@/lib/rundgang";
 
 /**
- * Übersicht: Angebot eines Rundgangs für neue Konten (jünger als 30 Tage, keine Demo-Praxis). Über den Hinweis
- * zuklappbar; zugeklappt merkt ihn HinweisMerker wie jeden anderen Erklärtext.
+ * Übersicht: Angebot eines Rundgangs für neue Praxen (Konto der Praxis jünger als 30 Tage, keine Demo-Praxis). Es zählt
+ * das Alter der Praxis, nicht das der Person: Neue Mitarbeitende einer älteren Praxis starten den Rundgang unter
+ * „Frag Sorrida“ oder über den Kürzel-Dialog der Suche. Über den Hinweis zuklappbar; zugeklappt merkt ihn
+ * HinweisMerker wie jeden anderen Erklärtext. Der Titel nennt die Zahl der Stationen, die dieses Konto sieht (nach Rechten).
  */
 export async function RundgangHinweis({ userId, practiceId }: { userId: string; practiceId: string }) {
-  const [konto, praxis, rechte] = await Promise.all([
-    prisma.user.findUnique({ where: { id: userId }, select: { createdAt: true } }),
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { isDemo: true } }),
+  const [praxis, rechte] = await Promise.all([
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { isDemo: true, createdAt: true } }),
     menueRechteVon(userId, practiceId),
   ]);
-  if (!rundgangHinweisZeigen(konto?.createdAt, praxis?.isDemo ?? true)) return null;
+  if (!rundgangHinweisZeigen(praxis?.createdAt, praxis?.isDemo ?? true)) return null;
   const anzahl = appStationen({ rechte, personPl: "", abschluss: "" }).length;
   return (
     <Hinweis id="rundgang" titel={`Sorrida in ${anzahl} Stationen`} className="mb-6" testid="rundgang-hinweis">
