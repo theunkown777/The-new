@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { AnamnesisForm } from "@/components/AnamnesisForm";
 import { isDental } from "@/lib/specialties";
+import { praxisKennzeichen } from "@/lib/praxisKennung";
+import { PraxisBand } from "@/components/PraxisKennung";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -18,7 +20,7 @@ export default async function AnamnesisPage(props: { params: Promise<{ token: st
   const form = /^[A-Za-z0-9_-]{20,128}$/.test(params.token)
     ? await prisma.anamnesisForm.findUnique({
         where: { tokenHash: hashToken(params.token) },
-        include: { practice: { select: { name: true, specialty: true } }, patient: { select: { firstName: true } } },
+        include: { practice: { select: { name: true, specialty: true, stammdaten: true } }, patient: { select: { firstName: true } } },
       })
     : null;
   if (!form || form.submittedAt || form.expiresAt < new Date()) {
@@ -32,6 +34,8 @@ export default async function AnamnesisPage(props: { params: Promise<{ token: st
   if (!form.viewedAt) await prisma.anamnesisForm.update({ where: { id: form.id }, data: { viewedAt: new Date() } });
   return (
     <>
+      {/* Farbstreifen, Praxisname, Fach und Ort (lib/praxisKennung.ts): Welche Praxis fragt, ist auf einen Blick klar. */}
+      <PraxisBand k={praxisKennzeichen(form.practice)} breite="max-w-2xl" />
       <AnamnesisForm token={params.token} practiceName={form.practice.name} firstName={form.patient.firstName} dental={isDental(form.practice.specialty)} />
       <PraxisFussLaden practiceId={form.practiceId} className="mx-auto max-w-xl px-4 pb-10 pt-2" />
     </>

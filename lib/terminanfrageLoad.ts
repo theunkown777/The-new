@@ -5,7 +5,7 @@ import { buchungsLage } from "@/lib/buchungLoad";
 /** Praxis zur Kennung der öffentlichen Buchungsseite; nur wenn die Buchung für neue Patienten eingeschaltet ist. */
 export async function praxisZurKennung(kennung: string) {
   if (!kennungGueltig(kennung)) return null;
-  const praxis = await prisma.practice.findUnique({ where: { buchungKennung: kennung }, select: { id: true, name: true, isDemo: true, buchungAktiv: true, neupatientenBuchung: true, buchungAnlaesse: true, stammdaten: true } });
+  const praxis = await prisma.practice.findUnique({ where: { buchungKennung: kennung }, select: { id: true, name: true, specialty: true, isDemo: true, buchungAktiv: true, neupatientenBuchung: true, buchungAnlaesse: true, stammdaten: true } });
   if (!praxis || !praxis.neupatientenBuchung) return null;
   return { ...praxis, anlaesse: anlaesseLesen(praxis.buchungAnlaesse) };
 }

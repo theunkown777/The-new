@@ -4,9 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { AnamnesisForm } from "@/components/AnamnesisForm";
 import { isDental } from "@/lib/specialties";
 import { portalPatient } from "@/lib/portalAuth";
+import { PraxisBand } from "@/components/PraxisKennung";
+import { portalKennung, portalSymbole } from "@/lib/portalKopf";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Anamnesebogen", robots: { index: false, follow: false }, referrer: "no-referrer" };
+export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const k = await portalKennung((await props.params).token);
+  return { title: k ? `Anamnesebogen · ${k.name}` : "Anamnesebogen", icons: k ? portalSymbole(k) : undefined, robots: { index: false, follow: false }, referrer: "no-referrer" };
+}
 
 // Anamnesebogen im Patientenportal (statt eines eigenen Links).
 export default async function PortalAnamnesis(props: { params: Promise<{ token: string; id: string }> }) {
@@ -29,8 +34,10 @@ export default async function PortalAnamnesis(props: { params: Promise<{ token: 
     );
   }
   if (!form.viewedAt) await prisma.anamnesisForm.update({ where: { id: form.id }, data: { viewedAt: new Date() } });
+  const kennung = await portalKennung(params.token);
   return (
     <>
+    {kennung && <PraxisBand k={kennung} breite="max-w-2xl" />}
     <AnamnesisForm
       token={params.token}
       postUrl={`/api/portal/${params.token}/anamnese/${form.id}`}

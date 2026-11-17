@@ -4,8 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { PortalTermin } from "@/components/PortalTermin";
 import { PraxisFuss } from "@/components/PraxisFuss";
+import { PraxisBand } from "@/components/PraxisKennung";
+import { portalKennung, portalSymbole } from "@/lib/portalKopf";
 
-export const metadata: Metadata = { title: "Termin buchen", robots: { index: false, follow: false } };
+export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const k = await portalKennung((await props.params).token);
+  return { title: k ? `Termin buchen · ${k.name}` : "Termin buchen", icons: k ? portalSymbole(k) : undefined, robots: { index: false, follow: false } };
+}
 export const dynamic = "force-dynamic";
 
 // Patientenportal: Termin online buchen. Zugang nur über den geheimen Patientenlink.
@@ -23,12 +28,14 @@ export default async function PortalTerminPage(props: { params: Promise<{ token:
       </main>
     );
   }
+  const kennung = await portalKennung(params.token);
   return (
     <main className="min-h-screen bg-[#F5F2EE]">
+      {kennung && <PraxisBand k={kennung} />}
       <div className="mx-auto max-w-xl px-4 pb-16 pt-6 sm:pt-10">
         <p className="text-sm"><Link href={`/portal/${params.token}`} className="text-brand-700 hover:underline">← Zurück zur Übersicht</Link></p>
         <h1 className="mt-2 font-display text-2xl text-slate-900 sm:text-3xl">Termin buchen</h1>
-        <p className="mt-1 text-sm text-slate-600">{gefunden.practice.name}</p>
+        {!kennung && <p className="mt-1 text-sm text-slate-600">{gefunden.practice.name}</p>}
         <div className="mt-5"><PortalTermin token={params.token} praxis={gefunden.practice.name} anlassVor={anlassVor} /></div>
         <PraxisFuss name={gefunden.practice.name} stammdaten={gefunden.practice.stammdaten} className="mt-8 border-t border-slate-200 pt-4" />
       </div>

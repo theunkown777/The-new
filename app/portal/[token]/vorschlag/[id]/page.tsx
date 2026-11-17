@@ -12,12 +12,16 @@ import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmein
 import { isDental, isTherapie, specialty } from "@/lib/specialties";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 import { LESE_LINK_MAX, leseLinksAktiv } from "@/lib/leseLink";
+import { PraxisBand } from "@/components/PraxisKennung";
+import { portalKennung, portalSymbole } from "@/lib/portalKopf";
 
 export const dynamic = "force-dynamic";
 // Titel im Browser in der Sprache der Ansicht.
-export async function generateMetadata(props: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
   const searchParams = await props.searchParams;
-  return { title: UI[pickLang(searchParams.lang, (await headers()).get("accept-language"))].pageTitle, robots: { index: false, follow: false }, referrer: "no-referrer" };
+  const titel = UI[pickLang(searchParams.lang, (await headers()).get("accept-language"))].pageTitle;
+  const k = await portalKennung((await props.params).token);
+  return { title: k ? `${titel} · ${k.name}` : titel, icons: k ? portalSymbole(k) : undefined, robots: { index: false, follow: false }, referrer: "no-referrer" };
 }
 
 function Gone({ back, lang }: { back?: string; lang: PatientLang }) {
@@ -59,9 +63,11 @@ export default async function PortalProposal(props: { params: Promise<{ token: s
   const decided = proposal.status === "ANGENOMMEN" || proposal.status === "ABGELEHNT";
   const leseLinks = await leseLinksAktiv(proposal.id, now);
   const api = `/api/portal/${params.token}/vorschlag/${proposal.id}`;
+  const kennung = await portalKennung(params.token);
 
   return (
     <>
+    {kennung && <PraxisBand k={kennung} breite="max-w-2xl" />}
     <PatientProposalView
       token={params.token}
       postUrl={`/api/portal/${params.token}/vorschlag/${proposal.id}`}

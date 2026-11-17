@@ -5,8 +5,13 @@ import { hashToken } from "@/lib/tokens";
 import { kurzArt } from "@/lib/kurzcheck";
 import { Kurzcheck } from "@/components/kurzcheck/Kurzcheck";
 import { PraxisFuss } from "@/components/PraxisFuss";
+import { PraxisBand } from "@/components/PraxisKennung";
+import { portalKennung, portalSymbole } from "@/lib/portalKopf";
 
-export const metadata: Metadata = { title: "Fünf Fragen vor dem Termin", robots: { index: false, follow: false } };
+export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const k = await portalKennung((await props.params).token);
+  return { title: k ? `Fünf Fragen vor dem Termin · ${k.name}` : "Fünf Fragen vor dem Termin", icons: k ? portalSymbole(k) : undefined, robots: { index: false, follow: false } };
+}
 export const dynamic = "force-dynamic";
 
 // Patientenlink: Kurz-Fragebogen mit höchstens fünf Fragen, jede mit Bildern zum Antippen.
@@ -23,8 +28,10 @@ export default async function PortalFragenPage(props: { params: Promise<{ token:
       </main>
     );
   }
+  const kennung = await portalKennung(params.token);
   return (
     <main className="min-h-screen bg-[#F5F2EE]" data-testid="portal-fragen">
+      {kennung && <PraxisBand k={kennung} />}
       <div className="mx-auto max-w-xl px-4 pb-16 pt-6 sm:pt-10">
         <p className="text-sm"><Link href={`/portal/${params.token}`} className="text-brand-700 hover:underline">← Zurück zur Übersicht</Link></p>
         <h1 className="mt-2 font-display text-2xl text-slate-900 sm:text-3xl">Fünf Fragen vor dem Termin</h1>

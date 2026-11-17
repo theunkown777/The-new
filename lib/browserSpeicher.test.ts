@@ -20,6 +20,7 @@ const ERLAUBT: Record<string, string> = {
   "components/DemoFuehrung.tsx": "Führung im Gastzugang",
   "components/ProposalEditor.tsx": "angefangener Vorschlag (angemeldete Praxen)",
   "components/SignOutButton.tsx": "löscht den angefangenen Vorschlag beim Abmelden",
+  "lib/geraeteSpeicher.ts": "„Meine Praxen auf diesem Gerät“ (Patientenportal, nur nach Klick)",
   // Nur außerhalb des Betriebs (Testschalter für Bildschirmfotos), siehe zweiter Test.
   "components/modelle/drei/Buehne.ts": "Testschalter, im ausgelieferten Code abgeschaltet",
 };
@@ -38,7 +39,7 @@ describe("Zugriffe auf den Speicher des Browsers", () => {
 
   it("die Erklärung nennt die Zugriffe und die Zusage für die öffentliche Website", () => {
     const seite = readFileSync("app/datenschutz/page.tsx", "utf8").replace(/\s+/g, " ");
-    for (const wort of ["Sitzungsspeicher", "dunkle Ansicht", "Erklärtext", "Führung", "Auf der öffentlichen Website speichern wir nichts im Speicher Ihres Browsers."]) expect(seite).toContain(wort);
+    for (const wort of ["Sitzungsspeicher", "dunkle Ansicht", "Erklärtext", "Führung", "Auf der öffentlichen Website speichern wir nichts im Speicher Ihres Browsers.", "Meine Praxen auf diesem Gerät", "Erst wenn Sie dafür auf „Diese Praxis auf diesem Gerät merken“ tippen"]) expect(seite).toContain(wort);
   });
 
   it("keine Seite außerhalb der angemeldeten App bindet die dunkle Ansicht oder die Merker ein", () => {

@@ -8,8 +8,13 @@ import { PORTAL_LANGS, PORTAL_LANG_NAMES, pickPortalLang } from "@/lib/portalI18
 import { modellTexte } from "@/lib/modelle/i18n/laden";
 import { MODELL_SPRACHEN_FERTIG, uebersetze } from "@/lib/modelle/i18n/schluessel";
 import { PraxisFuss } from "@/components/PraxisFuss";
+import { PraxisBand } from "@/components/PraxisKennung";
+import { portalKennung, portalSymbole } from "@/lib/portalKopf";
 
-export const metadata: Metadata = { title: "Ihr Modell", robots: { index: false, follow: false } };
+export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const k = await portalKennung((await props.params).token);
+  return { title: k ? `Ihr Modell · ${k.name}` : "Ihr Modell", icons: k ? portalSymbole(k) : undefined, robots: { index: false, follow: false } };
+}
 export const dynamic = "force-dynamic";
 
 // Patientenansicht des Modells: Der Patient sieht die Stellen, die seine Praxis markiert hat,
@@ -35,8 +40,10 @@ export default async function PortalModellPage(props: { params: Promise<{ token:
     );
   }
   const marken = patient.modellMarkierungen;
+  const kennung = await portalKennung(params.token);
   return (
     <main className="min-h-screen bg-[#F5F2EE]" lang={lang} data-testid="portal-modell">
+      {kennung && <PraxisBand k={kennung} breite="max-w-5xl" />}
       <div className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:pt-10">
         <p className="text-sm"><Link href={`/portal/${params.token}${lang === "de" ? "" : `?lang=${lang}`}`} className="text-brand-700 hover:underline">← {t("Zurück zur Übersicht")}</Link></p>
         <h1 className="mt-2 font-display text-2xl text-slate-900 sm:text-3xl">{t("Im Modell ansehen")}</h1>

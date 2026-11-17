@@ -114,6 +114,17 @@ export default function DatenschutzPage() {
           Schritte der Führung erledigt sind. Nichts davon geht an unseren Server. Auf der öffentlichen Website speichern wir nichts im
           Speicher Ihres Browsers.
         </p>
+        {/* Gleiche Felder wie lib/meinePraxen.ts (eintragSchema); Schutzregel: lib/meinePraxenSchutz.ts. */}
+        <p id="meine-praxen" data-testid="datenschutz-meine-praxen">
+          Meine Praxen auf diesem Gerät: Im Patientenportal können Sie eine Praxis auf Ihrem Gerät merken. Erst wenn Sie dafür auf „Diese
+          Praxis auf diesem Gerät merken“ tippen, legt Ihr Browser einen Eintrag im lokalen Speicher an (§ 25 Abs. 2 Nr. 2 TDDDG). Darin
+          stehen der Link zum Portal, Ihr Vorname, Name, Fach und Ort der Praxis, bis wann der Link gilt und wann Sie ihn gemerkt haben. Auf
+          Wunsch kommt ein eigener Name für die Karte dazu. Das Portal zeigt diese Angaben ohnehin. Die Liste unter /meine-praxen liest Ihr
+          Browser selbst. Sie geht weder an unseren Server noch an eine Praxis. Sorrida verbindet die Einträge nicht, und keine Praxis
+          erfährt von einer anderen. Jeder Eintrag öffnet genau ein Portal. Sie können einzelne Einträge oder alles dort jederzeit löschen,
+          ebenso über die Einstellungen Ihres Browsers. Ist auf dem Gerät eine Praxis angemeldet oder läuft der Empfangsmodus, bieten wir
+          das Merken nicht an. Wer Ihr Gerät benutzt, kann die Liste sehen.
+        </p>
       </section>
 
       <section>

@@ -45,6 +45,11 @@ export default function AvvPage() {
           Zahlungsabgleich und Exporte, Auswertungen sowie die Anbindung an die Praxissoftware. Zweck ist ausschließlich die Erbringung dieser
           Leistungen für die Praxis. Der Vertrag gilt für die Dauer des Nutzungsvertrags.
         </p>
+        <p data-testid="avv-keine-verknuepfung">
+          Sorrida verknüpft die Daten der Praxis nicht mit Daten anderer Praxen. Sorrida gleicht Patientinnen und Patienten nicht über Praxen
+          hinweg ab, weder über Name, Geburtsdatum, Kontaktdaten oder Versichertennummer noch als Hashwert. Sorrida teilt keiner Praxis mit,
+          dass jemand auch bei einer anderen Praxis in Behandlung ist.
+        </p>
       </section>
 
       <section>
@@ -174,7 +179,7 @@ export default function AvvPage() {
           <li><b>Datenminimierung:</b> nur die für den Zweck nötigen Felder; Patienten-Links enthalten keine Patientendaten und laufen ab; vor Unterschrift und Lastschrift fragt das Patientenportal das Geburtsdatum ab.</li>
           <li><b>Schutz vor Missbrauch:</b> Begrenzung der Anfragen je Absender für Anmeldung, Registrierung, Patienten-Links und Formulare.</li>
           <li><b>Verfügbarkeit:</b> Betrieb bei einem Hosting-Anbieter mit redundanter Infrastruktur; Datensicherung durch den Datenbank-Anbieter mit Wiederherstellung auf einen früheren Zeitpunkt innerhalb des im Tarif eingestellten Zeitraums.</li>
-          <li><b>Trennung:</b> Gastzugänge laufen in eigenen Demo-Praxen ohne echte Patientendaten und werden nach Ablauf gelöscht.</li>
+          <li><b>Trennung:</b> Gastzugänge laufen in eigenen Demo-Praxen ohne echte Patientendaten und werden nach Ablauf gelöscht. Jeder Patienten-Link gehört zu genau einer Praxis; keine Schnittstelle nimmt Links mehrerer Praxen in einem Aufruf an. Merkt sich ein Patient Links unter „Meine Praxen auf diesem Gerät“, liegt diese Liste nur in seinem Browser; Sorrida erhält sie nicht.</li>
         </ul>
       </section>
 

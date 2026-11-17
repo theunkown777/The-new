@@ -4,6 +4,8 @@ import { stempel } from "@/lib/terminanfrage";
 import { oeffentlicheLage, praxisZurKennung } from "@/lib/terminanfrageLoad";
 import { PraxisFuss } from "@/components/PraxisFuss";
 import { leseStammdaten } from "@/lib/praxisStammdaten";
+import { praxisKennzeichen } from "@/lib/praxisKennung";
+import { PraxisKennzeile, PraxisStreifen } from "@/components/PraxisKennung";
 
 export const dynamic = "force-dynamic";
 // Nicht in Suchmaschinen: Die Seite gehört auf die Website der Praxis, nicht in Trefferlisten.
@@ -23,10 +25,13 @@ export default async function NeupatientSeite(props: { params: Promise<{ kennung
       </main>
     );
   }
+  const kennung = praxisKennzeichen(praxis);
   return (
     <main className="min-h-screen bg-[#F5F2EE]">
+      <PraxisStreifen k={kennung} />
       <div className="mx-auto max-w-xl px-4 pb-12 pt-6 sm:pt-10">
         <p className="text-sm font-medium text-brand-700">{praxis.name}</p>
+        <PraxisKennzeile k={kennung} className="mt-0.5" />
         <h1 className="mt-1 font-display text-2xl text-slate-900 sm:text-3xl">Termin online anfragen</h1>
         <p className="mt-1 text-sm text-slate-600">Für neue Patientinnen und Patienten. Wählen Sie eine freie Zeit; die Praxis bestätigt Ihre Anfrage.</p>
         {praxis.isDemo && (
