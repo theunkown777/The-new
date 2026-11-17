@@ -7,8 +7,8 @@ import { gruppiert } from "./format";
 const ui: Ui = {
   pageTitle: "Your treatment proposal",
   hello: (name) => `Hello ${name}, here is your treatment proposal`,
-  intro: (arzt) =>
-    `Take your time to look at the options and what each one costs you. Tap an option to see your share of the cost. Nothing is decided until you have talked it through ${arzt ? "at your practice" : "with your dentist"}.`,
+  intro: (arzt, zahn) =>
+    `Take your time to look at the options and what each one costs you. Tap an option to see your share of the cost. Nothing is decided until you have talked it through ${zahn && !arzt ? "with your dentist" : "at your practice"}.`,
   kasseWenn: "Covered by your insurer:",
   nutzen: "About the benefit:",
   quelle: "Source:",

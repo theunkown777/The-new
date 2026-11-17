@@ -12,8 +12,8 @@ export const EINFACH_SCHALTER = "Einfache Sprache";
 export const uiEinfach: Partial<Ui> = {
   pageTitle: "Ihr Vorschlag für die Behandlung",
   hello: (name) => `Hallo ${name}. Das ist Ihr Vorschlag für die Behandlung.`,
-  intro: (arzt) =>
-    `Hier sehen Sie Ihre Möglichkeiten. Sie sehen auch die Kosten. Tippen Sie eine Möglichkeit an. Dann sehen Sie, was Sie selbst zahlen. Sie entscheiden erst im Gespräch mit ${arzt ?? "Ihrer Zahnärztin oder Ihrem Zahnarzt"}.`,
+  intro: (arzt, zahn) =>
+    `Hier sehen Sie Ihre Möglichkeiten. Sie sehen auch die Kosten. Tippen Sie eine Möglichkeit an. Dann sehen Sie, was Sie selbst zahlen. Sie entscheiden erst im Gespräch mit ${arzt ?? (zahn ? "Ihrer Zahnärztin oder Ihrem Zahnarzt" : "Ihrer Praxis")}.`,
   kasseWenn: "Die Kasse zahlt:",
   fineMed: (until) =>
     `Die Kosten sind geschätzt. Sie sind nicht verbindlich. Gerechnet wird nach der Gebührenordnung für Ärzte (GOÄ). Leistungen zum Selbstzahlen sind freiwillig. Vorher unterschreiben Sie dafür eine Vereinbarung. Nehmen Sie sich Zeit. Dieser Link gilt bis ${until}.`,

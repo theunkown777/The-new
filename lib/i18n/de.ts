@@ -8,8 +8,8 @@ import { PATTERN_IDS } from "./patterns";
 const ui: Ui = {
   pageTitle: "Ihr Behandlungsvorschlag",
   hello: (name) => `Hallo ${name}, hier ist Ihr Behandlungsvorschlag`,
-  intro: (arzt) =>
-    `Sie können sich in Ruhe ansehen, welche Möglichkeiten es gibt und was sie für Sie kosten. Tippen Sie eine Option an, um Ihren Eigenanteil zu sehen. Entschieden wird erst im Gespräch mit ${arzt ?? "Ihrer Zahnärztin oder Ihrem Zahnarzt"}.`,
+  intro: (arzt, zahn) =>
+    `Sie können sich in Ruhe ansehen, welche Möglichkeiten es gibt und was sie für Sie kosten. Tippen Sie eine Option an, um Ihren Eigenanteil zu sehen. Entschieden wird erst im Gespräch mit ${arzt ?? (zahn ? "Ihrer Zahnärztin oder Ihrem Zahnarzt" : "Ihrer Praxis")}.`,
   kasseWenn: "Kasse zahlt:",
   nutzen: "Zum Nutzen:",
   quelle: "Quelle:",

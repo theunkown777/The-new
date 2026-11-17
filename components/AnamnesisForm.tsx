@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { WISHES, questionsFor } from "@/lib/anamnesis";
+import type { AnamneseProfil } from "@/lib/anamneseProfile";
 
 type Ans = { yes?: boolean; detail?: string };
 
-export function AnamnesisForm({ token, practiceName, firstName, dental = true, postUrl, backHref }: { token: string; practiceName: string; firstName: string; dental?: boolean; postUrl?: string; backHref?: string }) {
-  const QUESTIONS = questionsFor(dental);
+/**
+ * Anamnesebogen für Patienten. Fragen und Anliegen kommen fertig vom Server (`anamneseFuer` in
+ * lib/anamneseProfile.ts), passend zu Fach, Geschlecht und Alter. Ohne Profil gibt es keinen Bogen.
+ */
+export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl, backHref }: { token: string; practiceName: string; firstName: string; profil: AnamneseProfil; postUrl?: string; backHref?: string }) {
+  const QUESTIONS = profil.fragen;
+  const eltern = profil.ansprache === "eltern";
   const [answers, setAnswers] = useState<Record<string, Ans>>({});
   const [wishes, setWishes] = useState<string[]>([]);
   const [note, setNote] = useState("");
@@ -45,8 +50,10 @@ export function AnamnesisForm({ token, practiceName, firstName, dental = true, p
   if (state === "sent") {
     return (
       <main className="mx-auto max-w-xl px-4 py-16 text-center" role="status">
-        <h1 className="text-xl font-semibold text-slate-900">Vielen Dank, {firstName}</h1>
-        <p className="mt-3 text-slate-600">Ihr Anamnesebogen ist bei {practiceName} angekommen. Sie müssen in der Praxis nichts mehr ausfüllen.</p>
+        <h1 className="text-xl font-semibold text-slate-900">{eltern ? "Vielen Dank" : `Vielen Dank, ${firstName}`}</h1>
+        <p className="mt-3 text-slate-600">
+          {eltern ? `Der Anamnesebogen für ${firstName}` : "Ihr Anamnesebogen"} ist bei {practiceName} angekommen. Sie müssen in der Praxis nichts mehr ausfüllen.
+        </p>
         {backHref && <a href={backHref} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Behandlungsweg</a>}
       </main>
     );
@@ -57,10 +64,14 @@ export function AnamnesisForm({ token, practiceName, firstName, dental = true, p
       {backHref && <a href={backHref} className="mb-4 inline-block text-sm text-brand-700 underline">← Zurück zu Ihrem Behandlungsweg</a>}
       <p className="text-sm font-medium text-brand-700">{practiceName}</p>
       <h1 className="mt-1 text-2xl font-semibold text-slate-900">Anamnesebogen für {firstName}</h1>
-      <p className="mt-2 text-slate-600">
-        Etwa drei Minuten. Ihre Angaben helfen uns, Sie sicher zu behandeln, und gehen direkt an Ihre Praxis. Sie unterliegen der{" "}
-        {dental ? "zahnärztlichen" : "ärztlichen"} Schweigepflicht.
+      <p className="mt-2 text-slate-600" data-testid="anamnese-einleitung">
+        Etwa drei Minuten. {profil.einleitung} Die Angaben gehen direkt an {practiceName}. {profil.schweigepflicht}
       </p>
+      {profil.hinweis && (
+        <p className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700" data-testid="anamnese-hinweis">
+          {profil.hinweis}
+        </p>
+      )}
 
       <form onSubmit={submit} className="mt-8 space-y-4">
         {QUESTIONS.map((q, i) => {
@@ -79,7 +90,7 @@ export function AnamnesisForm({ token, practiceName, firstName, dental = true, p
                 ].map(([v, label]) => (
                   <label
                     key={label as string}
-                    className={`cursor-pointer rounded-lg border px-5 py-2 text-sm font-medium ${a.yes === v ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 text-slate-700"}`}
+                    className={`cursor-pointer rounded-lg border px-5 py-2 text-sm font-medium has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-600 has-[:focus-visible]:ring-offset-2 ${a.yes === v ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 text-slate-700"}`}
                   >
                     <input
                       type="radio"
@@ -107,11 +118,11 @@ export function AnamnesisForm({ token, practiceName, firstName, dental = true, p
         })}
 
         <fieldset className="rounded-2xl border border-slate-200 bg-white p-4">
-          <legend className="sr-only">Wünsche</legend>
-          <p className="font-medium text-slate-900">Gibt es etwas, das Sie sich wünschen oder das wir wissen sollten? (freiwillig)</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {WISHES.map((w) => (
-              <label key={w.key} className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm ${wishes.includes(w.key) ? "border-brand-600 bg-brand-50 text-brand-800" : "border-slate-300 text-slate-700"}`}>
+          <legend className="sr-only">Gibt es etwas, das Ihnen wichtig ist oder das wir wissen sollten? (freiwillig)</legend>
+          <p className="font-medium text-slate-900" aria-hidden="true">Gibt es etwas, das Ihnen wichtig ist oder das wir wissen sollten? (freiwillig)</p>
+          <div className="mt-3 flex flex-wrap gap-2" data-testid="anamnese-anliegen">
+            {profil.anliegen.map((w) => (
+              <label key={w.key} className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-600 has-[:focus-visible]:ring-offset-2 ${wishes.includes(w.key) ? "border-brand-600 bg-brand-50 text-brand-800" : "border-slate-300 text-slate-700"}`}>
                 <input
                   type="checkbox"
                   className="sr-only"
@@ -122,11 +133,11 @@ export function AnamnesisForm({ token, practiceName, firstName, dental = true, p
               </label>
             ))}
           </div>
-          <textarea className="input mt-3 min-h-[70px]" maxLength={1000} placeholder="Weitere Hinweise (freiwillig)" value={note} onChange={(e) => setNote(e.target.value)} />
+          <textarea className="input mt-3 min-h-[70px]" maxLength={1000} aria-label="Weitere Hinweise (freiwillig)" placeholder="Weitere Hinweise (freiwillig)" value={note} onChange={(e) => setNote(e.target.value)} />
         </fieldset>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <label className="label" htmlFor="confirm">Ich habe die Fragen nach bestem Wissen beantwortet. Name:</label>
+          <label className="label" htmlFor="confirm">{eltern ? "Ich habe die Fragen für mein Kind nach bestem Wissen beantwortet. Mein Name:" : "Ich habe die Fragen nach bestem Wissen beantwortet. Name:"}</label>
           <input id="confirm" className="input" maxLength={120} value={confirmName} onChange={(e) => setConfirmName(e.target.value)} autoComplete="name" />
         </div>
 

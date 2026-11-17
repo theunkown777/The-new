@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { QUESTIONS, WISHES } from "@/lib/anamnesis";
 import { anrede } from "@/lib/ohneAkte";
 import type { AnamnesisSummary } from "@/lib/anamnesisView";
 import { AnamnesisFlags } from "@/components/AnamnesisFlags";
@@ -41,8 +40,8 @@ export function AnamnesisPanel({ patientId, firstName, summary }: { patientId: s
         <AnamnesisFlags flags={summary.flags} submittedAt={summary.submittedAt} />
       ) : (
         <p className="text-sm text-slate-600">
-          Noch keine digitale Anamnese. Der Patient füllt sie vor dem Termin auf dem Handy aus, die Angaben stehen dann hier und beim
-          Abschluss der Behandlung.
+          Noch keine digitale Anamnese. Der Bogen wird vor dem Termin auf dem Handy ausgefüllt. Die Angaben stehen dann hier und beim
+          Abschluss.
         </p>
       )}
       {summary.open && !link && (
@@ -72,18 +71,16 @@ export function AnamnesisPanel({ patientId, firstName, summary }: { patientId: s
           </button>
           {showAll && (
             <dl className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-[1fr_auto]">
-              {QUESTIONS.map((q) => (
-                <div key={q.key} className="contents">
-                  <dt className="text-slate-600">{q.text}</dt>
-                  <dd className={a.q[q.key]?.yes ? "font-medium text-slate-900" : "text-slate-500"}>
-                    {a.q[q.key]?.yes ? `Ja${a.q[q.key]?.detail ? `: ${a.q[q.key]?.detail}` : ""}` : "Nein"}
-                  </dd>
+              {a.zeilen.map((z, i) => (
+                <div key={i} className="contents">
+                  <dt className="text-slate-600">{z.frage}</dt>
+                  <dd className={z.ja ? "font-medium text-slate-900" : "text-slate-500"}>{z.antwort}</dd>
                 </div>
               ))}
-              {a.wishes.length > 0 && (
+              {a.anliegen.length > 0 && (
                 <div className="contents">
-                  <dt className="text-slate-600">Wünsche</dt>
-                  <dd>{a.wishes.map((w) => WISHES.find((x) => x.key === w)?.text).join(", ")}</dd>
+                  <dt className="text-slate-600">Anliegen</dt>
+                  <dd>{a.anliegen.join(", ")}</dd>
                 </div>
               )}
               {a.note && (
@@ -93,7 +90,7 @@ export function AnamnesisPanel({ patientId, firstName, summary }: { patientId: s
                 </div>
               )}
               <div className="contents">
-                <dt className="text-slate-600">Bestätigt von</dt>
+                <dt className="text-slate-600">{a.eltern ? "Ausgefüllt und bestätigt von" : "Bestätigt von"}</dt>
                 <dd>{a.confirmName}</dd>
               </div>
             </dl>

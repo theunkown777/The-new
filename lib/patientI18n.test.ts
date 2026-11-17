@@ -159,7 +159,7 @@ const zahlen = (s: string) => s.match(/\d+/g) ?? [];
 // Beispielwerte für die Funktionen der Oberfläche; was hier steht, muss im Satz wieder vorkommen.
 const UI_ARGS: Record<string, unknown[][]> = {
   hello: [["Zofia"]],
-  intro: [[undefined], ["Ihrer Hautärztin oder Ihrem Hautarzt"]],
+  intro: [[undefined], [undefined, true], ["Ihrer Hautärztin oder Ihrem Hautarzt"]],
   fineMed: [["24.11.2026"]],
   deadline: [[48], [5], [22]],
   optionsFor: [["Qwertz"]],
@@ -290,7 +290,7 @@ describe.each(FREMD)("Patientenansicht %s", (lang) => {
       if (nichtLateinisch)
         for (const w of ohneEigennamen(f.text).match(LATEIN) ?? []) expect(BEISPIELE.has(w) || LATEIN_ERLAUBT.has(w), `${wo}: „${w}“`).toBe(true);
     });
-    expect(L.ui.intro(undefined)).not.toBe(L.ui.intro("Ihrer Hautärztin oder Ihrem Hautarzt"));
+    expect(L.ui.intro(undefined, true)).not.toBe(L.ui.intro(undefined));
     expect(L.ui.fine(true, "x").length).toBeGreaterThan(L.ui.fine(false, "x").length);
     expect(L.ui.installmentsFine("Medipay").length).toBeGreaterThan(L.ui.installmentsFine().length);
   });

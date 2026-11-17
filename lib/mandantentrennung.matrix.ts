@@ -17,7 +17,7 @@
 // o("pfad", "Begründung", "Beleg-Wort") für öffentliche. Reicht {} als Body nicht bis zur Suche nach dem
 // Datensatz, meldet die Gegenprobe das; dann einen gültigen Body angeben.
 
-import { QUESTIONS } from "@/lib/anamnesis";
+import { anamneseFuer } from "@/lib/anamneseProfile";
 
 export type Art = "sitzung" | "oeffentlich" | "team";
 export type Methode = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -102,7 +102,8 @@ const EINGABE = { teeth: {}, globals: {}, patient: { age: 46, insurance: "GKV", 
 const BERICHT = { type: "BEFUND", reviewConfirmed: true };
 const RECHNUNG_NEU = { title: "Eigenanteil", amountEur: 100 };
 const ZWEIT = { leistung: "Krone", eigenanteil: 400, geteilt: false };
-const ANAMNESE = { q: Object.fromEntries(QUESTIONS.map((q) => [q.key, { yes: false }])), wishes: [], confirmName: "Vor Nach" };
+// Die Testpraxen haben das voreingestellte Fach (Zahnmedizin), der Testpatient kein Geschlecht: alle Fragen dieses Bogens.
+const ANAMNESE = { q: Object.fromEntries(anamneseFuer("zahn").fragen.map((q) => [q.key, { yes: false }])), wishes: [], confirmName: "Vor Nach" };
 const VEREINBARUNG = { name: "Vor Nach", accept: true, signature: "data:image/png;base64,AAAA" };
 const BRIEF = { gebuehrenordnung: "GOZ", versicherung: "Muster Versicherung", posten: [{ bezeichnung: "Leistung", ergaenzung: "Begründung der Praxis" }] };
 

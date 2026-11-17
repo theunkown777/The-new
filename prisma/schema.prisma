@@ -716,6 +716,9 @@ model AnamnesisForm {
   viewedAt    DateTime?
   submittedAt DateTime?
   answers     Json?
+  /// Fach der Praxis beim Anlegen (Momentaufnahme): bestimmt den Fragebogen (lib/anamneseProfile.ts),
+  /// auch wenn die Praxis ihr Fach später ändert. Fehlt bei älteren Bögen; dann gilt das Fach der Praxis.
+  fach        String?
 
   @@index([practiceId, patientId])
   /// Verknüpfte Daten lädt Prisma ohne Praxis-Filter nach (WHERE … IN (…)); ohne diesen Index läse Postgres die ganze Tabelle.

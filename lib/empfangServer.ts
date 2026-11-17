@@ -16,7 +16,7 @@ export async function uebergabeAktuell() {
   if (!uebergabe) return null;
   const patient = await prisma.patient.findFirst({
     where: { id: uebergabe.patientId, practiceId: uebergabe.practiceId },
-    select: { id: true, practiceId: true, firstName: true, lastName: true, email: true, phone: true, contactConsentAt: true, whatsappConsentAt: true, practice: { select: { name: true, specialty: true, isDemo: true } } },
+    select: { id: true, practiceId: true, firstName: true, lastName: true, email: true, phone: true, contactConsentAt: true, whatsappConsentAt: true, birthDate: true, geschlecht: true, practice: { select: { name: true, specialty: true, isDemo: true } } },
   });
   return patient ? { uebergabe, patient } : null;
 }

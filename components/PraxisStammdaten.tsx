@@ -11,16 +11,17 @@ const FELDER: { key: keyof Stammdaten; label: string; hilfe?: string; type?: str
   { key: "plzOrt", label: "PLZ und Ort" },
   { key: "telefon", label: "Telefon", type: "tel" },
   { key: "email", label: "E-Mail-Adresse der Praxis", type: "email" },
-  { key: "berufsbezeichnung", label: "Berufsbezeichnung und Staat der Verleihung", placeholder: "z. B. Zahnärztin (verliehen in Deutschland)" },
+  // Beispiele je Fach kommen vom Server (stammdatenBeispiele in lib/praxisStammdaten.ts).
+  { key: "berufsbezeichnung", label: "Berufsbezeichnung und Staat der Verleihung" },
   { key: "kammer", label: "Zuständige Kammer" },
-  { key: "aufsicht", label: "Zuständige Aufsicht", hilfe: "Zum Beispiel Ihre Kassenärztliche oder Kassenzahnärztliche Vereinigung." },
+  { key: "aufsicht", label: "Zuständige Aufsicht" },
   { key: "berufsordnungUrl", label: "Link zur Berufsordnung", type: "url", placeholder: "https://" },
   { key: "impressumUrl", label: "Link zum Impressum Ihrer Praxis", type: "url", placeholder: "https://", hilfe: "Falls Ihre Praxis eine eigene Website hat." },
   { key: "datenschutzUrl", label: "Link zu den Datenschutzhinweisen Ihrer Praxis", type: "url", placeholder: "https://", hilfe: "Die Information für Ihre Patienten nach Art. 13 DSGVO." },
 ];
 
 /** Einstellungen: Angaben der Praxis, die Patienten im Portal, im Patienten-Link, im Anamnesebogen und in E-Mails sehen. */
-export function PraxisStammdaten({ start, fehlt }: { start: Stammdaten; fehlt: string[] }) {
+export function PraxisStammdaten({ start, fehlt, beispiele }: { start: Stammdaten; fehlt: string[]; beispiele: { berufsbezeichnung: string; aufsicht: string } }) {
   const router = useRouter();
   const [f, setF] = useState<Stammdaten>(start);
   const [busy, setBusy] = useState(false);
@@ -46,7 +47,7 @@ export function PraxisStammdaten({ start, fehlt }: { start: Stammdaten; fehlt: s
         </p>
       )}
       <div className="grid gap-4 sm:grid-cols-2">
-        {FELDER.map((x) => (
+        {FELDER.map((f0) => ({ ...f0, ...(f0.key === "berufsbezeichnung" ? { placeholder: beispiele.berufsbezeichnung } : f0.key === "aufsicht" ? { hilfe: beispiele.aufsicht } : {}) })).map((x) => (
           <label key={x.key} className="block text-sm text-slate-700">
             {x.label}
             <input

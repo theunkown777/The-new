@@ -172,7 +172,8 @@ export function Erstattungsbrief({ invoiceId, vorgaben, className }: { invoiceId
                     <label className="label" htmlFor={`${uid}-go`}>Abgerechnet nach</label>
                     <select ref={erstes} id={`${uid}-go`} className="input" value={go} onChange={(e) => setGo(e.target.value as Gebuehrenordnung)} data-testid="erstattungsbrief-go">
                       <option value="GOAE">GOÄ (Gebührenordnung für Ärzte)</option>
-                      <option value="GOZ">GOZ (Gebührenordnung für Zahnärzte)</option>
+                      {/* Die GOZ gibt es nur in Zahnarztpraxen (Vorauswahl dort GOZ, app/(app)/zahlungen/page.tsx). */}
+                      {vorgaben.gebuehrenordnung === "GOZ" && <option value="GOZ">GOZ (Gebührenordnung für Zahnärzte)</option>}
                     </select>
                   </div>
                   <div>

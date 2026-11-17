@@ -14,7 +14,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const practiceId = session.user.practiceId;
 
-  const patient = await prisma.patient.findFirst({ where: { id: params.id, practiceId }, select: { id: true } });
+  const patient = await prisma.patient.findFirst({ where: { id: params.id, practiceId }, select: { id: true, practice: { select: { specialty: true } } } });
   if (!patient) return NextResponse.json({ error: "Patient nicht gefunden" }, { status: 404 });
 
   const { raw, hash } = generateToken();
@@ -24,7 +24,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
       where: { practiceId, patientId: patient.id, submittedAt: null },
       data: { tokenHash: null, expiresAt: new Date() },
     }),
-    prisma.anamnesisForm.create({ data: { practiceId, patientId: patient.id, tokenHash: hash, expiresAt } }),
+    // Fach als Momentaufnahme: bestimmt den Fragebogen (lib/anamneseProfile.ts).
+    prisma.anamnesisForm.create({ data: { practiceId, patientId: patient.id, tokenHash: hash, expiresAt, fach: patient.practice.specialty } }),
   ]);
 
   const base = process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;

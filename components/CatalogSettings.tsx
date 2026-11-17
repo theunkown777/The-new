@@ -30,10 +30,14 @@ const SYSTEME_JE_FACH: Record<string, string[]> = {
   selbst: ["SELBST", "SONSTIGES"],
   arzt: ["EBM", "GOAE", "UVGOAE", "SELBST", "SONSTIGES"],
 };
+/** Beispiel für das Feld „Kategorie“ je Gruppe; Zahnärztliches nur bei Zahnmedizin. */
+const KATEGORIE_BEISPIEL: Record<string, string> = { zahn: "Prophylaxe", arzt: "Vorsorge", therapie: "Behandlung", apotheke: "Beratung", versorgung: "Versorgung", pflege: "Pflege", hebamme: "Wochenbett", selbst: "Behandlung" };
 const SYSTEM_LABEL: Record<string, string> = { GOAE: "GOÄ", UVGOAE: "UV-GOÄ", HEILMITTEL: "Heilmittel", PFLEGE: "Pflege", HEBAMME: "Hebammenhilfe", APO: "Apotheke", HILFSMITTEL: "Hilfsmittel", SELBST: "Selbstzahler", SONSTIGES: "Sonstiges", BEL_II: "BEL II" };
 
-export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabel = "Zahn/Region" }: { readOnly?: boolean; systeme?: string; regionLabel?: string | null }) {
+export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { readOnly?: boolean; systeme: string; regionLabel: string | null }) {
   const SYSTEMS = SYSTEME_JE_FACH[systeme] ?? SYSTEME_JE_FACH.arzt;
+  // Gebührenverzeichnisse dieses Fachs für den Hinweis unten (in der Zahnmedizin GOZ/BEMA/GOÄ/BEL II).
+  const verzeichnisse = SYSTEMS.filter((x) => x !== "SONSTIGES" && x !== "SELBST").map((x) => SYSTEM_LABEL[x] ?? x).join("/");
   const emptyNewItem = () => ({ system: SYSTEMS[0], code: "", title: "", category: "", toothRelevant: false, hasFaktor: SYSTEMS[0] === "GOZ" || SYSTEMS[0] === "GOAE" });
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [rows, setRows] = useState<Record<string, RowState>>({});
@@ -152,7 +156,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
       <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" onCreated={() => load(true)} />
       <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
         Punktzahl und Festbetrag sind objektive Werte aus dem offiziellen Gebührenverzeichnis
-        (GOZ/BEMA/BEL-II) und daher für alle Praxen geteilt, die diesen Referenzkatalog nutzen –
+        {verzeichnisse ? ` (${verzeichnisse}) ` : " "}und daher für alle Praxen geteilt, die diesen Referenzkatalog nutzen,
         nicht praxisspezifisch wie der Punktwert unter „Abrechnung“. Bitte gegen das aktuell
         gültige Verzeichnis prüfen, bevor Sie Werte eintragen. Ausschluss-Regeln,
         Gültigkeitszeiträume und Frequenzlimits lassen sich weiterhin nur über
@@ -289,7 +293,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                   <label className="label" htmlFor="katalog-neu-kategorie">Kategorie</label>
                   <input id="katalog-neu-kategorie"
                     className="input"
-                    placeholder="z. B. Prophylaxe"
+                    placeholder={`z. B. ${KATEGORIE_BEISPIEL[systeme] ?? "Vorsorge"}`}
                     value={newItem.category}
                     onChange={(e) => setNewItem((p) => ({ ...p, category: e.target.value }))}
                     required
@@ -309,7 +313,7 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
                     checked={newItem.hasFaktor}
                     onChange={(e) => setNewItem((p) => ({ ...p, hasFaktor: e.target.checked }))}
                   />
-                  Faktor-Feld (GOZ/GOÄ)
+                  Faktor-Feld ({systeme === "zahn" ? "GOZ/GOÄ" : "GOÄ"})
                 </label>
               </div>
               <div className="flex gap-3">

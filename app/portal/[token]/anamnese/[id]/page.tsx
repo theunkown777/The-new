@@ -2,7 +2,7 @@ import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { AnamnesisForm } from "@/components/AnamnesisForm";
-import { isDental } from "@/lib/specialties";
+import { anamneseProfilFuer } from "@/lib/anamnesis";
 import { portalPatient } from "@/lib/portalAuth";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ export default async function PortalAnamnesis(props: { params: Promise<{ token: 
   const form = patient
     ? await prisma.anamnesisForm.findFirst({
         where: { id: params.id, patientId: patient.id, submittedAt: null, expiresAt: { gt: new Date() } },
-        include: { practice: { select: { name: true, specialty: true } } },
+        include: { practice: { select: { name: true, specialty: true } }, patient: { select: { birthDate: true, geschlecht: true } } },
       })
     : null;
   if (!patient || !form) {
@@ -28,7 +28,9 @@ export default async function PortalAnamnesis(props: { params: Promise<{ token: 
       </main>
     );
   }
-  if (!form.viewedAt) await prisma.anamnesisForm.update({ where: { id: form.id }, data: { viewedAt: new Date() } });
+  // Älterer Bogen ohne Fach: Beim ersten Öffnen das Fach festhalten, damit Anzeige und Prüfung zusammenpassen.
+  const fach = form.fach ?? form.practice.specialty;
+  if (!form.viewedAt || !form.fach) await prisma.anamnesisForm.update({ where: { id: form.id }, data: { viewedAt: form.viewedAt ?? new Date(), fach } });
   return (
     <>
     <AnamnesisForm
@@ -37,7 +39,7 @@ export default async function PortalAnamnesis(props: { params: Promise<{ token: 
       backHref={back}
       practiceName={form.practice.name}
       firstName={patient.firstName}
-      dental={isDental(form.practice.specialty)}
+      profil={anamneseProfilFuer(fach, form.practice.specialty, form.patient)}
     />
     <PraxisFussLaden patientId={patient.id} className="mx-auto max-w-xl px-4 pb-10 pt-2" />
     </>

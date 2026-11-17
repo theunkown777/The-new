@@ -50,7 +50,7 @@ export default async function TermineOnlinePage() {
           demo={p.isDemo}
           buchungAktiv={p.buchungAktiv}
           start={{ aktiv: p.neupatientenBuchung, url: p.buchungKennung ? `${basis}/t/${p.buchungKennung}` : null, anlaesse: anlaesseLesen(p.buchungAnlaesse) }}
-          vorschlaege={fachprofil(feed?.specialty ?? "zahn").termine}
+          vorschlaege={fachprofil(feed?.specialty).termine}
           stammdatenFehlt={buchungsseiteFehlt(leseStammdaten(feed?.stammdaten))}
         />
       </div>

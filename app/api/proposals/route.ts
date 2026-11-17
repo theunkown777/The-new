@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     choices,
     prices: resolvePrices(practice?.proposalPrices),
     patientName: nameFuerSchreiben(patient),
-    practiceName: practice?.name ?? "Ihre Zahnarztpraxis",
+    practiceName: practice?.name ?? "Ihre Praxis",
     date: new Date(),
   });
 

@@ -55,7 +55,7 @@ export default async function NewProposalPage(props: {
         patients={patients.map((p) => ({ ...p, birthDate: p.birthDate?.toISOString() ?? null }))}
         initialPatientId={searchParams.patientId}
         prices={resolvePrices(practice?.proposalPrices)}
-        practiceName={practice?.name ?? "Ihre Zahnarztpraxis"}
+        practiceName={practice?.name ?? "Ihre Praxis"}
         initialGlobals={anamnesis?.globals}
         ausModell={ausModell}
         favoriten={favoritenLesen(practice?.vorschlagFavoriten)}

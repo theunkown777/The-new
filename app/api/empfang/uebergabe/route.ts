@@ -46,7 +46,7 @@ export async function POST(req: Request) {
   const d = parsed.data;
   const practiceId = session.user.practiceId;
   const [praxis, patient] = await Promise.all([
-    prisma.practice.findUnique({ where: { id: practiceId }, select: { empfangPinHash: true } }),
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { empfangPinHash: true, specialty: true } }),
     prisma.patient.findFirst({ where: { id: d.patientId, practiceId }, select: { id: true } }),
   ]);
   if (!praxis?.empfangPinHash) return NextResponse.json({ error: "Bitte legen Sie zuerst eine Empfangs-PIN fest (Einstellungen → Empfang). Ohne PIN käme niemand zurück in die Praxis-Ansicht.", code: "KEINE_PIN" }, { status: 409 });
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
   if (d.anamnese) {
     // Offenen Bogen weiterverwenden; sonst einen neuen anlegen, der kurz nach der Übergabe verfällt.
     const offen = await prisma.anamnesisForm.findFirst({ where: { practiceId, patientId: patient.id, submittedAt: null, expiresAt: { gt: new Date(now + UEBERGABE_MINUTEN * 60_000) } }, select: { id: true } });
-    if (!offen) await prisma.anamnesisForm.create({ data: { practiceId, patientId: patient.id, expiresAt: new Date(now + (UEBERGABE_MINUTEN + 5) * 60_000) } });
+    if (!offen) await prisma.anamnesisForm.create({ data: { practiceId, patientId: patient.id, expiresAt: new Date(now + (UEBERGABE_MINUTEN + 5) * 60_000), fach: praxis.specialty } });
   }
   await prisma.empfangParkung.create({ data: { id: parkKennungHash(kennung), practiceId, expiresAt: new Date(now + PARKEN_STUNDEN * 3600e3) } });
   await auditFromSession(session, "empfang.uebergabe", { entityType: "Patient", entityId: patient.id, summary: `Schritte: ${zwecke.join(", ")}` });

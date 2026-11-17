@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { praxisFach } from "@/lib/katalogScope";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
+import { systemGruppe } from "@/lib/fachprofile";
 import { katalogEintrag, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog";
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 import { LeistungenImport } from "@/components/LeistungenImport";
@@ -19,6 +20,9 @@ export const metadata = { title: "Leistungsverzeichnis" };
 const SEITE = 60;
 /** Orientierungswert EBM 2026 in Cent je Punkt (bundeseinheitlich, ohne regionale Zuschläge). */
 const EBM_ORIENTIERUNGSWERT = 12.7404;
+
+/** Beispiele im Suchfeld passend zum Fach; Zahnärztliches nur bei Zahnmedizin. */
+const SUCH_BEISPIEL: Record<string, string> = { zahn: ", z. B. Füllung oder Krone", arzt: ", z. B. Sonographie oder 03000", therapie: ", z. B. Hausbesuch" };
 
 const euro = (c: number) => (c / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 
@@ -108,7 +112,7 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
       <form action="/leistungsverzeichnis" className="flex flex-wrap gap-2">
         {system && <input type="hidden" name="system" value={system} />}
         {alle && <input type="hidden" name="alle" value="1" />}
-        <input name="q" defaultValue={q} placeholder="Suchen: Text oder Ziffer, z. B. Sonographie, 03000, Krone" className="input max-w-md flex-1" aria-label="Leistung suchen" />
+        <input name="q" defaultValue={q} placeholder={`Suchen: Text oder Ziffer${SUCH_BEISPIEL[systemGruppe(fach)] ?? ""}`} className="input max-w-md flex-1" aria-label="Leistung suchen" />
         {kapitelListe.length > 1 && (
           <select name="kapitel" defaultValue={kapitel ?? ""} className="input w-auto max-w-xs" aria-label="Kapitel">
             <option value="">Alle Kapitel</option>

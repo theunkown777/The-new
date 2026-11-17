@@ -41,7 +41,7 @@ type Props = {
   expiresAt: string;
   installments: Installments;
   lang: PatientLang;
-  /** "Ihrer Hautärztin oder Ihrem Hautarzt"; Zahnmedizin als Standard. */
+  /** "Ihrer Hautärztin oder Ihrem Hautarzt"; ohne Angabe nennt die Einleitung die Zahnärztin nur bei `dental`, sonst „Ihrer Praxis“. */
   arztDativ?: string;
   dental?: boolean;
   /** Therapiepraxis (Heilmittel): eigener Hinweistext statt GOÄ/IGeL. */
@@ -247,7 +247,7 @@ export function PatientProposalView(props: Props) {
             {t.readOnlyNote}
           </p>
         ) : (
-          <p className="text-slate-600" data-testid="einleitung">{t.intro(props.arztDativ)}</p>
+          <p className="text-slate-600" data-testid="einleitung">{t.intro(props.arztDativ, props.dental === true)}</p>
         )}
         {t.langNote && (
           // Rechtlicher Hinweis in jeder Fremdsprache: maßgeblich sind die deutsche Fassung und das Gespräch in der Praxis.

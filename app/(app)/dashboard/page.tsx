@@ -30,7 +30,7 @@ export default async function DashboardPage() {
   const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } });
   // Arzt- und Therapiepraxen arbeiten ohne die zahnärztlichen KI-Berichte.
   const dental = isDental(practice?.specialty);
-  const P = fachprofil(practice?.specialty ?? "zahn").person;
+  const P = fachprofil(practice?.specialty).person;
   const [anamnesen30, anamnesenDavor, recentProposals] = dental
     ? [0, 0, []]
     : await Promise.all([

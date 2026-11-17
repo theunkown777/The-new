@@ -10,8 +10,11 @@ export type Ui = {
   /** Titel im Browser-Tab. */
   pageTitle: string;
   hello: (name: string) => string;
-  /** `arzt` ist der deutsche Dativ aus lib/specialties.ts; fehlt er, ist es die Zahnarztpraxis. */
-  intro: (arzt: string | undefined) => string;
+  /**
+   * `arzt` ist der deutsche Dativ aus lib/specialties.ts. Fehlt er, nennt der Satz die Zahnärztin nur bei `zahn`,
+   * sonst neutral die Praxis (z. B. Fach „andere“). Fremdsprachen nennen bei bekanntem Fach „Ihre Praxis“.
+   */
+  intro: (arzt: string | undefined, zahn?: boolean) => string;
   kasseWenn: string;
   nutzen: string;
   /** Vor dem Link zur Quelle im Kasten „Zum Nutzen“ (z. B. „Quelle: IGeL-Monitor“). */
