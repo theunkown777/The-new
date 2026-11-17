@@ -16,3 +16,18 @@ export function koerperPunkte(art: KurzArt, ansicht: Ansicht): FigurPunkt[] {
   }
   return aus;
 }
+
+/** Lage der Stellen am Kopf von vorn (300 × 340); die rechte Gesichtshälfte liegt links im Bild. Je Art gilt nur, was es dort gibt (ortGueltig). */
+export const KOPF_PUNKTE: FigurPunkt[] = [
+  { ort: "kopf", x: 150, y: 30, r: 16 },
+  { ort: "gesicht:stirn", x: 150, y: 72, r: 20 },
+  { ort: "gesicht:schlaefe:R", x: 82, y: 104, r: 13 }, { ort: "gesicht:schlaefe:L", x: 218, y: 104, r: 13 },
+  { ort: "auge:R", x: 116, y: 128, r: 15 }, { ort: "auge:L", x: 184, y: 128, r: 15 },
+  { ort: "ohr:R", x: 46, y: 152, r: 17 }, { ort: "ohr:L", x: 254, y: 152, r: 17 },
+  { ort: "kiefergelenk:R", x: 74, y: 176, r: 10 }, { ort: "kiefergelenk:L", x: 226, y: 176, r: 10 },
+  { ort: "nase", x: 150, y: 166, r: 14 },
+  { ort: "gesicht:wange:R", x: 104, y: 188, r: 16 }, { ort: "gesicht:wange:L", x: 196, y: 188, r: 16 },
+  { ort: "gesicht:mund", x: 150, y: 214, r: 15 },
+  { ort: "gesicht:kinn", x: 150, y: 250, r: 13 },
+  { ort: "rachen", x: 150, y: 302, r: 18 },
+];

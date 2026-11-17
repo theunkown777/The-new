@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { KURZ_ARTEN, ORTE, ORT_NACH, ZEICHEN, kurzArt, kurzcheckLesen, kurzcheckSchema, kurzcheckText, nachbarZaehne, ortGueltig, ortName, orteFuer, staerkeWort } from "./kurzcheck";
+import { KURZ_ARTEN, ORTE, ORTE_STAND, ORT_NACH, ZEICHEN, alteOrtNamen, kurzArt, kurzcheckLesen, kurzcheckSchema, kurzcheckText, nachbarZaehne, ortGueltig, ortName, orteFuer, staerkeWort } from "./kurzcheck";
+import { KOPF_PUNKTE } from "../components/kurzcheck/figurPunkte";
 import { FACH_MODELLE } from "./modelle/fach";
 
 describe("Kurz-Fragebogen", () => {
@@ -31,7 +32,8 @@ describe("Kurz-Fragebogen", () => {
   });
   it("kennt die neuen, genaueren Orte", () => {
     for (const o of ["ellenbogen:R", "oberarm:L", "unterarm:R", "handgelenk:L", "leiste:R", "bauch:ro", "bauch:lo", "bauch:ru", "bauch:lu", "brust:L", "sprunggelenk:R", "kiefergelenk:L", "gesicht"]) expect(ortGueltig("koerper", o), o).toBe(true);
-    for (const o of ["auge:R", "auge:L", "auge:B", "ohr:R", "ohr:L", "nase", "rachen", "kiefergelenk:R", "gesicht:stirn", "gesicht:wange:R", "gesicht:schlaefe:L", "gesicht:mund", "gesicht:kinn"]) { expect(ortGueltig("auge", o), o).toBe(true); expect(ortGueltig("hno", o), o).toBe(true); }
+    for (const o of ["auge:R", "auge:L", "auge:B", "gesicht:stirn", "gesicht:schlaefe:L", "kopf"]) expect(ortGueltig("auge", o), o).toBe(true);
+    for (const o of ["ohr:R", "ohr:L", "ohr:B", "nase", "rachen", "kiefergelenk:R", "gesicht:stirn", "gesicht:wange:R", "gesicht:mund", "gesicht:kinn", "kopf"]) expect(ortGueltig("hno", o), o).toBe(true);
     expect(ortGueltig("koerper", "auge:R")).toBe(false);
     expect(ortGueltig("haut", "kiefergelenk:R")).toBe(false);
     expect(ortGueltig("haut", "ueberall")).toBe(true);
@@ -42,7 +44,24 @@ describe("Kurz-Fragebogen", () => {
     expect(ortName("ellenbogen:R", true)).toBe("Arm und Ellenbogen rechts");
     expect(new Set(ORTE.map((o) => o.id)).size).toBe(ORTE.length);
     for (const o of ORTE) expect(o.id.length, o.id).toBeLessThanOrEqual(30);
-    for (const art of KURZ_ARTEN.filter((a) => a !== "zahn")) expect(orteFuer(art).length, art).toBeGreaterThan(10);
+    for (const art of ["koerper", "haut", "hno"] as const) expect(orteFuer(art).length, art).toBeGreaterThan(10);
+    expect(orteFuer("auge").length).toBeGreaterThanOrEqual(5);
+  });
+  it("trennt Augen- und HNO-Praxis: jede bekommt nur ihre Stellen", () => {
+    // Augenpraxis: kein Ohr, keine Nase, kein Rachen, kein Mund
+    for (const o of ["ohr:R", "ohr:B", "nase", "rachen", "gesicht:mund", "gesicht:kinn", "gesicht:wange:L", "kiefergelenk:R", "nacken"]) expect(ortGueltig("auge", o), o).toBe(false);
+    // HNO-Praxis: keine Augen; Stirn und Wangen bleiben (Nebenhöhlen)
+    for (const o of ["auge:R", "auge:L", "auge:B", "gesicht:schlaefe:R", "nacken"]) expect(ortGueltig("hno", o), o).toBe(false);
+    expect(orteFuer("auge").map((o) => o.id).sort()).toEqual(["auge:B", "auge:L", "auge:R", "gesicht:schlaefe:L", "gesicht:schlaefe:R", "gesicht:stirn", "kopf"]);
+  });
+  it("Zeichnung des Kopfes: jede Stelle der Augen- und HNO-Praxis lässt sich antippen (außer „Beide“)", () => {
+    const punkte = new Set(KOPF_PUNKTE.map((p) => p.ort));
+    for (const art of ["auge", "hno"] as const) {
+      const fehlt = orteFuer(art).map((o) => o.id).filter((o) => !o.endsWith(":B") && !punkte.has(o));
+      expect(fehlt, art).toEqual([]);
+    }
+    // Jeder Punkt gehört zu einer der beiden Arten
+    for (const p of KOPF_PUNKTE) expect(ortGueltig("auge", p.ort) || ortGueltig("hno", p.ort), p.ort).toBe(true);
   });
   it("schlägt Nachbarzähne im selben Kieferviertel vor", () => {
     expect(nachbarZaehne(36)).toEqual([35, 37]);
@@ -94,6 +113,23 @@ describe("Kurz-Fragebogen", () => {
     // Neue Einträge tragen den Stand und zeigen die genauen Namen
     const neu = kurzcheckLesen({ ...altKoerper, orte: ["ellenbogen:R", "bauch:ru"], stand: 2 });
     expect(kurzcheckText(neu!)[0]).toBe("Wo: Ellenbogen rechts, Unterbauch rechts");
+  });
+  it("bleibt lesbar, wenn der Stand der Orte später steigt", () => {
+    const eintrag = { art: "koerper", keine: false, orte: ["ellenbogen:R"], staerke: 4, seit: "tage", zeichen: [], wichtig: "ursache", notiz: "" };
+    // Ein Eintrag mit dem heutigen Stand und einer mit einem späteren Stand (z. B. 3) werden beide gelesen
+    for (const stand of [ORTE_STAND, ORTE_STAND + 1, 7]) {
+      const a = kurzcheckLesen({ ...eintrag, stand });
+      expect(a?.stand, String(stand)).toBe(stand);
+      expect(kurzcheckText(a!)[0]).toBe("Wo: Ellenbogen rechts");
+    }
+    // Ohne Stand oder mit Stand 1: die damaligen Namen
+    expect(alteOrtNamen(undefined)).toBe(true);
+    expect(alteOrtNamen(1)).toBe(true);
+    expect(alteOrtNamen(2)).toBe(false);
+    expect(alteOrtNamen(3)).toBe(false);
+    // Kaputte Werte bleiben abgelehnt
+    expect(kurzcheckLesen({ ...eintrag, stand: "2" })).toBeNull();
+    expect(kurzcheckLesen({ ...eintrag, stand: 0 })).toBeNull();
   });
   it("prüft die gespeicherte Art ausdrücklich: Unbekanntes ergibt null", () => {
     const basis = { keine: false, orte: ["knie:R"], staerke: 3, seit: "tage", zeichen: [], wichtig: "ursache", notiz: "" };

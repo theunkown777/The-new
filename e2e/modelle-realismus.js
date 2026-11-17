@@ -39,6 +39,40 @@ async function bereit(p, zeit = 240000) {
   await p.waitForTimeout(1200); // Einblenden und erstes ruhiges Bild
 }
 
+/**
+ * Beobachtet die Bühne, während eine neue 3D-Bühne entsteht (nach „3D“ oder „Zurück“): Bis sie bereit ist
+ * (data-bereit="1"), muss die Zeichnung gelten (data-modell="schema"), sonst liegt eine leere Ebene über ihr.
+ * Gibt den ersten Verstoß zurück oder null.
+ */
+async function ueberblenden(p, ausloesen) {
+  await p.evaluate(() => {
+    window.__frueh = null;
+    const pruefe = () => {
+      const b = document.querySelector('[data-testid="kurz-buehne"]');
+      if (!b || window.__frueh) return;
+      const s = b.querySelector('[data-testid="modell-3d-buehne"]');
+      const bereit = !!s && s.getAttribute('data-bereit') === '1';
+      if (b.getAttribute('data-modell') === '3d' && !bereit) window.__frueh = `data-modell=3d, Bühne ${s ? `data-bereit=${s.getAttribute('data-bereit')}` : 'fehlt'}`;
+    };
+    if (window.__beob) window.__beob.disconnect();
+    window.__beob = new MutationObserver(pruefe);
+    window.__beob.observe(document.body, { subtree: true, childList: true, attributes: true });
+  });
+  await ausloesen();
+  // Gleich danach: Solange die neue Bühne nicht bereit ist, gilt die Zeichnung und der Ladehinweis ist da.
+  // Aus dem Zwischenspeicher ist die Bühne oft schon nach wenigen Millisekunden bereit; dann ist „3d“ richtig.
+  const sofort = await p.evaluate(() => {
+    const b = document.querySelector('[data-testid="kurz-buehne"]');
+    const s = b?.querySelector('[data-testid="modell-3d-buehne"]');
+    return { modell: b?.getAttribute('data-modell'), bereit: s?.getAttribute('data-bereit') === '1', laedt: !!document.querySelector('[data-testid="kurz-3d-laedt"]') };
+  });
+  await bereit(p);
+  const frueh = await p.evaluate(() => { window.__beob.disconnect(); return window.__frueh; });
+  if (frueh) return frueh;
+  if (sofort.bereit) return null;
+  return sofort.modell !== 'schema' ? `sofort data-modell=${sofort.modell}` : !sofort.laedt ? 'kein Ladehinweis' : null;
+}
+
 /** Bildschirmpunkt einer Stelle: Punkt auf der Haut (Strahl von außen), dann in Bildkoordinaten. */
 async function stelle(p, ziel) {
   return p.evaluate(({ p: punkt, n }) => {
@@ -109,8 +143,13 @@ async function eineArt(b, art) {
   await p.getByTestId('kurz-schema').click();
   await p.waitForTimeout(400);
   pruef(`${art}: Schalter „Schema“ zeigt die Zeichnung`, (await p.getByTestId('kurz-buehne').getAttribute('data-modell')) === 'schema');
-  await p.getByTestId('kurz-3d').click();
-  await bereit(p);
+  const nach3d = await ueberblenden(p, () => p.getByTestId('kurz-3d').click());
+  pruef(`${art}: nach „3D“ gilt die Zeichnung, bis das neue Modell bereit ist`, !nach3d, nach3d || '');
+  // Nächste Frage und zurück: Die Bühne entsteht neu und muss wieder erst bereit sein
+  await p.getByTestId('kurz-weiter').click();
+  await p.getByTestId('kurz-staerke').waitFor({ timeout: 10000 });
+  const nachZurueck = await ueberblenden(p, () => p.getByTestId('kurz-zurueck').click());
+  pruef(`${art}: nach „Zurück“ gilt die Zeichnung, bis das neue Modell bereit ist`, !nachZurueck, nachZurueck || '');
 
   // Handy 390 px: kein seitlicher Überlauf
   const hp = await ctx.browser().newContext(HANDY);

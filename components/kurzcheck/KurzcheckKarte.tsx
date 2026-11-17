@@ -1,4 +1,4 @@
-import { ORTE_STAND, kurzcheckLesen, kurzcheckText, staerkeWort } from "@/lib/kurzcheck";
+import { alteOrtNamen, kurzcheckLesen, kurzcheckText, staerkeWort } from "@/lib/kurzcheck";
 import { KoerperFigur, KopfFigur, ZahnBogen } from "./Figur";
 import { koerperPunkte } from "./figurPunkte";
 import { KurzcheckModell } from "./KurzcheckModell";
@@ -21,7 +21,7 @@ export function KurzcheckKarte({ eintraege }: { eintraege: { id: string; antwort
               {!a.keine && (
                 <div className="flex shrink-0 justify-center gap-2 self-start rounded-2xl bg-[#FBF7F1] p-2 ring-1 ring-[#E9E2DA]">
                   {/* Angaben des Patienten in eigener Farbe (Violett), nicht im Orange der Praxis-Markierungen */}
-                  {a.art === "zahn" ? <ZahnBogen gewaehlt={a.orte} klein patient /> : a.art === "auge" || a.art === "hno" ? <KopfFigur gewaehlt={a.orte} klein patient /> : (
+                  {a.art === "zahn" ? <ZahnBogen gewaehlt={a.orte} klein patient /> : a.art === "auge" || a.art === "hno" ? <KopfFigur art={a.art} gewaehlt={a.orte} klein patient /> : (
                     <>
                       {(["vorn", "hinten"] as const).filter((v, i) => koerperPunkte(a.art, v).some((p) => a.orte.includes(p.ort)) || (i === 0 && a.orte.includes("bauch"))).map((v) => <KoerperFigur key={v} ansicht={v} art={a.art} gewaehlt={a.orte} klein patient />)}
                     </>
@@ -37,7 +37,7 @@ export function KurzcheckKarte({ eintraege }: { eintraege: { id: string; antwort
                   </div>
                 )}
                 <ul className="mt-3 space-y-1 text-slate-800" data-testid="kurzcheck-antworten">{kurzcheckText(a).map((z) => <li key={z}>{z}</li>)}</ul>
-                {!a.keine && a.orte.length > 0 && <KurzcheckModell art={a.art} orte={a.orte} alt={a.stand !== ORTE_STAND} />}
+                {!a.keine && a.orte.length > 0 && <KurzcheckModell art={a.art} orte={a.orte} alt={alteOrtNamen(a.stand)} />}
                 <p className="mt-3 text-xs text-slate-500">Angaben des Patienten, keine Diagnose.{liste.length > 1 ? ` Frühere Fragebögen: ${liste.slice(1, 4).map((x) => zeit(x.createdAt)).join(" · ")}` : ""}</p>
               </div>
             </div>

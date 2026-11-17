@@ -159,13 +159,16 @@ function kopfRegion(p: V3, n: V3): string | null {
 /**
  * Stelle zu einem Punkt auf der Oberfläche des Modells (Szenenkoordinaten in mm) und der Richtung der
  * Oberfläche dort (Normale). Körper und Haut: haut.glb; Augen und HNO: kopf.glb. Bei den Zähnen gilt die
- * Kennung des angetippten Teils (ortAusKennung). Gibt nur Stellen zurück, die es für die Art gibt.
+ * Kennung des angetippten Teils (ortAusKennung). Gibt nur Stellen zurück, die es für die Art gibt:
+ * Die Augenpraxis bekommt am Ohr keine Stelle, die HNO-Praxis am Auge keine. Nur die Schläfe wird in der
+ * HNO-Praxis zum Kopf, weil sie dort keine eigene Stelle hat und am Kopf liegt.
  */
 export function regionAusPunkt(punkt: V3, normale: V3, art: KurzArt): string | null {
   if (art === "zahn") return null;
   const l = Math.hypot(...normale) || 1;
   const n: V3 = [normale[0] / l, normale[1] / l, normale[2] / l];
-  const ort = art === "auge" || art === "hno" ? kopfRegion(punkt, n) : koerperRegion(punkt, n, art);
+  let ort = art === "auge" || art === "hno" ? kopfRegion(punkt, n) : koerperRegion(punkt, n, art);
+  if (ort?.startsWith("gesicht:schlaefe:") && !ortGueltig(art, ort)) ort = "kopf";
   return ort && ortGueltig(art, ort) ? ort : null;
 }
 
@@ -196,7 +199,6 @@ function ortZielEins(ort: string, art: KurzArt): Ziel | null {
       case "kiefergelenk": return P(sx(KOPF.kiefergelenk[0]) * 0.7, KOPF.kiefergelenk[1], KOPF.kiefergelenk[2], [seite, 0, 0]);
       case "nase": return P(K.nase[0], K.nase[1], K.nase[2] - 20, [0, 0, 1]);
       case "rachen": return P(0, KOPF.kinn - 35, 20, [0, -0.2, 1]);
-      case "nacken": return P(0, KOPF.kinn - 10, -40, [0, 0, -1]);
       case "kopf": return P(0, K.schaedel[1] + 40, -40, [0, 0.4, -1]);
       case "gesicht":
         if (b === "stirn") return P(0, KOPF.auge[1] + 32, 40, [0, 0.15, 1]);

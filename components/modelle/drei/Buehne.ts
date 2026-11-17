@@ -70,6 +70,8 @@ export class Buehne {
   private pulsBis = 0;
   private geboren = performance.now();
   private bildzeiten: number[] = [];
+  /** So viele Bildzeiten nach dem Umschalten nicht mitzählen (das erste Bild mit neuem Licht kann länger dauern) */
+  private bildzeitPause = 0;
   private scharf = false;
   private bewegungBis = 0;
   private fahrtJetzt: Fahrt | null = null;
@@ -278,16 +280,17 @@ export class Buehne {
   /**
    * Umgebungslicht (vorberechnete Spiegelung eines hellen Raums) nachträglich einschalten: Shader vorher im
    * Hintergrund übersetzen, dann umschalten. Das Licht der Kamera wird etwas leiser. Wird es zu langsam, geht es wieder aus.
+   * Die Zielszene trägt nur die Umgebung, keine Lichter: compile zählt die Lichter aus beiden Szenen zusammen.
+   * Kopien der Lichter ergäben eine andere Lichterzahl als beim echten Bild, und die vorübersetzten Shader blieben ungenutzt.
    */
   async umgebungSetzen(tex: DREI.Texture) {
     const T = this.T, ziel = new T.Scene();
     ziel.environment = tex;
-    for (const l of this.szene.children) if ((l as DREI.Light).isLight) ziel.add(l.clone());
     try { await this.renderer.compileAsync(this.szene, this.kamera, ziel); } catch { /* dann beim ersten Bild */ }
     if (this.entfernt) return;
     this.szene.environment = tex; this.szene.environmentIntensity = 0.5;
     if (this.lichter) { this.lichter.hemi.intensity = 0.6; this.lichter.haupt.intensity = 2.2; this.lichter.kante.intensity = 1.25; }
-    this.umgebungAn = true; this.bildzeiten = [];
+    this.umgebungAn = true; this.bildzeiten = []; this.bildzeitPause = 2;
     this.wecken();
   }
   /** Umgebung mit dem eigenen Renderer berechnen (Raum von three.js, 64er-Würfel) und einschalten. */
@@ -573,7 +576,8 @@ export class Buehne {
     let aktiv = !!this.flug || !!this.fahrtJetzt;
     const T = this.T, jetzt = performance.now(), dt = Math.min(0.05, (jetzt - (this.uhr || jetzt)) / 1000);
     // Langsames Gerät (Bilder brauchen deutlich länger als 1/15 s): Auflösung stufenweise senken, damit es flüssig bleibt
-    if (this.uhr) {
+    if (this.uhr && this.bildzeitPause > 0) this.bildzeitPause--;
+    else if (this.uhr) {
       this.bildzeiten.push(jetzt - this.uhr);
       if (this.bildzeiten.length > 6) this.bildzeiten.shift();
       const mittel = this.bildzeiten.reduce((a, b) => a + b, 0) / this.bildzeiten.length;

@@ -49,6 +49,9 @@ export interface KurzOrt {
 }
 
 const KOERPER: readonly KurzArt[] = ["koerper", "haut"];
+// Augen- und HNO-Praxis bekommen getrennte Stellen: Die Augenpraxis fragt nicht nach Ohr und Nase, die HNO-Praxis nicht nach den Augen.
+const AUGE: readonly KurzArt[] = ["auge"];
+const HNO: readonly KurzArt[] = ["hno"];
 const KOPF: readonly KurzArt[] = ["auge", "hno"];
 const UEBERALL_KOPF: readonly KurzArt[] = ["koerper", "haut", "auge", "hno"];
 type Fig = [Ansicht, number, number, number];
@@ -68,21 +71,22 @@ export const ORTE: KurzOrt[] = [
   // Kopf und Hals
   einzeln("kopf", "Kopf", "kopf", UEBERALL_KOPF, [["vorn", 200, 38, 22], ["hinten", 200, 52, 30]]),
   einzeln("gesicht", "Gesicht", "kopf", KOERPER, [["vorn", 200, 80, 17]]),
-  ...paar("kiefergelenk", "Kiefergelenk", "kopf", ["koerper", ...KOPF]),
+  ...paar("kiefergelenk", "Kiefergelenk", "kopf", ["koerper", ...HNO]),
   einzeln("hals", "Hals", "kopf", KOERPER, [["vorn", 200, 122, 18]]),
-  einzeln("nacken", "Nacken", "kopf", UEBERALL_KOPF, [["hinten", 200, 122, 20]]),
-  // Augen, Ohren, Nase und Gesicht (Modell: Kopf)
-  ...paar("auge", "Auge", "augen", KOPF),
-  einzeln("auge:B", "Beide Augen", "augen", KOPF),
-  ...paar("ohr", "Ohr", "ohren", KOPF),
-  einzeln("ohr:B", "Beide Ohren", "ohren", KOPF),
-  einzeln("nase", "Nase", "gesicht", KOPF),
-  einzeln("rachen", "Hals und Rachen", "gesicht", KOPF),
+  einzeln("nacken", "Nacken", "kopf", KOERPER, [["hinten", 200, 122, 20]]),
+  einzeln("rachen", "Hals und Rachen", "kopf", HNO),
+  // Augen, Ohren, Nase und Gesicht (Modell: Kopf). Augenpraxis: Augen, Stirn, Schläfen, Kopf.
+  // HNO-Praxis: Ohren, Nase, Hals, Kiefergelenk, Stirn und Wangen (Nebenhöhlen), Mund, Kinn, Kopf.
+  ...paar("auge", "Auge", "augen", AUGE),
+  einzeln("auge:B", "Beide Augen", "augen", AUGE),
+  ...paar("ohr", "Ohr", "ohren", HNO),
+  einzeln("ohr:B", "Beide Ohren", "ohren", HNO),
+  einzeln("nase", "Nase", "gesicht", HNO),
   einzeln("gesicht:stirn", "Stirn", "gesicht", KOPF),
-  ...paar("gesicht:schlaefe", "Schläfe", "gesicht", KOPF),
-  ...paar("gesicht:wange", "Wange", "gesicht", KOPF),
-  einzeln("gesicht:mund", "Mund und Lippen", "gesicht", KOPF),
-  einzeln("gesicht:kinn", "Kinn", "gesicht", KOPF),
+  ...paar("gesicht:schlaefe", "Schläfe", "gesicht", AUGE),
+  ...paar("gesicht:wange", "Wange", "gesicht", HNO),
+  einzeln("gesicht:mund", "Mund und Lippen", "gesicht", HNO),
+  einzeln("gesicht:kinn", "Kinn", "gesicht", HNO),
   // Rumpf vorn
   ...paar("brust", "Brust", "rumpf", KOERPER, [["vorn", 166, 205, 20]]),
   einzeln("brust", "Brust, Mitte", "rumpf", KOERPER, [["vorn", 200, 214, 15]], "Brust"),
@@ -211,6 +215,11 @@ export const WICHTIG = {
 
 /** Stand der Orte: 2 = genauere Orte (seit dem 3D-Modell). Fehlt er, gelten die größer gefassten Namen von damals. */
 export const ORTE_STAND = 2 as const;
+/**
+ * Zeigt ein gespeicherter Eintrag die damaligen, größer gefassten Namen? Nur Einträge ohne Stand (oder Stand 1).
+ * Jeder spätere Stand (2, 3, …) bleibt lesbar und zeigt die genauen Namen.
+ */
+export const alteOrtNamen = (stand: number | null | undefined) => !stand || stand < 2;
 export const MAX_ORTE = 3;
 export const kurzcheckSchema = (art: KurzArt) =>
   z
@@ -222,7 +231,8 @@ export const kurzcheckSchema = (art: KurzArt) =>
       zeichen: z.array(z.string().max(20)).max(4).default([]),
       wichtig: z.enum(["schnell", "ursache", "kosten", "angst", "kontrolle"]),
       notiz: z.string().max(200).transform((s) => s.replace(/\s+/g, " ").trim()).default(""),
-      stand: z.literal(ORTE_STAND).optional(),
+      // Jede positive Zahl: Ein späterer Stand darf ältere Einträge nicht unlesbar machen.
+      stand: z.number().int().positive().optional(),
     })
     .transform((d) => (d.keine ? { ...d, orte: [], staerke: null, seit: null, zeichen: [] } : d))
     .refine((d) => d.keine || d.orte.length > 0, { message: "Bitte tippen Sie an, wo Sie Beschwerden haben." })
@@ -248,7 +258,7 @@ export function kurzcheckText(a: KurzAntworten): string[] {
   const zeilen: string[] = [];
   if (a.keine) zeilen.push("Keine Beschwerden angegeben.");
   else {
-    zeilen.push(`Wo: ${a.orte.map((o) => ortName(o, a.stand !== ORTE_STAND)).join(", ")}`);
+    zeilen.push(`Wo: ${a.orte.map((o) => ortName(o, alteOrtNamen(a.stand))).join(", ")}`);
     zeilen.push(`Wie stark: ${a.staerke} von 10 (${staerkeWort(a.staerke ?? 0)}), ${a.seit ? SEIT[a.seit] : ""}`);
     if (a.zeichen.length) zeilen.push(`Wie es sich zeigt: ${a.zeichen.map((x) => ZEICHEN[a.art].find((e) => e.id === x)?.name ?? x).join(", ")}`);
   }

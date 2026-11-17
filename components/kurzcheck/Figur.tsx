@@ -2,8 +2,8 @@
 
 import { UMRISS, KOERPER_HOEHE } from "@/lib/modelle/koerper";
 import { ZAEHNE, GEBISS_BREITE, GEBISS_HOEHE } from "@/lib/modelle/gebiss";
-import type { Ansicht, KurzArt } from "@/lib/kurzcheck";
-import { koerperPunkte, type FigurPunkt } from "./figurPunkte";
+import { ortGueltig, type Ansicht, type KurzArt } from "@/lib/kurzcheck";
+import { KOPF_PUNKTE, koerperPunkte, type FigurPunkt } from "./figurPunkte";
 
 const HAUT = "#EAD3C0";
 const AN = { flaeche: "#C2410C", rand: "#7C2D12" };
@@ -45,24 +45,11 @@ export function KoerperFigur({ ansicht, gewaehlt, onToggle, klein = false, art =
   );
 }
 
-/** Lage der Stellen am Kopf von vorn (300 × 340); die rechte Gesichtshälfte liegt links im Bild. */
-export const KOPF_PUNKTE: FigurPunkt[] = [
-  { ort: "kopf", x: 150, y: 30, r: 16 },
-  { ort: "gesicht:stirn", x: 150, y: 72, r: 20 },
-  { ort: "gesicht:schlaefe:R", x: 82, y: 104, r: 13 }, { ort: "gesicht:schlaefe:L", x: 218, y: 104, r: 13 },
-  { ort: "auge:R", x: 116, y: 128, r: 15 }, { ort: "auge:L", x: 184, y: 128, r: 15 },
-  { ort: "ohr:R", x: 46, y: 152, r: 17 }, { ort: "ohr:L", x: 254, y: 152, r: 17 },
-  { ort: "kiefergelenk:R", x: 74, y: 176, r: 10 }, { ort: "kiefergelenk:L", x: 226, y: 176, r: 10 },
-  { ort: "nase", x: 150, y: 166, r: 14 },
-  { ort: "gesicht:wange:R", x: 104, y: 188, r: 16 }, { ort: "gesicht:wange:L", x: 196, y: 188, r: 16 },
-  { ort: "gesicht:mund", x: 150, y: 214, r: 15 },
-  { ort: "gesicht:kinn", x: 150, y: 250, r: 13 },
-  { ort: "rachen", x: 150, y: 302, r: 18 },
-];
-/** Kopf von vorn (Augen- und HNO-Praxis), wenn kein 3D-Modell möglich oder gewünscht ist. */
-export function KopfFigur({ gewaehlt, onToggle, klein = false, name = deutsch, label = "Kopf von vorn", patient = false }: { gewaehlt: string[]; onToggle?: (ort: string) => void; klein?: boolean; name?: Name; label?: string; patient?: boolean }) {
+/** Kopf von vorn (Augen- und HNO-Praxis), wenn kein 3D-Modell möglich oder gewünscht ist. Punkte nur für die Stellen dieser Art. */
+export function KopfFigur({ art, gewaehlt, onToggle, klein = false, name = deutsch, label = "Kopf von vorn", patient = false }: { art: KurzArt; gewaehlt: string[]; onToggle?: (ort: string) => void; klein?: boolean; name?: Name; label?: string; patient?: boolean }) {
   // „Beide Augen“ und „Beide Ohren“ leuchten an beiden Stellen
   const an = gewaehlt.flatMap((o) => (o === "auge:B" ? ["auge:R", "auge:L"] : o === "ohr:B" ? ["ohr:R", "ohr:L"] : [o]));
+  const punkte = KOPF_PUNKTE.filter((p) => ortGueltig(art, p.ort));
   return (
     <svg viewBox="0 0 300 340" className={klein ? "h-40 w-auto" : "mx-auto h-[min(52vh,26rem)] w-auto max-w-full"} role="group" aria-label={label} data-testid="kurz-figur-kopf">
       <g aria-hidden="true" fill={HAUT} stroke="#D9BCA5" strokeWidth={2}>
@@ -75,7 +62,7 @@ export function KopfFigur({ gewaehlt, onToggle, klein = false, name = deutsch, l
         <path d="M146 140 L140 172 Q150 178 160 172 L154 140" />
         <path d="M130 212 Q150 222 170 212" />
       </g>
-      <Punkte punkte={KOPF_PUNKTE} gewaehlt={an} onToggle={onToggle} name={name} farbe={patient ? PATIENT : AN} />
+      <Punkte punkte={punkte} gewaehlt={an} onToggle={onToggle} name={name} farbe={patient ? PATIENT : AN} />
     </svg>
   );
 }

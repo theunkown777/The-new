@@ -111,12 +111,18 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
   const [kannRaum, setKannRaum] = useState(false);
   const [dreiBereit, setDreiBereit] = useState(false);
   const [gelenke, setGelenke] = useState(false);
+  /** Bedienung mit dem Finger (sonst Maus): bestimmt den Hinweis zum Drehen */
+  const [finger, setFinger] = useState(true);
   const modell = useRef<OrtModellGriff | null>(null);
   useEffect(() => {
     const geht = webglDa();
     setKannRaum(geht);
     setRaum(geht && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches);
+    setFinger(window.matchMedia?.("(pointer: coarse)").matches ?? true);
   }, []);
+  // „Bereit“ gilt nur für die Bühne, die gerade steht. Verschwindet sie (Schalter „Schema“ oder nächste Frage),
+  // muss die neue Bühne erst wieder bereit sein; bis dahin bleibt die Zeichnung bedienbar.
+  useEffect(() => { if (!raum || schritt !== 0) setDreiBereit(false); }, [raum, schritt]);
   const dreiSichtbar = raum && dreiBereit;
   useEffect(() => { if (!hinweis) return; const x = window.setTimeout(() => setHinweis(null), 6000); return () => window.clearTimeout(x); }, [hinweis]);
 
@@ -125,6 +131,8 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
   const stelle = folge.indexOf(schritt);
   const weiterOk = schritt === 0 ? keine || orte.length > 0 : schritt === 1 ? staerke !== null : schritt === 2 ? seit !== null : schritt === 3 ? true : wichtig !== null;
 
+  /** Ist die Stelle gewählt? Rechtes und linkes Auge (Ohr) zählen auch, wenn „Beide“ gewählt ist. */
+  const istGewaehlt = (o: string) => orte.includes(o) || (/^(auge|ohr):[RL]$/.test(o) && orte.includes(o.replace(/[RL]$/, "B")));
   /** Stelle hinzufügen oder (umschalten) wieder entfernen. Beide Augen oder beide Ohren werden zusammengefasst. */
   function ortSetzen(o: string, umschalten: boolean, p?: OrtPunkt) {
     setKeine(false); setHinweis(null);
@@ -134,7 +142,12 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
       return;
     }
     const m = /^(auge|ohr):([RL])$/.exec(o);
-    if (m && orte.includes(`${m[1]}:B`)) return;
+    if (m && orte.includes(`${m[1]}:B`)) {
+      // Zeichnung oder Liste: eine Seite abwählen, die andere bleibt. Im Modell: nur ein Hinweis, nichts geht verloren.
+      if (umschalten) setOrte((l) => l.map((x) => (x === `${m[1]}:B` ? `${m[1]}:${m[2] === "R" ? "L" : "R"}` : x)));
+      else setHinweis(t("schonGewaehlt", { ort: tt.ort(`${m[1]}:B`) }));
+      return;
+    }
     if (m && orte.includes(`${m[1]}:${m[2] === "R" ? "L" : "R"}`)) {
       setOrte((l) => [...l.filter((x) => !x.startsWith(`${m[1]}:`)), `${m[1]}:B`]);
       setPunkte((alt) => { const n = { ...alt }; delete n[`${m[1]}:R`]; delete n[`${m[1]}:L`]; return n; });
@@ -150,7 +163,7 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
     setPunkte((alt) => { const n = { ...alt }; delete n[o]; return n; });
   }
   /** Aus der Zeichnung oder der Liste: umschalten; im Modell zur Stelle drehen */
-  const ortUmschalten = (o: string) => { const neu = !orte.includes(o); ortSetzen(o, true); if (neu && dreiSichtbar) modell.current?.zeige(o); };
+  const ortUmschalten = (o: string) => { const neu = !istGewaehlt(o); ortSetzen(o, true); if (neu && dreiSichtbar) modell.current?.zeige(o); };
   const zahnTauschen = (alt: number, neu: number) => { setOrte((l) => (l.includes(`zahn:${neu}`) ? l.filter((x) => x !== `zahn:${alt}`) : l.map((x) => (x === `zahn:${alt}` ? `zahn:${neu}` : x)))); setLetzterZahn(neu); };
 
   async function senden() {
@@ -178,11 +191,11 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
   const kopfArt = art === "auge" || art === "hno";
   const koerperArt = art === "koerper" || art === "haut";
   const modellHinweis = art === "zahn" ? t("modellGebiss") : kopfArt ? t("modellKopf") : t("modellKoerper");
-  // Liste der Stellen nach Gruppen (ohne Mund: der hat eigene Kacheln)
+  // Liste der Stellen nach Gruppen (ohne Mund: der hat eigene Kacheln). Steht in „Kopf und Hals“ nur der Kopf, heißt die Gruppe „Kopf“.
   const gruppen = (() => {
     const m = new Map<OrtGruppe, string[]>();
     for (const o of orteFuer(art)) if (o.gruppe !== "mund") m.set(o.gruppe, [...(m.get(o.gruppe) ?? []), o.id]);
-    return Array.from(m.entries());
+    return Array.from(m.entries()).map(([g, ids]) => [g, ids, g === "kopf" && ids.length === 1 && ids[0] === "kopf" ? tt.ort("kopf") : t(`g_${g}`)] as const);
   })();
   const zahnNachbarn = letzterZahn && orte.includes(`zahn:${letzterZahn}`) ? nachbarZaehne(letzterZahn) : [];
 
@@ -217,7 +230,7 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
               {/* Die Zeichnung steht sofort. Sobald das Modell bereit ist, blendet es darüber, und die Zeichnung ruht (inert). */}
               <div className="flex h-full items-center justify-center p-2" inert={dreiSichtbar} aria-hidden={dreiSichtbar || undefined}>
                 {art === "zahn" ? <ZahnBogen gewaehlt={orte} onToggle={ortUmschalten} name={tt.ort} beschriftung={{ oben: t("oben"), unten: t("unten"), rechts: t("rechts"), links: t("links") }} label={t("gebiss")} />
-                  : kopfArt ? <KopfFigur gewaehlt={orte} onToggle={ortUmschalten} name={tt.ort} label={t("modellAria")} />
+                  : kopfArt ? <KopfFigur art={art} gewaehlt={orte} onToggle={ortUmschalten} name={tt.ort} label={t("modellAria")} />
                   : <KoerperFigur ansicht={ansicht} gewaehlt={orte} onToggle={ortUmschalten} art={art} name={tt.ort} label={ansicht === "vorn" ? t("figurVorn") : t("figurHinten")} />}
               </div>
               {raum && (
@@ -232,7 +245,7 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
             {art === "zahn" && !dreiSichtbar && <p className="mt-1 text-center text-xs text-slate-500">{t("zahnSeite")}</p>}
             {dreiSichtbar && (
               <div className="mt-1.5 flex flex-wrap items-start justify-between gap-2">
-                <p className="text-xs text-slate-600" data-testid="kurz-modell-hinweis">{modellHinweis} {t("drehen")}</p>
+                <p className="text-xs text-slate-600" data-testid="kurz-modell-hinweis">{modellHinweis} {t(finger ? "drehen" : "drehenMaus")}</p>
                 {art === "koerper" && gelenkeErlaubt && (
                   <button type="button" aria-pressed={gelenke} onClick={() => setGelenke((g) => !g)} className={knopf(gelenke)} data-testid="kurz-gelenke">{t("gelenke")}</button>
                 )}
@@ -275,11 +288,11 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
                       </div>
                     </div>
                   ))
-                ) : gruppen.map(([g, ids]) => (
-                  <div key={g} role="group" aria-label={t(`g_${g}`)}>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t(`g_${g}`)}</p>
+                ) : gruppen.map(([g, ids, name]) => (
+                  <div key={g} role="group" aria-label={name}>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{name}</p>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      {ids.map((o) => <button key={o} type="button" aria-pressed={orte.includes(o)} onClick={() => ortUmschalten(o)} className={knopf(orte.includes(o))} data-testid={`kurz-ort-${o}`}>{tt.ort(o)}</button>)}
+                      {ids.map((o) => <button key={o} type="button" aria-pressed={istGewaehlt(o)} onClick={() => ortUmschalten(o)} className={knopf(istGewaehlt(o))} data-testid={`kurz-ort-${o}`}>{tt.ort(o)}</button>)}
                     </div>
                   </div>
                 ))}

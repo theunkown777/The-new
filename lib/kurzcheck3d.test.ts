@@ -26,9 +26,9 @@ describe("Antippen am Modell → Stelle (Landmarken aus anatomieInhalt.json)", (
   });
   it("findet Augen, Ohren, Nase und Mund am Kopf", () => {
     expect(regionAusPunkt([-33, 738, 75], [0, 0, 1], "auge")).toBe("auge:R");
-    expect(regionAusPunkt([33, 738, 75], [0, 0, 1], "hno")).toBe("auge:L");
+    expect(regionAusPunkt([33, 738, 75], [0, 0, 1], "auge")).toBe("auge:L");
     expect(regionAusPunkt([-80, 724, -14], [-1, 0, 0], "hno")).toBe("ohr:R");
-    expect(regionAusPunkt([80, 724, -14], [1, 0, 0], "auge")).toBe("ohr:L");
+    expect(regionAusPunkt([80, 724, -14], [1, 0, 0], "hno")).toBe("ohr:L");
     const nase = ANATOMIE.kopf.nase as V3, mund = ANATOMIE.kopf.mund as V3;
     expect(regionAusPunkt(nase, [0, 0, 1], "hno")).toBe("nase");
     expect(regionAusPunkt(mund, [0, 0, 1], "hno")).toBe("gesicht:mund");
@@ -37,6 +37,21 @@ describe("Antippen am Modell → Stelle (Landmarken aus anatomieInhalt.json)", (
   });
   it("gibt nur Stellen zurück, die es für die Art gibt", () => {
     expect(regionAusPunkt([-33, 738, 75], [0, 0, 1], "zahn")).toBeNull();
+    // Augenpraxis: Ohr, Nase, Mund und Hals ergeben keine Stelle; HNO-Praxis: das Auge nicht
+    expect(regionAusPunkt([80, 724, -14], [1, 0, 0], "auge")).toBeNull();
+    expect(regionAusPunkt(ANATOMIE.kopf.nase as V3, [0, 0, 1], "auge")).toBeNull();
+    expect(regionAusPunkt(ANATOMIE.kopf.mund as V3, [0, 0, 1], "auge")).toBeNull();
+    expect(regionAusPunkt([33, 738, 75], [0, 0, 1], "hno")).toBeNull();
+    // Schläfe: in der Augenpraxis eigene Stelle, in der HNO-Praxis der Kopf
+    expect(regionAusPunkt([-50, 773, 30], [-0.8, 0, 0.4], "auge")).toBe("gesicht:schlaefe:R");
+    expect(regionAusPunkt([-50, 773, 30], [-0.8, 0, 0.4], "hno")).toBe("kopf");
+    // Nacken gibt es am Kopf-Modell für keine der beiden Praxen; der Hals vorn gehört zur HNO-Praxis
+    const hals = ortZiele("rachen", "hno")[0];
+    expect(regionAusPunkt(hals.punkt, hals.normale, "hno")).toBe("rachen");
+    expect(regionAusPunkt(hals.punkt, hals.normale, "auge")).toBeNull();
+    const nacken: V3 = [0, (ANATOMIE.kopf.mund as V3)[1] - 62, -40];
+    expect(regionAusPunkt(nacken, [0, 0, -1], "hno")).toBeNull();
+    expect(regionAusPunkt(nacken, [0, 0, -1], "auge")).toBeNull();
     // Haut: kein Kiefergelenk (Körper schon)
     const kg = ANATOMIE.mund.gelenk!.R;
     const p: V3 = [kg[0] - 26, kg[1] - 2, kg[2] + 8];
