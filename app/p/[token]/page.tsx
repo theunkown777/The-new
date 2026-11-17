@@ -20,7 +20,7 @@ const BASIS_META: Metadata = {
   robots: { index: false, follow: false },
   referrer: "no-referrer",
   // Vorschau beim Teilen per SMS/Messenger: neutral, ohne Patienten- oder Praxisdaten.
-  openGraph: { title: "Ihr Behandlungsvorschlag", description: "Ihre Möglichkeiten und Ihr Eigenanteil, von Ihrer Zahnarztpraxis.", images: [{ url: "/og/vorschlag.png", width: 1200, height: 630 }] },
+  openGraph: { title: "Ihr Behandlungsvorschlag", description: "Ihre Möglichkeiten und Ihr Eigenanteil, von Ihrer Praxis.", images: [{ url: "/og/vorschlag.png", width: 1200, height: 630 }] },
 };
 // Titel im Browser in der Sprache der Ansicht; die Vorschau beim Teilen bleibt deutsch und neutral.
 export async function generateMetadata(props: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {

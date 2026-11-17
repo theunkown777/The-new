@@ -10,7 +10,7 @@ import { seedBulkDemo } from "@/lib/demoBulk";
 import { eingangAusBestand } from "@/lib/eingang";
 import { fachprofil, passtZuPerson } from "@/lib/fachprofile";
 import { computeProposal } from "@/lib/proposalSchema";
-import { QUESTIONS } from "@/lib/anamnesis";
+import { demoAnamneseBeispiel } from "@/lib/demoAnamnese";
 import { praxisLoeschen } from "@/lib/praxisLoeschen";
 
 // Gastzugang: Jeder Gast bekommt eine eigene, abgeschottete Demo-Praxis mit
@@ -137,9 +137,11 @@ export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
 }
 
 /** Neue Demo-Praxis mit Beispieldaten; liefert die Zugangsdaten für die sofortige Anmeldung. */
-export async function createDemoPractice(now = new Date(), fach: string = DENTAL_ID): Promise<{ email: string; password: string; practiceId: string }> {
+export async function createDemoPractice(now: Date, fach: string): Promise<{ email: string; password: string; practiceId: string }> {
   const spec = specialty(fach);
-  const dental = !spec;
+  // Kein stiller Rückfall auf Zahnmedizin: Ein unbekanntes Fach ist ein Fehler des Aufrufers (app/api/demo prüft vorher).
+  if (!spec && fach !== DENTAL_ID) throw new Error(`Unbekanntes Fach für den Gastzugang: ${fach}`);
+  const dental = fach === DENTAL_ID;
   const suffix = crypto.randomBytes(6).toString("hex");
   const email = `gast-${suffix}@demo.sorrida.invalid`;
   const password = crypto.randomBytes(24).toString("base64url");
@@ -227,28 +229,18 @@ export async function createDemoPractice(now = new Date(), fach: string = DENTAL
     });
 
     if (p.lastName === "Krüger") {
-      // Ausgefüllte digitale Anamnese als Beispiel für Hinweise und Übernahme in den Vorschlag.
+      // Ausgefüllte digitale Anamnese als Beispiel für Hinweise (in der Zahnmedizin auch für die Übernahme in den Vorschlag).
+      // Fragen und Anliegen kommen aus dem Bogen des Fachs (lib/demoAnamnese.ts), nie aus einem anderen Fach.
+      const fachId = spec ? spec.id : DENTAL_ID;
       await prisma.anamnesisForm.create({
         data: {
           practiceId: practice.id,
           patientId: patient.id,
+          fach: fachId,
           expiresAt: now,
           viewedAt: new Date(now.getTime() - 26 * 60 * 60 * 1000),
           submittedAt: new Date(now.getTime() - 25 * 60 * 60 * 1000),
-          answers: {
-            q: Object.fromEntries(
-              QUESTIONS.map((q) => [
-                q.key,
-                q.key === "blutverduenner"
-                  ? { yes: true, detail: "ASS 100" }
-                  : q.key === "allergien"
-                    ? { yes: true, detail: "Penicillin" }
-                    : { yes: q.key === "knirschen" || q.key === "medikamente", detail: q.key === "medikamente" ? "ASS 100, Ramipril" : undefined },
-              ]),
-            ),
-            wishes: ["hell"],
-            confirmName: "Anna Krüger",
-          },
+          answers: demoAnamneseBeispiel(fachId, { geschlecht: p.geschlecht, alter: age(p.birthDate, now) }, `${p.firstName} ${p.lastName}`) as unknown as Prisma.InputJsonValue,
         },
       });
     }

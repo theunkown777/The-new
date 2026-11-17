@@ -9,7 +9,8 @@ export default async function CatalogSettingsPage() {
   await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const praxis = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true } });
-  const fach = praxis?.specialty ?? "zahn";
+  // Ohne Praxis kein stiller Rückfall auf Zahnmedizin: neutral wie „andere“.
+  const fach = praxis?.specialty ?? "andere";
 
   return (
     <div className="mx-auto max-w-4xl">

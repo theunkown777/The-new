@@ -17,7 +17,7 @@ import { OnlineZahlungEinrichten } from "@/components/OnlineZahlungEinrichten";
 import { onlineZahlungStatus } from "@/lib/onlineZahlung";
 import { darfZahlungen } from "@/lib/permissions";
 import { briefMoeglich } from "@/lib/erstattungsbrief";
-import { isDental } from "@/lib/specialties";
+import { DENTAL_ID } from "@/lib/specialties";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zahlungen" };
@@ -94,7 +94,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
   // Begleitbrief an die Versicherung: nur bei privat Versicherten (lib/erstattungsbrief.ts).
   const briefFuer = (i: (typeof list)[number]) =>
     briefMoeglich(i.patient.insuranceType)
-      ? { patientName: `${i.patient.firstName} ${i.patient.lastName}`, rechnungNummer: i.number, rechnungDatum: fmtDate(i.createdAt), versicherung: i.patient.insuranceName ?? "", versicherungsnummer: i.patient.insuranceNumber ?? "", gebuehrenordnung: isDental(practice?.specialty) ? ("GOZ" as const) : ("GOAE" as const) }
+      ? { patientName: `${i.patient.firstName} ${i.patient.lastName}`, rechnungNummer: i.number, rechnungDatum: fmtDate(i.createdAt), versicherung: i.patient.insuranceName ?? "", versicherungsnummer: i.patient.insuranceNumber ?? "", gebuehrenordnung: practice?.specialty === DENTAL_ID ? ("GOZ" as const) : ("GOAE" as const) }
       : undefined;
 
   return (

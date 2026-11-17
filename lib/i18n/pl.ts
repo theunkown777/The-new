@@ -10,8 +10,8 @@ import { gruppiert, NBSP, slawischerPlural } from "./format";
 const ui: Ui = {
   pageTitle: "Propozycja leczenia",
   hello: (name) => `Dzień dobry, ${name}, oto propozycja leczenia dla Pani/Pana`,
-  intro: (arzt) =>
-    `Można spokojnie sprawdzić, jakie są możliwości i ile będą kosztować. Proszę dotknąć opcji, aby zobaczyć swój udział własny. Decyzja zapada dopiero podczas rozmowy ${arzt ? "w gabinecie" : "ze stomatologiem"}.`,
+  intro: (arzt, zahn) =>
+    `Można spokojnie sprawdzić, jakie są możliwości i ile będą kosztować. Proszę dotknąć opcji, aby zobaczyć swój udział własny. Decyzja zapada dopiero podczas rozmowy ${zahn && !arzt ? "ze stomatologiem" : "w gabinecie"}.`,
   kasseWenn: "Kasa chorych płaci:",
   nutzen: "O korzyściach:",
   quelle: "Źródło:",

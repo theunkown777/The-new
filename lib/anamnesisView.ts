@@ -1,13 +1,15 @@
 import { prisma } from "@/lib/prisma";
-import { anamnesisFlags, anamnesisProposalGlobals, parseAnamnesis, type AnamnesisFlag } from "@/lib/anamnesis";
+import { anamneseZeilen, anamnesisFlags, anamnesisProposalGlobals, anliegenTexte, parseAnamnesis, type AnamneseZeile, type AnamnesisFlag } from "@/lib/anamnesis";
 import type { GlobalCode } from "@/lib/proposals";
 
 export type AnamnesisSummary = {
   submittedAt: string | null;
   open: { createdAt: string; viewedAt: string | null; expiresAt: string } | null;
   flags: AnamnesisFlag[];
+  /** Übernahme in den zahnärztlichen Vorschlag; in anderen Fächern leer. */
   globals: GlobalCode[];
-  answers: ReturnType<typeof parseAnamnesis>;
+  /** Zum Nachlesen: nur beantwortete Fragen, Anliegen als Text. */
+  answers: { zeilen: AnamneseZeile[]; anliegen: string[]; note?: string; confirmName: string; eltern: boolean } | null;
 };
 
 /** Letzte ausgefüllte Anamnese und ein ggf. offener Link für einen Patienten der Praxis. */
@@ -22,12 +24,14 @@ export async function loadAnamnesis(practiceId: string, patientId: string): Prom
       orderBy: { createdAt: "desc" },
     }),
   ]);
-  const answers = done ? parseAnamnesis(done.answers) : null;
+  const a = done ? parseAnamnesis(done.answers) : null;
+  // Ältere Bögen ohne Fach (Fassung 1): das Fach beim Anlegen, sonst das der Praxis. Nur dann wird die Praxis gelesen.
+  const fach = a && !a.fach && !done?.fach ? (await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }))?.specialty : done?.fach;
   return {
     submittedAt: done?.submittedAt?.toISOString() ?? null,
     open: open ? { createdAt: open.createdAt.toISOString(), viewedAt: open.viewedAt?.toISOString() ?? null, expiresAt: open.expiresAt.toISOString() } : null,
-    flags: answers ? anamnesisFlags(answers) : [],
-    globals: answers ? anamnesisProposalGlobals(answers) : [],
-    answers,
+    flags: a ? anamnesisFlags(a) : [],
+    globals: a ? anamnesisProposalGlobals(a, fach) : [],
+    answers: a ? { zeilen: anamneseZeilen(a), anliegen: anliegenTexte(a), ...(a.note ? { note: a.note } : {}), confirmName: a.confirmName, eltern: a.ansprache === "eltern" } : null,
   };
 }

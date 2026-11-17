@@ -103,7 +103,7 @@ export default async function EmbedPatientPage(props: {
       {view === "bericht" && (
         <div className="max-w-3xl">
           <ServiceChecklistForm
-            regionLabel={fachprofil(practice?.specialty ?? "zahn").region}
+            regionLabel={fachprofil(practice?.specialty).region}
             patients={[patientOption]}
             initialPatientId={patient.id}
             practicePunktwerte={{

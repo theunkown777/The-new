@@ -44,7 +44,7 @@ export async function preparePatientDemo(practiceId: string, now = new Date()): 
     ],
   });
   await prisma.anamnesisForm.create({
-    data: { practiceId, patientId: patient.id, tokenHash: crypto.randomBytes(32).toString("hex"), expiresAt: new Date(now.getTime() + 14 * DAY) },
+    data: { practiceId, patientId: patient.id, tokenHash: crypto.randomBytes(32).toString("hex"), expiresAt: new Date(now.getTime() + 14 * DAY), fach: practice.specialty },
   });
 
   const { raw, hash } = generateToken();

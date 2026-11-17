@@ -232,8 +232,8 @@ export async function generateReportText(input: GenerateReportInput, opts: { aus
 
 async function generateReportTextKi(input: GenerateReportInput): Promise<string> {
 
-  const profil = fachprofil(input.fach || "zahn");
-  const systemPrompt = `Du unterstützt eine Einrichtung (${profil.einrichtung}, Fach: ${SPECIALTY_LABELS[input.fach || "zahn"] ?? "Medizin"}) dabei, professionelle schriftliche Berichte zu
+  const profil = fachprofil(input.fach);
+  const systemPrompt = `Du unterstützt eine Einrichtung (${profil.einrichtung}, Fach: ${SPECIALTY_LABELS[input.fach ?? ""] ?? "Medizin"}) dabei, professionelle schriftliche Berichte zu
 verfassen. Du bekommst strukturierte Angaben und Stichpunkte der Praxis und formulierst daraus einen
 fertigen, gut lesbaren Bericht auf Deutsch.
 

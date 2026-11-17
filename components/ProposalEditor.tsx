@@ -6,7 +6,7 @@ import { BefundDiktat } from "@/components/BefundDiktat";
 import { favoritenFuerFach, type Favorit } from "@/lib/favoriten";
 import { AnlassPicker } from "@/components/AnlassPicker";
 import { AnlassStichworte } from "@/components/AnlassStichworte";
-import { isDental, isTherapie, specialty } from "@/lib/specialties";
+import { DENTAL_ID, isDental, isTherapie, specialty } from "@/lib/specialties";
 import type { DiktatResult } from "@/lib/befundDiktat";
 import {
   ABGEWAEHLT,
@@ -201,7 +201,9 @@ export function ProposalEditor({
   }
 
   // Favoriten: häufige Kombinationen mit einem Klick übernehmen bzw. die aktuelle Auswahl speichern.
-  const meineFavoriten = favoritenFuerFach(favoriten, fach ?? "zahn");
+  // Ohne Fach ist es ein alter Vorschlag aus der Zeit vor den Fachrichtungen, also zahnärztlich (wie isDental(undefined)).
+  const favoritFach = fach ?? DENTAL_ID;
+  const meineFavoriten = favoritenFuerFach(favoriten, favoritFach);
   function favoritAnwenden(f: Favorit) {
     if (dental) {
       setTeeth(f.teeth as Partial<Record<string, FindingCode>>);
@@ -216,7 +218,7 @@ export function ProposalEditor({
     const res = await fetch("/api/praxis/vorschlag-favoriten", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, fach: fach ?? "zahn", teeth: dental ? teeth : {}, globals: dental ? Object.entries(globals).filter(([, v]) => v).map(([k]) => k) : [], anlaesse: dental ? [] : anlaesse, choices }),
+      body: JSON.stringify({ name, fach: favoritFach, teeth: dental ? teeth : {}, globals: dental ? Object.entries(globals).filter(([, v]) => v).map(([k]) => k) : [], anlaesse: dental ? [] : anlaesse, choices }),
     }).catch(() => null);
     const d = await res?.json().catch(() => null);
     if (!res?.ok) return setFavMeldung(d?.error ?? "Der Favorit konnte nicht gespeichert werden.");

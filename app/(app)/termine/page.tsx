@@ -57,7 +57,7 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
   const kurz = (d: Date) => d.toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
   const q = (t: string, o: string | null = ort) => `/termine?tag=${t}${o ? `&ort=${o}` : ""}`;
   const tagKurz = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", timeZone: "Europe/Berlin" });
-  const anlaesse = Array.from(new Set([...fachprofil(practice?.specialty ?? "zahn").termine, ...leistungenFuerFach(practice?.specialty ?? "zahn").map((l) => l.name)]));
+  const anlaesse = Array.from(new Set([...fachprofil(practice?.specialty).termine, ...leistungenFuerFach(practice?.specialty ?? "").map((l) => l.name)]));
   const jetzt = new Date();
   // Abgesagte Termine in der Zukunft: bis zu zwei passende Personen von der Warteliste vorschlagen
   const vorschlaege = (t: { start: Date; status: string; patientId: string }) =>

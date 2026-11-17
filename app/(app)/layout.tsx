@@ -38,8 +38,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Andere Fächer: Der Menüpunkt erscheint, sobald es einen Bericht gibt (z. B. „Bericht an die überweisende Praxis“
   // aus „Behandlung abschließen“). Ohne Bericht bleibt das Menü kurz.
   const berichte = dental || (await prisma.report.findFirst({ where: { practiceId: session.user.practiceId }, select: { id: true } }).catch(() => null)) !== null;
-  const personen = fachprofil(currentUser?.practice.specialty ?? "zahn").person.pl;
-  const person = fachprofil(currentUser?.practice.specialty ?? "zahn").person.sg;
+  const personen = fachprofil(currentUser?.practice.specialty).person.pl;
+  const person = fachprofil(currentUser?.practice.specialty).person.sg;
   const team = await isSupportTeam(session.user.id);
   // Menü nach Rolle und Freigabe (lib/rollen.ts): Zahlungen, Analyse und Einstellungen der Praxis.
   const menue = await menueRechteVon(session.user.id, session.user.practiceId);

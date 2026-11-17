@@ -17,7 +17,7 @@ export default async function PatientenImportPage() {
     kontoDarf(session!.user.id, "patienten.import", practiceId),
     prisma.practice.findUnique({ where: { id: practiceId }, select: { isDemo: true, specialty: true } }),
   ]);
-  const P = fachprofil(practice?.specialty ?? "zahn").person;
+  const P = fachprofil(practice?.specialty).person;
 
   return (
     <div className="mx-auto max-w-4xl space-y-5" data-testid="patienten-import-seite">

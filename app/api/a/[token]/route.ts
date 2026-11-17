@@ -3,7 +3,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
-import { anamnesisSchema } from "@/lib/anamnesis";
+import { anamnesePruefen, anamneseProfilFuer } from "@/lib/anamnesis";
 import { eingangMelden } from "@/lib/eingang";
 
 import { anschluss } from "@/lib/anschluss";
@@ -18,16 +18,21 @@ export async function POST(req: Request, props: { params: Promise<{ token: strin
   }
   await recordAttempt(key, 60 * 60 * 1000);
 
-  const form = await prisma.anamnesisForm.findUnique({ where: { tokenHash: hashToken(params.token) } });
+  const form = await prisma.anamnesisForm.findUnique({
+    where: { tokenHash: hashToken(params.token) },
+    include: { practice: { select: { specialty: true } }, patient: { select: { birthDate: true, geschlecht: true } } },
+  });
   if (!form || form.submittedAt || form.expiresAt < new Date()) {
     return NextResponse.json({ error: "Dieser Link ist nicht mehr gültig. Bitte wenden Sie sich an Ihre Praxis." }, { status: 404 });
   }
-  const parsed = anamnesisSchema.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Ungültige Angaben" }, { status: 400 });
+  // Geprüft wird gegen den Bogen des Fachs, der angezeigt wurde (lib/anamneseProfile.ts); fremde Fragen werden abgelehnt.
+  const profil = anamneseProfilFuer(form.fach, form.practice.specialty, form.patient);
+  const geprueft = anamnesePruefen(await req.json().catch(() => null), profil, { altbestand: !form.fach });
+  if (!geprueft.ok) return NextResponse.json({ error: geprueft.fehler }, { status: 400 });
 
   await prisma.anamnesisForm.update({
     where: { id: form.id },
-    data: { answers: parsed.data as unknown as Prisma.InputJsonValue, submittedAt: new Date(), tokenHash: null },
+    data: { answers: geprueft.daten as unknown as Prisma.InputJsonValue, submittedAt: new Date(), tokenHash: null, fach: form.fach ?? form.practice.specialty },
   });
   await eingangMelden({ practiceId: form.practiceId, patientId: form.patientId, art: "ANAMNESE", entityId: form.id });
   return NextResponse.json({ ok: true });

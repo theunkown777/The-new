@@ -30,7 +30,7 @@ export const MENUE_UMSCHALTEN = "sorrida:menue-umschalten";
 /** Meldet der unteren Leiste, ob das Menü gerade offen ist (detail: boolean). */
 export const MENUE_ZUSTAND = "sorrida:menue-zustand";
 
-export function MobileNav({ userName, dental = true, berichte = dental, team = false, analyse = false, zahlungen = true, einstellungen = true, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; userName?: string | null; dental?: boolean; berichte?: boolean; team?: boolean; analyse?: boolean; zahlungen?: boolean; einstellungen?: boolean; personPl?: string; abschluss?: string }) {
+export function MobileNav({ userName, dental, berichte = dental, team = false, analyse = false, zahlungen = true, einstellungen = true, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; userName?: string | null; dental: boolean; berichte?: boolean; team?: boolean; analyse?: boolean; zahlungen?: boolean; einstellungen?: boolean; personPl?: string; abschluss?: string }) {
   // "kopf": aufgeklappt unter der Kopfzeile (drei Striche). "leiste": als Blatt über der unteren Leiste („Mehr“).
   const [offen, setOffen] = useState<false | "kopf" | "leiste">(false);
   const open = offen !== false;

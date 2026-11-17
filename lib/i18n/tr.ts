@@ -9,8 +9,8 @@ import { gruppiert } from "./format";
 const ui: Ui = {
   pageTitle: "Tedavi öneriniz",
   hello: (name) => `Merhaba ${name}, tedavi öneriniz burada`,
-  intro: (arzt) =>
-    `Hangi seçeneklerin olduğunu ve bunların size maliyetini acele etmeden inceleyebilirsiniz. Kendi payınızı görmek için bir seçeneğe dokunun. Karar ancak ${arzt ? "muayenehanenizde yapacağınız görüşmede" : "diş hekiminizle yapacağınız görüşmede"} verilir.`,
+  intro: (arzt, zahn) =>
+    `Hangi seçeneklerin olduğunu ve bunların size maliyetini acele etmeden inceleyebilirsiniz. Kendi payınızı görmek için bir seçeneğe dokunun. Karar ancak ${zahn && !arzt ? "diş hekiminizle yapacağınız görüşmede" : "muayenehanenizde yapacağınız görüşmede"} verilir.`,
   kasseWenn: "Sağlık sigortası öder:",
   nutzen: "Faydası hakkında:",
   quelle: "Kaynak:",

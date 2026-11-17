@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { nurMitEinstellungen } from "@/lib/permissions";
-import { leseStammdaten, praxisZeile, stammdatenFehlen } from "@/lib/praxisStammdaten";
+import { leseStammdaten, praxisZeile, stammdatenBeispiele, stammdatenFehlen } from "@/lib/praxisStammdaten";
 import { PraxisStammdaten } from "@/components/PraxisStammdaten";
 import { PraxisFuss } from "@/components/PraxisFuss";
 
@@ -16,7 +16,7 @@ export default async function PraxisAngabenPage() {
   await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const admin = session!.user.role === "admin";
-  const practice = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { name: true, stammdaten: true } });
+  const practice = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { name: true, stammdaten: true, specialty: true } });
   const s = leseStammdaten(practice?.stammdaten);
   const name = practice?.name ?? "";
   return (
@@ -30,7 +30,7 @@ export default async function PraxisAngabenPage() {
         </p>
       </div>
       {admin ? (
-        <PraxisStammdaten start={s} fehlt={stammdatenFehlen(s)} />
+        <PraxisStammdaten start={s} fehlt={stammdatenFehlen(s)} beispiele={stammdatenBeispiele(practice?.specialty)} />
       ) : (
         <p className="card text-sm text-slate-600">Diese Angaben ändert die Praxisleitung. Eingetragen ist: {praxisZeile(name, s)}.</p>
       )}

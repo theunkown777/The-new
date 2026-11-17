@@ -39,7 +39,7 @@ export async function GET(req: Request) {
     menueRechteVon(session.user.id, practiceId),
     prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }),
   ]);
-  const P = fachprofil(practice?.specialty ?? "zahn").person;
+  const P = fachprofil(practice?.specialty).person;
 
   const bedingung = patientBedingung(b) as { AND: Prisma.PatientWhereInput[] } | null;
   // Rechnungsnummern enthalten Ziffern („2026-0042“); nur dann nach der Nummer suchen.

@@ -255,7 +255,8 @@ BEFUNDMODELLE.ergo = BEFUNDMODELLE.physio;
 const OHNE_BEFUNDMODELL = new Set(["apotheke", "optik", "hoerakustik", "sanitaetshaus", "pflege", "hebamme", "heilpraktiker", "klinik", "radiologie", "aesthetik"]);
 
 export function befundmodell(fach: string | null | undefined, person?: { geschlecht?: string | null }): Region[] {
-  const f = fach || "zahn";
+  // Ohne Fach das allgemeine Modell (wie bei unbekanntem Fach), nie das Gebiss.
+  const f = fach ?? "";
   if (OHNE_BEFUNDMODELL.has(f)) return [];
   const regionen = BEFUNDMODELLE[f] ?? BEFUNDMODELLE.hausarzt;
   const g = person?.geschlecht;

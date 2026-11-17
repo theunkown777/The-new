@@ -1,43 +1,138 @@
 import { describe, expect, it } from "vitest";
-import { QUESTIONS, anamnesisFlags, anamnesisProposalGlobals, anamnesisSchema } from "@/lib/anamnesis";
+import { ANAMNESE_FRAGEN, ANLIEGEN, anamneseFuer } from "@/lib/anamneseProfile";
+import { anamneseFehler, anamneseZeilen, anamnesePruefen, anamnesisFlags, anamnesisProposalGlobals, anamnesisSchemaFuer, anliegenTexte, parseAnamnesis } from "@/lib/anamnesis";
 
-const allNo = Object.fromEntries(QUESTIONS.map((q) => [q.key, { yes: false }]));
+const zahn = anamneseFuer("zahn");
+const hausarzt = anamneseFuer("hausarzt");
+const allNo = (p: { fragen: { key: string }[] }) => Object.fromEntries(p.fragen.map((q) => [q.key, { yes: false }]));
 
 describe("Anamnese", () => {
-  it("verlangt alle Fragen und eine Bestätigung", () => {
-    expect(anamnesisSchema.safeParse({ q: allNo, confirmName: "Martina Weber" }).success).toBe(true);
-    expect(anamnesisSchema.safeParse({ q: { rauchen: { yes: true } }, confirmName: "Martina Weber" }).success).toBe(false);
-    expect(anamnesisSchema.safeParse({ q: allNo, confirmName: "" }).success).toBe(false);
+  it("verlangt alle Fragen des Bogens und eine Bestätigung", () => {
+    const schema = anamnesisSchemaFuer(zahn);
+    expect(schema.safeParse({ q: allNo(zahn), confirmName: "Martina Weber" }).success).toBe(true);
+    const fehlt = schema.safeParse({ q: { rauchen: { yes: true } }, confirmName: "Martina Weber" });
+    expect(fehlt.success).toBe(false);
+    // Der Browser schickt immer alle Fragen; fehlt eine, hat sich der Bogen seit dem Öffnen geändert.
+    expect(anamneseFehler(fehlt.error!.issues)).toBe("Der Bogen hat sich geändert. Bitte laden Sie die Seite neu.");
+    expect(schema.safeParse({ q: allNo(zahn), confirmName: "" }).success).toBe(false);
+  });
+
+  it("meldet Fehler auf Deutsch und passend, nie mit den englischen Texten der Prüfung", () => {
+    const fehler = (body: unknown, opts?: { altbestand?: boolean }) => {
+      const p = anamnesePruefen(body, hausarzt, opts);
+      return p.ok ? "ok" : p.fehler;
+    };
+    const voll = { q: allNo(hausarzt), wishes: [], confirmName: "M. Weber" };
+    expect(fehler(voll)).toBe("ok");
+    // Kein oder kein lesbarer Inhalt
+    for (const b of [undefined, null, [], "x", 3]) expect(fehler(b), String(b)).toBe("Die Angaben konnten nicht gelesen werden. Bitte laden Sie die Seite neu.");
+    // Bogen geändert: eine Frage fehlt (z. B. Geburtstag mit 12 Jahren) oder ist neu
+    const { rauchen: _r, ...ohneRauchen } = allNo(hausarzt);
+    expect(fehler({ ...voll, q: ohneRauchen })).toBe("Der Bogen hat sich geändert. Bitte laden Sie die Seite neu.");
+    expect(fehler({ ...voll, q: { ...allNo(hausarzt), knirschen: { yes: false } } })).toMatch(/geändert/);
+    expect(fehler({ ...voll, wishes: ["hell"] })).toMatch(/geändert/);
+    // Antwort unvollständig
+    expect(fehler({ ...voll, q: { ...allNo(hausarzt), rauchen: null } })).toBe("Bitte alle Fragen beantworten");
+    expect(fehler({ ...voll, q: { ...allNo(hausarzt), rauchen: { yes: "ja" } } })).toBe("Bitte alle Fragen beantworten");
+    // Zu lang oder Name fehlt
+    expect(fehler({ ...voll, q: { ...allNo(hausarzt), medikamente: { yes: true, detail: "x".repeat(301) } } })).toBe("Bitte kürzen Sie Ihre Angabe zu einer Frage auf höchstens 300 Zeichen.");
+    expect(fehler({ ...voll, note: "x".repeat(1001) })).toBe("Bitte kürzen Sie die weiteren Hinweise auf höchstens 1000 Zeichen.");
+    expect(fehler({ ...voll, confirmName: "x".repeat(121) })).toBe("Bitte kürzen Sie den Namen auf höchstens 120 Zeichen.");
+    expect(fehler({ ...voll, confirmName: "M" })).toBe("Bitte Ihren Namen zur Bestätigung eintragen");
+    expect(fehler({ q: allNo(hausarzt), wishes: [] })).toBe("Bitte Ihren Namen zur Bestätigung eintragen");
+    // Nie Englisch
+    for (const b of [undefined, {}, { q: 1 }, { ...voll, wishes: "x" }, { ...voll, note: 5 }]) expect(fehler(b), JSON.stringify(b)).not.toMatch(/Invalid|expected|received|Too big|Unrecognized/);
   });
 
   it("Warnhinweise zuerst, mit Detail", () => {
-    const a = anamnesisSchema.parse({
-      q: { ...allNo, diabetes: { yes: true }, blutverduenner: { yes: true, detail: "Eliquis 5 mg" } },
-      wishes: ["angst"],
-      confirmName: "M. Weber",
-    });
-    const flags = anamnesisFlags(a);
+    const p = anamnesePruefen({ q: { ...allNo(zahn), diabetes: { yes: true }, blutverduenner: { yes: true, detail: "Eliquis 5 mg" } }, wishes: ["angst"], confirmName: "M. Weber" }, zahn);
+    if (!p.ok) throw new Error(p.fehler);
+    const flags = anamnesisFlags(p.daten);
     expect(flags[0]).toEqual({ level: "warn", text: "Blutverdünner", detail: "Eliquis 5 mg" });
     expect(flags.map((f) => f.level)).toEqual(["warn", "info", "info"]);
   });
 
-  it("übernimmt Raucher, Knirschen und Bleaching-Wunsch in den Vorschlag", () => {
-    const a = anamnesisSchema.parse({
-      q: { ...allNo, rauchen: { yes: true }, knirschen: { yes: true } },
-      wishes: ["hell", "luecke"],
-      confirmName: "M. Weber",
-    });
-    expect(anamnesisProposalGlobals(a).sort()).toEqual(["bleaching", "bruxismus", "raucher"]);
+  it("übernimmt Raucher, Knirschen und Bleaching-Wunsch nur im zahnärztlichen Bogen in den Vorschlag", () => {
+    const p = anamnesePruefen({ q: { ...allNo(zahn), rauchen: { yes: true }, knirschen: { yes: true } }, wishes: ["hell", "luecke"], confirmName: "M. Weber" }, zahn);
+    if (!p.ok) throw new Error(p.fehler);
+    expect(p.daten).toMatchObject({ v: 2, fach: "zahn" });
+    expect(anamnesisProposalGlobals(p.daten).sort()).toEqual(["bleaching", "bruxismus", "raucher"]);
+    const h = anamnesePruefen({ q: { ...allNo(hausarzt), rauchen: { yes: true } }, wishes: [], confirmName: "M. Weber" }, hausarzt);
+    if (!h.ok) throw new Error(h.fehler);
+    expect(anamnesisProposalGlobals(h.daten)).toEqual([]);
+    // Auch wenn die Praxis inzwischen Zahnmedizin wäre: Der Bogen war hausärztlich.
+    expect(anamnesisProposalGlobals(h.daten, "zahn")).toEqual([]);
+  });
+
+  it("speichert Fassung 2 mit Fach und lehnt fremde Schlüssel ab", () => {
+    const p = anamnesePruefen({ q: allNo(hausarzt), wishes: ["kasse"], confirmName: "M. Weber" }, hausarzt);
+    expect(p.ok && p.daten).toMatchObject({ v: 2, fach: "hausarzt", ansprache: "patient", wishes: ["kasse"] });
+    const knirschen = anamnesePruefen({ q: { ...allNo(hausarzt), knirschen: { yes: true } }, wishes: [], confirmName: "M. Weber" }, hausarzt);
+    expect(knirschen.ok).toBe(false);
+    expect(!knirschen.ok && knirschen.fehler).toMatch(/neu/);
+    expect(anamnesePruefen({ q: allNo(hausarzt), wishes: ["hell"], confirmName: "M. Weber" }, hausarzt).ok).toBe(false);
+    expect(anamnesePruefen({ q: allNo(hausarzt), wishes: [], confirmName: "M. Weber", fach: "zahn" }, hausarzt).ok).toBe(false);
+  });
+});
+
+// Bögen von vor November 2026 (Fassung 1): ohne Fach, mit festem Fragensatz. Sie bleiben lesbar und gehen nicht verloren.
+describe("Ältere Bögen (Fassung 1)", () => {
+  const v1 = {
+    q: { medikamente: { yes: true, detail: "Ramipril" }, blutverduenner: { yes: true, detail: "ASS 100" }, gerinnung: { yes: false }, bisphosphonate: { yes: false }, allergien: { yes: false }, herz: { yes: false }, blutdruck: { yes: true }, diabetes: { yes: false }, infektion: { yes: false }, bestrahlung: { yes: false }, schwanger: { yes: false }, rauchen: { yes: true }, knirschen: { yes: true } },
+    wishes: ["hell", "kosten"],
+    confirmName: "Anna Krüger",
+  };
+
+  it("bleiben lesbar mit Hinweisen und Anliegen", () => {
+    const a = parseAnamnesis(v1)!;
+    expect(a).toMatchObject({ v: 1, fach: null });
+    expect(anamnesisFlags(a).map((f) => f.text)).toContain("Blutverdünner");
+    expect(anliegenTexte(a)).toEqual(["hellere Zähne", "Kosten gering halten"]);
+    expect(anamneseZeilen(a)).toHaveLength(13);
+  });
+
+  it("übernehmen in den Vorschlag nach dem Fach der Praxis", () => {
+    const a = parseAnamnesis(v1)!;
+    expect(anamnesisProposalGlobals(a, "zahn").sort()).toEqual(["bleaching", "bruxismus", "raucher"]);
+    expect(anamnesisProposalGlobals(a, "hausarzt")).toEqual([]);
+    expect(anamnesisProposalGlobals(a, null)).toEqual([]);
+  });
+
+  it("zeigen nur, was gefragt wurde (kein „Nein“ für Ungefragtes)", () => {
+    const a = parseAnamnesis({ q: { medikamente: { yes: false }, rauchen: { yes: true } }, wishes: [], confirmName: "X Y" })!;
+    const zeilen = anamneseZeilen(a);
+    expect(zeilen.map((z) => z.antwort)).toEqual(["Nein", "Ja"]);
+    expect(JSON.stringify(zeilen)).not.toMatch(/Knirschen|Zähne/);
+  });
+
+  it("vor dem Fach angelegte, offene Bögen werden noch angenommen; fremde Anliegen fallen weg", () => {
+    const alt = { ...v1, q: Object.fromEntries(Object.entries(v1.q).filter(([k]) => k !== "knirschen")), wishes: ["hell", "angst"] };
+    expect(anamnesePruefen(alt, hausarzt).ok).toBe(false);
+    const p = anamnesePruefen(alt, hausarzt, { altbestand: true });
+    if (!p.ok) throw new Error(p.fehler);
+    expect(p.daten.wishes).toEqual(["angst"]);
+    expect(p.daten.q.bisphosphonate).toEqual({ yes: false });
+    expect(anamnesePruefen({ ...alt, q: { medikamente: { yes: false } } }, hausarzt, { altbestand: true }).ok).toBe(false);
+  });
+
+  it("alter Bogen mit zu kurzem Namen: Meldung zum Namen, nicht „Bogen geändert“", () => {
+    const alt = { ...v1, q: Object.fromEntries(Object.entries(v1.q).filter(([k]) => k !== "knirschen")), confirmName: "A" };
+    const p = anamnesePruefen(alt, hausarzt, { altbestand: true });
+    expect(!p.ok && p.fehler).toBe("Bitte Ihren Namen zur Bestätigung eintragen");
   });
 });
 
 // Die Hinweise aus dem Fragebogen nennen nur, was der Patient angegeben hat. Was daraus für die Behandlung folgt,
 // entscheidet die Praxis (lib/zweckbestimmung.ts: keine Therapieempfehlungen, keine Bewertung von Befunden).
 describe("Hinweise aus dem Anamnesebogen", () => {
-  it("nennen die Angabe, kein Risiko und keine Anweisung", async () => {
-    const { QUESTIONS } = await import("@/lib/anamnesis");
-    const texte = QUESTIONS.flatMap((q) => (q.flag ? [q.flag.text] : []));
+  it("nennen die Angabe, kein Risiko und keine Anweisung", () => {
+    const texte = Object.values(ANAMNESE_FRAGEN).flatMap((q) => (q.hinweis ? [q.hinweis.text] : []));
     expect(texte.length).toBeGreaterThan(8);
-    for (const t of texte) expect(t, t).not.toMatch(/risiko|prophylaxe|prüfen|ggf\.|:|\bvor\b|wundheilung|nekrose/i);
+    for (const t of texte) expect(t, t).not.toMatch(/risiko|prophylaxe|prüfen|ggf\.|:|\bvor\b|wundheilung|nekrose|einplanen|abklären|empfohlen/i);
+  });
+
+  it("Anliegen: Angst wird beschrieben, nicht angewiesen", () => {
+    expect(ANLIEGEN.angst.hinweis?.text).toBe("Angst vor der Behandlung angegeben");
+    for (const a of Object.values(ANLIEGEN)) if (a.hinweis) expect(a.hinweis.text, a.key).not.toMatch(/patient:|einplanen|mehr Zeit|risiko|:/i);
   });
 });

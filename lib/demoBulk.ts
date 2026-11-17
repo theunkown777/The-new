@@ -4,7 +4,7 @@ import { demoKennzahlen, demoStamm, demoVorschlaege } from "@/lib/demoKennzahlen
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_PRICES, buildProposal, type FindingCode, type ProposalInput } from "@/lib/proposals";
 import { computeProposal } from "@/lib/proposalSchema";
-import { QUESTIONS, WISHES } from "@/lib/anamnesis";
+import { demoAnamneseZufall } from "@/lib/demoAnamnese";
 import { specialty } from "@/lib/specialties";
 import { ageOn, generatePatients, rng } from "@/lib/demoData";
 import { fachprofil, passtZuPerson, termineFuer } from "@/lib/fachprofile";
@@ -181,22 +181,18 @@ export async function seedBulkDemo(args: {
   }
   if (invoices.length) await prisma.invoice.createMany({ data: invoices });
 
-  // Digitale Anamnese bei etwa 15 % der Patienten.
+  // Digitale Anamnese bei etwa 15 % der Patienten, mit dem Bogen des Fachs (lib/demoAnamnese.ts).
   const forms: Prisma.AnamnesisFormCreateManyInput[] = shuffled.slice(0, Math.round(patients.length * 0.15)).map((p) => {
     const submittedAt = new Date(now.getTime() - Math.floor(r() * 200) * DAY);
-    const q = Object.fromEntries(
-      QUESTIONS.filter((x) => dental || !x.dentalOnly).map((x) => {
-        const yes = r() < (x.key === "medikamente" ? 0.45 : x.key === "rauchen" ? 0.18 : x.key === "blutdruck" ? 0.22 : 0.06);
-        return [x.key, { yes, detail: yes && x.detail ? weighted(r, [["laut Medikamentenplan", 1], ["ASS 100", 1], ["Penicillin", 1], ["L-Thyroxin", 1]]) : undefined }];
-      }),
-    );
+    const person = { geschlecht: p.geschlecht, alter: p.birthDate ? ageOn(p.birthDate, submittedAt) : null };
     return {
       practiceId,
       patientId: p.id,
+      fach,
       expiresAt: submittedAt,
       viewedAt: new Date(submittedAt.getTime() - 3600 * 1000),
       submittedAt,
-      answers: { q, wishes: r() < 0.1 ? [WISHES[Math.floor(r() * WISHES.length)].key] : [], confirmName: `${p.firstName} ${p.lastName}` } as Prisma.InputJsonValue,
+      answers: demoAnamneseZufall(fach, person, r, `${p.firstName} ${p.lastName}`) as unknown as Prisma.InputJsonValue,
     };
   });
   if (forms.length) await prisma.anamnesisForm.createMany({ data: forms });

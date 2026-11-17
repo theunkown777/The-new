@@ -392,7 +392,7 @@ export function fachprofil(fach: string | null | undefined): FachProfil {
 
 /** Wie der Abschluss eines Kontakts heißt: Behandlung, Beratung, Versorgung, Einsatz, Besuch. */
 export function abschlussWort(fach: string | null | undefined): string {
-  const f = fach || "zahn";
+  const f = fach ?? "";
   if (f === "apotheke") return "Beratung";
   if (["optik", "hoerakustik", "sanitaetshaus"].includes(f)) return "Versorgung";
   if (f === "pflege") return "Einsatz";
@@ -413,7 +413,8 @@ export function passtZuPerson(
 
 /** Welche Abrechnungssysteme ein Fach im eigenen Katalog anlegen kann. */
 export function systemGruppe(fach: string | null | undefined): string {
-  const f = fach || "zahn";
+  // Ohne Fach kein stiller Rückfall auf BEMA/GOZ: ärztliche Systeme wie bei „andere“.
+  const f = fach ?? "";
   if (f === "zahn") return "zahn";
   if (["physio", "ergo", "logo", "podo"].includes(f)) return "therapie";
   if (f === "apotheke") return "apotheke";

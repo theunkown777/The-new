@@ -51,7 +51,9 @@ async function handle(req: Request) {
   }
   try {
     const body = await req.json().catch(() => ({}));
-    const fach = typeof body?.fach === "string" && specialty(body.fach) ? body.fach : DENTAL_ID;
+    // Fehlt das Fach oder ist es unbekannt, gibt es keinen stillen Rückfall auf Zahnmedizin.
+    const fach = typeof body?.fach === "string" && (body.fach === DENTAL_ID || specialty(body.fach)) ? (body.fach as string) : null;
+    if (!fach) return NextResponse.json({ error: "Bitte wählen Sie zuerst Ihr Fachgebiet." }, { status: 400 });
     const { email, password } = await createDemoPractice(new Date(), fach);
     return NextResponse.json({ email, password }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (err) {

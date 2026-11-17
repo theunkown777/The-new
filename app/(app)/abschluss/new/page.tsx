@@ -91,7 +91,7 @@ export default async function NewWrapUpPage(props: { searchParams: Promise<{ pat
             bemaPunktwertCent: practice?.bemaPunktwertCent ?? null,
           }}
           prices={resolvePrices(practice?.proposalPrices)}
-          practiceName={practice?.name ?? "Ihre Zahnarztpraxis"}
+          practiceName={practice?.name ?? "Ihre Praxis"}
           basePath="/abschluss"
         />
       </div>

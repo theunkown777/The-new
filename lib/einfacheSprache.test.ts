@@ -5,7 +5,7 @@ import { UI, uiFuer } from "@/lib/patientI18n";
 // Beispielwerte wie in lib/patientI18n.test.ts.
 const ARGS: Record<string, unknown[][]> = {
   hello: [["Zofia"]],
-  intro: [[undefined], ["Ihrer Hautärztin oder Ihrem Hautarzt"]],
+  intro: [[undefined], [undefined, true], ["Ihrer Hautärztin oder Ihrem Hautarzt"]],
   fineMed: [["24.11.2026"]],
   deadline: [[48]],
   open: [[1], [3]],

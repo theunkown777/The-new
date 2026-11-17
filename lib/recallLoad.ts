@@ -5,7 +5,7 @@ import { ageFromBirthDate } from "@/lib/proposals";
 /** Patienten, deren Vorsorge fällig ist (Seite /vorsorge und Praxismanager). */
 export async function loadRecallDue(practiceId: string, now = new Date()) {
   const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true, name: true } });
-  const fach = practice?.specialty ?? "zahn";
+  const fach = practice?.specialty ?? "";
   const rules = RECALL_RULES[fach] ?? [];
 
   const patients = rules.length
