@@ -176,7 +176,7 @@ export function PreislisteEinlesen({ dental, readOnly, ziele: zieleStart, ki, st
   }
 
   return (
-    <div className="space-y-6" data-testid="preisliste-einlesen">
+    <div className="space-y-6" data-testid="preisliste-einlesen" data-hilfe="preisliste-einlesen">
       {readOnly && <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">Nur die Praxisleitung kann Preise speichern. Sie können eine Liste lesen und die Vorschau ansehen.</p>}
 
       <section className="card space-y-3" aria-labelledby="preisliste-text-titel">

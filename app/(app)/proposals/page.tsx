@@ -41,9 +41,9 @@ export default async function ProposalsPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-3xl text-slate-900">Behandlungsvorschläge</h1>
         <div className="flex flex-wrap items-center gap-3">
-          <Link href="/proposals/nachfassen" className="btn-secondary" data-testid="link-nachfassen">Nachfassen</Link>
-          <Link href="/proposals/schnell" className="btn-secondary" data-testid="schnellvorschlag">Schnellvorschlag ohne Akte</Link>
-          <Link href="/proposals/new" className="btn-primary">Neuer Vorschlag</Link>
+          <Link href="/proposals/nachfassen" className="btn-secondary" data-testid="link-nachfassen" data-hilfe="vorschlag-nachfassen">Nachfassen</Link>
+          <Link href="/proposals/schnell" className="btn-secondary" data-testid="schnellvorschlag" data-hilfe="vorschlag-schnell">Schnellvorschlag ohne Akte</Link>
+          <Link href="/proposals/new" className="btn-primary" data-testid="vorschlag-neu" data-hilfe="vorschlag-neu">Neuer Vorschlag</Link>
         </div>
       </div>
 

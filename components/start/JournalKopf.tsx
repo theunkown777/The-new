@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { WebsiteHilfe } from "@/components/WebsiteHilfe";
 
 // Kopfzeile der Website im Journal-Stil: Wortmarke links, Textnavigation, ein Knopf.
 // Am Handy wandert die Navigation in ein aufklappbares Menü (ohne JavaScript, mit <details>).
@@ -106,14 +107,18 @@ export function JournalFuss() {
   );
 }
 
-/** Rahmen für alle öffentlichen Seiten außer der Startseite: Papier, Kopf, Inhalt, Fuß. */
-export function JournalRahmen({ children }: { children: React.ReactNode }) {
+/**
+ * Rahmen für alle öffentlichen Seiten außer der Startseite: Papier, Kopf, Inhalt, Fuß und „Frag Sorrida“.
+ * `hilfe={false}` auf Seiten, die auch hinter dem Vorschau-Schloss erreichbar sind (Pflichtseiten, siehe LegalPage).
+ */
+export function JournalRahmen({ children, hilfe = true }: { children: React.ReactNode; hilfe?: boolean }) {
   return (
     <div className="journal flex min-h-screen flex-col">
       <a href="#inhalt" className="sprunglink">Zum Inhalt</a>
       <JournalKopf angemeldet={false} />
       <div id="inhalt" className="flex-1">{children}</div>
       <JournalFuss />
+      {hilfe && <WebsiteHilfe />}
     </div>
   );
 }

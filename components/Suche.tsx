@@ -28,14 +28,14 @@ export function SucheKnopf({ variante = "leiste" }: { variante?: "leiste" | "kop
   );
   if (variante === "kopf") {
     return (
-      <button type="button" onClick={oeffnen} aria-label="Suche öffnen" aria-haspopup="dialog" data-testid="suche-oeffnen-handy"
+      <button type="button" onClick={oeffnen} aria-label="Suche öffnen" aria-haspopup="dialog" data-testid="suche-oeffnen-handy" data-hilfe="suche-oeffnen"
         className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-brand-100 hover:bg-brand-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
         {lupe}
       </button>
     );
   }
   return (
-    <button type="button" onClick={oeffnen} aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" data-testid="suche-oeffnen"
+    <button type="button" onClick={oeffnen} aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" data-testid="suche-oeffnen" data-hilfe="suche-oeffnen"
       className="mb-4 flex w-full items-center gap-2 rounded-xl border border-[#E9E2DA] bg-white px-3 py-2 text-left text-sm text-slate-500 hover:border-brand-600 hover:text-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
       {lupe}
       <span className="flex-1">Suchen …</span>

@@ -21,7 +21,7 @@ export function MorgenMail({ aktiv, an, versandBereit }: { aktiv: boolean; an: s
   }
 
   return (
-    <section className="card mt-5 text-sm" data-testid="morgenmail">
+    <section className="card mt-5 text-sm" data-testid="morgenmail" data-hilfe="morgen-mail">
       <h2 className="font-semibold text-slate-900">Morgens per E-Mail erinnern</h2>
       <p className="mt-1 text-slate-600">
         Werktags früh eine kurze Mail, wenn im Eingang etwas wartet: nur Zahlen („2 Rückmeldungen, 1 gemeldete Zahlung“), keine Namen und keine

@@ -16,13 +16,20 @@ import {
   kiHilfenStand,
   kiLeistungUebersetzen,
   kiPreislisteLesen,
+  KI_HILFE_OPTIONEN,
+  hilfeTextBereinigen,
+  gefundeneNamen,
+  namenErsetzen,
+  namensFilter,
+  namensKandidaten,
+  ohneAnrede,
   ohnePersonenbezug,
   type KiClient,
 } from "@/lib/kiHilfen";
 
 /** Nachgebildeter KI-Dienst: merkt sich die Anfrage und antwortet mit dem vorgegebenen Text. */
 function nachbildung(antwort: string, stop: string = "end_turn") {
-  const create = vi.fn(async (_p: unknown) => ({ content: [{ type: "text", text: antwort }], stop_reason: stop }));
+  const create = vi.fn(async (_p: unknown, _o?: unknown) => ({ content: [{ type: "text", text: antwort }], stop_reason: stop }));
   return { client: { messages: { create } } as unknown as KiClient, create, anfrage: () => JSON.stringify(create.mock.calls[0]?.[0] ?? null) };
 }
 
@@ -145,12 +152,51 @@ describe("kiHilfeBeantworten", () => {
     { id: "vorschlag-neu", frage: "Wie lege ich einen Vorschlag an?", antwort: "Über Vorschläge → Neuer Vorschlag.", pfad: "Vorschläge → Neuer Vorschlag" },
     { id: "team-einladen", frage: "Wie lade ich jemanden ein?", antwort: "Unter Einstellungen → Team.", pfad: "Einstellungen → Team" },
   ];
+  type Anfrage = { system: { type: string; text: string }[]; messages: { content: string }[] };
+  const anfrageVon = (k: ReturnType<typeof nachbildung>) => k.create.mock.calls[0][0] as unknown as Anfrage;
   it("gibt Antwort und Quellen als Einträge der Sammlung zurück", async () => {
     const k = nachbildung('{"passt":true,"antwort":"Öffnen Sie Vorschläge und wählen Sie Neuer Vorschlag.","quellen":["H1"]}');
     const r = await kiHilfeBeantworten({ frage: "Wie mache ich einen neuen Vorschlag für Frau Müller, Tel. 0171 2345678?", eintraege: EINTRAEGE, client: k.client });
     expect(r).toEqual({ passt: true, antwort: "Öffnen Sie Vorschläge und wählen Sie Neuer Vorschlag.", quellen: ["vorschlag-neu"] });
     expect(k.anfrage()).not.toContain("0171");
-    expect(k.create.mock.calls[0][0]).toMatchObject({ system: HILFE_SYSTEM });
+    expect(k.anfrage()).not.toContain("Müller");
+    expect(k.anfrage()).toContain("Frau [NAME]");
+    expect(anfrageVon(k).system[0]).toEqual({ type: "text", text: HILFE_SYSTEM });
+  });
+  it("das ganze mitgegebene Wissen ist die Grundlage im System-Text, die Frage steht im Inhalt", async () => {
+    const viele = Array.from({ length: 160 }, (_, i) => ({ id: `e${i}`, frage: `Frage ${i}`, antwort: `Antwort ${i}`, pfad: "Menü" }));
+    const k = nachbildung('{"passt":true,"antwort":"So.","quellen":["H160","H2"]}');
+    const r = await kiHilfeBeantworten({ frage: "Wo ist das?", eintraege: viele, client: k.client });
+    const a = anfrageVon(k);
+    expect(a.system[1].text).toContain("H1\nFrage: Frage 0");
+    expect(a.system[1].text).toContain("H160\nFrage: Frage 159");
+    expect(a.messages[0].content).toContain("Wo ist das?");
+    expect(a.messages[0].content).not.toContain("Frage 159");
+    expect(r.quellen).toEqual(["e159", "e1"]);
+  });
+  it("Seitentitel und frühere Fragen gehen nur als bereinigter Kontext mit, höchstens drei", async () => {
+    const k = nachbildung('{"passt":false,"antwort":"","quellen":[]}');
+    await kiHilfeBeantworten({
+      frage: "Und wo genau?",
+      eintraege: EINTRAEGE,
+      seitentitel: "Zahlungen",
+      verlauf: ["alt eins", "Rechnung für Herrn Schmidt", "Erika Mustermann, geb. 03.04.1961", "Wie storniere ich?"],
+      namen: ["Erika", "Mustermann"],
+      client: k.client,
+    });
+    const inhalt = anfrageVon(k).messages[0].content;
+    expect(inhalt).toContain("Geöffnete Seite (nur Kontext): Zahlungen");
+    expect(inhalt).toContain("Frühere Fragen (nur Kontext)");
+    expect(inhalt).not.toContain("alt eins");
+    expect(inhalt).toContain("Herrn [NAME]");
+    expect(inhalt).not.toMatch(/Schmidt|Erika|Mustermann|1961/);
+    expect(inhalt).toContain("Wie storniere ich?");
+  });
+  it("Zeitgrenze 20 Sekunden und höchstens eine Wiederholung je Anfrage", async () => {
+    const k = nachbildung('{"passt":false,"antwort":"","quellen":[]}');
+    await kiHilfeBeantworten({ frage: "x", eintraege: EINTRAEGE, client: k.client });
+    expect(k.create.mock.calls[0][1]).toEqual({ timeout: 20_000, maxRetries: 1 });
+    expect(KI_HILFE_OPTIONEN).toEqual({ timeout: 20_000, maxRetries: 1 });
   });
   it("passt nichts: leere Antwort, auch wenn die KI trotzdem Text liefert", async () => {
     const r = await kiHilfeBeantworten({ frage: "Wie rechne ich GOÄ 5 ab?", eintraege: EINTRAEGE, client: nachbildung('{"passt":false,"antwort":"Dazu weiß ich nichts.","quellen":[]}').client });
@@ -160,15 +206,61 @@ describe("kiHilfeBeantworten", () => {
     await expect(kiHilfeBeantworten({ frage: "x", eintraege: EINTRAEGE, client: nachbildung('{"passt":true,"antwort":"Irgendwas.","quellen":[]}').client })).rejects.toMatchObject({ grund: "format" });
     await expect(kiHilfeBeantworten({ frage: "x", eintraege: EINTRAEGE, client: nachbildung('{"passt":true,"antwort":"Irgendwas.","quellen":["H7"]}').client })).rejects.toMatchObject({ grund: "format" });
   });
-  it("höchstens fünf Einträge gehen an den Dienst; ohne Einträge keine Anfrage", async () => {
-    const viele = Array.from({ length: 8 }, (_, i) => ({ id: `e${i}`, frage: `Frage ${i}`, antwort: `Antwort ${i}`, pfad: "Menü" }));
-    const k = nachbildung('{"passt":false,"antwort":"","quellen":[]}');
-    await kiHilfeBeantworten({ frage: "x", eintraege: viele, client: k.client });
-    expect(k.anfrage()).toContain("Frage 4");
-    expect(k.anfrage()).not.toContain("Frage 5");
+  it("ohne Einträge keine Anfrage", async () => {
     const leer = nachbildung("{}");
     expect(await kiHilfeBeantworten({ frage: "x", eintraege: [], client: leer.client })).toEqual({ passt: false, antwort: "", quellen: [] });
     expect(leer.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("Namen in Fragen", () => {
+  it("ersetzt Namen nach einer Anrede, auch unbekannte und klein geschriebene", () => {
+    expect(ohneAnrede("Vorschlag für Frau Müller anlegen")).toBe("Vorschlag für Frau [NAME] anlegen");
+    expect(ohneAnrede("Herrn Dr. Schmidt anrufen")).toBe("Herrn Dr. [NAME] anrufen");
+    expect(ohneAnrede("Fr. Yilmaz und Herr Hans Meier, frau müller")).toBe("Fr. [NAME] und Herr [NAME], frau [NAME]");
+    expect(ohneAnrede("Wie lege ich einen Patienten an?")).toBe("Wie lege ich einen Patienten an?");
+  });
+  it("Anrede: bis zu drei Namenswörter und Namenszusätze", () => {
+    expect(ohneAnrede("Termin für Frau Maria Anna Schmidt")).toBe("Termin für Frau [NAME]");
+    expect(ohneAnrede("Rechnung an Herr von der Heide schicken")).toBe("Rechnung an Herr [NAME] schicken");
+    expect(ohneAnrede("Herrn Prof. Dr. van Dijk anrufen")).toBe("Herrn Prof. Dr. [NAME] anrufen");
+    expect(ohneAnrede("Vorschlag für Frau de la Cruz")).toBe("Vorschlag für Frau [NAME]");
+    // Das Wort nach dem Namen bleibt, wenn es klein geschrieben ist.
+    expect(ohneAnrede("Wie schicke ich Frau Müller die Rechnung?")).toBe("Wie schicke ich Frau [NAME] die Rechnung?");
+  });
+  it("Kandidaten für den Abgleich: ohne Obergrenze, klein geschriebene gleichwertig, ohne Füllwörter", () => {
+    expect(namensKandidaten(["Rechnung für Erika Mustermann", "erika"])).toEqual(["Rechnung", "Erika", "Mustermann"]);
+    expect(namensKandidaten(["a b c"])).toEqual([]);
+    const viele = Array.from({ length: 50 }, (_, i) => `Name${String.fromCharCode(97 + (i % 26))}${String.fromCharCode(97 + Math.floor(i / 26))}`).join(" ");
+    expect(namensKandidaten([viele])).toHaveLength(50);
+  });
+  it("lange Frage mit vielen großgeschriebenen Wörtern: ein klein getippter Name im Verlauf bleibt Kandidat", () => {
+    const lang = "Wie trage ich bei der Rechnung den Betrag, die Leistung, das Datum, die Ziffer, den Faktor, den Steigerungssatz, die Begründung, den Hinweis, die Kasse, den Anteil, die Mahnung, das Konto, die Bank, die Buchung, den Export, die Datei, die Vorlage, den Katalog, die Position, den Preis, den Eigenanteil, die Erstattung, die Praxis, die Sprechzeit, die Anschrift, den Standort, den Termin, den Bericht und die Versicherung ein?";
+    const k = namensKandidaten([lang, "wo ist die akte von yilmaz"]);
+    expect(k.length).toBeGreaterThan(30);
+    expect(k).toContain("yilmaz");
+  });
+  it("Genitiv und Bindestrich: Grundform und Teile werden mitgesucht", () => {
+    const k = namensKandidaten(["Wo ist Müllers Rechnung und die von Schmidt’s Akte? Frau Meier-Lüdenscheidt"]);
+    expect(k).toEqual(expect.arrayContaining(["Müllers", "Müller", "Schmidt", "Meier-Lüdenscheidt", "Meier", "Lüdenscheidt"]));
+  });
+  it("gefundene Namen: nur Teile, die in der Frage stehen; Namenszusätze bleiben", () => {
+    const k = namensKandidaten(["Rechnung von Herrn von der Heide und anna"]);
+    expect(gefundeneNamen(k, ["von der Heide", "Anna Maria", "Zander"]).sort()).toEqual(["Anna", "Heide"]);
+  });
+  it("namenErsetzen: ganze Wörter, ohne Groß und Klein, auch im Genitiv", () => {
+    expect(namenErsetzen("Müllers Rechnung und müller’s Akte, Müller", ["Müller"])).toBe("[NAME] Rechnung und [NAME] Akte, [NAME]");
+    expect(namenErsetzen("Müllerstraße bleibt", ["Müller"])).toBe("Müllerstraße bleibt");
+    expect(namenErsetzen("Meier-Lüdenscheidt", ["Meier", "Lüdenscheidt"])).toBe("[NAME]-[NAME]");
+  });
+  it("namensFilter: ganzer Name oder Teil davon", () => {
+    expect(namensFilter("Maria")).toEqual([{ equals: "Maria" }, { startsWith: "Maria " }, { startsWith: "Maria-" }, { endsWith: " Maria" }, { endsWith: "-Maria" }, { contains: " Maria " }]);
+  });
+  it("hilfeTextBereinigen: bekannte Namen, Genitiv, Anrede, Kontakt, Datum", () => {
+    const t = hilfeTextBereinigen("Termin für Erika Mustermann (Frau Mustermann), Mustermanns Rechnung, 03.04.1961, erika@example.org", ["Erika", "Mustermann"]);
+    expect(t).not.toMatch(/Erika|Mustermann|1961|example/);
+    expect(t).toContain("[DATUM]");
+    expect(t).toContain("[NAME] Rechnung");
   });
 });
 

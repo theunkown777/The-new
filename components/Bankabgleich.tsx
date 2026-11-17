@@ -39,7 +39,7 @@ export function Bankabgleich() {
   const anzahl = e ? e.treffer.filter((t) => wahl[t.rechnungId]).length : 0;
 
   return (
-    <section className="card space-y-3" data-testid="bankabgleich">
+    <section className="card space-y-3" data-testid="bankabgleich" data-hilfe="zahlungen-bankabgleich">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="font-semibold text-slate-900">Kontoauszug abgleichen</h2>

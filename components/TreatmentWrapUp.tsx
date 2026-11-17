@@ -65,7 +65,7 @@ export function TreatmentWrapUp({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-hilfe="abschluss-start">
     {anamnesis && <AnamnesisFlags flags={anamnesis.flags} submittedAt={anamnesis.submittedAt} />}
     <ServiceChecklistForm
       // Das Fach kommt immer aus resolveMed (lib/practiceMed.ts). Fehlt es, zeigt diese Ansicht wie isDental(undefined)

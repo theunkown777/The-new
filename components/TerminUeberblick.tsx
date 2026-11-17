@@ -21,7 +21,7 @@ export function TerminUeberblick({ patientId, briefing, ki }: { patientId: strin
   }
 
   return (
-    <section className="card border-l-4 border-l-brand-600" data-testid="ueberblick">
+    <section className="card border-l-4 border-l-brand-600" data-testid="ueberblick" data-hilfe="patient-ueberblick">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-semibold text-slate-900">Überblick vor dem Termin</h2>
         <span className="text-xs text-slate-500">aus der Akte, nach festen Regeln</span>

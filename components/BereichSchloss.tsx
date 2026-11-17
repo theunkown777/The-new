@@ -40,7 +40,7 @@ export function BereichSchloss({ start, demo, name }: { start: "setzen" | "entsp
   }
 
   return (
-    <div className="mx-auto max-w-md py-8" data-testid="bereich-schloss">
+    <div className="mx-auto max-w-md py-8" data-testid="bereich-schloss" data-hilfe="mein-bereich-schloss">
       <div className="card">
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-brand-700">
           <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">

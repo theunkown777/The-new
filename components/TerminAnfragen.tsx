@@ -41,7 +41,7 @@ export function TerminAnfragen({ anfragen }: { anfragen: AnfrageZeile[] }) {
   const offen = anfragen.filter((a) => !erledigt.some((e) => e.id === a.id));
   if (offen.length === 0 && erledigt.length === 0) return null;
   return (
-    <section className="card space-y-3" id="anfragen" data-testid="terminanfragen" aria-labelledby="anfragen-titel">
+    <section className="card space-y-3" id="anfragen" data-testid="terminanfragen" data-hilfe="terminanfragen" aria-labelledby="anfragen-titel">
       <h2 id="anfragen-titel" className="font-semibold text-slate-900">Online-Anfragen neuer Patienten <span className="font-normal text-slate-500" data-testid="terminanfragen-anzahl">({offen.length})</span></h2>
       <p className="text-xs text-slate-500">Erst mit Ihrer Bestätigung entstehen Patient und Termin. Die gewünschte Zeit ist 24 Stunden reserviert.</p>
       {fehler && <p className="text-sm text-red-700" role="alert" data-testid="terminanfrage-fehler">{fehler}</p>}

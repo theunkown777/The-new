@@ -115,7 +115,7 @@ export function TemplateList({ readOnly = false }: { readOnly?: boolean }) {
       </div>
 
       {!readOnly && (
-        <div className="card">
+        <div className="card" data-hilfe="vorlage-neu">
           {!showNewForm ? (
             <button type="button" className="btn-secondary" onClick={() => setShowNewForm(true)}>
               + Neue Vorlage

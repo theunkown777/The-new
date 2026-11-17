@@ -39,7 +39,7 @@ export function UntereLeiste({ eingang = 0, personPl = "Patienten" }: { eingang?
         {ziele.map(([href, name, symbol, testid]) => {
           const aktiv = !menueOffen && (pfad === href || (href !== "/dashboard" && pfad.startsWith(href)));
           return (
-            <Link key={href} href={href} aria-current={aktiv ? "page" : undefined} data-testid={testid} className={`${KLASSE} ${aktiv ? "font-semibold text-brand-700" : "text-slate-600 hover:text-brand-700"}`}>
+            <Link key={href} href={href} data-hilfe={`menue:${href}`} aria-current={aktiv ? "page" : undefined} data-testid={testid} className={`${KLASSE} ${aktiv ? "font-semibold text-brand-700" : "text-slate-600 hover:text-brand-700"}`}>
               {aktiv && <span className="absolute inset-x-5 top-0 h-0.5 rounded-b bg-brand-700" aria-hidden="true" />}
               <span className="relative">
                 <Symbol name={symbol} />

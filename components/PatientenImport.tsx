@@ -143,7 +143,7 @@ export function PatientenImport({ personPl = "Patienten", personSg = "Patient", 
   const gezeigteFehler = vorschau ? (alleFehler ? vorschau.fehler.slice(0, 500) : vorschau.fehler.slice(0, 10)) : [];
 
   return (
-    <div className="space-y-5" data-testid="patienten-import">
+    <div className="space-y-5" data-testid="patienten-import" data-hilfe="patient-import-datei">
       <section className="card space-y-3" aria-labelledby="imp-1">
         <h2 id="imp-1" className="font-semibold text-slate-900">1. Datei wählen</h2>
         <p className="text-sm text-slate-600">

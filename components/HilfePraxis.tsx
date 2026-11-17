@@ -2,20 +2,35 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { HILFE_HINWEIS, HILFE_WISSEN } from "@/lib/hilfeWissen";
-import { sucheHilfe } from "@/lib/hilfeSuche";
+import { usePathname } from "next/navigation";
+import { HILFE_HINWEIS, HILFE_WISSEN, type HilfeArt, type HilfeEintrag } from "@/lib/hilfeWissen";
+import { hilfeText, sichtbareHilfe, sucheHilfe } from "@/lib/hilfeSuche";
+import { seiteErlaubt, zeigZiel } from "@/lib/hilfeZeiger";
+import type { MenueRechte } from "@/lib/rollen";
+import { hilfeZeigen } from "@/components/HilfeZeiger";
 
 interface KiAntwort { passt: boolean; antwort: string; quellen: { id: string; frage: string; pfad: string; href: string }[] }
 
-/** „Frag Sorrida“: Suche in der festen Wissenssammlung; mit eingeschalteten KI-Hilfen zusätzlich eine Antwort als Entwurf. */
-export function HilfePraxis({ fach, ki }: { fach: "zahn" | "andere"; ki: boolean }) {
+const GRUPPEN: [HilfeArt, string][] = [
+  ["bedienung", "Bedienung"],
+  ["praxismanager", "Praxismanager"],
+  ["fehler", "Meldungen der App"],
+];
+
+/**
+ * „Frag Sorrida“ als Seite: dieselbe Suche wie im Chat (lib/hilfeSuche.ts), gefiltert nach Fach und Rechten,
+ * mit „Zeig mir wo“. Mit eingeschalteten KI-Hilfen zusätzlich eine Antwort als Entwurf.
+ */
+export function HilfePraxis({ fach, ki, rechte, personPl = "Patienten", abschluss = "Behandlung" }: { fach: "zahn" | "andere"; ki: boolean; rechte?: MenueRechte; personPl?: string; abschluss?: string }) {
+  const pfad = usePathname() ?? "/hilfe-praxis";
   const [frage, setFrage] = useState("");
   const [kiAntwort, setKiAntwort] = useState<KiAntwort | null>(null);
   const [kiLaeuft, setKiLaeuft] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
+  const woerter = { personPl, abschluss };
 
-  const treffer = useMemo(() => sucheHilfe(frage, HILFE_WISSEN, { anzahl: 3, fach }), [frage, fach]);
-  const alle = useMemo(() => HILFE_WISSEN.filter((e) => !e.nur || e.nur === fach), [fach]);
+  const treffer = useMemo(() => sucheHilfe(frage, HILFE_WISSEN, { anzahl: 3, fach, rechte }), [frage, fach, rechte]);
+  const alle = useMemo(() => sichtbareHilfe(HILFE_WISSEN, { fach, rechte }), [fach, rechte]);
   const gefragt = frage.trim().length >= 3;
 
   async function mitKi() {
@@ -28,6 +43,25 @@ export function HilfePraxis({ fach, ki }: { fach: "zahn" | "andere"; ki: boolean
     if (!res?.ok || typeof d?.passt !== "boolean") return setFehler(d?.error ?? "Die Antwort mit KI hat nicht geklappt. Die Einträge unten stehen weiter bereit.");
     setKiAntwort({ passt: d.passt, antwort: String(d.antwort ?? ""), quellen: Array.isArray(d.quellen) ? d.quellen : [] });
   }
+
+  const zeigKnopf = (e: Pick<HilfeEintrag, "anker" | "href" | "pfad">) => {
+    const z = zeigZiel(e, { pfad, rechte, fach });
+    if (!z) return null;
+    return (
+      <button
+        type="button"
+        className="font-medium text-brand-700 underline"
+        onClick={() => hilfeZeigen({ ...z, name: z.name.replace("{P}", personPl).replace("{A}", abschluss), pfad: hilfeText({ frage: "", antwort: "", pfad: z.pfad }, woerter).pfad })}
+        data-testid="hilfe-eintrag-zeigen"
+      >
+        Zeig mir wo
+      </button>
+    );
+  };
+  const oeffnen = (e: HilfeEintrag) =>
+    seiteErlaubt(e.href, { rechte, fach }) ? (
+      <Link href={e.href} className="font-medium text-brand-700 underline" data-testid="hilfe-eintrag-link">Seite öffnen</Link>
+    ) : null;
 
   return (
     <div className="space-y-6" data-testid="hilfe-praxis">
@@ -44,14 +78,15 @@ export function HilfePraxis({ fach, ki }: { fach: "zahn" | "andere"; ki: boolean
           aria-describedby="hilfe-frage-hinweis"
           onChange={(e) => { setFrage(e.target.value); setKiAntwort(null); setFehler(null); }}
           data-testid="hilfe-frage"
+          data-hilfe="hilfe-frage"
         />
-        <p id="hilfe-frage-hinweis" className="text-xs text-slate-500">Bitte keine Patientendaten eingeben: keine Namen, keine Geburtsdaten, keine Befunde.</p>
+        <p id="hilfe-frage-hinweis" className="text-xs text-slate-500">Bitte keine Patientendaten eingeben: keine Namen, keine Geburtsdaten, keine Befunde. Fehlermeldungen können Sie wörtlich einfügen.</p>
         {ki && (
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" className="btn btn-secondary" disabled={!gefragt || kiLaeuft} onClick={mitKi} data-testid="hilfe-ki">
               {kiLaeuft ? "KI formuliert …" : "Mit KI beantworten"}
             </button>
-            <span className="text-xs text-slate-500">Schickt Ihre Frage und die passenden Hilfetexte an den KI-Dienst. Die Antwort ist ein Entwurf und stützt sich nur auf diese Texte.</span>
+            <span className="text-xs text-slate-500">Schickt Ihre Frage und die Hilfetexte an den KI-Dienst. Die Antwort ist ein Entwurf und stützt sich nur auf diese Texte.</span>
           </div>
         )}
       </form>
@@ -66,11 +101,15 @@ export function HilfePraxis({ fach, ki }: { fach: "zahn" | "andere"; ki: boolean
               <p className="mt-2 text-sm text-slate-800">{kiAntwort.antwort}</p>
               <p className="mt-2 text-xs font-medium text-slate-700">Quelle:</p>
               <ul className="mt-1 space-y-1 text-sm">
-                {kiAntwort.quellen.map((q) => (
-                  <li key={q.id}>
-                    <Link href={q.href} className="text-brand-700 underline">{q.frage}</Link> <span className="text-xs text-slate-500">({q.pfad})</span>
-                  </li>
-                ))}
+                {kiAntwort.quellen.map((q, i) => {
+                  const e = HILFE_WISSEN.find((x) => x.id === q.id);
+                  return (
+                    <li key={q.id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <Link href={q.href} className="text-brand-700 underline">{q.frage}</Link> <span className="text-xs text-slate-500">({q.pfad})</span>
+                      {i === 0 && e && zeigKnopf(e)}
+                    </li>
+                  );
+                })}
               </ul>
             </>
           ) : (
@@ -88,16 +127,20 @@ export function HilfePraxis({ fach, ki }: { fach: "zahn" | "andere"; ki: boolean
           </p>
         )}
         <ul className="space-y-3">
-          {gefragt && treffer.map(({ eintrag: e }) => (
-            <li key={e.id} className="card" data-testid="hilfe-eintrag">
-              <h3 className="font-medium text-slate-900">{e.frage}</h3>
-              <p className="mt-1 text-sm text-slate-700">{e.antwort}</p>
-              <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-                <span>Menü: {e.pfad}</span>
-                <Link href={e.href} className="font-medium text-brand-700 underline" data-testid="hilfe-eintrag-link">Seite öffnen</Link>
-              </p>
-            </li>
-          ))}
+          {gefragt && treffer.map(({ eintrag }) => {
+            const e = hilfeText(eintrag, woerter);
+            return (
+              <li key={e.id} className="card" data-testid="hilfe-eintrag">
+                <h3 className="font-medium text-slate-900">{e.frage}</h3>
+                <p className="mt-1 text-sm text-slate-700">{e.antwort}</p>
+                <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                  <span>Menü: {e.pfad}</span>
+                  {zeigKnopf(eintrag)}
+                  {oeffnen(eintrag)}
+                </p>
+              </li>
+            );
+          })}
         </ul>
       </section>
 
@@ -105,15 +148,31 @@ export function HilfePraxis({ fach, ki }: { fach: "zahn" | "andere"; ki: boolean
 
       <details className="card" data-testid="hilfe-alle">
         <summary className="cursor-pointer text-sm font-medium text-slate-900">Alle Themen ({alle.length})</summary>
-        <ul className="mt-3 space-y-3">
-          {alle.map((e) => (
-            <li key={e.id} className="text-sm">
-              <p className="font-medium text-slate-900">{e.frage}</p>
-              <p className="mt-0.5 text-slate-700">{e.antwort}</p>
-              <p className="mt-0.5 text-xs text-slate-500">Menü: {e.pfad} · <Link href={e.href} className="text-brand-700 underline">Seite öffnen</Link></p>
-            </li>
-          ))}
-        </ul>
+        {GRUPPEN.map(([art, titel]) => {
+          const liste = alle.filter((e) => (e.art ?? "bedienung") === art);
+          if (!liste.length) return null;
+          return (
+            <div key={art} className="mt-4">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">{titel} ({liste.length})</h3>
+              <ul className="mt-2 space-y-3">
+                {liste.map((roh) => {
+                  const e = hilfeText(roh, woerter);
+                  return (
+                    <li key={e.id} className="text-sm">
+                      <p className="font-medium text-slate-900">{e.frage}</p>
+                      <p className="mt-0.5 text-slate-700">{e.antwort}</p>
+                      <p className="mt-0.5 flex flex-wrap items-center gap-x-3 text-xs text-slate-500">
+                        <span>Menü: {e.pfad}</span>
+                        {zeigKnopf(roh)}
+                        {oeffnen(roh)}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
       </details>
     </div>
   );

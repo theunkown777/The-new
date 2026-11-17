@@ -20,7 +20,7 @@ export function KiHilfenSettings({ ein: start, verfuegbar, darfAendern }: { ein:
   }
 
   return (
-    <section id="ki-hilfen" className="card mt-6 scroll-mt-6 text-sm" data-testid="ki-hilfen-einstellung" aria-labelledby="ki-hilfen-titel">
+    <section id="ki-hilfen" className="card mt-6 scroll-mt-6 text-sm" data-testid="ki-hilfen-einstellung" data-hilfe="ki-hilfen-schalter" aria-labelledby="ki-hilfen-titel">
       <h2 id="ki-hilfen-titel" className="font-semibold text-slate-900">KI-Hilfen</h2>
       <p className="mt-1 text-slate-600">
         Sorrida arbeitet ohne KI vollständig. Mit diesem Schalter erlauben Sie zusätzliche Hilfen, bei denen ein KI-Dienst (Anthropic, Unternehmen
@@ -31,7 +31,7 @@ export function KiHilfenSettings({ ein: start, verfuegbar, darfAendern }: { ein:
       <ul className="mt-1 list-disc space-y-1 pl-5 text-slate-600">
         <li>Stichworte aus dem Gespräch, die Sie im Vorschlag eingeben, und die Bezeichnungen Ihrer Anlässe.</li>
         <li>Ein Foto oder eine PDF-Seite Ihrer Preisliste, die Sie selbst hochladen. Die Datei wird nicht gespeichert.</li>
-        <li>Ihre Frage zur Bedienung unter „Frag Sorrida“ und die dazu passenden Hilfetexte.</li>
+        <li>Bei „Frag Sorrida“: Frage, Seitentitel und Hilfetexte. Das sind Ihre Frage zur Bedienung, bis zu drei Fragen davor (ohne Antworten), der Titel der geöffneten Seite (zum Beispiel „Zahlungen“, ohne Kennungen) und die Hilfetexte von Sorrida.</li>
         <li>Name und Kurzbeschreibung einer eigenen Leistung, wenn Sie sie übersetzen lassen.</li>
       </ul>
 

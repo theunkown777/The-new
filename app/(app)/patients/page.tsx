@@ -142,8 +142,8 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
             <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500"><Laechelbogen className="h-2 w-8 text-brand-600" />Jeder auf seinem Behandlungsweg, mit dem nächsten Schritt</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            {darfEinlesen && <Link href="/patients/import" className="ziel text-sm text-brand-700 underline" data-testid="liste-einlesen">Liste einlesen</Link>}
-            <Link href="/patients/new" className="btn-primary">
+            {darfEinlesen && <Link href="/patients/import" className="ziel text-sm text-brand-700 underline" data-testid="liste-einlesen" data-hilfe="patient-liste-einlesen">Liste einlesen</Link>}
+            <Link href="/patients/new" className="btn-primary" data-hilfe="patient-neu">
               Neu anlegen
             </Link>
           </div>
@@ -163,7 +163,7 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
               </Link>
             ))}
           </nav>
-          <form action="/patients" className="ml-auto flex min-w-[16rem] flex-1 gap-2 sm:flex-none" role="search">
+          <form action="/patients" className="ml-auto flex min-w-[16rem] flex-1 gap-2 sm:flex-none" role="search" data-hilfe="patient-suche">
             {filter !== "alle" && <input type="hidden" name="filter" value={filter} />}
             <input name="q" defaultValue={q} className="input py-1.5" placeholder="Name eingeben" aria-label={`${P.pl} suchen`} />
             <button className="btn-secondary py-1.5">Suchen</button>

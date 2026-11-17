@@ -73,7 +73,7 @@ export function AnlassStichworte({
   };
 
   return (
-    <div className="card space-y-2" data-testid="anlass-stichworte">
+    <div className="card space-y-2" data-testid="anlass-stichworte" data-hilfe="vorschlag-stichworte">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <label htmlFor={feldId} className="font-medium text-slate-900">Stichworte aus dem Gespräch</label>
         <MicButton onTranscript={(t) => { setMeldung(null); setText((prev) => (prev ? `${prev}, ${t}` : t)); }} />

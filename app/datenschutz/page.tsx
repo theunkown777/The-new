@@ -202,7 +202,7 @@ export default function DatenschutzPage() {
           <li>
             <b>Anthropic</b> (KI-Dienst, Unternehmen mit Sitz in den USA): Formulierung von Berichtsentwürfen für Praxen. Hat die
             Praxisleitung die KI-Hilfen eingeschaltet (am Anfang sind sie aus), außerdem auf Knopfdruck: Stichworte einem Anlass zuordnen,
-            eine Preisliste ablesen, Fragen zur Bedienung beantworten, eigene Leistungen übersetzen. Den Namen der Patientin oder des Patienten,
+            eine Preisliste ablesen, Fragen zur Bedienung beantworten (dafür gehen die Frage, bis zu drei Fragen davor aus demselben Gespräch, der Seitentitel und die Hilfetexte an den Dienst), eigene Leistungen übersetzen. Den Namen der Patientin oder des Patienten,
             Geburtsdatum, Versichertennummer, E-Mail-Adressen und Telefonnummern ersetzen wir vorher durch Platzhalter. Im freien Text
             erkennen wir nur Namen, die Sorrida kennt. Freier Text kann deshalb Angaben enthalten, die auf eine Person schließen lassen.
             Eine hochgeladene Preisliste (Foto oder PDF) geht unverändert an den KI-Dienst, mit allem, was darauf steht.

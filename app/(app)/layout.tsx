@@ -23,6 +23,9 @@ import { AnsichtWaechter } from "@/components/Ansicht";
 import { ANSICHT_SKRIPT } from "@/lib/ansicht";
 import { KopfLink } from "@/components/KopfLink";
 import { EmpfangWache } from "@/components/EmpfangWache";
+import { FragSorrida } from "@/components/FragSorrida";
+import { HilfeZeiger } from "@/components/HilfeZeiger";
+import { kiHilfenStand } from "@/lib/kiHilfen";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -30,7 +33,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   const currentUser = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { emailVerifiedAt: true, role: true, totpEnabled: true, practice: { select: { isDemo: true, demoExpiresAt: true, specialty: true, require2faAll: true } } },
+    select: { emailVerifiedAt: true, role: true, totpEnabled: true, practice: { select: { isDemo: true, demoExpiresAt: true, specialty: true, require2faAll: true, kiHilfen: true } } },
   });
   const demo = currentUser?.practice.isDemo ? currentUser.practice.demoExpiresAt : null;
   // Berichte (KI, BEMA/GOZ) gibt es bisher nur für Zahnarztpraxen.
@@ -135,6 +138,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </main>
         {/* Handy und Tablet: vier Ziele am unteren Rand; „Mehr“ öffnet das Menü aus der Kopfzeile. */}
         {!sperre && <UntereLeiste eingang={eingang} personPl={personen} />}
+        {/* Frag Sorrida: schwebender Knopf unten rechts (nicht am Tablet im Wartezimmer, /empfang), und „Zeig mir wo“. */}
+        {!sperre && (
+          <FragSorrida
+            modus="app"
+            fach={dental ? "zahn" : "andere"}
+            rechte={menue}
+            ki={kiHilfenStand(currentUser?.practice.kiHilfen).aktiv}
+            personPl={personen}
+            abschluss={abschlussWort(currentUser?.practice.specialty)}
+          />
+        )}
+        {!sperre && <HilfeZeiger />}
       </div>
     </div>
     </>

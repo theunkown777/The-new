@@ -32,7 +32,7 @@ export const ORT: Punkt[] = [
 /** Was an den KI-Dienst geht und was Sorrida vorher durch Platzhalter ersetzt. */
 export const KI_GEHT: string[] = [
   "Erfasste Leistungen, Diktat und Akteneinträge, wenn die Praxis einen Entwurf anfordert.",
-  "Nur wenn die Praxisleitung die KI-Hilfen einschaltet und jemand den KI-Knopf drückt: Stichworte aus dem Gespräch, die Preisliste der Praxis, eine Frage zur Bedienung, Name und Hinweis einer eigenen Leistung. Der Schalter steht am Anfang auf aus.",
+  "Nur wenn die Praxisleitung die KI-Hilfen einschaltet und jemand den KI-Knopf drückt: Stichworte aus dem Gespräch, die Preisliste der Praxis, bei „Frag Sorrida“ Frage, bis zu drei Fragen davor, Seitentitel und Hilfetexte, Name und Hinweis einer eigenen Leistung. Der Schalter steht am Anfang auf aus.",
 ];
 /**
  * Was Sorrida vor dem Versand durch Platzhalter ersetzt (lib/anthropic.ts, lib/kiHilfen.ts). Kein „nie“:

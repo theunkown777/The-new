@@ -11,7 +11,7 @@ export function BefundDiktat({ onApply }: { onApply: (r: DiktatResult) => void }
   const preview = describeDiktat(result);
 
   return (
-    <div className="card space-y-2" data-testid="befund-diktat">
+    <div className="card space-y-2" data-testid="befund-diktat" data-hilfe="vorschlag-befund-diktat">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-medium text-slate-900">Befund diktieren</h2>
         <MicButton onTranscript={(t) => setText((prev) => (prev ? `${prev}, ${t}` : t))} />

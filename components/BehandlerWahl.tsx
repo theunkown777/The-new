@@ -22,7 +22,7 @@ export function BehandlerWahl({ patientId, value, team, meId }: { patientId: str
   }
 
   return (
-    <label className="flex items-center gap-2 text-sm text-slate-600" data-testid="behandler-wahl">
+    <label className="flex items-center gap-2 text-sm text-slate-600" data-testid="behandler-wahl" data-hilfe="patient-behandler">
       <span className="whitespace-nowrap">Behandelt von</span>
       <select className="input w-auto py-1.5" value={v} onChange={(e) => save(e.target.value)} disabled={state === "saving"}>
         <option value="">noch niemand</option>

@@ -13,6 +13,7 @@ export function SignOutButton({ className = "text-sm font-medium text-brand-100 
         signOut({ callbackUrl: "/login" });
       }}
       className={className}
+      data-hilfe="abmelden"
     >
       Abmelden
     </button>

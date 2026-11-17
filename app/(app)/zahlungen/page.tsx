@@ -141,7 +141,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
 
       <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_24rem]">
         <section className="card overflow-hidden p-0">
-          <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 px-4 py-3" data-hilfe="zahlungen-filter">
             {FILTER.map(([k, l]) => (
               <Link key={k} href={`/zahlungen?f=${k}`} aria-current={k === f ? "page" : undefined} className={`rounded-full px-3 py-1 text-sm ${k === f ? "bg-brand-600 text-white" : "bg-[#F5F2EE] text-slate-700 hover:text-brand-700"}`}>
                 {l}
@@ -225,7 +225,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
         </section>
 
         <aside className="space-y-6">
-          <section className="card" data-testid="abzurechnen">
+          <section className="card" data-testid="abzurechnen" data-hilfe="zahlungen-abzurechnen">
             <h2 className="font-semibold text-slate-900">Abzurechnen</h2>
             <p className="mt-1 text-sm text-slate-600">Angenommene Vorschläge mit Eigenanteil, die noch keine Rechnung haben.</p>
             {billable.length === 0 ? (
@@ -251,12 +251,12 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
               summe={formatCent(all.filter((i) => i.status === "OFFEN" && i.sepaMandatAt && !i.sepaExportedAt).reduce((a, i) => a + i.amountCent, 0))}
             />
           )}
-          <section className="card" aria-labelledby="online-titel">
+          <section className="card" aria-labelledby="online-titel" data-hilfe="zahlungen-online">
             <h2 id="online-titel" className="font-semibold text-slate-900">Online-Zahlung mit DATEV-Anbindung</h2>
             <p className="mt-1 mb-3 text-sm text-slate-600">Patienten bezahlen offene Rechnungen im Portal; die Zahlung landet über den DATEV-Datenservice in der Buchhaltung.</p>
             <OnlineZahlungEinrichten {...onlineZahlungStatus()} konto={practice?.stripeAccountId ?? null} istAdmin={isAdmin} meldung={searchParams?.stripe} />
           </section>
-          <section className="card" aria-labelledby="datev-titel">
+          <section className="card" aria-labelledby="datev-titel" data-hilfe="zahlungen-datev">
             <h2 id="datev-titel" className="font-semibold text-slate-900">DATEV für die Steuerberatung</h2>
             <p className="mt-1 mb-3 text-sm text-slate-600">Rechnungen und Zahlungseingänge eines Zeitraums als Buchungsstapel.</p>
             <DatevExport einstellungen={(practice?.datev as Record<string, number> | null) ?? null} istAdmin={isAdmin} />

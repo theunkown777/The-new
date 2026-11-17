@@ -1,6 +1,6 @@
 # Betriebshandbuch Sorrida
 
-Stand: 16.11.2026. Dieses Handbuch beschreibt, wie Sorrida betrieben wird und was bei einer Störung zu tun ist.
+Stand: 17.11.2026. Dieses Handbuch beschreibt, wie Sorrida betrieben wird und was bei einer Störung zu tun ist.
 Es enthält keine Zugangsdaten und keine Werte von Variablen.
 
 Sorrida wird von einer Person betrieben. Es gibt keine Bereitschaft rund um die Uhr und keine Vertretung.
@@ -326,3 +326,19 @@ Ablauf:
      (zum Beispiel „Gesendete E-Mails bewahrt der E-Mail-Dienst … Tage auf; danach sind sie dort gelöscht.“).
 4. Löschung der Praxis in Textform bestätigen. Dafür den Text aus Schritt 2 mit den ausgefüllten Zeilen aus Schritt 3 nehmen.
 
+
+## 12. Kosten der KI-Antworten bei „Frag Sorrida“ (Entscheidung offen)
+
+Bei jeder Frage, die jemand mit dem Knopf „Mit KI beantworten“ stellt, geht die ganze Hilfe als Grundlage an den KI-Dienst
+(nach Fach und Rechten gefiltert, `kiHilfeBeantworten` in `lib/kiHilfen.ts`). Das sind rund 57.000 Zeichen, grob 18.000 Token
+Eingabe je Frage. Die Antwort selbst ist kurz.
+
+- Heute ohne Zwischenspeicher beim KI-Dienst: Jede Frage bezahlt diese Grundlage voll.
+- Grenze: 120 Fragen je Praxis und Stunde (`KI_HILFEN_PRO_STUNDE.hilfe`), Gastzugänge zusammen 150 je Tag
+  (`KI_HILFEN_DEMO_GESAMT_TAG.hilfe`). Schöpft eine Praxis die Grenze aus, sind das gut 2 Millionen Token Eingabe in der Stunde.
+- Zwischenspeicher: Die installierte SDK-Fassung 0.32.1 kennt `cache_control` bei `messages.create` nur in den Typen der
+  Beta-Schnittstelle. Möglich ist ein Typ-Umweg am zweiten System-Block (die Grundlage) oder später eine neuere SDK-Fassung.
+  Die Grundlage ist je Fach und Rechten gleich und eignet sich dafür.
+- Weitere Wege: nur die Treffer der Suche ohne KI mitschicken statt der ganzen Hilfe, oder die Grenze je Stunde senken.
+
+Was davon gilt, entscheidet der Betreiber. Bis dahin den Verbrauch einmal im Monat in der Konsole des Anbieters ansehen.
