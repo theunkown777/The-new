@@ -127,13 +127,16 @@ const content: Record<string, string> = {
   "Teilkrone aus Metall, Regelversorgung": "Металева часткова коронка, стандартне лікування",
   "Teilkrone aus Metall, Standardausführung": "Металева часткова коронка, стандартне виконання",
   "Keramik-Teilkrone": "Керамічна часткова коронка",
-  "erhält die gesunde Zahnwand": "зберігає здорову стінку зуба",
+  "Reinigung der Zahnfleischtaschen": "очищення ясенних кишень",
+  "herausnehmbare Schiene aus Kunststoff": "знімна капа з пластмаси",
+  "die gesunde Zahnwand bleibt stehen": "здорова стінка зуба залишається",
+  "Eine Teilkrone bedeckt nur einen Teil des Zahns.": "Часткова коронка покриває лише частину зуба.",
+  "wird im Kieferknochen verankert": "закріплюється у щелепній кістці",
+  "Versiegelung der Rillen auf der Kaufläche": "герметизація борозенок на жувальній поверхні",
+  "Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung der Kasse.": "Якщо бракує кількох зубів, стандартним лікуванням (Regelversorgung) лікарняної каси є мостоподібний протез.",
   "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist. Die Kasse gibt dafür einen eigenen Festzuschuss.":
     "Штифт забезпечує коронці опору, коли від зуба залишилося надто мало. Лікарняна каса надає для цього окрему фіксовану субсидію (Festzuschuss).",
   "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist.": "Штифт забезпечує коронці опору, коли від зуба залишилося надто мало.",
-  "Eine Teilkrone schont mehr Zahnsubstanz als eine Vollkrone. Sie kommt infrage, solange die äußere oder innere Zahnwand stabil ist.":
-    "Часткова коронка зберігає більше тканин зуба, ніж повна коронка. Вона можлива, доки зовнішня або внутрішня стінка зуба є міцною.",
-  "Bei Knirschen Material und Schichtstärke der Keramik darauf abstimmen.": "У разі скреготіння зубами матеріал і товщину кераміки добирають відповідно.",
   "Tiefe Fissuren, kariesfrei": "Глибокі фісури, без карієсу",
   "Zahn fehlt": "Зуб відсутній",
   "Zahnstein und Beläge": "Зубний камінь і наліт",
@@ -159,32 +162,20 @@ const content: Record<string, string> = {
   "Wurzelbehandlung, Kassenleistung": "Лікування кореневих каналів, за рахунок каси",
   Zahnsteinentfernung: "Видалення зубного каменю",
   // Vorteile
-  "Ergebnis hält 1–3 Jahre": "результат зберігається 1–3 роки",
   "Festzuschuss wie Regelversorgung": "фіксована субсидія (Festzuschuss), як за стандартного лікування",
   "Kasse zahlt Grundleistung": "каса оплачує базове лікування",
   "Kasse zahlt Kassenfüllung anteilig": "каса оплачує частину в розмірі вартості стандартної пломби",
   Kassenleistung: "Оплачує лікарняна каса",
   "Kassenleistung bis 17 Jahre": "оплачує лікарняна каса до 17 років",
   "Kassenleistung inklusive Nachsorge (UPT)": "оплачує лікарняна каса, включно з подальшим доглядом (UPT)",
-  "Kieferknochen bleibt belastet": "щелепна кістка й надалі отримує навантаження",
-  "Metall mit Keramikverblendung": "метал із керамічним облицюванням",
   "Metall mit Keramikverblendung auf der sichtbaren Seite": "метал із керамічним облицюванням з видимого боку",
   "als Brückenpfeiler in der Brücke enthalten": "входить до мостоподібного протеза як опорний зуб",
-  "keine eigene Krone nötig": "окрема коронка не потрібна",
   "In der Brücke enthalten": "Входить до мостоподібного протеза",
-  "Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung. Implantate sind möglich, aber deutlich aufwendiger.":
-    "Якщо бракує кількох зубів, стандартним лікуванням (Regelversorgung) є мостоподібний протез. Імплантати можливі, але значно складніші.",
-  "Im Seitenzahnbereich ist die Krone in Standardausführung funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.":
-    "У ділянці бічних зубів коронка в стандартному виконанні функціонально рівноцінна. Суцільна кераміка тут — насамперед питання вигляду.",
-  "Bei mehreren fehlenden Zähnen ist die Brücke die übliche Versorgung. Implantate sind möglich, aber deutlich aufwendiger.":
-    "Якщо бракує кількох зубів, звичайним лікуванням є мостоподібний протез. Імплантати можливі, але значно складніші.",
   "Krone, Standardausführung": "Коронка, стандартне виконання",
   "Brücke, Standardausführung": "Мостоподібний протез, стандартне виконання",
   "ersetzt den fehlenden Zahn": "замінює відсутній зуб",
   "ersetzt alle fehlenden Zähne des Kiefers": "замінює всі відсутні зуби щелепи",
   "ersetzt alle Zähne des Kiefers": "замінює всі зуби щелепи",
-  "Fehlt nur der letzte Backenzahn, ist ein Ersatz oft nicht nötig (verkürzte Zahnreihe). Bitte im Gespräch klären.":
-    "Якщо бракує лише останнього кутнього зуба, заміна часто не потрібна (вкорочений зубний ряд). Будь ласка, з’ясуйте це під час розмови.",
   Totalprothese: "Повний знімний протез",
   "Deckprothese über den verbliebenen Zähnen": "Покривний протез на зубах, що залишилися",
   "Zahnloser Kiefer": "Беззуба щелепа",
@@ -198,54 +189,23 @@ const content: Record<string, string> = {
   "auch weiche Beläge und Verfärbungen": "видаляє також м’який наліт і забарвлення",
   "auf ausdrücklichen Wunsch (§ 2 Abs. 3 GOZ)": "лише за Вашим чітко висловленим бажанням (§ 2 Abs. 3 GOZ)",
   "bei Indikation Kassenleistung": "за медичними показаннями оплачує лікарняна каса",
-  "bei großen Flächen begrenzt haltbar": "на великих поверхнях служить обмежений час",
-  "bewährt und haltbar": "перевірено часом, довговічно",
   "mit Haftvermittler am Zahn befestigt": "кріпиться до зуба адгезивом",
   "einmal im Kalenderjahr Kassenleistung": "раз на календарний рік оплачує лікарняна каса",
   "entfernt harte Beläge": "видаляє тверді відкладення",
-  "erhält den Zahn": "зберігає зуб",
-  "ersetzt mehrere Zähne": "замінює кілька зубів",
   festsitzend: "незнімна конструкція",
   "gleicher Festzuschuss": "та сама фіксована субсидія (Festzuschuss)",
   herausnehmbar: "знімний",
   "Füllung in mehreren Schichten": "пломба в кілька шарів",
   "Arbeit unter dem Mikroskop": "робота під мікроскопом",
   "im Frontzahnbereich Kassenleistung": "у ділянці передніх зубів оплачує лікарняна каса",
-  "kürzere Haltbarkeit": "коротший термін служби",
   "maschinelle Aufbereitung": "машинне оброблення каналів",
-  "metallfrei, natürliche Optik": "без металу, природний вигляд",
-  "schnelle Lösung": "швидке рішення",
-  "schützt Zähne und Versorgungen": "захищає зуби та встановлені конструкції",
-  "schützt tiefe Fissuren vor Karies": "захищає глибокі фісури від карієсу",
-  "sehr gut verträglich": "дуже добре переноситься організмом",
   "Keramik, im Labor gefertigt": "кераміка, виготовляється в лабораторії",
   "wird eingeklebt": "фіксується на клей",
-  "stoppt Knochenabbau": "зупиняє втрату кісткової тканини",
   "viele Zusatzversicherungen erstatten": "багато додаткових страховок відшкодовують витрати",
   zahnfarben: "кольору зуба",
-  "zahnfarben, gute Randdichte": "кольору зуба, щільне прилягання по краях",
   "zahnfarben, metallfrei": "кольору зуба, без металу",
   "zahnfarben, schnell gelegt": "кольору зуба, швидко встановлюється",
   // Hinweise
-  "Alte Amalgamfüllungen nur ersetzen, wenn sie defekt sind. Intakte Füllungen bleiben.":
-    "Старі амальгамові пломби замінюють лише тоді, коли вони пошкоджені. Цілі пломби залишаються.",
-  "Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus.":
-    "Для передніх зубів і премолярів із прямим каналом лікування за рахунок каси здебільшого достатньо.",
-  "Im Seitenzahnbereich ist die Kassenkrone funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.":
-    "У ділянці бічних зубів коронка за рахунок каси функціонально рівноцінна. Суцільна кераміка тут — насамперед питання вигляду.",
-  "Seitenzähne brauchen nach einer Wurzelbehandlung meist eine Krone, damit sie nicht brechen.":
-    "Після лікування кореневих каналів бічні зуби здебільшого потребують коронки, щоб вони не зламалися.",
-  "Erst kariöse Zähne versorgen, dann aufhellen. Füllungen hellen nicht mit auf und werden danach farblich angepasst.":
-    "Спочатку лікують зуби з карієсом, потім відбілюють. Пломби не відбілюються, їхній колір потім коригують.",
-  "Knirschen erhöht die Bruchgefahr. Zusätzlich eine Aufbissschiene einplanen.":
-    "Скреготіння зубами підвищує ризик перелому. Додатково рекомендується захисна капа.",
-  "Bei Knirschen monolithisches Zirkon wählen, keine verblendete Keramik.":
-    "У разі скреготіння зубами обирають монолітний діоксид цирконію, а не облицьовану кераміку.",
-  "Rauchen erhöht das Risiko eines Implantatverlusts deutlich. Vorher Rauchstopp besprechen.":
-    "Куріння значно підвищує ризик втрати імплантата. Перед цим ми обговоримо відмову від куріння.",
-  "Vor Implantat oder Brücke zuerst die Parodontitis behandeln.": "Перед імплантатом або мостоподібним протезом спочатку лікують пародонтит.",
-  "Bei sehr großem Defekt am Frontzahn prüfen, ob eine Krone langfristig sinnvoller ist.":
-    "За дуже великого дефекту переднього зуба оцінюють, чи не буде коронка доцільнішою в довгостроковій перспективі.",
   // Leistungsarten
   Andersartig: "Інший вид лікування (andersartig)",
   "Basis + Zusatz": "Базова + додаткова",
@@ -295,8 +255,7 @@ export const uk: PatientLocale = {
     nImplants: (m) => `${m[1]} ${slawischerPlural(Number(m[1]), "імплантат", "імплантати", "імплантатів")} із коронками`,
     notNeededWithBridge: (m, t) => `Не потрібна в разі мостоподібного протеза (${t(m[1])})`,
     abutmentNote: (m, t) =>
-      `Якщо цей зуб стане опорою мостоподібного протеза (${t(m[1])}), його коронка входить до цього протеза. Окрема коронка потрібна йому лише тоді, коли проміжок буде заміщено в інший спосіб.`,
-    neighboursNeedCare: (m) => `Сусідні зуби ${m[1]} і ${m[2]} однаково потребують лікування. Мостоподібний протез вирішує обидві проблеми одразу.`,
+      `Якщо цей зуб стане опорою мостоподібного протеза (${t(m[1])}), його коронка входить до цього протеза. Окрема коронка додається лише тоді, коли проміжок буде заміщено в інший спосіб.`,
     neighboursHealthy: (m) => `Сусідні зуби ${m[1]} і ${m[2]} без знахідок. Для мостоподібного протеза їх обточують, для імплантата — ні.`,
     coveredOnlyFromAge: (m, t) => `Лікарняна каса оплачує лише з ${m[1]} ${jahre(Number(m[1]))}.${m[2] ? ` ${t(m[2])}` : ""}`,
     coveredFromAge: (m, t) => `Лікарняна каса оплачує з ${m[1]} ${jahre(Number(m[1]))}.${m[2] ? ` ${t(m[2])}` : ""}`,

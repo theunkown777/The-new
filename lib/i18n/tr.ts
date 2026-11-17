@@ -126,13 +126,16 @@ const content: Record<string, string> = {
   "Teilkrone aus Metall, Regelversorgung": "Metal parsiyel kron, standart tedavi",
   "Teilkrone aus Metall, Standardausführung": "Metal parsiyel kron, standart model",
   "Keramik-Teilkrone": "Seramik parsiyel kron",
-  "erhält die gesunde Zahnwand": "sağlam diş duvarını korur",
+  "Reinigung der Zahnfleischtaschen": "diş eti ceplerinin temizlenmesi",
+  "herausnehmbare Schiene aus Kunststoff": "plastikten yapılmış, çıkarılabilir plak",
+  "die gesunde Zahnwand bleibt stehen": "sağlam diş duvarı yerinde kalır",
+  "Eine Teilkrone bedeckt nur einen Teil des Zahns.": "Parsiyel kron dişin yalnızca bir bölümünü kaplar.",
+  "wird im Kieferknochen verankert": "çene kemiğine yerleştirilir",
+  "Versiegelung der Rillen auf der Kaufläche": "çiğneme yüzeyindeki olukların kapatılması",
+  "Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung der Kasse.": "Birden fazla diş eksikse sağlık sigortasının standart tedavisi (Regelversorgung) köprüdür.",
   "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist. Die Kasse gibt dafür einen eigenen Festzuschuss.":
     "Dişten geriye çok az doku kaldığında post, kronun tutunmasını sağlar. Sağlık sigortası bunun için ayrı bir sabit katkı (Festzuschuss) öder.",
   "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist.": "Dişten geriye çok az doku kaldığında post, kronun tutunmasını sağlar.",
-  "Eine Teilkrone schont mehr Zahnsubstanz als eine Vollkrone. Sie kommt infrage, solange die äußere oder innere Zahnwand stabil ist.":
-    "Parsiyel kron, tam krona göre daha fazla diş dokusunu korur. Dişin dış veya iç duvarı sağlam olduğu sürece uygulanabilir.",
-  "Bei Knirschen Material und Schichtstärke der Keramik darauf abstimmen.": "Diş gıcırdatma varsa seramiğin malzemesi ve kalınlığı buna göre seçilir.",
   "Tiefe Fissuren, kariesfrei": "Derin fissürler (oluklar), çürük yok",
   "Zahn fehlt": "Diş eksik",
   "Zahnstein und Beläge": "Diş taşı ve plak",
@@ -158,32 +161,20 @@ const content: Record<string, string> = {
   "Wurzelbehandlung, Kassenleistung": "Kanal tedavisi, sağlık sigortası kapsamında",
   Zahnsteinentfernung: "Diş taşı temizliği",
   // Vorteile
-  "Ergebnis hält 1–3 Jahre": "sonuç 1–3 yıl kalıcıdır",
   "Festzuschuss wie Regelversorgung": "standart tedavidekiyle aynı sabit katkı (Festzuschuss)",
   "Kasse zahlt Grundleistung": "temel tedaviyi sağlık sigortası öder",
   "Kasse zahlt Kassenfüllung anteilig": "sağlık sigortası, standart dolgunun tutarı kadar katkıda bulunur",
   Kassenleistung: "Sağlık sigortası kapsamında",
   "Kassenleistung bis 17 Jahre": "17 yaşına kadar sağlık sigortası kapsamında",
   "Kassenleistung inklusive Nachsorge (UPT)": "takip tedavisi (UPT) dahil sağlık sigortası kapsamında",
-  "Kieferknochen bleibt belastet": "çene kemiği yük almaya devam eder",
-  "Metall mit Keramikverblendung": "seramik kaplamalı metal",
   "Metall mit Keramikverblendung auf der sichtbaren Seite": "görünen yüzü seramik kaplamalı metal",
   "als Brückenpfeiler in der Brücke enthalten": "köprü ayağı olarak köprüye dahildir",
-  "keine eigene Krone nötig": "ayrı bir kron gerekmez",
   "In der Brücke enthalten": "Köprüye dahil",
-  "Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung. Implantate sind möglich, aber deutlich aufwendiger.":
-    "Birden fazla diş eksikse standart tedavi (Regelversorgung) köprüdür. İmplant da mümkündür, ancak çok daha zahmetlidir.",
-  "Im Seitenzahnbereich ist die Krone in Standardausführung funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.":
-    "Arka dişlerde standart model kron işlev açısından eşdeğerdir. Tam seramik burada daha çok bir görünüm meselesidir.",
-  "Bei mehreren fehlenden Zähnen ist die Brücke die übliche Versorgung. Implantate sind möglich, aber deutlich aufwendiger.":
-    "Birden fazla diş eksikse olağan tedavi köprüdür. İmplant da mümkündür, ancak çok daha zahmetlidir.",
   "Krone, Standardausführung": "Kron, standart model",
   "Brücke, Standardausführung": "Köprü, standart model",
   "ersetzt den fehlenden Zahn": "eksik dişin yerini alır",
   "ersetzt alle fehlenden Zähne des Kiefers": "çenedeki tüm eksik dişlerin yerini alır",
   "ersetzt alle Zähne des Kiefers": "çenedeki tüm dişlerin yerini alır",
-  "Fehlt nur der letzte Backenzahn, ist ein Ersatz oft nicht nötig (verkürzte Zahnreihe). Bitte im Gespräch klären.":
-    "Yalnızca en arkadaki azı dişi eksikse çoğu zaman yerine yenisinin yapılması gerekmez (kısaltılmış diş dizisi). Lütfen bunu görüşmede netleştirin.",
   Totalprothese: "Tam protez",
   "Deckprothese über den verbliebenen Zähnen": "Kalan dişlerin üzerine oturan protez",
   "Zahnloser Kiefer": "Dişsiz çene",
@@ -197,54 +188,23 @@ const content: Record<string, string> = {
   "auch weiche Beläge und Verfärbungen": "yumuşak plağı ve renklenmeleri de giderir",
   "auf ausdrücklichen Wunsch (§ 2 Abs. 3 GOZ)": "yalnızca açık isteğiniz üzerine (§ 2 Abs. 3 GOZ)",
   "bei Indikation Kassenleistung": "tıbbi gereklilik varsa sağlık sigortası kapsamında",
-  "bei großen Flächen begrenzt haltbar": "geniş yüzeylerde dayanıklılığı sınırlıdır",
-  "bewährt und haltbar": "kendini kanıtlamış ve dayanıklı",
   "mit Haftvermittler am Zahn befestigt": "yapıştırıcı (bonding) ile dişe tutturulur",
   "einmal im Kalenderjahr Kassenleistung": "takvim yılında bir kez sağlık sigortası kapsamında",
   "entfernt harte Beläge": "sert birikintileri giderir",
-  "erhält den Zahn": "dişin ağızda kalmasını sağlar",
-  "ersetzt mehrere Zähne": "birkaç dişin yerini alır",
   festsitzend: "sabit",
   "gleicher Festzuschuss": "aynı sabit katkı (Festzuschuss)",
   herausnehmbar: "çıkarılabilir",
   "Füllung in mehreren Schichten": "birkaç katman halinde yapılan dolgu",
   "Arbeit unter dem Mikroskop": "mikroskop altında çalışma",
   "im Frontzahnbereich Kassenleistung": "ön dişlerde sağlık sigortası kapsamında",
-  "kürzere Haltbarkeit": "daha kısa ömürlü",
   "maschinelle Aufbereitung": "makineyle kanal şekillendirme",
-  "metallfrei, natürliche Optik": "metalsiz, doğal görünüm",
-  "schnelle Lösung": "hızlı çözüm",
-  "schützt Zähne und Versorgungen": "dişleri ve yapılan restorasyonları korur",
-  "schützt tiefe Fissuren vor Karies": "derin fissürleri çürüğe karşı korur",
-  "sehr gut verträglich": "vücutla çok iyi uyumlu",
   "Keramik, im Labor gefertigt": "seramik, laboratuvarda üretilir",
   "wird eingeklebt": "yapıştırılarak yerleştirilir",
-  "stoppt Knochenabbau": "kemik kaybını durdurur",
   "viele Zusatzversicherungen erstatten": "birçok ek sigorta masrafı geri öder",
   zahnfarben: "diş renginde",
-  "zahnfarben, gute Randdichte": "diş renginde, kenar sızdırmazlığı iyi",
   "zahnfarben, metallfrei": "diş renginde, metalsiz",
   "zahnfarben, schnell gelegt": "diş renginde, hızlı uygulanır",
   // Hinweise
-  "Alte Amalgamfüllungen nur ersetzen, wenn sie defekt sind. Intakte Füllungen bleiben.":
-    "Eski amalgam dolgular yalnızca bozulmuşsa değiştirilir. Sağlam dolgular yerinde kalır.",
-  "Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus.":
-    "Kanalı düz olan ön dişlerde ve küçük azı dişlerinde sağlık sigortasının karşıladığı tedavi çoğunlukla yeterlidir.",
-  "Im Seitenzahnbereich ist die Kassenkrone funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.":
-    "Arka dişlerde sağlık sigortasının karşıladığı kron işlev açısından eşdeğerdir. Tam seramik burada daha çok bir görünüm meselesidir.",
-  "Seitenzähne brauchen nach einer Wurzelbehandlung meist eine Krone, damit sie nicht brechen.":
-    "Arka dişler, kanal tedavisinden sonra kırılmamaları için çoğunlukla kron gerektirir.",
-  "Erst kariöse Zähne versorgen, dann aufhellen. Füllungen hellen nicht mit auf und werden danach farblich angepasst.":
-    "Önce çürük dişler tedavi edilir, sonra beyazlatma yapılır. Dolgular beyazlamaz; renkleri sonradan uyarlanır.",
-  "Knirschen erhöht die Bruchgefahr. Zusätzlich eine Aufbissschiene einplanen.":
-    "Diş gıcırdatma kırılma riskini artırır. Ek olarak bir gece plağı önerilir.",
-  "Bei Knirschen monolithisches Zirkon wählen, keine verblendete Keramik.":
-    "Diş gıcırdatma varsa kaplamalı seramik yerine monolitik zirkonyum seçilir.",
-  "Rauchen erhöht das Risiko eines Implantatverlusts deutlich. Vorher Rauchstopp besprechen.":
-    "Sigara içmek implant kaybı riskini belirgin biçimde artırır. Öncesinde sigarayı bırakmayı konuşuruz.",
-  "Vor Implantat oder Brücke zuerst die Parodontitis behandeln.": "İmplant veya köprüden önce periodontitis tedavi edilir.",
-  "Bei sehr großem Defekt am Frontzahn prüfen, ob eine Krone langfristig sinnvoller ist.":
-    "Ön dişteki madde kaybı çok büyükse uzun vadede kronun daha uygun olup olmadığı değerlendirilir.",
   // Leistungsarten
   Andersartig: "Farklı türde tedavi (andersartig)",
   "Basis + Zusatz": "Temel + ek",
@@ -290,8 +250,7 @@ export const tr: PatientLocale = {
     nImplants: (m) => `Kronlu ${m[1]} implant`,
     notNeededWithBridge: (m, t) => `Köprü yapılırsa gerekmez (${t(m[1])})`,
     abutmentNote: (m, t) =>
-      `Bu diş bir köprünün (${t(m[1])}) ayağı olursa kronu köprüye dahildir. Ayrı bir krona yalnızca boşluk başka şekilde tedavi edilirse ihtiyaç duyar.`,
-    neighboursNeedCare: (m) => `Komşu dişler (${m[1]} ve ${m[2]}) zaten tedavi gerektiriyor. Köprü ikisini birden çözer.`,
+      `Bu diş bir köprünün (${t(m[1])}) ayağı olursa kronu köprüye dahildir. Ayrı bir kron yalnızca boşluk başka şekilde tedavi edilirse eklenir.`,
     neighboursHealthy: (m) => `Komşu dişlerde (${m[1]} ve ${m[2]}) bulgu yok. Köprü için bu dişler kesilir, implant için kesilmez.`,
     coveredOnlyFromAge: (m, t) => `Ancak ${m[1]} yaşından itibaren sağlık sigortası kapsamındadır.${m[2] ? ` ${t(m[2])}` : ""}`,
     coveredFromAge: (m, t) => `${m[1]} yaşından itibaren sağlık sigortası kapsamındadır.${m[2] ? ` ${t(m[2])}` : ""}`,

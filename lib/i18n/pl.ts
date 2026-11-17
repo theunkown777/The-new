@@ -127,13 +127,16 @@ const content: Record<string, string> = {
   "Teilkrone aus Metall, Regelversorgung": "Metalowa korona częściowa, leczenie standardowe",
   "Teilkrone aus Metall, Standardausführung": "Metalowa korona częściowa, wersja standardowa",
   "Keramik-Teilkrone": "Ceramiczna korona częściowa",
-  "erhält die gesunde Zahnwand": "zachowuje zdrową ścianę zęba",
+  "Reinigung der Zahnfleischtaschen": "oczyszczanie kieszonek dziąsłowych",
+  "herausnehmbare Schiene aus Kunststoff": "wyjmowana szyna z tworzywa sztucznego",
+  "die gesunde Zahnwand bleibt stehen": "zdrowa ściana zęba zostaje",
+  "Eine Teilkrone bedeckt nur einen Teil des Zahns.": "Korona częściowa pokrywa tylko część zęba.",
+  "wird im Kieferknochen verankert": "jest mocowany w kości szczęki",
+  "Versiegelung der Rillen auf der Kaufläche": "uszczelnienie bruzd na powierzchni żującej",
+  "Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung der Kasse.": "Przy braku kilku zębów leczeniem standardowym (Regelversorgung) kasy chorych jest most.",
   "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist. Die Kasse gibt dafür einen eigenen Festzuschuss.":
     "Wkład koronowo-korzeniowy zapewnia koronie oparcie, gdy z zęba pozostało zbyt mało. Kasa chorych przyznaje na to osobną stałą dopłatę (Festzuschuss).",
   "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist.": "Wkład koronowo-korzeniowy zapewnia koronie oparcie, gdy z zęba pozostało zbyt mało.",
-  "Eine Teilkrone schont mehr Zahnsubstanz als eine Vollkrone. Sie kommt infrage, solange die äußere oder innere Zahnwand stabil ist.":
-    "Korona częściowa oszczędza więcej tkanek zęba niż korona pełna. Jest możliwa, dopóki zewnętrzna lub wewnętrzna ściana zęba jest stabilna.",
-  "Bei Knirschen Material und Schichtstärke der Keramik darauf abstimmen.": "Przy zgrzytaniu zębami materiał i grubość ceramiki dobiera się odpowiednio.",
   "Tiefe Fissuren, kariesfrei": "Głębokie bruzdy, bez próchnicy",
   "Zahn fehlt": "Brak zęba",
   "Zahnstein und Beläge": "Kamień nazębny i osad",
@@ -159,32 +162,20 @@ const content: Record<string, string> = {
   "Wurzelbehandlung, Kassenleistung": "Leczenie kanałowe, na koszt kasy",
   Zahnsteinentfernung: "Usunięcie kamienia nazębnego",
   // Vorteile
-  "Ergebnis hält 1–3 Jahre": "efekt utrzymuje się 1–3 lata",
   "Festzuschuss wie Regelversorgung": "stała dopłata (Festzuschuss) jak przy leczeniu standardowym",
   "Kasse zahlt Grundleistung": "kasa płaci za leczenie podstawowe",
   "Kasse zahlt Kassenfüllung anteilig": "kasa pokrywa część w wysokości kosztu wypełnienia standardowego",
   Kassenleistung: "Na koszt kasy chorych",
   "Kassenleistung bis 17 Jahre": "na koszt kasy chorych do 17 lat",
   "Kassenleistung inklusive Nachsorge (UPT)": "na koszt kasy chorych, łącznie z opieką kontrolną (UPT)",
-  "Kieferknochen bleibt belastet": "kość szczęki pozostaje obciążana",
-  "Metall mit Keramikverblendung": "metal licowany ceramiką",
   "Metall mit Keramikverblendung auf der sichtbaren Seite": "metal licowany ceramiką po widocznej stronie",
   "als Brückenpfeiler in der Brücke enthalten": "jako filar wchodzi w skład mostu",
-  "keine eigene Krone nötig": "osobna korona nie jest potrzebna",
   "In der Brücke enthalten": "W ramach mostu",
-  "Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung. Implantate sind möglich, aber deutlich aufwendiger.":
-    "Przy braku kilku zębów leczeniem standardowym (Regelversorgung) jest most. Implanty są możliwe, ale znacznie bardziej pracochłonne.",
-  "Im Seitenzahnbereich ist die Krone in Standardausführung funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.":
-    "W odcinku bocznym korona w wersji standardowej jest funkcjonalnie równorzędna. Pełna ceramika to tutaj przede wszystkim kwestia wyglądu.",
-  "Bei mehreren fehlenden Zähnen ist die Brücke die übliche Versorgung. Implantate sind möglich, aber deutlich aufwendiger.":
-    "Przy braku kilku zębów zwykle stosowanym leczeniem jest most. Implanty są możliwe, ale znacznie bardziej pracochłonne.",
   "Krone, Standardausführung": "Korona, wersja standardowa",
   "Brücke, Standardausführung": "Most, wersja standardowa",
   "ersetzt den fehlenden Zahn": "zastępuje brakujący ząb",
   "ersetzt alle fehlenden Zähne des Kiefers": "zastępuje wszystkie brakujące zęby danej szczęki",
   "ersetzt alle Zähne des Kiefers": "zastępuje wszystkie zęby danej szczęki",
-  "Fehlt nur der letzte Backenzahn, ist ein Ersatz oft nicht nötig (verkürzte Zahnreihe). Bitte im Gespräch klären.":
-    "Jeśli brakuje tylko ostatniego zęba trzonowego, uzupełnienie często nie jest potrzebne (skrócony łuk zębowy). Proszę wyjaśnić to podczas rozmowy.",
   Totalprothese: "Proteza całkowita",
   "Deckprothese über den verbliebenen Zähnen": "Proteza nakładowa na pozostałych zębach",
   "Zahnloser Kiefer": "Bezzębna szczęka",
@@ -198,54 +189,23 @@ const content: Record<string, string> = {
   "auch weiche Beläge und Verfärbungen": "usuwa także miękki osad i przebarwienia",
   "auf ausdrücklichen Wunsch (§ 2 Abs. 3 GOZ)": "wyłącznie na wyraźne życzenie (§ 2 Abs. 3 GOZ)",
   "bei Indikation Kassenleistung": "przy wskazaniach medycznych na koszt kasy chorych",
-  "bei großen Flächen begrenzt haltbar": "przy dużych powierzchniach ograniczona trwałość",
-  "bewährt und haltbar": "sprawdzone i trwałe rozwiązanie",
   "mit Haftvermittler am Zahn befestigt": "mocowane do zęba systemem wiążącym",
   "einmal im Kalenderjahr Kassenleistung": "raz w roku kalendarzowym na koszt kasy chorych",
   "entfernt harte Beläge": "usuwa twarde złogi",
-  "erhält den Zahn": "pozwala zachować ząb",
-  "ersetzt mehrere Zähne": "zastępuje kilka zębów",
   festsitzend: "uzupełnienie stałe",
   "gleicher Festzuschuss": "taka sama stała dopłata (Festzuschuss)",
   herausnehmbar: "wyjmowana",
   "Füllung in mehreren Schichten": "wypełnienie nakładane w kilku warstwach",
   "Arbeit unter dem Mikroskop": "praca pod mikroskopem",
   "im Frontzahnbereich Kassenleistung": "w odcinku przednim na koszt kasy chorych",
-  "kürzere Haltbarkeit": "krótsza trwałość",
   "maschinelle Aufbereitung": "maszynowe opracowanie kanałów",
-  "metallfrei, natürliche Optik": "bez metalu, naturalny wygląd",
-  "schnelle Lösung": "szybkie rozwiązanie",
-  "schützt Zähne und Versorgungen": "chroni zęby i uzupełnienia",
-  "schützt tiefe Fissuren vor Karies": "chroni głębokie bruzdy przed próchnicą",
-  "sehr gut verträglich": "bardzo dobra tolerancja przez organizm",
   "Keramik, im Labor gefertigt": "ceramika, wykonywana w laboratorium",
   "wird eingeklebt": "jest wklejane",
-  "stoppt Knochenabbau": "zatrzymuje zanik kości",
   "viele Zusatzversicherungen erstatten": "wiele ubezpieczeń dodatkowych zwraca koszty",
   zahnfarben: "w kolorze zęba",
-  "zahnfarben, gute Randdichte": "w kolorze zęba, dobra szczelność brzeżna",
   "zahnfarben, metallfrei": "w kolorze zęba, bez metalu",
   "zahnfarben, schnell gelegt": "w kolorze zęba, szybko zakładane",
   // Hinweise
-  "Alte Amalgamfüllungen nur ersetzen, wenn sie defekt sind. Intakte Füllungen bleiben.":
-    "Stare wypełnienia amalgamatowe wymienia się tylko wtedy, gdy są uszkodzone. Nienaruszone wypełnienia pozostają.",
-  "Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus.":
-    "W przypadku zębów przednich i przedtrzonowych z prostym kanałem leczenie na koszt kasy zazwyczaj wystarcza.",
-  "Im Seitenzahnbereich ist die Kassenkrone funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.":
-    "W odcinku bocznym korona na koszt kasy jest funkcjonalnie równorzędna. Pełna ceramika to tutaj przede wszystkim kwestia wyglądu.",
-  "Seitenzähne brauchen nach einer Wurzelbehandlung meist eine Krone, damit sie nicht brechen.":
-    "Po leczeniu kanałowym zęby boczne zazwyczaj wymagają korony, aby się nie złamały.",
-  "Erst kariöse Zähne versorgen, dann aufhellen. Füllungen hellen nicht mit auf und werden danach farblich angepasst.":
-    "Najpierw leczy się zęby z próchnicą, potem wybiela. Wypełnienia nie wybielają się i później dopasowuje się ich kolor.",
-  "Knirschen erhöht die Bruchgefahr. Zusätzlich eine Aufbissschiene einplanen.":
-    "Zgrzytanie zębami zwiększa ryzyko złamania. Dodatkowo zalecana jest szyna zgryzowa.",
-  "Bei Knirschen monolithisches Zirkon wählen, keine verblendete Keramik.":
-    "Przy zgrzytaniu zębami wybiera się monolityczny tlenek cyrkonu zamiast ceramiki licowanej.",
-  "Rauchen erhöht das Risiko eines Implantatverlusts deutlich. Vorher Rauchstopp besprechen.":
-    "Palenie wyraźnie zwiększa ryzyko utraty implantu. Wcześniej omówimy rzucenie palenia.",
-  "Vor Implantat oder Brücke zuerst die Parodontitis behandeln.": "Przed implantem lub mostem najpierw leczy się zapalenie przyzębia.",
-  "Bei sehr großem Defekt am Frontzahn prüfen, ob eine Krone langfristig sinnvoller ist.":
-    "Przy bardzo dużym ubytku w zębie przednim ocenia się, czy korona nie będzie na dłuższą metę lepszym rozwiązaniem.",
   // Leistungsarten
   Andersartig: "Inny rodzaj leczenia (andersartig)",
   "Basis + Zusatz": "Podstawa + dodatek",
@@ -291,8 +251,7 @@ export const pl: PatientLocale = {
     nImplants: (m) => `${m[1]} ${slawischerPlural(Number(m[1]), "implant", "implanty", "implantów")} z koronami`,
     notNeededWithBridge: (m, t) => `Niepotrzebna w przypadku mostu (${t(m[1])})`,
     abutmentNote: (m, t) =>
-      `Jeśli ten ząb zostanie filarem mostu (${t(m[1])}), jego korona wchodzi w skład mostu. Osobnej korony wymaga tylko wtedy, gdy luka zostanie uzupełniona w inny sposób.`,
-    neighboursNeedCare: (m) => `Zęby sąsiednie ${m[1]} i ${m[2]} i tak wymagają leczenia. Most rozwiązuje oba problemy jednocześnie.`,
+      `Jeśli ten ząb zostanie filarem mostu (${t(m[1])}), jego korona wchodzi w skład mostu. Osobna korona dochodzi tylko wtedy, gdy luka zostanie uzupełniona w inny sposób.`,
     neighboursHealthy: (m) => `Zęby sąsiednie ${m[1]} i ${m[2]} są bez zmian. Pod most trzeba je oszlifować, pod implant nie.`,
     coveredOnlyFromAge: (m, t) => `Na koszt kasy chorych dopiero od ${m[1]}. roku życia.${m[2] ? ` ${t(m[2])}` : ""}`,
     coveredFromAge: (m, t) => `Na koszt kasy chorych od ${m[1]}. roku życia.${m[2] ? ` ${t(m[2])}` : ""}`,

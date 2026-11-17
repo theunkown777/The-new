@@ -137,13 +137,16 @@ const content: Record<string, string> = {
   "Teilkrone aus Metall, Regelversorgung": "تاج جزئي معدني، العلاج القياسي",
   "Teilkrone aus Metall, Standardausführung": "تاج جزئي معدني، النوع القياسي",
   "Keramik-Teilkrone": "تاج جزئي خزفي",
-  "erhält die gesunde Zahnwand": "يحافظ على جدار السن السليم",
+  "Reinigung der Zahnfleischtaschen": "تنظيف الجيوب اللثوية",
+  "herausnehmbare Schiene aus Kunststoff": "جبيرة بلاستيكية قابلة للنزع",
+  "die gesunde Zahnwand bleibt stehen": "يبقى جدار السن السليم في مكانه",
+  "Eine Teilkrone bedeckt nur einen Teil des Zahns.": "التاج الجزئي يغطي جزءًا من السن فقط.",
+  "wird im Kieferknochen verankert": "يُثبَّت في عظم الفك",
+  "Versiegelung der Rillen auf der Kaufläche": "سدّ الأخاديد على سطح المضغ",
+  "Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung der Kasse.": "عند فقدان عدة أسنان يكون الجسر هو العلاج القياسي (Regelversorgung) لدى التأمين الصحي.",
   "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist. Die Kasse gibt dafür einen eigenen Festzuschuss.":
     "الوتد الداعم يثبّت التاج عندما يكون المتبقي من السن قليلًا جدًا. يقدّم التأمين الصحي لذلك دعمًا ثابتًا مستقلًا (Festzuschuss).",
   "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist.": "الوتد الداعم يثبّت التاج عندما يكون المتبقي من السن قليلًا جدًا.",
-  "Eine Teilkrone schont mehr Zahnsubstanz als eine Vollkrone. Sie kommt infrage, solange die äußere oder innere Zahnwand stabil ist.":
-    "التاج الجزئي يحافظ على قدر أكبر من مادة السن مقارنةً بالتاج الكامل. وهو خيار ممكن ما دام الجدار الخارجي أو الداخلي للسن متينًا.",
-  "Bei Knirschen Material und Schichtstärke der Keramik darauf abstimmen.": "في حالة صرير الأسنان يُختار نوع الخزف وسماكته بما يناسب ذلك.",
   "Tiefe Fissuren, kariesfrei": "شقوق عميقة، بدون تسوس",
   "Zahn fehlt": "سن مفقود",
   "Zahnstein und Beläge": "جير الأسنان والترسبات",
@@ -169,32 +172,20 @@ const content: Record<string, string> = {
   "Wurzelbehandlung, Kassenleistung": "علاج الجذور، على نفقة التأمين الصحي",
   Zahnsteinentfernung: "إزالة جير الأسنان",
   // Vorteile
-  "Ergebnis hält 1–3 Jahre": "تدوم النتيجة من 1 إلى 3 سنوات",
   "Festzuschuss wie Regelversorgung": "الدعم الثابت نفسه (Festzuschuss) كما في العلاج القياسي",
   "Kasse zahlt Grundleistung": "التأمين الصحي يدفع العلاج الأساسي",
   "Kasse zahlt Kassenfüllung anteilig": "التأمين الصحي يدفع ما يعادل تكلفة الحشوة القياسية",
   Kassenleistung: "على نفقة التأمين الصحي",
   "Kassenleistung bis 17 Jahre": "على نفقة التأمين الصحي حتى سن 17 عامًا",
   "Kassenleistung inklusive Nachsorge (UPT)": "على نفقة التأمين الصحي، شاملةً المتابعة (UPT)",
-  "Kieferknochen bleibt belastet": "يبقى عظم الفك تحت التحميل الطبيعي",
-  "Metall mit Keramikverblendung": "معدن مع تلبيس خزفي",
   "Metall mit Keramikverblendung auf der sichtbaren Seite": "معدن مع تلبيس خزفي على الجهة الظاهرة",
   "als Brückenpfeiler in der Brücke enthalten": "مشمول ضمن الجسر كدعامة له",
-  "keine eigene Krone nötig": "لا يلزم تاج مستقل",
   "In der Brücke enthalten": "مشمول ضمن الجسر",
-  "Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung. Implantate sind möglich, aber deutlich aufwendiger.":
-    "عند فقدان عدة أسنان يكون الجسر هو العلاج القياسي (Regelversorgung). الزرعات ممكنة، لكنها أكثر تعقيدًا بشكل واضح.",
-  "Im Seitenzahnbereich ist die Krone in Standardausführung funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.":
-    "في منطقة الأسنان الخلفية يكون التاج من النوع القياسي مساويًا من الناحية الوظيفية. الخزف الكامل هنا مسألة مظهر في المقام الأول.",
-  "Bei mehreren fehlenden Zähnen ist die Brücke die übliche Versorgung. Implantate sind möglich, aber deutlich aufwendiger.":
-    "عند فقدان عدة أسنان يكون الجسر هو العلاج المعتاد. الزرعات ممكنة، لكنها أكثر تعقيدًا بشكل واضح.",
   "Krone, Standardausführung": "تاج، النوع القياسي",
   "Brücke, Standardausführung": "جسر، النوع القياسي",
   "ersetzt den fehlenden Zahn": "يعوّض السن المفقود",
   "ersetzt alle fehlenden Zähne des Kiefers": "يعوّض جميع الأسنان المفقودة في الفك",
   "ersetzt alle Zähne des Kiefers": "يعوّض جميع أسنان الفك",
-  "Fehlt nur der letzte Backenzahn, ist ein Ersatz oft nicht nötig (verkürzte Zahnreihe). Bitte im Gespräch klären.":
-    "إذا كان المفقود هو الضرس الأخير فقط، فغالبًا لا يلزم تعويضه (قوس سني قصير). يُرجى توضيح ذلك أثناء المحادثة.",
   Totalprothese: "طقم أسنان كامل",
   "Deckprothese über den verbliebenen Zähnen": "طقم أسنان يغطي الأسنان المتبقية",
   "Zahnloser Kiefer": "فك بلا أسنان",
@@ -208,54 +199,23 @@ const content: Record<string, string> = {
   "auch weiche Beläge und Verfärbungen": "يزيل أيضًا الترسبات اللينة والتصبغات",
   "auf ausdrücklichen Wunsch (§ 2 Abs. 3 GOZ)": `بناءً على رغبتكم الصريحة فقط (${LRM}§ 2 Abs. 3 GOZ)`,
   "bei Indikation Kassenleistung": "على نفقة التأمين الصحي عند وجود داعٍ طبي",
-  "bei großen Flächen begrenzt haltbar": "عمرها محدود في المساحات الكبيرة",
-  "bewährt und haltbar": "مجرَّب ومتين",
   "mit Haftvermittler am Zahn befestigt": "تُثبَّت على السن بمادة رابطة",
   "einmal im Kalenderjahr Kassenleistung": "على نفقة التأمين الصحي مرة واحدة في السنة التقويمية",
   "entfernt harte Beläge": "يزيل الترسبات الصلبة",
-  "erhält den Zahn": "يحافظ على السن",
-  "ersetzt mehrere Zähne": "يعوّض عدة أسنان",
   festsitzend: "ثابت",
   "gleicher Festzuschuss": "الدعم الثابت نفسه (Festzuschuss)",
   herausnehmbar: "متحرك (قابل للنزع)",
   "Füllung in mehreren Schichten": "حشوة تُبنى على عدة طبقات",
   "Arbeit unter dem Mikroskop": "العمل تحت المجهر",
   "im Frontzahnbereich Kassenleistung": "على نفقة التأمين الصحي في الأسنان الأمامية",
-  "kürzere Haltbarkeit": "عمر أقصر",
   "maschinelle Aufbereitung": "تحضير آلي للقنوات",
-  "metallfrei, natürliche Optik": "خالٍ من المعدن، مظهر طبيعي",
-  "schnelle Lösung": "حل سريع",
-  "schützt Zähne und Versorgungen": "يحمي الأسنان والتركيبات",
-  "schützt tiefe Fissuren vor Karies": "يحمي الشقوق العميقة من التسوس",
-  "sehr gut verträglich": "يتقبّله الجسم جيدًا جدًا",
   "Keramik, im Labor gefertigt": "خزف، يُصنع في المختبر",
   "wird eingeklebt": "يُثبَّت باللصق",
-  "stoppt Knochenabbau": "يوقف تآكل العظم",
   "viele Zusatzversicherungen erstatten": "كثير من التأمينات الإضافية تعوّض التكلفة",
   zahnfarben: "بلون السن",
-  "zahnfarben, gute Randdichte": "بلون السن، إحكام جيد عند الحواف",
   "zahnfarben, metallfrei": "بلون السن، خالٍ من المعدن",
   "zahnfarben, schnell gelegt": "بلون السن، توضع بسرعة",
   // Hinweise
-  "Alte Amalgamfüllungen nur ersetzen, wenn sie defekt sind. Intakte Füllungen bleiben.":
-    "لا تُستبدل حشوات الأملغم القديمة إلا إذا كانت تالفة. الحشوات السليمة تبقى.",
-  "Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus.":
-    "في الأسنان الأمامية والضواحك ذات القناة المستقيمة يكفي غالبًا العلاج الذي يغطيه التأمين الصحي.",
-  "Im Seitenzahnbereich ist die Kassenkrone funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.":
-    "في منطقة الأسنان الخلفية يكون التاج الذي يغطيه التأمين الصحي مساويًا من الناحية الوظيفية. الخزف الكامل هنا مسألة مظهر في المقام الأول.",
-  "Seitenzähne brauchen nach einer Wurzelbehandlung meist eine Krone, damit sie nicht brechen.":
-    "بعد علاج الجذور تحتاج الأسنان الخلفية غالبًا إلى تاج حتى لا تنكسر.",
-  "Erst kariöse Zähne versorgen, dann aufhellen. Füllungen hellen nicht mit auf und werden danach farblich angepasst.":
-    "تُعالَج الأسنان المتسوسة أولًا ثم يتم التبييض. الحشوات لا تتأثر بالتبييض ويُعدَّل لونها بعد ذلك.",
-  "Knirschen erhöht die Bruchgefahr. Zusätzlich eine Aufbissschiene einplanen.":
-    "صرير الأسنان يزيد خطر الكسر. يُنصح إضافةً إلى ذلك بواقي أسنان ليلي.",
-  "Bei Knirschen monolithisches Zirkon wählen, keine verblendete Keramik.":
-    "في حالة صرير الأسنان يُختار الزركونيا أحادي الكتلة بدلًا من الخزف المُلبَّس.",
-  "Rauchen erhöht das Risiko eines Implantatverlusts deutlich. Vorher Rauchstopp besprechen.":
-    "التدخين يزيد خطر فقدان الزرعة بشكل واضح. سنتحدث قبل ذلك عن الإقلاع عن التدخين.",
-  "Vor Implantat oder Brücke zuerst die Parodontitis behandeln.": "قبل الزرعة أو الجسر يُعالَج التهاب دواعم السن أولًا.",
-  "Bei sehr großem Defekt am Frontzahn prüfen, ob eine Krone langfristig sinnvoller ist.":
-    "عند وجود تلف كبير جدًا في سن أمامي يُدرَس ما إذا كان التاج أنسب على المدى الطويل.",
   // Leistungsarten
   Andersartig: "علاج من نوع مختلف (andersartig)",
   "Basis + Zusatz": "أساسي + إضافي",
@@ -302,8 +262,7 @@ export const ar: PatientLocale = {
     nImplants: (m) => `زرعات مع تيجان (العدد: ${m[1]})`,
     notNeededWithBridge: (m, t) => `لا يلزم في حال عمل جسر (${t(m[1])})`,
     abutmentNote: (m, t) =>
-      `إذا أصبح هذا السن دعامة لجسر (${t(m[1])})، فإن تاجه مشمول ضمن الجسر. لا يحتاج إلى تاج مستقل إلا إذا عُولج الفراغ بطريقة أخرى.`,
-    neighboursNeedCare: (m) => `الأسنان المجاورة ${liste(m[1])} و${m[2]} تحتاج إلى علاج على أي حال. الجسر يحلّ الأمرين معًا.`,
+      `إذا أصبح هذا السن دعامة لجسر (${t(m[1])})، فإن تاجه مشمول ضمن الجسر. لا يُضاف تاج مستقل إلا إذا عُولج الفراغ بطريقة أخرى.`,
     neighboursHealthy: (m) => `الأسنان المجاورة ${liste(m[1])} و${m[2]} بلا ملاحظات. من أجل الجسر تُبرد هذه الأسنان، أما مع الزرعة فلا.`,
     coveredOnlyFromAge: (m, t) => `على نفقة التأمين الصحي ابتداءً من سن ${m[1]} فقط.${m[2] ? ` ${t(m[2])}` : ""}`,
     coveredFromAge: (m, t) => `على نفقة التأمين الصحي ابتداءً من سن ${m[1]}.${m[2] ? ` ${t(m[2])}` : ""}`,

@@ -204,18 +204,18 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
         r.excluded.push("Keramik-Inlay: bei kleinen Defekten müsste unnötig gesunde Zahnsubstanz abgetragen werden.");
         r.recommended = "komp";
       }
-      if (f === "fuellung_defekt") info("Alte Amalgamfüllungen nur ersetzen, wenn sie defekt sind. Intakte Füllungen bleiben.");
+      if (f === "fuellung_defekt") warn("Alte Amalgamfüllungen nur ersetzen, wenn sie defekt sind. Intakte Füllungen bleiben.");
       break;
 
     case "karies_gross":
       if (k === "front") {
         r.options.push({ id: "fk", type: "kasse", name: "Komposit-Füllung", total: P.fk_gross, benefits: ["zahnfarben", "Kassenleistung"] });
         r.excluded.push("Keramik-Inlay: im Frontzahnbereich nicht üblich.");
-        warn("Bei sehr großem Defekt am Frontzahn prüfen, ob eine Krone langfristig sinnvoller ist.");
+        warn("Bei sehr großem Defekt am Frontzahn prüft die Praxis, ob eine Krone in Frage kommt.");
         r.recommended = "fk";
       } else {
-        r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_gross, benefits: ["schnelle Lösung"] });
-        r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_gross, base: P.fk_gross, benefits: ["zahnfarben, gute Randdichte", "Kasse zahlt Kassenfüllung anteilig"] });
+        r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_gross, benefits: ["zahnfarben, schnell gelegt"] });
+        r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_gross, base: P.fk_gross, benefits: ["zahnfarben", "Füllung in mehreren Schichten", "Kasse zahlt Kassenfüllung anteilig"] });
         r.options.push({ id: "inlay", type: "mehrkosten", name: "Keramik-Inlay", total: P.inlay, base: P.fk_gross, benefits: ["Keramik, im Labor gefertigt", "wird eingeklebt", "Kasse zahlt Kassenfüllung anteilig"] });
         r.recommended = k === "molar" ? "inlay" : "komp";
         if (g.bruxismus) warn("Knirschen erhöht die Bruchgefahr. Zusätzlich eine Aufbissschiene einplanen.");
@@ -223,21 +223,21 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
       break;
 
     case "wurzel":
-      r.options.push({ id: "wk", type: "kasse", name: "Wurzelbehandlung, Kassenleistung", total: P.wk_kasse, benefits: ["erhält den Zahn", "Standardinstrumente"] });
+      r.options.push({ id: "wk", type: "kasse", name: "Wurzelbehandlung, Kassenleistung", total: P.wk_kasse, benefits: ["Kassenleistung", "Standardinstrumente"] });
       r.options.push({ id: "wkplus", type: "privatzusatz", name: "Wurzelbehandlung mit Endo-Zusatz", total: P.wk_kasse + P.wk_plus, base: P.wk_kasse, benefits: ["maschinelle Aufbereitung", "Arbeit unter dem Mikroskop", "Kasse zahlt Grundleistung"] });
       r.recommended = k === "molar" ? "wkplus" : "wk";
-      if (k === "molar") info("Seitenzähne brauchen nach einer Wurzelbehandlung meist eine Krone, damit sie nicht brechen.");
-      else info("Bei Front- und Prämolaren mit geradem Kanal reicht die Kassenleistung meist aus.");
+      // Ob danach eine Krone dazukommt, entscheidet die Praxis. Der Patient liest dazu keine Aussage der Software.
+      if (k === "molar") warn("Seitenzahn mit Wurzelbehandlung: Die Praxis prüft, ob danach eine Krone dazukommt.");
       break;
 
     case "teilkrone": {
       // Befund 1.2: großer Substanzdefekt, aber erhaltene Zahnwand. Regelversorgung ist die metallische Teilkrone.
       const tb = ["1.2"];
       const gkv = input.patient.insurance === "GKV";
-      r.options.push({ id: "tk", type: "regel", name: "Teilkrone aus Metall, Regelversorgung", total: gkv ? regelKosten(tb, regelJahr(input.patient)) : P.teilkrone_regel, regel: P.teilkrone_regel, befunde: tb, benefits: ["erhält die gesunde Zahnwand"] });
-      r.options.push({ id: "tkk", type: "gleichartig", name: "Keramik-Teilkrone", total: P.teilkrone_keramik, regel: P.teilkrone_regel, befunde: tb, benefits: ["zahnfarben, metallfrei", "erhält die gesunde Zahnwand", "gleicher Festzuschuss"] });
+      r.options.push({ id: "tk", type: "regel", name: "Teilkrone aus Metall, Regelversorgung", total: gkv ? regelKosten(tb, regelJahr(input.patient)) : P.teilkrone_regel, regel: P.teilkrone_regel, befunde: tb, benefits: ["die gesunde Zahnwand bleibt stehen"] });
+      r.options.push({ id: "tkk", type: "gleichartig", name: "Keramik-Teilkrone", total: P.teilkrone_keramik, regel: P.teilkrone_regel, befunde: tb, benefits: ["zahnfarben, metallfrei", "die gesunde Zahnwand bleibt stehen", "gleicher Festzuschuss"] });
       r.recommended = VERBLENDBEREICH.has(n) ? "tkk" : "tk";
-      info("Eine Teilkrone schont mehr Zahnsubstanz als eine Vollkrone. Sie kommt infrage, solange die äußere oder innere Zahnwand stabil ist.");
+      info("Eine Teilkrone bedeckt nur einen Teil des Zahns.");
       if (g.bruxismus) warn("Bei Knirschen Material und Schichtstärke der Keramik darauf abstimmen.");
       break;
     }
@@ -254,18 +254,14 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
       const stiftPreis = mitStift ? P.stift : 0;
       if (mitStift) info(gkv ? "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist. Die Kasse gibt dafür einen eigenen Festzuschuss." : "Der Stiftaufbau gibt der Krone Halt, wenn vom Zahn zu wenig übrig ist.");
       r.options.push({ id: "kr", type: "regel", name: mitStift ? "Krone mit Stiftaufbau, Regelversorgung" : "Krone, Regelversorgung", total: gkv ? regelKosten(kb, regelJahr(input.patient)) : P.krone_regel + stiftPreis, regel: P.krone_regel + stiftPreis, befunde: kb, benefits: [sichtbar ? "Metall mit Keramikverblendung auf der sichtbaren Seite" : "Metall, im Seitenzahnbereich unverblendet"] });
-      r.options.push({ id: "krvk", type: "gleichartig", name: mitStift ? "Vollkeramik-Krone mit Stiftaufbau" : "Vollkeramik-Krone", total: P.krone_vk + stiftPreis, regel: P.krone_regel + stiftPreis, befunde: kb, benefits: ["metallfrei, natürliche Optik", "sehr gut verträglich", "gleicher Festzuschuss"] });
-      if (!sichtbar) {
-        r.recommended = "kr";
-        info("Im Seitenzahnbereich ist die Kassenkrone funktional gleichwertig. Vollkeramik ist hier vor allem eine Frage der Optik.");
-      } else {
-        r.recommended = "krvk";
-      }
+      r.options.push({ id: "krvk", type: "gleichartig", name: mitStift ? "Vollkeramik-Krone mit Stiftaufbau" : "Vollkeramik-Krone", total: P.krone_vk + stiftPreis, regel: P.krone_regel + stiftPreis, befunde: kb, benefits: ["zahnfarben, metallfrei", "gleicher Festzuschuss"] });
+      // Welche Krone es wird, besprechen Praxis und Patient. Die Software vergleicht die Kronen nicht (kein „gleichwertig“).
+      r.recommended = sichtbar ? "krvk" : "kr";
       if (anker) {
         // Nachbar einer Lücke: Bei einer Brücke ist die Krone des Pfeilerzahns in der Brücke enthalten.
-        r.options.push({ id: "anker", type: "regel", typeLabel: "In der Brücke enthalten", name: `Entfällt bei einer Brücke (${anker.where})`, total: 0, benefits: ["als Brückenpfeiler in der Brücke enthalten", "keine eigene Krone nötig"] });
+        r.options.push({ id: "anker", type: "regel", typeLabel: "In der Brücke enthalten", name: `Entfällt bei einer Brücke (${anker.where})`, total: 0, benefits: ["als Brückenpfeiler in der Brücke enthalten"] });
         if (anker.bruecke) r.recommended = "anker";
-        info(`Wird dieser Zahn Pfeiler einer Brücke (${anker.where}), ist seine Krone dort enthalten. Eine eigene Krone braucht er nur, wenn die Lücke anders versorgt wird.`);
+        info(`Wird dieser Zahn Pfeiler einer Brücke (${anker.where}), ist seine Krone dort enthalten. Eine eigene Krone kommt nur dazu, wenn die Lücke anders versorgt wird.`);
       }
       if (g.bruxismus) warn("Bei Knirschen monolithisches Zirkon wählen, keine verblendete Keramik.");
       break;
@@ -280,13 +276,13 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
       const age = input.patient.age;
       const kid = age != null && age < 18;
       if (kid && (pos(n) === 6 || pos(n) === 7) && input.patient.insurance === "GKV") {
-        r.options.push({ id: "fv", type: "kasse", name: "Fissurenversiegelung", total: P.fv_kasse, benefits: ["schützt tiefe Fissuren vor Karies", "Kassenleistung bis 17 Jahre"] });
+        r.options.push({ id: "fv", type: "kasse", name: "Fissurenversiegelung", total: P.fv_kasse, benefits: ["Versiegelung der Rillen auf der Kaufläche", "Kassenleistung bis 17 Jahre"] });
         r.recommended = "fv";
       } else if (kid || input.patient.insurance === "PKV") {
-        r.options.push({ id: "fv", type: "privat", name: "Fissurenversiegelung", total: P.fv_privat, benefits: ["schützt tiefe Fissuren vor Karies"] });
+        r.options.push({ id: "fv", type: "privat", name: "Fissurenversiegelung", total: P.fv_privat, benefits: ["Versiegelung der Rillen auf der Kaufläche"] });
         r.recommended = "fv";
       } else {
-        r.excluded.push("Fissurenversiegelung bei Erwachsenen: nur bei erhöhtem Kariesrisiko sinnvoll. Im Befund nicht angegeben.");
+        r.excluded.push("Fissurenversiegelung bei Erwachsenen: kein Vorschlag, weil im Befund kein erhöhtes Kariesrisiko angegeben ist.");
       }
       break;
     }
@@ -309,12 +305,12 @@ function globalItem(code: GlobalCode, input: ProposalInput, P: Prices): Proposal
       }
       return r;
     case "psi":
-      r.options.push({ id: "par", type: "kasse", name: "Parodontitis-Behandlung mit Nachsorge", total: P.par, benefits: ["Kassenleistung inklusive Nachsorge (UPT)", "stoppt Knochenabbau"] });
+      r.options.push({ id: "par", type: "kasse", name: "Parodontitis-Behandlung mit Nachsorge", total: P.par, benefits: ["Kassenleistung inklusive Nachsorge (UPT)", "Reinigung der Zahnfleischtaschen"] });
       r.excluded.push("Laser-Zusatzbehandlung: kein belegter Zusatznutzen gegenüber der Kassen-PAR, daher kein Vorschlag.");
       r.recommended = "par";
       return r;
     case "bruxismus":
-      r.options.push({ id: "schiene", type: "kasse", name: "Aufbissschiene", total: P.schiene, benefits: ["schützt Zähne und Versorgungen", "bei Indikation Kassenleistung"] });
+      r.options.push({ id: "schiene", type: "kasse", name: "Aufbissschiene", total: P.schiene, benefits: ["herausnehmbare Schiene aus Kunststoff", "bei Indikation Kassenleistung"] });
       r.recommended = "schiene";
       return r;
     case "bleaching": {
@@ -416,27 +412,29 @@ function lueckenItem(g: LueckenGruppe, input: ProposalInput, P: Prices): Proposa
     const brName = glieder === 3 ? "Brücke, Regelversorgung" : `Brücke (${glieder} Glieder), Regelversorgung`;
     r.options.push({ id: "br", type: "regel", name: brName, total: gkv ? regelKosten(g.befunde, regelJahr(input.patient)) : Math.round(P.bruecke_regel * faktor), regel: P.bruecke_regel, befunde: g.befunde, benefits: ["festsitzend", "Nachbarzähne werden beschliffen"] });
     r.options.push({ id: "brvk", type: "gleichartig", name: glieder === 3 ? "Vollkeramik-Brücke" : `Vollkeramik-Brücke (${glieder} Glieder)`, total: Math.round(P.bruecke_vk * faktor), regel: P.bruecke_regel, befunde: g.befunde, benefits: ["zahnfarben, metallfrei", "gleicher Festzuschuss"] });
-    r.options.push({ id: "impl", type: "andersartig", name: implantate, total: P.implantat * n, regel: P.bruecke_regel, befunde: g.befunde, benefits: ["Nachbarzähne bleiben unberührt", "Kieferknochen bleibt belastet", "gleicher Festzuschuss"] });
+    r.options.push({ id: "impl", type: "andersartig", name: implantate, total: P.implantat * n, regel: P.bruecke_regel, befunde: g.befunde, benefits: ["Nachbarzähne bleiben unberührt", "wird im Kieferknochen verankert", "gleicher Festzuschuss"] });
     const nf = g.anker.map((x) => input.teeth[String(x)]);
     const nbZ = n === 1 ? neighbors(g.zaehne[0]) : g.anker;
     const nb = { join: () => (nbZ.length <= 2 ? nbZ.join(" und ") : `${nbZ.slice(0, -1).join(", ")} und ${nbZ[nbZ.length - 1]}`) };
     if (nf.some(needsWork)) {
       r.recommended = "br";
-      info(`Die Nachbarzähne ${nb.join()} brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich.`);
+      // Nur für die Praxis: Der Patient liest beim Nachbarzahn selbst, dass dessen Krone in einer Brücke enthalten wäre.
+      warn(`Die Nachbarzähne ${nb.join()} haben selbst einen Befund. Bei einer Brücke sind ihre Kronen in der Brücke enthalten.`);
     } else if (n === 1 && nf.every((x) => x === undefined || x === "fissur")) {
       r.recommended = "br";
       info(`Die Nachbarzähne ${nb.join()} haben keinen Befund. Für eine Brücke werden sie beschliffen, für ein Implantat nicht.`);
     } else {
       r.recommended = "br";
-      if (n > 1) info("Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung. Implantate sind möglich, aber deutlich aufwendiger.");
+      // Reine Regel der Kasse, ohne Vergleich der Möglichkeiten. Privatpatienten lesen den Satz nicht.
+      if (n > 1 && gkv) info("Bei mehreren fehlenden Zähnen ist die Brücke die Regelversorgung der Kasse.");
     }
   } else if (g.klasse === 3) {
     r.options.push({ id: "tp", type: "regel", name: "Teilprothese (Modellguss)", total: gkv ? regelKosten(g.befunde, regelJahr(input.patient)) : P.teilprothese, regel: P.teilprothese, befunde: g.befunde, benefits: ["herausnehmbar", n === 1 ? "ersetzt den fehlenden Zahn" : "ersetzt alle fehlenden Zähne des Kiefers"] });
-    if (n <= 3) r.options.push({ id: "impl", type: "andersartig", name: implantate, total: P.implantat * n, regel: P.teilprothese, befunde: g.befunde, benefits: ["festsitzend", "Kieferknochen bleibt belastet", "Festzuschuss wie Regelversorgung"] });
+    if (n <= 3) r.options.push({ id: "impl", type: "andersartig", name: implantate, total: P.implantat * n, regel: P.teilprothese, befunde: g.befunde, benefits: ["festsitzend", "wird im Kieferknochen verankert", "Festzuschuss wie Regelversorgung"] });
     else r.excluded.push("Implantate: bei so vielen fehlenden Zähnen wird individuell geplant, deshalb hier keine Schätzung.");
     r.excluded.push(n > 4 ? "Brücke: mehr als vier fehlende Zähne im Kiefer." : "Brücke: am Ende der Zahnreihe fehlt der hintere Pfeilerzahn.");
     r.recommended = "tp";
-    if (n === 1) info("Fehlt nur der letzte Backenzahn, ist ein Ersatz oft nicht nötig (verkürzte Zahnreihe). Bitte im Gespräch klären.");
+    if (n === 1) warn("Nur der letzte Backenzahn fehlt: Die Praxis klärt im Gespräch, ob er ersetzt wird (verkürzte Zahnreihe).");
   } else {
     r.options.push({ id: "tot", type: "regel", name: zahnlos ? "Totalprothese" : "Deckprothese über den verbliebenen Zähnen", total: gkv ? regelKosten(g.befunde, regelJahr(input.patient)) : P.totalprothese, regel: P.totalprothese, befunde: g.befunde, benefits: ["herausnehmbar", "ersetzt alle Zähne des Kiefers"] });
     r.excluded.push("Implantatgetragener Zahnersatz: wird individuell geplant, deshalb hier keine Schätzung.");
@@ -483,7 +481,6 @@ export function buildProposal(input: ProposalInput, prices: Prices): ProposalIte
         o.benefits = o.benefits.filter((b) => !kassenwort.test(b));
         o.name = o.name.replace(", Regelversorgung", ", Standardausführung");
       }
-      it.notes = it.notes.map((n) => ({ ...n, text: n.text.replace("die Kassenkrone", "die Krone in Standardausführung").replace("ist die Brücke die Regelversorgung", "ist die Brücke die übliche Versorgung") }));
       it.excluded = it.excluded.filter((e) => !/Kassen(leistung|-PAR)/.test(e));
     }
   }
