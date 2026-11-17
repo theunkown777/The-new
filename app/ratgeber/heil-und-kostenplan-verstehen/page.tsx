@@ -50,8 +50,8 @@ export default function Page() {
 
       <h2>Alternativen nebeneinander zeigen</h2>
       <p>
-        Patienten entscheiden leichter, wenn sie Möglichkeiten vergleichen können. Bewährt hat sich eine kurze Liste: oben die
-        Regelversorgung, darunter die medizinisch sinnvollen Alternativen, jeweils mit einem Satz zum Nutzen und dem Eigenanteil.
+        Patienten entscheiden leichter, wenn sie Möglichkeiten vergleichen können. Dafür eignet sich eine kurze Liste: oben die
+        Regelversorgung, darunter die weiteren Möglichkeiten, jeweils mit einem beschreibenden Satz und dem Eigenanteil.
       </p>
       <ul>
         <li>Brücke, Regelversorgung: Nachbarzähne werden beschliffen. Eigenanteil ca. 230 €.</li>
@@ -80,8 +80,8 @@ export default function Page() {
           <b>„Zahlt meine Zusatzversicherung?“</b> Oft einen Teil des Eigenanteils. Den HKP vor Behandlungsbeginn dort einreichen.
         </li>
         <li>
-          <b>„Kann ich in Raten zahlen?“</b> Viele Praxen bieten das über einen Abrechnungsdienstleister an. Am besten gleich im
-          Gespräch erwähnen.
+          <b>„Kann ich in Raten zahlen?“</b> Ab dem 20.11.2026 gelten dafür die Regeln für Verbraucherkredite, auch bei zinsfreien
+          Raten. Klären Sie Ihr Angebot vorher mit Ihrem Abrechnungsdienstleister.
         </li>
       </ul>
     </ArticlePage>

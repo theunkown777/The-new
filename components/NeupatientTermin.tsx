@@ -62,7 +62,7 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
       <div className="rounded-2xl bg-salbei-50 p-5 text-salbei-900" role="status" data-testid="neutermin-fertig">
         <p className="text-lg font-semibold">Ihre Anfrage ist angekommen.</p>
         <p className="mt-2 text-sm">Gewünschte Zeit: <b>{termin(fertig)}</b> bei {praxis}.</p>
-        <p className="mt-2 text-sm">Die Zeit ist 24 Stunden für Sie reserviert. Der Termin gilt erst, wenn die Praxis ihn bestätigt. Sie meldet sich unter den angegebenen Kontaktdaten.</p>
+        <p className="mt-2 text-sm">Die Zeit ist 24 Stunden für Sie reserviert. Der Termin gilt erst, wenn die Praxis ihn bestätigt. Die Praxis sieht Ihre Anfrage mit den angegebenen Kontaktdaten.</p>
         {beispiel && <p className="mt-2 text-sm">Dies war ein Beispiel. Es meldet sich niemand bei Ihnen.</p>}
       </div>
     );

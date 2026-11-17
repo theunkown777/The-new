@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { buildProposal, DEFAULT_PRICES, FINDINGS, GLOBAL_FINDINGS, LOWER_TEETH, typeLabelOf, UPPER_TEETH, type FindingCode, type ProposalInput } from "@/lib/proposals";
 import { ALLE_SPECIALTIES } from "@/lib/specialties";
 import { PATTERNS, PATTERN_IDS, type PatternId } from "@/lib/i18n/patterns";
-import { CONTENT_EN, LOCALES, PATIENT_LANGS, UI, datum, euro, hasTranslation, langDir, langName, pickLang, tr, uebersetzung, type PatientLang } from "@/lib/patientI18n";
+import { CONTENT_EN, LOCALES, PATIENT_LANGS, UI, datum, euro, hasTranslation, langDir, langName, pickLang, tr, uebersetzung, uiFuer, type PatientLang } from "@/lib/patientI18n";
 
 const FREMD = PATIENT_LANGS.filter((l) => l !== "de");
 
@@ -21,6 +23,9 @@ function zufall(seed: number) {
 // Alle Texte, die das zahnärztliche Regelwerk für die Patientenansicht erzeugen kann:
 // Einzelbefunde mit Nachbarn, Lücken jeder Länge und Lage (Brücke, Teil- und Totalprothese),
 // zwei Lücken mit gemeinsamem Pfeiler und zufällig gemischte Gebisse.
+/** Hinweise nur für die Praxis (Art „warn“), gesammelt beim Erzeugen der Regeltexte. */
+const WARNTEXTE = new Set<string>();
+
 function patientTexts(): Set<string> {
   const out = new Set<string>();
   const teeth = [...UPPER_TEETH, ...LOWER_TEETH];
@@ -39,8 +44,8 @@ function patientTexts(): Set<string> {
         if (o.hinweis) out.add(o.hinweis);
         if (o.nutzen) out.add(o.nutzen);
       }
-      // "warn" richtet sich an die Praxis, wird aber mit übersetzt, falls es einmal gezeigt wird.
-      it.notes.forEach((x) => out.add(x.text));
+      // Hinweise der Art „warn“ sieht nur die Praxis (auf Deutsch). Sie werden nicht übersetzt, siehe WARNTEXTE unten.
+      it.notes.forEach((x) => (x.kind === "info" ? out : WARNTEXTE).add(x.text));
     }
   };
 
@@ -190,11 +195,7 @@ const MUSTER_BEISPIELE: Record<PatternId, string[]> = {
   bridgeUnitsPrivate: ["Brücke (4 Glieder), Standardausführung"],
   nImplants: ["2 Implantate mit Kronen", "3 Implantate mit Kronen", "5 Implantate mit Kronen"],
   notNeededWithBridge: ["Entfällt bei einer Brücke (Zahn 36)", "Entfällt bei einer Brücke (Zähne 35, 36)"],
-  abutmentNote: ["Wird dieser Zahn Pfeiler einer Brücke (Zahn 36), ist seine Krone dort enthalten. Eine eigene Krone braucht er nur, wenn die Lücke anders versorgt wird."],
-  neighboursNeedCare: [
-    "Die Nachbarzähne 35 und 37 brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich.",
-    "Die Nachbarzähne 33, 35 und 37 brauchen ohnehin eine Versorgung. Eine Brücke löst beides zugleich.",
-  ],
+  abutmentNote: ["Wird dieser Zahn Pfeiler einer Brücke (Zahn 36), ist seine Krone dort enthalten. Eine eigene Krone kommt nur dazu, wenn die Lücke anders versorgt wird."],
   neighboursHealthy: ["Die Nachbarzähne 35 und 37 haben keinen Befund. Für eine Brücke werden sie beschliffen, für ein Implantat nicht."],
   coveredOnlyFromAge: ["Kassenleistung erst ab 35 Jahren.", "Kassenleistung erst ab 21 Jahren. Bei Beschwerden Kassenleistung."],
   coveredFromAge: ["Kassenleistung ab 35 Jahren.", "Kassenleistung ab 50 Jahren. Bei Beschwerden Kassenleistung."],
@@ -231,10 +232,29 @@ describe("Patientenansicht: Aufbau der Sprachen", () => {
     const alle = new Set(REGELTEXTE);
     for (const t of ["Zähne 35, 36", "Oberkiefer", "Unterkiefer", "Zahnloser Kiefer", "Totalprothese", "Teilprothese (Modellguss)", "In der Brücke enthalten", "Krone mit Stiftaufbau, Regelversorgung", "Keramik-Teilkrone"])
       expect(alle.has(t), t).toBe(true);
-    for (const id of ["nMissing", "bridgeUnitsStandard", "bridgeUnitsCeramic", "bridgeUnitsPrivate", "nImplants", "notNeededWithBridge", "abutmentNote", "neighboursNeedCare", "neighboursHealthy"] as const)
+    for (const id of ["nMissing", "bridgeUnitsStandard", "bridgeUnitsCeramic", "bridgeUnitsPrivate", "nImplants", "notNeededWithBridge", "abutmentNote", "neighboursHealthy"] as const)
       expect(REGELTEXTE.some((t) => PATTERNS[id].test(t)), id).toBe(true);
-    // „Die Nachbarzähne 33, 35 und 37 …“: drei Pfeiler bei zwei Lücken.
-    expect(REGELTEXTE.some((t) => /^Die Nachbarzähne \d\d, \d\d und \d\d /.test(t))).toBe(true);
+    // „Die Nachbarzähne 33, 35 und 37 …“: drei Pfeiler bei zwei Lücken. Der Satz geht nur an die Praxis.
+    expect([...WARNTEXTE].some((t) => /^Die Nachbarzähne \d\d, \d\d und \d\d /.test(t))).toBe(true);
+  });
+
+  // Hinweise der Art „warn“ sind Arbeitshinweise an die Praxis („Zusätzlich eine Aufbissschiene einplanen“).
+  // Übersetzt lägen sie als Aussage an Patienten bereit. Deshalb gibt es sie in keiner Fremdsprache.
+  it("übersetzt keinen Hinweis, der nur an die Praxis geht", () => {
+    expect(WARNTEXTE.size).toBeGreaterThan(8);
+    for (const t of WARNTEXTE) {
+      expect(REGELTEXTE.includes(t), `„${t}“ ist zugleich ein Hinweis für Patienten`).toBe(false);
+      for (const lang of FREMD) expect(hasTranslation(t, lang), `${lang}: ${t}`).toBe(false);
+    }
+  });
+
+  // Die Software empfiehlt nichts und sagt nichts zu Erfolg oder Haltbarkeit, in keiner Sprache.
+  it("hat in keinem Wörterbuch eine Empfehlung oder eine Aussage zu Erfolg und Haltbarkeit", () => {
+    const WERTUNG =
+      /recommend|advis|durab|\blasts\b|long-lasting|long-term|tolerated|just as well|equivalent|önerilir|öneril|tavsiye|dayanıklı|uzun ömür|zalec|polec|trwał|równoważn|рекоменд|совету|долговеч|равноцен|рекоменду|радимо|довговіч|рівноцін|توصي|يُنصح|ننصح|يدوم|متانة/i;
+    for (const lang of FREMD)
+      for (const [de, uebersetzt] of Object.entries(LOCALES[lang].content)) expect(uebersetzt, `${lang}: ${de}`).not.toMatch(WERTUNG);
+    for (const de of Object.keys(CONTENT_EN)) expect(de).not.toMatch(/empfohlen|Empfehlung|sinnvoll|haltbar|Haltbarkeit|gleichwertig|verträglich|bewährt|stoppt|reicht .* aus|nicht nötig/i);
   });
 });
 
@@ -463,5 +483,47 @@ describe("Zusatz-Wörterbuch für eigene Leistungen", () => {
   it("hat Nachrang gegenüber dem Wörterbuch der Regeltexte", () => {
     const [regeltext, englisch] = Object.entries(CONTENT_EN)[0];
     expect(uebersetzung(regeltext, "en", { [regeltext]: "falsch" }).text).toBe(englisch);
+  });
+});
+
+// Beträge für 2027: Solange die Tabelle 2027 nicht eingelesen ist (festzuschuss2027Amtlich() ist false), rechnet Sorrida
+// mit den Beträgen von 2026 und den neuen Sätzen. Die Patientenansicht nennt diese Beträge dann in jeder Sprache „voraussichtlich“.
+describe("Patientenansicht: Beträge 2027 heißen voraussichtlich, solange sie nicht amtlich sind", () => {
+  it("jede Sprache hat die Fassung mit „voraussichtlich“ und den Satz „vorläufig“", () => {
+    expect(UI.de.from2027Prelim).toBe("bei Bewilligung ab 2027 voraussichtlich:");
+    expect(UI.de.bar2027Prelim).toBe("ab 2027 bewilligt, voraussichtlich:");
+    expect(UI.de.prelim2027).toBe("Die Beträge für 2027 sind vorläufig.");
+    for (const lang of PATIENT_LANGS) {
+      const u = UI[lang];
+      expect(u.from2027Prelim, lang).not.toBe(u.from2027);
+      expect(u.bar2027Prelim, lang).not.toBe(u.bar2027);
+      expect(u.from2027Prelim.length, lang).toBeGreaterThan(u.from2027.length);
+      expect(u.bar2027Prelim.length, lang).toBeGreaterThan(u.bar2027.length);
+      for (const t of [u.from2027Prelim, u.bar2027Prelim, u.prelim2027]) expect(t, lang).toContain("2027");
+    }
+    expect(uiFuer("de", true).prelim2027).toBe("Die Beträge für 2027 stehen noch nicht fest.");
+  });
+
+  it("die Ansicht wählt die Fassung nach festzuschuss2027Amtlich()", () => {
+    const quelle = readFileSync(join(process.cwd(), "components/PatientProposalView.tsx"), "utf8");
+    expect(quelle).toMatch(/const vorlaeufig2027 = !festzuschuss2027Amtlich\(\);/);
+    expect(quelle).toMatch(/vorlaeufig2027 \? t\.from2027Prelim : t\.from2027/);
+    expect(quelle).toMatch(/vorlaeufig2027 \? t\.bar2027Prelim : t\.bar2027/);
+    expect(quelle).toMatch(/vorlaeufig2027 && <> <span data-testid="hinweis-2027-vorlaeufig">\{t\.prelim2027\}/);
+    // Ohne die Wahl darf keiner der beiden Schlüssel mehr allein stehen.
+    expect(quelle).not.toMatch(/\{t\.(from2027|bar2027)\}/);
+  });
+});
+
+// „Erinnern Sie mich“: Gebaut ist ein Eintrag im Eingang der Praxis an dem gewählten Tag. Die Ansicht verspricht deshalb
+// keine Meldung der Praxis, auch nicht nach dem Absenden der Auswahl.
+describe("Patientenansicht: keine Zusage, dass die Praxis sich meldet", () => {
+  const MELDET_SICH = /meldet sich|get in touch|contact you|iletişime geç|зв.яжеться|свяжется|skontaktuje|ستتواصل/i;
+  it("Erinnerung und Dank in allen Sprachen und in Einfacher Sprache", () => {
+    expect(UI.de.remindText).toBe("Wählen Sie, wann Sie erinnert werden möchten. Ihre Praxis sieht Ihren Wunsch an diesem Tag.");
+    expect(UI.de.remindSet("24.11.2026")).toBe("Erinnerung gewünscht für den 24.11.2026. Ihre Praxis sieht den Wunsch an diesem Tag.");
+    for (const u of [...PATIENT_LANGS.map((l) => UI[l]), uiFuer("de", true)]) {
+      for (const t of [u.remindText, u.remindSet("24.11.2026"), u.thanks]) expect(t).not.toMatch(MELDET_SICH);
+    }
   });
 });

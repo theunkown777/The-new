@@ -97,7 +97,7 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 /**
  * Schlichte Mail: der Text, die Praxis als erkennbarer Absender (Name, Anschrift und Telefon, soweit hinterlegt:
  * `absender` aus praxisZeile in lib/praxisStammdaten.ts), ein Satz zum Widerruf und der Hinweis auf den Versand über Sorrida.
- * Keine Gesundheitsdaten außer dem Anlass, den die Praxis selbst einträgt.
+ * Keine Gesundheitsdaten: Der Text nennt Praxis und Termin, nicht den Anlass (lib/termine.ts).
  */
 export function mailHtml(a: { text: string; practiceName: string; absender?: string }): string {
   const linked = esc(a.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>');

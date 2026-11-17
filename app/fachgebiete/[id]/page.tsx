@@ -9,7 +9,7 @@ import { PilotProgram } from "@/components/PilotProgram";
 import { Entlastung } from "@/components/Entlastung";
 import { PraxisFaq } from "@/components/PraxisFaq";
 import { DENTAL_SHOWCASE } from "@/lib/dentalShowcase";
-import { heilmittelPauschale, hilfsmittelZuzahlungText } from "@/lib/proposals";
+import { festzuschussRegelText, heilmittelPauschale, hilfsmittelZuzahlungText } from "@/lib/proposals";
 import { bereicheFuerFach, katalogFuerAnlass, slugBereich } from "@/lib/leistungskatalog";
 import { leistungenJeFach } from "@/lib/amtlich/zaehlung";
 import { ratgeberFuerFach } from "@/lib/ratgeber";
@@ -247,16 +247,16 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
               <ul className="mt-3 space-y-2 text-sm text-slate-700">
                 {zuzahlungText && (
                   <li>
-                    <b>Zuzahlung richtig:</b> gesetzliche Zuzahlung für Erwachsene ({zuzahlungText}), Kinder sind befreit.
+                    <b>Zuzahlung nach § 61 SGB V:</b> gesetzliche Zuzahlung für Erwachsene ({zuzahlungText}), Kinder sind befreit.
                   </li>
                 )}
                 {dental ? (
                   <>
                     <li>
-                      <b>Mehrkosten richtig:</b> Bei Füllungen zahlt die Kasse den Anteil der Kassenfüllung, der Rest ist Mehrkostenvereinbarung (§ 28 Abs. 2 SGB V).
+                      <b>Mehrkosten nach § 28 Abs. 2 SGB V:</b> Bei Füllungen zahlt die Kasse den Anteil der Kassenfüllung, der Rest ist Mehrkostenvereinbarung.
                     </li>
                     <li>
-                      <b>Festzuschuss mit Bonus:</b> 60, 70 oder 75 % je nach Bonusheft, Härtefall berücksichtigt; maßgeblich ist das Genehmigungsdatum des HKP.
+                      <b>Festzuschuss mit Bonus:</b> {festzuschussRegelText()}. Härtefall berücksichtigt. Maßgeblich ist das Datum der Bewilligung.
                     </li>
                   </>
                 ) : therapie ? (

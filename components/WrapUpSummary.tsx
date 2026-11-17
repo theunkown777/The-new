@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { buildNextSteps } from "@/lib/nextSteps";
-import { buildProposal, formatEuro, resolvePrices, vergleicheJahre, showsJahresvergleich } from "@/lib/proposals";
+import { buildProposal, formatEuro, resolvePrices, vergleicheJahre, showsJahresvergleich, wort2027 } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { REPORT_STATUS_LABELS, REPORT_TYPE_LABELS } from "@/lib/reportLabels";
 import { CopyTextButton } from "@/components/CopyTextButton";
@@ -104,7 +104,7 @@ export async function WrapUpSummary({
               <p className="text-sm text-slate-600">
                 Eigenanteil nach Ihrer Planung: <b className="tabular-nums">{formatEuro(proposal.eigenanteilCent / 100)}</b>
                 {jv?.betroffen && showsJahresvergleich() && jv.mehrkosten > 0.5 && (
-                  <span className="text-red-700"> · ab 2027 ca. {formatEuro(jv.mehrkosten)} mehr</span>
+                  <span className="text-red-700"> · ab 2027 {wort2027("dahinter")}ca. {formatEuro(jv.mehrkosten)} mehr</span>
                 )}
               </p>
               <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 font-sans text-xs leading-relaxed text-slate-700">

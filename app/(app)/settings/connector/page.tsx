@@ -3,7 +3,7 @@ import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ConnectorSettings } from "@/components/ConnectorSettings";
-import { PVS_GUIDES } from "@/lib/pvsGuides";
+import { PVS_GUIDES, PVS_GUIDES_HINWEIS, guideVermerk } from "@/lib/pvsGuides";
 import { isDental } from "@/lib/specialties";
 
 export default async function ConnectorSettingsPage() {
@@ -26,8 +26,8 @@ export default async function ConnectorSettingsPage() {
           Sorrida öffnet sich als eigenes Fenster direkt aus Ihrer Praxissoftware, mit dem gerade
           gewählten Patienten: Bericht schreiben, Behandlungsvorschlag erstellen, Verlauf ansehen.
           {zahn
-            ? "Zahnarztpraxen werden über den Branchenstandard VDDS-media angebunden (DS-Win, CGM Z1, charly, EVIDENT und viele weitere)."
-            : "Die Anbindung läuft über GDT, den Standard der Arztsoftware (Medistar, TURBOMED, CGM M1 PRO, x.isynet, ALBIS u. a.). Freigegebene Berichte kommen automatisch zurück in die Karteikarte. Unterstützt Ihre Software kein GDT, nutzen Sie Sorrida einfach im Browser daneben."}
+            ? " Zahnarztpraxen werden über die Standardschnittstelle VDDS-media angebunden. Programme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen."
+            : " Die Anbindung läuft über GDT, die Standardschnittstelle der Arztsoftware. Programme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen. Freigegebene Berichte gibt Sorrida über GDT an die Karteikarte zurück. Unterstützt Ihre Software kein GDT, nutzen Sie Sorrida im Browser daneben."}
         </p>
       </div>
 
@@ -79,15 +79,16 @@ export default async function ConnectorSettingsPage() {
         <li className="card space-y-4">
           <h2 className="font-medium text-slate-900">3. In der Praxissoftware aktivieren</h2>
           {/* Anleitungen passend zum Fach: Zahnarzt-Software über VDDS-media, Arztsoftware über GDT */}
+          <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="pvs-anleitung-vermerk">{PVS_GUIDES_HINWEIS}</p>
           {PVS_GUIDES.filter((g) => /GDT/.test(g.name) !== zahn).map((g) => (
             <div key={g.name}>
               <h3 className="text-sm font-semibold text-slate-800">
-                {g.name} {g.share && <span className="font-normal text-slate-500">· Marktanteil {g.share}</span>}
+                {g.name}
               </h3>
               <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-slate-600">
                 {g.steps.map((s) => <li key={s}>{s}</li>)}
               </ol>
-              <p className="mt-1 text-xs text-slate-500">Quelle: {g.source}</p>
+              <p className="mt-1 text-xs text-slate-500" data-testid="pvs-anleitung-quelle">Quelle: {g.source}. {guideVermerk(g)}</p>
             </div>
           ))}
         </li>

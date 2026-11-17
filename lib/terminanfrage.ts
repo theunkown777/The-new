@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { z } from "zod";
 import { signaturSecret } from "@/lib/geheimnis";
+import { gleichSicher } from "@/lib/gleichSicher";
 import { terminZeit } from "@/lib/termine";
 
 // Terminbuchung für neue Patienten über die öffentliche Seite /t/<kennung>.
@@ -60,7 +61,7 @@ export function stempelPruefen(wert: string | null | undefined, kennung: string,
   const [zeit, s, ...rest] = wert.split(".");
   if (rest.length || !/^\d{10,16}$/.test(zeit ?? "") || !s) return "ungueltig";
   const soll = sig(`${kennung}.${zeit}`);
-  if (soll.length !== s.length || !crypto.timingSafeEqual(Buffer.from(soll), Buffer.from(s))) return "ungueltig";
+  if (!gleichSicher(soll, s)) return "ungueltig";
   const alter = now - Number(zeit);
   if (alter < 0) return "ungueltig";
   if (alter < MIN_SEKUNDEN * 1000) return "zu-schnell";

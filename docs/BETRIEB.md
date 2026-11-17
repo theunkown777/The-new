@@ -254,3 +254,33 @@ Für die Umstellung fehlen:
 - Grenze: Die Bereinigung erkennt Muster, keine Bedeutungen. Ein Name ohne Anführungszeichen in einer eigenen Fehlermeldung würde gespeichert.
   Deshalb gehören in Fehlermeldungen im Code nie Namen oder andere Angaben zu Personen.
 - Auf der Vorschau-Domain erreichen Besucher ohne Zugang `/api/fehler` nicht. Fehler im Browser dieser Besucher werden dann nicht gemeldet.
+
+## 11. Zusagen aus dem AVV-Muster, die Handarbeit sind
+
+Zwei Zusagen im Muster-AVV (`app/avv/page.tsx`) erfüllt nicht die Software, sondern der Betreiber von Hand.
+Beides muss stehen, bevor der erste Vertrag unterschrieben wird.
+
+### Zugriffe auf Daten einer Praxis (§ 8)
+
+- Jeder Zugriff des Betreibers auf Daten einer Praxis (Support, Störung) wird schriftlich festgehalten:
+  Datum und Uhrzeit, Person, Praxis, Anlass, was angesehen oder geändert wurde.
+- Ort der Aufzeichnung: eine fortlaufende Liste außerhalb der Anwendung. In der Anwendung gibt es dafür
+  keine Funktion und keine Ansicht für die Praxis.
+- Die Praxis bekommt ihre Einträge auf Anfrage in Textform. So steht es im Muster.
+
+### Vertragsende: Export und Löschung (§ 10)
+
+Stand: Es gibt kein Skript. Der tägliche Lauf löscht nur Demo-Praxen (`lib/demo.ts`).
+
+Ablauf von Hand, bis das Skript gebaut ist:
+
+1. Gesamtexport für die Praxis erzeugen (Einstellungen → Protokoll → Gesamtexport, `app/api/settings/export/route.ts`) und der Praxis übergeben. Datum der Bereitstellung festhalten.
+2. 30 Tage nach Bereitstellung, oder früher auf Verlangen der Praxis: alle Daten der Praxis löschen.
+   Die Reihenfolge der Tabellen steht in `lib/demo.ts` (Löschen abgelaufener Demo-Praxen). Vorher prüfen,
+   ob dort jede Tabelle des aktuellen Schemas vorkommt.
+3. Sicherungen: Der Datenbank-Anbieter hält Sicherungen für den im Tarif eingestellten Zeitraum. Erst danach
+   sind die Daten auch dort weg. Das gehört in die Bestätigung an die Praxis.
+4. Löschung der Praxis in Textform bestätigen.
+
+Offen: Schritt 2 als Skript mit Test bauen (`scripts/`), bevor der erste Vertrag unterschrieben wird.
+

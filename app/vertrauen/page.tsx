@@ -3,12 +3,12 @@ import Link from "next/link";
 import { JournalRahmen } from "@/components/start/JournalKopf";
 import { DIENSTE } from "@/lib/dienstleister";
 import { LOESCHFRISTEN, NICHT_AUTOMATISCH } from "@/lib/loeschfristen";
-import { KI_GEHT, KI_HINWEISE, KI_NIE, NOCH_NICHT, ORT, SCHUTZ, VERTRAUEN_STAND } from "@/lib/vertrauen";
+import { KI_ERSETZT, KI_GEHT, KI_HINWEISE, NOCH_NICHT, ORT, SCHUTZ, VERTRAUEN_STAND } from "@/lib/vertrauen";
 
 export const metadata: Metadata = {
   title: "So geht Sorrida mit Daten um – Sorrida",
   description:
-    "Wo die Daten liegen, welche Dienstleister beteiligt sind, was an den KI-Dienst geht und was nie, wann Daten gelöscht werden und was es bei Sorrida noch nicht gibt.",
+    "Wo die Daten liegen, welche Dienstleister beteiligt sind, was an den KI-Dienst geht und was vorher ersetzt wird, wann Daten gelöscht werden und was es bei Sorrida noch nicht gibt.",
 };
 
 // Öffentliche Seite. Nur Tatsachen aus dem Code, dem AVV-Muster und der Datenschutzerklärung
@@ -72,7 +72,7 @@ export default function VertrauenPage() {
         </section>
 
         <section id="ki" className="mt-14 scroll-mt-6" data-testid="vertrauen-ki">
-          <h2 className="j-titel text-[2rem] text-tinte">Was an den KI-Dienst geht und was nie</h2>
+          <h2 className="j-titel text-[2rem] text-tinte">Was an den KI-Dienst geht und was vorher ersetzt wird</h2>
           <div className="mt-6 grid gap-8 border-t border-tinte pt-6 sm:grid-cols-2">
             <div>
               <h3 className="j-marke">Das geht an den KI-Dienst</h3>
@@ -81,9 +81,9 @@ export default function VertrauenPage() {
               </ul>
             </div>
             <div>
-              <h3 className="j-marke">Das geht nie an den KI-Dienst</h3>
-              <ul className="mt-3 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-tinte-2" data-testid="vertrauen-ki-nie">
-                {KI_NIE.map((t) => <li key={t}>{t}</li>)}
+              <h3 className="j-marke">Das ersetzt Sorrida vor dem Versand durch Platzhalter</h3>
+              <ul className="mt-3 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-tinte-2" data-testid="vertrauen-ki-ersetzt">
+                {KI_ERSETZT.map((t) => <li key={t}>{t}</li>)}
               </ul>
             </div>
           </div>

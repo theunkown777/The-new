@@ -50,8 +50,12 @@ const berlin = (d: Date, o: Intl.DateTimeFormatOptions) => d.toLocaleString("de-
 export const terminZeit = (d: Date) => berlin(d, { weekday: "long", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 export const uhrzeit = (d: Date) => berlin(d, { hour: "2-digit", minute: "2-digit" });
 
-export function bestaetigungText(a: { firstName: string; practiceName: string; start: Date; ort: string | null; reason: string }): string {
-  return `${anrede("Hallo", a.firstName)}, Ihr Termin bei ${a.practiceName}${a.ort ? ` (${a.ort})` : ""} ist eingetragen: ${terminZeit(a.start)} Uhr, ${a.reason}. Falls Sie nicht kommen können, sagen Sie bitte rechtzeitig ab, dann kann jemand anderes nachrücken.`;
+/**
+ * Bestätigung eines Termins. Der Anlass steht bewusst nicht im Text: Er ist ein Freitext der Praxis und kann auf eine
+ * Behandlung oder einen Befund schließen lassen. Die Einwilligung (lib/kontakt.ts) nennt nur Praxis und Termin.
+ */
+export function bestaetigungText(a: { firstName: string; practiceName: string; start: Date; ort: string | null }): string {
+  return `${anrede("Hallo", a.firstName)}, Ihr Termin bei ${a.practiceName}${a.ort ? ` (${a.ort})` : ""} ist eingetragen: ${terminZeit(a.start)} Uhr. Falls Sie nicht kommen können, sagen Sie bitte rechtzeitig ab, dann kann jemand anderes nachrücken.`;
 }
 
 /** Fächer, bei denen die Versichertenkarte zum Termin nicht gebraucht wird (Selbstzahler, Hausbesuche, Fachgeschäft ohne Verordnung). */

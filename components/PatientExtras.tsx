@@ -191,7 +191,7 @@ export function TeilenBlock({ apiUrl, anfang, max, lang, t }: { apiUrl: string; 
   );
 }
 
-/** „Erinnern Sie mich“: Der Patient wählt einen Tag; die Praxis bekommt dann eine Aufgabe und meldet sich selbst. */
+/** „Erinnern Sie mich“: Der Patient wählt einen Tag; an diesem Tag sieht die Praxis den Wunsch in ihrem Eingang. Von selbst geht keine Nachricht raus. */
 export function ErinnernBlock({ apiUrl, anfang, lang, t }: { apiUrl: string; anfang: string | null; lang: PatientLang; t: Ui }) {
   const [am, setAm] = useState(anfang);
   const [laeuft, setLaeuft] = useState(false);

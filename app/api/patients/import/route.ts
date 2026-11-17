@@ -3,7 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { requireRecht } from "@/lib/permissions";
 import { auditFromSession } from "@/lib/audit";
 import { consumeAttempt } from "@/lib/rateLimit";
-import { bestandAus, einordnen, importBlockSchema, importGrenze, serverPruefung, type ImportPatient } from "@/lib/patientenImport";
+import type { Prisma } from "@prisma/client";
+import { bestandAus, einordnen, importBlockSchema, serverPruefung, type ImportPatient } from "@/lib/patientenImport";
+import { importSpeichern, mitImportSperre } from "@/lib/patientenImportSperre";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,7 @@ export const dynamic = "force-dynamic";
 // Patienten werden nie überschrieben. Einwilligungen (E-Mail, WhatsApp) werden
 // nicht gesetzt. Nur die Praxisleitung; Protokoll ohne Namen.
 // Obergrenzen: Gastzugang höchstens 200 Patienten je Demo-Praxis, sonst 50.000 neue je 24 Stunden (lib/patientenImport.ts).
+// Zählen und Speichern laufen je Praxis nacheinander (lib/patientenImportSperre.ts).
 const ANFRAGEN_PRO_STUNDE = 300;
 
 type Zeile = { zeile: number; status: "neu" | "vorhanden" | "fehler"; grund?: string };
@@ -45,73 +48,76 @@ export async function POST(req: Request) {
   const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { isDemo: true } });
   if (!practice) return NextResponse.json({ error: "Praxis nicht gefunden" }, { status: 404 });
 
-  // Nur die Patienten der eigenen Praxis laden, die als Dublette in Frage kommen:
-  // gleiches Geburtsdatum, kein Geburtsdatum oder gleiche Patientennummer.
-  const tage = [...new Set(gueltig.map((p) => p.birthDate).filter((d): d is string => !!d))].map((d) => new Date(`${d}T00:00:00.000Z`));
-  const ohneDatum = gueltig.some((p) => !p.birthDate);
-  const nummern = [...new Set(gueltig.map((p) => p.patientNummer).filter((n): n is string => !!n))];
-  const kandidaten = gueltig.length
-    ? await prisma.patient.findMany({
-        where: {
-          practiceId,
-          OR: [
-            ...(tage.length ? [{ birthDate: { in: tage } }] : []),
-            ...(ohneDatum ? [{ birthDate: null }] : []),
-            ...(nummern.length ? [{ patientNummer: { in: nummern, mode: "insensitive" as const } }, { externalId: { in: nummern, mode: "insensitive" as const } }] : []),
-          ],
-        },
-        select: { lastName: true, firstName: true, birthDate: true, patientNummer: true, externalId: true },
-      })
-    : [];
+  // Einordnen (neu / schon vorhanden) und, beim Speichern, Obergrenze prüfen und anlegen. Beim Speichern läuft das
+  // Ganze unter der Import-Sperre der Praxis (lib/patientenImportSperre.ts): Gleichzeitige Blöcke lesen sonst
+  // denselben alten Bestand, kommen so über die Obergrenze und legen dieselben Patienten doppelt an.
+  type Lauf = { zeilen: Zeile[]; zahlen: { neu: number; vorhanden: number; fehler: number }; gespeichert: number; grenze: string | null };
+  const lauf = async (db: Prisma.TransactionClient, speichern: boolean): Promise<Lauf> => {
+    // Nur die Patienten der eigenen Praxis laden, die als Dublette in Frage kommen:
+    // gleiches Geburtsdatum, kein Geburtsdatum oder gleiche Patientennummer.
+    const tage = [...new Set(gueltig.map((p) => p.birthDate).filter((d): d is string => !!d))].map((d) => new Date(`${d}T00:00:00.000Z`));
+    const ohneDatum = gueltig.some((p) => !p.birthDate);
+    const nummern = [...new Set(gueltig.map((p) => p.patientNummer).filter((n): n is string => !!n))];
+    const kandidaten = gueltig.length
+      ? await db.patient.findMany({
+          where: {
+            practiceId,
+            OR: [
+              ...(tage.length ? [{ birthDate: { in: tage } }] : []),
+              ...(ohneDatum ? [{ birthDate: null }] : []),
+              ...(nummern.length ? [{ patientNummer: { in: nummern, mode: "insensitive" as const } }, { externalId: { in: nummern, mode: "insensitive" as const } }] : []),
+            ],
+          },
+          select: { lastName: true, firstName: true, birthDate: true, patientNummer: true, externalId: true },
+        })
+      : [];
 
-  const einordnung = einordnen(gueltig, bestandAus(kandidaten));
-  const neu: ImportPatient[] = [];
-  einordnung.forEach((e, i) => {
-    ergebnis.push(e);
-    if (e.status === "neu") neu.push(gueltig[i]);
-  });
-  ergebnis.sort((a, b) => a.zeile - b.zeile);
+    const zeilen = [...ergebnis];
+    const neu: ImportPatient[] = [];
+    einordnen(gueltig, bestandAus(kandidaten)).forEach((e, i) => {
+      zeilen.push(e);
+      if (e.status === "neu") neu.push(gueltig[i]);
+    });
+    zeilen.sort((a, b) => a.zeile - b.zeile);
+    const zahlen = {
+      neu: neu.length,
+      vorhanden: zeilen.filter((e) => e.status === "vorhanden").length,
+      fehler: zeilen.filter((e) => e.status === "fehler").length,
+    };
+    if (!speichern || neu.length === 0) return { zeilen, zahlen, gespeichert: 0, grenze: null };
 
-  const zahlen = {
-    neu: neu.length,
-    vorhanden: ergebnis.filter((e) => e.status === "vorhanden").length,
-    fehler: ergebnis.filter((e) => e.status === "fehler").length,
+    // Obergrenzen: Im Gastzugang ist jeder Besucher Praxisleitung; dort bleibt es bei einer kleinen Zahl.
+    // Für jede Praxis gilt außerdem eine Grenze je 24 Stunden. Zählen und Anlegen in einem Schritt.
+    const r = await importSpeichern(db, { practiceId, demo: practice.isDemo, neu, now: heute });
+    return r.ok ? { zeilen, zahlen, gespeichert: r.gespeichert, grenze: null } : { zeilen, zahlen, gespeichert: 0, grenze: r.grund };
   };
 
-  if (nurPruefen || neu.length === 0) {
-    return NextResponse.json({ gespeichert: 0, ...zahlen, ergebnis, demo: practice.isDemo });
+  let l: Lauf;
+  if (nurPruefen) l = await lauf(prisma, false);
+  else {
+    // P2028: Die Transaktion kam nicht rechtzeitig an die Reihe (zu viele gleichzeitige Blöcke). Das ist kein Fehler
+    // des Servers, sondern „bitte noch einmal“. Alles andere bleibt ein Fehler.
+    const mit = await mitImportSperre(practiceId, (tx) => lauf(tx, true)).catch((e: unknown) => {
+      if ((e as { code?: unknown } | null)?.code === "P2028") return null;
+      throw e;
+    });
+    if (!mit || mit.belegt) {
+      return NextResponse.json({ error: "Gerade wird in Ihrer Praxis schon eine Liste gespeichert. Bitte gleich noch einmal versuchen.", code: "BELEGT", gespeichert: 0 }, { status: 409 });
+    }
+    l = mit.wert;
   }
+  const { zeilen: liste, zahlen } = l;
 
-  // Obergrenzen: Im Gastzugang ist jeder Besucher Praxisleitung; dort bleibt es bei einer kleinen Zahl.
-  // Für jede Praxis gilt außerdem eine Grenze je 24 Stunden.
-  const [bestand, heuteNeu] = await Promise.all([
-    practice.isDemo ? prisma.patient.count({ where: { practiceId } }) : 0,
-    prisma.patient.count({ where: { practiceId, createdAt: { gte: new Date(heute.getTime() - 24 * 3600e3) } } }),
-  ]);
-  const grenze = importGrenze({ demo: practice.isDemo, bestand, heute: heuteNeu, neu: neu.length });
-  if (grenze) return NextResponse.json({ error: grenze, code: "GRENZE", gespeichert: 0, ...zahlen, ergebnis, demo: practice.isDemo }, { status: 409 });
-
-  const r = await prisma.patient.createMany({
-    data: neu.map((p) => ({
-      practiceId,
-      lastName: p.lastName,
-      firstName: p.firstName,
-      birthDate: p.birthDate ? new Date(`${p.birthDate}T00:00:00.000Z`) : null,
-      geschlecht: p.geschlecht,
-      insuranceType: p.insuranceType,
-      insuranceName: p.insuranceName,
-      phone: p.phone,
-      email: p.email,
-      patientNummer: p.patientNummer,
-      // Bewusst nicht gesetzt: contactConsentAt, whatsappConsentAt (Einwilligungen holt die Praxis selbst ein).
-    })),
-  });
+  if (l.grenze) return NextResponse.json({ error: l.grenze, code: "GRENZE", gespeichert: 0, ...zahlen, ergebnis: liste, demo: practice.isDemo }, { status: 409 });
+  if (nurPruefen || l.gespeichert === 0) {
+    return NextResponse.json({ gespeichert: 0, ...zahlen, ergebnis: liste, demo: practice.isDemo });
+  }
 
   // Protokoll ohne Namen: nur Anzahl und Teil der Datei.
   await auditFromSession(session, "patient.import", {
     entityType: "Patientenliste",
-    summary: `${r.count} neu, ${zahlen.vorhanden} schon vorhanden, ${zahlen.fehler} fehlerhaft${teil && teile ? ` (Teil ${teil} von ${teile})` : ""}`,
+    summary: `${l.gespeichert} neu, ${zahlen.vorhanden} schon vorhanden, ${zahlen.fehler} fehlerhaft${teil && teile ? ` (Teil ${teil} von ${teile})` : ""}`,
   });
 
-  return NextResponse.json({ gespeichert: r.count, ...zahlen, ergebnis, demo: practice.isDemo });
+  return NextResponse.json({ gespeichert: l.gespeichert, ...zahlen, ergebnis: liste, demo: practice.isDemo });
 }

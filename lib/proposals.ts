@@ -201,10 +201,10 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
       } else {
         r.options.push({ id: "fk", type: "kasse", name: "Kassenfüllung (selbstadhäsiv)", total: P.fk_klein, benefits: ["zahnfarben, schnell gelegt"] });
         r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_klein, base: P.fk_klein, benefits: ["Füllung in mehreren Schichten", "mit Haftvermittler am Zahn befestigt", "Kasse zahlt Kassenfüllung anteilig"] });
-        r.excluded.push("Keramik-Inlay: bei kleinen Defekten müsste unnötig gesunde Zahnsubstanz abgetragen werden.");
+        r.excluded.push("Keramik-Inlay: kein Vorschlag bei kleinem Defekt.");
         r.recommended = "komp";
       }
-      if (f === "fuellung_defekt") warn("Alte Amalgamfüllungen nur ersetzen, wenn sie defekt sind. Intakte Füllungen bleiben.");
+      if (f === "fuellung_defekt") warn("Defekte Füllung angegeben: Die Praxis prüft, welche Füllungen ersetzt werden.");
       break;
 
     case "karies_gross":
@@ -218,7 +218,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
         r.options.push({ id: "komp", type: "mehrkosten", name: "Mehrschicht-Komposit, adhäsiv", total: P.komp_gross, base: P.fk_gross, benefits: ["zahnfarben", "Füllung in mehreren Schichten", "Kasse zahlt Kassenfüllung anteilig"] });
         r.options.push({ id: "inlay", type: "mehrkosten", name: "Keramik-Inlay", total: P.inlay, base: P.fk_gross, benefits: ["Keramik, im Labor gefertigt", "wird eingeklebt", "Kasse zahlt Kassenfüllung anteilig"] });
         r.recommended = k === "molar" ? "inlay" : "komp";
-        if (g.bruxismus) warn("Knirschen erhöht die Bruchgefahr. Zusätzlich eine Aufbissschiene einplanen.");
+        if (g.bruxismus) warn("Knirschen angegeben: Die Praxis prüft Material und Schiene.");
       }
       break;
 
@@ -238,7 +238,7 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
       r.options.push({ id: "tkk", type: "gleichartig", name: "Keramik-Teilkrone", total: P.teilkrone_keramik, regel: P.teilkrone_regel, befunde: tb, benefits: ["zahnfarben, metallfrei", "die gesunde Zahnwand bleibt stehen", "gleicher Festzuschuss"] });
       r.recommended = VERBLENDBEREICH.has(n) ? "tkk" : "tk";
       info("Eine Teilkrone bedeckt nur einen Teil des Zahns.");
-      if (g.bruxismus) warn("Bei Knirschen Material und Schichtstärke der Keramik darauf abstimmen.");
+      if (g.bruxismus) warn("Knirschen angegeben: Die Praxis prüft Material und Schichtstärke der Keramik.");
       break;
     }
 
@@ -263,13 +263,13 @@ function toothItem(n: number, f: FindingCode, input: ProposalInput, P: Prices, a
         if (anker.bruecke) r.recommended = "anker";
         info(`Wird dieser Zahn Pfeiler einer Brücke (${anker.where}), ist seine Krone dort enthalten. Eine eigene Krone kommt nur dazu, wenn die Lücke anders versorgt wird.`);
       }
-      if (g.bruxismus) warn("Bei Knirschen monolithisches Zirkon wählen, keine verblendete Keramik.");
+      if (g.bruxismus) warn("Knirschen angegeben: Die Praxis prüft das Material der Krone.");
       break;
     }
 
     case "fehlt":
       // Lücken werden je Kiefer gemeinsam geplant (lueckenItem). Hier kommt nur der Weisheitszahn an.
-      r.excluded.push("Ersatz eines fehlenden Weisheitszahns ist nicht nötig.");
+      r.excluded.push("Fehlender Weisheitszahn: kein Vorschlag zum Ersatz.");
       break;
 
     case "fissur": {
@@ -298,7 +298,7 @@ function globalItem(code: GlobalCode, input: ProposalInput, P: Prices): Proposal
       r.options.push({ id: "zst", type: "kasse", name: "Zahnsteinentfernung", total: P.zst, benefits: ["einmal im Kalenderjahr Kassenleistung", "entfernt harte Beläge"] });
       if (g.psi) {
         r.recommended = "zst";
-        r.excluded.push("PZR vor der PAR-Behandlung: die Kasse übernimmt die Vorbehandlung. PZR erst danach als Nachsorge anbieten.");
+        r.excluded.push("PZR vor der PAR-Behandlung: kein Vorschlag, weil die Kasse die Vorbehandlung übernimmt.");
       } else {
         r.options.push({ id: "pzr", type: "privat", name: "Professionelle Zahnreinigung", total: P.pzr, benefits: ["auch weiche Beläge und Verfärbungen", "Zahnzwischenräume, Politur, Fluorid", "viele Zusatzversicherungen erstatten"] });
         r.recommended = "pzr";
@@ -319,7 +319,7 @@ function globalItem(code: GlobalCode, input: ProposalInput, P: Prices): Proposal
       const hasKaries = Object.values(input.teeth).some(
         (f) => f === "karies_klein" || f === "karies_gross" || f === "fuellung_defekt"
       );
-      if (hasKaries) r.notes.push({ kind: "warn", text: "Erst kariöse Zähne versorgen, dann aufhellen. Füllungen hellen nicht mit auf und werden danach farblich angepasst." });
+      if (hasKaries) r.notes.push({ kind: "warn", text: "Karies angegeben: Die Praxis legt die Reihenfolge von Versorgung und Aufhellen fest. Füllungen hellen nicht mit auf." });
       return r;
     }
     case "raucher":
@@ -441,10 +441,10 @@ function lueckenItem(g: LueckenGruppe, input: ProposalInput, P: Prices): Proposa
     r.recommended = "tot";
   }
   if (gl.raucher && r.options.some((o) => o.id === "impl")) {
-    warn("Rauchen erhöht das Risiko eines Implantatverlusts deutlich. Vorher Rauchstopp besprechen.");
+    warn("Rauchen angegeben: Die Praxis bespricht das vor einem Implantat.");
     if (r.recommended === "impl") r.recommended = g.klasse === 2 ? "br" : "tp";
   }
-  if (gl.psi) warn("Vor Implantat oder Brücke zuerst die Parodontitis behandeln.");
+  if (gl.psi) warn("Parodontitis angegeben: Die Praxis legt die Reihenfolge der Behandlung fest.");
   return r;
 }
 
@@ -520,6 +520,15 @@ export const FESTZUSCHUSS_SAETZE = {
   2027: { 0: 0.5, 5: 0.6, 10: 0.65 },
 } as const;
 export type ZuschussJahr = keyof typeof FESTZUSCHUSS_SAETZE;
+
+/** Die drei Sätze eines Bewilligungsjahres als Text: ohne Bonus, mit 5 und mit 10 Jahren Bonusheft („60, 70 oder 75 %“). */
+export function festzuschussSaetzeText(jahr: ZuschussJahr, trenner: "oder" | "/" = "oder"): string {
+  const [a, b, c] = ([0, 5, 10] as const).map((bonus) => Math.round(FESTZUSCHUSS_SAETZE[jahr][bonus] * 100));
+  return trenner === "/" ? `${a}/${b}/${c} %` : `${a}, ${b} oder ${c} %`;
+}
+/** Beide Jahre in einem Satz, damit nirgends nur die Sätze eines Jahres als Regel stehen. */
+export const festzuschussRegelText = (): string =>
+  `bis 31.12.2026 bewilligt ${festzuschussSaetzeText(2026)}, ab 1.1.2027 ${festzuschussSaetzeText(2027)}, je nach Bonusheft`;
 
 /** Kalendertag in deutscher Zeit als "JJJJ-MM-TT": Stichtage gelten nach deutschem Datum, egal wo der Server steht. */
 export const berlinTag = (d: Date = new Date()): string => d.toLocaleDateString("sv-SE", { timeZone: "Europe/Berlin" });
@@ -860,7 +869,7 @@ export function buildLetter(args: {
       const m = money(o, patient);
       const later =
         vergleich && isZahnersatz(o) && patient.insurance === "GKV" && !patient.haertefall
-          ? ` (bei Bewilligung ab 1.1.2027: ca. ${formatEuro(money(o, patient, 2027).netto)})`
+          ? ` (bei Bewilligung ab 1.1.2027${wort2027("davor")}: ca. ${formatEuro(money(o, patient, 2027).netto)})`
           : "";
       L.push(
         `   ${String.fromCharCode(97 + j)}) ${o.name} (${typeLabelOf(o, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${later}${praxisWahl && o.id === praxisWahl ? "  ← von Ihrer Praxis vorgemerkt" : ""}`

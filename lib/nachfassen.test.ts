@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_PRICES, type ProposalInput } from "./proposals";
-import { nachfassListe, nachfassSumme, nachfassText, type NachfassQuelle } from "./nachfassen";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { nachfassListe, nachfassSumme, nachfassText, ungeoeffnetTun, type NachfassQuelle } from "./nachfassen";
 
 const JETZT = new Date("2026-11-13T10:00:00Z");
 const vor = (tage: number) => new Date(JETZT.getTime() - tage * 864e5);
@@ -63,5 +65,37 @@ describe("Nachfass-Liste", () => {
     expect(mit).toMatch(/1\. Januar 2027/);
     expect(mit).toMatch(/Wenn Sie keine Erinnerung mehr möchten, sagen Sie es uns\.$/);
     expect(mit).not.toMatch(/€|nur noch|letzte Chance/);
+  });
+
+  // § 7 Abs. 2 UWG: Erinnern (Nachricht oder Anruf) nur mit dokumentierter Einwilligung in Erinnerungen.
+  it("rät zum Erinnern nur mit dokumentierter Einwilligung, sonst zum Gespräch beim nächsten Termin", () => {
+    const ungeoeffnet = { shareCreatedAt: vor(5), shareExpiresAt: vor(-20) };
+    const geoeffnet = { ...ungeoeffnet, patientViewedAt: vor(2) };
+    const mit = { ...patient, nachfassConsentAt: vor(30) };
+    const tun = (extra: Partial<NachfassQuelle>) => nachfassListe([q("a", fuellung, extra)], DEFAULT_PRICES, JETZT)[0].tun;
+    expect(tun(ungeoeffnet)).toBe("Beim nächsten Termin ansprechen.");
+    expect(tun({ ...ungeoeffnet, patient: mit })).toBe("Erinnern oder beim nächsten Termin ansprechen.");
+    expect(tun(geoeffnet)).toBe("Beim nächsten Termin fragen, ob noch Fragen offen sind.");
+    expect(tun({ ...geoeffnet, patient: mit })).toBe("Freundlich nachfragen, ob noch Fragen offen sind.");
+    for (const t of [tun(ungeoeffnet), tun(geoeffnet), ungeoeffnetTun(false)]) expect(t).not.toMatch(/anruf|erinner|nachfragen|schicken/i);
+    expect(ungeoeffnetTun(true)).toBe("erinnern oder beim nächsten Termin ansprechen");
+    // Hat der Patient selbst um Rückruf gebeten, bleibt „Anrufen.“
+    expect(tun({ ...ungeoeffnet, patientRespondedAt: vor(1), patientResponse: "RUECKRUF" })).toBe("Anrufen.");
+  });
+
+  it("zeigt den Knopf „Erinnern“ nur mit Einwilligung, und die Übersicht fordert nicht pauschal zum Anruf auf", () => {
+    const knoepfe = readFileSync(join(process.cwd(), "components/NachfassAktionen.tsx"), "utf8");
+    // Der Knopf steht in einem Block, der an `einwilligung` hängt.
+    expect(knoepfe).toMatch(/\{einwilligung && \(\s*<span data-testid="nachfass-erinnern">\s*<PortalLinkButton/);
+    expect(knoepfe.match(/<PortalLinkButton/g)?.length).toBe(1);
+    expect(knoepfe).toMatch(/\{!einwilligung && \(\s*<span[^>]*data-testid="nachfass-ohne-einwilligung"/);
+    // Der Hinweis nennt den Abschnitt so, wie er auf der Patientenseite heißt, und führt dorthin.
+    expect(knoepfe).toMatch(/href=\{`\/patients\/\$\{patientId\}#kontakt`\}[^>]*>„Kontakt und Stammdaten“<\/a>/);
+    expect(knoepfe).not.toMatch(/unter „Kontakt“/);
+    expect(readFileSync(join(process.cwd(), "components/PatientKontakt.tsx"), "utf8")).toContain(">Kontakt und Stammdaten</h2>");
+    expect(readFileSync(join(process.cwd(), "app/(app)/patients/[id]/page.tsx"), "utf8")).toMatch(/id="kontakt"/);
+    const uebersicht = readFileSync(join(process.cwd(), "app/(app)/dashboard/page.tsx"), "utf8");
+    expect(uebersicht).not.toMatch(/kurz anrufen/);
+    expect(uebersicht).toMatch(/ungeoeffnetTun\(!!u\.patient\.nachfassConsentAt\)/);
   });
 });

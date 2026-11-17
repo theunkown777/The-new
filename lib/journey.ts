@@ -59,8 +59,8 @@ export function journey(input: JourneyInput, now = new Date()): Journey {
     if ((p.eigenanteilCent ?? 0) === 0 || (paid && open.length === 0)) {
       return { erreicht: 5, aktuell: null, praxis: { text: "Abgeschlossen", tone: "erledigt" }, patient: "Alles erledigt. Vielen Dank!", abgelehnt: false };
     }
-    if (!inv.length) return { erreicht: 4, aktuell: 4, praxis: { text: "Vereinbart: Rechnung für den Eigenanteil erstellen", tone: "aktiv" }, patient: "Die Rechnung für Ihren Eigenanteil folgt.", abgelehnt: false };
-    if (open.some((i) => i.status === "GEMELDET")) return { erreicht: 4, aktuell: 4, praxis: { text: "Zahlung gemeldet: Eingang prüfen", tone: "aktiv" }, patient: "Danke, Ihre Zahlung wird geprüft.", abgelehnt: false };
+    if (!inv.length) return { erreicht: 4, aktuell: 4, praxis: { text: "Vereinbart: Rechnung für den Eigenanteil erstellen", tone: "aktiv" }, patient: "Für Ihren Eigenanteil gibt es noch keine Rechnung.", abgelehnt: false };
+    if (open.some((i) => i.status === "GEMELDET")) return { erreicht: 4, aktuell: 4, praxis: { text: "Zahlung gemeldet: Eingang prüfen", tone: "aktiv" }, patient: "Danke. Ihre Zahlung ist bei der Praxis gemeldet.", abgelehnt: false };
     const overdue = open.some((i) => i.dueDate.getTime() < now.getTime() - DAY);
     return overdue
       ? { erreicht: 4, aktuell: 4, praxis: { text: "Rechnung überfällig: erinnern", tone: "achtung" }, patient: "Bitte begleichen Sie Ihren Eigenanteil.", abgelehnt: false }
@@ -68,7 +68,7 @@ export function journey(input: JourneyInput, now = new Date()): Journey {
   }
   // ENTWURF / BESPROCHEN
   if (p.agreedAt) {
-    return { erreicht: 4, aktuell: 4, praxis: { text: "Einverständnis unterschrieben: Termin planen, Vereinbarung gegenzeichnen", tone: "aktiv" }, patient: "Danke für Ihr Einverständnis. Die Praxis plant Ihren Termin.", abgelehnt: false };
+    return { erreicht: 4, aktuell: 4, praxis: { text: "Einverständnis unterschrieben: Termin planen, Vereinbarung gegenzeichnen", tone: "aktiv" }, patient: "Danke für Ihr Einverständnis. Es ist bei der Praxis angekommen.", abgelehnt: false };
   }
   if (p.patientResponse) {
     const wartet = p.patientRespondedAt && now.getTime() - p.patientRespondedAt.getTime() > 2 * DAY;
@@ -79,13 +79,13 @@ export function journey(input: JourneyInput, now = new Date()): Journey {
         text: p.patientResponse === "RUECKRUF" ? "Rückruf gewünscht: heute anrufen" : "Patient möchte besprechen: Termin vereinbaren",
         tone: wartet ? "achtung" : "aktiv",
       },
-      patient: "Danke für Ihre Rückmeldung. Die Praxis meldet sich bei Ihnen.",
+      patient: "Danke für Ihre Rückmeldung. Sie ist bei der Praxis angekommen.",
       abgelehnt: false,
     };
   }
   if (p.shareCreatedAt) {
     if (!p.patientViewedAt && now.getTime() - p.shareCreatedAt.getTime() > 3 * DAY) {
-      return { erreicht: 2, aktuell: 2, praxis: { text: "Link seit Tagen ungeöffnet: kurz anrufen", tone: "achtung" }, patient: "Ihren Vorschlag ansehen und wählen.", abgelehnt: false };
+      return { erreicht: 2, aktuell: 2, praxis: { text: "Link seit Tagen ungeöffnet: beim nächsten Termin ansprechen", tone: "achtung" }, patient: "Ihren Vorschlag ansehen und wählen.", abgelehnt: false };
     }
     return { erreicht: 2, aktuell: 2, praxis: { text: p.patientViewedAt ? "Vorschlag angesehen: Rückmeldung abwarten" : "Link gesendet: Öffnen abwarten", tone: "warten" }, patient: "Ihren Vorschlag ansehen und wählen.", abgelehnt: false };
   }

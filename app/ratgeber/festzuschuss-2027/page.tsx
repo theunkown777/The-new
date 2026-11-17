@@ -95,7 +95,7 @@ export default function Page() {
       <h2>Checkliste für die Rezeption bis Jahresende</h2>
       <ol>
         <li>Offene Heil- und Kostenpläne für Zahnersatz in der Praxissoftware heraussuchen, die noch nicht bewilligt sind.</li>
-        <li>Patienten anrufen, deren Plan schon besprochen ist, und auf das Datum hinweisen. Den Mehrbetrag in Euro nennen.</li>
+        <li>Patienten, deren Plan schon besprochen ist, beim nächsten Termin auf das Datum hinweisen. Anrufen oder schreiben nur, wenn die Einwilligung in Erinnerungen dokumentiert ist.</li>
         <li>Neue Pläne zügig einreichen. Die Kasse braucht für die Bewilligung oft ein bis drei Wochen, zwischen den Feiertagen auch länger.</li>
         <li>Bei Gutachterverfahren genug Vorlauf einplanen oder den Patienten ehrlich sagen, dass es knapp wird.</li>
         <li>Nach der Bewilligung gilt der Plan in der Regel sechs Monate. Den Behandlungstermin innerhalb dieser Frist legen.</li>

@@ -46,8 +46,8 @@ export default async function AbrechnungPage() {
       <div>
         <h1 className="font-display text-3xl text-slate-900">Abrechnung</h1>
         <p className="mt-1 max-w-3xl text-sm text-slate-600">
-          Alle Abrechnungsarten für {SPECIALTY_LABELS[fach] ?? "Ihr Fach"}: wer zahlt, wie gerechnet wird, die Fachbegriffe und wo Praxen erfahrungsgemäß Geld liegen lassen.
-          Abgerechnet wird weiter über Ihre Praxissoftware bzw. KV/KZV; Sorrida hilft, nichts zu vergessen.
+          Alle Abrechnungsarten für {SPECIALTY_LABELS[fach] ?? "Ihr Fach"}: wer zahlt, wie gerechnet wird, die Fachbegriffe und worauf zu achten ist.
+          Abgerechnet wird weiter über Ihre Praxissoftware bzw. KV/KZV.
         </p>
       </div>
 
@@ -92,7 +92,7 @@ export default async function AbrechnungPage() {
                 </div>
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-800">Wo Geld liegen bleibt</p>
+                <p className="text-sm font-semibold text-slate-800">Worauf zu achten ist</p>
                 <ul className="mt-2 space-y-2">
                   {a.geldhebel.map((g) => (
                     <li key={g.problem} className="rounded-xl bg-[#FBFAF8] p-3 text-sm">

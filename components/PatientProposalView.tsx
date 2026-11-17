@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ABGEWAEHLT,
+  festzuschuss2027Amtlich,
   istFreiwillig,
   isZahnersatz,
   money,
@@ -84,6 +85,8 @@ export function PatientProposalView(props: Props) {
   // „Einfache Sprache“ gibt es nur in der deutschen Ansicht; sie ersetzt die Rahmentexte, nicht die Namen der Leistungen.
   const [einfach, setEinfach] = useState(false);
   const t = uiFuer(lang, einfach);
+  // Solange die Tabelle 2027 nicht eingelesen ist, heißen die Beträge für 2027 „voraussichtlich“ (wie im Editor und im Brief).
+  const vorlaeufig2027 = !festzuschuss2027Amtlich();
   const dir = langDir(lang);
   const fmt = (n: number) => euro(n, lang);
   // Liegt ein gezeigter Regeltext nicht (ganz) in der gewählten Sprache vor, sagt die Ansicht das dazu.
@@ -285,6 +288,7 @@ export function PatientProposalView(props: Props) {
       {!readOnly && props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
         <div className="mt-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900" role="note">
           <strong>{t.deadlineTitle}</strong> {t.deadline(props.tageBisStichtag)} <strong>{fmt(jahre.mehrkosten)}</strong>.
+          {vorlaeufig2027 && <> <span data-testid="hinweis-2027-vorlaeufig">{t.prelim2027}</span></>}
         </div>
       )}
 
@@ -386,7 +390,7 @@ export function PatientProposalView(props: Props) {
                         {props.showJahresvergleich && gkv && isZahnersatz(o) && !patient.haertefall && (
                           <>
                             {" "}
-                            · {t.from2027} {fmt(money(o, patient, 2027).netto)}
+                            · {vorlaeufig2027 ? t.from2027Prelim : t.from2027} {fmt(money(o, patient, 2027).netto)}
                           </>
                         )}
                       </p>
@@ -524,7 +528,7 @@ export function PatientProposalView(props: Props) {
           </div>
           {props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
             <div className="text-end text-xs text-amber-800">
-              {t.bar2027}
+              {vorlaeufig2027 ? t.bar2027Prelim : t.bar2027}
               <br />
               <span className="font-semibold tabular-nums">{fmt(jahre.netto2027)}</span>
             </div>

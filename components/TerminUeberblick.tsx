@@ -55,7 +55,7 @@ export function TerminUeberblick({ patientId, briefing, ki }: { patientId: strin
           <p className="text-xs text-slate-500">KI-Kurzfassung nicht aktiv (kein KI-Zugang hinterlegt). Der Überblick oben ist vollständig.</p>
         )}
         {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
-        <p className="mt-2 text-xs text-slate-500">An den KI-Dienst gehen keine Namen, kein Geburtsdatum und keine Versichertennummer.</p>
+        <p className="mt-2 text-xs text-slate-500">Den Namen der Patientin oder des Patienten und Kontaktdaten ersetzt Sorrida vorher durch Platzhalter. Die Felder Geburtsdatum und Versichertennummer gehen nicht mit. Freitext aus der Akte kann weitere Angaben enthalten.</p>
       </div>
     </section>
   );

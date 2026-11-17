@@ -21,10 +21,18 @@ describe("Termine", () => {
     expect(tagesGrenzen("2026-07-01").von.toISOString()).toBe("2026-06-30T22:00:00.000Z");
   });
   it("Bestätigungstext nennt Zeit, Ort und Absagehinweis", () => {
-    const t = bestaetigungText({ firstName: "Anna", practiceName: "Praxis X", start: new Date("2026-11-20T08:30:00Z"), ort: "Zweigpraxis", reason: "Kontrolle" });
+    const t = bestaetigungText({ firstName: "Anna", practiceName: "Praxis X", start: new Date("2026-11-20T08:30:00Z"), ort: "Zweigpraxis" });
     expect(t).toContain("09:30");
     expect(t).toContain("(Zweigpraxis)");
     expect(t).toContain("rechtzeitig ab");
+  });
+  it("Bestätigungstext nennt den Anlass nicht, auch wenn ihn jemand mitgibt", () => {
+    // Der Anlass ist ein Freitext der Praxis („Kontrolle nach Wurzelbehandlung“) und gehört nicht in eine E-Mail.
+    const mitAnlass = { firstName: "Anna", practiceName: "Praxis X", start: new Date("2026-11-20T08:30:00Z"), ort: null, reason: "Kontrolle nach Wurzelbehandlung" };
+    const t = bestaetigungText(mitAnlass);
+    expect(t).not.toContain("Wurzelbehandlung");
+    expect(t).not.toContain("Kontrolle");
+    expect(t).toBe("Hallo Anna, Ihr Termin bei Praxis X ist eingetragen: Freitag, 20.11., 09:30 Uhr. Falls Sie nicht kommen können, sagen Sie bitte rechtzeitig ab, dann kann jemand anderes nachrücken.");
   });
 });
 

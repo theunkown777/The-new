@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { MELDUNG_MAX, browserMeldungBereinigen, fehlerAufbereiten, fehlerMail, fingerabdruck, meldungBereinigen, ortBereinigen, stackBereinigen } from "@/lib/fehlerlog";
+import { readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { BROWSER_ORT_TEILE_MAX, JSON_MELDUNG, MELDUNG_MAX, SEITEN_TEILE, browserMeldungBereinigen, browserOrtBereinigen, fehlerAufbereiten, fehlerMail, fingerabdruck, meldungBereinigen, ortBereinigen, stackBereinigen } from "@/lib/fehlerlog";
 
 describe("ortBereinigen", () => {
   it("entfernt Abfrage-Teil, Sprungmarke und Herkunft", () => {
@@ -191,6 +193,81 @@ describe("browserMeldungBereinigen: Meldungen aus dem Browser", () => {
   });
   it("kürzt auf 300 Zeichen", () => {
     expect(browserMeldungBereinigen("failed ".repeat(200)).length).toBeLessThanOrEqual(MELDUNG_MAX);
+  });
+});
+
+describe("browserOrtBereinigen: Ort einer Meldung aus dem Browser", () => {
+  it("lässt Namen und andere Wörter im Pfad nicht stehen", () => {
+    const ort = browserOrtBereinigen("/np-pruefung/Erika/Mustermann/hat-diabetes-und-wohnt-in-koeln");
+    expect(ort).toBe("/…/…/…/…");
+    for (const boese of ["/erika", "/patients/mustermann", "/x/diabetes", "/Koeln/Hauptstrasse", "/patients/erika-mustermann/akte", "/[erika]", "/(mustermann)"]) {
+      const o = browserOrtBereinigen(boese);
+      for (const wort of ["erika", "mustermann", "diabetes", "koeln", "hauptstrasse"]) expect(o.toLowerCase(), boese).not.toContain(wort);
+    }
+    const f = fehlerAufbereiten({ quelle: "browser", ort: "/np-pruefung/Erika/Mustermann/hat-diabetes", meldung: "TypeError: failed to fetch" });
+    expect(f.ort).toBe("/…/…/…/…");
+    expect(JSON.stringify(f)).not.toMatch(/Erika|Mustermann|diabetes/i);
+  });
+  it("behält die festen Namen der Seiten, alles Übrige wird zur Lücke", () => {
+    expect(browserOrtBereinigen("/patients/cmhz1k2j30000abcd1234efgh/proposals/new")).toBe("/patients/…/proposals/new");
+    expect(browserOrtBereinigen("https://sorrida.de/settings/fachgebiet/preisliste?x=1#a")).toBe("/settings/fachgebiet/preisliste");
+    expect(browserOrtBereinigen("/ratgeber/festzuschuss-2027")).toBe("/ratgeber/festzuschuss-2027");
+    expect(browserOrtBereinigen("/p/a8Kd93hsLq02mNx7Zt51Bv")).toBe("/p/…");
+    expect(browserOrtBereinigen("/dashboard")).toBe("/dashboard");
+    expect(browserOrtBereinigen("")).toBe("/");
+    expect(browserOrtBereinigen(undefined)).toBe("/");
+  });
+  it("ist stabil: Das Ergebnis noch einmal bereinigt bleibt gleich (Browser bereinigt, Server noch einmal)", () => {
+    for (const w of ["/patients/abc/akte", "/x/y/z", "/dashboard", "/", "/np/Erika"]) {
+      const einmal = browserOrtBereinigen(w);
+      expect(browserOrtBereinigen(einmal)).toBe(einmal);
+    }
+  });
+  it("höchstens acht Pfadteile: Erfundene lange Pfade ergeben nicht beliebig viele verschiedene Orte", () => {
+    const lang = browserOrtBereinigen(`/${Array.from({ length: 40 }, (_, i) => `teil${i}`).join("/")}`);
+    expect(lang.split("/").filter(Boolean)).toHaveLength(BROWSER_ORT_TEILE_MAX);
+    expect(lang).toMatch(/^(\/…)+$/);
+  });
+  it("gilt nur für den Browser: Der Server meldet die Route mit Platzhaltern", () => {
+    expect(fehlerAufbereiten({ quelle: "server", ort: "/api/portal/[token]/pruefung", meldung: "x" }).ort).toBe("/api/portal/[token]/pruefung");
+  });
+  it("die Liste kennt jeden festen Ordner unter app/, in dem eine Seite liegt", () => {
+    const fehlt: string[] = [];
+    const lauf = (ordner: string, teile: string[]) => {
+      for (const name of readdirSync(ordner)) {
+        const pfad = join(ordner, name);
+        if (statSync(pfad).isDirectory()) {
+          if (ordner === "app" && name === "api") continue;
+          lauf(pfad, [...teile, name]);
+        } else if (/^(page|route)\.tsx?$/.test(name)) {
+          for (const t of teile) if (!/^[[(]/.test(t) && !SEITEN_TEILE.has(t)) fehlt.push(t);
+        }
+      }
+    };
+    lauf("app", []);
+    expect([...new Set(fehlt)]).toEqual([]);
+  });
+});
+
+describe("unlesbares JSON: eine Meldung, gleich an welcher Stelle", () => {
+  it("verschiedene Stellen und Eingaben ergeben denselben Eintrag", () => {
+    const meldungen = [
+      "Expected ',' or '}' after property value in JSON at position 6 (line 1 column 7)",
+      "Expected ':' after property name in JSON at position 13 (line 1 column 14)",
+      "Expected ',' or ']' after array element in JSON at position 9",
+      "Unexpected token 'E', \"Erika Mustermann\" is not valid JSON",
+      "Unexpected end of JSON input",
+      "Unterminated string in JSON at position 20",
+      "Bad control character in string literal in JSON at position 3",
+      "JSON.parse: unexpected character at line 1 column 2 of the JSON data",
+    ];
+    const abdruecke = new Set(meldungen.map((m) => fehlerAufbereiten({ quelle: "server", ort: "/api/patients", meldung: m }).fingerabdruck));
+    expect(abdruecke.size).toBe(1);
+    for (const m of meldungen) expect(meldungBereinigen(m)).toBe(JSON_MELDUNG);
+    expect(meldungBereinigen("Unexpected token 'E', \"Erika Mustermann\" is not valid JSON")).not.toContain("Erika");
+  });
+  it("andere Meldungen mit dem Wort JSON bleiben, wie sie sind", () => {
+    expect(meldungBereinigen("Antwort ist kein JSON")).toBe("Antwort ist kein JSON");
   });
 });
 

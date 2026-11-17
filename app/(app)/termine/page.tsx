@@ -144,7 +144,7 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
                 whatsappDirekt={whatsappApiAktiv()}
                 confirmedAt={t.confirmedAt ? kurz(t.confirmedAt) : null}
                 remindedAt={t.remindedAt ? kurz(t.remindedAt) : null}
-                bestaetigung={bestaetigungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, reason: t.reason })}
+                bestaetigung={bestaetigungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null })}
                 erinnerung={erinnerungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, fach: practice?.specialty })}
               />
                 <WartelisteAngebot terminId={t.id} kandidaten={vorschlaege(t)} />

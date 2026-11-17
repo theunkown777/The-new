@@ -64,6 +64,44 @@ describe.skipIf(!process.env.DATABASE_URL)("Empfangs-PIN: Parkung und Zähler in
     expect(await m.parkungenAufraeumen()).toBeGreaterThanOrEqual(1);
   });
 
+  it("zweite Bremse je Praxis: Ein alter Cookie-Wert verbraucht sie nicht; gefragt wird nur vor einem echten Vergleich", async () => {
+    const id = await praxis();
+    const alt = await m.parkungAnlegen(id);
+    let gefragt = 0;
+    const bremse = async () => { gefragt++; return true; };
+    // Richtig entsperrt: Die Bremse wurde einmal gefragt (die Route gibt den Versuch danach zurück).
+    expect((await m.pinEntsperren({ practiceId: id, kennung: alt, pin: PIN, bremse })).art).toBe("ok");
+    expect(gefragt).toBe(1);
+    // 40 Anfragen mit dem verbrauchten Wert, ohne Kennung und mit erfundener Kennung: nie gefragt.
+    for (let i = 0; i < 40; i++) expect((await m.pinEntsperren({ practiceId: id, kennung: alt, pin: "0000", bremse })).art).toBe("keine-sitzung");
+    expect((await m.pinEntsperren({ practiceId: id, kennung: null, pin: PIN, bremse })).art).toBe("keine-sitzung");
+    expect((await m.pinEntsperren({ practiceId: id, kennung: m.parkKennungNeu(), pin: PIN, bremse })).art).toBe("keine-sitzung");
+    // Abgelaufene Parkung: ebenfalls nicht.
+    const abgelaufen = await m.parkungAnlegen(id, Date.now() - 13 * 3600e3);
+    expect((await m.pinEntsperren({ practiceId: id, kennung: abgelaufen, pin: PIN, bremse })).art).toBe("keine-sitzung");
+    expect(gefragt).toBe(1);
+    // Neue Übergabe derselben Praxis: Die richtige PIN geht weiter.
+    const neu = await m.parkungAnlegen(id);
+    expect((await m.pinEntsperren({ practiceId: id, kennung: neu, pin: PIN, bremse })).art).toBe("ok");
+    expect(gefragt).toBe(2);
+  });
+
+  it("zweite Bremse je Praxis: Greift sie, wird die PIN nicht verglichen und nichts gezählt; während der Sperre wird sie nicht gefragt", async () => {
+    const id = await praxis();
+    const kennung = await m.parkungAnlegen(id);
+    expect((await m.pinEntsperren({ practiceId: id, kennung, pin: PIN, bremse: async () => false })).art).toBe("zu-viele");
+    expect((await m.pinEntsperren({ practiceId: id, kennung, pin: "0000", bremse: async () => false })).art).toBe("zu-viele");
+    expect((await stand(id)).empfangPinFehlversuche).toBe(0);
+    expect(await prisma.empfangParkung.count({ where: { practiceId: id } })).toBe(1);
+    // Fünf falsche PINs sperren; in der Sperre wird die Bremse nicht mehr gefragt (es gibt keinen Vergleich).
+    let gefragt = 0;
+    const bremse = async () => { gefragt++; return true; };
+    for (let i = 0; i < PIN_MAX_FEHLVERSUCHE; i++) await m.pinEntsperren({ practiceId: id, kennung, pin: "0001", bremse });
+    expect(gefragt).toBe(PIN_MAX_FEHLVERSUCHE);
+    expect((await m.pinEntsperren({ practiceId: id, kennung, pin: PIN, bremse })).art).toBe("gesperrt");
+    expect(gefragt).toBe(PIN_MAX_FEHLVERSUCHE);
+  }, 30_000);
+
   it("zwölf gleichzeitige falsche PINs: genau vier zählen als falsch, die fünfte sperrt, der Rest wird nicht geprüft", async () => {
     const id = await praxis();
     const kennung = await m.parkungAnlegen(id);

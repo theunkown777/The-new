@@ -72,7 +72,7 @@ export default async function ProtokollPage(props: { searchParams: Promise<{ gru
         </div>
         <div className="card">
           <p className="text-sm text-slate-500">KI-Berichte</p>
-          <p className="mt-1 text-sm text-slate-800">Name, Geburtsdatum und Versichertennummer gehen nicht an den KI-Dienst. Jeder Bericht bleibt Entwurf bis zur Freigabe.</p>
+          <p className="mt-1 text-sm text-slate-800">Den Namen des Patienten, Geburtsdatum und Versichertennummer ersetzt Sorrida vor dem Versand durch Platzhalter. Freitext und eine hochgeladene Preisliste können weitere Angaben enthalten. Jeder Bericht bleibt Entwurf bis zur Freigabe.</p>
         </div>
       </div>
 

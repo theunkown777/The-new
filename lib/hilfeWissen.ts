@@ -446,7 +446,7 @@ export const HILFE_WISSEN: HilfeEintrag[] = [
   {
     id: "ki-hilfen",
     frage: "Was sind die KI-Hilfen und wie schalte ich sie ein?",
-    antwort: "Die KI-Hilfen sind zusätzliche Knöpfe, zum Beispiel „Mit KI zuordnen“ im Vorschlag. Sie sind aus, bis die Praxisleitung sie unter Einstellungen → Sicherheit einschaltet. Dort steht, was an den KI-Dienst geht und was nie. Jedes Ergebnis ist ein Entwurf, den jemand aus dem Team bestätigt.",
+    antwort: "Die KI-Hilfen sind zusätzliche Knöpfe, zum Beispiel „Mit KI zuordnen“ im Vorschlag. Sie sind aus, bis die Praxisleitung sie unter Einstellungen → Sicherheit einschaltet. Dort steht, was an den KI-Dienst geht und was Sorrida vorher ersetzt. Jedes Ergebnis ist ein Entwurf, den jemand aus dem Team bestätigt.",
     pfad: "Einstellungen → Sicherheit → KI-Hilfen",
     href: "/settings/security#ki-hilfen",
     stichwoerter: ["KI", "KI-Hilfen", "künstliche Intelligenz", "einschalten", "ausschalten", "Entwurf", "Datenschutz"],

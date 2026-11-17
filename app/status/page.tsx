@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import Link from "next/link";
 import { JournalRahmen } from "@/components/start/JournalKopf";
 import { kernStatus } from "@/lib/betriebsStatus";
@@ -12,12 +11,10 @@ export const metadata: Metadata = {
   description: "Sind Website, Anmeldung und Datenbank von Sorrida erreichbar? Dazu die Liste der Störungen.",
 };
 
-// Öffentliche Seite: drei Ja/Nein-Angaben ohne Einzelheiten (dieselben Prüfungen wie /api/status in der Kurzfassung,
-// lib/betriebsStatus.ts) und die von Hand gepflegte Liste der Störungen (lib/stoerungen.ts).
+// Öffentliche Seite: drei Ja/Nein-Angaben ohne Einzelheiten (lib/betriebsStatus.ts) und die von Hand gepflegte Liste der
+// Störungen (lib/stoerungen.ts). Die Seite prüft nicht, unter welchem Hostnamen sie geöffnet ist; das macht nur /api/status.
 export default async function StatusPage() {
-  const kopf = await headers();
-  const host = kopf.get("x-forwarded-host") ?? kopf.get("host");
-  const status = await kernStatus(host, () => prisma.$queryRaw`SELECT 1`);
+  const status = await kernStatus(() => prisma.$queryRaw`SELECT 1`);
   const punkte: [string, string, boolean][] = [
     ["website", "Website", status.website],
     ["anmeldung", "Anmeldung", status.anmeldung],

@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   const { session, error } = await requireAdmin();
   if (!session) return error;
 
-  const parsed = createSchema.safeParse(await req.json());
+  const parsed = createSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Ungültige Eingabe" }, { status: 400 });
   }

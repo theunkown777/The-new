@@ -17,10 +17,8 @@ const BASIS = new Set(["kasse", "regel"]);
 const AUSNAHMEN: { text: RegExp; grund: string; fach?: boolean }[] = [
   // Amtlicher Begriff: die Empfehlung der Ständigen Impfkommission. Sie beschreibt bei einer Kassenleistung, wann die Kasse zahlt.
   { text: /nach STIKO-Empfehlung$/, grund: "amtlicher Begriff, keine Empfehlung der Software", fach: true },
-  // Hinweise, die nur die Praxis im Editor sieht (Art „warn“ bzw. Grund, warum eine Leistung nicht angeboten wird).
-  // Offen: Die Formulierungen bewerten eine Behandlung; ob sie bleiben dürfen, muss fachlich entschieden werden.
-  { text: /^Bei sehr großem Defekt am Frontzahn prüfen, ob eine Krone langfristig sinnvoller ist\.$/, grund: "Hinweis nur für die Praxis; steht auch in sechs Übersetzungen (lib/i18n)" },
-  { text: /^Fissurenversiegelung bei Erwachsenen: nur bei erhöhtem Kariesrisiko sinnvoll\. Im Befund nicht angegeben\.$/, grund: "Grund für eine nicht angebotene Leistung, nur für die Praxis" },
+  // Die zwei früheren Ausnahmen im Zahn-Regelwerk („… langfristig sinnvoller“, „… nur bei erhöhtem Kariesrisiko sinnvoll“)
+  // sind neutral gefasst. Im Zahn-Regelwerk gibt es keine Ausnahme mehr.
 ];
 const istAusnahme = (t: string) => AUSNAHMEN.some((a) => a.text.test(t));
 const BEFUNDE = Object.keys(FINDINGS) as FindingCode[];

@@ -36,7 +36,7 @@ export const NEUIGKEITEN: Neuigkeit[] = [
     datum: "2026-11-15",
     titel: "Terminangebot aus „Vorsorge fällig“",
     text: "Aus der Liste „Vorsorge fällig“ kann die Praxis eine Erinnerung mit Terminangebot verschicken. Der Patient sieht über den Link nur freie Zeiten und bucht selbst.",
-    fuerWen: "Empfang, Prophylaxe",
+    fuerWen: "Empfang, Vorsorge",
   },
   {
     datum: "2026-11-15",

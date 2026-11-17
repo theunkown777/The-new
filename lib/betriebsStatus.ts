@@ -101,7 +101,28 @@ export function kernAusPunkten(checks: Record<string, Punkt>): KernStatus {
   };
 }
 
-/** Kurzfassung für /status: Anmeldung und Datenbank mit denselben Prüfungen wie /api/status. */
-export async function kernStatus(requestHost: string | null, ping: () => Promise<unknown>, env: Record<string, string | undefined> = process.env): Promise<KernStatus> {
-  return kernAusPunkten({ ...anmeldungPunkte(requestHost, env), Datenbank: await datenbankPunkt(ping) });
+/**
+ * Anmeldung für die öffentliche Seite: Schlüssel gesetzt und Adresse gültig. Unter welchem Hostnamen die Seite gerade
+ * geöffnet ist, spielt hier keine Rolle: Sonst stünde bei einer zweiten Adresse (zum Beispiel ohne „www“) öffentlich
+ * „Anmeldung erreichbar: nein“, obwohl nichts gestört ist. Den Vergleich mit dem Hostnamen macht nur der interne
+ * Bericht /api/status (anmeldungPunkte).
+ */
+export function anmeldungEingerichtet(env: Record<string, string | undefined> = process.env): { NEXTAUTH_SECRET: Punkt; NEXTAUTH_URL: Punkt } {
+  let adresse: "gültig" | "ungültig" | "fehlt" = "fehlt";
+  if (env.NEXTAUTH_URL) {
+    try {
+      adresse = /^https?:$/.test(new URL(env.NEXTAUTH_URL).protocol) ? "gültig" : "ungültig";
+    } catch {
+      adresse = "ungültig";
+    }
+  }
+  return {
+    NEXTAUTH_SECRET: env.NEXTAUTH_SECRET ? { ok: true, info: "gesetzt" } : { ok: false, info: "fehlt" },
+    NEXTAUTH_URL: adresse === "gültig" ? { ok: true, info: "gesetzt" } : adresse === "fehlt" ? { ok: !!env.VERCEL_URL, info: env.VERCEL_URL ? "nicht gesetzt (Vercel-Adresse)" : "fehlt" } : { ok: false, info: "ungültig" },
+  };
+}
+
+/** Kurzfassung für /status: Anmeldung eingerichtet (ohne Blick auf den Hostnamen) und Datenbank erreichbar. */
+export async function kernStatus(ping: () => Promise<unknown>, env: Record<string, string | undefined> = process.env): Promise<KernStatus> {
+  return kernAusPunkten({ ...anmeldungEingerichtet(env), Datenbank: await datenbankPunkt(ping) });
 }

@@ -1,6 +1,5 @@
 // Alle Abrechnungsarten, die in deutschen Praxen vorkommen, mit Fachsprache,
-// Rechenweg, Fristen und den Stellen, an denen Praxen erfahrungsgemäß Geld
-// liegen lassen. Inhalt ist Fachwissen zum Nachschlagen, keine Rechtsberatung;
+// Rechenweg, Fristen und den Stellen, auf die zu achten ist. Inhalt ist Fachwissen zum Nachschlagen, keine Rechtsberatung;
 // verbindlich sind die jeweiligen Gebührenordnungen und Verträge.
 
 import type { Gebuehrenwerk } from "@/lib/gebuehren";
@@ -86,7 +85,7 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     id: "zahnersatz",
     name: "Zahnersatz mit Festzuschuss",
     werk: "BEMA",
-    zahler: "Kasse zahlt befundbezogenen Festzuschuss (60/70/75 % je Bonus, Härtefall 100 %), Rest der Patient",
+    zahler: "Kasse zahlt befundbezogenen Festzuschuss (bis 31.12.2026 bewilligt 60/70/75 % je Bonus, ab 1.1.2027 50/60/65 %, Härtefall 100 %), Rest der Patient",
     rechenweg: "Festzuschuss nach Befundklasse; Regelversorgung über BEMA, gleichartige Versorgung als Mischung BEMA/GOZ, andersartige komplett GOZ.",
     regeln: ["HKP vor Behandlung von der Kasse genehmigen lassen (Gültigkeit 6 Monate)", "Bonusheft prüfen (5/10 Jahre lückenlos)"],
     begriffe: [["Regelversorgung", "Standardlösung, die der Festzuschuss abbildet"], ["gleichartig", "Regelversorgung plus Zusatzleistungen, Mehrkosten nach GOZ"], ["andersartig", "andere Versorgungsform, z. B. Implantat statt Brücke"], ["Härtefall", "doppelter Festzuschuss bei geringem Einkommen"]],

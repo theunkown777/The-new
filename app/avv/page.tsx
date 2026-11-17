@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 // Muster-AVV. § 2 (Daten) und die Anlagen beschreiben, was der Code tatsächlich speichert und wohin Daten gehen
 // (prisma/schema.prisma, lib/connector.ts, lib/email.ts, lib/anthropic.ts, lib/whatsapp.ts, lib/rateLimit.ts,
 // lib/onlineZahlung.ts). Bei Änderungen an Datenfeldern, Sicherheit oder Dienstleistern hier mitpflegen.
-const STAND = "15.11.2026";
+const STAND = "17.11.2026";
 
 export default function AvvPage() {
   const b = BETREIBER;
@@ -126,7 +126,8 @@ export default function AvvPage() {
         <h2>§ 8 Zugriff durch Sorrida (Support, Fernwartung)</h2>
         <p>
           Sorrida greift auf Daten der Praxis nur zu, wenn die Praxis dies im Einzelfall verlangt oder es zur Beseitigung einer Störung
-          erforderlich ist. Sorrida hält jeden solchen Zugriff mit Person, Zeit und Anlass fest; die Praxis kann diese Aufzeichnung einsehen.
+          erforderlich ist. Sorrida hält jeden solchen Zugriff mit Person, Zeit und Anlass schriftlich fest und stellt der Praxis die
+          Aufzeichnung auf Anfrage bereit.
         </p>
       </section>
 
@@ -168,7 +169,7 @@ export default function AvvPage() {
         <ul className="ml-5 list-disc space-y-1">
           <li><b>Verschlüsselung:</b> Übertragung ausschließlich per HTTPS (TLS). Passwörter nur als bcrypt-Hash. Schlüssel für die Praxissoftware und Patienten-Links werden nur als SHA-256-Hash gespeichert.</li>
           <li><b>Zugangskontrolle:</b> persönliche Konten, Zwei-Faktor-Anmeldung per Authenticator-App, Begrenzung fehlgeschlagener Anmeldeversuche, Sitzungen enden nach höchstens 12 Stunden.</li>
-          <li><b>Zugriffskontrolle:</b> strikte Trennung der Daten je Praxis in jeder Abfrage; Rollen Praxisleitung und Team; Einstellungen nur für die Praxisleitung.</li>
+          <li><b>Zugriffskontrolle:</b> strikte Trennung der Daten je Praxis in jeder Abfrage; Rollen Geschäftsführung, Behandler/in und Mitarbeiter/in, Rechte je Standort; Einstellungen ändert nur die Geschäftsführung.</li>
           <li><b>Eingabekontrolle:</b> Protokoll mit Zeit und Person für Anmeldungen, Freigaben, Exporte und Löschungen; Änderungsverlauf für Berichte; angenommene Vorschläge werden nicht mehr verändert.</li>
           <li><b>Datenminimierung:</b> nur die für den Zweck nötigen Felder; Patienten-Links enthalten keine Patientendaten und laufen ab; vor Unterschrift und Lastschrift fragt das Patientenportal das Geburtsdatum ab.</li>
           <li><b>Schutz vor Missbrauch:</b> Begrenzung der Anfragen je Absender für Anmeldung, Registrierung, Patienten-Links und Formulare.</li>
@@ -199,8 +200,9 @@ export default function AvvPage() {
         <p>
           Keine Unterauftragsverarbeiter von Sorrida, aber für die Praxis wichtig: Schaltet die Praxis das Diktat über den Sprachdienst des
           Browsers ein, geht die Aufnahme vom Gerät der Praxis an den Hersteller des Browsers; ohne diesen Schalter bleibt die Erkennung auf dem
-          Gerät. Öffnet die Praxis eine Nachricht in ihrem eigenen WhatsApp, gehen Nummer und Text vom Gerät der Praxis an WhatsApp; Sorrida ist daran nicht beteiligt. Verbindet
-          die Praxis ihren Kalender, ruft der Kalenderanbieter die Termine ohne Patientennamen ab.
+          Gerät. Öffnet die Praxis eine Nachricht in ihrem eigenen WhatsApp, gehen Nummer und Text vom Gerät der Praxis an WhatsApp; Sorrida ist daran nicht beteiligt. Abonniert
+          die Praxis den Kalender von Sorrida, ruft ihr Kalenderanbieter die Termine ohne Patientennamen ab. Trägt die Praxis die Adresse
+          ihres eigenen Kalenders ein, ruft Sorrida ihn regelmäßig ab und speichert nur die belegten Zeiten, keine Bezeichnungen.
         </p>
       </section>
     </LegalPage>

@@ -1,3 +1,4 @@
+import { RATEN_ANGEHALTEN } from "@/lib/installments";
 import { chosenOption, money, typeLabelOf, type PatientFactors, type ProposalItem, type ProposalOption } from "@/lib/proposals";
 
 // Praxis-Analyse: Womit verdient die Praxis ihr Geld, warum nehmen Patienten
@@ -202,12 +203,16 @@ export function analyze(args: {
     });
   }
 
+  // Die Erklärung je Vergleich sagt, was die Zahlen sind. Sie behauptet keine Wirkung: Dafür gibt es keine Belege.
+  const EIGENE_ZAHLEN = "Der Vergleich zeigt Ihre eigenen Zahlen. Er sagt nicht, was die Ursache ist.";
   const faktoren: Factor[] = [
-    factor("Hilft der Patienten-Link?", proposals, (p) => p.linked, "mit Link", "ohne Link", "Wer zu Hause in Ruhe vergleichen kann, entscheidet sich öfter. Der Link wirkt nur, wenn er auch geöffnet wird."),
-    factor("Macht eine Rückmeldung den Unterschied?", proposals.filter((p) => p.linked), (p) => p.responded, "mit Rückmeldung", "ohne Rückmeldung", "Patienten, die sich melden, haben Fragen geklärt. Ohne Rückmeldung lohnt ein kurzer Anruf."),
-    factor("Wie entscheiden Privatversicherte?", proposals, (p) => p.patient.insurance === "PKV", "privat versichert", "gesetzlich versichert", "Bei Privatversicherten übernimmt der Tarif meist einen großen Teil, der Eigenanteil fällt kleiner aus."),
-    factor("Wirkt der Wunsch nach Ratenzahlung?", proposals.filter((p) => p.responded), (p) => p.wantsInstallments, "Raten gewünscht", "keine Raten", "Wer nach Raten fragt, will meist behandeln, aber nicht alles auf einmal zahlen. Das Angebot entscheidet oft."),
-    factor("Entscheiden Ältere anders?", proposals, (p) => (p.patient.age ?? 0) >= 65, "ab 65 Jahren", "unter 65 Jahren", "Ältere Patienten wägen Kosten und Nutzen oft anders ab und brauchen häufiger ein zweites Gespräch."),
+    factor("Mit oder ohne Patienten-Link", proposals, (p) => p.linked, "mit Link", "ohne Link", EIGENE_ZAHLEN),
+    factor("Mit oder ohne Rückmeldung", proposals.filter((p) => p.linked), (p) => p.responded, "mit Rückmeldung", "ohne Rückmeldung", `${EIGENE_ZAHLEN} Ohne Rückmeldung: beim nächsten Termin ansprechen. Erinnern nur mit dokumentierter Einwilligung.`),
+    factor("Privat oder gesetzlich versichert", proposals, (p) => p.patient.insurance === "PKV", "privat versichert", "gesetzlich versichert", `${EIGENE_ZAHLEN} Bei Privatversicherten hängt der Eigenanteil vom Tarif ab.`),
+    // Raten sind angehalten (lib/installments.ts): Patienten können den Wunsch nicht mehr angeben, und die Analyse
+    // rät der Praxis nicht dazu. Der Vergleich erscheint erst wieder, wenn Raten wieder angeboten werden.
+    ...(RATEN_ANGEHALTEN ? [] : [factor("Wirkt der Wunsch nach Ratenzahlung?", proposals.filter((p) => p.responded), (p) => p.wantsInstallments, "Raten gewünscht", "keine Raten", "Der Wunsch wurde im Patienten-Link angegeben.")]),
+    factor("Ab 65 oder jünger", proposals, (p) => (p.patient.age ?? 0) >= 65, "ab 65 Jahren", "unter 65 Jahren", EIGENE_ZAHLEN),
   ];
 
   // ------------------------------------------------------------ Risiken --
@@ -239,7 +244,7 @@ export function analyze(args: {
         stufe: "mittel",
         titel: `„${g.name}“ wird meist abgelehnt (${g.quote} % Annahme)`,
         warum: "Wenn eine Leistung oft abgelehnt wird, passen Preis, Erklärung oder Zielgruppe nicht. Jedes Gespräch dazu kostet Zeit.",
-        tun: "Preis und Nutzen im Vorschlag prüfen, die Leistung nur bei passendem Anlass anbieten und Ratenzahlung anbieten, falls der Betrag hoch ist.",
+        tun: "Preis und Erklärung im Vorschlag prüfen und die Leistung nur bei passendem Anlass anbieten.",
       });
       if (risiken.filter((r) => r.id.startsWith("ablehnung")).length >= 2) break;
     }
@@ -250,8 +255,8 @@ export function analyze(args: {
       id: "ungeoeffnet",
       stufe: "mittel",
       titel: `${unopened.length} Patienten-Links seit über drei Tagen ungeöffnet`,
-      warum: "Ein Link, der nicht geöffnet wird, bringt keine Entscheidung. Oft ist die SMS untergegangen oder die Nummer falsch.",
-      tun: "Kurz anrufen oder den Link erneut senden. In der Patientenliste mit dem Filter „Offen“ finden Sie die Fälle.",
+      warum: "Ein Link, der nicht geöffnet wird, bringt keine Entscheidung.",
+      tun: "Beim nächsten Termin ansprechen. Erinnern nur, wenn die Einwilligung in Erinnerungen dokumentiert ist. In der Patientenliste mit dem Filter „Offen“ finden Sie die Fälle.",
     });
   }
   const unanswered = args.proposals.filter((p) => p.responded && p.patientRespondedAt && !decided(p.status) && now.getTime() - p.patientRespondedAt.getTime() > 2 * DAY);
@@ -260,8 +265,8 @@ export function analyze(args: {
       id: "rueckmeldung",
       stufe: unanswered.length >= 5 ? "hoch" : "mittel",
       titel: `${unanswered.length} Rückmeldungen warten seit über zwei Tagen`,
-      warum: "Patienten, die sich zurückgemeldet haben, sind entscheidungsbereit. Wer nicht zeitnah zurückgerufen wird, geht häufig woanders hin.",
-      tun: "Heute zurückrufen. Die Fälle stehen in der Patientenliste unter „Rückmeldung“.",
+      warum: "Diese Patienten haben geantwortet und warten auf die Praxis.",
+      tun: "Heute antworten. Die Fälle stehen in der Patientenliste unter „Rückmeldung“.",
     });
   }
   const stale = args.proposals.filter((p) => !decided(p.status) && now.getTime() - p.createdAt.getTime() > 30 * DAY);
@@ -271,7 +276,7 @@ export function analyze(args: {
       stufe: "info",
       titel: `${stale.length} Vorschläge seit über 30 Tagen ohne Entscheidung`,
       warum: "Alte offene Vorschläge verfälschen die Planung und sind meist vergessen, nicht abgelehnt.",
-      tun: "Einmal durchgehen: nachfassen oder als abgelehnt markieren, damit die Zahlen stimmen.",
+      tun: "Einmal durchgehen: beim nächsten Termin ansprechen oder als abgelehnt markieren, damit die Zahlen stimmen.",
     });
   }
   const overdue = args.invoices.filter((i) => i.status === "OFFEN" && i.dueDate < now);

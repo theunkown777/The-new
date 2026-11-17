@@ -237,7 +237,7 @@ export async function buildKosteninfoPdf(input: KosteninfoPdfInput): Promise<Buf
 
   doc.moveDown(1.2);
   doc.fontSize(8).fillColor("#666666").text(
-    `Erstellt am ${input.erstelltAm} von ${input.erstelltVon} mit Sorrida. Alle Beträge sind Schätzungen. Verbindlich sind der Heil- und Kostenplan bzw. die schriftliche Vereinbarung vor der Behandlung. Dieses Blatt dokumentiert die Kosteninformation in Textform; es ersetzt nicht das Aufklärungsgespräch.`,
+    `Erstellt am ${input.erstelltAm} von ${input.erstelltVon} mit Sorrida. Alle Beträge sind Schätzungen. Verbindlich sind der Kostenplan bzw. die schriftliche Vereinbarung vor der Behandlung. Dieses Blatt dokumentiert die Kosteninformation in Textform; es ersetzt nicht das Aufklärungsgespräch.`,
     { width: breite },
   );
   pdfFuss(doc, `${input.practiceName} · Kosteninformation zum Behandlungsvorschlag`);

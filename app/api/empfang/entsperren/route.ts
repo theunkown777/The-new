@@ -35,12 +35,16 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return antwort({ error: "Bitte die vierstellige PIN eingeben." }, 400);
 
-  // Zweite Bremse je Praxis: Sie gilt auch, wenn die Anfragen von vielen Anschlüssen kommen. Richtige Eingaben zählen nicht.
+  // Zweite Bremse je Praxis: Sie gilt auch, wenn die Anfragen von vielen Anschlüssen kommen. Richtige Eingaben zählen
+  // nicht. Gezählt wird erst unmittelbar vor einem echten Vergleich der PIN (lib/empfangParkung.ts): Anfragen mit
+  // einem alten, schon verbrauchten Cookie-Wert verbrauchen diese Grenze nicht.
   const praxisKey = `empfang-pin-praxis:${geparkt.practiceId}`;
-  if (!(await consumeAttempt(praxisKey, FEHLVERSUCHE_PRAXIS_STUNDE, 3600e3))) return antwort({ error: "Zu viele Versuche. Bitte melden Sie sich neu an.", code: "ZU_VIELE" }, 429);
-
-  const erg = await pinEntsperren({ practiceId: geparkt.practiceId, kennung: geparkt.kennung, pin: parsed.data.pin });
+  const erg = await pinEntsperren({
+    practiceId: geparkt.practiceId, kennung: geparkt.kennung, pin: parsed.data.pin,
+    bremse: () => consumeAttempt(praxisKey, FEHLVERSUCHE_PRAXIS_STUNDE, 3600e3),
+  });
   if (erg.art === "keine-sitzung") return keineSitzung();
+  if (erg.art === "zu-viele") return antwort({ error: "Zu viele Versuche. Bitte melden Sie sich neu an.", code: "ZU_VIELE" }, 429);
   if (erg.art === "keine-pin") return antwort({ error: "Es ist keine Empfangs-PIN festgelegt. Bitte melden Sie sich neu an.", code: "KEINE_PIN" }, 409);
 
   if (erg.art === "falsch") return antwort({ error: `PIN falsch. Noch ${erg.rest} ${erg.rest === 1 ? "Versuch" : "Versuche"}.`, code: "FALSCH", rest: erg.rest }, 403);

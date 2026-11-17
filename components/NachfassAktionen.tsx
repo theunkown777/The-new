@@ -6,7 +6,10 @@ import { PortalLinkButton } from "@/components/PortalLinkButton";
 import { nachfassText } from "@/lib/nachfassen";
 import { waLink } from "@/lib/whatsapp";
 
-/** Knöpfe je Zeile der Nachfass-Liste: erinnern (Link + Text, auf Wunsch per WhatsApp) und „HKP eingereicht“. */
+/**
+ * Knöpfe je Zeile der Nachfass-Liste: erinnern (Link + Text, auf Wunsch per WhatsApp) und „HKP eingereicht“.
+ * „Erinnern“ gibt es nur, wenn die Einwilligung in Erinnerungen dokumentiert ist (§ 7 UWG). Ohne sie steht dort nur der Hinweis.
+ */
 export function NachfassAktionen({ id, patientId, firstName, practiceName, zahnersatz, hkp, hkpEingereicht, whatsappNummer, einwilligung = false }: {
   id: string;
   patientId: string;
@@ -18,7 +21,7 @@ export function NachfassAktionen({ id, patientId, firstName, practiceName, zahne
   hkpEingereicht: boolean;
   /** Nur gesetzt, wenn Mobilnummer und Einwilligung vorliegen. */
   whatsappNummer: string | null;
-  /** Hat der Patient eingewilligt, an offene Vorschläge erinnert zu werden? Ohne das: kein Hinweis auf 2027, kein Versand per WhatsApp. */
+  /** Hat der Patient eingewilligt, an offene Vorschläge erinnert zu werden? Ohne das: kein Knopf „Erinnern“, kein Erinnerungstext, kein Versand per WhatsApp. */
   einwilligung?: boolean;
 }) {
   const router = useRouter();
@@ -41,20 +44,24 @@ export function NachfassAktionen({ id, patientId, firstName, practiceName, zahne
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      <PortalLinkButton
-        patientId={patientId}
-        firstName={firstName}
-        practiceName={practiceName}
-        label="Erinnern"
-        className="btn-secondary !py-1 text-xs"
-        copyLabel="Text kopieren"
-        message={(u) => {
-          if (u !== url) setTimeout(() => setUrl(u), 0);
-          return nachfassText({ firstName, practiceName, url: u, zahnersatz, einwilligung });
-        }}
-        onCreated={() => melden("nachgefasst")}
-      />
+    <div className="flex flex-col items-start gap-2" data-testid="nachfass-aktionen">
+      {einwilligung && (
+        <span data-testid="nachfass-erinnern">
+          <PortalLinkButton
+            patientId={patientId}
+            firstName={firstName}
+            practiceName={practiceName}
+            label="Erinnern"
+            className="btn-secondary !py-1 text-xs"
+            copyLabel="Text kopieren"
+            message={(u) => {
+              if (u !== url) setTimeout(() => setUrl(u), 0);
+              return nachfassText({ firstName, practiceName, url: u, zahnersatz, einwilligung });
+            }}
+            onCreated={() => melden("nachgefasst")}
+          />
+        </span>
+      )}
       {url && whatsappNummer && einwilligung && (
         <a className="btn-secondary !py-1 text-xs" href={waLink(whatsappNummer, nachfassText({ firstName, practiceName, url, zahnersatz, einwilligung }))} target="_blank" rel="noopener noreferrer">
           In WhatsApp öffnen
@@ -62,7 +69,8 @@ export function NachfassAktionen({ id, patientId, firstName, practiceName, zahne
       )}
       {!einwilligung && (
         <span className="max-w-[14rem] text-xs text-slate-500" data-testid="nachfass-ohne-einwilligung">
-          Keine Einwilligung in Erinnerungen dokumentiert. Bitte den Link persönlich mitgeben oder beim nächsten Termin ansprechen.
+          Keine Einwilligung in Erinnerungen dokumentiert. Bitte beim nächsten Termin ansprechen oder den Link persönlich mitgeben. Eintragen unter{" "}
+          <a href={`/patients/${patientId}#kontakt`} className="underline" data-testid="nachfass-zur-einwilligung">„Kontakt und Stammdaten“</a>.
         </span>
       )}
       {hkp && (

@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/LegalPage";
 import { BETREIBER, betreiberAnschrift } from "@/lib/betreiber";
 import { onlineZahlungStatus } from "@/lib/onlineZahlung";
 import { whatsappApiAktiv } from "@/lib/whatsapp";
-import { LOESCHFRISTEN } from "@/lib/loeschfristen";
+import { LOESCHFRISTEN, zugesagteTage } from "@/lib/loeschfristen";
 import { SITZUNG_MAX_SEKUNDEN } from "@/lib/sitzung";
 import { BEREICH_MINUTEN } from "@/lib/bereichSchutz";
 import { BESTAETIGUNG_MINUTEN } from "@/lib/portalPruefung";
@@ -18,7 +18,7 @@ export const metadata: Metadata = { title: "Datenschutz – Sorrida" };
 // lib/empfang.ts; Dienste: lib/email.ts, lib/anthropic.ts, lib/whatsapp.ts, lib/rateLimit.ts,
 // lib/onlineZahlung.ts, vercel.json; Fristen: lib/loeschfristen.ts). Dauern und Fristen werden deshalb
 // aus dem Code gelesen. Stripe und WhatsApp erscheinen nur, wenn die Dienste eingerichtet sind.
-const STAND = "16.11.2026";
+const STAND = "17.11.2026";
 
 export default function DatenschutzPage() {
   const b = BETREIBER;
@@ -26,10 +26,11 @@ export default function DatenschutzPage() {
   const whatsappAktiv = whatsappApiAktiv();
   const anfragenTage = LOESCHFRISTEN.find((f) => f.id === "anfragen")!.tage;
   const anfragenMonate = Math.round(anfragenTage / 30.4);
-  const terminanfrageTage = LOESCHFRISTEN.find((f) => f.id === "terminanfrage")!.tage;
+  // Angezeigt wird die zugesagte Zahl (30). Der Löschlauf rechnet mit einem Tag weniger (lib/loeschfristen.ts).
+  const terminanfrageTage = zugesagteTage("terminanfrage");
   const protokollJahre = Math.round(LOESCHFRISTEN.find((f) => f.id === "protokoll")!.tage / 365);
   const sitzungStunden = SITZUNG_MAX_SEKUNDEN / 3600;
-  const fehlerTage = LOESCHFRISTEN.find((f) => f.id === "fehlerlog")!.tage;
+  const fehlerTage = zugesagteTage("fehlerlog");
   return (
     <LegalPage title="Datenschutzerklärung">
       <p className="text-sm text-slate-500" data-testid="datenschutz-stand">
@@ -66,8 +67,8 @@ export default function DatenschutzPage() {
           Abfrage-Teil und ohne persönliche Kennzeichen), eine gekürzte Fehlermeldung, wie oft er vorkam und wann zuletzt. Namen, Adressen,
           Nummern und Texte in Anführungszeichen entfernen wir vorher. Die IP-Adresse speichern wir im Protokoll nicht. Bei angemeldeten
           Praxen kommt die interne Kennung der Praxis dazu. Wir brauchen das, um Fehler zu finden und zu beheben (Art. 6 Abs. 1 lit. f
-          DSGVO). Die Einträge liegen in unserer Datenbank, ein weiterer Dienst ist nicht beteiligt. Wir löschen sie {fehlerTage} Tage nach
-          dem letzten Auftreten.
+          DSGVO). Die Einträge liegen in unserer Datenbank. Über neue Fehler erhalten wir einmal am Tag eine E-Mail mit Anzahl und Ort, ohne
+          Meldungstext (E-Mail-Dienst, Abschnitt 7). Wir löschen die Einträge {fehlerTage} Tage nach dem letzten Auftreten.
         </p>
         <p>
           Wir setzen keine Analyse- oder Werbewerkzeuge ein und binden keine Inhalte fremder Server ein. Schriften, Bilder und 3D-Modelle
@@ -104,10 +105,13 @@ export default function DatenschutzPage() {
             Tage, dass die Zugangsdaten eingegeben wurden.
           </li>
         </ul>
-        <p>
+        <p data-testid="datenschutz-browserspeicher">
           Angemeldete Praxen: Ein angefangener Vorschlag wird im Sitzungsspeicher des Browsers zwischengespeichert, damit er beim Neuladen nicht
-          verloren geht. Er wird beim Speichern, beim Abmelden und beim Schließen des Browserfensters gelöscht. Auf der öffentlichen Website
-          speichern wir nichts im Speicher Ihres Browsers.
+          verloren geht. Er wird beim Speichern, beim Abmelden und beim Schließen des Browserfensters gelöscht. Wählt eine angemeldete
+          Person die dunkle Ansicht oder klappt einen Erklärtext zu, merkt sich der Browser diese Wahl dauerhaft (lokaler Speicher), bis sie
+          die Wahl ändert oder die Daten des Browsers löscht. Im Gastzugang merkt sich der Browser bis zum Schließen des Browser-Tabs, welche
+          Schritte der Führung erledigt sind. Nichts davon geht an unseren Server. Auf der öffentlichen Website speichern wir nichts im
+          Speicher Ihres Browsers.
         </p>
       </section>
 
@@ -196,9 +200,11 @@ export default function DatenschutzPage() {
           <li>
             <b>Anthropic</b> (KI-Dienst, Unternehmen mit Sitz in den USA): Formulierung von Berichtsentwürfen für Praxen. Hat die
             Praxisleitung die KI-Hilfen eingeschaltet (am Anfang sind sie aus), außerdem auf Knopfdruck: Stichworte einem Anlass zuordnen,
-            eine Preisliste ablesen, Fragen zur Bedienung beantworten, eigene Leistungen übersetzen. Namen, Geburtsdatum, Versichertennummer,
-            E-Mail-Adressen und Telefonnummern ersetzen wir vorher durch Platzhalter. Freier Text kann trotzdem Angaben enthalten, die auf
-            eine Person schließen lassen. Website-Besucher betrifft das nicht.
+            eine Preisliste ablesen, Fragen zur Bedienung beantworten, eigene Leistungen übersetzen. Den Namen der Patientin oder des Patienten,
+            Geburtsdatum, Versichertennummer, E-Mail-Adressen und Telefonnummern ersetzen wir vorher durch Platzhalter. Im freien Text
+            erkennen wir nur Namen, die Sorrida kennt. Freier Text kann deshalb Angaben enthalten, die auf eine Person schließen lassen.
+            Eine hochgeladene Preisliste (Foto oder PDF) geht unverändert an den KI-Dienst, mit allem, was darauf steht.
+            Website-Besucher betrifft das nicht.
           </li>
           {stripeAktiv && (
             <li>

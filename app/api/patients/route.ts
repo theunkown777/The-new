@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
   const parsed = patientSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(

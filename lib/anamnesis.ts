@@ -23,16 +23,16 @@ export type Question = {
 
 export const QUESTIONS: Question[] = [
   { key: "medikamente", text: "Nehmen Sie regelmäßig Medikamente?", detail: "Welche?" },
-  { key: "blutverduenner", text: "Nehmen Sie blutverdünnende Medikamente (z. B. ASS, Marcumar, Eliquis, Xarelto)?", detail: "Welche?", flag: { level: "warn", text: "Blutverdünner: Blutungsrisiko bei Eingriffen" } },
+  { key: "blutverduenner", text: "Nehmen Sie blutverdünnende Medikamente (z. B. ASS, Marcumar, Eliquis, Xarelto)?", detail: "Welche?", flag: { level: "warn", text: "Blutverdünner" } },
   { key: "gerinnung", text: "Haben Sie eine Blutgerinnungsstörung oder bluten Sie lange nach?", flag: { level: "warn", text: "Gerinnungsstörung" } },
-  { key: "bisphosphonate", text: "Erhalten oder erhielten Sie Medikamente gegen Osteoporose oder Knochenmetastasen (z. B. Bisphosphonate, Denosumab)?", detail: "Welche und seit wann?", flag: { level: "warn", text: "Antiresorptive Therapie: Risiko Kiefernekrose bei Extraktion/Implantat" } },
+  { key: "bisphosphonate", text: "Erhalten oder erhielten Sie Medikamente gegen Osteoporose oder Knochenmetastasen (z. B. Bisphosphonate, Denosumab)?", detail: "Welche und seit wann?", flag: { level: "warn", text: "Medikamente gegen Osteoporose oder Knochenmetastasen" } },
   { key: "allergien", text: "Haben Sie Allergien oder Unverträglichkeiten (z. B. Penicillin, Betäubungsmittel, Latex)?", detail: "Welche?", flag: { level: "warn", text: "Allergie" } },
-  { key: "herz", text: "Haben Sie eine Herzerkrankung, eine künstliche Herzklappe oder einen Herzschrittmacher?", detail: "Welche?", flag: { level: "warn", text: "Herz: ggf. Endokarditis-Prophylaxe prüfen" } },
+  { key: "herz", text: "Haben Sie eine Herzerkrankung, eine künstliche Herzklappe oder einen Herzschrittmacher?", detail: "Welche?", flag: { level: "warn", text: "Herzerkrankung, Herzklappe oder Schrittmacher" } },
   { key: "blutdruck", text: "Haben Sie hohen Blutdruck?", flag: { level: "info", text: "Bluthochdruck" } },
-  { key: "diabetes", text: "Haben Sie Diabetes?", flag: { level: "info", text: "Diabetes: Parodontitis-Risiko, Wundheilung" } },
+  { key: "diabetes", text: "Haben Sie Diabetes?", flag: { level: "info", text: "Diabetes" } },
   { key: "infektion", text: "Haben oder hatten Sie eine Infektionskrankheit (z. B. Hepatitis, HIV, Tuberkulose)?", detail: "Welche?", flag: { level: "warn", text: "Infektionskrankheit" } },
-  { key: "bestrahlung", text: "Wurden Sie im Kopf- oder Halsbereich bestrahlt?", flag: { level: "warn", text: "Bestrahlung Kopf/Hals: Risiko Osteoradionekrose" } },
-  { key: "schwanger", text: "Sind Sie schwanger oder könnten Sie schwanger sein?", flag: { level: "warn", text: "Schwangerschaft: Röntgen und Medikamente prüfen" } },
+  { key: "bestrahlung", text: "Wurden Sie im Kopf- oder Halsbereich bestrahlt?", flag: { level: "warn", text: "Bestrahlung im Kopf- oder Halsbereich" } },
+  { key: "schwanger", text: "Sind Sie schwanger oder könnten Sie schwanger sein?", flag: { level: "warn", text: "Schwangerschaft" } },
   { key: "rauchen", text: "Rauchen Sie?", flag: { level: "info", text: "Raucher" }, proposal: "raucher" },
   { key: "knirschen", text: "Knirschen oder pressen Sie mit den Zähnen (z. B. nachts)?", flag: { level: "info", text: "Knirschen/Pressen" }, proposal: "bruxismus", dentalOnly: true },
 ];

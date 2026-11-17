@@ -100,7 +100,7 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
         <h2 id="b-kalender" className="font-semibold text-slate-900">2. Kalender der Praxis übertragen</h2>
         <p className="text-sm text-slate-600">
           Damit Patienten keine Zeit buchen, die in Ihrem Kalender schon belegt ist, liest Sorrida Ihren Kalender mit. Übernommen werden <b>nur Beginn und Ende</b> der Einträge,
-          keine Namen, Titel oder Notizen. Das funktioniert mit jedem Kalender, der das iCalendar-Format (ICS) ausgibt: Google, Outlook, Apple und viele Praxisprogramme.
+          keine Namen, Titel oder Notizen. Dafür braucht Ihr Kalender eine Adresse im Format iCalendar (ICS). Dieses Format geben zum Beispiel Google, Outlook und Apple aus.
         </p>
         {kalender.verbunden ? (
           <div className="rounded-xl bg-salbei-50 p-3 text-sm text-salbei-900" data-testid="kalender-verbunden">

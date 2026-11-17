@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { signaturSecret } from "@/lib/geheimnis";
+import { gleichSicher } from "@/lib/gleichSicher";
 
 // Zweite Sperre für "Mein Bereich": Auch wer am angemeldeten Rechner sitzt
 // (Empfang, gemeinsamer Arbeitsplatz), sieht Umsatz und Patientenstamm erst
@@ -25,7 +26,7 @@ export function bereichTokenGueltig(token: string | undefined | null, userId: st
   const [uid, exp, s] = token.split(".");
   if (uid !== userId || !exp || !s || Number(exp) < now) return false;
   const soll = sig(`${uid}.${exp}`);
-  return soll.length === s.length && crypto.timingSafeEqual(Buffer.from(soll), Buffer.from(s));
+  return gleichSicher(soll, s);
 }
 
 /** Passwortregeln: mindestens 6 Zeichen, nicht nur ein Zeichen wiederholt, keine reine Zahlenfolge. */

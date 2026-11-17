@@ -16,13 +16,13 @@ export function Entlastung({ therapie = false, journal = false }: { therapie?: b
       zahl: "76 %",
       fakt: "76 % der Ärztinnen und Ärzte sagen, dass Verwaltung ihre medizinische Arbeit einschränkt.",
       quelle: QUELLEN.buerokratie,
-      sorrida: "Ein Klick nach dem Gespräch erzeugt Patienteninformation, Vereinbarungs-Hinweis und To-dos. Nichts wird doppelt getippt.",
+      sorrida: "Ein Klick nach dem Gespräch erzeugt Patienteninformation, Vereinbarungs-Hinweis und To-dos.",
     },
     {
       titel: "Entlastung für das Team",
       fakt: "Fehlendes Personal ist neben der Bürokratie das größte Problem der Praxen und ein häufiger Grund für den vorzeitigen Ausstieg.",
       quelle: QUELLEN.personal,
-      sorrida: "Patienten lesen Optionen und Kosten zu Hause auf dem Handy. Weniger Rückfragen am Tresen und am Telefon, Rückrufwünsche kommen gesammelt an.",
+      sorrida: "Patienten lesen Optionen und Kosten zu Hause auf dem Handy. Rückrufwünsche kommen gesammelt an.",
     },
     {
       titel: therapie ? "Klare Preise statt Missverständnisse" : "Selbstzahlerleistungen, ohne dass der Ruf leidet",
@@ -31,7 +31,7 @@ export function Entlastung({ therapie = false, journal = false }: { therapie?: b
         : "Über mögliche Schäden von IGeL werden Patienten kaum aufgeklärt. Gefordert sind Bedenkzeit und unabhängige Information.",
       quelle: therapie ? undefined : QUELLEN.igel,
       sorrida: therapie
-        ? "Zuzahlung wird korrekt berechnet, Selbstzahler-Einheiten stehen mit Preis und Hinweis auf Kassenzuschüsse daneben."
+        ? "Die gesetzliche Zuzahlung wird nach § 32 und § 61 SGB V berechnet, Selbstzahler-Einheiten stehen mit Preis und Hinweis auf Kassenzuschüsse daneben."
         : "Kassenleistung zuerst, ehrlicher Hinweis zum Nutzen, Bedenkzeit und Kostenschätzung in Textform. Das schützt Patienten und den Ruf Ihrer Praxis.",
     },
     {

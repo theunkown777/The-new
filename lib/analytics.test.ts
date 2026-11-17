@@ -142,3 +142,42 @@ describe("Vergleich mit dem Zeitraum davor", () => {
     expect(wochenSummen([], now, 8)).toEqual([0, 0, 0, 0, 0, 0, 0, 0]);
   });
 });
+
+// Die Analyse sieht jede Praxis und jeder Gast in der Demo-Praxis. Sie rät nicht zu Raten (lib/installments.ts:
+// Raten sind angehalten), fordert nicht pauschal zum Anruf auf (Erinnern nur mit dokumentierter Einwilligung)
+// und behauptet keine Wirkung, für die es keine Belege gibt („erfahrungsgemäß“, „entscheidet sich öfter“).
+describe("Texte der Analyse", () => {
+  const lies = async (datei: string) => (await import("node:fs")).readFileSync((await import("node:path")).join(process.cwd(), datei), "utf8");
+  const DATEIEN = ["lib/analytics.ts", "components/AnalyseExplorer.tsx", "app/(app)/analyse/page.tsx"];
+
+  it("kein Rat zu Ratenzahlung, kein Vergleich zum Ratenwunsch, solange Raten angehalten sind", async () => {
+    const { RATEN_ANGEHALTEN } = await import("@/lib/installments");
+    for (const datei of DATEIEN) expect(await lies(datei), datei).not.toMatch(/Raten(zahlung)? (an)?bieten|Ratenzahlung anbieten|Teilzahlung/i);
+    const proposals = Array.from({ length: 12 }, (_, i) => facts(i, { responded: true, wantsInstallments: i % 2 === 0, status: i % 3 === 0 ? "ABGELEHNT" : "ANGENOMMEN" }));
+    const a = analyze({ proposals, rows: proposals.flatMap((p) => rowsOf(p, [item], { a: "auf" })), invoices: [], now, zeitraumTage: 90 });
+    const alles = JSON.stringify(a);
+    if (RATEN_ANGEHALTEN) {
+      // Als ganzes Wort: „privaten“ ist kein Treffer.
+      expect(alles).not.toMatch(/\bRaten/);
+      expect(a.faktoren.map((f) => f.frage).join(" ")).not.toMatch(/\bRaten/);
+    }
+    // Der Patienten-Link bleibt der erste Vergleich (darauf baut der Satz unter „Stärken“).
+    expect(a.faktoren[0].a.label).toBe("mit Link");
+  });
+
+  it("kein Aufruf zum Anruf ohne das Wort Einwilligung, keine behauptete Erfahrung", async () => {
+    for (const datei of DATEIEN) {
+      const text = await lies(datei);
+      for (const zeile of text.split("\n")) {
+        if (/\b(Anruf|anrufen|zurückrufen|Rückruf)\b/i.test(zeile)) expect(zeile, datei).toMatch(/Einwilligung/);
+      }
+      expect(text, datei).not.toMatch(/erfahrungsgemäß|entscheidet sich öfter|hebt die Quote|geht häufig woanders|lohnt ein/i);
+    }
+    const proposals = Array.from({ length: 12 }, (_, i) => facts(i, { linked: i < 6, responded: i < 3, status: i < 6 ? "ANGENOMMEN" : "ABGELEHNT" }));
+    const a = analyze({ proposals, rows: proposals.flatMap((p) => rowsOf(p, [item], { a: "auf" })), invoices: [], now, zeitraumTage: 90 });
+    for (const f of a.faktoren) {
+      expect(f.erklaerung, f.frage).toMatch(/^Der Vergleich zeigt Ihre eigenen Zahlen\./);
+      if (/Anruf|anrufen/i.test(f.erklaerung)) expect(f.erklaerung).toMatch(/Einwilligung/);
+    }
+  });
+});

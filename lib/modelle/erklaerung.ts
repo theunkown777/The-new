@@ -155,7 +155,7 @@ export const ERKLAERUNG: Record<ErklaerThema, ErklaerInhalt> = {
       T("weicher Gaumen", "Der hintere, bewegliche Teil des Gaumens.", "Verschließt beim Schlucken den Weg in die Nase."),
       T("Zäpfchen", "Das kleine Gewebe, das hinten vom weichen Gaumen herabhängt.", "Hilft beim Schlucken und Sprechen.", "Ist es lang oder schlaff, kann es Schnarchen verstärken."),
       T("Rachen", "Der Raum hinter Mund und Nase.", "Hier kreuzen sich Atem- und Speiseweg."),
-      T("Gaumenmandel", "Lymphgewebe links und rechts am Rachen.", "Gehört zur Abwehr gegen Keime aus Mund und Nase.", "Entzündet sie sich häufig, kann eine Entfernung sinnvoll sein."),
+      T("Gaumenmandel", "Lymphgewebe links und rechts am Rachen.", "Gehört zur Abwehr gegen Keime aus Mund und Nase.", "Sie kann sich wiederholt entzünden (Mandelentzündung)."),
     ],
   },
   zahn: {

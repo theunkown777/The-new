@@ -28,7 +28,7 @@ export const DIENSTE: Dienstleister[] = [
     dienst: "Resend (E-Mail-Dienst, Unternehmen in den USA)",
     zweck: "Versand von E-Mails",
     daten:
-      "E-Mails an Praxis-Beschäftigte (Einladung, Passwort, Morgen-Mail ohne Patientendaten) und, wenn die Praxis es auslöst, an Patienten (Terminbestätigung, Terminerinnerung, Zahlungserinnerung: E-Mail-Adresse, Vorname, Praxisname, Termin, ggf. Anlass, Rechnungsnummer, Betrag, persönlicher Link)",
+      "E-Mails an Praxis-Beschäftigte (Einladung, Passwort, Morgen-Mail ohne Patientendaten) und, wenn die Praxis es auslöst, an Patienten (Terminbestätigung, Terminerinnerung, Zahlungserinnerung: E-Mail-Adresse, Vorname, Praxisname, Termin, Rechnungsnummer, Betrag, persönlicher Link). Dazu an den Betreiber von Sorrida: eine tägliche Kurzmeldung über neue Fehler mit Anzahl und Ort, ohne Meldungstext",
     ort: "USA",
   },
   {
@@ -36,7 +36,7 @@ export const DIENSTE: Dienstleister[] = [
     zweck:
       "Formulierung von Berichtsentwürfen und Kurzfassungen, wenn die Praxis sie anfordert. Nur wenn die Praxisleitung die KI-Hilfen einschaltet (Standard: aus) und jemand den KI-Knopf drückt: Stichworte einem Anlass zuordnen, eine Preisliste ablesen, Fragen zur Bedienung beantworten, eigene Leistungen übersetzen",
     daten:
-      "Erfasste Leistungen, Diktat und Akteneinträge. Namen, Geburtsdatum, Versichertennummer, E-Mail-Adressen und Telefonnummern werden vorher durch Platzhalter ersetzt. Freier Text kann trotzdem Angaben enthalten, die auf eine Person schließen lassen. Bei den KI-Hilfen zusätzlich: die eingegebenen Stichworte aus dem Gespräch (ebenso bereinigt; sie können Gesundheitsangaben enthalten), die hochgeladene Preisliste der Praxis, die Frage zur Bedienung sowie Name und Hinweis einer eigenen Leistung.",
+      "Erfasste Leistungen, Diktat und Akteneinträge. Der Name der Patientin oder des Patienten, Geburtsdatum, Versichertennummer, E-Mail-Adressen und Telefonnummern werden vorher durch Platzhalter ersetzt. Im freien Text erkennt Sorrida nur Namen, die es kennt. Freier Text kann deshalb Angaben enthalten, die auf eine Person schließen lassen. Bei den KI-Hilfen zusätzlich: die eingegebenen Stichworte aus dem Gespräch (ebenso bereinigt; sie können Gesundheitsangaben enthalten), die Frage zur Bedienung sowie Name und Hinweis einer eigenen Leistung. Eine hochgeladene Preisliste (Foto oder PDF) geht unverändert an den KI-Dienst, mit allem, was darauf steht.",
     ort: "USA",
   },
   {

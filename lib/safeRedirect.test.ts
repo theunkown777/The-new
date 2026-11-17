@@ -19,6 +19,25 @@ describe("Rücksprungziel nach der Anmeldung", () => {
       expect(new URL(sichererPfad(w), `${origin}/demnaechst`).origin).toBe(origin);
     }
   });
+  it("Pfade mit Punkt-Teilen, die beim Zerlegen zu „//fremd“ werden, fallen durch (Login und Vorschau-Seite)", () => {
+    const boese = ["/.//evil.example/x", "/..//evil.example", "/a/..//evil.example", "/./\\evil.example", "/%2e//evil.example", "/x/..\\\\evil.example", "/.//evil.example?x=1", "/%2e%2e//evil.example", "/a/b/../..//evil.example"];
+    for (const w of boese) {
+      expect(sichererPfad(w), JSON.stringify(w)).toBe("/");
+      expect(safeCallbackPath(w, origin), JSON.stringify(w)).toBe("/dashboard");
+      // So wertet der Browser das Ergebnis aus: als Adresse relativ zur eigenen Seite.
+      expect(new URL(sichererPfad(w), `${origin}/demnaechst`).origin, JSON.stringify(w)).toBe(origin);
+      expect(new URL(safeCallbackPath(w, origin), `${origin}/login`).origin, JSON.stringify(w)).toBe(origin);
+    }
+    // Punkt-Teile innerhalb der eigenen Seite bleiben erlaubt.
+    expect(safeCallbackPath("/a/../patients?x=1", origin)).toBe("/patients?x=1");
+    expect(sichererPfad("/./ratgeber")).toBe("/ratgeber");
+  });
+  it("kein Ergebnis beginnt mit zwei Schrägstrichen", () => {
+    for (const w of ["/", "/a", "//a", "/.//a", "/..//a", "/\\a", "/a//b", "/?x=//b", "/.///a", "/././/a"]) {
+      expect(sichererPfad(w), JSON.stringify(w)).toMatch(/^\/(?![/\\])/);
+      expect(safeCallbackPath(w, origin), JSON.stringify(w)).toMatch(/^\/(?![/\\])/);
+    }
+  });
   it("kein Text, mehrfacher Wert oder überlang: Ersatz", () => {
     expect(sichererPfad(undefined)).toBe("/");
     expect(sichererPfad(["/a", "/b"])).toBe("/");

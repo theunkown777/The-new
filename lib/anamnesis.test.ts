@@ -17,7 +17,7 @@ describe("Anamnese", () => {
       confirmName: "M. Weber",
     });
     const flags = anamnesisFlags(a);
-    expect(flags[0]).toEqual({ level: "warn", text: "Blutverdünner: Blutungsrisiko bei Eingriffen", detail: "Eliquis 5 mg" });
+    expect(flags[0]).toEqual({ level: "warn", text: "Blutverdünner", detail: "Eliquis 5 mg" });
     expect(flags.map((f) => f.level)).toEqual(["warn", "info", "info"]);
   });
 
@@ -28,5 +28,16 @@ describe("Anamnese", () => {
       confirmName: "M. Weber",
     });
     expect(anamnesisProposalGlobals(a).sort()).toEqual(["bleaching", "bruxismus", "raucher"]);
+  });
+});
+
+// Die Hinweise aus dem Fragebogen nennen nur, was der Patient angegeben hat. Was daraus für die Behandlung folgt,
+// entscheidet die Praxis (lib/zweckbestimmung.ts: keine Therapieempfehlungen, keine Bewertung von Befunden).
+describe("Hinweise aus dem Anamnesebogen", () => {
+  it("nennen die Angabe, kein Risiko und keine Anweisung", async () => {
+    const { QUESTIONS } = await import("@/lib/anamnesis");
+    const texte = QUESTIONS.flatMap((q) => (q.flag ? [q.flag.text] : []));
+    expect(texte.length).toBeGreaterThan(8);
+    for (const t of texte) expect(t, t).not.toMatch(/risiko|prophylaxe|prüfen|ggf\.|:|\bvor\b|wundheilung|nekrose/i);
   });
 });

@@ -35,3 +35,40 @@ describe("journey", () => {
     expect(journey({ proposal: { status: "ABGELEHNT" } }, now)).toMatchObject({ abgelehnt: true, aktuell: null });
   });
 });
+
+// Was der Patient im Portal zum Stand liest, beschreibt den Stand. Es verspricht kein Handeln der Praxis:
+// Gebaut ist nur ein Eintrag bzw. eine Aufgabe für die Praxis („Die Praxis plant Ihren Termin“ wäre eine Zusage).
+describe("Patiententexte des Behandlungswegs versprechen kein Handeln der Praxis", () => {
+  const lies = async (datei: string) => (await import("node:fs")).readFileSync((await import("node:path")).join(process.cwd(), datei), "utf8");
+  const ZUSAGE_DE = /Praxis (plant|meldet|ruft|schickt|sendet|erstellt|prüft|kümmert|bestätigt)|meldet sich|\bfolgt\b|wird geprüft|ruft Sie/i;
+  const ZUSAGE_FREMD = /will (schedule|follow|get back|contact|call|send)|get in touch|contact you|iletişime geç|gönderilecek|planlıyor|skontaktuje|zaplanuje|zostanie przesłan|свяжутся|свяжется|планирует|будет выслан|зв.яжуться|зв.яжеться|планує|буде надіслано|ستتواصل|تحدّد موعدكم|ستصلكم/i;
+
+  it("jeder Satz für Patienten in lib/journey.ts", async () => {
+    const quelle = await lies("lib/journey.ts");
+    const saetze = [...quelle.matchAll(/patient: "([^"]+)"/g)].map((m) => m[1]);
+    expect(saetze.length).toBeGreaterThanOrEqual(10);
+    for (const s of saetze) expect(s, s).not.toMatch(ZUSAGE_DE);
+    expect(saetze).toContain("Danke für Ihr Einverständnis. Es ist bei der Praxis angekommen.");
+  });
+
+  it("jeder dieser Sätze hat seine Übersetzung in allen sechs Sprachen, ebenfalls ohne Zusage", async () => {
+    const quelle = await lies("lib/journey.ts");
+    const portal = await lies("lib/portalI18n.ts");
+    const esc = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    for (const s of new Set([...quelle.matchAll(/patient: "([^"]+)"/g)].map((m) => m[1]))) {
+      const stellen = [...portal.matchAll(new RegExp(`"${esc(s)}": "([^"]+)"`, "g"))].map((m) => m[1]);
+      expect(stellen.length, s).toBe(6);
+      for (const t of stellen) expect(t, `${s} → ${t}`).not.toMatch(ZUSAGE_FREMD);
+    }
+    // Bestätigung der Ratenanfrage (zurzeit unsichtbar, lib/installments.ts): ebenfalls ohne „meldet sich“.
+    for (const m of portal.matchAll(/installmentsDone: "([^"]+)"/g)) {
+      expect(m[1]).not.toMatch(ZUSAGE_DE);
+      expect(m[1]).not.toMatch(ZUSAGE_FREMD);
+    }
+  });
+
+  it("Buchungsseite für neue Patienten: keine Zusage, dass die Praxis sich meldet", async () => {
+    const text = (await lies("components/NeupatientTermin.tsx")).replace("Es meldet sich niemand bei Ihnen.", "");
+    expect(text).not.toMatch(/meldet sich|Sie meldet/);
+  });
+});

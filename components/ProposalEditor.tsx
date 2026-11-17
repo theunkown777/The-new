@@ -37,6 +37,7 @@ import {
   type MedInput,
   type ZuschussJahr,
   festzuschuss2027Amtlich,
+  festzuschussSaetzeText,
 } from "@/lib/proposals";
 import { PatientAuswahl } from "@/components/PatientAuswahl";
 
@@ -427,8 +428,9 @@ export function ProposalEditor({
                     onChange={(e) => setFactors({ ...factors, bonusYears: Number(e.target.value) as 0 | 5 | 10 })}
                   >
                     <option value={0}>kein Bonus</option>
-                    <option value={5}>5 Jahre (70 %)</option>
-                    <option value={10}>10 Jahre (75 %)</option>
+                    {/* Die Sätze hängen am Jahr der Bewilligung (2026: 70/75 %, ab 2027: 60/65 %). */}
+                    <option value={5}>5 Jahre ({Math.round(FESTZUSCHUSS_SAETZE[jahr][5] * 100)} %)</option>
+                    <option value={10}>10 Jahre ({Math.round(FESTZUSCHUSS_SAETZE[jahr][10] * 100)} %)</option>
                   </select>
                 </div>
                 <label className="mt-6 flex items-center gap-2 text-sm text-slate-700">
@@ -450,8 +452,8 @@ export function ProposalEditor({
                   value={jahr}
                   onChange={(e) => setFactors({ ...factors, zuschussJahr: Number(e.target.value) as ZuschussJahr })}
                 >
-                  <option value={2026}>bis 31.12.2026 (60/70/75 %)</option>
-                  <option value={2027}>ab 1.1.2027 (50/60/65 %)</option>
+                  <option value={2026}>bis 31.12.2026 ({festzuschussSaetzeText(2026, "/")})</option>
+                  <option value={2027}>ab 1.1.2027 ({festzuschussSaetzeText(2027, "/")})</option>
                 </select>
               </div>
             )}

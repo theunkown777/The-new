@@ -15,8 +15,16 @@ describe("Dienstleister (AVV-Muster und /vertrauen)", () => {
 
   it("der KI-Dienst nennt, was vorher ersetzt wird", () => {
     const ki = DIENSTE.find((d) => d.dienst.startsWith("Anthropic"))!;
-    expect(ki.daten).toMatch(/Namen, Geburtsdatum, Versichertennummer/);
+    expect(ki.daten).toMatch(/Name der Patientin oder des Patienten, Geburtsdatum, Versichertennummer/);
     expect(ki.daten).toMatch(/Platzhalter/);
+    // Ein Foto oder PDF lässt sich nicht bereinigen (lib/kiHilfen.ts kiPreislisteLesen).
+    expect(ki.daten).toMatch(/Preisliste \(Foto oder PDF\) geht unverändert an den KI-Dienst/);
+  });
+
+  it("der E-Mail-Dienst bekommt den Anlass eines Termins nicht, aber die Kurzmeldung über Fehler", () => {
+    const mail = DIENSTE.find((d) => d.dienst.startsWith("Resend"))!;
+    expect(mail.daten).not.toMatch(/Anlass/);
+    expect(mail.daten).toMatch(/Kurzmeldung über neue Fehler mit Anzahl und Ort, ohne Meldungstext/);
   });
 
   it("verspricht nichts", () => {

@@ -4,7 +4,8 @@
 // Grundsatz: Im Fehlerlog dürfen keine Patientendaten landen. Deshalb wird lieber zu viel
 // entfernt als zu wenig. Übrig bleibt, WAS schiefging und WO, nicht MIT WELCHEN Daten.
 // Meldungen des Servers: Muster werden entfernt (meldungBereinigen). Meldungen aus dem Browser:
-// zusätzlich bleibt nur stehen, was auf einer Liste technischer Wörter steht (browserMeldungBereinigen).
+// zusätzlich bleibt nur stehen, was auf einer Liste technischer Wörter steht (browserMeldungBereinigen),
+// und vom Ort bleiben nur die festen Namen unserer Seiten (browserOrtBereinigen).
 
 export const MELDUNG_MAX = 300;
 export const ORT_MAX = 160;
@@ -43,6 +44,40 @@ export function ortBereinigen(roh: unknown): string {
   return sauber.length > ORT_MAX ? `${sauber.slice(0, ORT_MAX - 1)}${LUECKE}` : sauber;
 }
 
+// Feste Namen der Seiten: jeder Ordner unter app/ (ohne app/api), in dem eine Seite liegt. Der Test
+// lib/fehlerlog.test.ts liest die Ordner und schlägt fehl, wenn hier ein Name fehlt.
+export const SEITEN_TEILE: ReadonlySet<string> = new Set(
+  `a abrechnung abrechnungspruefung abschluss accept-invite analyse anamnese anatomie andere anfragen
+  ausfallhonorar-versaeumter-termin avv betrieb billing bonusheft catalog connector dashboard datenschutz demnaechst
+  demo eigenanteil-zahnersatz eingang embed empfang fachgebiet fachgebiete festzuschuss-2027 forgot-password fragen
+  gebiss goae-rechnung goae-rechnung-erklaeren haertefall-zahnersatz heil-und-kostenplan-verstehen heilmittel-zuzahlung
+  hilfe hilfe-praxis hilfsmittel-zuzahlung-mehrkosten igel-vereinbarung import impressum koerper
+  kostenerstattung-psychotherapie launch leistungen leistungsverzeichnis lesen lexikon lizenzen login
+  manifest.webmanifest mehrkostenvereinbarung mein-bereich modell modelle nachfassen neu new p patient patients portal
+  praxis praxismanager preisliste privatpatienten-beihilfe-erstattung professionelle-zahnreinigung proposal proposals
+  protokoll ratgeber rechner register report reports reset-password rueckmeldung schnell security
+  selbstzahler-physiotherapie settings standorte status t team templates termin termine uebergabe unterschrift
+  vereinbarung verify-email vertrauen vorschau vorschlag vorsorge vorsorge-kassenleistung-oder-igel website wirkung
+  wirtschaftliche-aufklaerung-630c-bgb zahlungen zahnmedizin zuzahlung-2027 zuzahlungen-2027
+  zuzahlungsbefreiung-belastungsgrenze`
+    .split(/\s+/).filter(Boolean),
+);
+/** Höchstens so viele Pfadteile bleiben vom Ort einer Browser-Meldung. */
+export const BROWSER_ORT_TEILE_MAX = 8;
+
+/**
+ * Ort einer Meldung aus dem Browser. Diese Meldungen kann jeder ohne Anmeldung schicken (app/api/fehler/route.ts),
+ * der Ort ist dabei frei wählbar. Ein Name oder ein anderes Wort im Pfad sieht aus wie ein Seitenname. Deshalb
+ * bleibt hier nur stehen, was ein fester Name unserer Seiten ist (SEITEN_TEILE). Jeder andere Pfadteil wird zu „…“,
+ * auch IDs, Tokens und Platzhalter.
+ */
+export function browserOrtBereinigen(roh: unknown): string {
+  // Herkunft, Abfrage-Teil und Sprungmarke fallen weg wie bei ortBereinigen
+  const pfad = String(roh ?? "").trim().slice(0, 2000).replace(/^[a-z][a-z0-9+.-]*:\/\/[^/?#]*/i, "").split(/[?#]/)[0];
+  const teile = pfad.split("/").filter(Boolean).slice(0, BROWSER_ORT_TEILE_MAX);
+  return `/${teile.map((t) => (SEITEN_TEILE.has(t) ? t : LUECKE)).join("/")}`;
+}
+
 // Ab diesen Stellen folgen in Datenbank- und Prüfmeldungen die betroffenen Werte: alles danach fällt weg.
 const ABSCHNEIDEN = [
   /unique constraint failed on/i,
@@ -67,6 +102,9 @@ const ABSCHNEIDEN = [
   /\bpayload:\s*/i,
 ];
 
+/** Eine Meldung für jedes unlesbare JSON, gleich an welcher Stelle der Text kaputt war. */
+export const JSON_MELDUNG = "SyntaxError: JSON nicht lesbar";
+
 // Aufrufe wie `prisma.patient.create()` sagen nur, welche Abfrage es war. Sie bleiben stehen.
 const PRISMA_AUFRUF = /^prisma\.[A-Za-z$_][\w$]{0,40}\.[A-Za-z$_][\w$]{0,40}\(\)$/;
 
@@ -79,6 +117,10 @@ export function meldungBereinigen(roh: unknown): string {
   let t = typeof roh === "string" ? roh : roh instanceof Error ? roh.message : String(roh ?? "");
   // Vorab begrenzen, damit sehr lange Eingaben keine Zeit kosten
   t = t.slice(0, 4000).replace(/\s+/g, " ").trim();
+
+  // Unlesbares JSON: Die Meldung nennt die Stelle im Text („at position 6“) und ein Stück der Eingabe. Wer kaputte
+  // Eingaben schickt, bekäme sonst mit jeder Stelle einen eigenen Eintrag. Alle Fälle werden zu einer Meldung.
+  if (/\bJSON\b/.test(t) && /(in JSON at position|is not valid JSON|JSON input|JSON\.parse|JSON at position|JSON Parse error)/i.test(t)) return JSON_MELDUNG;
 
   for (const muster of ABSCHNEIDEN) {
     const m = muster.exec(t);
@@ -243,8 +285,9 @@ export interface FehlerSauber {
 /** Alles in einem Schritt: So und nur so kommt ein Fehler in die Datenbank. */
 export function fehlerAufbereiten(roh: FehlerRoh): FehlerSauber {
   const quelle: FehlerQuelle = roh.quelle === "browser" ? "browser" : "server";
-  const ort = ortBereinigen(roh.ort);
-  // Browser: zusätzlich nur Wörter von der Liste (siehe browserMeldungBereinigen)
+  // Browser: vom Ort nur feste Seitennamen (browserOrtBereinigen), von der Meldung nur Wörter von der Liste
+  // (browserMeldungBereinigen)
+  const ort = quelle === "browser" ? browserOrtBereinigen(roh.ort) : ortBereinigen(roh.ort);
   const meldung = quelle === "browser" ? browserMeldungBereinigen(roh.meldung) : meldungBereinigen(roh.meldung);
   return { quelle, ort, meldung, stack: stackBereinigen(roh.stack), fingerabdruck: fingerabdruck(quelle, ort, meldung) };
 }

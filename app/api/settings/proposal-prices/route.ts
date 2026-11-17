@@ -21,7 +21,7 @@ export async function PATCH(req: Request) {
   const { session, error } = await requireAdmin();
   if (!session) return error;
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
   const parsed = priceOverridesSchema.safeParse(body?.prices);
   if (!parsed.success) {
     return NextResponse.json(

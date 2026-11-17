@@ -16,6 +16,7 @@ import {
   money,
   showsJahresvergleich,
   tageBisStichtag,
+  wort2027,
   type PatientFactors,
   type ProposalItem,
 } from "@/lib/proposals";
@@ -134,7 +135,7 @@ export function buildNextSteps(args: {
         id: "frist2027",
         owner: "Rezeption",
         text: `HKP bis 31.12.2026 bewilligen lassen (noch ${tage} ${tage === 1 ? "Tag" : "Tage"})`,
-        detail: `Bei Bewilligung ab 1.1.2027 zahlt der Patient ca. ${formatEuro(zeMehrkosten2027)} mehr.`,
+        detail: `Bei Bewilligung ab 1.1.2027 zahlt der Patient ${wort2027("dahinter")}ca. ${formatEuro(zeMehrkosten2027)} mehr.`,
         urgent: true,
       });
     }

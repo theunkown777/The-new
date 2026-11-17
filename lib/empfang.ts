@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { signaturSecret } from "@/lib/geheimnis";
+import { gleichSicher } from "@/lib/gleichSicher";
 
 // Empfangsmodus: Das Praxis-Tablet geht für ein paar Minuten in die Hand eines Patienten.
 // Grundsätze:
@@ -89,7 +90,7 @@ export interface Uebergabe {
 
 const b64 = (s: string) => Buffer.from(s, "utf8").toString("base64url");
 const sig = (s: string) => crypto.createHmac("sha256", signaturSecret()).update(`uebergabe:${s}`).digest("base64url");
-const gleich = (a: string, b: string) => a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+const gleich = gleichSicher;
 
 export function uebergabeToken(a: { practiceId: string; patientId: string; zwecke: UebergabeZweck[] }, now = Date.now()): string {
   const inhalt = b64(JSON.stringify({ p: a.practiceId, pt: a.patientId, z: a.zwecke, v: now, b: now + UEBERGABE_MINUTEN * 60_000, n: crypto.randomBytes(6).toString("base64url") }));

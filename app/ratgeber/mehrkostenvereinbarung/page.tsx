@@ -49,8 +49,8 @@ export default function Page() {
 
       <h2>So sprechen Sie es an</h2>
       <blockquote className="border-l-4 border-brand-300 pl-4 italic text-slate-600">
-        „Ihre Kasse bezahlt eine haltbare Füllung ohne Zuzahlung. Alternativ kann ich eine Kunststofffüllung in Schichttechnik legen,
-        die dichter abschließt und zahnfarben ist. Dafür zahlen Sie etwa 105 Euro dazu. Beides ist in Ordnung.“
+        „Ihre Kasse bezahlt eine Füllung ohne Zuzahlung. Stattdessen kann ich eine Kunststofffüllung in Schichttechnik legen,
+        die zahnfarben ist. Dafür zahlen Sie etwa 105 Euro dazu. Sie entscheiden.“
       </blockquote>
     </ArticlePage>
   );

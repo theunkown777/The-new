@@ -35,11 +35,15 @@ export function KiHilfenSettings({ ein: start, verfuegbar, darfAendern }: { ein:
         <li>Name und Kurzbeschreibung einer eigenen Leistung, wenn Sie sie übersetzen lassen.</li>
       </ul>
 
-      <h3 className="mt-3 font-medium text-slate-900">Das geht nie an den KI-Dienst</h3>
+      <h3 className="mt-3 font-medium text-slate-900">Das schicken die KI-Hilfen von sich aus nicht mit</h3>
       <ul className="mt-1 list-disc space-y-1 pl-5 text-slate-600">
-        <li>Namen, Geburtsdaten, Versichertennummern und Kontaktdaten von Patienten.</li>
+        <li>Namen, Geburtsdaten, Versichertennummern und Kontaktdaten aus den Patientendaten in Sorrida.</li>
         <li>Akten, Befunde, Vorschläge, Rechnungen und Nachrichten.</li>
       </ul>
+      <p className="mt-2 text-slate-600" data-testid="ki-hilfen-preisliste-hinweis">
+        Eine hochgeladene Preisliste (Foto oder PDF) geht unverändert an den KI-Dienst, mit allem, was darauf steht. Laden Sie nur die Preisliste
+        hoch, ohne Briefkopf mit Personennamen und ohne Patientendaten.
+      </p>
       <p className="mt-2 text-slate-600">
         Vor dem Senden entfernt Sorrida aus Ihren Texten bekannte Namen, Telefonnummern, E-Mail-Adressen, Datumsangaben und Versichertennummern.
         Das erkennt nicht jede Schreibweise. Bitte tragen Sie in diese Felder deshalb selbst keine Namen und keine Geburtsdaten ein.

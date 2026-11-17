@@ -32,13 +32,20 @@ export type EntsperrErgebnis =
   /** Der Server kennt diese Parkung nicht (mehr): schon entsperrt, verworfen oder abgelaufen. Die PIN wird nicht geprüft. */
   | { art: "keine-sitzung" }
   | { art: "keine-pin" }
+  /** Die zweite Bremse je Praxis hat gegriffen (siehe `bremse`). Die PIN wurde nicht verglichen. */
+  | { art: "zu-viele" }
   | PinErgebnis;
 
 /**
  * Eine PIN-Eingabe prüfen und den Zähler fortschreiben, in einem Schritt je Praxis.
  * Bei „ok“ ist die Parkung danach verbraucht, bei „verwerfen“ sind alle Parkungen der Praxis gelöscht.
+ *
+ * `bremse` ist eine zweite Grenze je Praxis (app/api/empfang/entsperren/route.ts). Sie wird erst gefragt, wenn der
+ * Server die Parkung kennt, eine PIN festgelegt ist und die PIN nicht gesperrt ist, also unmittelbar vor einem
+ * echten Vergleich. Anfragen mit einem verbrauchten, verworfenen oder abgelaufenen Cookie-Wert verbrauchen sie
+ * nicht: Wer einen alten Wert kopiert hat, kann der Praxis den Rückweg per PIN damit nicht versperren.
  */
-export async function pinEntsperren(a: { practiceId: string; kennung: string | null; pin: string }, now = new Date()): Promise<EntsperrErgebnis> {
+export async function pinEntsperren(a: { practiceId: string; kennung: string | null; pin: string; bremse?: () => Promise<boolean> }, now = new Date()): Promise<EntsperrErgebnis> {
   if (!a.kennung) return { art: "keine-sitzung" };
   const id = parkKennungHash(a.kennung);
   return prisma.$transaction(async (tx) => {
@@ -49,7 +56,9 @@ export async function pinEntsperren(a: { practiceId: string; kennung: string | n
     if (!praxis?.empfangPinHash) return { art: "keine-pin" } as const;
     const stand = { fehlversuche: praxis.empfangPinFehlversuche, sperren: praxis.empfangPinSperren, gesperrtBis: praxis.empfangPinGesperrtBis };
     // Während der Sperre wird die PIN gar nicht erst verglichen.
-    const richtig = !pinGesperrt(stand, now) && /^\d{4}$/.test(a.pin) && (await bcrypt.compare(a.pin, praxis.empfangPinHash));
+    const gesperrt = pinGesperrt(stand, now);
+    if (!gesperrt && a.bremse && !(await a.bremse())) return { art: "zu-viele" } as const;
+    const richtig = !gesperrt && /^\d{4}$/.test(a.pin) && (await bcrypt.compare(a.pin, praxis.empfangPinHash));
     const erg = pinVersuch(stand, richtig, now);
     if (erg.stand !== stand) {
       await tx.practice.update({ where: { id: a.practiceId }, data: { empfangPinFehlversuche: erg.stand.fehlversuche, empfangPinSperren: erg.stand.sperren, empfangPinGesperrtBis: erg.stand.gesperrtBis } });

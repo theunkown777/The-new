@@ -6,7 +6,14 @@ export function safeCallbackPath(callbackUrl: string | null | undefined, origin:
   try {
     const target = new URL(callbackUrl, origin);
     if (target.origin !== origin) return ersatz;
-    return target.pathname + target.search;
+    const ziel = target.pathname + target.search;
+    // „/.//fremd.example“ oder „/..//fremd.example“ bleiben beim Zerlegen auf der eigenen Seite, der Pfad wird
+    // dabei aber zu „//fremd.example“. Das liest der Browser als fremden Host. Deshalb: Das Ergebnis darf nicht
+    // mit zwei Schrägstrichen (oder Schrägstrich und Rückstrich) beginnen und muss, noch einmal gelesen, auf der
+    // eigenen Seite bleiben.
+    if (!/^\/(?![/\\])/.test(ziel)) return ersatz;
+    if (new URL(ziel, origin).origin !== origin) return ersatz;
+    return ziel;
   } catch {
     return ersatz;
   }

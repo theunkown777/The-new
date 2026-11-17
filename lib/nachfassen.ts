@@ -49,6 +49,14 @@ export interface NachfassZeile {
 
 const tage = (von: Date, bis: Date) => Math.max(0, Math.floor((bis.getTime() - von.getTime()) / 864e5));
 
+/**
+ * Was die Praxis bei einem Link tun kann, den der Patient nicht geöffnet hat. Erinnern (anrufen, Nachricht) nennt Sorrida
+ * nur, wenn die Einwilligung in Erinnerungen dokumentiert ist (Patient.nachfassConsentAt, § 7 Abs. 2 UWG). Sonst bleibt
+ * das Gespräch beim nächsten Termin.
+ */
+export const ungeoeffnetTun = (einwilligung: boolean) => (einwilligung ? "erinnern oder beim nächsten Termin ansprechen" : "beim nächsten Termin ansprechen");
+const satz = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}.`;
+
 export function nachfassZeile(p: NachfassQuelle, prices: Prices, now = new Date()): NachfassZeile | null {
   if (p.status !== "ENTWURF" && p.status !== "BESPROCHEN") return null;
   const input = proposalInputSchema.safeParse(p.input);
@@ -64,6 +72,7 @@ export function nachfassZeile(p: NachfassQuelle, prices: Prices, now = new Date(
       : null;
 
   const linkAktiv = !!p.shareExpiresAt && p.shareExpiresAt > now;
+  const einwilligung = !!p.patient.nachfassConsentAt;
   let stand: NachfassStand, standText: string, tun: string;
   if (p.agreedAt) {
     stand = "unterschrieben";
@@ -76,11 +85,11 @@ export function nachfassZeile(p: NachfassQuelle, prices: Prices, now = new Date(
   } else if (p.patientViewedAt) {
     stand = "geoeffnet";
     standText = `geöffnet vor ${tage(p.patientViewedAt, now)} Tagen, keine Antwort`;
-    tun = "Freundlich nachfragen, ob noch Fragen offen sind.";
+    tun = einwilligung ? "Freundlich nachfragen, ob noch Fragen offen sind." : "Beim nächsten Termin fragen, ob noch Fragen offen sind.";
   } else if (p.shareCreatedAt) {
     stand = "nicht-geoeffnet";
     standText = linkAktiv ? `Link seit ${tage(p.shareCreatedAt, now)} Tagen nicht geöffnet` : "Link abgelaufen, nicht geöffnet";
-    tun = "Erinnern oder beim nächsten Termin ansprechen.";
+    tun = satz(ungeoeffnetTun(einwilligung));
   } else {
     stand = "ohne-link";
     standText = "noch kein Link gesendet";

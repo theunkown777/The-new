@@ -8,7 +8,7 @@ import { SITZUNG_MAX_SEKUNDEN } from "@/lib/sitzung";
 
 export interface Punkt { titel: string; text: string; beleg: string }
 
-export const VERTRAUEN_STAND = "16.11.2026";
+export const VERTRAUEN_STAND = "17.11.2026";
 
 /** Wo die Daten liegen. */
 export const ORT: Punkt[] = [
@@ -29,20 +29,25 @@ export const ORT: Punkt[] = [
   },
 ];
 
-/** Was an den KI-Dienst geht und was nie. */
+/** Was an den KI-Dienst geht und was Sorrida vorher durch Platzhalter ersetzt. */
 export const KI_GEHT: string[] = [
   "Erfasste Leistungen, Diktat und Akteneinträge, wenn die Praxis einen Entwurf anfordert.",
   "Nur wenn die Praxisleitung die KI-Hilfen einschaltet und jemand den KI-Knopf drückt: Stichworte aus dem Gespräch, die Preisliste der Praxis, eine Frage zur Bedienung, Name und Hinweis einer eigenen Leistung. Der Schalter steht am Anfang auf aus.",
 ];
-export const KI_NIE: string[] = [
-  "Namen",
+/**
+ * Was Sorrida vor dem Versand durch Platzhalter ersetzt (lib/anthropic.ts, lib/kiHilfen.ts). Kein „nie“:
+ * Im freien Text erkennt Sorrida nur Namen, die es kennt, und ein Foto oder PDF lässt sich nicht bereinigen.
+ */
+export const KI_ERSETZT: string[] = [
+  "Name der Patientin oder des Patienten",
   "Geburtsdatum",
   "Versichertennummer",
   "E-Mail-Adressen und Telefonnummern",
 ];
 export const KI_HINWEISE: string[] = [
-  "Diese Angaben werden vor dem Versand durch Platzhalter ersetzt.",
-  "Freier Text kann trotzdem Angaben enthalten, die auf eine Person schließen lassen. Deshalb gehört in ein Diktat nur, was für den Text nötig ist.",
+  "Im freien Text erkennt Sorrida nur den Namen der Patientin oder des Patienten. Andere Namen bleiben stehen.",
+  "Freier Text kann auch sonst Angaben enthalten, die auf eine Person schließen lassen. Deshalb gehört in ein Diktat nur, was für den Text nötig ist.",
+  "Eine hochgeladene Preisliste (Foto oder PDF) geht unverändert an den KI-Dienst, mit allem, was darauf steht. Laden Sie nur die Preisliste hoch, ohne Briefkopf mit Personennamen und ohne Patientendaten.",
   "Was die KI liefert, ist als Entwurf gekennzeichnet. Ein Mensch aus der Praxis prüft den Text, bevor er verwendet wird.",
   "Die Software verschickt keine Nachricht an Patienten von selbst. Jede Nachricht löst ein Mensch aus der Praxis aus.",
 ];
@@ -86,8 +91,8 @@ export const SCHUTZ: Punkt[] = [
   },
   {
     titel: "Fehlerberichte ohne Patientendaten",
-    text: "Tritt ein Fehler auf, speichert Sorrida den Ort und eine gekürzte Meldung. Namen, Adressen, Nummern und Texte in Anführungszeichen werden vorher entfernt. Ein fremder Dienst ist daran nicht beteiligt.",
-    beleg: "lib/fehlerlog.ts",
+    text: "Tritt ein Fehler auf, speichert Sorrida den Ort und eine gekürzte Meldung. Namen, Adressen, Nummern und Texte in Anführungszeichen werden vorher entfernt. Die Einträge liegen in der Datenbank von Sorrida. Über neue Fehler geht einmal am Tag eine E-Mail an den Betreiber, mit Anzahl und Ort und ohne Meldungstext.",
+    beleg: "lib/fehlerlog.ts, lib/fehlerSpeicher.ts",
   },
 ];
 
@@ -101,5 +106,5 @@ export const NOCH_NICHT: Punkt[] = [
 
 /** Alle Sätze der Seite, für die Prüfung der Wortwahl. */
 export function alleTexte(): string[] {
-  return [...ORT, ...SCHUTZ, ...NOCH_NICHT].flatMap((p) => [p.titel, p.text]).concat(KI_GEHT, KI_NIE, KI_HINWEISE);
+  return [...ORT, ...SCHUTZ, ...NOCH_NICHT].flatMap((p) => [p.titel, p.text]).concat(KI_GEHT, KI_ERSETZT, KI_HINWEISE);
 }

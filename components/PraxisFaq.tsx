@@ -12,8 +12,8 @@ export function PraxisFaq({ therapie = false, dental = false, journal = false, a
     [
       "Ist das nicht Verkaufen am Patienten?",
       therapie
-        ? "Nein. Sorrida zeigt zuerst, was auf Verordnung möglich ist, und rechnet die Zuzahlung korrekt. Selbstzahler-Einheiten stehen daneben, mit Preis und Hinweis auf Kassenzuschüsse. Empfohlen wird nichts von sich aus."
-        : "Nein. Die Kassenleistung steht immer zuerst und ist immer vorausgewählt. Bei jeder Selbstzahlerleistung steht, was über den Nutzen bekannt ist. Was hervorgehoben wird, klickt die Praxis an; Sorrida empfiehlt nichts von sich aus. Das entspricht dem, was Patientenvertreter fordern: Information, Bedenkzeit und Kosten vorab.",
+        ? "Nein. Sorrida zeigt zuerst, was auf Verordnung möglich ist, und rechnet die gesetzliche Zuzahlung nach § 32 und § 61 SGB V. Selbstzahler-Einheiten stehen daneben, mit Preis und Hinweis auf Kassenzuschüsse. Empfohlen wird nichts von sich aus."
+        : "Nein. Die Kassenleistung steht immer zuerst und ist immer vorausgewählt. Wo ein Nutzen nicht belegt ist, steht das beim Angebot. Was hervorgehoben wird, klickt die Praxis an; Sorrida empfiehlt nichts von sich aus. Das entspricht dem, was Patientenvertreter fordern: Information, Bedenkzeit und Kosten vorab.",
     ],
     [
       // Keine Aussage „erfüllt § 630c“: Ob die Information im Einzelfall genügt, entscheidet die Praxis (Prüfbericht A16, T10).
@@ -32,8 +32,8 @@ export function PraxisFaq({ therapie = false, dental = false, journal = false, a
       "Wo liegen die Daten?",
       <>
         Anwendung und Datenbank laufen in Rechenzentren in Frankfurt am Main. Die Betreiber sind US-Unternehmen. Für E-Mail-Versand und die
-        Formulierung von Berichtsentwürfen nutzen wir Dienste mit Verarbeitung in den USA; an den KI-Dienst gehen keine Namen, kein
-        Geburtsdatum und keine Versichertennummer. Alle Dienstleister stehen im{" "}
+        Formulierung von Berichtsentwürfen nutzen wir Dienste mit Verarbeitung in den USA; den Namen des Patienten, Geburtsdatum, Versichertennummer und
+        Kontaktdaten ersetzen wir vorher durch Platzhalter. Alle Dienstleister stehen im{" "}
         <Link href="/avv" className="underline">
           AVV-Muster
         </Link>

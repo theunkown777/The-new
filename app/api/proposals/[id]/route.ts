@@ -38,7 +38,7 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(

@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { signaturSecret } from "@/lib/geheimnis";
+import { gleichSicher } from "@/lib/gleichSicher";
 
 // Online-Zahlung im Patientenportal über Stripe Connect.
 // - Jede Praxis verbindet ihr eigenes Stripe-Konto (OAuth). Zahlungen laufen
@@ -44,7 +45,7 @@ export function connectStatePruefen(state: string | null, practiceId: string, no
   const [pid, exp, sig] = state.split(".");
   if (pid !== practiceId || !exp || !sig || Number(exp) < now) return false;
   const soll = crypto.createHmac("sha256", secret()).update(`stripe:${pid}.${exp}`).digest("base64url");
-  return soll.length === sig.length && crypto.timingSafeEqual(Buffer.from(soll), Buffer.from(sig));
+  return gleichSicher(soll, sig);
 }
 
 export function connectUrl(clientId: string, state: string, redirectUri: string): string {
@@ -81,7 +82,7 @@ export function signaturGueltig(body: string, header: string | null, webhookSecr
   const v1 = teile.filter(([k]) => k === "v1").map(([, v]) => v);
   if (!t || !v1.length || Math.abs(now / 1000 - Number(t)) > toleranzSek) return false;
   const soll = crypto.createHmac("sha256", webhookSecret).update(`${t}.${body}`).digest("hex");
-  return v1.some((v) => v.length === soll.length && crypto.timingSafeEqual(Buffer.from(v), Buffer.from(soll)));
+  return v1.some((v) => gleichSicher(v, soll));
 }
 
 export type StripeEreignis = {

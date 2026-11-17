@@ -98,8 +98,8 @@ export default function Page() {
         </tbody>
       </table>
       <p>
-        Patienten kennen diese Bewertungen oft schon. Wer sie von sich aus nennt und trotzdem erklärt, für wen die Leistung im
-        Einzelfall sinnvoll sein kann, wirkt glaubwürdiger als jedes Faltblatt.
+        Patienten kennen diese Bewertungen oft schon. Wer sie von sich aus nennt und erklärt, für wen die Leistung im
+        Einzelfall in Frage kommt, wirkt glaubwürdiger als jedes Faltblatt.
       </p>
 
       <h2>In drei Sätzen erklärt</h2>

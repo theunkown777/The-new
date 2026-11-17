@@ -19,7 +19,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "sportkardio", abAlter: 14, label: "Sportkardiologische Untersuchung", bereich: "Sport",
       options: [
-        { id: "ka_sport", name: "Belastungs-EKG und Herzultraschall vor Leistungssport", type: "igel", price: 180, benefits: ["Sicherheit vor intensivem Training"], kasseWenn: "Bei Beschwerden oder Vorerkrankung Kassenleistung." },
+        { id: "ka_sport", name: "Belastungs-EKG und Herzultraschall vor Leistungssport", type: "igel", price: 180, benefits: ["Untersuchung vor intensivem Training"], kasseWenn: "Bei Beschwerden oder Vorerkrankung Kassenleistung." },
       ],
     },
   ],
@@ -57,7 +57,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "nagelspange", label: "Eingewachsener Nagel", bereich: "Nagel",
       options: [
         { id: "po_spange_kasse", name: "Nagelkorrekturspange auf Verordnung", type: "kasse", price: 0, zuzahlung: "heilmittel", benefits: ["Heilmittel bei entsprechender Diagnose"] },
-        { id: "po_spange_privat", name: "Nagelkorrekturspange privat", type: "igel", price: 70, benefits: ["schmerzarm, ohne OP"] },
+        { id: "po_spange_privat", name: "Nagelkorrekturspange privat", type: "igel", price: 70, benefits: ["ohne Operation"] },
       ],
     },
     {
@@ -71,7 +71,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "akupunktur_hp", label: "Akupunktur", bereich: "Behandlung",
       options: [
-        { id: "hp_akup", name: "Akupunktur (je Sitzung)", type: "igel", price: 55, benefits: ["Orientierung am Gebührenverzeichnis für Heilpraktiker"], kasseWenn: "Private Zusatzversicherungen erstatten oft anteilig.", nutzen: "Belegt vor allem bei chronischem Kreuz- und Knieschmerz." },
+        { id: "hp_akup", name: "Akupunktur (je Sitzung)", type: "igel", price: 55, benefits: ["Orientierung am Gebührenverzeichnis für Heilpraktiker"], kasseWenn: "Private Zusatzversicherungen erstatten oft anteilig." },
       ],
     },
   ],
@@ -82,21 +82,21 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
         { id: "uro_inko_diag", name: "Abklärung (Urin, Ultraschall, Restharn)", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
         { id: "uro_inko_bb", name: "Beckenbodentraining in der Physiotherapie", type: "kasse", price: 0, zuzahlung: "heilmittel", benefits: ["Heilmittel auf Verordnung"] },
         { id: "uro_inko_hm", name: "Inkontinenzhilfsmittel auf Rezept", type: "kasse", price: 0, zuzahlung: "hilfsmittel", benefits: ["Kassenleistung mit Zuzahlung"] },
-        { id: "uro_inko_magnet", zusatz: true, name: "Magnetstimulation des Beckenbodens", type: "igel", price: 40, benefits: ["ohne Ausziehen, im Sitzen"], nutzen: "Wirkung nur in kleinen Studien belegt; Beckenbodentraining ist die Basis." },
+        { id: "uro_inko_magnet", zusatz: true, name: "Magnetstimulation des Beckenbodens", type: "igel", price: 40, benefits: ["ohne Ausziehen, im Sitzen"], nutzen: "Nur in kleinen Studien untersucht." },
       ],
     },
     {
       id: "hwi", label: "Wiederkehrende Harnwegsinfekte", bereich: "Blase",
       options: [
         { id: "uro_hwi_kultur", name: "Urinkultur und gezielte Behandlung", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-        { id: "uro_hwi_immun", zusatz: true, name: "Immunprophylaxe (orale Impfung gegen Harnwegsinfekte)", type: "igel", price: 60, benefits: ["kann Infekte seltener machen"], kasseWenn: "Manche Kassen erstatten auf Antrag.", nutzen: "Nutzen für einen Teil der Betroffenen belegt." },
+        { id: "uro_hwi_immun", zusatz: true, name: "Immunprophylaxe (orale Impfung gegen Harnwegsinfekte)", type: "igel", price: 60, benefits: ["Kapseln zum Einnehmen"], kasseWenn: "Manche Kassen erstatten auf Antrag." },
       ],
     },
     {
       id: "maennergesundheit", geschlecht: "M", label: "Männergesundheit und Erektionsstörung", bereich: "Männergesundheit",
       options: [
         { id: "uro_ed_diag", name: "Abklärung der Ursache (Labor, Gefäße, Hormone)", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
-        { id: "uro_ed_swt", zusatz: true, name: "Stoßwellentherapie bei Erektionsstörung (je Sitzung)", type: "igel", price: 150, benefits: ["ohne Medikamente"], nutzen: "Wirkung vor allem bei leichter, gefäßbedingter Störung untersucht; Ergebnisse uneinheitlich." },
+        { id: "uro_ed_swt", zusatz: true, name: "Stoßwellentherapie bei Erektionsstörung (je Sitzung)", type: "igel", price: 150, benefits: ["ohne Medikamente"], nutzen: "In Studien untersucht; die Ergebnisse sind uneinheitlich." },
       ],
     },
     {
@@ -111,7 +111,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "verhuetung", geschlecht: "W", abAlter: 12, bisAlter: 55, label: "Verhütung", bereich: "Verhütung",
       options: [
         { id: "gyn_pille", name: "Pille auf Kassenrezept", type: "kasse", price: 0, benefits: ["bis zum 22. Geburtstag Kassenleistung, ab 18 mit Zuzahlung"] },
-        { id: "gyn_spirale", name: "Hormon- oder Kupferspirale inklusive Einlage", type: "igel", price: 350, benefits: ["mehrere Jahre wirksam"], kasseWenn: "Bis zum 22. Geburtstag zahlt die Kasse das Verhütungsmittel auf Kassenrezept." },
+        { id: "gyn_spirale", name: "Hormon- oder Kupferspirale inklusive Einlage", type: "igel", price: 350, benefits: ["Verhütung über mehrere Jahre"], kasseWenn: "Bis zum 22. Geburtstag zahlt die Kasse das Verhütungsmittel auf Kassenrezept." },
       ],
     },
     {
@@ -125,7 +125,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "hpv", geschlecht: "W", abAlter: 9, bisAlter: 45, label: "HPV-Impfung", bereich: "Impfung",
       options: [
         { id: "gyn_hpv_kasse", name: "HPV-Impfung nach STIKO (9 bis 14 Jahre, Nachholimpfung bis 17)", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-        { id: "gyn_hpv_privat", name: "HPV-Impfung als Erwachsene (je Dosis)", type: "igel", price: 160, benefits: ["Schutz vor Gebärmutterhalskrebs-Vorstufen"], kasseWenn: "Viele Kassen erstatten auch später, oft bis 26; vorher fragen." },
+        { id: "gyn_hpv_privat", name: "HPV-Impfung als Erwachsene (je Dosis)", type: "igel", price: 160, benefits: ["Impfung gegen humane Papillomviren"], kasseWenn: "Viele Kassen erstatten auch später, oft bis 26; vorher fragen." },
       ],
     },
   ],
@@ -149,14 +149,14 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "haare", label: "Haarausfall", bereich: "Haare",
       options: [
         { id: "haut_haar_diag", name: "Abklärung der Ursache", type: "kasse", price: 0, benefits: ["Kassenleistung bei krankhaftem Haarausfall"] },
-        { id: "haut_trichogramm", zusatz: true, name: "Trichogramm / Haaranalyse", type: "igel", price: 45, benefits: ["genaue Zählung der Haarwachstumsphasen"] },
+        { id: "haut_trichogramm", zusatz: true, name: "Trichogramm / Haaranalyse", type: "igel", price: 45, benefits: ["Zählung der Haarwachstumsphasen"] },
       ],
     },
     {
       id: "akne", label: "Akne und Hautbild", bereich: "Haut",
       options: [
         { id: "haut_akne_kasse", name: "Medizinische Aknetherapie", type: "kasse", price: 0, benefits: ["Kassenleistung bei Akne"] },
-        { id: "haut_peeling", zusatz: true, name: "Chemisches Peeling (je Sitzung)", type: "igel", price: 90, benefits: ["glattere Haut"], nutzen: "Ergänzung, ersetzt keine Aknetherapie." },
+        { id: "haut_peeling", zusatz: true, name: "Chemisches Peeling (je Sitzung)", type: "igel", price: 90, benefits: ["Peeling der oberen Hautschicht"], nutzen: "Ergänzung, ersetzt keine Aknetherapie." },
       ],
     },
   ],
@@ -165,14 +165,14 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "trockenes_auge", label: "Trockenes Auge", bereich: "Oberfläche",
       options: [
         { id: "au_trocken_kasse", name: "Untersuchung und Behandlung", type: "kasse", price: 0, benefits: ["Kassenleistung bei Beschwerden"] },
-        { id: "au_ipl", zusatz: true, name: "Lidrandbehandlung mit Lichtimpulsen (IPL, je Sitzung)", type: "igel", price: 120, benefits: ["bei Funktionsstörung der Liddrüsen"], nutzen: "Nutzen in Studien gezeigt, Langzeitdaten begrenzt." },
+        { id: "au_ipl", zusatz: true, name: "Lidrandbehandlung mit Lichtimpulsen (IPL, je Sitzung)", type: "igel", price: 120, benefits: ["bei Funktionsstörung der Liddrüsen"], nutzen: "Langzeitdaten sind begrenzt." },
       ],
     },
     {
       id: "lasern", abAlter: 18, label: "Augenlasern und Linsenchirurgie auf Wunsch", bereich: "Refraktive Chirurgie",
       options: [
-        { id: "au_vorunters", name: "Voruntersuchung zur Eignung", type: "igel", price: 150, benefits: ["klärt, welches Verfahren passt"] },
-        { id: "au_lasik", name: "Augenlaser-Behandlung (je Auge)", type: "igel", price: 1800, benefits: ["ohne Brille im Alltag"], kasseWenn: "Die Kasse zahlt nicht." },
+        { id: "au_vorunters", name: "Voruntersuchung zur Eignung", type: "igel", price: 150, benefits: ["Untersuchung vor einem Eingriff"] },
+        { id: "au_lasik", name: "Augenlaser-Behandlung (je Auge)", type: "igel", price: 1800, benefits: ["Laserbehandlung der Hornhaut"], kasseWenn: "Die Kasse zahlt nicht." },
       ],
     },
   ],
@@ -306,7 +306,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "kinderbrille", bisAlter: 17, label: "Kinderbrille", bereich: "Brille",
       options: [
         { id: "op_kind_glas", name: "Brillengläser auf Verordnung", type: "kasse", price: 0, benefits: ["Kasse zahlt bis 18 den Festbetrag"] },
-        { id: "op_kind_fass", zusatz: true, name: "Kinderfassung", type: "igel", price: 60, benefits: ["robust, mitwachsend"] },
+        { id: "op_kind_fass", zusatz: true, name: "Kinderfassung", type: "igel", price: 60, benefits: ["Fassung in Kindergröße"] },
       ],
     },
   ],
@@ -399,7 +399,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "begleitperson", label: "Begleitperson", bereich: "Aufenthalt",
       options: [
-        { id: "kl_begleit_kind", name: "Mitaufnahme bei Kindern, wenn medizinisch nötig", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+        { id: "kl_begleit_kind", name: "Mitaufnahme bei Kindern, wenn medizinisch notwendig", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
         { id: "kl_begleit", name: "Begleitperson auf Wunsch (je Tag)", type: "igel", price: 60, benefits: ["Übernachtung und Verpflegung"] },
       ],
     },

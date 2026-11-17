@@ -100,11 +100,12 @@ export default async function SettingsPage() {
   const zahn = isDental(practice?.specialty);
   const therapie = isTherapie(specialty(practice?.specialty));
   // Anbindung je Fach: Zahnarztpraxen über VDDS-media, Arztpraxen über GDT, sonst im Browser neben der eigenen Software.
+  // Keine Namen einzelner Praxisprogramme, solange es je Programm kein Testprotokoll aus einer Praxis gibt (wie auf der Website).
   const anbindung = zahn
-    ? "Sorrida als Fenster aus DS-Win, CGM Z1, charly oder EVIDENT öffnen (VDDS-media)."
+    ? "Sorrida nutzt die Standardschnittstelle VDDS-media. Programme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen."
     : therapie
       ? "Sorrida läuft im Browser neben Ihrer Praxissoftware. Hier richten Sie eine Anbindung ein, falls Ihre Software GDT unterstützt."
-      : "Sorrida als Fenster aus Medistar, TURBOMED, CGM M1 PRO, x.isynet oder ALBIS öffnen (GDT). Freigegebene Berichte kommen zurück in die Karteikarte.";
+      : "Sorrida nutzt die Standardschnittstelle GDT. Programme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen. Freigegebene Berichte gibt Sorrida über GDT zurück.";
   const praxisEinstellungen = !!session && (await kontoDarf(session.user.id, "einstellungen.ansehen", session.user.practiceId));
   const karten = CARDS.filter((c) => (!c.nur || zahn) && (praxisEinstellungen || FUER_ALLE.includes(c.href))).map((c) => (c.href === "/settings/connector" ? { ...c, description: anbindung } : c));
   return (

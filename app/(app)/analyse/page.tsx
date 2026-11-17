@@ -174,7 +174,7 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
       </div>
 
       <section className="card" data-testid="faktoren">
-        <h2 className="font-semibold text-slate-900">Warum Patienten zusagen</h2>
+        <h2 className="font-semibold text-slate-900">Zusagen im Vergleich</h2>
         <p className="mt-1 text-sm text-slate-600">Annahmequote je Gruppe. Verglichen wird erst ab {5} entschiedenen Fällen pro Gruppe, damit Zufall nicht wie ein Muster aussieht.</p>
         <div className="mt-5 grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
           {a.faktoren.map((f) => (

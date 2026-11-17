@@ -1,6 +1,7 @@
 // Muster für Regeltexte mit Zahlen oder eingebetteten Texten. Die Muster
 // passen auf die deutschen Texte aus lib/proposals.ts und
 // lib/medicalProposals.ts; jede Sprache liefert zu jedem Muster die Übersetzung.
+// Hinweise der Art „warn“ richten sich nur an die Praxis und haben kein Muster und keine Übersetzung.
 
 export const PATTERNS = {
   /** „Zahn 36“ */
@@ -16,8 +17,7 @@ export const PATTERNS = {
   /** Eingebettet: Ort der Brücke („Zahn 36“, „Zähne 35, 36“). */
   notNeededWithBridge: /^Entfällt bei einer Brücke \((.+)\)$/,
   abutmentNote:
-    /^Wird dieser Zahn Pfeiler einer Brücke \((.+)\), ist seine Krone dort enthalten\. Eine eigene Krone braucht er nur, wenn die Lücke anders versorgt wird\.$/,
-  neighboursNeedCare: /^Die Nachbarzähne (\d\d(?:, \d\d)*) und (\d\d) brauchen ohnehin eine Versorgung\. Eine Brücke löst beides zugleich\.$/,
+    /^Wird dieser Zahn Pfeiler einer Brücke \((.+)\), ist seine Krone dort enthalten\. Eine eigene Krone kommt nur dazu, wenn die Lücke anders versorgt wird\.$/,
   neighboursHealthy: /^Die Nachbarzähne (\d\d(?:, \d\d)*) und (\d\d) haben keinen Befund\. Für eine Brücke werden sie beschliffen, für ein Implantat nicht\.$/,
   /** Arztpraxen: Altersgrenze der Kassenleistung, danach ggf. der Hinweis des Angebots. */
   coveredOnlyFromAge: /^Kassenleistung erst ab (\d+) Jahren\.(?: (.+))?$/,

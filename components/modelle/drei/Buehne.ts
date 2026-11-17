@@ -92,8 +92,10 @@ export class Buehne {
     const handy = window.matchMedia?.("(pointer: coarse)").matches && Math.min(window.innerWidth, window.innerHeight) < 900;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, handy ? 1.5 : 2));
     // Grafik ohne Grafikkarte (Software): kleinere Auflösung, sonst stockt alles
-    // (Für Bildschirmfotos in Testumgebungen ohne Grafikkarte lässt sich das mit localStorage „modell-scharf“ abschalten.)
-    this.scharf = (() => { try { return localStorage.getItem("modell-scharf") === "1"; } catch { return false; } })();
+    // (Für Bildschirmfotos in Testumgebungen ohne Grafikkarte lässt sich das mit localStorage „modell-scharf“ abschalten.
+    // Nur außerhalb des Betriebs: Im ausgelieferten Code liest das Modell nichts aus dem Speicher des Browsers,
+    // so wie es die Datenschutzerklärung für die öffentliche Website sagt.)
+    this.scharf = process.env.NODE_ENV !== "production" && (() => { try { return localStorage.getItem("modell-scharf") === "1"; } catch { return false; } })();
     if (!this.scharf) try { const gl = this.renderer.getContext(), info = gl.getExtension("WEBGL_debug_renderer_info"); if (info && /swiftshader|llvmpipe|software/i.test(String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) this.renderer.setPixelRatio(0.6); } catch { /* unbekannt */ }
     this.renderer.outputColorSpace = T.SRGBColorSpace;
     this.renderer.toneMapping = T.NeutralToneMapping;

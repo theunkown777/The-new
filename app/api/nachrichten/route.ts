@@ -74,7 +74,7 @@ export async function POST(req: Request) {
     if (!mailVersandAktiv()) return testmodus();
     const ort = t.location?.name ?? null;
     text = art === "termin-bestaetigung"
-      ? bestaetigungText({ firstName: t.patient.firstName, practiceName: praxis, start: t.start, ort, reason: t.reason })
+      ? bestaetigungText({ firstName: t.patient.firstName, practiceName: praxis, start: t.start, ort })
       : erinnerungText({ firstName: t.patient.firstName, practiceName: praxis, start: t.start, ort, fach: practice?.specialty });
     nachher = () => prisma.appointment.update({ where: { id: t.id }, data: art === "termin-bestaetigung" ? { confirmedAt: now } : { remindedAt: now } });
   }

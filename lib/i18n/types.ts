@@ -25,6 +25,8 @@ export type Ui = {
   insurerPkv: string;
   supplementary: string;
   from2027: string;
+  /** Wie from2027, solange die Tabelle 2027 noch nicht eingelesen ist (festzuschuss2027Amtlich() ist false). */
+  from2027Prelim: string;
   /** Statt eines Betrags bei Kassenleistungen auf Verordnung ohne hinterlegten Preis. */
   coPayment: string;
   nextTitle: string;
@@ -63,6 +65,10 @@ export type Ui = {
   rate: (months: number, monthly: string) => string;
   ask: string;
   bar2027: string;
+  /** Wie bar2027, solange die Beträge 2027 vorläufig sind. */
+  bar2027Prelim: string;
+  /** Satz im Hinweis zum Stichtag, solange die Beträge 2027 vorläufig sind. */
+  prelim2027: string;
   /** Zurück ins Patientenportal (ohne Pfeil, den setzt die Ansicht je nach Schreibrichtung). */
   back: string;
   /** Beschriftung der Sprachwahl für Vorleseprogramme. */
@@ -96,7 +102,7 @@ export type Ui = {
   /** Überschrift und Hinweis der Lese-Ansicht für Vertrauenspersonen. */
   readOnlyTitle: string;
   readOnlyNote: string;
-  /** „Erinnern Sie mich“: Die Praxis meldet sich; es geht keine Nachricht von selbst raus. */
+  /** „Erinnern Sie mich“: Die Praxis sieht den Wunsch an dem gewählten Tag; es geht keine Nachricht von selbst raus. */
   remindTitle: string;
   remindText: string;
   remind3: string;

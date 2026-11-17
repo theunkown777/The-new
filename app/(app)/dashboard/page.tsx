@@ -20,6 +20,7 @@ import { canSeeAnalytics } from "@/lib/permissions";
 import { formatCent } from "@/lib/invoices";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { eingangOffen } from "@/lib/eingang";
+import { ungeoeffnetTun } from "@/lib/nachfassen";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -74,7 +75,7 @@ export default async function DashboardPage() {
       },
       orderBy: { shareCreatedAt: "asc" },
       take: 10,
-      select: { id: true, shareCreatedAt: true, patient: { select: { firstName: true, lastName: true } } },
+      select: { id: true, shareCreatedAt: true, patient: { select: { firstName: true, lastName: true, nachfassConsentAt: true } } },
     }),
   ]);
   const monatsStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
@@ -269,7 +270,7 @@ export default async function DashboardPage() {
                   {u.patient.firstName} {u.patient.lastName}
                 </span>
                 <span className="text-sm text-slate-500">
-                  Link vom {u.shareCreatedAt?.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · kurz anrufen oder neuen Link schicken
+                  Link vom {u.shareCreatedAt?.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · {ungeoeffnetTun(!!u.patient.nachfassConsentAt)}
                 </span>
               </Link>
             ))}
