@@ -168,7 +168,8 @@ export async function ladeDatei(T: Drei, datei: DateiId): Promise<DREI.Mesh[]> {
   const roh = await ladeRoh(T, datei);
   return roh.map((r) => {
     const e = r.e;
-    const mesh = new T.Mesh(r.geo, stoffEcht(T, e));
+    // Eingebackene Umgebungsverdeckung: Eckenfarbe (als „kiefer“ geladen), Grünkanal; beim Kopf-Scan steht dort nichts
+    const mesh = new T.Mesh(r.geo, stoffEcht(T, { ...e, _ao: !!r.geo.getAttribute("kiefer") && e.s !== "gesicht" }));
     const kennung = (e.k as string | undefined) ?? (e.n ? `deko:${e.n}` : undefined);
     mesh.userData = {
       kennung, name: e.n ?? null, gruppe: e.g, geschlecht: e.geschlecht ?? null, datei, mitteY: r.mitte[1], mitte: r.mitte,
@@ -187,8 +188,11 @@ float aufN(vec3 x){ vec3 i = floor(x); vec3 f = fract(x); f = f * f * (3.0 - 2.0
 `;
 
 /**
- * Material je Stoff, mit drei Zusätzen im Shader: Zerfließen beim Ein- und Ausblenden (uAuf),
- * Kiefer öffnen beim Gesicht (Gewicht je Ecke) und ein leichtes rötliches Durchscheinen der Haut am Rand.
+ * Material je Stoff, mit Zusätzen im Shader: Zerfließen beim Ein- und Ausblenden (uAuf),
+ * Kiefer öffnen beim Gesicht (Gewicht je Ecke), ein leichtes rötliches Durchscheinen der Haut am Rand,
+ * eingebackene Umgebungsverdeckung (Falten, Achseln, Zwischenräume dunkler) und eine leichte, ruhige
+ * Unregelmäßigkeit von Farbe und Rauheit bei Haut, Muskeln und Knochen. Die Netze haben keine
+ * Texturkoordinaten; das Muster hängt deshalb an der Lage im Raum (mm) und wandert beim Drehen nicht.
  */
 export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysicalMaterial {
   const s = String(e.s ?? "organ"), farbe = new T.Color(String(e.f ?? "#cccccc"));
@@ -215,10 +219,14 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
     default: Object.assign(p, { roughness: 0.36, clearcoat: 0.55, clearcoatRoughness: 0.3 });
   }
   // Handys und schwächere Geräte: das schlankere Standard-Material (gleiche Farben, Rauheit und Auflösen;
-  // ohne Klarlack und Schimmer). Sein Shader ist deutlich kleiner und wird viel schneller übersetzt.
+  // ohne Klarlack). Sein Shader ist deutlich kleiner und wird viel schneller übersetzt. Nur die Haut behält
+  // ihren Schimmer (samtiger Glanz am Rand), weil er sie erst wie Haut aussehen lässt.
   // Sonst alle Stoffe mit (kaum sichtbarem) Klarlack und Schimmer, damit sie sich ein Shader-Programm teilen.
   let mat: DREI.MeshPhysicalMaterial;
-  if (leichtesGeraet()) {
+  if (leichtesGeraet() && s === "haut") {
+    const { color, roughness, opacity, sheen, sheenColor, sheenRoughness } = p;
+    mat = new T.MeshPhysicalMaterial({ color, roughness, metalness: 0, sheen, sheenColor, sheenRoughness, ...(opacity !== undefined ? { opacity } : {}) });
+  } else if (leichtesGeraet()) {
     const { color, roughness, opacity, side, map, normalMap, normalScale } = p;
     mat = new T.MeshStandardMaterial({ color, roughness, metalness: 0, ...(opacity !== undefined ? { opacity } : {}), ...(side !== undefined ? { side } : {}), ...(map ? { map } : {}), ...(normalMap ? { normalMap, normalScale } : {}) }) as unknown as DREI.MeshPhysicalMaterial;
   } else {
@@ -232,6 +240,9 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
   const raster = leichtesGeraet() && (s === "haut" || s === "gesicht");
   if (p.opacity !== undefined && p.opacity < 1 && !raster) { mat.transparent = true; mat.depthWrite = false; }
   const u: EchtUniforms = { auf: { value: 1 }, kiefer: { value: 0 }, achse: { value: new T.Vector3() }, deck: { value: 1 }, haut: { value: 0 } };
+  // Unregelmäßigkeit je Stoff: 1 Haut, 2 Muskel, 3 Knochen (der Kopf-Scan hat eine echte Farbtextur und bleibt, wie er ist)
+  const stoffNr = { value: s === "haut" ? 1 : s === "muskel" ? 2 : s === "knochen" ? 3 : 0 };
+  const aoAn = { value: e._ao ? 1 : 0 };
   // Handy: Durchscheinen als Punktraster statt echter Transparenz (ein Shader-Programm für alles, nichts zu sortieren)
   mat.userData.raster = raster;
   mat.userData.u = u;
@@ -240,8 +251,10 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
   u.haut.value = haut ? 1 : 0;
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uAuf = u.auf; sh.uniforms.uKiefer = u.kiefer; sh.uniforms.uAchse = u.achse; sh.uniforms.uDeck = u.deck; sh.uniforms.uHaut = u.haut;
+    sh.uniforms.uStoff = stoffNr; sh.uniforms.uAo = aoAn;
     let v = sh.vertexShader, f = sh.fragmentShader;
-    v = `varying vec3 vAufPos;\n${kiefer ? "attribute vec4 kiefer; uniform float uKiefer; uniform vec3 uAchse;\n" : ""}` + v;
+    // „kiefer“ = Eckenfarbe der Datei: Rot = Gewicht des Unterkiefers (Kopf-Scan), Grün = Umgebungsverdeckung (übrige Dateien)
+    v = `varying vec3 vAufPos;\nvarying float vAo;\nattribute vec4 kiefer;\nuniform float uAo;\n${kiefer ? "uniform float uKiefer; uniform vec3 uAchse;\n" : ""}` + v;
     if (kiefer) {
       v = v.replace("#include <beginnormal_vertex>", `#include <beginnormal_vertex>
         float kW = uKiefer * kiefer.r, kC = cos(kW), kS = sin(kW);
@@ -249,8 +262,17 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
       v = v.replace("#include <begin_vertex>", `#include <begin_vertex>
         { vec3 kp = transformed - uAchse; transformed = uAchse + vec3(kp.x, kp.y * kC - kp.z * kS, kp.y * kS + kp.z * kC); }`);
     }
-    v = v.replace("#include <project_vertex>", "#include <project_vertex>\n vAufPos = (modelMatrix * vec4(transformed, 1.0)).xyz;");
-    f = `varying vec3 vAufPos;\nuniform float uAuf;\nuniform float uDeck;\nuniform float uHaut;\n${RAUSCHEN}\n` + f;
+    v = v.replace("#include <project_vertex>", "#include <project_vertex>\n vAufPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\n vAo = mix(1.0, kiefer.g, uAo * 0.82);");
+    f = `varying vec3 vAufPos;\nvarying float vAo;\nuniform float uAuf;\nuniform float uDeck;\nuniform float uHaut;\nuniform float uStoff;\n${RAUSCHEN}\n` + f;
+    // Farbe: ruhige Flecken (3 cm und 9 mm) bei Haut und Knochen, feine Längsstreifen bei Muskeln; dann die Verdeckung
+    f = f.replace("#include <color_fragment>", `#include <color_fragment>
+      float stoffR = aufN(vAufPos * 0.032) * 0.65 + aufN(vAufPos * 0.11) * 0.35;
+      if (uStoff > 0.5 && uStoff < 1.5) diffuseColor.rgb *= mix(vec3(0.94, 0.955, 0.975), vec3(1.045, 1.0, 0.975), stoffR);
+      else if (uStoff > 1.5 && uStoff < 2.5) diffuseColor.rgb *= 0.9 + 0.13 * aufN(vec3(vAufPos.x * 0.8, vAufPos.y * 0.05, vAufPos.z * 0.8)) + 0.07 * stoffR;
+      else if (uStoff > 2.5) diffuseColor.rgb *= mix(vec3(0.95, 0.93, 0.89), vec3(1.03, 1.02, 1.0), stoffR);
+      diffuseColor.rgb *= vAo;`);
+    f = f.replace("#include <roughnessmap_fragment>", `#include <roughnessmap_fragment>
+      if (uStoff > 0.5) roughnessFactor = clamp(roughnessFactor * (0.86 + 0.28 * stoffR), 0.05, 1.0);`);
     f = f.replace("#include <clipping_planes_fragment>", `#include <clipping_planes_fragment>
       float aufWert = aufN(vAufPos * 0.06) * 0.72 + aufN(vAufPos * 0.23) * 0.28;
       if (aufWert > uAuf * 1.06 - 0.03) discard;

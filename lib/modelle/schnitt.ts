@@ -210,3 +210,26 @@ const HAUT: SchnittModell = {
 
 export const SCHNITTMODELLE: Record<SchnittId, SchnittModell> = { auge: AUGE, ohr: OHR, haut: HAUT };
 export const schnittTeil = (modell: SchnittId, id: string) => SCHNITTMODELLE[modell]?.teile.find((t) => t.id === id) ?? null;
+
+/**
+ * Teile der echten 3D-Daten (BodyParts3D, Dateien auge und hno), die einem Teil des Schnittmodells entsprechen.
+ * Tippt man sie im Körpermodell an, erscheint die Erklärung aus dem Schnitt. Die Tränendrüse und die
+ * übrigen Teile von Nase und Kehlkopf haben im Schnitt kein Gegenstück und bleiben zur Orientierung.
+ */
+export const DEKO_SCHNITT: Record<string, { modell: SchnittId; teil: string }> = {
+  "deko:Hornhaut": { modell: "auge", teil: "hornhaut" },
+  "deko:Lederhaut": { modell: "auge", teil: "lederhaut" },
+  "deko:Regenbogenhaut": { modell: "auge", teil: "regenbogenhaut" },
+  "deko:Linse": { modell: "auge", teil: "linse" },
+  "deko:Netzhaut": { modell: "auge", teil: "netzhaut" },
+  "deko:Aderhaut": { modell: "auge", teil: "aderhaut" },
+  "deko:Strahlenkörper": { modell: "auge", teil: "ziliarkoerper" },
+  "deko:Augenmuskeln": { modell: "auge", teil: "augenmuskeln" },
+  "deko:Sehnerv": { modell: "auge", teil: "sehnerv" },
+  "deko:Ohrmuschel": { modell: "ohr", teil: "ohrmuschel" },
+};
+/** Erklärung aus dem Schnittmodell zu einem Teil der 3D-Daten (oder null). */
+export const schnittZuDeko = (kennung: string | null | undefined): SchnittTeil | null => {
+  const v = kennung ? DEKO_SCHNITT[kennung] : undefined;
+  return v ? schnittTeil(v.modell, v.teil) : null;
+};

@@ -7,6 +7,7 @@ import { DEKOR, EBENEN, KOERPER_BREITE, KOERPER_HOEHE, STRUKTUREN, UMRISS, seite
 import { ANATOMIE_PFAD, ANATOMIE_QUELLE, DATEI_VON, IN_3D, STUFE_DATEIEN, STUFE_EBENEN, STUFEN, dateienFuerEbenen, inStufe, stufeFuerEbene, type DateiId, type Stufe } from "@/lib/modelle/drei/anatomie";
 import { FOKUS, erklaerpunkteFuerFach, imFokus, type Erklaerpunkt, type FokusId, type Thema } from "@/lib/modelle/fokus";
 import { mundTeil } from "@/lib/modelle/mund";
+import { schnittZuDeko } from "@/lib/modelle/schnitt";
 import { zahnNach } from "@/lib/modelle/gebiss";
 import { useZoom } from "./useZoom";
 import { useT } from "./Sprache";
@@ -248,8 +249,10 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
   };
   const geordnet = [...sichtbar.filter((s) => !s.tief), ...sichtbar.filter((s) => s.tief)].sort((a, b) => EBENEN.findIndex((e) => e.id === a.ebene) - EBENEN.findIndex((e) => e.id === b.ebene) || Number(!!a.tief) - Number(!!b.tief));
 
-  const fremdName = fremd ? (fremd.startsWith("deko:") ? fremd.slice(5) : mundTeil(fremd)?.name ?? (zahnNach(Number(fremd)) ? t("Zahn {nr}", { nr: fremd }) : fremd)) : null;
-  const fremdText = fremd ? mundTeil(fremd)?.was ?? (zahnNach(Number(fremd)) ? zahnNach(Number(fremd))!.name : null) : null;
+  // Teile von Auge und Ohr aus den echten Daten tragen die Erklärung des Schnittmodells (Hornhaut, Linse, Netzhaut …)
+  const fremdSchnitt = schnittZuDeko(fremd);
+  const fremdName = fremd ? (fremdSchnitt?.name ?? (fremd.startsWith("deko:") ? fremd.slice(5) : mundTeil(fremd)?.name ?? (zahnNach(Number(fremd)) ? t("Zahn {nr}", { nr: fremd }) : fremd))) : null;
+  const fremdText = fremd ? fremdSchnitt?.was ?? mundTeil(fremd)?.was ?? (zahnNach(Number(fremd)) ? zahnNach(Number(fremd))!.name : null) : null;
   const listeStrukturen = (e: Ebene) => STRUKTUREN.filter((s) => s.ebene === e && passt(s) && (!aktiverFokus || imAktivenFokus(s)));
 
   const buehne = (
@@ -442,7 +445,9 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
         ) : fremd && fremdName ? (
           <section className="card" aria-live="polite" data-testid="modell-erklaerung">
             <h3 className="text-lg font-semibold text-slate-900">{t(fremdName)}</h3>
+            {fremdSchnitt?.latein && <p className="text-sm italic text-slate-500">{fremdSchnitt.latein}</p>}
             {fremdText ? <p className="mt-1 text-sm leading-relaxed text-slate-800">{t(fremdText)}</p> : <p className="mt-1 text-sm text-slate-600">{t("Dieser Teil ist zur Orientierung zu sehen und hat keine eigene Erklärung.")}</p>}
+            {fremdSchnitt && <><h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{t("Häufige Beschwerden")}</h4><p className="mt-1 text-sm leading-relaxed text-slate-800">{t(fremdSchnitt.beschwerden)}</p></>}
           </section>
         ) : (
           <section className="card text-sm text-slate-600" data-testid="modell-erklaerung-leer">

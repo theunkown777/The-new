@@ -1,6 +1,6 @@
 // Inhalte der Erklärungsansicht: je Thema eine Einleitung und zu jedem beschrifteten Teil
 // eine kurze, patientengerechte Erklärung. Die Bildpunkte (wo das Teil im Bild liegt) stehen
-// in lib/modelle/erklaerBilder.ts, die Bilder selbst in public/modelle/erklaerung/.
+// in lib/modelle/erklaerBilder.ts, die Bilder selbst in public/anatomie-bilder/.
 
 export type ErklaerThema =
   | "auge"

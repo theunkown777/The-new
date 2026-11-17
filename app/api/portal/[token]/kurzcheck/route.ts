@@ -3,7 +3,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { portalPatient } from "@/lib/portalAuth";
-import { kurzArt, kurzcheckSchema } from "@/lib/kurzcheck";
+import { ORTE_STAND, kurzArt, kurzcheckSchema } from "@/lib/kurzcheck";
 import { eingangMelden } from "@/lib/eingang";
 
 import { anschluss } from "@/lib/anschluss";
@@ -21,7 +21,7 @@ export async function POST(req: Request, props: { params: Promise<{ token: strin
   const parsed = kurzcheckSchema(kurzArt(praxis?.specialty)).safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Ungültige Angaben" }, { status: 400 });
 
-  const neu = await prisma.kurzcheck.create({ data: { practiceId: patient.practiceId, patientId: patient.id, antworten: parsed.data as unknown as Prisma.InputJsonValue }, select: { id: true } });
+  const neu = await prisma.kurzcheck.create({ data: { practiceId: patient.practiceId, patientId: patient.id, antworten: { ...parsed.data, stand: ORTE_STAND } as unknown as Prisma.InputJsonValue }, select: { id: true } });
   // Nur die letzten 20 je Patient aufbewahren
   const alt = await prisma.kurzcheck.findMany({ where: { patientId: patient.id }, orderBy: { createdAt: "desc" }, skip: 20, select: { id: true } });
   if (alt.length) await prisma.kurzcheck.deleteMany({ where: { id: { in: alt.map((a) => a.id) } } });

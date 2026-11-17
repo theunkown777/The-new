@@ -4,7 +4,7 @@ import inhalt from "./anatomieInhalt.json";
 import type { Ebene } from "../koerper";
 
 export type DateiId = "haut" | "skelett" | "sehnen" | "muskeln" | "lunge" | "herz" | "verdauung" | "harnwege" | "gehirn" | "nerven" | "auge" | "hno" | "mund" | "kopf";
-export interface DateiInhalt { name: string; bytes: number; dreiecke: number; rahmen: { min: number[]; max: number[] }; teile: { name: string; g: string; geschlecht?: string; mitte: number[] }[]; gelenk?: { R: number[]; L: number[] }; achse?: number[]; mund?: number[] }
+export interface DateiInhalt { name: string; bytes: number; dreiecke: number; rahmen: { min: number[]; max: number[] }; teile: { name: string; g: string; geschlecht?: string; mitte: number[] }[]; gelenk?: { R: number[]; L: number[] }; achse?: number[]; mund?: number[]; nase?: number[]; /** Umgebungsverdeckung in den Eckenfarben eingebacken (Grünkanal), scripts/anatomie-3d/ao.mjs */ ao?: boolean }
 export const ANATOMIE = inhalt as unknown as Record<DateiId, DateiInhalt>;
 export const ANATOMIE_PFAD = "/anatomie-3d";
 

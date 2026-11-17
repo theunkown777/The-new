@@ -1,5 +1,7 @@
-import { kurzcheckLesen, kurzcheckText, staerkeWort } from "@/lib/kurzcheck";
-import { KoerperFigur, ZahnBogen } from "./Figur";
+import { ORTE_STAND, kurzcheckLesen, kurzcheckText, staerkeWort } from "@/lib/kurzcheck";
+import { KoerperFigur, KopfFigur, ZahnBogen } from "./Figur";
+import { koerperPunkte } from "./figurPunkte";
+import { KurzcheckModell } from "./KurzcheckModell";
 
 /** Akte: der zuletzt ausgefüllte Kurz-Fragebogen des Patienten mit Bild, Stärke und den Antworten in Sätzen. */
 export function KurzcheckKarte({ eintraege }: { eintraege: { id: string; antworten: unknown; createdAt: Date }[] }) {
@@ -17,11 +19,11 @@ export function KurzcheckKarte({ eintraege }: { eintraege: { id: string; antwort
           return (
             <div key={e.id} className="mt-3 flex flex-col gap-4 sm:flex-row">
               {!a.keine && (
-                <div className="flex shrink-0 justify-center gap-2 rounded-2xl bg-[#FBF7F1] p-2 ring-1 ring-[#E9E2DA]">
-                  {a.art === "zahn" ? <ZahnBogen gewaehlt={a.orte} klein /> : (
+                <div className="flex shrink-0 justify-center gap-2 self-start rounded-2xl bg-[#FBF7F1] p-2 ring-1 ring-[#E9E2DA]">
+                  {/* Angaben des Patienten in eigener Farbe (Violett), nicht im Orange der Praxis-Markierungen */}
+                  {a.art === "zahn" ? <ZahnBogen gewaehlt={a.orte} klein patient /> : a.art === "auge" || a.art === "hno" ? <KopfFigur gewaehlt={a.orte} klein patient /> : (
                     <>
-                      {a.orte.some((o) => !/^(nacken|ruecken|gesaess|wade)/.test(o)) && <KoerperFigur ansicht="vorn" gewaehlt={a.orte} klein />}
-                      {a.orte.some((o) => /^(nacken|ruecken|gesaess|wade)/.test(o)) && <KoerperFigur ansicht="hinten" gewaehlt={a.orte} klein />}
+                      {(["vorn", "hinten"] as const).filter((v, i) => koerperPunkte(a.art, v).some((p) => a.orte.includes(p.ort)) || (i === 0 && a.orte.includes("bauch"))).map((v) => <KoerperFigur key={v} ansicht={v} art={a.art} gewaehlt={a.orte} klein patient />)}
                     </>
                   )}
                 </div>
@@ -35,6 +37,7 @@ export function KurzcheckKarte({ eintraege }: { eintraege: { id: string; antwort
                   </div>
                 )}
                 <ul className="mt-3 space-y-1 text-slate-800" data-testid="kurzcheck-antworten">{kurzcheckText(a).map((z) => <li key={z}>{z}</li>)}</ul>
+                {!a.keine && a.orte.length > 0 && <KurzcheckModell art={a.art} orte={a.orte} alt={a.stand !== ORTE_STAND} />}
                 <p className="mt-3 text-xs text-slate-500">Angaben des Patienten, keine Diagnose.{liste.length > 1 ? ` Frühere Fragebögen: ${liste.slice(1, 4).map((x) => zeit(x.createdAt)).join(" · ")}` : ""}</p>
               </div>
             </div>

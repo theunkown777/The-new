@@ -27,21 +27,25 @@ export function mundBauplan(T: Drei): Bauplan {
         return m;
       }),
       // Lage der Kiefergelenke: durchscheinende Kugel am Gelenkköpfchen (Markierung, kein Scan)
-      () => {
-        const g = ANATOMIE.mund?.gelenk;
-        if (!g) return [];
-        return (["R", "L"] as const).map((s) => {
-          const mat = stoffEcht(T, { s: "knorpel", f: "#F2C46B" });
-          mat.opacity = 0.6; mat.transparent = true; mat.depthWrite = false;
-          const m = new T.Mesh(new T.SphereGeometry(6, 20, 14), mat);
-          m.geometry.translate(g[s][0], g[s][1] - 3, g[s][2]);
-          m.userData = { kennung: "mund:kiefergelenk", gruppe: "knochen", ueber: "innen", klappe: 0, mitte: g[s] };
-          return m;
-        });
-      },
+      () => kiefergelenkKugeln(T).map((m) => { m.userData.ueber = "innen"; return m; }),
     ],
   };
 }
+
+/** Lage der Kiefergelenke: durchscheinende Kugel am Gelenkköpfchen (Markierung, kein Scan). */
+export function kiefergelenkKugeln(T: Drei) {
+  const g = ANATOMIE.mund?.gelenk;
+  if (!g) return [];
+  return (["R", "L"] as const).map((s) => {
+    const mat = stoffEcht(T, { s: "knorpel", f: "#F2C46B" });
+    mat.opacity = 0.6; mat.transparent = true; mat.depthWrite = false;
+    const m = new T.Mesh(new T.SphereGeometry(6, 20, 14), mat);
+    m.geometry.translate(g[s][0], g[s][1] - 3, g[s][2]);
+    m.userData = { kennung: "mund:kiefergelenk", gruppe: "knochen", klappe: 0, mitte: g[s] } as Record<string, unknown>;
+    return m;
+  });
+}
+export const MUND_ACHSE = ACHSE;
 
 /** Die Fahrt in den Mund (etwa 2,6 s). Anfassen bricht ab und springt in den Endzustand. */
 export function inDenMund(b: Buehne, fertig?: () => void) {
