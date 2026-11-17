@@ -10,6 +10,7 @@ import { hauptModell } from "@/lib/modelle/fach";
 import { epcPayload, formatIban, invoiceView, isOutstanding, paymentReference } from "@/lib/invoices";
 import { PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, PORTAL_UI, pickPortalLang, portalDir, portalStatus, reminderLabel } from "@/lib/portalI18n";
 import { PortalRueckmeldung } from "@/components/PortalRueckmeldung";
+import { kurzPaket, kurzUebersetzer } from "@/lib/kurzcheckTexte";
 import { fensterAb, offenerTermin } from "@/lib/rueckmeldung";
 import { onlineZahlungStatus } from "@/lib/onlineZahlung";
 import { PortalInvoice, type PortalInvoiceData, type PortalPruefungStand, type PortalText } from "@/components/PortalInvoice";
@@ -76,6 +77,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
 
   const lang = pickPortalLang(searchParams.lang, (await headers()).get("accept-language"));
   const t = PORTAL_UI[lang];
+  const kt = kurzUebersetzer(kurzPaket(lang)).t;
   const locale = PORTAL_LOCALE[lang];
   const date = (d: Date) => d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
   const money = (c: number) => (c / 100).toLocaleString(locale, { style: "currency", currency: "EUR" });
@@ -246,14 +248,14 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
           </section>
         )}
 
-        <section className="mt-8" aria-labelledby="fragen" data-testid="portal-fragen-hinweis" lang="de" dir="ltr">
-          <h2 id="fragen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />Vor Ihrem Termin</h2>
-          <a href={`/portal/${params.token}/fragen`} className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-salbei-50" data-testid="portal-fragen-link">
+        <section className="mt-8" aria-labelledby="fragen" data-testid="portal-fragen-hinweis">
+          <h2 id="fragen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{kt("vorTermin")}</h2>
+          <a href={`/portal/${params.token}/fragen${lang === "de" ? "" : `?lang=${lang}`}`} className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-salbei-50" data-testid="portal-fragen-link">
             <span>
-              <span className="block font-medium text-slate-900">Fünf kurze Fragen</span>
-              <span className="text-sm text-slate-600">Zeigen Sie am Bild, wo es Beschwerden gibt. Dauert etwa eine Minute.</span>
+              <span className="block font-medium text-slate-900">{kt("fuenf")}</span>
+              <span className="text-sm text-slate-600">{kt("fuenfText")}</span>
             </span>
-            <span className="shrink-0 rounded-full bg-salbei-600 px-3 py-1 text-sm font-medium text-white">Starten</span>
+            <span className="shrink-0 rounded-full bg-salbei-600 px-3 py-1 text-sm font-medium text-white">{kt("starten")}</span>
           </a>
         </section>
 

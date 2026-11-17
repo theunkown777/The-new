@@ -33,6 +33,10 @@ Die bearbeiteten Modelle stehen unter CC BY-SA 4.0.“
 - BodyParts3D 4.0 enthält **keine Lungenoberfläche**. Die Lungenhülle ist aus den echten Bronchien und
   Lungengefäßen **berechnet** (Dichtefeld, Weichzeichnen, Marching Cubes) und im Modell so gekennzeichnet.
 - Die Weisheitszähne (18, 28, 38, 48) fehlen in den Daten; sie sind als verkleinerte **Kopie des Nachbarzahns** ergänzt.
+- In die Dateien (außer Kopf und Nerven) ist eine **Umgebungsverdeckung** eingebacken: je Ecke ein Wert im Grünkanal
+  der Eckenfarbe, berechnet mit Strahlen gegen die eigene Datei (`scripts/anatomie-3d/ao.mjs`). Falten und Zwischenräume
+  wirken dadurch dunkler, ohne Rechenaufwand auf dem Gerät. Jede Datei wird dadurch höchstens 15 % größer; bei den leichten
+  Fassungen bleibt die Verdeckung nur, wo das auch gilt (`leicht.mjs`).
 - Der Kopf-Scan ist auf den Schädel ausgerichtet (Breite über die Ohren, Mundspalte über den Schneidezähnen).
   Für das Öffnen des Mundes trägt jede Ecke ein Gewicht im Rotkanal der Eckenfarbe.
 - Nicht enthalten (fehlen in den freien Daten): Gebärmutter und Eierstöcke, Rückenmark, Nerven von Armen und Beinen,
@@ -44,4 +48,5 @@ Die bearbeiteten Modelle stehen unter CC BY-SA 4.0.“
 node scripts/anatomie-3d/bauen.mjs --obj <Ordner mit FJ*.obj> \
   --listen <isa_element_parts.txt>,<partof_element_parts.txt> --kopf <Ordner mit LeePerrySmith.glb und Texturen>
 ```
+Danach: `node scripts/anatomie-3d/ao.mjs` (Umgebungsverdeckung) und `node scripts/anatomie-3d/leicht.mjs` (leichte Fassungen).
 Die heruntergeladenen Archive nur als Daten behandeln: in einem eigenen, leeren Ordner entpacken (nur `FJ*.obj`).

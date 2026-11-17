@@ -12,6 +12,8 @@ export interface Zustand {
   gewaehlt: string[];
   /** Kennungen der von der Praxis markierten Teile */
   markiert: string[];
+  /** Kennungen der Teile, die der Patient selbst angegeben hat (eigene Farbe, z. B. Zähne im Kurz-Fragebogen) */
+  patient?: string[];
   /** Ist ein Teil sichtbar? (Ebenen, Geschlecht, Milchgebiss …) Eine Zahl zwischen 0 und 1 lässt es durchscheinen. */
   sichtbar: (daten: Record<string, unknown>) => boolean | number;
 }
@@ -19,6 +21,10 @@ export interface Zustand {
 export interface EchtUniforms { auf: { value: number }; kiefer: { value: number }; achse: { value: DREI.Vector3 }; deck: { value: number }; haut: { value: number } }
 
 const GEWAEHLT = 0xf5c542, MARKIERT = 0xf28b45;
+/** Angaben des Patienten: Violett, deutlich anders als die orange Markierung der Praxis */
+export const PATIENT_FARBE = 0x7b5cd6;
+/** Ein Antippen am Modell: Kennung des Teils, Punkt auf der Oberfläche und Richtung der Oberfläche (Welt, mm) */
+export interface Treffer { kennung: string; punkt: [number, number, number]; normale: [number, number, number] }
 /** cubic-bezier(0.77, 0, 0.175, 1): kräftiges Anfahren und Abbremsen */
 export function kurve(x1: number, y1: number, x2: number, y2: number) {
   const bx = (t: number) => 3 * (1 - t) * (1 - t) * t * x1 + 3 * (1 - t) * t * t * x2 + t * t * t;
@@ -35,7 +41,7 @@ const sanft = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2,
 
 interface Teil {
   mesh: DREI.Mesh; mat: DREI.MeshStandardMaterial; u?: EchtUniforms; grund: DREI.Color; ziel: DREI.Color;
-  deck: number; deckZiel: number; grundDeck: number; start: number; an: boolean; markiert: boolean; mitte: DREI.Vector3; durch?: boolean;
+  deck: number; deckZiel: number; grundDeck: number; start: number; an: boolean; markiert: boolean; patient: boolean; mitte: DREI.Vector3; durch?: boolean;
 }
 interface Fahrt { pos: DREI.Vector3[]; ziel: DREI.Vector3[]; start: number; dauer: number; zeit?: number; beiT?: (e: number) => void; ende?: () => void; abbruch?: () => void }
 
@@ -50,7 +56,7 @@ export class Buehne {
   private wurzel: DREI.Group;
   private teile: Teil[] = [];
   private nachKennung = new Map<string, Teil[]>();
-  private zustand: Zustand = { gewaehlt: [], markiert: [], sichtbar: () => true };
+  private zustand: Zustand = { gewaehlt: [], markiert: [], patient: [], sichtbar: () => true };
   private rahmen = 0;
   private laeuft = true;
   private uhr = 0;
@@ -64,6 +70,8 @@ export class Buehne {
   private pulsBis = 0;
   private geboren = performance.now();
   private bildzeiten: number[] = [];
+  /** So viele Bildzeiten nach dem Umschalten nicht mitzählen (das erste Bild mit neuem Licht kann länger dauern) */
+  private bildzeitPause = 0;
   private scharf = false;
   private bewegungBis = 0;
   private fahrtJetzt: Fahrt | null = null;
@@ -81,13 +89,24 @@ export class Buehne {
   private m = { a: null as unknown as DREI.Matrix4, b: null as unknown as DREI.Matrix4, c: null as unknown as DREI.Matrix4 };
   /** Nach dem ersten Eingriff dreht sich das Modell nicht mehr von selbst. */
   beruehrt = false;
+  /** Antippbar ist, was mindestens so deckend ist (halb durchsichtige Haut über den Gelenken: niedriger Wert) */
+  private mindestDeck = 0.4;
+  /** Modus „zeigen“: Antippen meldet den Punkt auf der Oberfläche statt ein Teil zu wählen */
+  private zeigen: ((t: Treffer) => void) | null = null;
+  private lichter: { hemi: DREI.HemisphereLight; haupt: DREI.DirectionalLight; auf: DREI.DirectionalLight; kante: DREI.DirectionalLight } | null = null;
+  private umgebungAn = false;
+  private umgebungZiel: DREI.WebGLRenderTarget | null = null;
+  private fleckGruppe: DREI.Group;
 
-  constructor(drei: Drei, Orbit: typeof Steuerung, private behaelter: HTMLElement, private wahl: (kennung: string) => void, o: { umgebung?: DREI.Texture | null; ruhig?: boolean; selbstDrehen?: boolean } = {}) {
+  constructor(drei: Drei, Orbit: typeof Steuerung, private behaelter: HTMLElement, private wahl: (kennung: string) => void, o: { umgebung?: DREI.Texture | null; ruhig?: boolean; selbstDrehen?: boolean; zeigen?: (t: Treffer) => void; mindestDeck?: number } = {}) {
     const T = (this.T = drei);
     this.ruhe = !!o.ruhig;
+    this.zeigen = o.zeigen ?? null;
+    if (o.mindestDeck !== undefined) this.mindestDeck = o.mindestDeck;
     this.m = { a: new T.Matrix4(), b: new T.Matrix4(), c: new T.Matrix4() };
-    // Kantenglättung kostet auf Handys viel Grafikleistung und ist bei hoher Pixeldichte kaum zu sehen
-    this.renderer = new T.WebGLRenderer({ antialias: !leichtesGeraet(), alpha: true, powerPreference: "high-performance" });
+    // Kantenglättung (MSAA) kostet auf Handys Grafikleistung. Bei hoher Pixeldichte (ab 2) ist sie kaum zu sehen und bleibt aus;
+    // darunter sind Treppenstufen an den Rändern deutlich, also auch auf leichten Geräten an.
+    this.renderer = new T.WebGLRenderer({ antialias: !leichtesGeraet() || (window.devicePixelRatio || 1) < 2, alpha: true, powerPreference: "high-performance" });
     // Handys: höchstens 1,5-fache Auflösung (flüssig), sonst höchstens doppelt
     const handy = window.matchMedia?.("(pointer: coarse)").matches && Math.min(window.innerWidth, window.innerHeight) < 900;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, handy ? 1.5 : 2));
@@ -114,13 +133,17 @@ export class Buehne {
 
     // Licht wandert mit der Kamera: Das Modell ist von jeder Seite gut ausgeleuchtet.
     // Ohne vorberechnete Spiegelumgebung (zu teuer für schwache Grafik): etwas mehr Grundlicht
-    this.szene.add(new T.HemisphereLight(0xfff3e4, 0x5d5148, 0.95));
+    const hemi = new T.HemisphereLight(0xfff3e4, 0x5d5148, 0.95);
+    this.szene.add(hemi);
     const haupt = new T.DirectionalLight(0xfff8f0, 2.5); haupt.position.set(-0.7, 0.9, 0.9);
     const auf = new T.DirectionalLight(0xffe2cc, 0.55); auf.position.set(1, 0.0, 0.5);
     const kante = new T.DirectionalLight(0xd6e6ff, 1.5); kante.position.set(0.5, 0.7, -1);
     this.kamera.add(haupt, auf, kante);
     for (const l of [haupt, auf, kante]) { this.kamera.add(l.target); l.target.position.set(0, 0, -1); }
-    if (o.umgebung) { this.szene.environment = o.umgebung; this.szene.environmentIntensity = 0.55; }
+    this.lichter = { hemi, haupt, auf, kante };
+    if (o.umgebung) this.umgebungSetzen(o.umgebung);
+    this.fleckGruppe = new T.Group();
+    this.szene.add(this.fleckGruppe);
 
     this.steuerung = new Orbit(this.kamera, c);
     this.steuerung.enableDamping = true;
@@ -142,8 +165,9 @@ export class Buehne {
     const hoch = (e: PointerEvent) => {
       const u = this.unten; this.unten = null;
       if (!u || Math.hypot(e.clientX - u.x, e.clientY - u.y) > 7 || performance.now() - u.t > 600) return;
-      const k = this.treffer(e.clientX, e.clientY);
-      if (k) this.wahl(k);
+      const h = this.treffer(e.clientX, e.clientY);
+      if (!h) return;
+      if (this.zeigen) this.zeigen(h); else this.wahl(h.kennung);
     };
     const zeiger = (e: PointerEvent) => { if (e.pointerType === "mouse" && !this.unten) c.style.cursor = this.treffer(e.clientX, e.clientY) ? "pointer" : "grab"; };
     c.addEventListener("pointerdown", runter); c.addEventListener("pointerup", hoch); c.addEventListener("pointermove", zeiger);
@@ -175,6 +199,14 @@ export class Buehne {
       // Für Bildschirmfotos der Fahrt: an einer Stelle anhalten (0…1) und wieder freigeben
       fahrtBei: (t: number | null) => { this.fahrtHalt = t; this.wecken(); },
       liste: () => this.teile.map((t) => ({ k: t.mesh.userData.kennung, g: t.mesh.userData.gruppe, sichtbar: t.mesh.visible, deck: Math.round(t.deck * 100) / 100, ziel: t.deckZiel, start: Math.round(t.start) })),
+      // Bildschirmpunkt eines Punktes im Raum (mm) und ob er zu sehen ist (nichts davor)
+      punktBei: (p: [number, number, number]) => this.punktBei(p),
+      // Punkt auf der Oberfläche (Strahl von außen entlang der Normale)
+      aufFlaeche: (p: [number, number, number], n: [number, number, number]) => this.aufFlaeche(p, n),
+      // Mittlere Zeit je Bild (ms) der letzten Bilder und ob das Umgebungslicht an ist
+      bildzeit: () => (this.bildzeiten.length ? Math.round((this.bildzeiten.reduce((a, b) => a + b, 0) / this.bildzeiten.length) * 10) / 10 : null),
+      umgebung: () => this.umgebungAn,
+      flecken: () => this.fleckGruppe.children.length,
     };
     // Bewegung der Steuerung (Ziehen, Zoomen, Nachlauf) weckt das Zeichnen
     const aendern = () => this.wecken();
@@ -199,13 +231,81 @@ export class Buehne {
     this.wecken();
   }
 
-  private treffer(x: number, y: number): string | null {
+  /** Antippbare Teile: sichtbar, deckend genug und mit Kennung */
+  private ziele() { return this.teile.filter((t) => t.mesh.visible && t.deck > this.mindestDeck && t.mesh.userData.kennung).map((t) => t.mesh); }
+  /** Flächen für Markierungen: nach der Ziel-Deckkraft, damit es auch klappt, während die Teile noch einblenden. */
+  private flaechen() { return this.teile.filter((t) => t.deckZiel > this.mindestDeck && t.mesh.userData.kennung).map((t) => t.mesh); }
+  private trefferAus(h: DREI.Intersection | undefined): Treffer | null {
+    if (!h) return null;
+    const T = this.T, n = (h.normal ?? h.face?.normal ?? new T.Vector3(0, 0, 1)).clone().applyMatrix3(new T.Matrix3().getNormalMatrix(h.object.matrixWorld)).normalize();
+    return { kennung: String(h.object.userData.kennung), punkt: [h.point.x, h.point.y, h.point.z], normale: [n.x, n.y, n.z] };
+  }
+  private treffer(x: number, y: number): Treffer | null {
     const T = this.T, r = this.renderer.domElement.getBoundingClientRect();
     const strahl = new T.Raycaster();
     strahl.setFromCamera(new T.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1), this.kamera);
-    const ziele = this.teile.filter((t) => t.mesh.visible && t.deck > 0.4 && t.mesh.userData.kennung).map((t) => t.mesh);
-    const h = strahl.intersectObjects(ziele, false)[0];
-    return h ? String(h.object.userData.kennung) : null;
+    return this.trefferAus(strahl.intersectObjects(this.ziele(), false)[0]);
+  }
+  /** Punkt auf der Oberfläche: Strahl von außen (300 mm entlang der Normale) zurück auf den Punkt. */
+  aufFlaeche(p: [number, number, number], n: [number, number, number]): Treffer | null {
+    const T = this.T, richtung = new T.Vector3(...n).normalize().negate();
+    const start = new T.Vector3(...p).addScaledVector(richtung, -300);
+    this.wurzel.updateMatrixWorld(true);
+    return this.trefferAus(new T.Raycaster(start, richtung).intersectObjects(this.flaechen(), false)[0]);
+  }
+  /** Bildschirmpunkt eines Raumpunkts; vorn = von der Kamera aus nicht verdeckt. */
+  private punktBei(p: [number, number, number]): { x: number; y: number; vorn: boolean } {
+    const T = this.T, r = this.renderer.domElement.getBoundingClientRect(), v = new T.Vector3(...p);
+    const zur = v.clone().sub(this.kamera.position), weit = zur.length();
+    const erster = new T.Raycaster(this.kamera.position.clone(), zur.normalize()).intersectObjects(this.ziele(), false)[0];
+    const q = v.clone().project(this.kamera);
+    return { x: r.left + ((q.x + 1) / 2) * r.width, y: r.top + ((1 - q.y) / 2) * r.height, vorn: !erster || erster.distance > weit - 8 };
+  }
+  /** Weiche Flecken an Punkten der Oberfläche (Angaben des Patienten). Die Haut verdeckt die innere Hälfte: Es bleibt ein Fleck auf der Haut. */
+  flecken(liste: { pos: [number, number, number]; farbe?: number; radius?: number }[]) {
+    const T = this.T;
+    for (const c of [...this.fleckGruppe.children]) { this.fleckGruppe.remove(c); const m = c as DREI.Mesh; m.geometry.dispose(); (m.material as DREI.Material).dispose(); }
+    for (const f of liste) {
+      const mat = new T.MeshBasicMaterial({ color: f.farbe ?? PATIENT_FARBE, transparent: true, opacity: 0.55, depthWrite: false });
+      const m = new T.Mesh(new T.SphereGeometry(f.radius ?? 22, 24, 16), mat);
+      m.position.set(...f.pos); m.renderOrder = 2;
+      this.fleckGruppe.add(m);
+      const kern = new T.Mesh(new T.SphereGeometry((f.radius ?? 22) * 0.32, 16, 10), new T.MeshBasicMaterial({ color: f.farbe ?? PATIENT_FARBE }));
+      kern.position.set(...f.pos);
+      this.fleckGruppe.add(kern);
+    }
+    this.pulsBis = performance.now() + 1200;
+    this.wecken();
+  }
+  /**
+   * Umgebungslicht (vorberechnete Spiegelung eines hellen Raums) nachträglich einschalten: Shader vorher im
+   * Hintergrund übersetzen, dann umschalten. Das Licht der Kamera wird etwas leiser. Wird es zu langsam, geht es wieder aus.
+   * Die Zielszene trägt nur die Umgebung, keine Lichter: compile zählt die Lichter aus beiden Szenen zusammen.
+   * Kopien der Lichter ergäben eine andere Lichterzahl als beim echten Bild, und die vorübersetzten Shader blieben ungenutzt.
+   */
+  async umgebungSetzen(tex: DREI.Texture) {
+    const T = this.T, ziel = new T.Scene();
+    ziel.environment = tex;
+    try { await this.renderer.compileAsync(this.szene, this.kamera, ziel); } catch { /* dann beim ersten Bild */ }
+    if (this.entfernt) return;
+    this.szene.environment = tex; this.szene.environmentIntensity = 0.5;
+    if (this.lichter) { this.lichter.hemi.intensity = 0.6; this.lichter.haupt.intensity = 2.2; this.lichter.kante.intensity = 1.25; }
+    this.umgebungAn = true; this.bildzeiten = []; this.bildzeitPause = 2;
+    this.wecken();
+  }
+  /** Umgebung mit dem eigenen Renderer berechnen (Raum von three.js, 64er-Würfel) und einschalten. */
+  async umgebungBerechnen() {
+    if (this.umgebungAn || this.umgebungZiel || this.entfernt) return;
+    const { RoomEnvironment } = await import("three/examples/jsm/environments/RoomEnvironment.js");
+    if (this.entfernt) return;
+    const T = this.T, pm = new T.PMREMGenerator(this.renderer), raum = new RoomEnvironment();
+    this.umgebungZiel = pm.fromScene(raum, 0.04, 0.1, 100, { size: 64 });
+    raum.dispose(); pm.dispose();
+    await this.umgebungSetzen(this.umgebungZiel.texture);
+  }
+  private umgebungAus() {
+    this.szene.environment = null; this.umgebungAn = false;
+    if (this.lichter) { this.lichter.hemi.intensity = 0.95; this.lichter.haupt.intensity = 2.5; this.lichter.kante.intensity = 1.5; }
   }
 
   private bildpunkt(kennung: string): { x: number; y: number; vorn: boolean } | null {
@@ -215,8 +315,7 @@ export class Buehne {
     if (!t.mesh.geometry.boundingSphere) t.mesh.geometry.computeBoundingSphere();
     const m = t.mesh.geometry.boundingSphere!.center.clone().applyMatrix4(t.mesh.matrixWorld);
     const strahl = new T.Raycaster(this.kamera.position.clone(), m.clone().sub(this.kamera.position).normalize());
-    const ziele = this.teile.filter((x) => x.mesh.visible && x.deck > 0.4 && x.mesh.userData.kennung).map((x) => x.mesh);
-    const erster = strahl.intersectObjects(ziele, false)[0];
+    const erster = strahl.intersectObjects(this.ziele(), false)[0];
     const p = m.clone().project(this.kamera);
     return { x: r.left + ((p.x + 1) / 2) * r.width, y: r.top + ((1 - p.y) / 2) * r.height, vorn: !!erster && erster.object.userData.kennung === kennung };
   }
@@ -295,7 +394,7 @@ export class Buehne {
       if (!u) mat.transparent = true;
       if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
       const mitte = mesh.geometry.boundingBox!.getCenter(new T.Vector3());
-      const t: Teil = { mesh, mat, u, grund: mat.color.clone(), ziel: mat.color.clone(), deck: 0, deckZiel: grundDeck, grundDeck, start: this.ruhe ? -1 : jetzt + Math.min(i, 60) * 12, an: false, markiert: false, mitte };
+      const t: Teil = { mesh, mat, u, grund: mat.color.clone(), ziel: mat.color.clone(), deck: 0, deckZiel: grundDeck, grundDeck, start: this.ruhe ? -1 : jetzt + Math.min(i, 60) * 12, an: false, markiert: false, patient: false, mitte };
       if (u) u.auf.value = 0; else mat.opacity = 0;
       mesh.matrixAutoUpdate = false;
       mesh.visible = false;
@@ -374,17 +473,17 @@ export class Buehne {
   }
 
   private anwenden() {
-    const T = this.T, g = new Set(this.zustand.gewaehlt), m = new Set(this.zustand.markiert);
+    const T = this.T, g = new Set(this.zustand.gewaehlt), m = new Set(this.zustand.markiert), pa = new Set(this.zustand.patient ?? []);
     for (const t of this.teile) {
       const k = t.mesh.userData.kennung as string | undefined;
-      t.an = !!k && g.has(k); t.markiert = !!k && m.has(k);
-      t.ziel = t.markiert ? new T.Color(MARKIERT) : t.an ? new T.Color(GEWAEHLT) : t.grund;
+      t.an = !!k && g.has(k); t.markiert = !!k && m.has(k); t.patient = !!k && pa.has(k);
+      t.ziel = t.markiert ? new T.Color(MARKIERT) : t.an ? new T.Color(GEWAEHLT) : t.patient ? new T.Color(PATIENT_FARBE) : t.grund;
       const wert = this.zustand.sichtbar(t.mesh.userData);
       const sichtbar = wert === true ? 1 : wert === false ? 0 : Math.max(0, Math.min(1, wert));
       // Gewähltes und Markiertes wird voll deckend, auch wenn es sonst durchscheint
-      t.deckZiel = !sichtbar ? 0 : t.an || t.markiert ? Math.max(t.grundDeck, 0.97) : t.grundDeck * sichtbar;
+      t.deckZiel = !sichtbar ? 0 : t.an || t.markiert || t.patient ? Math.max(t.grundDeck, 0.97) : t.grundDeck * sichtbar;
       // Halb sichtbar (z. B. Haut über den Organen): durchscheinend statt zerfließend
-      t.durch = sichtbar > 0 && sichtbar < 0.95 && !t.an && !t.markiert;
+      t.durch = sichtbar > 0 && sichtbar < 0.95 && !t.an && !t.markiert && !t.patient;
     }
   }
 
@@ -477,11 +576,14 @@ export class Buehne {
     let aktiv = !!this.flug || !!this.fahrtJetzt;
     const T = this.T, jetzt = performance.now(), dt = Math.min(0.05, (jetzt - (this.uhr || jetzt)) / 1000);
     // Langsames Gerät (Bilder brauchen deutlich länger als 1/15 s): Auflösung stufenweise senken, damit es flüssig bleibt
-    if (this.uhr) {
+    if (this.uhr && this.bildzeitPause > 0) this.bildzeitPause--;
+    else if (this.uhr) {
       this.bildzeiten.push(jetzt - this.uhr);
       if (this.bildzeiten.length > 6) this.bildzeiten.shift();
       const mittel = this.bildzeiten.reduce((a, b) => a + b, 0) / this.bildzeiten.length;
-      if (!this.scharf && this.bildzeiten.length === 6 && mittel > 70 && this.renderer.getPixelRatio() > 0.55) {
+      // Umgebungslicht zuerst opfern, wenn die Bilder deutlich länger als 1/25 s brauchen
+      if (this.umgebungAn && this.bildzeiten.length === 6 && mittel > 45) { this.umgebungAus(); this.bildzeiten = []; }
+      else if (!this.scharf && this.bildzeiten.length === 6 && mittel > 70 && this.renderer.getPixelRatio() > 0.55) {
         this.renderer.setPixelRatio(Math.max(0.5, this.renderer.getPixelRatio() * 0.7));
         this.groesse();
         this.bildzeiten = [];
@@ -549,8 +651,8 @@ export class Buehne {
         if (t.mat.depthWrite !== deckend && !ud.haut) { t.mat.depthWrite = deckend; t.mat.needsUpdate = true; }
       }
       if (t.mat.emissive && !ud.eigenesLeuchten) {
-        t.mat.emissive.setHex(t.an ? GEWAEHLT : t.markiert ? MARKIERT : 0x000000);
-        t.mat.emissiveIntensity = t.an ? (pulsiert ? 0.12 + 0.2 * puls : 0.24) : t.markiert ? 0.1 : 0;
+        t.mat.emissive.setHex(t.an ? GEWAEHLT : t.markiert ? MARKIERT : t.patient ? PATIENT_FARBE : 0x000000);
+        t.mat.emissiveIntensity = t.an ? (pulsiert ? 0.12 + 0.2 * puls : 0.24) : t.markiert || t.patient ? 0.1 : 0;
       }
       // Lage: Erscheinen (leicht wachsen), Atmen/Herzschlag, Kiefer
       const g = t.start < 0 ? 1 : Math.min(1, (jetzt - t.start) / 700);
@@ -603,6 +705,8 @@ export class Buehne {
     this.steuerung.dispose();
     // Geometrien echter Teile sind zwischengespeichert und werden wiederverwendet
     for (const t of this.teile) { if (!t.mesh.userData.geteilt) t.mesh.geometry.dispose(); t.mat.dispose(); }
+    this.flecken([]);
+    this.umgebungZiel?.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();
     delete (this.behaelter as unknown as Record<string, unknown>).__modell;

@@ -1,27 +1,6 @@
-// Bausteine für die räumlichen Modelle: aufgeblasene Flächen, Röhren und Materialien.
+// Bausteine für die räumlichen Modelle: Röhren und Materialien.
 import type * as DREI from "three";
-import type { P } from "@/lib/modelle/formen";
-import type { Netz } from "@/lib/modelle/drei/aufblasen";
 import type { Drei } from "./Buehne";
-
-/** Netz aus Bildkoordinaten (x rechts, y unten) in den Raum setzen: Mitte bei (mx, my), optional gespiegelt, um zVersatz verschoben. */
-export function netzGeometrie(T: Drei, n: Netz, o: { mx: number; my: number; spiegelX?: number | null; z?: number; /** Tiefe je Bildpunkt, z. B. damit sich Muskeln um den Körper legen */ zVon?: (x: number, y: number) => number }): DREI.BufferGeometry {
-  const ort = new Float32Array(n.ort.length);
-  const sp = o.spiegelX ?? null;
-  for (let i = 0; i < n.ort.length; i += 3) {
-    const x = sp === null ? n.ort[i] : 2 * sp - n.ort[i];
-    ort[i] = x - o.mx; ort[i + 1] = o.my - n.ort[i + 1]; ort[i + 2] = n.ort[i + 2] + (o.zVon ? o.zVon(n.ort[i], n.ort[i + 1]) : o.z ?? 0);
-  }
-  // y wird umgedreht (Bild → Raum), eine Spiegelung dreht die Dreiecke noch einmal um
-  const drehen = sp === null;
-  const index = new Uint32Array(n.index.length);
-  for (let i = 0; i < n.index.length; i += 3) { index[i] = n.index[i]; index[i + 1] = n.index[drehen ? i + 2 : i + 1]; index[i + 2] = n.index[drehen ? i + 1 : i + 2]; }
-  const g = new T.BufferGeometry();
-  g.setAttribute("position", new T.BufferAttribute(ort, 3));
-  g.setIndex(new T.BufferAttribute(index, 1));
-  g.computeVertexNormals();
-  return g;
-}
 
 /** Röhre entlang einer Punktfolge im Raum (Sehne, Nerv, Rippe). */
 export function rohr(T: Drei, punkte: [number, number, number][], radius: number, flach = 1): DREI.BufferGeometry {
@@ -51,11 +30,4 @@ export function stoff(T: Drei, farbe: string | number, art: Stoff, deck = 1): DR
     case "metall": return p({ roughness: 0.25, metalness: 0.9 });
     default: return p({ roughness: 0.5, clearcoat: 0.25 });
   }
-}
-
-/** Schwerpunkt des Rahmens einer Punktfolge. */
-export function mittePunkte(p: P[]): P {
-  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-  for (const q of p) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); }
-  return [(x0 + x1) / 2, (y0 + y1) / 2];
 }

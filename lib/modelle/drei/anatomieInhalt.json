@@ -1,7 +1,7 @@
 {
  "haut": {
   "name": "Haut",
-  "bytes": 245420,
+  "bytes": 270788,
   "dreiecke": 80000,
   "rahmen": {
    "min": [
@@ -25,11 +25,12 @@
      1
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "skelett": {
   "name": "Skelett",
-  "bytes": 495584,
+  "bytes": 566244,
   "dreiecke": 159890,
   "rahmen": {
    "min": [
@@ -440,11 +441,12 @@
      55
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "sehnen": {
   "name": "Sehnen und Bänder",
-  "bytes": 57852,
+  "bytes": 65328,
   "dreiecke": 15938,
   "rahmen": {
    "min": [
@@ -558,11 +560,12 @@
      -6
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "muskeln": {
   "name": "Muskeln",
-  "bytes": 511812,
+  "bytes": 584096,
   "dreiecke": 149696,
   "rahmen": {
    "min": [
@@ -1243,11 +1246,12 @@
      -21
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "lunge": {
   "name": "Lunge",
-  "bytes": 192380,
+  "bytes": 219152,
   "dreiecke": 59996,
   "rahmen": {
    "min": [
@@ -1316,11 +1320,12 @@
      16
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "herz": {
   "name": "Herz",
-  "bytes": 129944,
+  "bytes": 148112,
   "dreiecke": 39988,
   "rahmen": {
    "min": [
@@ -1398,11 +1403,12 @@
      3
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "verdauung": {
   "name": "Verdauung",
-  "bytes": 189540,
+  "bytes": 217368,
   "dreiecke": 59990,
   "rahmen": {
    "min": [
@@ -1498,11 +1504,12 @@
      1
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "harnwege": {
   "name": "Nieren und Harnwege",
-  "bytes": 86448,
+  "bytes": 99124,
   "dreiecke": 23632,
   "rahmen": {
    "min": [
@@ -1658,11 +1665,12 @@
      -14
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "gehirn": {
   "name": "Gehirn",
-  "bytes": 153312,
+  "bytes": 176020,
   "dreiecke": 45996,
   "rahmen": {
    "min": [
@@ -1695,7 +1703,8 @@
      6
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "nerven": {
   "name": "Nerven",
@@ -1763,7 +1772,7 @@
  },
  "auge": {
   "name": "Auge",
-  "bytes": 108532,
+  "bytes": 124640,
   "dreiecke": 29902,
   "rahmen": {
    "min": [
@@ -1868,11 +1877,12 @@
      55
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "hno": {
   "name": "Ohr, Nase und Kehlkopf",
-  "bytes": 72604,
+  "bytes": 83228,
   "dreiecke": 21810,
   "rahmen": {
    "min": [
@@ -1977,11 +1987,12 @@
      40
     ]
    }
-  ]
+  ],
+  "ao": true
  },
  "mund": {
   "name": "Mund und Kiefer",
-  "bytes": 228912,
+  "bytes": 260456,
   "dreiecke": 63244,
   "rahmen": {
    "min": [
@@ -2400,7 +2411,8 @@
    0,
    722.1,
    -5.4
-  ]
+  ],
+  "ao": true
  },
  "kopf": {
   "name": "Kopf",
