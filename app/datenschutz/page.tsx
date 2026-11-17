@@ -138,6 +138,34 @@ export default function DatenschutzPage() {
           Gerät eine Praxis angemeldet, ein Gastzugang offen oder der Empfangsmodus aktiv, bieten wir das Merken nicht an. Wer Ihr Gerät
           benutzt, kann die Liste sehen.
         </p>
+        {/* Felder wie lib/meineAngaben.ts (kopieSchema, inhaltSchema, protokollSchema), Übernahme wie
+            lib/meineAngabenUebernahme.ts, Schutzregel wie lib/meinePraxenSchutz.ts. Offen bei der Kanzlei wie oben (Fragen 1 und 2)
+            und die Fragen zur Übernahme in den Bogen einer anderen Praxis. */}
+        <p id="meine-angaben" data-testid="datenschutz-meine-angaben">
+          Meine Angaben auf diesem Gerät: Nachdem Sie einen Anamnesebogen über Ihren Link oder im Patientenportal abgeschickt haben, können
+          Sie eine Kopie Ihrer Antworten auf Ihrem Gerät behalten. Erst wenn Sie auf „Kopie meiner Angaben auf diesem Gerät behalten“
+          tippen, der Kopie einen Namen geben und zweimal einen Code eingeben, legt Ihr Browser einen Eintrag im lokalen Speicher an. Ohne
+          diesen Klick wird nichts gespeichert. Ihr Browser verschlüsselt die Kopie auf dem Gerät. Aus Ihrem Code (mindestens 6 Zeichen)
+          bildet er mit PBKDF2 (SHA-256, 600.000 Durchläufe, zufälliger Salt) einen Schlüssel und verschlüsselt damit mit AES-GCM (256 Bit,
+          zufälliger Startwert). Der Code verlässt Ihr Gerät nicht und wird nirgends gespeichert. Verschlüsselt liegen in der Kopie Ihre
+          Antworten mit Ja oder Nein, Ihre Ergänzungen dazu, die Art des Bogens, ob Sie für sich selbst oder für Ihr Kind geantwortet
+          haben, und der Name der Praxis. Lesbar liegen daneben der Name der Kopie, der Tag (Stand), die Art der Praxis (Zahnarzt, Arzt
+          oder Therapie) und technische Werte der Verschlüsselung. Nicht gespeichert werden Ihr Name, Ihr Geburtsdatum, Ihre Wünsche, Ihre
+          Hinweise und der Link. Angaben, die nur für einen Termin gelten, etwa zu einer Schwangerschaft oder einer Verordnung, kommen nicht
+          in die Kopie. Es gibt höchstens 5 Kopien. Ab 12 Monaten nach ihrem Stand löscht Ihr Browser eine Kopie, sobald Sie einen
+          Anamnesebogen oder /meine-praxen öffnen. Öffnen Sie später den Anamnesebogen einer anderen Praxis auf diesem Gerät, liest die Seite
+          nur, ob hier Kopien liegen, und bietet „Angaben von diesem Gerät übernehmen“ an. Erst mit Ihrem Code öffnet Ihr Browser eine Kopie
+          und setzt nur Antworten zu Fragen ein, die dieser Bogen stellt. Zwischen Zahnmedizin und anderen Fächern gehen nur die
+          allgemeinen Gesundheitsfragen über. Angaben für ein Kind und eigene Angaben werden nicht vermischt. Sie prüfen die Antworten,
+          können sie ändern und bestätigen vor dem Absenden, dass Sie alles geprüft haben. Die Praxis erhält den Bogen wie sonst und dazu
+          nur den Hinweis, dass er teilweise mit Ihren gespeicherten Angaben vorausgefüllt war, mit dem Stand. Woher die Angaben stammen,
+          erfährt sie nicht. Die Praxis, aus deren Bogen die Kopie stammt, erfährt von der Übernahme nichts. Unser Server erhält weder die
+          Kopie noch den Code und verbindet die Bögen nicht. Nach einer Übernahme notiert Ihr Browser auf dem Gerät den Tag, den Namen der
+          Kopie und den Namen der Praxis (Protokoll, höchstens 20 Einträge). Unter /meine-praxen können Sie jede Kopie, das Protokoll oder
+          alles löschen, ebenso über die Einstellungen Ihres Browsers. Haben Sie den Code vergessen, löschen Sie die Kopie; niemand kann
+          ihn wiederherstellen. Ist auf dem Gerät eine Praxis angemeldet, ein Gastzugang offen oder der Empfangsmodus aktiv, bieten wir das
+          nicht an. Wer Ihr Gerät benutzt, sieht die Namen der Kopien und das Protokoll, ohne Code aber nicht die Antworten.
+        </p>
       </section>
 
       <section>

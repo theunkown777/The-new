@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { gemerktePraxenLesen, gemerktePraxenLoeschen, gemerktePraxenSchreiben } from "@/lib/geraeteSpeicher";
+import { gemerktePraxenLesen, gemerktePraxenLoeschen, gemerktePraxenSchreiben, meineAngabenLoeschen } from "@/lib/geraeteSpeicher";
 import { abgelaufen, entfernen, kartenTitel, portalPfad, umbenennen, type GemerktePraxis } from "@/lib/meinePraxen";
 import { GRUPPEN_FARBE, GRUPPEN_SYMBOL } from "@/lib/praxisGruppe";
 import type { GeraetUi } from "@/lib/portalI18n";
@@ -74,6 +74,8 @@ export function MeinePraxen({ t, locale, praxisGeraet }: { t: GeraetUi; locale: 
   }
 
   function allesLoeschen() {
+    // Auf einem Gerät der Praxis löscht „Alles“ auch Kopien eigener Angaben (lib/meineAngaben.ts), falls hier welche liegen.
+    if (praxisGeraet && !meineAngabenLoeschen()) return setMeldung(t.nichtMoeglich);
     if (!gemerktePraxenLoeschen()) return setMeldung(t.nichtMoeglich);
     setStand((s) => (s.geladen ? { ...s, praxen: [] } : s));
     setAllesFrage(false);

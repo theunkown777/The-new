@@ -1,15 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { hinweisTeile, type AnamneseProfil } from "@/lib/anamneseProfile";
 
 type Ans = { yes?: boolean; detail?: string };
+
+/** Angaben vom eigenen Gerät des Patienten (components/AnamneseGeraet.tsx). Der Bogen selbst liest den Speicher nicht. */
+export type GeraetUebernahme = {
+  aktiv: boolean;
+  /** Setzt Antworten in noch offene Fragen. Gibt zurück, wie viele Fragen gefüllt wurden. */
+  einsetzen: (werte: Record<string, { yes: boolean; detail?: string }>, stand: string) => number;
+  /** Nimmt übernommene Antworten zurück, die der Patient nicht geändert hat. */
+  zuruecknehmen: () => void;
+};
+export type GeraetFelder = {
+  /** Über den Fragen: Angebot, Angaben vom Gerät zu übernehmen. */
+  uebernahme: (u: GeraetUebernahme) => ReactNode;
+  /** Nach dem Senden: Angebot, eine Kopie der Antworten auf dem Gerät zu behalten. */
+  nachSenden: (antworten: Record<string, Ans>) => ReactNode;
+  /** Nach erfolgreichem Senden (für das Protokoll auf dem Gerät). */
+  gesendet: (mitUebernahme: boolean) => void;
+  markiert: (stand: string) => string;
+  geprueft: string;
+  gepruefFehlt: string;
+};
+
+const gleich = (a: Ans | undefined, b: Ans) => a?.yes === b.yes && (a?.detail ?? "") === (b.detail ?? "");
 
 /**
  * Anamnesebogen für Patienten. Fragen und Anliegen kommen fertig vom Server (`anamneseFuer` in
  * lib/anamneseProfile.ts), passend zu Fach, Geschlecht und Alter. Ohne Profil gibt es keinen Bogen.
  */
-export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl, backHref }: { token: string; practiceName: string; firstName: string; profil: AnamneseProfil; postUrl?: string; backHref?: string }) {
+export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl, backHref, geraet }: { token: string; practiceName: string; firstName: string; profil: AnamneseProfil; postUrl?: string; backHref?: string; geraet?: GeraetFelder }) {
   const QUESTIONS = profil.fragen;
   const eltern = profil.ansprache === "eltern";
   const [answers, setAnswers] = useState<Record<string, Ans>>({});
@@ -18,7 +40,40 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
   const [confirmName, setConfirmName] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState("");
+  // Vom Gerät übernommen: Stand und die eingesetzten Werte. Solange etwas übernommen ist, muss der Patient vor dem
+  // Senden bestätigen, dass er alles geprüft hat.
+  const [vorbef, setVorbef] = useState<{ stand: string; werte: Record<string, Ans> } | null>(null);
+  const [geprueft, setGeprueft] = useState(false);
+  const gepruefRef = useRef<HTMLInputElement>(null);
+  const answersRef = useRef(answers);
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
   const open = QUESTIONS.filter((q) => answers[q.key]?.yes === undefined).length;
+
+  const uebernahme: GeraetUebernahme = {
+    aktiv: vorbef !== null,
+    einsetzen(werte, stand) {
+      const neu: Record<string, Ans> = {};
+      for (const q of QUESTIONS) {
+        const w = werte[q.key];
+        if (!w || answersRef.current[q.key]?.yes !== undefined) continue;
+        neu[q.key] = w.yes && q.detail && w.detail ? { yes: true, detail: w.detail } : { yes: w.yes };
+      }
+      if (Object.keys(neu).length === 0) return 0;
+      answersRef.current = { ...answersRef.current, ...neu };
+      setAnswers((s) => ({ ...s, ...Object.fromEntries(Object.entries(neu).filter(([k]) => s[k]?.yes === undefined)) }));
+      setVorbef({ stand, werte: neu });
+      setGeprueft(false);
+      return Object.keys(neu).length;
+    },
+    zuruecknehmen() {
+      if (!vorbef) return;
+      setAnswers((s) => Object.fromEntries(Object.entries(s).filter(([k, a]) => !(vorbef.werte[k] && gleich(a, vorbef.werte[k])))));
+      setVorbef(null);
+      setGeprueft(false);
+    },
+  };
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,16 +85,23 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
       setError("Bitte bestätigen Sie die Angaben mit Ihrem Namen.");
       return;
     }
+    if (vorbef && !geprueft && geraet) {
+      setError(geraet.gepruefFehlt);
+      gepruefRef.current?.focus();
+      return;
+    }
     setState("sending");
     setError("");
     const q = Object.fromEntries(QUESTIONS.map((x) => [x.key, { yes: !!answers[x.key].yes, detail: answers[x.key].yes ? answers[x.key].detail || undefined : undefined }]));
     const res = await fetch(postUrl ?? `/api/a/${token}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ q, wishes, note: note || undefined, confirmName }),
+      // Nur das Datum der übernommenen Angaben und die Bestätigung. Keine Herkunft, keine andere Praxis.
+      body: JSON.stringify({ q, wishes, note: note || undefined, confirmName, vorbefuellt: vorbef ? { stand: vorbef.stand, geprueft: true } : undefined }),
     }).catch(() => null);
     if (res?.ok) {
       setState("sent");
+      geraet?.gesendet(vorbef !== null);
       return;
     }
     const data = await res?.json().catch(() => null);
@@ -49,12 +111,19 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
 
   if (state === "sent") {
     return (
-      <main className="mx-auto max-w-xl px-4 py-16 text-center" role="status">
-        <h1 className="text-xl font-semibold text-slate-900">{eltern ? "Vielen Dank" : `Vielen Dank, ${firstName}`}</h1>
-        <p className="mt-3 text-slate-600">
-          {eltern ? `Der Anamnesebogen für ${firstName}` : "Ihr Anamnesebogen"} ist bei {practiceName} angekommen. Sie müssen in der Praxis nichts mehr ausfüllen.
-        </p>
-        {backHref && <a href={backHref} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Behandlungsweg</a>}
+      <main className="mx-auto max-w-xl px-4 py-16">
+        <div className="text-center" role="status">
+          <h1 className="text-xl font-semibold text-slate-900">{eltern ? "Vielen Dank" : `Vielen Dank, ${firstName}`}</h1>
+          <p className="mt-3 text-slate-600">
+            {eltern ? `Der Anamnesebogen für ${firstName}` : "Ihr Anamnesebogen"} ist bei {practiceName} angekommen. Sie müssen in der Praxis nichts mehr ausfüllen.
+          </p>
+        </div>
+        {backHref && (
+          <p className="text-center">
+            <a href={backHref} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Behandlungsweg</a>
+          </p>
+        )}
+        {geraet?.nachSenden(answers)}
       </main>
     );
   }
@@ -82,16 +151,24 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
         </p>
       )}
 
+      {geraet?.uebernahme(uebernahme)}
+
       <form onSubmit={submit} className="mt-8 space-y-4">
         {QUESTIONS.map((q, i) => {
           const a = answers[q.key] ?? {};
+          const vomGeraet = vorbef && vorbef.werte[q.key] && gleich(answers[q.key], vorbef.werte[q.key]);
           return (
-            <fieldset key={q.key} className="rounded-2xl border border-slate-200 bg-white p-4">
+            <fieldset key={q.key} className="rounded-2xl border border-slate-200 bg-white p-4" data-vom-geraet={vomGeraet ? "ja" : undefined}>
               <legend className="sr-only">{q.text}</legend>
               <p className="font-medium text-slate-900">
                 <span className="mr-1 text-slate-500">{i + 1}.</span>
                 {q.text}
               </p>
+              {vomGeraet && geraet && (
+                <p className="mt-2 inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900 ring-1 ring-amber-200" data-testid="anamnese-vom-geraet">
+                  {geraet.markiert(vorbef.stand)}
+                </p>
+              )}
               <div className="mt-3 flex gap-2">
                 {[
                   [true, "Ja"],
@@ -150,7 +227,29 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
           <input id="confirm" className="input" maxLength={120} value={confirmName} onChange={(e) => setConfirmName(e.target.value)} autoComplete="name" />
         </div>
 
-        {error && <p className="text-sm text-red-700" role="alert">{error}</p>}
+        {vorbef && geraet && (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <label className="flex cursor-pointer items-start gap-3 text-sm font-medium text-slate-900" htmlFor="vorbefuellt-geprueft">
+              <input
+                ref={gepruefRef}
+                id="vorbefuellt-geprueft"
+                type="checkbox"
+                className="mt-0.5 h-5 w-5 shrink-0 accent-brand-600"
+                checked={geprueft}
+                aria-invalid={error === geraet.gepruefFehlt ? true : undefined}
+                aria-describedby={error === geraet.gepruefFehlt ? "anamnese-fehler" : undefined}
+                onChange={(e) => {
+                  setGeprueft(e.target.checked);
+                  if (e.target.checked && error === geraet.gepruefFehlt) setError("");
+                }}
+                data-testid="anamnese-geprueft"
+              />
+              <span>{geraet.geprueft}</span>
+            </label>
+          </div>
+        )}
+
+        {error && <p id="anamnese-fehler" className="text-sm text-red-700" role="alert">{error}</p>}
         <button className="btn btn-primary w-full py-3" disabled={state === "sending"}>
           {state === "sending" ? "Wird gesendet …" : "Anamnesebogen absenden"}
         </button>

@@ -50,6 +50,15 @@ export default function AvvPage() {
           hinweg ab, weder über Name, Geburtsdatum, Kontaktdaten oder Versichertennummer noch als Hashwert. Sorrida teilt keiner Praxis mit,
           dass jemand auch bei einer anderen Praxis in Behandlung ist.
         </p>
+        <p data-testid="avv-meine-angaben">
+          Patientinnen und Patienten können nach dem Absenden eines Anamnesebogens auf ihrem eigenen Gerät eine Kopie ihrer Antworten
+          behalten und damit den Bogen einer anderen Praxis vorausfüllen („Meine Angaben auf diesem Gerät“). Das geschieht nur auf ihren
+          Klick und nur in ihrem Browser. Die Kopie ist dort mit einem Code verschlüsselt, den nur sie kennen. Sorrida erhält weder die
+          Kopie noch den Code. Die Praxis, aus deren Bogen die Kopie stammt, erfährt nichts von einer Übernahme. Die Praxis, deren Bogen
+          vorausgefüllt wurde, erhält den Bogen wie sonst und dazu nur den Hinweis, dass er teilweise mit gespeicherten Angaben des
+          Patienten vorausgefüllt und von ihm geprüft wurde, mit dem Stand. Sie erfährt nicht, aus welcher Praxis oder welchem Fach die
+          Angaben stammen.
+        </p>
       </section>
 
       <section>
@@ -179,7 +188,7 @@ export default function AvvPage() {
           <li><b>Datenminimierung:</b> nur die für den Zweck nötigen Felder; Patienten-Links enthalten keine Patientendaten und laufen ab; vor Unterschrift und Lastschrift fragt das Patientenportal das Geburtsdatum ab.</li>
           <li><b>Schutz vor Missbrauch:</b> Begrenzung der Anfragen je Absender für Anmeldung, Registrierung, Patienten-Links und Formulare.</li>
           <li><b>Verfügbarkeit:</b> Betrieb bei einem Hosting-Anbieter mit redundanter Infrastruktur; Datensicherung durch den Datenbank-Anbieter mit Wiederherstellung auf einen früheren Zeitpunkt innerhalb des im Tarif eingestellten Zeitraums.</li>
-          <li><b>Trennung:</b> Gastzugänge laufen in eigenen Demo-Praxen ohne echte Patientendaten und werden nach Ablauf gelöscht. Jeder Patienten-Link gehört zu genau einer Praxis; keine Schnittstelle nimmt Links mehrerer Praxen in einem Aufruf an. Ein Cookie, das ein Patienten-Link setzt, schickt der Browser nur an die Seiten dieses Links. Merkt sich ein Patient Links unter „Meine Praxen auf diesem Gerät“, liegt diese Liste nur in seinem Browser; Sorrida erhält sie nicht.</li>
+          <li><b>Trennung:</b> Gastzugänge laufen in eigenen Demo-Praxen ohne echte Patientendaten und werden nach Ablauf gelöscht. Jeder Patienten-Link gehört zu genau einer Praxis; keine Schnittstelle nimmt Links mehrerer Praxen in einem Aufruf an. Ein Cookie, das ein Patienten-Link setzt, schickt der Browser nur an die Seiten dieses Links. Merkt sich ein Patient Links unter „Meine Praxen auf diesem Gerät“, liegt diese Liste nur in seinem Browser; Sorrida erhält sie nicht. Behält ein Patient eine Kopie seiner Anamnese-Antworten („Meine Angaben auf diesem Gerät“), geschieht das nur auf seinen Klick; die Kopie liegt verschlüsselt mit seinem Code nur in seinem Browser, und Sorrida erhält weder Kopie noch Code. Übernimmt er sie in den Bogen einer anderen Praxis, erfährt die erste Praxis nichts; die andere sieht nur den Hinweis „teilweise mit gespeicherten Angaben des Patienten vorausgefüllt, vom Patienten geprüft“ mit dem Stand, ohne Herkunft.</li>
         </ul>
       </section>
 

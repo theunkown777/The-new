@@ -1,8 +1,11 @@
+import { ANGABEN_SCHLUESSEL, ablageLesen, ablageSchreiben, leereAblage, type Ablage } from "@/lib/meineAngaben";
 import { SPEICHER_SCHLUESSEL, listeLesen, listeSchreiben, type GemerktePraxis } from "@/lib/meinePraxen";
 
-// Einziger Zugriff auf den Speicher des Browsers für „Meine Praxen auf diesem Gerät“ (Datenschutzerklärung,
-// Abschnitt 3; lib/browserSpeicher.test.ts). Gelesen wird nur auf der Seite /meine-praxen, geschrieben nur nach
-// einem Klick des Patienten. Nichts davon geht an den Server. Nur im Browser aufrufen (Client-Bausteine).
+// Einziger Zugriff auf den Speicher des Browsers für „Meine Praxen auf diesem Gerät“ und „Meine Angaben auf diesem
+// Gerät“ (Datenschutzerklärung, Abschnitt 3; lib/browserSpeicher.test.ts). Die Liste der Praxen wird nur auf der
+// Seite /meine-praxen gelesen. Die Kopien der Angaben werden auf /meine-praxen und im offenen Anamnesebogen auf dem
+// Gerät des Patienten gelesen (/a/<token>, /portal/<token>/anamnese/<id>), nie in der Praxis-App und nie am Empfang.
+// Geschrieben wird nur nach einem Klick des Patienten. Nichts davon geht an den Server. Nur im Browser aufrufen.
 //
 // Bekanntes Restrisiko (für DSFA und Kanzlei, offen): Die Liste bündelt die Portal-Links aller gemerkten Praxen an
 // einer Stelle. Der Speicher gehört zur Adresse, unter der auch Website, Praxis-App und Buchungsseite laufen, und dort
@@ -43,4 +46,37 @@ export function gemerktePraxenSchreiben(praxen: GemerktePraxis[]): boolean {
 /** „Alles von diesem Gerät löschen“. */
 export function gemerktePraxenLoeschen(): boolean {
   return gemerktePraxenSchreiben([]);
+}
+
+// --- „Meine Angaben auf diesem Gerät“ (lib/meineAngaben.ts): nur verschlüsselte Kopien, Name, Stand, Art, Protokoll ---
+
+export type AngabenStand = Ablage & { verfuegbar: boolean; abgelaufen: number };
+
+/** Kopien und Protokoll lesen. Kaputtes und Abgelaufenes wird dabei gelöscht (abgelaufen: so viele Kopien). */
+export function meineAngabenLesen(): AngabenStand {
+  let roh: string | null;
+  try {
+    roh = localStorage.getItem(ANGABEN_SCHLUESSEL);
+  } catch {
+    return { verfuegbar: false, kopien: [], protokoll: [], abgelaufen: 0 };
+  }
+  const { kopien, protokoll, geaendert, abgelaufen } = ablageLesen(roh);
+  if (geaendert) meineAngabenSchreiben({ kopien, protokoll });
+  return { verfuegbar: true, kopien, protokoll, abgelaufen };
+}
+
+/** Schreibt die Ablage. Eine leere Ablage löscht den Wert ganz. Liefert false, wenn der Browser das nicht erlaubt. */
+export function meineAngabenSchreiben(ablage: Ablage): boolean {
+  try {
+    if (leereAblage(ablage)) localStorage.removeItem(ANGABEN_SCHLUESSEL);
+    else localStorage.setItem(ANGABEN_SCHLUESSEL, ablageSchreiben(ablage));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** „Alle Angaben von diesem Gerät löschen“: Kopien und Protokoll. */
+export function meineAngabenLoeschen(): boolean {
+  return meineAngabenSchreiben({ kopien: [], protokoll: [] });
 }

@@ -6,6 +6,7 @@ import { anrede } from "@/lib/ohneAkte";
 import type { AnamnesisSummary } from "@/lib/anamnesisView";
 import { AnamnesisFlags } from "@/components/AnamnesisFlags";
 
+const tagFmt = (tag: string) => new Date(`${tag}T00:00:00Z`).toLocaleDateString("de-DE", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "numeric" });
 const fmt = (iso: string) => new Date(iso).toLocaleString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
 export function AnamnesisPanel({ patientId, firstName, summary }: { patientId: string; firstName: string; summary: AnamnesisSummary }) {
@@ -37,7 +38,15 @@ export function AnamnesisPanel({ patientId, firstName, summary }: { patientId: s
         </button>
       </div>
       {summary.submittedAt ? (
-        <AnamnesisFlags flags={summary.flags} submittedAt={summary.submittedAt} />
+        <>
+          <AnamnesisFlags flags={summary.flags} submittedAt={summary.submittedAt} />
+          {/* Nur der Stand: Woher die Angaben stammen, erfährt die Praxis nicht (lib/meineAngaben.ts). */}
+          {summary.vorbefuelltStand && (
+            <p className="text-xs text-slate-600" data-testid="anamnese-vorbefuellt">
+              Teilweise mit gespeicherten Angaben des Patienten vorausgefüllt (Stand {tagFmt(summary.vorbefuelltStand)}), vom Patienten geprüft.
+            </p>
+          )}
+        </>
       ) : (
         <p className="text-sm text-slate-600">
           Noch keine digitale Anamnese. Der Bogen wird vor dem Termin auf dem Handy ausgefüllt. Die Angaben stehen dann hier und beim

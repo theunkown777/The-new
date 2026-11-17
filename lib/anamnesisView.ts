@@ -4,6 +4,11 @@ import type { GlobalCode } from "@/lib/proposals";
 
 export type AnamnesisSummary = {
   submittedAt: string | null;
+  /**
+   * Tag (YYYY-MM-DD) der Angaben, die der Patient von seinem eigenen Gerät übernommen und vor dem Senden geprüft hat.
+   * Nur das Datum: keine Herkunft, keine andere Praxis, kein anderes Fach (lib/meineAngaben.ts). Sonst null.
+   */
+  vorbefuelltStand: string | null;
   open: { createdAt: string; viewedAt: string | null; expiresAt: string } | null;
   flags: AnamnesisFlag[];
   /** Übernahme in den zahnärztlichen Vorschlag; in anderen Fächern leer. */
@@ -29,6 +34,7 @@ export async function loadAnamnesis(practiceId: string, patientId: string): Prom
   const fach = a && !a.fach && !done?.fach ? (await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }))?.specialty : done?.fach;
   return {
     submittedAt: done?.submittedAt?.toISOString() ?? null,
+    vorbefuelltStand: done?.vorbefuelltStand ? done.vorbefuelltStand.toISOString().slice(0, 10) : null,
     open: open ? { createdAt: open.createdAt.toISOString(), viewedAt: open.viewedAt?.toISOString() ?? null, expiresAt: open.expiresAt.toISOString() } : null,
     flags: a ? anamnesisFlags(a) : [],
     globals: a ? anamnesisProposalGlobals(a, fach) : [],

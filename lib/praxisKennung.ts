@@ -1,4 +1,4 @@
-import { ALLE_SPECIALTIES, isDental, isTherapie, specialty } from "@/lib/specialties";
+import { ALLE_SPECIALTIES, DENTAL_ID, isDental, isTherapie, specialty } from "@/lib/specialties";
 import { leseStammdaten } from "@/lib/praxisStammdaten";
 import { GRUPPEN_FARBE, GRUPPEN_SYMBOL, type PraxisGruppe } from "@/lib/praxisGruppe";
 
@@ -31,6 +31,16 @@ export const KURZNAME_MAX = 12;
 export function praxisGruppe(fach: string | null | undefined): PraxisGruppe {
   if (isDental(fach)) return "zahn";
   return isTherapie(specialty(fach)) ? "therapie" : "arzt";
+}
+
+/**
+ * Art der Praxis zu einem Anamnesebogen, für die Kopie auf dem Gerät des Patienten (lib/meineAngaben.ts).
+ * "zahn" nur beim Zahnbogen. Ein neutraler Bogen richtet sich nach dem Fach der Praxis, sonst gilt "arzt".
+ */
+export function bogenGruppe(bogenFach: string, praxisFach: string | null | undefined): PraxisGruppe {
+  if (bogenFach === DENTAL_ID) return "zahn";
+  const f = bogenFach !== "neutral" ? bogenFach : praxisFach;
+  return f && !isDental(f) ? praxisGruppe(f) : "arzt";
 }
 
 export function fachKurz(fach: string | null | undefined): string {

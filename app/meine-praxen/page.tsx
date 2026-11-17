@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
 import { MeinePraxen } from "@/components/MeinePraxen";
+import { MeineAngaben } from "@/components/MeineAngaben";
 import { darfAufGeraetMerken } from "@/lib/meinePraxenSchutz";
-import { GERAET_UI, PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, pickPortalLang, portalDir } from "@/lib/portalI18n";
+import { ANGABEN_UI, GERAET_UI, PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, pickPortalLang, portalDir } from "@/lib/portalI18n";
 
 // „Meine Praxen auf diesem Gerät“. Server-Hülle ohne Datenbank: Sie wählt die Sprache und schaut nur auf die
 // Namen der Cookies (Gerät der Praxis?). Die Liste selbst liegt allein im Browser des Patienten und wird dort
@@ -54,6 +55,9 @@ export default async function MeinePraxenSeite(props: { searchParams: Promise<{ 
 
         <MeinePraxen t={t} locale={PORTAL_LOCALE[lang]} praxisGeraet={praxisGeraet} />
 
+        {/* Verschlüsselte Kopien eigener Angaben aus Anamnesebögen (lib/meineAngaben.ts), nur im Browser gelesen. */}
+        <MeineAngaben t={ANGABEN_UI[lang]} locale={PORTAL_LOCALE[lang]} praxisGeraet={praxisGeraet} />
+
         <footer className="mt-12 space-y-3 text-center text-xs text-slate-600 dark:text-[#BDB3A8]">
           <nav className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm" aria-label="Sprache" data-testid="meine-praxen-sprachen">
             {PORTAL_LANGS.map((l) => (
@@ -65,6 +69,8 @@ export default async function MeinePraxenSeite(props: { searchParams: Promise<{ 
           <p>{t.fuss}</p>
           <p>
             <a href="/datenschutz#meine-praxen" className="underline">{t.datenschutz}</a>
+            {" · "}
+            <a href="/datenschutz#meine-angaben" className="underline">{ANGABEN_UI[lang].abschnitt}</a>
             {" · "}
             <a href="/impressum" className="underline" lang="de">Impressum</a>
           </p>

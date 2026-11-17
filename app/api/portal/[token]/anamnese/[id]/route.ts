@@ -24,12 +24,14 @@ export async function POST(req: Request, props: { params: Promise<{ token: strin
   });
   if (!form) return NextResponse.json({ error: "Dieser Bogen ist nicht mehr offen." }, { status: 404 });
   // Geprüft wird gegen den Bogen des Fachs, der angezeigt wurde (lib/anamneseProfile.ts); fremde Fragen werden abgelehnt.
+  // Vom Gerät übernommene Angaben (lib/meineAngaben.ts): Gespeichert wird nur der Tag, an dem der Patient sie
+  // festgehalten hat. Keine Herkunft, keine andere Praxis.
   const profil = anamneseProfilFuer(form.fach, form.practice.specialty, form.patient);
-  const geprueft = anamnesePruefen(await req.json().catch(() => null), profil, { altbestand: !form.fach });
+  const geprueft = anamnesePruefen(await req.json().catch(() => null), profil, { altbestand: !form.fach, vorbefuelltErlaubt: true });
   if (!geprueft.ok) return NextResponse.json({ error: geprueft.fehler }, { status: 400 });
   const res = await prisma.anamnesisForm.updateMany({
     where: offen,
-    data: { answers: geprueft.daten as unknown as Prisma.InputJsonValue, submittedAt: new Date(), tokenHash: null, fach: form.fach ?? form.practice.specialty },
+    data: { answers: geprueft.daten as unknown as Prisma.InputJsonValue, submittedAt: new Date(), tokenHash: null, fach: form.fach ?? form.practice.specialty, vorbefuelltStand: geprueft.vorbefuelltStand },
   });
   if (res.count === 0) return NextResponse.json({ error: "Dieser Bogen ist nicht mehr offen." }, { status: 404 });
   await eingangMelden({ practiceId: patient.practiceId, patientId: patient.id, art: "ANAMNESE", entityId: params.id });

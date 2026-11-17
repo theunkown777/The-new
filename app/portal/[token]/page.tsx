@@ -209,7 +209,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
     : openProposal
       ? `/portal/${params.token}/vorschlag/${openProposal.id}${sprachZusatz}`
       : patient.anamnesisForms[0]
-        ? `/portal/${params.token}/anamnese/${patient.anamnesisForms[0].id}`
+        ? `/portal/${params.token}/anamnese/${patient.anamnesisForms[0].id}${sprachZusatz}`
         : "#dokumente";
 
   return (
@@ -349,7 +349,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
             <ul className="mt-3 space-y-3">
               {patient.anamnesisForms.map((f) => (
                 <li key={f.id}>
-                  <a href={`/portal/${params.token}/anamnese/${f.id}`} className="flex items-center justify-between gap-3 rounded-2xl bg-sky-50 p-4 hover:bg-sky-100" data-testid="portal-anamnese">
+                  <a href={`/portal/${params.token}/anamnese/${f.id}${sprachZusatz}`} className="flex items-center justify-between gap-3 rounded-2xl bg-sky-50 p-4 hover:bg-sky-100" data-testid="portal-anamnese">
                     <span>
                       <span className="block font-medium text-slate-900">{t.anamnesisTitle}</span>
                       <span className="text-sm text-slate-600">{t.anamnesis}</span>

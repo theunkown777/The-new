@@ -10,6 +10,7 @@ import {
   anamneseFuer,
   type AnamneseProfil,
 } from "@/lib/anamneseProfile";
+import { GUELTIG_MONATE } from "@/lib/meineAngaben";
 
 // Digitaler Anamnesebogen. Besser als ein abgetipptes Papierformular, weil die Antworten (1) als Hinweise für die
 // Behandlung oben stehen und (2) in der Zahnmedizin direkt in den Behandlungsvorschlag einfließen (Raucher,
@@ -29,6 +30,7 @@ const NAME = "Bitte Ihren Namen zur Bestätigung eintragen";
 const DETAIL_LANG = "Bitte kürzen Sie Ihre Angabe zu einer Frage auf höchstens 300 Zeichen.";
 const HINWEIS_LANG = "Bitte kürzen Sie die weiteren Hinweise auf höchstens 1000 Zeichen.";
 const NAME_LANG = "Bitte kürzen Sie den Namen auf höchstens 120 Zeichen.";
+const VORBEFUELLT = "Die übernommenen Angaben sind zu alt oder unklar datiert. Bitte prüfen Sie den Bogen und füllen Sie ihn ohne Übernahme aus.";
 
 const answer = z.object({ yes: z.boolean(), detail: z.string().trim().max(300).optional() });
 const note = z.string().trim().max(1000).optional();
@@ -99,7 +101,33 @@ export type Anamnese = {
 /** Früherer Name. */
 export type AnamnesisAnswers = Anamnese;
 
-export type AnamnesePruefung = { ok: true; daten: Anamnese } | { ok: false; fehler: string };
+/**
+ * `vorbefuelltStand`: Der Patient hat Angaben von seinem eigenen Gerät übernommen und vor dem Senden bestätigt, dass er
+ * sie geprüft hat („Eigene Angaben mitnehmen“, lib/meineAngaben.ts). Der Server erfährt nur den Tag (Stand), nie die
+ * Herkunft: keine andere Praxis, kein anderes Fach. Sonst null.
+ */
+export type AnamnesePruefung = { ok: true; daten: Anamnese; vorbefuelltStand: Date | null } | { ok: false; fehler: string };
+
+const vorbefuelltSchema = z.strictObject({ stand: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), geprueft: z.literal(true) });
+
+/**
+ * Stand der übernommenen Angaben: ein gültiger Tag, nicht in der Zukunft und höchstens so alt, wie eine Kopie auf dem
+ * Gerät leben darf (GUELTIG_MONATE). Je einen Tag Spielraum für Zeitzonen. Ungültig: null.
+ */
+export function vorbefuelltStandLesen(wert: unknown, jetzt: Date = new Date()): Date | null {
+  const p = vorbefuelltSchema.safeParse(wert);
+  if (!p.success) return null;
+  const [j, m, t] = p.data.stand.split("-").map(Number);
+  const tag = new Date(Date.UTC(j, m - 1, t));
+  if (tag.getUTCFullYear() !== j || tag.getUTCMonth() !== m - 1 || tag.getUTCDate() !== t) return null;
+  const heute = Date.UTC(jetzt.getUTCFullYear(), jetzt.getUTCMonth(), jetzt.getUTCDate());
+  const aeltester = new Date(heute);
+  aeltester.setUTCMonth(aeltester.getUTCMonth() - GUELTIG_MONATE);
+  aeltester.setUTCDate(aeltester.getUTCDate() - 1);
+  const tagMs = 24 * 60 * 60 * 1000;
+  if (tag.getTime() > heute + tagMs || tag.getTime() < aeltester.getTime()) return null;
+  return tag;
+}
 
 /**
  * Prüft die Antworten gegen den Bogen des Fachs und liefert die Speicherform (Fassung 2).
@@ -107,7 +135,28 @@ export type AnamnesePruefung = { ok: true; daten: Anamnese } | { ok: false; fehl
  * Fassung angenommen, damit niemand an einem vorher geöffneten Bogen scheitert. Fremde Anliegen fallen dabei weg;
  * beantwortete Fragen bleiben erhalten, weil sie Hinweise wie Blutverdünner tragen.
  */
-export function anamnesePruefen(body: unknown, profil: AnamneseProfil, opts: { altbestand?: boolean } = {}): AnamnesePruefung {
+export function anamnesePruefen(
+  eingabe: unknown,
+  profil: AnamneseProfil,
+  opts: { altbestand?: boolean; /** Nur im Bogen auf dem Gerät des Patienten (/a, Portal), nie am Empfang. */ vorbefuelltErlaubt?: boolean; jetzt?: Date } = {},
+): AnamnesePruefung {
+  // „vorbefuellt“ getrennt prüfen: Es gehört nicht zur Speicherform der Antworten, sondern in eine eigene Spalte.
+  let body = eingabe;
+  let vorbefuelltStand: Date | null = null;
+  if (eingabe && typeof eingabe === "object" && !Array.isArray(eingabe) && "vorbefuellt" in eingabe) {
+    const { vorbefuellt, ...rest } = eingabe as Record<string, unknown>;
+    body = rest;
+    if (vorbefuellt !== undefined && vorbefuellt !== null) {
+      if (!opts.vorbefuelltErlaubt) return { ok: false, fehler: FREMD };
+      vorbefuelltStand = vorbefuelltStandLesen(vorbefuellt, opts.jetzt);
+      if (!vorbefuelltStand) return { ok: false, fehler: VORBEFUELLT };
+    }
+  }
+  const ergebnis = antwortenPruefen(body, profil, opts);
+  return ergebnis.ok ? { ...ergebnis, vorbefuelltStand } : ergebnis;
+}
+
+function antwortenPruefen(body: unknown, profil: AnamneseProfil, opts: { altbestand?: boolean }): { ok: true; daten: Anamnese } | { ok: false; fehler: string } {
   // reportInput: um eine fehlende Frage (Bogen geändert) von einer falschen Antwort zu unterscheiden.
   const p = anamnesisSchemaFuer(profil).safeParse(body, { reportInput: true });
   if (p.success) return { ok: true, daten: speicherform(profil, p.data) };

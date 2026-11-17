@@ -136,3 +136,52 @@ describe("Hinweise aus dem Anamnesebogen", () => {
     for (const a of Object.values(ANLIEGEN)) if (a.hinweis) expect(a.hinweis.text, a.key).not.toMatch(/patient:|einplanen|mehr Zeit|risiko|:/i);
   });
 });
+
+describe("Übernommene Angaben vom Gerät des Patienten (vorbefuellt)", () => {
+  const jetzt = new Date("2026-11-17T10:00:00Z");
+  const voll = { q: allNo(hausarzt), wishes: [], confirmName: "M. Weber" };
+  const mit = (vorbefuellt: unknown) => ({ ...voll, vorbefuellt });
+
+  it("nur mit Erlaubnis (Bogen auf dem Gerät des Patienten), sonst gilt der Bogen als geändert", () => {
+    const ohne = anamnesePruefen(mit({ stand: "2026-11-01", geprueft: true }), hausarzt, { jetzt });
+    expect(ohne).toEqual({ ok: false, fehler: "Der Bogen hat sich geändert. Bitte laden Sie die Seite neu." });
+    // Ohne Übernahme bleibt alles wie bisher.
+    const normal = anamnesePruefen(voll, hausarzt, { vorbefuelltErlaubt: true, jetzt });
+    expect(normal.ok && normal.vorbefuelltStand).toBe(null);
+    expect(anamnesePruefen({ ...voll, vorbefuellt: null }, hausarzt, { jetzt }).ok).toBe(true);
+  });
+
+  it("ein gültiger Stand wird als Tag gespeichert, getrennt von den Antworten", () => {
+    const p = anamnesePruefen(mit({ stand: "2026-11-01", geprueft: true }), hausarzt, { vorbefuelltErlaubt: true, jetzt });
+    expect(p.ok).toBe(true);
+    if (!p.ok) return;
+    expect(p.vorbefuelltStand?.toISOString()).toBe("2026-11-01T00:00:00.000Z");
+    expect(JSON.stringify(p.daten)).not.toMatch(/vorbefuellt|2026-11-01/);
+  });
+
+  it("lehnt Zukunft, zu alte, ungültige und unbestätigte Angaben ab", () => {
+    const fehler = (v: unknown) => {
+      const p = anamnesePruefen(mit(v), hausarzt, { vorbefuelltErlaubt: true, jetzt });
+      return p.ok ? "ok" : p.fehler;
+    };
+    expect(fehler({ stand: "2026-11-18", geprueft: true })).toBe("ok"); // ein Tag Spielraum für Zeitzonen
+    expect(fehler({ stand: "2025-11-16", geprueft: true })).toBe("ok");
+    for (const v of [
+      { stand: "2026-11-19", geprueft: true },
+      { stand: "2025-11-15", geprueft: true },
+      { stand: "2026-02-30", geprueft: true },
+      { stand: "17.11.2026", geprueft: true },
+      { stand: "2026-11-01", geprueft: false },
+      { stand: "2026-11-01" },
+      "2026-11-01",
+      true,
+    ]) expect(fehler(v), JSON.stringify(v)).toMatch(/übernommenen Angaben/);
+  });
+
+  it("nimmt keine Herkunft an: weitere Felder (Praxis, Fach, Kopie) werden abgelehnt", () => {
+    for (const extra of [{ praxis: "Zahnarztpraxis A" }, { fach: "zahn" }, { kopie: "Meine Angaben" }, { gruppe: "zahn" }]) {
+      const p = anamnesePruefen(mit({ stand: "2026-11-01", geprueft: true, ...extra }), hausarzt, { vorbefuelltErlaubt: true, jetzt });
+      expect(p.ok, JSON.stringify(extra)).toBe(false);
+    }
+  });
+});

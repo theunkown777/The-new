@@ -9,11 +9,13 @@
 //   4. Seiten unter app/portal laden Patienten nur über den Link (die Matrix in lib/mandantentrennung.matrix.ts sieht nur route.ts).
 //   5. Der Speicher auf dem Gerät wird nur an den vorgesehenen Stellen angefasst, nie in der Praxis-App.
 //   6. Cookies eines Patienten-Links gehen nur an die Seiten dieses Links, nie an "/" (sonst an jede Praxis).
+//   7. „Eigene Angaben mitnehmen“ (lib/meineAngaben.ts): keine neue Schnittstelle, kein Abgleich auf dem Server. Die Akte
+//      und der Eingang der zweiten Praxis zeigen nur den Hinweis mit dem Stand, nie Herkunft, Praxis oder Fach.
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
-import { GERAET_UI, PORTAL_LANGS } from "@/lib/portalI18n";
+import { ANGABEN_UI, GERAET_UI, PORTAL_LANGS } from "@/lib/portalI18n";
 import { pruefCookieName, pruefCookiePfade, pruefCookieZeilen, pruefToken } from "@/lib/portalPruefungCookie";
 import { hashToken } from "@/lib/tokens";
 import { freiOhneZugang } from "@/lib/vorschau";
@@ -366,7 +368,7 @@ describe("/meine-praxen: nur auf dem Gerät", () => {
   it("lädt kein Portal vorab: gewöhnliche Links statt next/link, kein prefetch, kein Router", () => {
     // next/link lädt sichtbare Ziele im Hintergrund vor. Auf /meine-praxen ginge damit beim Öffnen der Liste jedes
     // gemerkte Portal an den Server, alle in einem Moment. Das prüft auch e2e/meine-praxen.js im Browser.
-    for (const d of ["app/meine-praxen/page.tsx", "components/MeinePraxen.tsx", "components/PraxisMerken.tsx"]) {
+    for (const d of ["app/meine-praxen/page.tsx", "components/MeinePraxen.tsx", "components/MeineAngaben.tsx", "components/PraxisMerken.tsx"]) {
       const q = ohneKommentare(lies(d));
       expect(q, d).not.toMatch(/next\/link|next\/navigation|\bprefetch\b|prerender|speculationrules|useRouter|\brouter\./i);
     }
@@ -394,14 +396,31 @@ describe("/meine-praxen: nur auf dem Gerät", () => {
 });
 
 describe("Speicher auf dem Gerät: nur an den vorgesehenen Stellen", () => {
-  it("der Schlüssel steht nur in lib/meinePraxen.ts", () => {
+  it("jeder Schlüssel steht nur in seiner Datei", () => {
     expect(QUELLEN.filter((d) => lies(d).includes("sorrida:meine-praxen"))).toEqual(["lib/meinePraxen.ts"]);
+    expect(QUELLEN.filter((d) => lies(d).includes("sorrida:meine-angaben"))).toEqual(["lib/meineAngaben.ts"]);
   });
-  it("lib/geraeteSpeicher.ts binden nur die beiden Bausteine für Patienten ein, nie die Praxis-App oder der Empfangsmodus", () => {
+  it("lib/geraeteSpeicher.ts binden nur die Bausteine für Patienten ein, nie die Praxis-App oder der Empfangsmodus", () => {
     const nutzer = QUELLEN.filter((d) => /from\s+["']@\/lib\/geraeteSpeicher["']/.test(lies(d)));
-    expect(nutzer.sort()).toEqual(["components/MeinePraxen.tsx", "components/PraxisMerken.tsx"]);
+    expect(nutzer.sort()).toEqual(["components/AnamneseGeraet.tsx", "components/MeineAngaben.tsx", "components/MeinePraxen.tsx", "components/PraxisMerken.tsx"]);
     const merkenNutzer = QUELLEN.filter((d) => /from\s+["']@\/components\/(PraxisMerken|MeinePraxen)["']/.test(lies(d)));
     expect(merkenNutzer.sort()).toEqual(["app/meine-praxen/page.tsx", "app/portal/[token]/page.tsx"]);
+    // Kopien eigener Angaben: nur im Bogen auf dem Gerät des Patienten (/a, Portal) und auf /meine-praxen.
+    const bogenNutzer = QUELLEN.filter((d) => /from\s+["']@\/components\/AnamneseGeraet["']/.test(lies(d)));
+    expect(bogenNutzer.sort()).toEqual(["app/a/[token]/page.tsx", "app/portal/[token]/anamnese/[id]/page.tsx"]);
+    expect(QUELLEN.filter((d) => /from\s+["']@\/components\/MeineAngaben["']/.test(lies(d)))).toEqual(["app/meine-praxen/page.tsx"]);
+    // Den Speicher liest der Bogen selbst nie; am Empfang (app/uebergabe) gibt es nur den Bogen ohne Gerät.
+    for (const d of ["components/AnamnesisForm.tsx", ...lauf("app/uebergabe"), ...lauf("app/(app)")]) {
+      expect(lies(d), d).not.toMatch(/from\s+["']@\/(lib\/geraeteSpeicher|lib\/meineAngaben\w*|components\/AnamneseGeraet|components\/MeineAngaben)["']/);
+    }
+  });
+  it("die Übernahme erscheint nur, wenn der Server es erlaubt (eigenes Gerät, keine Praxis-Sitzung, kein Empfangsmodus)", () => {
+    for (const d of ["app/a/[token]/page.tsx", "app/portal/[token]/anamnese/[id]/page.tsx"]) {
+      const q = ohneKommentare(lies(d));
+      expect(q, d).toMatch(/const eigenesGeraet = darfAufGeraetMerken\(\(await cookies\(\)\)\.getAll\(\)\.map\(\(c\) => c\.name\)\)/);
+      expect(q, d).toMatch(/\{eigenesGeraet \? \(\s*<AnamneseGeraet/);
+      expect(q.match(/<AnamneseGeraet\b/g), d).toHaveLength(1);
+    }
   });
   it("der Knopf erscheint nur, wenn der Server es erlaubt (keine Praxis-Sitzung, kein Empfangsmodus)", () => {
     const portal = lies("app/portal/[token]/page.tsx");
@@ -458,10 +477,154 @@ describe("Rechtstexte nennen die Brücke", () => {
     expect(seite).toMatch(/id="meine-praxen"/);
     for (const wort of ["nur", "Link zum Portal", "Vorname der Person, für die der Link gilt", "Name, Fach und Ort der Praxis", "Art der Praxis", "nur in diesem Browser", "Gastzugang", "nach unserer Einschätzung", "bis wann der Link gilt", "wann Sie ihn gemerkt haben", "eigener Name", "weder an unseren Server noch an eine Praxis", "löschen"]) expect(seite).toContain(wort);
   });
+  it("die Datenschutzerklärung beschreibt die Kopie eigener Angaben mit allen Feldern", () => {
+    const seite = lies("app/datenschutz/page.tsx").replace(/\s+/g, " ");
+    expect(seite).toMatch(/id="meine-angaben"/);
+    for (const wort of [
+      "Erst wenn Sie auf „Kopie meiner Angaben auf diesem Gerät behalten“ tippen",
+      "Ohne diesen Klick wird nichts gespeichert.",
+      "PBKDF2 (SHA-256, 600.000 Durchläufe, zufälliger Salt)",
+      "AES-GCM (256 Bit, zufälliger Startwert)",
+      "Der Code verlässt Ihr Gerät nicht und wird nirgends gespeichert.",
+      "Nicht gespeichert werden Ihr Name, Ihr Geburtsdatum, Ihre Wünsche, Ihre Hinweise und der Link.",
+      "Es gibt höchstens 5 Kopien.",
+      "Ab 12 Monaten nach ihrem Stand",
+      "Woher die Angaben stammen, erfährt sie nicht.",
+      "Die Praxis, aus deren Bogen die Kopie stammt, erfährt von der Übernahme nichts.",
+      "Unser Server erhält weder die Kopie noch den Code",
+      "Protokoll, höchstens 20 Einträge",
+      "Gastzugang",
+    ]) expect(seite).toContain(wort);
+  });
+  it("die Zahlen in der Datenschutzerklärung stimmen mit dem Code überein", async () => {
+    const m = await import("@/lib/meineAngaben");
+    const seite = lies("app/datenschutz/page.tsx").replace(/\s+/g, " ");
+    expect(seite).toContain(`${m.PBKDF2_DURCHLAEUFE.toLocaleString("de-DE")} Durchläufe`);
+    expect(seite).toContain(`mindestens ${m.MIN_CODE} Zeichen`);
+    expect(seite).toContain(`höchstens ${m.MAX_KOPIEN} Kopien`);
+    expect(seite).toContain(`Ab ${m.GUELTIG_MONATE} Monaten`);
+    expect(seite).toContain(`höchstens ${m.MAX_PROTOKOLL} Einträge`);
+  });
   it("das AVV-Muster sagt zu, dass Sorrida keine Mandanten verknüpft und nicht abgleicht", () => {
     const avv = lies("app/avv/page.tsx").replace(/\s+/g, " ");
     expect(avv).toContain("Sorrida verknüpft die Daten der Praxis nicht mit Daten anderer Praxen.");
     expect(avv).toMatch(/nicht über Praxen hinweg ab, weder über Name, Geburtsdatum, Kontaktdaten oder Versichertennummer noch als Hashwert/);
     expect(avv).toMatch(/keine Schnittstelle nimmt Links mehrerer Praxen in einem Aufruf an/);
+  });
+  it("das AVV-Muster beschreibt die Kopie eigener Angaben: nur auf Klick, verschlüsselt, ohne Herkunft", () => {
+    const avv = lies("app/avv/page.tsx").replace(/\s+/g, " ");
+    expect(avv).toMatch(/data-testid="avv-meine-angaben"/);
+    for (const wort of [
+      "Das geschieht nur auf ihren Klick und nur in ihrem Browser.",
+      "Sorrida erhält weder die Kopie noch den Code.",
+      "Die Praxis, aus deren Bogen die Kopie stammt, erfährt nichts von einer Übernahme.",
+      "Sie erfährt nicht, aus welcher Praxis oder welchem Fach die Angaben stammen.",
+    ]) expect(avv).toContain(wort);
+    const trennung = /<li><b>Trennung:<\/b>(.*?)<\/li>/.exec(avv)![1];
+    for (const wort of ["nur auf seinen Klick", "verschlüsselt mit seinem Code nur in seinem Browser", "Sorrida erhält weder Kopie noch Code", "erfährt die erste Praxis nichts", "mit dem Stand, ohne Herkunft"]) expect(trennung).toContain(wort);
+  });
+});
+
+describe("Eigene Angaben mitnehmen: keine Verbindung auf dem Server", () => {
+  const routen = lauf("app", /^route\.ts$/);
+  const ANAMNESE_ROUTEN = ["app/api/a/[token]/route.ts", "app/api/portal/[token]/anamnese/[id]/route.ts"];
+
+  it("keine neue Schnittstelle: Kopien, Code und Protokoll gehen an keine Route", () => {
+    for (const r of routen) {
+      expect(r, r).not.toMatch(/angaben|kopie|bruecke|vorbefuell/i);
+      const q = ohneKommentare(lies(r));
+      expect(q, r).not.toMatch(/geraeteSpeicher|meineAngaben|meine-angaben|meineAngabenUebernahme/);
+    }
+    // Den Stand der übernommenen Angaben nehmen nur die beiden Bögen auf dem Gerät des Patienten an.
+    expect(routen.filter((r) => /vorbefuellt/.test(ohneKommentare(lies(r)))).sort()).toEqual(ANAMNESE_ROUTEN);
+    for (const r of ANAMNESE_ROUTEN) {
+      const q = ohneKommentare(lies(r));
+      expect(q, r).toMatch(/anamnesePruefen\(await req\.json\(\)\.catch\(\(\) => null\), profil, \{ altbestand: !form\.fach, vorbefuelltErlaubt: true \}\)/);
+      expect(q, r).toMatch(/vorbefuelltStand: geprueft\.vorbefuelltStand \}/);
+    }
+    // Am Empfang (Gerät der Praxis) gibt es keine Übernahme: Der Server lehnt „vorbefuellt“ dort ab.
+    expect(ohneKommentare(lies("app/api/empfang/patient/anamnese/[id]/route.ts"))).not.toMatch(/vorbefuellt/);
+  });
+
+  it("der Bogen schickt nur den Stand und die Bestätigung, keine Herkunft", () => {
+    const bogen = ohneKommentare(lies("components/AnamnesisForm.tsx"));
+    expect(bogen.match(/\bvorbefuellt\s*:/g)).toHaveLength(1);
+    expect(bogen).toContain("vorbefuellt: vorbef ? { stand: vorbef.stand, geprueft: true } : undefined");
+    expect(bogen).not.toMatch(/localStorage|sessionStorage|indexedDB/);
+    // Lesen, Entschlüsseln und Speichern geschehen ohne Aufruf an den Server.
+    for (const d of ["components/AnamneseGeraet.tsx", "components/MeineAngaben.tsx", "lib/meineAngaben.ts", "lib/meineAngabenUebernahme.ts", "lib/geraeteSpeicher.ts"]) {
+      const q = ohneKommentare(lies(d));
+      expect(q, d).not.toMatch(/\bfetch\s*\(|XMLHttpRequest|sendBeacon|EventSource|WebSocket|["'`]\/api\//);
+      expect(q, d).not.toMatch(/next\/link|\bprefetch\b|useRouter/);
+    }
+  });
+
+  it("der Server kennt nur den Stand: keine Spalte für Herkunft, Praxis, Fach oder Kopie", () => {
+    const modell = /^model AnamnesisForm \{([\s\S]*?)^\}/m.exec(lies("prisma/schema.prisma"))![1];
+    expect(modell).toMatch(/^\s+vorbefuelltStand\s+DateTime\?$/m);
+    expect(modell).not.toMatch(/^\s+\w*(herkunft|quelle|kopie|vorbefuellt(?!Stand))\w*\s/im);
+    const migration = lies("prisma/migrations/20261118500000_anamnese_vorbefuellt/migration.sql");
+    expect(ohneKommentare(migration).replace(/^--.*$/gm, "").trim()).toBe('ALTER TABLE "AnamnesisForm" ADD COLUMN "vorbefuelltStand" TIMESTAMP(3);');
+    // Auf dem Server nutzt nur lib/anamnesis.ts etwas aus lib/meineAngaben.ts, und nur die Frist. Die übrigen Nutzer
+    // laufen nur im Browser (lib/geraeteSpeicher.ts, lib/meineAngabenUebernahme.ts, eingebunden nur von Bausteinen).
+    const nutzer = QUELLEN.filter((d) => !/^components\//.test(d) && /from\s+["']@\/lib\/(meineAngaben|meineAngabenUebernahme)["']/.test(lies(d)));
+    expect(nutzer.sort()).toEqual(["lib/anamnesis.ts", "lib/geraeteSpeicher.ts", "lib/meineAngabenUebernahme.ts"]);
+    expect(QUELLEN.filter((d) => /from\s+["']@\/lib\/meineAngabenUebernahme["']/.test(lies(d)))).toEqual(["components/AnamneseGeraet.tsx"]);
+    expect(lies("lib/anamnesis.ts")).toMatch(/import \{ GUELTIG_MONATE \} from "@\/lib\/meineAngaben";/);
+  });
+
+  it("Akte und Eingang zeigen nur den Hinweis mit dem Stand, nichts über eine andere Praxis", () => {
+    const sicht = ohneKommentare(lies("lib/anamnesisView.ts"));
+    expect(sicht.match(/vorbefuellt\w*/g)?.sort()).toEqual(["vorbefuelltStand", "vorbefuelltStand", "vorbefuelltStand", "vorbefuelltStand"]);
+    expect(sicht).toMatch(/vorbefuelltStand: done\?\.vorbefuelltStand \? done\.vorbefuelltStand\.toISOString\(\)\.slice\(0, 10\) : null/);
+    const akte = ohneKommentare(lies("components/AnamnesisPanel.tsx")).replace(/\s+/g, " ");
+    expect(akte).toContain("Teilweise mit gespeicherten Angaben des Patienten vorausgefüllt (Stand {tagFmt(summary.vorbefuelltStand)}), vom Patienten geprüft.");
+    // Eingang, Praxis-App und Empfang wissen nichts von Kopien auf Geräten.
+    const praxis = [...lauf("app/(app)"), ...lauf("app/uebergabe"), "lib/eingang.ts", ...QUELLEN.filter((d) => /^components\/(Eingang|Inbox)/.test(d))];
+    for (const d of praxis) expect(ohneKommentare(lies(d)), d).not.toMatch(/vorbefuellt|meineAngaben|Meine Angaben auf diesem Gerät/);
+    for (const d of QUELLEN.filter((x) => x !== "components/AnamnesisPanel.tsx" && x !== "lib/anamnesisView.ts" && x !== "lib/anamnesis.ts" && /vorbefuelltStand/.test(lies(x)))) {
+      expect(["app/api/a/[token]/route.ts", "app/api/portal/[token]/anamnese/[id]/route.ts"], d).toContain(d);
+    }
+  });
+});
+
+describe("Texte für „Meine Angaben auf diesem Gerät“", () => {
+  const PLATZ = /\{(name|datum|anzahl|gesamt|praxis|fach)\}/g;
+  it("gibt es in jeder Portalsprache, vollständig, übersetzt und mit denselben Platzhaltern", () => {
+    const de = ANGABEN_UI.de as Record<string, string>;
+    for (const l of PORTAL_LANGS) {
+      const t = ANGABEN_UI[l] as Record<string, string>;
+      expect(Object.keys(t).sort(), l).toEqual(Object.keys(de).sort());
+      for (const [k, v] of Object.entries(t)) {
+        expect(v.trim(), `${l}.${k}`).not.toBe("");
+        if (l !== "de") expect(v, `${l}.${k}`).not.toBe(de[k]);
+        expect((v.match(PLATZ) ?? []).sort(), `${l}.${k}`).toEqual((de[k].match(PLATZ) ?? []).sort());
+      }
+    }
+  });
+  it("nennt die Knöpfe wie vereinbart und schreibt Deutsch in kurzen Sätzen ohne Gedankenstriche", () => {
+    expect(ANGABEN_UI.de.behalten).toBe("Kopie meiner Angaben auf diesem Gerät behalten");
+    expect(ANGABEN_UI.de.uebernehmen).toBe("Angaben von diesem Gerät übernehmen");
+    expect(ANGABEN_UI.de.geprueft).toBe("Ich habe alle übernommenen Angaben geprüft. Sie sind aktuell.");
+    expect(ANGABEN_UI.de.abschnitt).toBe("Meine Angaben auf diesem Gerät");
+    expect(ANGABEN_UI.de.standardName).toBe("Meine Angaben");
+    expect(ANGABEN_UI.de.codeVergessen).toMatch(/löschen Sie die Kopie/);
+    for (const [k, v] of Object.entries(ANGABEN_UI.de)) {
+      expect(v, k).not.toMatch(/ [–—-] /);
+      for (const satz of v.split(/(?<=[.!?])\s+/)) expect(satz.split(/\s+/).length, `${k}: ${satz}`).toBeLessThanOrEqual(16);
+    }
+  });
+  it("schreibt Arabisch in arabischer Schrift (nur Sorrida bleibt)", () => {
+    for (const [k, v] of Object.entries(ANGABEN_UI.ar)) {
+      expect(v, k).toMatch(/[؀-ۿ]/);
+      for (const w of v.replace(PLATZ, "").match(/[A-Za-zÄÖÜäöüß]{2,}/g) ?? []) expect(w, `ar.${k}`).toBe("Sorrida");
+    }
+  });
+  it("verspricht nichts, was der Code nicht hält: 5 Kopien, 12 Monate, 6 Zeichen", async () => {
+    const m = await import("@/lib/meineAngaben");
+    expect(ANGABEN_UI.de.voll).toContain(`${m.MAX_KOPIEN} Kopien`);
+    expect(ANGABEN_UI.de.verfallen).toContain(`${m.GUELTIG_MONATE} Monate`);
+    expect(ANGABEN_UI.de.codeNeu).toContain(`${m.MIN_CODE} Zeichen`);
+    expect(ANGABEN_UI.de.codeZuKurz).toContain(`${m.MIN_CODE} Zeichen`);
   });
 });
