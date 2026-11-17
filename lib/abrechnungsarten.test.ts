@@ -24,6 +24,16 @@ describe("Abrechnungsarten", () => {
   it("alle Arten sind vollständig beschrieben", () => {
     for (const a of Object.values(ARTEN)) { expect(a.rechenweg.length).toBeGreaterThan(20); expect(a.regeln.length).toBeGreaterThan(0); }
   });
+  it("Hinweise beschreiben: kein „aktiv ansprechen“, kein Erinnern zur Vorsorge, keine Mengen ohne Quelle, keine Wertung", () => {
+    for (const a of Object.values(ARTEN)) {
+      const texte = [...a.regeln, ...a.geldhebel.flatMap((g) => [g.problem, g.massnahme, g.inSorrida ?? ""])];
+      for (const t of texte) {
+        expect(t, a.id).not.toMatch(/aktiv ansprechen|ansprechen|ausschöpfen|unter Wert|\b(kaum|viele|vielen|oft|meist|häufig)\b/i);
+        expect(t, a.id).not.toMatch(/(lehnen|zahlen nicht) ab, weil|ablehnen, weil/i);
+      }
+      for (const g of a.geldhebel) if (/Vorsorge/.test(g.problem)) expect(g.massnahme, a.id).not.toMatch(/erinnern/i);
+    }
+  });
   it("kein Text rät zu Raten oder Teilzahlung (Raten sind angehalten, lib/installments.ts)", () => {
     for (const a of Object.values(ARTEN)) {
       const texte = [a.zahler, a.rechenweg, ...a.regeln, ...a.begriffe.flat(), ...a.geldhebel.flatMap((g) => [g.problem, g.massnahme, g.inSorrida ?? ""])];

@@ -1,13 +1,13 @@
+import { MIN_GROUP } from "@/lib/analyseSatz";
 import { RATEN_ANGEHALTEN } from "@/lib/installments";
 import { igelNegativ } from "@/lib/nutzenQuelle";
 import { chosenOption, money, typeLabelOf, type PatientFactors, type ProposalItem, type ProposalOption } from "@/lib/proposals";
 
-// Praxis-Analyse: Womit verdient die Praxis ihr Geld, warum nehmen Patienten
-// an oder lehnen ab, und wo liegen Risiken? Reine Funktionen ohne
-// Datenbank, damit sie testbar bleiben. Grundlage sind die Vorschläge der
-// Praxis (gewählte Option je Befund/Anlass) und ihre Rechnungen.
+// Praxis-Analyse: Umsatz, Annahmequoten und Hinweise der Praxis. Die Zahlen zeigen, was war, nicht warum; die Texte
+// beschreiben und werten nicht und raten nicht zum Verkaufen oder Nachhaken. Reine Funktionen ohne Datenbank, damit sie
+// testbar bleiben. Grundlage sind die Vorschläge der Praxis (gewählte Option je Befund/Anlass) und ihre Rechnungen.
 
-export const MIN_GROUP = 5;
+export { MIN_GROUP, annahmeSatz } from "@/lib/analyseSatz";
 const DAY = 24 * 60 * 60 * 1000;
 
 /** Eine gewählte Leistung in einem Vorschlag. */
@@ -89,6 +89,7 @@ export interface Group {
 }
 
 const rate = (acc: number, dec: number) => (dec >= MIN_GROUP ? Math.round((acc / dec) * 100) : null);
+
 const decided = (s: string) => s === "ANGENOMMEN" || s === "ABGELEHNT";
 
 function groupBy(rows: Row[], key: (r: Row) => string): Group[] {
@@ -213,7 +214,7 @@ export function analyze(args: {
   const EIGENE_ZAHLEN = "Der Vergleich zeigt Ihre eigenen Zahlen. Er sagt nicht, was die Ursache ist.";
   const faktoren: Factor[] = [
     factor("Mit oder ohne Patienten-Link", proposals, (p) => p.linked, "mit Link", "ohne Link", EIGENE_ZAHLEN),
-    factor("Mit oder ohne Rückmeldung", proposals.filter((p) => p.linked), (p) => p.responded, "mit Rückmeldung", "ohne Rückmeldung", `${EIGENE_ZAHLEN} Ohne Rückmeldung: beim nächsten Termin ansprechen. Erinnern nur mit dokumentierter Einwilligung.`),
+    factor("Mit oder ohne Rückmeldung", proposals.filter((p) => p.linked), (p) => p.responded, "mit Rückmeldung", "ohne Rückmeldung", EIGENE_ZAHLEN),
     factor("Privat oder gesetzlich versichert", proposals, (p) => p.patient.insurance === "PKV", "privat versichert", "gesetzlich versichert", `${EIGENE_ZAHLEN} Bei Privatversicherten hängt der Eigenanteil vom Tarif ab.`),
     // Raten sind angehalten (lib/installments.ts): Patienten können den Wunsch nicht mehr angeben, und die Analyse
     // rät der Praxis nicht dazu. Der Vergleich erscheint erst wieder, wenn Raten wieder angeboten werden.
@@ -248,26 +249,28 @@ export function analyze(args: {
       warum: `Gezählt sind angenommene Leistungen (${liste}) nach den Bewertungen des IGeL-Monitors (Medizinischer Dienst Bund), die heute im Katalog hinterlegt sind, auch bei älteren Vorschlägen. Leistungen mit gemischten Bewertungen zählen nicht. Manche Bewertungen gelten nur für bestimmte Gruppen (z. B. nach Alter oder ohne Beschwerden); das prüft die Auswertung nicht.`,
     });
   }
+  // Annahmequote einer Leistung: nur die Zahl mit ihrer Grundlage. Eine Ablehnung ist die Entscheidung des Patienten, kein
+  // Problem der Praxis; deshalb kein Rat, die Leistung anders, billiger oder öfter anzubieten (kein „tun“).
   for (const g of leistungen) {
     if (g.quote != null && g.quote < 40 && g.entschieden >= MIN_GROUP * 2) {
       risiken.push({
-        id: `ablehnung-${g.name}`,
-        stufe: "mittel",
-        titel: `„${g.name}“ wird meist abgelehnt (${g.quote} % Annahme)`,
-        warum: "Wenn eine Leistung oft abgelehnt wird, passen Preis, Erklärung oder Zielgruppe nicht. Jedes Gespräch dazu kostet Zeit.",
-        tun: "Preis und Erklärung im Vorschlag prüfen und die Leistung nur bei passendem Anlass anbieten.",
+        id: `annahme-${g.name}`,
+        stufe: "info",
+        titel: `„${g.name}“: ${g.quote} % der Vorschläge angenommen`,
+        warum: `Grundlage: ${g.entschieden} entschiedene Vorschläge mit dieser Leistung im Zeitraum, davon ${g.angenommen} angenommen. Die Zahl sagt nichts über die Gründe.`,
       });
-      if (risiken.filter((r) => r.id.startsWith("ablehnung")).length >= 2) break;
+      if (risiken.filter((r) => r.id.startsWith("annahme-")).length >= 2) break;
     }
   }
+  // Ungeöffnete Links und alte offene Vorschläge: nur die Zahl mit Grundlage. Kein Rat, nachzuhaken; ob und wann ein
+  // Patient sich entscheidet, ist seine Sache.
   const unopened = args.proposals.filter((p) => p.linked && !p.viewed && p.shareCreatedAt && now.getTime() - p.shareCreatedAt.getTime() > 3 * DAY && !decided(p.status));
   if (unopened.length >= 3) {
     risiken.push({
       id: "ungeoeffnet",
-      stufe: "mittel",
+      stufe: "info",
       titel: `${unopened.length} Patienten-Links seit über drei Tagen ungeöffnet`,
-      warum: "Ein Link, der nicht geöffnet wird, bringt keine Entscheidung.",
-      tun: "Beim nächsten Termin ansprechen. Erinnern nur, wenn die Einwilligung in Erinnerungen dokumentiert ist. In der Patientenliste mit dem Filter „Offen“ finden Sie die Fälle.",
+      warum: "Grundlage: Links zu noch offenen Vorschlägen, die vor mehr als drei Tagen erstellt und seither nicht geöffnet wurden. Ob ein Link angekommen ist, zeigt die Zahl nicht. Die Fälle stehen in der Patientenliste unter dem Filter „Offen“.",
     });
   }
   const unanswered = args.proposals.filter((p) => p.responded && p.patientRespondedAt && !decided(p.status) && now.getTime() - p.patientRespondedAt.getTime() > 2 * DAY);
@@ -286,8 +289,8 @@ export function analyze(args: {
       id: "alt",
       stufe: "info",
       titel: `${stale.length} Vorschläge seit über 30 Tagen ohne Entscheidung`,
-      warum: "Alte offene Vorschläge verfälschen die Planung und sind meist vergessen, nicht abgelehnt.",
-      tun: "Einmal durchgehen: beim nächsten Termin ansprechen oder als abgelehnt markieren, damit die Zahlen stimmen.",
+      warum: "Grundlage: Vorschläge, die vor mehr als 30 Tagen angelegt wurden und noch keine Entscheidung haben. Sie zählen bei „Noch offen in Vorschlägen“ mit.",
+      tun: "Ist eine Entscheidung schon bekannt, sie im Vorschlag eintragen; dann stimmen die Zahlen.",
     });
   }
   const overdue = args.invoices.filter((i) => i.status === "OFFEN" && i.dueDate < now);
@@ -297,7 +300,7 @@ export function analyze(args: {
       id: "ueberfaellig",
       stufe: sum > 1000 || overdue.length >= 5 ? "hoch" : "mittel",
       titel: `${overdue.length} überfällige ${overdue.length === 1 ? "Rechnung" : "Rechnungen"} über ${fmt(sum)}`,
-      warum: "Offene Forderungen fehlen in der Liquidität, und je älter sie werden, desto seltener werden sie bezahlt.",
+      warum: "Offene Forderungen fehlen in der Liquidität. Grundlage: Rechnungen mit dem Status „offen“, deren Fälligkeitsdatum vorbei ist.",
       tun: "Unter „Zahlungen“ mit einem Klick erinnern. Der Patient sieht die Rechnung im Portal und zahlt per GiroCode.",
     });
   }
@@ -307,17 +310,14 @@ export function analyze(args: {
       id: "stichtag",
       stufe: "info",
       titel: `Festzuschuss-Stichtag in ${args.tageBisStichtag} Tagen`,
-      warum: "Für die Höhe des Festzuschusses zählt das Datum, an dem die Kasse den Heil- und Kostenplan genehmigt. Danach gelten neue Sätze.",
-      tun: "Offene Zahnersatz-Vorschläge ansprechen und Heil- und Kostenpläne rechtzeitig einreichen.",
+      warum: "Für die Höhe des Festzuschusses zählt das Datum, an dem die Kasse den Heil- und Kostenplan genehmigt; ab dem Stichtag gelten neue Beträge. Grundlage: Es gibt offene Zahnersatz-Vorschläge.",
     });
   }
 
   // ------------------------------------------------------------ Stärken --
+  // Keine Annahmequoten: Eine hohe Quote ist kein Verdienst und ein Unterschied mit oder ohne Link keine Ursache
+  // (die Vergleiche unter „Zusagen im Vergleich“ zeigen die Zahlen ohne Wertung).
   const staerken: string[] = [];
-  const best = leistungen.filter((g) => g.quote != null).sort((a, b) => b.quote! - a.quote!)[0];
-  if (best && best.quote! >= 60) staerken.push(`„${best.name}“ wird von ${best.quote} % der Patienten angenommen.`);
-  const link = faktoren[0];
-  if (link.punkte != null && link.punkte >= 5) staerken.push(`Mit Patienten-Link nehmen ${link.punkte} Prozentpunkte mehr Patienten an.`);
   const paid = args.invoices.filter((i) => i.status === "BEZAHLT").length;
   const billed = args.invoices.filter((i) => i.status !== "STORNIERT").length;
   if (billed >= MIN_GROUP && paid / billed >= 0.8) staerken.push(`${Math.round((paid / billed) * 100)} % der Rechnungen sind bezahlt.`);

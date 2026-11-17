@@ -72,12 +72,31 @@ export function abstand(a: string, b: string, max = 2): number {
 
 const erlaubt = (len: number) => (len >= 8 ? 2 : len >= 4 ? 1 : 0);
 
+/**
+ * Suchwörter, mit denen Menschen suchen, die aber eine Wirkung versprechen („Brille weg“). Sie helfen nur beim Finden und
+ * werden nirgends angezeigt; die sichtbaren Synonyme („Auch gesucht als“) stehen im Katalog und werben nicht
+ * (lib/rechtsgrenzen.test.ts). Keine Handelsnamen von Arzneimitteln.
+ */
+export const NUR_SUCHE: Record<string, string[]> = {
+  "aesthetische-zahnmedizin-keramik-veneers": ["Hollywood-Lächeln"],
+  "aesthetische-zahnmedizin-komplettes-smile-makeover": ["neues Lächeln"],
+  "aesthetische-medizin-minimal-invasiv-brauenlifting-mit-botox": ["Fox Eyes"],
+  "aesthetische-medizin-minimal-invasiv-gesicht-verschmaelern-masseter-botox": ["V-Shape", "Jawline slimming"],
+  "aesthetische-medizin-minimal-invasiv-handverjuengung": ["Hände jünger"],
+  "aesthetische-medizin-minimal-invasiv-fett-weg-spritze": ["Doppelkinn weg"],
+  "aesthetische-medizin-minimal-invasiv-laser-skin-resurfacing": ["Hautverjüngung"],
+  "aesthetische-medizin-minimal-invasiv-ultraschall-lifting": ["Facelift ohne OP"],
+  "plastische-aesthetische-chirurgie-intimbereich-verjuengung": ["Intimverjüngung"],
+  "weitere-selbstzahler-eingriffe-augenlasern-lasik-femto-lasik": ["Brille weg"],
+};
+
 type Index = { l: Leistung; felder: { text: string; woerter: string[]; gewicht: number }[] };
 const INDEX: Index[] = LEISTUNGEN.map((l) => ({
   l,
   felder: [
     { t: l.name, g: 4 },
     ...l.synonyme.map((s) => ({ t: s, g: 3 })),
+    ...(NUR_SUCHE[l.id] ?? []).map((s) => ({ t: s, g: 3 })),
     { t: l.fachbegriff, g: 3 },
     { t: `${l.kategorie} ${l.bereich}`, g: 1 },
     { t: l.beschreibung, g: 0.5 },
@@ -176,6 +195,20 @@ export function kostenHinweis(l: Pick<Leistung, "kostentraeger_code" | "ust_pfli
     case "SZ":
       return l.ust_pflichtig ? "Selbstzahlerleistung, zzgl. 19 % USt." : "Selbstzahlerleistung.";
   }
+}
+
+/**
+ * Katalog-Leistung als Vorlage für eine eigene Leistung der Praxis (Einstellungen → Fachgebiet → „Aus dem Leistungskatalog
+ * übernehmen“). `kasseWenn` erscheint beim Patienten als „Kasse zahlt: …“; dafür gibt es nur bei „Kasse bei Indikation“
+ * einen passenden Satz. Der Katalog-Hinweis (Rechtsnorm, Altersgrenze, Vorgabe an Werbende) gehört nicht dorthin.
+ */
+export function alsEigeneLeistung(l: Leistung): { name: string; kategorie: string; kasse: boolean; kasseWenn?: string } {
+  return {
+    name: l.name,
+    kategorie: l.kategorie,
+    kasse: l.kostentraeger_code === "GKV" || l.kostentraeger_code === "GKV_EA",
+    kasseWenn: l.kostentraeger_code === "IND" ? kostenHinweis(l) : undefined,
+  };
 }
 
 export const KT_LABEL: Record<KostentraegerCode, string> = {

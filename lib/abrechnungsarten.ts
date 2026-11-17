@@ -30,9 +30,9 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     regeln: ["Rezepte (E-Rezept) monatlich über das Rechenzentrum abrechnen", "Zuzahlung 10 %, mindestens 5 €, höchstens 10 € je Packung (ab 1.1.2027: mindestens 7,50 €, höchstens 15 €); Befreiungen prüfen", "Hilfsmittel nur mit Vertrag der jeweiligen Kasse (Präqualifizierung)", "pDL nur mit dokumentierter Leistung und Unterschrift des Kunden"],
     begriffe: [["AMPreisV", "Arzneimittelpreisverordnung, regelt Preise verschreibungspflichtiger Mittel"], ["Kassenabschlag", "Rabatt der Apotheke an die Krankenkasse je Packung"], ["pDL", "pharmazeutische Dienstleistung nach § 129 Abs. 5e SGB V"], ["Retaxation", "Kasse kürzt die Vergütung wegen Formfehlern auf dem Rezept"], ["Präqualifizierung", "Nachweis, dass die Apotheke bestimmte Hilfsmittel abgeben darf"]],
     geldhebel: [
-      { problem: "Pharmazeutische Dienstleistungen werden kaum angeboten, obwohl viele Kunden Anspruch haben", massnahme: "Anspruch erkennen (z. B. ab 5 Dauermedikamenten) und Termine anbieten", inSorrida: "Sitzungstypen pDL, Termine, Akte mit Medikation" },
+      { problem: "Anspruch auf pharmazeutische Dienstleistungen ist in der Apotheke nicht erfasst", massnahme: "Voraussetzungen in der Akte festhalten (z. B. fünf oder mehr Dauermedikamente)", inSorrida: "Sitzungstypen pDL, Termine, Akte mit Medikation" },
       { problem: "Retaxationen wegen Formfehlern", massnahme: "Rezept vor Abgabe prüfen", inSorrida: "geplant" },
-      { problem: "Pflegehilfsmittel-Anspruch (42 € im Monat) ungenutzt", massnahme: "Pflegebedürftige Kunden aktiv ansprechen", inSorrida: "Angebot Pflegehilfsmittel" },
+      { problem: "Anspruch auf Pflegehilfsmittel zum Verbrauch (bis 42 € im Monat) ist dem Kunden nicht bekannt", massnahme: "Auf Nachfrage oder bei bekanntem Pflegegrad über den Anspruch informieren", inSorrida: "Angebot Pflegehilfsmittel" },
     ],
   },
   klinik_wahl: {
@@ -60,10 +60,10 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     werk: "EBM",
     zahler: "Krankenkasse über die Kassenärztliche Vereinigung (KV)",
     rechenweg: "Punkte je Gebührenordnungsposition (GOP) × Orientierungswert (2026: 12,7404 Cent, 2027: 13,0207 Cent, regional abweichend möglich); Vergütung innerhalb des Regelleistungsvolumens (RLV/QZV), extrabudgetäre Leistungen voll.",
-    regeln: ["Quartalsabrechnung an die KV, Abgabe bis meist zum 10.–15. Tag nach Quartalsende", "Versichertenkarte je Quartal einlesen", "Ausschlüsse und Höchstwerte im EBM beachten"],
+    regeln: ["Quartalsabrechnung an die KV; die Abgabefrist legt jede KV fest (z. B. bis zum 10. oder 15. Tag nach Quartalsende)", "Versichertenkarte je Quartal einlesen", "Ausschlüsse und Höchstwerte im EBM beachten"],
     begriffe: [["GOP", "Gebührenordnungsposition im EBM"], ["RLV/QZV", "Regelleistungs- und qualifikationsgebundenes Zusatzvolumen (Budget)"], ["extrabudgetär", "außerhalb des Budgets voll vergütet, z. B. Vorsorge, Impfungen"], ["Versichertenpauschale", "Grundpauschale je Patient und Quartal"], ["Chronikerpauschale", "Zuschlag für kontinuierlich behandelte chronisch Kranke"]],
     geldhebel: [
-      { problem: "Extrabudgetäre Vorsorge (Check-up, Hautkrebs-Screening, Impfungen) wird nicht angeboten", massnahme: "Fällige Vorsorge je Patient anzeigen und erinnern", inSorrida: "Vorsorge fällig, Erinnerungen" },
+      { problem: "Fällige Vorsorge (Check-up, Hautkrebs-Screening, Impfungen) ist im Praxisalltag nicht sichtbar; sie wird extrabudgetär vergütet", massnahme: "Fälligkeit je Patient anzeigen", inSorrida: "Vorsorge fällig" },
       { problem: "Chroniker- und Zuschlagspositionen vergessen", massnahme: "Diagnosen mit ICD-10 in der Akte führen, Hinweise zur Abrechnung", inSorrida: "Befundmodell mit Abrechnungshinweisen" },
       { problem: "Terminausfälle senken die Fallzahl", massnahme: "Bestätigung und Erinnerung vor dem Termin", inSorrida: "Termine, Erinnerungen per E-Mail" },
     ],
@@ -90,7 +90,7 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     regeln: ["HKP vor Behandlung von der Kasse genehmigen lassen (Gültigkeit 6 Monate)", "Bonusheft prüfen (5/10 Jahre lückenlos)"],
     begriffe: [["Regelversorgung", "Standardlösung, die der Festzuschuss abbildet"], ["gleichartig", "Regelversorgung plus Zusatzleistungen, Mehrkosten nach GOZ"], ["andersartig", "andere Versorgungsform, z. B. Implantat statt Brücke"], ["Härtefall", "doppelter Festzuschuss bei geringem Einkommen"]],
     geldhebel: [
-      { problem: "Patienten lehnen ab, weil der Eigenanteil unklar ist", massnahme: "Eigenanteil je Option verständlich zeigen", inSorrida: "Behandlungsweg, Kassen-Sockel" },
+      { problem: "Der Eigenanteil je Option ist für Patienten nicht klar erkennbar", massnahme: "Eigenanteil je Option verständlich zeigen", inSorrida: "Behandlungsweg, Kassen-Sockel" },
       { problem: "Bonusheft nicht geprüft, Zuschuss zu niedrig angesetzt", massnahme: "Bonus abfragen und im Vorschlag berücksichtigen", inSorrida: "Vorschlag mit Bonusstufe" },
     ],
   },
@@ -192,16 +192,16 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     rechenweg: "Freie Preisvereinbarung, oft orientiert an Beihilfesätzen bzw. GebüTh.",
     regeln: ["Preis vor Behandlung in Textform", "Privatversicherte auf Erstattungsgrenzen hinweisen"],
     begriffe: [["Beihilfesätze", "Höchstbeträge, die die Beihilfe erstattet"], ["Privatrezept", "Verordnung für Privatversicherte"]],
-    geldhebel: [{ problem: "Preise unter Wert, weil Privatpatienten wie Kassenpatienten behandelt werden", massnahme: "Eigene Preisliste je Leistung", inSorrida: "Eigene Leistungen und Preise" }],
+    geldhebel: [{ problem: "Für Privatpatienten sind keine eigenen Preise hinterlegt", massnahme: "Eigene Preisliste je Leistung", inSorrida: "Eigene Leistungen und Preise" }],
   },
   pflege: {
     id: "pflege",
     name: "Pflege (SGB XI / SGB V)",
     zahler: "Pflegekasse (Sachleistung), Krankenkasse (Behandlungspflege), Pflegebedürftige (Eigenanteil)",
     rechenweg: "Leistungskomplexe oder Zeitvergütung nach Vertrag mit den Pflegekassen.",
-    regeln: ["Leistungsnachweise monatlich", "Entlastungsbetrag (§ 45b SGB XI) ausschöpfen"],
+    regeln: ["Leistungsnachweise monatlich", "Entlastungsbetrag (§ 45b SGB XI): nicht genutzte Beträge verfallen nach Ablauf der Frist"],
     begriffe: [["Leistungskomplex", "pauschal vergütete Pflegeleistung"], ["Entlastungsbetrag", "monatlicher Betrag für Unterstützung im Alltag"]],
-    geldhebel: [{ problem: "Entlastungsbetrag verfällt ungenutzt", massnahme: "Offene Budgets je Klient anzeigen", inSorrida: "geplant" }],
+    geldhebel: [{ problem: "Nicht genutzter Entlastungsbetrag verfällt nach Ablauf der Frist (§ 45b SGB XI)", massnahme: "Offene Beträge je Klient anzeigen", inSorrida: "geplant" }],
   },
   hilfsmittel: {
     id: "hilfsmittel",

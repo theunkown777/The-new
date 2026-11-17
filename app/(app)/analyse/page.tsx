@@ -83,7 +83,7 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
         <div>
           <h1 className="font-display text-3xl text-slate-900">Analyse</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-600">
-            Womit Ihre Praxis Geld verdient, warum Patienten zusagen und wo es haken kann. Grundlage sind Ihre Vorschläge und Rechnungen, keine Schätzungen von außen.
+            Umsatz, Annahmequoten und Hinweise aus Ihren Vorschlägen und Rechnungen, keine Schätzungen von außen. Die Zahlen zeigen, was war; über die Gründe sagen sie nichts.
           </p>
           <p className="mt-2 text-sm">
             <Link href="/analyse/wirkung" className="font-medium text-brand-700 underline" data-testid="link-wirkung">Wirkungsbericht: vorher und heute im Vergleich →</Link>
@@ -131,18 +131,12 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
         </Link>
       </div>
 
-      <AnalyseExplorer
-        leistungen={a.leistungen}
-        themen={a.themen}
-        arten={a.arten}
-        monate={a.monate}
-        kpi={{ privat: a.privat, entschieden: a.entschieden, angenommen: a.angenommen, zeitraumTage: a.zeitraumTage }}
-      />
+      <AnalyseExplorer leistungen={a.leistungen} themen={a.themen} arten={a.arten} monate={a.monate} />
 
       <div className="grid gap-6">
         <section className="space-y-3" data-testid="risiken">
-          <h2 className="font-semibold text-slate-900">Hinweise und mögliche Probleme</h2>
-          {a.risiken.length === 0 && <p className="card text-sm text-slate-600">Gerade nichts Auffälliges. Sobald sich etwas zeigt, steht es hier mit Grund und Vorschlag.</p>}
+          <h2 className="font-semibold text-slate-900">Hinweise</h2>
+          {a.risiken.length === 0 && <p className="card text-sm text-slate-600">Gerade keine Hinweise. Sobald es welche gibt, stehen sie hier mit ihrer Grundlage.</p>}
           {a.risiken.map((r) => {
             const s = STUFE[r.stufe];
             return (

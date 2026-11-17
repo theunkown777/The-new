@@ -51,7 +51,7 @@ Ultraschall Eierstöcke & Gebärmutter | Vaginalsonographie (IGeL) | Ultraschall
 Ultraschall der Brust | Mammasonographie | Brustultraschall | Ergänzende Untersuchung der Brust. | IND | N | 0
 Augeninnendruck-Messung | Glaukom-Früherkennung | Grüner Star Test, Augendruck | Messung zur Früherkennung von Grünem Star. | SZ | N | 0
 Erweiterter Labor-Check | Großes Blutbild / Vitamin- und Hormonstatus | Vitamin D Test, Schilddrüsenwerte, Bluttest | Erweiterte Laborwerte auf Wunsch. | SZ | N | 0
-Manager-/Executive-Check-up | Umfassende Präventionsuntersuchung | Executive Check, Ganzkörper-Check | Mehrstündige Rundum-Untersuchung mit Bildgebung. | SZ | N | 0 | Röntgen oder CT ohne Krankheitszeichen und ohne konkreten Verdacht ist Früherkennung und nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht (Stand 17.11.2026: nur für Brustkrebs und für Lungenkrebs bei Personen von 50 bis 75 Jahren mit langjährigem starkem Zigarettenkonsum, auch nach einem Rauchstopp vor weniger als zehn Jahren, § 2 Lungenkrebs-Früherkennungs-Verordnung).
+Manager-/Executive-Check-up | Erweiterte Präventionsuntersuchung (Selbstzahler) | Executive Check, Ganzkörper-Check | Mehrstündige Rundum-Untersuchung mit Bildgebung. | SZ | N | 0 | Röntgen oder CT ohne Krankheitszeichen und ohne konkreten Verdacht ist Früherkennung und nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht (Stand 17.11.2026: nur für Brustkrebs und für Lungenkrebs bei Personen von 50 bis 75 Jahren mit langjährigem starkem Zigarettenkonsum, auch nach einem Rauchstopp vor weniger als zehn Jahren, § 2 Lungenkrebs-Früherkennungs-Verordnung).
 Ganzkörper-MRT | Präventives Ganzkörper-MRT | Ganzkörperscan | MRT des ganzen Körpers ohne konkreten Anlass. | SZ | N | 0
 Herz-Check | Belastungs-EKG und Herzultraschall (präventiv) | Herz Vorsorge | Herzuntersuchung ohne Beschwerden. | SZ | N | 0
 """)
@@ -82,11 +82,11 @@ F("Impfungen & Reisemedizin", "Hausarzt / Reisemediziner", """
 Standardimpfungen | Impfungen nach STIKO | Tetanus, Diphtherie, Keuchhusten, Polio | Auffrischung der Grundimpfungen. | GKV | M | 0
 Grippeimpfung | Influenza-Impfung | Grippeschutz | Jährliche Impfung gegen Grippe. | GKV | M | 0
 Corona-Impfung | COVID-19-Impfung | Covid Booster | Impfung gegen COVID-19. | GKV | M | 0
-Pneumokokken-Impfung | Pneumokokken-Impfung | Lungenentzündung Impfung | Schutz vor Lungenentzündung. | GKV | M | 0
-Gürtelrose-Impfung | Herpes-zoster-Impfung | Shingrix, Gürtelrose | Schutz vor Gürtelrose ab 60. | GKV | M | 0
-HPV-Impfung | HPV-Impfung | Gebärmutterhalskrebs Impfung | Schutz vor HPV-bedingten Krebsarten. | GKV | M | 0
-RSV-Impfung | RSV-Impfung | RSV | Schutz vor RS-Virus (Ältere, Säuglinge). | GKV | M | 0
-FSME-Impfung | FSME-Impfung | Zeckenimpfung | Schutz vor Zecken-Hirnhautentzündung. | GKV | M | 0
+Pneumokokken-Impfung | Pneumokokken-Impfung | Lungenentzündung Impfung | Impfung gegen Pneumokokken, Erreger von Lungenentzündungen. | GKV | M | 0
+Gürtelrose-Impfung | Herpes-zoster-Impfung | Shingrix, Gürtelrose | Impfung gegen Gürtelrose ab 60. | GKV | M | 0
+HPV-Impfung | HPV-Impfung | Gebärmutterhalskrebs Impfung | Impfung gegen humane Papillomviren (HPV), die bestimmte Krebsarten auslösen können. | GKV | M | 0
+RSV-Impfung | RSV-Impfung | RSV | Impfung oder Antikörpergabe gegen das RS-Virus (Ältere, Säuglinge). | GKV | M | 0
+FSME-Impfung | FSME-Impfung | Zeckenimpfung | Impfung gegen FSME, eine durch Zecken übertragene Hirnhautentzündung. | GKV | M | 0
 Kinderimpfungen | Impfungen im Kindesalter | Masern, Mumps, Röteln, Sechsfachimpfung | Alle empfohlenen Impfungen für Kinder. | GKV | M | 0
 ## Reisemedizin
 Reisemedizinische Beratung | Reiseberatung | Reiseimpfung Beratung, Tropenreise | Beratung zu Impfungen und Gesundheitsrisiken auf Reisen. | SZ | N | 0
@@ -124,16 +124,16 @@ Diabetes-Behandlung | Diabetologie | Zucker, Diabetes Typ 1, Diabetes Typ 2, Ins
 Schilddrüsen-Sprechstunde | Schilddrüsendiagnostik | Schilddrüse, Unterfunktion, Überfunktion, Hashimoto | Ultraschall und Laborwerte der Schilddrüse. | GKV | N | 0
 Hormonsprechstunde | Endokrinologische Diagnostik | Hormone, Testosteron, Cortisol | Abklärung hormoneller Störungen. | GKV | N | 0
 Osteoporose-Diagnostik | Knochendichtemessung (DXA) | Knochendichte, Osteoporose | Messung der Knochendichte. | IND | N | 0 | Ohne Krankheitszeichen und ohne konkreten Verdacht ist die Messung Früherkennung mit Röntgenstrahlung. Sie ist nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht; für die Osteoporose gibt es keine (Stand 17.11.2026).
-Medikamentöse Adipositastherapie | Therapie mit GLP-1-Agonisten | Abnehmspritze, Wegovy, Mounjaro | Medikamentöse Gewichtsreduktion unter ärztlicher Aufsicht. | SZ | M | 0 | Kasse zahlt Abnehmmedikamente i. d. R. nicht.
+Medikamentöse Adipositastherapie | Therapie mit GLP-1-Agonisten | Abnehmspritze, GLP-1-Agonist | Medikamente mit dem Ziel, das Körpergewicht zu senken, unter ärztlicher Aufsicht. | SZ | M | 0 | Arzneimittel zur Gewichtsabnahme sind von der Versorgung durch die gesetzliche Krankenkasse ausgeschlossen (§ 34 Abs. 1 Satz 8 SGB V).
 ## Nephrologie (Niere)
 Nierensprechstunde | Nephrologie | Nierenwerte, Niereninsuffizienz | Abklärung von Nierenerkrankungen. | GKV | N | 0
 Dialyse | Hämodialyse / Peritonealdialyse | Blutwäsche | Ersatz der Nierenfunktion. | GKV | M | 0
 ## Rheumatologie
 Rheuma-Sprechstunde | Rheumatologische Diagnostik | Rheuma, Gelenkentzündung, Arthritis | Abklärung entzündlicher Gelenk- und Autoimmunerkrankungen. | GKV | N | 0
-Biologika-Therapie | Biologikatherapie | Rheuma Spritze | Moderne Immuntherapie bei Rheuma. | GKV | M | 0
+Biologika-Therapie | Biologikatherapie | Rheuma Spritze | Behandlung mit biotechnologisch hergestellten Medikamenten (Biologika) bei Rheuma. | GKV | M | 0
 ## Hämatologie & Onkologie
 Krebsbehandlung (Chemotherapie) | Chemotherapie | Chemo, Krebs Therapie | Medikamentöse Krebstherapie. | GKV | M | 2
-Immuntherapie bei Krebs | Onkologische Immuntherapie | Checkpoint-Inhibitoren | Therapie, die das Immunsystem gegen Krebs aktiviert. | GKV | M | 1
+Immuntherapie bei Krebs | Onkologische Immuntherapie | Checkpoint-Inhibitoren | Medikamente, die das Immunsystem gegen Krebszellen richten sollen. | GKV | M | 1
 Blutbild-Abklärung | Hämatologische Diagnostik | Blutarmut, Anämie, Blutwerte auffällig | Abklärung von Blutkrankheiten. | GKV | N | 0
 Zweitmeinung Krebs | Onkologische Zweitmeinung | Zweitmeinung Tumor | Unabhängige Beurteilung der Krebstherapie. | GKV | N | 0
 ## Angiologie (Gefäße)
@@ -141,13 +141,13 @@ Gefäßultraschall | Duplexsonographie | Venen Ultraschall, Halsschlagader Ultra
 Thrombose-Abklärung | Thrombosediagnostik | Thrombose, Blutgerinnsel | Abklärung und Behandlung von Thrombosen. | GKV | N | 0
 ## Infektiologie
 HIV-/STI-Test | Test auf sexuell übertragbare Infektionen | HIV-Test, Chlamydien, Syphilis, Geschlechtskrankheit | Diagnostik sexuell übertragbarer Infektionen. | IND | N | 0
-HIV-Prophylaxe | PrEP / PEP | PrEP | Medikamentöser Schutz vor HIV. | GKV | N | 0
+HIV-Prophylaxe | PrEP / PEP | PrEP | Medikamente vor oder nach einem Ansteckungsrisiko mit dem Ziel, eine HIV-Infektion zu verhindern. | GKV | N | 0
 Long-COVID-Sprechstunde | Post-COVID-Ambulanz | Long Covid, Post Covid, ME/CFS | Betreuung bei Langzeitfolgen von Infektionen. | GKV | N | 0
 """)
 
 F("Gynäkologie & Geburtshilfe", "Facharzt Gynäkologie und Geburtshilfe", """
 ## Frauengesundheit
-Frauenärztliche Vorsorge | Gynäkologische Krebsfrüherkennung | Frauenarzt Vorsorge, Jahresuntersuchung | Jährliche Untersuchung inkl. Abstrich und Brustuntersuchung. | GKV | N | 0
+Frauenärztliche Vorsorge | Gynäkologische Krebsfrüherkennung | Frauenarzt Vorsorge, Jahresuntersuchung | Jährliche Untersuchung ab 20 Jahren. Abstrich von 20 bis 34 jährlich, ab 35 alle drei Jahre zusammen mit einem HPV-Test. Abtasten der Brust ab 30. | GKV | N | 0
 Verhütungsberatung | Kontrazeptionsberatung | Pille, Verhütung | Beratung zu Verhütungsmethoden. | GKV | N | 0
 Spirale einsetzen | Intrauterinpessar-Einlage | Spirale, Kupferspirale, Hormonspirale | Einlage einer Spirale zur Verhütung. | SZ | M | 0 | Kasse bis 22 Jahre.
 Verhütungsstäbchen | Implantat zur Kontrazeption | Hormonstäbchen | Hormonstäbchen im Oberarm. | SZ | M | 0
@@ -183,7 +183,7 @@ Blasenschwäche | Inkontinenztherapie | Inkontinenz, Reizblase | Behandlung von 
 Blasenentzündung | Harnwegsinfekt-Behandlung | Blasenentzündung, HWI | Behandlung von Harnwegsinfekten. | GKV | N | 0
 ## Andrologie (Männergesundheit)
 Erektionsstörungen | Behandlung erektiler Dysfunktion | Potenzprobleme, Erektionsprobleme | Diagnostik und Therapie von Erektionsstörungen. | IND | N | 0 | Ob die Kasse Arzneimittel dafür übernimmt, vorher bei der Kasse fragen.
-Stoßwellentherapie bei Erektionsstörung | Low-Intensity Shockwave Therapy | Stoßwelle Potenz | Stoßwellen zur Verbesserung der Durchblutung. | SZ | N | 0
+Stoßwellentherapie bei Erektionsstörung | Low-Intensity Shockwave Therapy | Stoßwelle Potenz | Verfahren mit Stoßwellen am Penis. | SZ | N | 0
 Testosteron-Check | Hormondiagnostik Mann | Testosteronmangel | Abklärung eines Hormonmangels. | IND | N | 0
 Spermiogramm | Ejakulatanalyse | Fruchtbarkeit Mann | Untersuchung der Samenqualität. | IND | N | 0
 Sterilisation beim Mann | Vasektomie | Vasektomie | Dauerhafte Verhütung durch Durchtrennung der Samenleiter. | SZ | O | 1
@@ -195,10 +195,10 @@ F("Orthopädie & Unfallchirurgie", "Facharzt Orthopädie und Unfallchirurgie", "
 Orthopädische Untersuchung | Orthopädische Diagnostik | Orthopäde, Rückenschmerzen, Gelenkschmerzen | Untersuchung von Gelenken, Muskeln und Wirbelsäule. | GKV | N | 0
 Rückenschmerz-Therapie | Konservative Wirbelsäulentherapie | Rücken, Bandscheibe, Hexenschuss | Behandlung ohne OP: Medikamente, Spritzen, Physio. | GKV | N | 0
 Wirbelsäulen-Injektionen | Infiltration / PRT / Facetteninfiltration | Rückenspritze, CT-gesteuerte Spritze | Gezielte Spritzen an Nerven oder Wirbelgelenke. | GKV | M | 0
-Stoßwellentherapie | Extrakorporale Stoßwellentherapie (ESWT) | Fersensporn, Tennisarm, Kalkschulter | Stoßwellen gegen Sehnenbeschwerden. | SZ | N | 0
-Hyaluron ins Gelenk | Intraartikuläre Hyaluronsäure | Knie Spritze, Arthrose Spritze | Gelenkschmiere bei Arthrose. | SZ | M | 0
-Eigenbluttherapie Gelenk | ACP/PRP-Therapie | ACP, PRP Knie, Sportverletzung | Eigenblut zur Heilung von Gelenken und Sehnen. | SZ | M | 0
-Akupunktur bei Schmerzen | Körperakupunktur | Akupunktur Rücken, Knie | Nadeln gegen chronische Schmerzen. | IND | M | 0 | Kasse bei chronischem Rücken- und Knieschmerz.
+Stoßwellentherapie | Extrakorporale Stoßwellentherapie (ESWT) | Fersensporn, Tennisarm, Kalkschulter | Behandlung mit Stoßwellen bei Sehnenbeschwerden. | SZ | N | 0
+Hyaluron ins Gelenk | Intraartikuläre Hyaluronsäure | Knie Spritze, Arthrose Spritze | Injektion von Hyaluronsäure ins Gelenk bei Arthrose. | SZ | M | 0
+Eigenbluttherapie Gelenk | ACP/PRP-Therapie | ACP, PRP Knie, Sportverletzung | Injektion von aufbereitetem Eigenblut in Gelenke oder Sehnen. | SZ | M | 0
+Akupunktur bei Schmerzen | Körperakupunktur | Akupunktur Rücken, Knie | Behandlung mit Nadeln bei chronischen Schmerzen. | IND | M | 0 | Kasse bei chronischem Rücken- und Knieschmerz.
 Einlagen & Bandagen | Hilfsmittelverordnung | Schuheinlagen, Orthese, Bandage | Verordnung orthopädischer Hilfsmittel. | GKV_EA | N | 0
 Osteoporose-Behandlung | Osteoporosetherapie | Knochenschwund | Behandlung von Knochenschwund. | GKV | N | 0
 Skoliose-Behandlung | Skoliosetherapie | Wirbelsäulenverkrümmung | Behandlung von Wirbelsäulenverkrümmungen. | GKV | N | 0
@@ -210,7 +210,7 @@ Schulter-OP | Schulterarthroskopie / Rotatorenmanschetten-Naht | Schulter OP, Im
 Künstliches Kniegelenk | Knie-Endoprothese (TEP) | Knieprothese, Knie TEP | Ersatz des Kniegelenks. | GKV | O | 4
 Künstliches Hüftgelenk | Hüft-Endoprothese (TEP) | Hüftprothese, Hüft TEP | Ersatz des Hüftgelenks. | GKV | O | 4
 Bandscheiben-OP | Nukleotomie / Mikrodiskektomie | Bandscheibenvorfall OP | Entfernung eines Bandscheibenvorfalls. | GKV | O | 4
-Wirbelsäulen-Versteifung | Spondylodese | Versteifung Rücken | Stabilisierung der Wirbelsäule. | GKV | O | 4
+Wirbelsäulen-Versteifung | Spondylodese | Versteifung Rücken | Operation, bei der Wirbel fest miteinander verbunden werden. | GKV | O | 4
 Fuß-OP | Hallux-valgus-Korrektur | Ballenzeh, Hallux | Korrektur von Fußfehlstellungen. | GKV | O | 4
 Knochenbruch-Versorgung | Frakturversorgung (konservativ/operativ) | Knochenbruch, Gips, Bruch | Behandlung von Knochenbrüchen. | GKV | O | 4
 Arbeits- und Wegeunfall | D-Arzt-Verfahren (BG) | Arbeitsunfall, Schulunfall, Wegeunfall | Behandlung über die Berufsgenossenschaft. | GKV | N | 0 | Kostenträger: Berufsgenossenschaft/Unfallkasse.
@@ -223,7 +223,7 @@ Leistungsdiagnostik | Laktat- / Spiroergometrie | Laktattest, VO2max, Spiroergom
 Sportverletzungen | Sporttraumatologie | Bänderriss, Muskelfaserriss, Umknicken | Diagnose und Behandlung von Sportverletzungen. | GKV | N | 0
 Return-to-Sport-Test | Funktionelle Testung nach Verletzung | Return to Play | Test, ob nach Verletzung wieder voll belastbar. | SZ | N | 0
 Laufanalyse | Lauf- und Ganganalyse | Laufband Analyse | Analyse des Laufstils, Einlagenberatung. | SZ | N | 0
-Kinesio-Taping | Kinesiologisches Taping | Tape, Kinesiotape | Elastische Tapes zur Unterstützung. | SZ | N | 0
+Kinesio-Taping | Kinesiologisches Taping | Tape, Kinesiotape | Aufkleben elastischer Tapes auf die Haut. | SZ | N | 0
 """)
 
 F("Chirurgie", "Facharzt Chirurgie (Allgemein-/Viszeral-/Gefäßchirurgie)", """
@@ -233,18 +233,25 @@ Gallenblasen-OP | Cholezystektomie | Gallensteine | Entfernung der Gallenblase. 
 Blinddarm-OP | Appendektomie | Blinddarmentzündung | Entfernung des Blinddarms. | GKV | O | 3
 Hämorrhoiden-Behandlung | Proktologie | Hämorrhoiden, Analfissur, Juckreiz After | Behandlung von Enddarmerkrankungen. | GKV | M | 1
 Schilddrüsen-OP | Thyreoidektomie | Schilddrüse entfernen, Knoten | Teil- oder Komplettentfernung der Schilddrüse. | GKV | O | 3
-Adipositaschirurgie | Bariatrische Chirurgie | Magenverkleinerung, Magenbypass, Schlauchmagen | Operative Gewichtsreduktion. | IND | O | 4
+Adipositaschirurgie | Bariatrische Chirurgie | Magenverkleinerung, Magenbypass, Schlauchmagen | Operation am Magen oder Darm mit dem Ziel, das Körpergewicht zu senken. | IND | O | 4
 Ambulante Kleinchirurgie | Ambulante Operationen | Abszess, eingewachsener Zehennagel, Grützbeutel | Kleine Eingriffe ohne stationären Aufenthalt. | GKV | O | 1
 ## Gefäßchirurgie
 Krampfadern-Behandlung | Varizentherapie (Laser/Radiofrequenz/Stripping) | Krampfadern, Venen OP | Entfernung oder Verschluss erweiterter Venen. | GKV | M | 1
-Halsschlagader-OP | Karotis-Operation | Halsschlagader verengt | Beseitigung von Verengungen der Halsschlagader. | GKV | O | 3
-Durchblutungsstörungen Beine | pAVK-Therapie / Ballondilatation | Schaufensterkrankheit | Wiederherstellen der Durchblutung. | GKV | M | 2
+Halsschlagader-OP | Karotis-Operation | Halsschlagader verengt | Operation an einer verengten Halsschlagader. | GKV | O | 3
+Durchblutungsstörungen Beine | pAVK-Therapie / Ballondilatation | Schaufensterkrankheit | Eingriff an verengten Beinarterien mit dem Ziel, die Durchblutung wiederherzustellen. | GKV | M | 2
 ## Handchirurgie
-Karpaltunnel-OP | Karpaltunnelspaltung | Karpaltunnelsyndrom, eingeschlafene Hand | Entlastung des Handnervs. | GKV | O | 3
+Karpaltunnel-OP | Karpaltunnelspaltung | Karpaltunnelsyndrom, eingeschlafene Hand | Durchtrennung des Bandes über dem Handnerv mit dem Ziel, den Nerv zu entlasten. | GKV | O | 3
 Schnellender Finger | Ringbandspaltung | Schnappfinger | Operation am Ringband. | GKV | O | 2
 Morbus Dupuytren | Dupuytren-Operation | Dupuytren, krummer Finger | Behandlung von Strängen in der Hohlhand. | GKV | O | 3
+""")
+
+# Gleicher Bereich und gleiche Kategorie, aber eigene Fachärzte: Neurochirurgie und Herzchirurgie sind eigene Facharztgebiete.
+F("Chirurgie", "Facharzt Neurochirurgie", """
 ## Neurochirurgie & Herzchirurgie
 Neurochirurgische Eingriffe | Neurochirurgie | Hirntumor, Spinalkanalstenose | Operationen an Gehirn, Rückenmark und Nerven. | GKV | O | 4
+""")
+F("Chirurgie", "Facharzt Herzchirurgie", """
+## Neurochirurgie & Herzchirurgie
 Herzoperation | Herzchirurgie (Bypass, Klappe) | Bypass, Herzklappe, TAVI | Operationen am Herzen. | GKV | O | 4
 """)
 
@@ -276,7 +283,7 @@ Autismus-Diagnostik | Autismus-Spektrum-Diagnostik | Autismus, Asperger | Abklä
 Burnout & Stress | Stressbehandlung / Burnout-Therapie | Burnout, Erschöpfung | Behandlung stressbedingter Erkrankungen. | GKV | N | 0
 Suchtbehandlung | Suchttherapie | Alkohol, Drogen, Spielsucht | Beratung, Entzug und Entwöhnung. | GKV | N | 0
 Traumatherapie | Traumatherapie (z. B. EMDR) | EMDR, PTBS, Trauma | Behandlung von Traumafolgen. | GKV | N | 0
-Akute psychische Krise | Krisenintervention | Krise, Notfall Psyche | Sofortige Hilfe in akuten Krisen. | GKV | N | 0
+Akute psychische Krise | Krisenintervention | Krise, Notfall Psyche | Hilfe in akuten psychischen Krisen. | GKV | N | 0
 Online-Psychotherapie | Videopsychotherapie | Therapie online | Psychotherapie per Video. | GKV | N | 0
 Psychosomatische Behandlung | Psychosomatische Medizin | Psychosomatik, körperliche Beschwerden ohne Befund | Behandlung von Körper-Seele-Wechselwirkungen. | GKV | N | 0
 Coaching / psychologische Beratung | Psychologische Beratung | Coaching, Lebensberatung | Beratung ohne Krankheitswert. | SZ | N | 0
@@ -300,12 +307,12 @@ Hörtest | Audiometrie | Hörtest, schlecht hören | Messung des Hörvermögens.
 Hörgeräte-Versorgung | Hörgeräteverordnung | Hörgerät | Verordnung und Anpassung von Hörgeräten. | GKV_EA | N | 0
 Tinnitus-Behandlung | Tinnitustherapie | Ohrgeräusch, Pfeifen im Ohr | Behandlung von Ohrgeräuschen. | GKV | N | 0
 Ohrenreinigung | Cerumenentfernung | Ohrenschmalz, Ohr verstopft | Entfernen von Ohrenschmalz. | GKV | N | 0
-Nasenscheidewand-OP | Septumplastik | schiefe Nasenscheidewand, Nasenatmung | Verbesserung der Nasenatmung. | GKV | O | 3
+Nasenscheidewand-OP | Septumplastik | schiefe Nasenscheidewand, Nasenatmung | Operation an der Nasenscheidewand mit dem Ziel, die Nasenatmung zu verbessern. | GKV | O | 3
 Nasennebenhöhlen-OP | Nasennebenhöhlenchirurgie (FESS) | Sinusitis, Polypen Nase | Behandlung chronischer Nebenhöhlenentzündung. | GKV | O | 3
 Mandel-OP | Tonsillektomie / Tonsillotomie | Mandeln raus, Polypen Kind | Entfernung der Mandeln. | GKV | O | 3
-Paukenröhrchen | Paukendrainage | Paukenröhrchen Kind | Belüftung des Mittelohrs bei Kindern. | GKV | O | 1
+Paukenröhrchen | Paukendrainage | Paukenröhrchen Kind | Einsetzen eines Röhrchens ins Trommelfell mit dem Ziel, das Mittelohr zu belüften, z. B. bei Kindern. | GKV | O | 1
 Schnarch-Behandlung | Schnarchchirurgie / Schnarchtherapie | Schnarchen, Gaumensegel | Behandlung von Schnarchen. | SZ | M | 1
-Allergie-Behandlung HNO | Hyposensibilisierung | Heuschnupfen, Desensibilisierung, Allergie Spritze | Gewöhnung des Körpers an Allergene. | GKV | M | 0
+Allergie-Behandlung HNO | Hyposensibilisierung | Heuschnupfen, Desensibilisierung, Allergie Spritze | Regelmäßige Gabe von Allergenen mit dem Ziel, den Körper an sie zu gewöhnen. | GKV | M | 0
 Stimm- und Schluckstörungen | Phoniatrie | Heiserkeit, Schluckbeschwerden | Abklärung von Stimme und Schlucken. | GKV | N | 0
 """)
 
@@ -313,12 +320,12 @@ F("Augenheilkunde", "Facharzt Augenheilkunde", """
 ## Augen
 Augenuntersuchung | Augenärztliche Untersuchung | Augenarzt, Sehtest, Augencheck | Untersuchung von Sehschärfe und Auge. | GKV | N | 0
 Brillen- / Kontaktlinsenverordnung | Refraktionsbestimmung | Brille, Kontaktlinsen, Sehstärke | Bestimmung der Sehstärke. | GKV | N | 0
-Grauer Star OP | Kataraktoperation | Grauer Star, Linse trüb | Austausch der getrübten Linse. | GKV | O | 2 | Premiumlinsen (Multifokal) gegen Aufpreis.
-Grüner Star Behandlung | Glaukomtherapie | Grüner Star, Glaukom | Senkung des Augeninnendrucks. | GKV | M | 0
+Grauer Star OP | Kataraktoperation | Grauer Star, Linse trüb | Austausch der getrübten Linse. | GKV | O | 2 | Sonderlinsen (z. B. Multifokallinsen) gegen Aufpreis.
+Grüner Star Behandlung | Glaukomtherapie | Grüner Star, Glaukom | Behandlung mit dem Ziel, den Augeninnendruck zu senken. | GKV | M | 0
 Makula-Behandlung | Intravitreale Injektion (IVOM) | Makuladegeneration, AMD, Spritze ins Auge | Medikamente ins Auge bei Netzhauterkrankung. | GKV | M | 1
 Netzhaut-Untersuchung (OCT) | Optische Kohärenztomographie | OCT, Netzhautscan | Hochauflösender Scan der Netzhaut. | IND | N | 0
 Trockene Augen | Therapie des trockenen Auges | trockene Augen, Augenbrennen | Behandlung trockener Augen. | IND | N | 0
-Schielbehandlung | Strabologie / Orthoptik | Schielen, Amblyopie | Behandlung von Schielen, v. a. bei Kindern. | GKV | N | 0
+Schielbehandlung | Strabologie / Orthoptik | Schielen, Amblyopie | Behandlung von Schielen bei Kindern und Erwachsenen. | GKV | N | 0
 Augen-Lid-Operationen | Lidchirurgie (medizinisch) | Hängelid, Lidfehlstellung | Operationen an den Lidern bei Funktionsstörung. | IND | O | 2
 """)
 
@@ -341,11 +348,11 @@ F("Radiologie & Nuklearmedizin", "Facharzt Radiologie / Nuklearmedizin", """
 ## Bildgebung
 Röntgen | Konventionelles Röntgen | Röntgenbild | Röntgenaufnahme von Knochen und Organen. | GKV | N | 0
 MRT | Magnetresonanztomographie | Kernspin, MRT | Schnittbilder ohne Strahlung. | GKV | N | 0
-CT | Computertomographie | CT, Computertomograph | Schnelle Schnittbilder mit Röntgen. | GKV | N | 0
+CT | Computertomographie | CT, Computertomograph | Schnittbilder mit Röntgenstrahlung. | GKV | N | 0
 Ultraschall | Sonographie | Ultraschall | Bildgebung mit Schallwellen. | GKV | N | 0
 Mammographie (diagnostisch) | Mammographie | Bruströntgen | Röntgen der Brust bei Beschwerden. | GKV | N | 0
 Herz-CT / Kalk-Score | Kardio-CT | Kalkscore, Herz CT | CT der Herzkranzgefäße. | SZ | N | 0 | Ohne Krankheitszeichen und ohne konkreten Verdacht ist die Untersuchung Früherkennung mit Röntgenstrahlung. Sie ist nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht; für die koronare Herzkrankheit gibt es keine (Stand 17.11.2026).
-Prostata-MRT | Multiparametrisches MRT der Prostata | Prostata MRT | Genaue Darstellung der Prostata. | IND | N | 0
+Prostata-MRT | Multiparametrisches MRT der Prostata | Prostata MRT | Schnittbilder der Prostata im MRT. | IND | N | 0
 Szintigraphie | Szintigraphie (Schilddrüse/Skelett) | Schilddrüsenszintigraphie, Knochenszintigraphie | Funktionsbild mit radioaktiven Markern. | GKV | M | 0
 PET-CT | Positronen-Emissions-Tomographie | PET | Stoffwechsel-Bildgebung bei Krebs. | IND | M | 0
 Radiojodtherapie | Radiojodtherapie | Schilddrüse Radiojod | Behandlung der Schilddrüse mit radioaktivem Jod. | GKV | M | 2
@@ -383,7 +390,7 @@ Giftnotruf | Giftinformationszentrum | Vergiftung | Beratung bei Vergiftungen. |
 F("Geriatrie & Palliativmedizin", "Facharzt Geriatrie / Palliativmediziner", """
 ## Altersmedizin
 Geriatrisches Assessment | Geriatrische Basisuntersuchung | Altersmedizin, Sturzrisiko | Erfassung von Mobilität, Gedächtnis, Selbstständigkeit. | GKV | N | 0
-Sturzprävention | Sturzprophylaxe | Sturz, Gleichgewicht Senioren | Training und Maßnahmen gegen Stürze. | GKV | N | 0
+Sturzprävention | Sturzprophylaxe | Sturz, Gleichgewicht Senioren | Training und Maßnahmen mit dem Ziel, Stürzen vorzubeugen. | GKV | N | 0
 Medikamenten-Check | Medikationsanalyse / Medikationsplan | Medikationsplan, Wechselwirkungen | Prüfung aller Medikamente auf Wechselwirkungen. | GKV | N | 0
 ## Palliativ
 Palliativversorgung | (Spezialisierte) Ambulante Palliativversorgung (SAPV) | Palliativ, Sterbebegleitung | Versorgung schwerstkranker Menschen zu Hause. | GKV | N | 0
@@ -403,7 +410,7 @@ F("Naturheilkunde & Komplementärmedizin", "Arzt mit Zusatzbezeichnung / Heilpra
 ## Komplementär
 Akupunktur | Akupunktur (TCM) | Akupunktur, Nadeln | Nadelbehandlung nach chinesischer Medizin. | IND | M | 0
 Osteopathie | Osteopathische Behandlung | Osteopath | Manuelle Behandlung von Funktionsstörungen. | SZ | N | 0 | Ob die Kasse einen Zuschuss gibt, vorher bei der Kasse fragen.
-Chiropraktik / Manuelle Medizin | Chirotherapie | Einrenken, Chiropraktiker | Lösen von Blockaden an Wirbelsäule und Gelenken. | IND | N | 0
+Chiropraktik / Manuelle Medizin | Chirotherapie | Einrenken, Chiropraktiker | Handgriffe an Wirbelsäule und Gelenken. | IND | N | 0
 Homöopathie | Klassische Homöopathie | Globuli | Behandlung mit homöopathischen Mitteln. | SZ | N | 0
 Naturheilverfahren | Phytotherapie / Schröpfen / Ausleitung | Schröpfen, Pflanzenheilkunde | Pflanzliche und physikalische Verfahren. | SZ | N | 0
 Hypnosetherapie | Medizinische Hypnose | Hypnose, Rauchentwöhnung Hypnose | Therapie unter Hypnose. | SZ | N | 0
@@ -411,11 +418,11 @@ Hypnosetherapie | Medizinische Hypnose | Hypnose, Rauchentwöhnung Hypnose | The
 
 F("Therapieberufe (Heilmittel)", "Physio-/Ergotherapeut, Logopäde, Podologe", """
 ## Physiotherapie
-Krankengymnastik | Physiotherapie (KG) | Physio, KG, Krankengymnastik | Übungstherapie zur Verbesserung der Beweglichkeit. | GKV_EA | N | 0 | Auf Rezept, 10 % + 10 € Zuzahlung.
+Krankengymnastik | Physiotherapie (KG) | Physio, KG, Krankengymnastik | Übungstherapie mit dem Ziel, die Beweglichkeit zu verbessern. | GKV_EA | N | 0 | Auf Rezept, 10 % + 10 € Zuzahlung.
 Manuelle Therapie | Manuelle Therapie (MT) | MT, Mobilisation | Gezielte Mobilisation von Gelenken. | GKV_EA | N | 0
 Krankengymnastik am Gerät | KGG / Medizinische Trainingstherapie | KGG, Gerätetraining | Training an Geräten unter Anleitung. | GKV_EA | N | 0
-Lymphdrainage | Manuelle Lymphdrainage | Lymphdrainage, Schwellung | Entstauung bei Schwellungen. | GKV_EA | N | 0
-Massage | Klassische Massage | Massage, Verspannung | Lockerung verspannter Muskulatur. | GKV_EA | N | 0
+Lymphdrainage | Manuelle Lymphdrainage | Lymphdrainage, Schwellung | Grifftechnik bei Schwellungen mit dem Ziel, gestaute Lymphflüssigkeit abzuleiten. | GKV_EA | N | 0
+Massage | Klassische Massage | Massage, Verspannung | Massage verspannter Muskulatur mit dem Ziel, sie zu lockern. | GKV_EA | N | 0
 Neurologische Physiotherapie | Bobath / PNF / Vojta | Bobath, Vojta | Physio bei neurologischen Erkrankungen. | GKV_EA | N | 0
 Wärme- & Elektrotherapie | Physikalische Therapie | Fango, Elektrotherapie, Heißluft | Ergänzende Wärme-, Kälte- und Strombehandlung. | GKV_EA | N | 0
 Beckenbodentraining | Beckenbodentherapie | Beckenboden, Rückbildung | Training der Beckenbodenmuskulatur. | GKV_EA | N | 0
@@ -428,7 +435,7 @@ Handtherapie | Ergotherapeutische Handtherapie | Handreha | Rehabilitation nach 
 Sprachtherapie | Logopädie | Logopäde, Sprachstörung, Stottern | Therapie von Sprach-, Sprech- und Stimmstörungen. | GKV_EA | N | 0
 Schlucktherapie | Dysphagietherapie | Schluckstörung | Therapie von Schluckstörungen. | GKV_EA | N | 0
 ## Podologie
-Medizinische Fußpflege | Podologische Komplexbehandlung | Podologe, diabetischer Fuß | Fußbehandlung, v. a. bei Diabetes. | GKV_EA | N | 0
+Medizinische Fußpflege | Podologische Komplexbehandlung | Podologe, diabetischer Fuß | Fußbehandlung, z. B. bei Diabetes. | GKV_EA | N | 0
 Nagelkorrekturspange | Orthonyxie-Spange | eingewachsener Nagel | Korrektur eingewachsener Nägel. | IND | N | 0
 ## Ernährung
 Ernährungsberatung | Ernährungstherapie | Ernährungsberater, Diät, Abnehmen | Beratung zu gesunder oder therapeutischer Ernährung. | IND | N | 0 | Kassen bezuschussen nach §20/§43 SGB V.
@@ -497,9 +504,9 @@ F("Augenheilkunde", "Facharzt Augenheilkunde", """
 ## Augen
 Gesichtsfeldmessung | Perimetrie | Gesichtsfeld, Gesichtsfeldausfall | Prüfung, wie weit Sie zur Seite sehen. | GKV | N | 0
 Augenhintergrund-Untersuchung | Funduskopie (mit Pupillenerweiterung) | Augenspiegelung, Netzhaut ansehen | Untersuchung der Netzhaut, etwa bei Diabetes. | GKV | N | 0 | Nach Pupillenerweiterung einige Stunden nicht Auto fahren.
-Netzhaut-Laser | Laserkoagulation der Netzhaut | Netzhautloch, Netzhautriss Laser | Laser gegen Netzhautrisse oder Gefäßneubildungen. | GKV | M | 0
+Netzhaut-Laser | Laserkoagulation der Netzhaut | Netzhautloch, Netzhautriss Laser | Laserbehandlung bei Netzhautrissen oder Gefäßneubildungen. | GKV | M | 0
 Nachstar-Behandlung | YAG-Laser-Kapsulotomie | Nachstar, wieder schlechter sehen nach Grauer Star OP | Laser bei Eintrübung nach einer Grauen-Star-OP. | GKV | M | 0
-Hornhaut-Vernetzung | Corneales Crosslinking | Keratokonus, Hornhautverkrümmung | Stabilisierung der Hornhaut bei Keratokonus. | IND | M | 2
+Hornhaut-Vernetzung | Corneales Crosslinking | Keratokonus, Hornhautverkrümmung | Behandlung mit Riboflavin und UV-Licht bei Keratokonus, mit dem Ziel, die Hornhaut zu stabilisieren. | IND | M | 2
 Sehtest für den Führerschein (Augenarzt) | Augenärztliches Gutachten Fahrerlaubnis | Sehtest Führerschein Augenarzt, LKW Augen | Bescheinigung über das Sehvermögen. | SZ | N | 0
 """)
 
@@ -508,7 +515,7 @@ F("Dermatologie (medizinisch)", "Facharzt Dermatologie", """
 Starkes Schwitzen | Hyperhidrose-Behandlung | Schwitzen, Leitungswasser-Iontophorese, Achselschweiß | Behandlung von übermäßigem Schwitzen. | IND | N | 0 | Ob die Kasse zahlt, hängt vom Verfahren und vom Befund ab; vorher bei der Kasse fragen.
 Vorstufen von hellem Hautkrebs | Behandlung aktinischer Keratosen (Kryo, PDT, Creme) | aktinische Keratose, Lichtschaden | Behandlung rauer, lichtgeschädigter Hautstellen. | IND | M | 1
 Chronische Wunden | Behandlung chronischer Wunden | offenes Bein, Ulcus cruris | Versorgung schlecht heilender Wunden. | GKV | M | 0
-Gefäßlaser | Lasertherapie von Gefäßveränderungen | Feuermal, Besenreiser Gesicht, Couperose | Laser bei erweiterten Äderchen. | IND | M | 1 | Kasse vor allem bei Feuermalen; kosmetische Gründe zahlen Sie selbst.
+Gefäßlaser | Lasertherapie von Gefäßveränderungen | Feuermal, Besenreiser Gesicht, Couperose | Laser bei erweiterten Äderchen. | IND | M | 1 | Kasse z. B. bei Feuermalen; aus kosmetischen Gründen zahlen Sie selbst.
 """)
 
 F("Kinder- & Jugendmedizin", "Facharzt Kinder- und Jugendmedizin", """
@@ -542,7 +549,7 @@ F("Neurologie", "Facharzt Neurologie", """
 ## Neurologie
 Restless Legs | Behandlung des Restless-Legs-Syndroms | unruhige Beine, Kribbeln Beine nachts | Behandlung unruhiger Beine. | GKV | N | 0
 Polyneuropathie | Polyneuropathie-Diagnostik | Kribbeln Füße, taube Füße | Abklärung von Nervenschäden an Händen und Füßen. | GKV | N | 0
-Botulinumtoxin bei Spastik und Dystonie | Botulinumtoxin-Therapie (neurologisch) | Spastik, Schiefhals, Lidkrampf | Spritzen gegen Muskelverkrampfungen. | GKV | M | 0
+Botulinumtoxin bei Spastik und Dystonie | Botulinumtoxin-Therapie (neurologisch) | Spastik, Schiefhals, Lidkrampf | Injektionen in verkrampfte Muskeln bei Spastik oder Dystonie. | GKV | M | 0
 """)
 
 F("Innere Medizin", "Facharzt Innere Medizin / Diabetologie", """
@@ -553,17 +560,17 @@ Diabetes-Schulung | Strukturierte Diabetesschulung | Diabetes Kurs, Schulung Ins
 
 F("Therapieberufe (Heilmittel)", "Physiotherapeut / Ergotherapeut / Logopäde / Podologe", """
 ## Physiotherapie
-Atemtherapie | Atemtherapie (Physiotherapie) | Atemgymnastik, COPD Physio | Übungen für leichteres Atmen. | GKV_EA | N | 0
+Atemtherapie | Atemtherapie (Physiotherapie) | Atemgymnastik, COPD Physio | Atemübungen mit dem Ziel, das Atmen zu erleichtern. | GKV_EA | N | 0
 Kiefergelenk-Physiotherapie | Physiotherapie bei CMD | Kiefer, Zähneknirschen, CMD | Behandlung von Kiefergelenk und Kaumuskeln. | GKV_EA | N | 0 | Verordnung auch durch Zahnärzte.
 Physiotherapie als Hausbesuch | Physiotherapie im Hausbesuch | Physio zu Hause | Behandlung zu Hause, wenn der Weg nicht möglich ist. | GKV_EA | N | 0
 ## Ergotherapie
 Hirnleistungstraining | Hirnleistungstraining (Ergotherapie) | Gedächtnistraining, Konzentrationstraining | Training nach Schlaganfall oder bei Demenz. | GKV_EA | N | 0
 Sensorische Integration | Ergotherapie bei Kindern (Sensorische Integration) | Ergo Kind, Wahrnehmung | Förderung von Wahrnehmung und Bewegung bei Kindern. | GKV_EA | N | 0
 ## Logopädie
-Stimmtraining für Sprechberufe | Stimmbildung / Stimmtraining | Stimme Lehrer, Sprechtraining | Training für eine belastbare Stimme. | SZ | N | 0
+Stimmtraining für Sprechberufe | Stimmbildung / Stimmtraining | Stimme Lehrer, Sprechtraining | Übungen mit dem Ziel, die Stimme im Beruf belastbarer zu machen. | SZ | N | 0
 Myofunktionelle Therapie | Myofunktionelle Therapie | Zungenfehlstellung, Lispeln, offener Mund | Training von Zunge und Mundmuskulatur. | GKV_EA | N | 0
 ## Podologie
-Hühneraugen und Hornhaut | Entfernung von Hühneraugen und Schwielen | Hühnerauge, Hornhaut | Schonende Entfernung, ohne Verordnung. | SZ | N | 0
+Hühneraugen und Hornhaut | Entfernung von Hühneraugen und Schwielen | Hühnerauge, Hornhaut | Entfernung von Hühneraugen und Hornhaut, ohne Verordnung. | SZ | N | 0
 Nagelprothetik | Nagelprothetik | Nagel aufbauen, Nagelersatz | Kunstnagel nach Nagelverlust oder Pilz. | SZ | N | 0
 Kosmetische Fußpflege | Fußpflege ohne Verordnung | Fußpflege, Pediküre | Pflege von Nägeln und Haut. | SZ | N | 0
 """, gebo="Heilmittel-Richtlinie (GKV) / Privat")
@@ -590,7 +597,7 @@ Pflegehilfsmittel zum Verbrauch | Pflegehilfsmittel nach § 40 SGB XI | Handschu
 
 F("Digitale Gesundheit & Apotheke", "Apotheke", """
 ## Apotheke
-Medikationsberatung bei vielen Arzneimitteln | Erweiterte Medikationsberatung bei Polymedikation (pDL) | Wechselwirkungen prüfen, fünf Medikamente | Prüfung aller Dauermedikamente auf Wechselwirkungen und Doppelungen. | GKV | N | 0 | Ab fünf Dauermedikamenten, in der Regel einmal in zwölf Monaten.
+Medikationsberatung bei vielen Arzneimitteln | Erweiterte Medikationsberatung bei Polymedikation (pDL) | Wechselwirkungen prüfen, fünf Medikamente | Prüfung aller Dauermedikamente auf Wechselwirkungen und Doppelungen. | GKV | N | 0 | Ab fünf Dauermedikamenten; einmal in zwölf Monaten, bei erheblicher Umstellung der Medikation auch früher.
 Blutdruckmessung in der Apotheke | Standardisierte Risikoerfassung hoher Blutdruck (pDL) | Blutdruck messen Apotheke | Messung nach Standard bei Blutdruckmedikamenten. | GKV | N | 0
 Inhalationsschulung | Erweiterte Einweisung in die korrekte Arzneimittelanwendung mit Übung der Inhalationstechnik (pDL) | Asthmaspray richtig anwenden, Inhalator | Üben mit dem Inhalator bei Asthma oder COPD. | GKV | N | 0
 Betreuung nach Organtransplantation | Pharmazeutische Betreuung von Organtransplantierten (pDL) | Transplantation Medikamente | Medikationsberatung nach einer Transplantation. | GKV | N | 0
@@ -617,26 +624,26 @@ F("Hilfsmittel & Gesundheitshandwerk", "Hörakustiker/in", """
 ## Hörakustik
 Hörtest beim Hörakustiker | Ton- und Sprachaudiometrie | Hörtest kostenlos | Hörtest ohne Rezept. | SZ | N | 0 | Für eine Versorgung über die Kasse braucht es eine ärztliche Verordnung.
 Gehörschutz nach Maß | Individueller Gehörschutz (Otoplastik) | Musiker Gehörschutz, Schlafen, Lärm | Angepasster Schutz aus einem Ohrabdruck. | SZ | N | 0
-Tinnitus-Versorgung | Hörsystem mit Rauschgenerator | Tinnitus Gerät, Noiser | Geräte gegen Ohrgeräusche. | GKV_EA | N | 0
+Tinnitus-Versorgung | Hörsystem mit Rauschgenerator | Tinnitus Gerät, Noiser | Geräte bei Ohrgeräuschen, z. B. mit Rauschgenerator. | GKV_EA | N | 0
 Hörgeräte-Service | Nachsorge und Reparatur von Hörsystemen | Hörgerät reparieren, reinigen | Reinigung, Kontrolle und Reparatur. | GKV | N | 0 | Ob der Service bei Kassenversorgung in der Versorgungspauschale enthalten ist, beim Hörakustiker fragen.
 """, gebo="Hilfsmittelverzeichnis (GKV) / Privat")
 
 F("Hilfsmittel & Gesundheitshandwerk", "Sanitätshaus / Orthopädietechnik", """
 ## Sanitätshaus
 Bandagen | Bandagenversorgung | Kniebandage, Sprunggelenk Bandage | Stützende Bandagen auf Rezept. | GKV_EA | N | 0
-Pflegebett | Pflegebett für zu Hause | Pflegebett mieten | Pflegebett, meist leihweise. | GKV | N | 0 | Kostenträger je nach Fall Kranken- oder Pflegekasse.
+Pflegebett | Pflegebett für zu Hause | Pflegebett mieten | Pflegebett, auch leihweise. | GKV | N | 0 | Kostenträger je nach Fall Kranken- oder Pflegekasse.
 Brustprothetik | Brustprothesen und Spezial-BH | Brustprothese nach Krebs | Versorgung nach einer Brustoperation. | GKV_EA | N | 0
 Stomaversorgung | Stoma-Hilfsmittel | Stoma, künstlicher Darmausgang | Beutel, Platten und Beratung. | GKV_EA | N | 0
 Inkontinenzhilfen | Aufsaugende Inkontinenzhilfsmittel | Inkontinenzeinlagen, Windeln Erwachsene | Versorgung bei Blasenschwäche. | GKV_EA | N | 0
 Milchpumpe | Elektrische Milchpumpe (Miete) | Milchpumpe leihen | Milchpumpe auf Rezept. | GKV | N | 0
-Hilfen für Bad und Wohnung | Hilfsmittel für Bad und Toilette | Badewannenlift, Toilettensitzerhöhung, Duschhocker | Hilfen für einen sicheren Alltag. | GKV_EA | N | 0
+Hilfen für Bad und Wohnung | Hilfsmittel für Bad und Toilette | Badewannenlift, Toilettensitzerhöhung, Duschhocker | Hilfsmittel für Bad und Toilette, z. B. Badewannenlift oder Duschhocker. | GKV_EA | N | 0
 """, gebo="Hilfsmittelverzeichnis (GKV) / Privat")
 
 F("Naturheilkunde & Komplementärmedizin", "Heilpraktiker / Arzt mit Zusatzbezeichnung", """
 ## Komplementär
-Erstgespräch beim Heilpraktiker | Ausführliche Anamnese | Heilpraktiker Termin | Ausführliches Gespräch und Untersuchung. | SZ | N | 0 | Private Zusatzversicherungen erstatten teilweise.
+Erstgespräch beim Heilpraktiker | Ausführliche Anamnese | Heilpraktiker Termin | Ausführliches Gespräch und Untersuchung. | SZ | N | 0 | Ob eine private Zusatzversicherung etwas erstattet, vorher dort fragen.
 Fußreflexzonenmassage | Reflexzonentherapie am Fuß | Reflexzonen | Massage bestimmter Zonen am Fuß. | SZ | N | 0
-Craniosacrale Behandlung | Craniosacrale Therapie | Cranio, sanfte Osteopathie | Sanfte manuelle Behandlung an Kopf und Rücken. | SZ | N | 0
+Craniosacrale Behandlung | Craniosacrale Therapie | Cranio, CST | Manuelle Behandlung mit leichtem Druck an Kopf und Rücken. | SZ | N | 0
 """)
 
 F("Krankenhaus & Wahlleistungen", "Krankenhaus", """
@@ -658,12 +665,12 @@ Psychisch-funktionelle Ergotherapie | Psychisch-funktionelle Behandlung | Ergoth
 Ergotherapie als Hausbesuch | Ergotherapie im Hausbesuch | Ergo zu Hause | Behandlung zu Hause, wenn der Weg nicht möglich ist. | GKV_EA | N | 0
 ## Logopädie
 Stottertherapie | Redeflusstherapie | Stottern, Poltern | Therapie bei Stottern und Poltern. | GKV_EA | N | 0
-Aphasietherapie | Sprachtherapie nach Schlaganfall | Aphasie, Sprache nach Schlaganfall | Wiedererlernen von Sprechen und Verstehen. | GKV_EA | N | 0
+Aphasietherapie | Sprachtherapie nach Schlaganfall | Aphasie, Sprache nach Schlaganfall | Therapie mit dem Ziel, Sprechen und Verstehen wieder zu erlernen. | GKV_EA | N | 0
 Stimmtherapie | Therapie bei Stimmstörungen | Heiserkeit, Stimmstörung | Therapie bei kranker oder überlasteter Stimme auf Rezept. | GKV_EA | N | 0
 Logopädie als Hausbesuch | Logopädie im Hausbesuch | Logopädie zu Hause | Behandlung zu Hause, wenn der Weg nicht möglich ist. | GKV_EA | N | 0
 ## Podologie
 Podologie bei Nervenschäden | Podologische Therapie bei Neuropathie oder Querschnittsyndrom | Fußpflege Neuropathie, gefühllose Füße | Fußbehandlung auf Rezept bei Nervenschäden. | GKV_EA | N | 0
-Druckentlastung am Fuß | Orthesen aus Silikon (Druckschutz) | Zehenkorrektur, Druckstelle Zeh | Angepasste Polster gegen Druckstellen. | SZ | N | 0
+Druckentlastung am Fuß | Orthesen aus Silikon (Druckschutz) | Zehenkorrektur, Druckstelle Zeh | Angepasste Polster aus Silikon bei Druckstellen am Fuß. | SZ | N | 0
 """, gebo="Heilmittel-Richtlinie (GKV) / Privat")
 
 F("Hilfsmittel & Gesundheitshandwerk", "Augenoptiker/in", """

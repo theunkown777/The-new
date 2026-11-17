@@ -323,7 +323,18 @@ function globalItem(code: GlobalCode, input: ProposalInput, P: Prices): Proposal
       return r;
     case "bleaching": {
       r.options.push({ id: "bl", type: "privat", name: "Bleaching", total: P.bleaching, ohneErstattung: true, benefits: ["auf ausdrücklichen Wunsch (§ 2 Abs. 3 GOZ)"] });
-      r.recommended = "bl";
+      // Keine Vorauswahl: Sorrida merkt eine Leistung ohne Kassenanteil nie vor (kasseZuerst); „Von Ihrer Praxis vorgemerkt“
+      // sieht der Patient nur bei einer Option, die die Praxis selbst angeklickt hat.
+      // VO (EG) 1223/2009, Anhang III lfd. Nr. 12 (Fassung der VO (EU) 344/2013 nach RL 2011/84/EU): Zahnaufheller mit
+      // mehr als 0,1 % bis 6 % Wasserstoffperoxid „Nicht bei Personen unter 18 Jahren anwenden“. Hinweis nur an die Praxis
+      // (Art „warn“); bei bekanntem Alter unter 18 mit dem Alter als Anlass.
+      const minderjaehrig = input.patient.age != null && input.patient.age < 18;
+      r.notes.push({
+        kind: "warn",
+        text: minderjaehrig
+          ? "Laut Geburtsdatum unter 18 Jahre alt: Zahnaufheller mit mehr als 0,1 % Wasserstoffperoxid nicht bei Personen unter 18 Jahren anwenden (VO (EG) 1223/2009, Anhang III Nr. 12)."
+          : "Zahnaufheller mit mehr als 0,1 % Wasserstoffperoxid nicht bei Personen unter 18 Jahren anwenden (VO (EG) 1223/2009, Anhang III Nr. 12).",
+      });
       const hasKaries = Object.values(input.teeth).some(
         (f) => f === "karies_klein" || f === "karies_gross" || f === "fuellung_defekt"
       );

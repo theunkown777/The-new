@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyze, kennzahlen, rowsOf, veraenderung, vergleichSatz, wochenSummen, zeitraumDavor, zeitvergleich, type ProposalFacts, type Row } from "@/lib/analytics";
+import { analyze, annahmeSatz, kennzahlen, rowsOf, veraenderung, vergleichSatz, wochenSummen, zeitraumDavor, zeitvergleich, type ProposalFacts, type Row } from "@/lib/analytics";
 import type { ProposalItem } from "@/lib/proposals";
 import { igelMonitor } from "@/lib/nutzenQuelle";
 
@@ -74,7 +74,8 @@ describe("analyze", () => {
     const ids = a.risiken.map((r) => r.id);
     expect(ids).toEqual(expect.arrayContaining(["konzentration", "igel-monitor", "rueckmeldung", "ueberfaellig"]));
     expect(a.risiken[0].stufe).not.toBe("info");
-    expect(a.staerken.join(" ")).toContain("Prozentpunkte");
+    // Unter „Was gut läuft“ keine Annahmequoten: weder „X wird von Y % angenommen“ noch ein Link-Unterschied als Ursache.
+    expect(a.staerken.join(" ")).not.toMatch(/Prozentpunkte|angenommen|Patienten/);
     // Hinweis zum IGeL-Monitor: Zahl mit Quelle, ohne Wertung und ohne Rat
     const igel = a.risiken.find((r) => r.id === "igel-monitor")!;
     expect(igel.titel).toBe("100 % der Selbstzahler-Einnahmen aus Leistungen, bei denen jede im Kasten „Zum Nutzen“ genannte Bewertung des IGeL-Monitors „negativ“ oder „tendenziell negativ“ lautet");
@@ -111,6 +112,49 @@ describe("analyze", () => {
     const nurAlt = facts(1);
     const b = analyze({ proposals: [nurAlt], rows: rowsOf(nurAlt, [item], { a: "alt" }), invoices: [], now, zeitraumTage: 90 });
     expect(b.risiken.map((r) => r.id)).not.toContain("igel-monitor");
+  });
+
+  it("Annahmequote einer Leistung: nur die Zahl mit Grundlage, ohne Wertung und ohne Rat", () => {
+    const proposals: ProposalFacts[] = [];
+    const rows: Row[] = [];
+    for (let i = 0; i < 10; i++) {
+      const p = facts(i, { status: i < 3 ? "ANGENOMMEN" : "ABGELEHNT" });
+      proposals.push(p);
+      rows.push(...rowsOf(p, [item], { a: "vid" }));
+    }
+    const a = analyze({ proposals, rows, invoices: [], now, zeitraumTage: 90 });
+    const r = a.risiken.find((x) => x.id === "annahme-Video")!;
+    expect(r).toBeTruthy();
+    expect(r.titel).toBe("„Video“: 30 % der Vorschläge angenommen");
+    expect(r.stufe).toBe("info");
+    expect(r.tun).toBeUndefined();
+    expect(r.warum).toBe("Grundlage: 10 entschiedene Vorschläge mit dieser Leistung im Zeitraum, davon 3 angenommen. Die Zahl sagt nichts über die Gründe.");
+    expect(`${r.titel} ${r.warum}`).not.toMatch(/meist|oft|abgelehnt|Preis|Erklärung|Zielgruppe|anbieten|prüfen|sollte|empfehl/i);
+    expect(a.risiken.some((x) => x.id.startsWith("ablehnung"))).toBe(false);
+
+    // Ab 40 % kein Hinweis
+    const b = analyze({ proposals: proposals.map((p, i) => ({ ...p, status: i < 4 ? "ANGENOMMEN" : "ABGELEHNT" })), rows: rows.map((x, i) => ({ ...x, status: i < 4 ? "ANGENOMMEN" : "ABGELEHNT" })), invoices: [], now, zeitraumTage: 90 });
+    expect(b.risiken.some((x) => x.id.startsWith("annahme-"))).toBe(false);
+  });
+
+  it("Satz unter einer Leistung: Zahl mit Grundlage, ohne Wertung und ohne Rat", () => {
+    expect(annahmeSatz({ angenommen: 3, entschieden: 10, quote: 30 })).toBe("3 von 10 entschiedenen Vorschlägen angenommen. Die Zahl sagt nichts über die Gründe.");
+    expect(annahmeSatz({ angenommen: 9, entschieden: 10, quote: 90 })).toBe("9 von 10 entschiedenen Vorschlägen angenommen. Die Zahl sagt nichts über die Gründe.");
+    expect(annahmeSatz({ angenommen: 1, entschieden: 2, quote: null })).toMatch(/^Noch zu wenige Entscheidungen/);
+    for (const q of [0, 30, 50, 70, 100]) expect(annahmeSatz({ angenommen: q / 10, entschieden: 10, quote: q })).not.toMatch(/meist|oft|abgelehnt|Preis|Erklärung|Anlass|prüfen|gut|schlecht/i);
+  });
+
+  it("Hinweise zu offenen Vorgängen: Zahl mit Grundlage, kein Nachhaken, keine Mengen ohne Quelle", () => {
+    const alt = (i: number, over: Partial<ProposalFacts> = {}) => facts(i, { status: "OFFEN", createdAt: new Date(now.getTime() - 40 * DAY), linked: true, shareCreatedAt: new Date(now.getTime() - 10 * DAY), dental: true, ...over });
+    const proposals = [alt(1), alt(2), alt(3)];
+    const a = analyze({ proposals, rows: proposals.flatMap((p) => rowsOf(p, [item], { a: "k" })), invoices: [{ status: "OFFEN", amountCent: 10000, dueDate: new Date(now.getTime() - DAY) }], now, zeitraumTage: 90, tageBisStichtag: 30 });
+    const byId = (id: string) => a.risiken.find((r) => r.id === id)!;
+    for (const id of ["ungeoeffnet", "alt", "stichtag", "ueberfaellig"]) expect(byId(id), id).toBeTruthy();
+    expect(byId("ungeoeffnet").stufe).toBe("info");
+    expect(byId("ungeoeffnet").tun).toBeUndefined();
+    expect(byId("stichtag").tun).toBeUndefined();
+    for (const r of a.risiken) expect(`${r.titel} ${r.warum} ${r.tun ?? ""}`, r.id).not.toMatch(/ansprechen|nachhaken|meist|oft|häufig|seltener|bringt keine|vergessen/i);
+    for (const f of a.faktoren) expect(f.erklaerung, f.frage).toBe("Der Vergleich zeigt Ihre eigenen Zahlen. Er sagt nicht, was die Ursache ist." + (f.frage.startsWith("Privat") ? " Bei Privatversicherten hängt der Eigenanteil vom Tarif ab." : ""));
   });
 
   it("zeigt keine Quoten bei zu wenigen Fällen", () => {
@@ -199,7 +243,7 @@ describe("Vergleich mit dem Zeitraum davor", () => {
 // und behauptet keine Wirkung, für die es keine Belege gibt („erfahrungsgemäß“, „entscheidet sich öfter“).
 describe("Texte der Analyse", () => {
   const lies = async (datei: string) => (await import("node:fs")).readFileSync((await import("node:path")).join(process.cwd(), datei), "utf8");
-  const DATEIEN = ["lib/analytics.ts", "components/AnalyseExplorer.tsx", "app/(app)/analyse/page.tsx"];
+  const DATEIEN = ["lib/analytics.ts", "lib/analyseSatz.ts", "components/AnalyseExplorer.tsx", "app/(app)/analyse/page.tsx"];
 
   it("kein Rat zu Ratenzahlung, kein Vergleich zum Ratenwunsch, solange Raten angehalten sind", async () => {
     const { RATEN_ANGEHALTEN } = await import("@/lib/installments");
@@ -212,8 +256,15 @@ describe("Texte der Analyse", () => {
       expect(alles).not.toMatch(/\bRaten/);
       expect(a.faktoren.map((f) => f.frage).join(" ")).not.toMatch(/\bRaten/);
     }
-    // Der Patienten-Link bleibt der erste Vergleich (darauf baut der Satz unter „Stärken“).
+    // Der Patienten-Link bleibt der erste Vergleich.
     expect(a.faktoren[0].a.label).toBe("mit Link");
+  });
+
+  it("kein Mehrumsatz-Rechner, keine Wertung der Annahme, keine behauptete Ursache auf der Seite", async () => {
+    for (const datei of DATEIEN) {
+      const text = await lies(datei);
+      expect(text, datei).not.toMatch(/Was wäre, wenn|am meisten verdienen|Geld verdient|mehr Patienten zusagen|Preise um|aufs Jahr gerechnet|Wird (oft|meist)|Preis, Erklärung und Anlass|mögliche Probleme|warum Patienten zusagen|mit Grund und Vorschlag/i);
+    }
   });
 
   it("kein Aufruf zum Anruf ohne das Wort Einwilligung, keine behauptete Erfahrung", async () => {

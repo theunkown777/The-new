@@ -383,10 +383,9 @@ describe("Leistungskatalog: Hinweise ohne Wertung und ohne Mengenangaben", () =>
     const { LEISTUNGEN, leistung } = await import("./leistungskatalog");
     const mitHinweis = LEISTUNGEN.filter((l) => l.hinweis);
     expect(mitHinweis.length).toBeGreaterThan(20);
-    // „Heilversprechen vermeiden (HWG)“ bei der Infusionstherapie ist ein Merkpunkt zur Werbung, keine Aussage über die Leistung.
     for (const l of mitHinweis) {
       expect(l.hinweis, l.id).not.toMatch(MENGE);
-      if (l.id !== "aesthetische-medizin-minimal-invasiv-infusionstherapie") expect(l.hinweis, l.id).not.toMatch(WERTEND);
+      expect(l.hinweis, l.id).not.toMatch(WERTEND);
     }
     // Wirkungs- und Haltbarkeitsaussagen in den Zeilen mit NiSV-Hinweisen (Prüfbefund): nur das Verfahren
     for (const id of ["aesthetische-medizin-minimal-invasiv-laser-haarentfernung", "aesthetische-medizin-minimal-invasiv-ultraschall-lifting", "aesthetische-medizin-minimal-invasiv-radiofrequenz-microneedling", "aesthetische-medizin-minimal-invasiv-cellulite-behandlung"]) {

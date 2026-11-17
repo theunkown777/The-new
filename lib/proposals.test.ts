@@ -109,6 +109,25 @@ describe("Prophylaxe und Wunschleistungen", () => {
     const items = buildProposal(input({ teeth: { "11": "karies_klein" } }), DEFAULT_PRICES);
     expect(items.some((i) => i.key === "gbleaching")).toBe(false);
   });
+  it("Bleaching: Altersgrenze nach VO (EG) 1223/2009 als Hinweis nur für die Praxis, bei bekanntem Alter unter 18 deutlich; keine Vorauswahl", () => {
+    const norm = "(VO (EG) 1223/2009, Anhang III Nr. 12)";
+    for (const age of [46, null]) {
+      const i = item(input({ globals: { bleaching: true }, patient: { ...GKV10, age } }), "gbleaching");
+      expect(i.notes).toContainEqual({ kind: "warn", text: `Zahnaufheller mit mehr als 0,1 % Wasserstoffperoxid nicht bei Personen unter 18 Jahren anwenden ${norm}.` });
+      expect(i.options[0].benefits.join(" ")).not.toMatch(/18/);
+    }
+    const jung = item(input({ globals: { bleaching: true }, patient: { ...GKV10, age: 17 } }), "gbleaching");
+    const warn = jung.notes.filter((n) => n.kind === "warn").map((n) => n.text);
+    expect(warn).toHaveLength(1);
+    expect(warn[0]).toMatch(/^Laut Geburtsdatum unter 18 Jahre alt: /);
+    expect(warn[0]).toContain(norm);
+    // Sorrida merkt das Bleaching in keinem Alter vor; vormerken kann nur die Praxis per Klick.
+    for (const age of [17, 46, null]) expect(item(input({ globals: { bleaching: true }, patient: { ...GKV10, age } }), "gbleaching").recommended, String(age)).toBeNull();
+    expect(jung.options.map((o) => o.id)).toEqual(["bl"]);
+    // Der Patientenbrief zeigt nur Hinweise der Art „info“.
+    const brief = buildLetter({ items: [jung], choices: { gbleaching: "bl" }, patient: { ...GKV10, age: 17 }, patientName: "", practiceName: "Praxis Test", date: new Date(2026, 10, 17) });
+    expect(brief).not.toContain("1223/2009");
+  });
   it("does not offer sealing to adults without risk", () => {
     expect(item(input({ teeth: { "36": "fissur" } }), "t36").options).toHaveLength(0);
   });

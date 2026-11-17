@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BEREICHE, KATALOG, LEISTUNGEN, abstand, filtern, kostenHinweis, leistung, navigation, normalisieren, suchen, vorherNachherErlaubt } from "./leistungskatalog";
+import { BEREICHE, KATALOG, LEISTUNGEN, NUR_SUCHE, abstand, alsEigeneLeistung, filtern, kostenHinweis, leistung, navigation, normalisieren, suchen, vorherNachherErlaubt } from "./leistungskatalog";
 
 const erster = (q: string) => suchen(q)[0]?.id;
 
@@ -47,6 +47,27 @@ describe("Leistungskatalog", () => {
   });
   it("Ästhetik: „Hollywood-Lächeln“ findet Keramik-Veneers", () => {
     expect(suchen("Hollywood-Lächeln")[0]?.name).toMatch(/Veneer/);
+  });
+  it("Übernahme in eigene Leistungen: „Kasse zahlt“ nur mit dem Satz zur Indikation, nie mit dem Katalog-Hinweis", () => {
+    for (const l of LEISTUNGEN) {
+      const e = alsEigeneLeistung(l);
+      if (l.kostentraeger_code === "IND") expect(e.kasseWenn, l.id).toBe(kostenHinweis(l));
+      else expect(e.kasseWenn, l.id).toBeUndefined();
+      if (l.hinweis) expect(e.kasseWenn, l.id).not.toBe(l.hinweis);
+    }
+    // Beispiele aus der Prüfung: NiSV- und BGH-Hinweise und der Hinweis zu Abnehmmedikamenten landeten als „Kasse zahlt: …“ beim Patienten.
+    for (const id of ["aesthetische-medizin-minimal-invasiv-jawline-kieferkontur", "aesthetische-medizin-minimal-invasiv-tattooentfernung", "innere-medizin-medikamentoese-adipositastherapie"])
+      expect(alsEigeneLeistung(leistung(id)!).kasseWenn, id).toBeUndefined();
+  });
+  it("Suchwörter mit Wirkversprechen finden die Leistung, stehen aber nicht in den sichtbaren Synonymen", () => {
+    for (const [id, woerter] of Object.entries(NUR_SUCHE)) {
+      const l = leistung(id);
+      expect(l, id).not.toBeNull();
+      for (const w of woerter) {
+        expect(suchen(w).slice(0, 3).map((x) => x.id), w).toContain(id);
+        expect(l!.synonyme, w).not.toContain(w);
+      }
+    }
   });
   it("HWG: keine Galerie bei Lippenunterspritzung", () => {
     const l = suchen("Lippenunterspritzung")[0];

@@ -216,7 +216,7 @@
         "DIAGNOdent",
         "Kariesscan"
       ],
-      "beschreibung": "Karies ohne Röntgen früh erkennen.",
+      "beschreibung": "Untersuchung mit Laser oder Licht mit dem Ziel, Karies ohne Röntgen früh zu erkennen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Privatleistung (GKV-Patienten zahlen selbst, Zusatzversicherung möglich)",
       "kostentraeger_code": "PKV",
@@ -258,7 +258,7 @@
         "Fluoridlack",
         "Zahnschutz"
       ],
-      "beschreibung": "Auftragen von Fluoridlack zur Härtung des Zahnschmelzes.",
+      "beschreibung": "Auftragen von Fluoridlack mit dem Ziel, den Zahnschmelz zu härten.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -384,7 +384,7 @@
       "synonyme": [
         "Versiegelung Backenzähne"
       ],
-      "beschreibung": "Kunststoffversiegelung der Kauflächen gegen Karies.",
+      "beschreibung": "Versiegelung der Kauflächen mit Kunststoff mit dem Ziel, Karies vorzubeugen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -405,7 +405,7 @@
         "Milchzahn Füllung",
         "Kinderfüllung"
       ],
-      "beschreibung": "Erhalt kariöser Milchzähne.",
+      "beschreibung": "Behandlung kariöser Milchzähne mit dem Ziel, sie zu erhalten.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -446,7 +446,7 @@
       "synonyme": [
         "Platzhalter Milchzahn"
       ],
-      "beschreibung": "Hält Platz nach frühem Milchzahnverlust frei.",
+      "beschreibung": "Platzhalter nach frühem Verlust eines Milchzahns, mit dem Ziel, die Lücke freizuhalten.",
       "behandler": "Zahnarzt / Kieferorthopäde",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -468,7 +468,7 @@
         "MIH",
         "Schmelzbildungsstörung"
       ],
-      "beschreibung": "Schutz und Versorgung von Zähnen mit Schmelzbildungsstörung.",
+      "beschreibung": "Versorgung von Zähnen mit Schmelzbildungsstörung mit dem Ziel, sie zu schützen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -489,7 +489,7 @@
         "Lachgas Kind",
         "Narkose Kind"
       ],
-      "beschreibung": "Angstfreie Behandlung für Kinder.",
+      "beschreibung": "Zahnbehandlung von Kindern unter Lachgas oder in Narkose.",
       "behandler": "Zahnarzt + Anästhesist",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -533,7 +533,7 @@
         "weiße Füllung",
         "ästhetische Füllung"
       ],
-      "beschreibung": "Hochwertige, unsichtbare Füllung in Schichttechnik.",
+      "beschreibung": "Zahnfarbene Kunststofffüllung, in mehreren Schichten aufgebaut.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -554,7 +554,7 @@
         "provisorische Füllung",
         "Zementfüllung"
       ],
-      "beschreibung": "Einfache Füllung, oft für Milchzähne oder Zahnhälse.",
+      "beschreibung": "Einfache Füllung aus Glasionomerzement, z. B. für Milchzähne oder Zahnhälse.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -596,7 +596,7 @@
         "Goldfüllung",
         "Inlay Gold"
       ],
-      "beschreibung": "Langlebige Füllung aus Goldlegierung.",
+      "beschreibung": "Füllung aus Goldlegierung, im Labor gefertigt.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -702,7 +702,7 @@
         "White Spots",
         "Initialkaries ohne Bohren"
       ],
-      "beschreibung": "Stoppt beginnende Karies ohne Bohren und hellt Flecken auf.",
+      "beschreibung": "Einbringen von Kunststoff in beginnende Karies ohne Bohren, mit dem Ziel, sie aufzuhalten.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -766,7 +766,7 @@
         "Endodontie Spezialist",
         "Dentalmikroskop"
       ],
-      "beschreibung": "Hochpräzise Wurzelbehandlung unter Vergrößerung.",
+      "beschreibung": "Wurzelbehandlung unter dem Mikroskop.",
       "behandler": "Zahnarzt (Endodontologe)",
       "kostentraeger": "Privatleistung (GKV-Patienten zahlen selbst, Zusatzversicherung möglich)",
       "kostentraeger_code": "PKV",
@@ -828,7 +828,7 @@
         "Nerv erhalten",
         "Überkappung"
       ],
-      "beschreibung": "Schutz des Nervs bei tiefer Karies.",
+      "beschreibung": "Behandlung bei tiefer Karies mit dem Ziel, den Zahnnerv zu erhalten.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -849,7 +849,7 @@
         "wurzelbehandelter Zahn dunkel",
         "Walking Bleach"
       ],
-      "beschreibung": "Aufhellung eines verfärbten, wurzelbehandelten Zahns.",
+      "beschreibung": "Einbringen eines Bleichmittels in einen verfärbten, wurzelbehandelten Zahn mit dem Ziel, ihn aufzuhellen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -934,7 +934,7 @@
         "Emdogain",
         "Knochenregeneration Zahnfleisch"
       ],
-      "beschreibung": "Wiederaufbau verlorenen Zahnhalteapparats.",
+      "beschreibung": "Operation mit dem Ziel, verlorenen Zahnhalteapparat wieder aufzubauen.",
       "behandler": "Zahnarzt (Parodontologe)",
       "kostentraeger": "Privatleistung (GKV-Patienten zahlen selbst, Zusatzversicherung möglich)",
       "kostentraeger_code": "PKV",
@@ -955,7 +955,7 @@
         "Laser Zahnfleisch",
         "photodynamische Therapie"
       ],
-      "beschreibung": "Keimreduktion in Zahnfleischtaschen per Laser oder Licht.",
+      "beschreibung": "Behandlung von Zahnfleischtaschen mit Laser oder Licht mit dem Ziel, Keime zu verringern.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -976,7 +976,7 @@
         "Markerkeimtest",
         "PA-Test"
       ],
-      "beschreibung": "Bestimmung aggressiver Parodontitis-Bakterien.",
+      "beschreibung": "Bestimmung von Parodontitis-Bakterien in Zahnfleischtaschen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -1018,7 +1018,7 @@
         "Gaumentransplantat",
         "BGT"
       ],
-      "beschreibung": "Verdickung oder Verbreiterung des Zahnfleischs.",
+      "beschreibung": "Verpflanzung von Gewebe, z. B. vom Gaumen, mit dem Ziel, das Zahnfleisch zu verdicken oder zu verbreitern.",
       "behandler": "Zahnarzt (Parodontologe)",
       "kostentraeger": "Privatleistung (GKV-Patienten zahlen selbst, Zusatzversicherung möglich)",
       "kostentraeger_code": "PKV",
@@ -1143,7 +1143,7 @@
         "Eiter",
         "Schwellung"
       ],
-      "beschreibung": "Eröffnung und Entlastung eines Abszesses.",
+      "beschreibung": "Eröffnen eines Abszesses und Ableiten des Eiters.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -1226,7 +1226,7 @@
         "Eigenblut Wundheilung",
         "A-PRF"
       ],
-      "beschreibung": "Eigenblut zur schnelleren Wundheilung nach OPs.",
+      "beschreibung": "Einbringen von Fibrin aus Eigenblut in die Wunde mit dem Ziel, die Heilung zu unterstützen.",
       "behandler": "Oralchirurg / MKG-Chirurg / Implantologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -1307,10 +1307,10 @@
       "fachbegriff": "All-on-4 / All-on-6 Sofortversorgung",
       "synonyme": [
         "All-on-4",
-        "Zähne in einem Tag",
+        "Sofortversorgung",
         "feste dritte Zähne"
       ],
-      "beschreibung": "Ganzer Kiefer mit 4–6 Implantaten und sofortiger Brücke.",
+      "beschreibung": "Vier bis sechs Implantate in einem zahnlosen Kiefer. Sitzen sie beim Einsetzen fest genug im Knochen, wird am selben Tag eine provisorische feste Brücke befestigt; die endgültige Brücke folgt nach der Einheilung.",
       "behandler": "Oralchirurg / MKG-Chirurg / Implantologe",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -1330,7 +1330,7 @@
       "synonyme": [
         "Miniimplantat Prothese"
       ],
-      "beschreibung": "Kleine Implantate, oft zum Halt von Prothesen.",
+      "beschreibung": "Implantate mit kleinem Durchmesser, z. B. zum Halt von Prothesen.",
       "behandler": "Oralchirurg / MKG-Chirurg / Implantologe",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -1351,7 +1351,7 @@
         "3D-geplante Implantation",
         "Bohrschablone"
       ],
-      "beschreibung": "Exakt per DVT geplante und geführte Implantation.",
+      "beschreibung": "Implantation nach Planung im DVT, z. B. mit Bohrschablone.",
       "behandler": "Oralchirurg / MKG-Chirurg / Implantologe",
       "kostentraeger": "Privatleistung (GKV-Patienten zahlen selbst, Zusatzversicherung möglich)",
       "kostentraeger_code": "PKV",
@@ -1475,7 +1475,7 @@
         "Keramikkrone",
         "Emax"
       ],
-      "beschreibung": "Metallfreie, natürlich wirkende Krone.",
+      "beschreibung": "Krone ganz aus Keramik, ohne Metall.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -1559,7 +1559,7 @@
         "Marylandbrücke",
         "Flügelbrücke"
       ],
-      "beschreibung": "Minimalinvasiver Lückenschluss im Frontzahnbereich.",
+      "beschreibung": "Brücke, die an den Nachbarzähnen festgeklebt wird, im Frontzahnbereich.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -1602,7 +1602,7 @@
         "Doppelkrone",
         "Geschiebe"
       ],
-      "beschreibung": "Unsichtbar verankerte herausnehmbare Prothese.",
+      "beschreibung": "Herausnehmbare Prothese, über Doppelkronen oder Geschiebe an eigenen Zähnen verankert.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -1645,7 +1645,7 @@
         "Druckknopfprothese",
         "Stegprothese"
       ],
-      "beschreibung": "Prothese, die auf Implantaten sicher einrastet.",
+      "beschreibung": "Prothese, die auf Implantaten einrastet.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -1687,7 +1687,7 @@
         "Übergangskrone",
         "Interimsprothese"
       ],
-      "beschreibung": "Schutz und Ästhetik während der Behandlungszeit.",
+      "beschreibung": "Vorläufiger Zahnersatz während der Behandlung.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -1752,7 +1752,7 @@
         "Bruxismus-Schiene",
         "Nachtschiene"
       ],
-      "beschreibung": "Schützt Zähne vor Abrieb durch Knirschen.",
+      "beschreibung": "Schiene mit dem Ziel, die Zähne vor Abrieb durch Knirschen zu schützen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -1773,7 +1773,7 @@
         "Anti-Schnarch-Schiene",
         "Schlafapnoe-Schiene"
       ],
-      "beschreibung": "Schiebt den Unterkiefer vor und hält Atemwege frei.",
+      "beschreibung": "Schiene, die den Unterkiefer nach vorn verlagert, mit dem Ziel, die Atemwege freizuhalten.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -1791,10 +1791,10 @@
       "name": "Botox gegen Zähneknirschen",
       "fachbegriff": "Botulinumtoxin in den Kaumuskel (Masseter)",
       "synonyme": [
-        "Bruxismus Botox",
-        "Masseter Botox"
+        "Bruxismus Botulinumtoxin",
+        "Masseter-Injektion"
       ],
-      "beschreibung": "Entspannt überaktive Kaumuskeln.",
+      "beschreibung": "Injektion in die Kaumuskeln mit dem Ziel, sie zu entspannen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -1815,7 +1815,7 @@
         "Spritze",
         "Betäubung"
       ],
-      "beschreibung": "Schmerzausschaltung im Behandlungsbereich.",
+      "beschreibung": "Betäubung des Behandlungsbereichs, z. B. per Spritze.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -1833,9 +1833,9 @@
       "name": "Computergesteuerte Betäubung",
       "fachbegriff": "Computergestützte Anästhesie (z. B. The Wand)",
       "synonyme": [
-        "schmerzarme Spritze"
+        "computergesteuerte Spritze"
       ],
-      "beschreibung": "Besonders sanfte, dosierte Anästhesie.",
+      "beschreibung": "Betäubung, bei der ein Gerät das Betäubungsmittel gesteuert abgibt.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -1856,7 +1856,7 @@
         "Lachgas",
         "Distickstoffmonoxid"
       ],
-      "beschreibung": "Entspannung bei vollem Bewusstsein.",
+      "beschreibung": "Einatmen von Lachgas mit dem Ziel der Entspannung, bei vollem Bewusstsein.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -1877,7 +1877,7 @@
         "Sedierung",
         "Dämmerschlaf"
       ],
-      "beschreibung": "Tiefe Entspannung per Infusion.",
+      "beschreibung": "Beruhigungsmittel per Infusion (Sedierung).",
       "behandler": "Zahnarzt + Anästhesist",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -1897,7 +1897,7 @@
       "synonyme": [
         "Narkose Zahnarzt"
       ],
-      "beschreibung": "Behandlung im Schlaf.",
+      "beschreibung": "Zahnbehandlung in Allgemeinanästhesie: ohne Bewusstsein, Atmung und Kreislauf werden überwacht.",
       "behandler": "Anästhesist",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -1917,7 +1917,7 @@
       "synonyme": [
         "Hypnose Angstpatient"
       ],
-      "beschreibung": "Entspannung durch hypnotische Techniken.",
+      "beschreibung": "Hypnotische Techniken mit dem Ziel, während der Behandlung zu entspannen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2002,7 +2002,7 @@
         "Mundschutz Kampfsport",
         "Zahnschutz Sport"
       ],
-      "beschreibung": "Maßgefertigter Schutz vor Zahnverletzungen beim Sport.",
+      "beschreibung": "Maßgefertigter Mundschutz für den Sport, mit dem Ziel, Zahnverletzungen vorzubeugen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2022,7 +2022,7 @@
       "synonyme": [
         "Schwangerschaftsgingivitis"
       ],
-      "beschreibung": "Vorsorge und schonende Behandlung in der Schwangerschaft.",
+      "beschreibung": "Vorsorge und Behandlung in der Schwangerschaft.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -2084,10 +2084,10 @@
       "fachbegriff": "In-Office-Bleaching",
       "synonyme": [
         "Zahnaufhellung",
-        "Power-Bleaching",
+        "Bleaching beim Zahnarzt",
         "weiße Zähne"
       ],
-      "beschreibung": "Aufhellung in einer Sitzung mit hochkonzentriertem Gel.",
+      "beschreibung": "Auftragen eines Bleichgels in der Praxis mit dem Ziel, die Zähne aufzuhellen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2096,7 +2096,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": true,
       "hwg_vorher_nachher": "nein",
-      "hinweis": ""
+      "hinweis": "Zahnaufheller mit mehr als 0,1 % bis 6 % Wasserstoffperoxid (enthalten oder freigesetzt): nicht bei Personen unter 18 Jahren anwenden (VO (EG) 1223/2009, Anhang III Nr. 12)."
     },
     {
       "id": "aesthetische-zahnmedizin-bleaching-fuer-zu-hause",
@@ -2117,7 +2117,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": true,
       "hwg_vorher_nachher": "nein",
-      "hinweis": ""
+      "hinweis": "Zahnaufheller mit mehr als 0,1 % bis 6 % Wasserstoffperoxid (enthalten oder freigesetzt): nicht bei Personen unter 18 Jahren anwenden; Abgabe nur an Zahnärztinnen und Zahnärzte, erste Anwendung je Behandlungszyklus durch sie oder unter ihrer direkten Aufsicht (VO (EG) 1223/2009, Anhang III Nr. 12)."
     },
     {
       "id": "aesthetische-zahnmedizin-weisse-flecken-entfernen",
@@ -2129,7 +2129,7 @@
         "White Spots",
         "Flecken auf Zähnen"
       ],
-      "beschreibung": "Entfernt oder kaschiert helle Schmelzflecken.",
+      "beschreibung": "Behandlung heller Schmelzflecken mit dem Ziel, sie zu entfernen oder abzudecken.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2169,10 +2169,9 @@
       "fachbegriff": "Keramikverblendschalen",
       "synonyme": [
         "Veneers",
-        "Verblendschalen",
-        "Hollywood-Lächeln"
+        "Verblendschalen"
       ],
-      "beschreibung": "Hauchdünne Keramikschalen für Form und Farbe.",
+      "beschreibung": "Dünne Keramikschalen auf der Vorderseite der Zähne, mit dem Ziel, Form und Farbe zu verändern.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2319,7 +2318,7 @@
         "Lächeln planen",
         "Smile Makeover"
       ],
-      "beschreibung": "Digitale Simulation des neuen Lächelns.",
+      "beschreibung": "Digitale Simulation des geplanten Ergebnisses.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2340,7 +2339,7 @@
         "Test-Veneers",
         "Probetragen"
       ],
-      "beschreibung": "Neues Lächeln vorab im Mund testen.",
+      "beschreibung": "Vorläufige Anprobe der geplanten Zahnform im Mund.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2358,8 +2357,7 @@
       "name": "Komplettes Smile Makeover",
       "fachbegriff": "Ästhetische Gesamtrehabilitation",
       "synonyme": [
-        "Smile Makeover",
-        "neues Lächeln"
+        "Smile Makeover"
       ],
       "beschreibung": "Kombination aus Bleaching, Veneers, KFO, Zahnfleisch.",
       "behandler": "Zahnarzt",
@@ -2383,7 +2381,7 @@
         "zu viel Zahnfleisch",
         "Zahnfleisch lasern"
       ],
-      "beschreibung": "Zahnfleischlinie modellieren für harmonisches Lächeln.",
+      "beschreibung": "Korrektur der Zahnfleischlinie mit dem Ziel, beim Lächeln weniger Zahnfleisch zu zeigen.",
       "behandler": "Zahnarzt (Parodontologe)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2404,7 +2402,7 @@
         "dunkles Zahnfleisch",
         "Laser Depigmentierung"
       ],
-      "beschreibung": "Entfernt dunkle Pigmentierungen am Zahnfleisch.",
+      "beschreibung": "Behandlung dunkler Pigmentierungen am Zahnfleisch mit dem Ziel, sie zu entfernen.",
       "behandler": "Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2422,9 +2420,9 @@
       "name": "Botox bei Gummy Smile",
       "fachbegriff": "Botulinumtoxin Oberlippenheber",
       "synonyme": [
-        "Gummy Smile Botox"
+        "Gummy Smile Botulinumtoxin"
       ],
-      "beschreibung": "Reduziert sichtbares Zahnfleisch beim Lächeln.",
+      "beschreibung": "Injektion in den Oberlippenheber mit dem Ziel, beim Lächeln weniger Zahnfleisch zu zeigen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2467,7 +2465,7 @@
         "durchsichtige Schienen",
         "Aligner"
       ],
-      "beschreibung": "Transparente Schienen korrigieren Zähne schrittweise.",
+      "beschreibung": "Durchsichtige Schienen, die schrittweise gewechselt werden, mit dem Ziel, die Zahnstellung zu korrigieren.",
       "behandler": "Kieferorthopäde / Zahnarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2488,7 +2486,7 @@
         "Lingualtechnik",
         "Incognito"
       ],
-      "beschreibung": "Unsichtbare Brackets auf der Zahninnenseite.",
+      "beschreibung": "Brackets auf der Innenseite der Zähne.",
       "behandler": "Kieferorthopäde",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2509,7 +2507,7 @@
         "weiße Brackets",
         "Keramikspange"
       ],
-      "beschreibung": "Unauffälligere Alternative zu Metallbrackets.",
+      "beschreibung": "Zahnfarbene Brackets aus Keramik statt Metall.",
       "behandler": "Kieferorthopäde",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -2531,7 +2529,7 @@
         "lose Spange",
         "Aktivator"
       ],
-      "beschreibung": "Herausnehmbare Spange, v. a. bei Kindern.",
+      "beschreibung": "Herausnehmbare Zahnspange, z. B. für Kinder.",
       "behandler": "Kieferorthopäde",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -2573,7 +2571,7 @@
         "Draht hinter den Zähnen",
         "Halteschiene"
       ],
-      "beschreibung": "Sichert das Behandlungsergebnis nach der Spange.",
+      "beschreibung": "Draht oder Schiene nach der Zahnspange mit dem Ziel, das Ergebnis zu halten.",
       "behandler": "Kieferorthopäde / Zahnarzt",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -2637,7 +2635,7 @@
       "synonyme": [
         "Kiefergelenk spülen"
       ],
-      "beschreibung": "Minimalinvasive Behandlung des Kiefergelenks.",
+      "beschreibung": "Spülung oder Spiegelung des Kiefergelenks, bei Bedarf auch offene Operation.",
       "behandler": "MKG-Chirurg",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -2741,7 +2739,7 @@
         "Zornesfalte",
         "Falte zwischen Augenbrauen"
       ],
-      "beschreibung": "Glättet die senkrechten Falten zwischen den Augenbrauen.",
+      "beschreibung": "Injektion mit dem Ziel, die senkrechten Falten zwischen den Augenbrauen zu glätten.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2762,7 +2760,7 @@
         "Stirnfalten",
         "Querfalten Stirn"
       ],
-      "beschreibung": "Glättet horizontale Stirnfalten.",
+      "beschreibung": "Injektion mit dem Ziel, waagerechte Stirnfalten zu glätten.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2783,7 +2781,7 @@
         "Lachfalten Augen",
         "Krähenfüße"
       ],
-      "beschreibung": "Glättet Fältchen an den Augenaußenseiten.",
+      "beschreibung": "Injektion mit dem Ziel, Fältchen an den äußeren Augenwinkeln zu glätten.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2801,10 +2799,9 @@
       "name": "Brauenlifting mit Botox",
       "fachbegriff": "Chemisches Browlift",
       "synonyme": [
-        "Augenbrauen anheben",
-        "Fox Eyes"
+        "Augenbrauen anheben"
       ],
-      "beschreibung": "Hebt die Augenbrauen leicht an.",
+      "beschreibung": "Injektion mit dem Ziel, die Augenbrauen leicht anzuheben.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2824,7 +2821,7 @@
       "synonyme": [
         "Lippen voller wirken lassen ohne Filler"
       ],
-      "beschreibung": "Rollt die Oberlippe leicht nach außen.",
+      "beschreibung": "Injektion in den Lippenmuskel mit dem Ziel, die Oberlippe leicht nach außen zu drehen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2845,7 +2842,7 @@
         "Pflasterstein-Kinn",
         "hängende Mundwinkel"
       ],
-      "beschreibung": "Entspannt Kinn- und Mundwinkelmuskeln.",
+      "beschreibung": "Injektion in Kinn- und Mundwinkelmuskeln mit dem Ziel, sie zu entspannen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2867,7 +2864,7 @@
         "Nefertiti Lift",
         "Platysmabänder"
       ],
-      "beschreibung": "Glättet Halsbänder und strafft die Kieferlinie.",
+      "beschreibung": "Injektion in den Halsmuskel mit dem Ziel, Halsbänder zu glätten und die Kieferlinie zu straffen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2885,10 +2882,10 @@
       "name": "Gesicht verschmälern (Masseter-Botox)",
       "fachbegriff": "Masseter-Reduktion",
       "synonyme": [
-        "Jawline slimming",
-        "V-Shape"
+        "Masseter-Injektion",
+        "Kaumuskel verkleinern"
       ],
-      "beschreibung": "Verkleinert vergrößerte Kaumuskeln, schmaleres Gesicht.",
+      "beschreibung": "Injektion in die Kaumuskeln mit dem Ziel, sie zu verkleinern und das Gesicht schmaler zu machen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2908,7 +2905,7 @@
       "synonyme": [
         "Nasenfalten"
       ],
-      "beschreibung": "Glättet Fältchen am Nasenrücken.",
+      "beschreibung": "Injektion mit dem Ziel, Fältchen am Nasenrücken zu glätten.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2929,7 +2926,7 @@
         "Schwitzen Achseln",
         "Hyperhidrose"
       ],
-      "beschreibung": "Reduziert Schweißproduktion an Achseln, Händen, Füßen.",
+      "beschreibung": "Injektionen in die Haut von Achseln, Händen oder Füßen mit dem Ziel, die Schweißbildung zu verringern.",
       "behandler": "Arzt / Dermatologe",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -2947,7 +2944,7 @@
       "name": "Botox bei Migräne",
       "fachbegriff": "Botulinumtoxin bei chronischer Migräne",
       "synonyme": [
-        "Migräne Botox"
+        "Migräne Botulinumtoxin"
       ],
       "beschreibung": "Medizinische Behandlung chronischer Migräne.",
       "behandler": "Facharzt Neurologie",
@@ -2971,7 +2968,7 @@
         "volle Lippen",
         "Russian Lips"
       ],
-      "beschreibung": "Mehr Volumen und Kontur für die Lippen.",
+      "beschreibung": "Filler-Injektion in die Lippen mit dem Ziel, Volumen und Kontur zu geben.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -2991,7 +2988,7 @@
       "synonyme": [
         "Falten Nase-Mund"
       ],
-      "beschreibung": "Mildert die Falten zwischen Nase und Mund.",
+      "beschreibung": "Filler-Injektion mit dem Ziel, die Falten zwischen Nase und Mund zu mildern.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3011,7 +3008,7 @@
       "synonyme": [
         "Mundwinkelfalten"
       ],
-      "beschreibung": "Mildert Falten von den Mundwinkeln abwärts.",
+      "beschreibung": "Filler-Injektion mit dem Ziel, die Falten von den Mundwinkeln abwärts zu mildern.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3032,7 +3029,7 @@
         "Wangenknochen betonen",
         "Cheekbones"
       ],
-      "beschreibung": "Stellt Volumen im Mittelgesicht wieder her.",
+      "beschreibung": "Filler-Injektion mit dem Ziel, Volumen im Mittelgesicht aufzubauen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3053,7 +3050,7 @@
         "Augenringe",
         "Tränensäcke Filler"
       ],
-      "beschreibung": "Mildert eingefallene Augenringe.",
+      "beschreibung": "Filler-Injektion unter dem Auge mit dem Ziel, eingefallene Augenringe zu mildern.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3074,7 +3071,7 @@
         "Kinn vergrößern",
         "Profil"
       ],
-      "beschreibung": "Betont und verlängert das Kinn.",
+      "beschreibung": "Filler-Injektion mit dem Ziel, das Kinn zu betonen oder zu verlängern.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3093,9 +3090,9 @@
       "fachbegriff": "Kieferwinkel-Konturierung",
       "synonyme": [
         "Jawline Filler",
-        "markante Kieferlinie"
+        "Kieferwinkel Filler"
       ],
-      "beschreibung": "Definiert die Kieferlinie.",
+      "beschreibung": "Filler-Injektion mit dem Ziel, die Kieferlinie zu betonen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3117,7 +3114,7 @@
         "15-Minuten-Nase",
         "Höcker ausgleichen"
       ],
-      "beschreibung": "Gleicht Höcker und Asymmetrien mit Filler aus.",
+      "beschreibung": "Filler-Injektion mit dem Ziel, Höcker und Asymmetrien der Nase auszugleichen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3137,7 +3134,7 @@
       "synonyme": [
         "eingefallene Schläfen"
       ],
-      "beschreibung": "Gleicht eingefallene Schläfen aus.",
+      "beschreibung": "Filler-Injektion mit dem Ziel, eingefallene Schläfen aufzufüllen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3153,12 +3150,12 @@
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Hyaluron-Filler",
       "name": "Handverjüngung",
-      "fachbegriff": "Hand-Rejuvenation mit Filler",
+      "fachbegriff": "Filler-Injektion am Handrücken",
       "synonyme": [
-        "Hände jünger",
-        "Venen kaschieren"
+        "Handrücken Filler",
+        "Hyaluron Hände"
       ],
-      "beschreibung": "Mehr Volumen auf dem Handrücken.",
+      "beschreibung": "Filler-Injektion in den Handrücken mit dem Ziel, Volumen aufzubauen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3200,7 +3197,7 @@
         "Filler entfernen",
         "Lippen auflösen"
       ],
-      "beschreibung": "Löst unerwünschtes oder verrutschtes Hyaluron auf.",
+      "beschreibung": "Injektion des Enzyms Hyaluronidase mit dem Ziel, unerwünschtes oder verrutschtes Hyaluron aufzulösen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3219,10 +3216,10 @@
       "fachbegriff": "Hyaluron-Skinbooster (z. B. Profhilo)",
       "synonyme": [
         "Profhilo",
-        "Hydro-Boost",
+        "Hyaluron Haut",
         "Feuchtigkeit Haut"
       ],
-      "beschreibung": "Feine Hyaluron-Injektionen für Feuchtigkeit und Elastizität.",
+      "beschreibung": "Feine Hyaluron-Injektionen in die Haut mit dem Ziel, Feuchtigkeit und Elastizität zu erhöhen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3244,7 +3241,7 @@
         "Radiesse",
         "Kollagenaufbau"
       ],
-      "beschreibung": "Regt die körpereigene Kollagenbildung an.",
+      "beschreibung": "Injektion von Stoffen wie PLLA oder CaHA, die die körpereigene Kollagenbildung anregen sollen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3265,7 +3262,7 @@
         "Lachs-DNA",
         "Rejuran"
       ],
-      "beschreibung": "Regenerierende Injektionen für Haut und Augenpartie.",
+      "beschreibung": "Injektionen mit Polynukleotiden in die Haut, auch um die Augen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3287,7 +3284,7 @@
         "Vampire Facial",
         "PRP"
       ],
-      "beschreibung": "Eigenblutplasma regt Hauterneuerung an.",
+      "beschreibung": "Injektion von Plasma aus Eigenblut in die Haut mit dem Ziel, die Hauterneuerung anzuregen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3326,11 +3323,11 @@
       "name": "Fett-weg-Spritze",
       "fachbegriff": "Injektionslipolyse (Deoxycholsäure)",
       "synonyme": [
-        "Doppelkinn weg",
+        "Doppelkinn Injektion",
         "Fettwegspritze",
         "Lipolyse"
       ],
-      "beschreibung": "Löst kleine Fettpolster, z. B. am Doppelkinn.",
+      "beschreibung": "Injektion eines Wirkstoffs in kleine Fettpolster, z. B. am Doppelkinn, mit dem Ziel, sie abzubauen.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3351,7 +3348,7 @@
         "Threadlift",
         "Fäden Gesicht"
       ],
-      "beschreibung": "Hebt erschlaffte Haut mit resorbierbaren Fäden.",
+      "beschreibung": "Einziehen resorbierbarer Fäden unter die Haut mit dem Ziel, erschlaffte Haut anzuheben.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3372,7 +3369,7 @@
         "Dermapen",
         "Needling"
       ],
-      "beschreibung": "Feine Nadeln regen Hauterneuerung an.",
+      "beschreibung": "Feine Nadelstiche in die Haut mit dem Ziel, die Hauterneuerung anzuregen.",
       "behandler": "Arzt / Dermatologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3415,7 +3412,7 @@
         "TCA-Peeling",
         "Peeling"
       ],
-      "beschreibung": "Säurepeeling gegen Pigmente, Falten, Akne.",
+      "beschreibung": "Auftragen einer Säure auf die Haut, z. B. bei Pigmentflecken, Falten oder Akne.",
       "behandler": "Arzt / Dermatologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3434,10 +3431,10 @@
       "fachbegriff": "Fraktionierter CO2-/Erbium-Laser",
       "synonyme": [
         "CO2-Laser",
-        "Hautverjüngung Laser",
+        "Laser Falten",
         "Fraxel"
       ],
-      "beschreibung": "Lasert Falten, Narben und Hautunebenheiten weg.",
+      "beschreibung": "Behandlung mit fraktioniertem Laser mit dem Ziel, Falten, Narben und Hautunebenheiten zu mildern.",
       "behandler": "Facharzt Dermatologie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3459,7 +3456,7 @@
         "Rötungen",
         "IPL"
       ],
-      "beschreibung": "Lichtbehandlung gegen Pigmente und Rötungen.",
+      "beschreibung": "Behandlung mit Blitzlicht (IPL) bei Pigmentflecken und Rötungen.",
       "behandler": "Arzt / Dermatologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3501,7 +3498,7 @@
         "Tattoo weglasern",
         "Permanent-Make-up entfernen"
       ],
-      "beschreibung": "Zerkleinert Farbpigmente in der Haut.",
+      "beschreibung": "Laserbehandlung mit dem Ziel, Farbpigmente in der Haut zu zerkleinern.",
       "behandler": "Arzt (approbiert)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3523,7 +3520,7 @@
         "Besenreiser",
         "Rosazea"
       ],
-      "beschreibung": "Verödet sichtbare Äderchen.",
+      "beschreibung": "Verödung sichtbarer Äderchen mit Laser oder durch Einspritzen eines Verödungsmittels.",
       "behandler": "Dermatologe / Phlebologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3545,7 +3542,7 @@
         "Sonnenflecken",
         "Melasma"
       ],
-      "beschreibung": "Hellt Pigmentstörungen auf.",
+      "beschreibung": "Behandlung mit Laser oder Wirkstoffen mit dem Ziel, Pigmentflecken aufzuhellen.",
       "behandler": "Facharzt Dermatologie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3566,7 +3563,7 @@
         "Aknenarben",
         "Narben glätten"
       ],
-      "beschreibung": "Glättet eingesunkene Narben.",
+      "beschreibung": "Laser, Subzision oder Needling mit dem Ziel, eingesunkene Aknenarben zu glätten.",
       "behandler": "Facharzt Dermatologie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3607,7 +3604,7 @@
       "synonyme": [
         "HIFU",
         "Ultherapy",
-        "Facelift ohne OP"
+        "HIFU Gesicht"
       ],
       "beschreibung": "Fokussierter Ultraschall, der tiefere Hautschichten erwärmt.",
       "behandler": "Arzt / Dermatologe",
@@ -3630,7 +3627,7 @@
         "Thermage",
         "RF-Straffung"
       ],
-      "beschreibung": "Wärme strafft Haut an Gesicht und Körper.",
+      "beschreibung": "Erwärmung der Haut durch Hochfrequenz, mit dem Ziel, sie zu straffen.",
       "behandler": "Arzt / Dermatologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3651,7 +3648,7 @@
         "CoolSculpting",
         "Fettabbau Kälte"
       ],
-      "beschreibung": "Baut Fettpolster durch Kälte ab.",
+      "beschreibung": "Kühlung von Fettpolstern mit dem Ziel, Fettzellen abzubauen.",
       "behandler": "Arzt / Fachpersonal",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3716,7 +3713,7 @@
         "Haare dünner",
         "PRP Haare"
       ],
-      "beschreibung": "Stimuliert Haarwurzeln durch Eigenblut oder Wirkstoffe.",
+      "beschreibung": "Injektion von Eigenblutplasma oder Wirkstoffen in die Kopfhaut mit dem Ziel, die Haarwurzeln anzuregen.",
       "behandler": "Arzt / Dermatologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3769,7 +3766,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": true,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Heilversprechen vermeiden (HWG)."
+      "hinweis": "Infusionen ohne medizinischen Anlass zahlen Sie selbst."
     },
     {
       "id": "plastische-aesthetische-chirurgie-oberlidstraffung",
@@ -3781,7 +3778,7 @@
         "Schlupflider",
         "Lidstraffung"
       ],
-      "beschreibung": "Entfernt überschüssige Haut am Oberlid.",
+      "beschreibung": "Entfernung überschüssiger Haut am Oberlid.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3801,7 +3798,7 @@
       "synonyme": [
         "Tränensäcke entfernen"
       ],
-      "beschreibung": "Korrigiert Tränensäcke und Unterlid-Haut.",
+      "beschreibung": "Operation am Unterlid mit dem Ziel, Tränensäcke und erschlaffte Haut zu korrigieren.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3822,7 +3819,7 @@
         "Gesichtsstraffung",
         "Deep Plane Facelift"
       ],
-      "beschreibung": "Strafft Gesicht und Hals operativ.",
+      "beschreibung": "Operation mit dem Ziel, Gesicht und Hals zu straffen.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3843,7 +3840,7 @@
         "Truthahnhals",
         "Halshaut"
       ],
-      "beschreibung": "Strafft erschlaffte Halshaut.",
+      "beschreibung": "Operation mit dem Ziel, erschlaffte Halshaut zu straffen.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3863,7 +3860,7 @@
       "synonyme": [
         "Brauenlift OP"
       ],
-      "beschreibung": "Hebt Stirn und Augenbrauen operativ.",
+      "beschreibung": "Operation mit dem Ziel, Stirn und Augenbrauen anzuheben.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3885,7 +3882,7 @@
         "Höckernase",
         "Schiefnase"
       ],
-      "beschreibung": "Formt die Nase operativ, ggf. mit Atmungsverbesserung.",
+      "beschreibung": "Operation mit dem Ziel, die Form der Nase zu verändern, bei Bedarf auch die Nasenatmung zu verbessern.",
       "behandler": "Facharzt HNO / Plastische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3906,7 +3903,7 @@
         "Segelohren",
         "Ohren anlegen"
       ],
-      "beschreibung": "Legt abstehende Ohren an.",
+      "beschreibung": "Operation mit dem Ziel, abstehende Ohren näher an den Kopf zu legen.",
       "behandler": "Facharzt HNO / Plastische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3926,7 +3923,7 @@
       "synonyme": [
         "Kinnimplantat"
       ],
-      "beschreibung": "Vergrößert das Kinn dauerhaft.",
+      "beschreibung": "Einsetzen eines Implantats mit dem Ziel, das Kinn zu vergrößern.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3947,7 +3944,7 @@
         "Buccal Fat Removal",
         "Hamsterbacken"
       ],
-      "beschreibung": "Entfernt Wangenfett für schmalere Wangen.",
+      "beschreibung": "Entfernung von Wangenfett mit dem Ziel, die Wangen schmaler zu machen.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie / MKG-Chirurg",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3968,7 +3965,7 @@
         "Oberlippe verkürzen",
         "Lip Lift"
       ],
-      "beschreibung": "Verkürzt die Haut zwischen Nase und Oberlippe.",
+      "beschreibung": "Operation, bei der die Haut zwischen Nase und Oberlippe verkürzt wird.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3988,7 +3985,7 @@
       "synonyme": [
         "Eigenfettunterspritzung"
       ],
-      "beschreibung": "Volumenaufbau mit körpereigenem Fett.",
+      "beschreibung": "Übertragung von körpereigenem Fett ins Gesicht mit dem Ziel, Volumen aufzubauen.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4010,7 +4007,7 @@
         "Silikon",
         "Brustimplantate"
       ],
-      "beschreibung": "Vergrößert die Brust mit Implantaten.",
+      "beschreibung": "Einsetzen von Implantaten mit dem Ziel, die Brust zu vergrößern.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4030,7 +4027,7 @@
       "synonyme": [
         "Eigenfett Brust"
       ],
-      "beschreibung": "Natürliche Vergrößerung mit eigenem Fett.",
+      "beschreibung": "Übertragung von eigenem Fett in die Brust mit dem Ziel, sie zu vergrößern.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4051,7 +4048,7 @@
         "Hängebrust",
         "Brustlift"
       ],
-      "beschreibung": "Hebt und strafft die Brust.",
+      "beschreibung": "Operation mit dem Ziel, die Brust anzuheben und zu straffen.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4093,7 +4090,7 @@
         "Schlupfwarzen",
         "Brustwarze verkleinern"
       ],
-      "beschreibung": "Korrigiert Form oder Größe der Brustwarzen.",
+      "beschreibung": "Operation mit dem Ziel, Form oder Größe der Brustwarzen zu verändern.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4114,7 +4111,7 @@
         "zu große Brust",
         "Rückenschmerzen Brust"
       ],
-      "beschreibung": "Verkleinert die Brust, oft bei Beschwerden.",
+      "beschreibung": "Operation mit dem Ziel, die Brust zu verkleinern, z. B. bei Beschwerden.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -4135,7 +4132,7 @@
         "Männerbrust",
         "Gynäkomastie"
       ],
-      "beschreibung": "Entfernt Drüsen- und Fettgewebe an der männlichen Brust.",
+      "beschreibung": "Entfernung von Drüsen- und Fettgewebe an der männlichen Brust.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -4155,7 +4152,7 @@
       "synonyme": [
         "Brustaufbau nach Krebs"
       ],
-      "beschreibung": "Wiederaufbau nach Brustkrebs-OP.",
+      "beschreibung": "Operation nach Brustkrebs mit dem Ziel, die Brust wieder aufzubauen, mit Implantat oder Eigengewebe.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -4177,7 +4174,7 @@
         "Lipo",
         "Vaser"
       ],
-      "beschreibung": "Entfernt hartnäckige Fettpolster dauerhaft.",
+      "beschreibung": "Absaugen von Fettgewebe.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4199,7 +4196,7 @@
         "Fettschürze",
         "Mommy Makeover"
       ],
-      "beschreibung": "Entfernt überschüssige Bauchhaut und strafft Muskeln.",
+      "beschreibung": "Entfernung überschüssiger Bauchhaut, bei Bedarf mit Raffung der Bauchmuskeln.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -4220,7 +4217,7 @@
         "Winkearme",
         "Oberarmhaut"
       ],
-      "beschreibung": "Entfernt erschlaffte Haut an den Oberarmen.",
+      "beschreibung": "Entfernung erschlaffter Haut an den Oberarmen.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -4240,7 +4237,7 @@
       "synonyme": [
         "Oberschenkel innen straffen"
       ],
-      "beschreibung": "Strafft erschlaffte Oberschenkelhaut.",
+      "beschreibung": "Operation mit dem Ziel, erschlaffte Oberschenkelhaut zu straffen.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -4260,7 +4257,7 @@
       "synonyme": [
         "Hautstraffung nach Abnehmen"
       ],
-      "beschreibung": "Umfassende Straffung nach starkem Gewichtsverlust.",
+      "beschreibung": "Operation an mehreren Körperregionen nach starkem Gewichtsverlust mit dem Ziel, die Haut zu straffen.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -4281,7 +4278,7 @@
         "BBL",
         "Po-Aufbau"
       ],
-      "beschreibung": "Formt den Po mit eigenem Fett.",
+      "beschreibung": "Übertragung von eigenem Fett in den Po mit dem Ziel, ihn zu formen.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4323,7 +4320,7 @@
         "Labienverkleinerung",
         "Intimchirurgie"
       ],
-      "beschreibung": "Verkleinert oder formt die inneren Schamlippen.",
+      "beschreibung": "Operation mit dem Ziel, die inneren Schamlippen zu verkleinern oder zu formen.",
       "behandler": "Facharzt Gynäkologie / Plastische Chirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4342,7 +4339,7 @@
       "fachbegriff": "Vaginale Laser-/RF-Behandlung",
       "synonyme": [
         "Vaginal-Laser",
-        "Intimverjüngung"
+        "Intimlaser"
       ],
       "beschreibung": "Laser- oder RF-Behandlung des Intimbereichs.",
       "behandler": "Facharzt Gynäkologie / Plastische Chirurgie",
@@ -4386,7 +4383,7 @@
         "Narbe entfernen",
         "Keloid"
       ],
-      "beschreibung": "Verbessert auffällige Narben.",
+      "beschreibung": "Operation an auffälligen Narben mit dem Ziel, sie weniger sichtbar zu machen.",
       "behandler": "Dermatologe / Plastischer Chirurg",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -4407,7 +4404,7 @@
         "Fettgeschwulst",
         "Knubbel unter der Haut"
       ],
-      "beschreibung": "Entfernt gutartige Fettknoten.",
+      "beschreibung": "Entfernung gutartiger Fettknoten.",
       "behandler": "Dermatologe / Chirurg",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -4428,7 +4425,7 @@
         "Xanthelasmen",
         "gelbe Flecken Augenlid"
       ],
-      "beschreibung": "Entfernt gelbliche Ablagerungen am Lid.",
+      "beschreibung": "Entfernung gelblicher Ablagerungen am Lid.",
       "behandler": "Dermatologe / Augenarzt",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4450,7 +4447,7 @@
         "Fibrome",
         "Alterswarzen"
       ],
-      "beschreibung": "Entfernt kleine Hautwucherungen.",
+      "beschreibung": "Entfernung kleiner Hautwucherungen.",
       "behandler": "Facharzt Dermatologie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4469,9 +4466,9 @@
       "fachbegriff": "Femto-LASIK",
       "synonyme": [
         "Augen lasern",
-        "Brille weg"
+        "Kurzsichtigkeit lasern"
       ],
-      "beschreibung": "Korrektur von Fehlsichtigkeit mit Laser.",
+      "beschreibung": "Laserbehandlung der Hornhaut mit dem Ziel, eine Fehlsichtigkeit zu korrigieren.",
       "behandler": "Facharzt Augenheilkunde",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4492,7 +4489,7 @@
         "SMILE",
         "schnittarmes Lasern"
       ],
-      "beschreibung": "Minimalinvasive Laserkorrektur ohne Flap.",
+      "beschreibung": "Laserbehandlung der Hornhaut über einen kleinen Schnitt, ohne Flap.",
       "behandler": "Facharzt Augenheilkunde",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4556,7 +4553,7 @@
         "Hydrafacial",
         "Aquafacial"
       ],
-      "beschreibung": "Reinigung, Peeling und Feuchtigkeit in einem.",
+      "beschreibung": "Reinigung, Peeling und Auftragen von Pflegestoffen in einer Behandlung.",
       "behandler": "Kosmetiker/in (nicht ärztlich)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4598,7 +4595,7 @@
         "PMU",
         "Lippenpigmentierung"
       ],
-      "beschreibung": "Dauerhafte Pigmentierung von Brauen, Lippen, Lidstrich.",
+      "beschreibung": "Einbringen von Farbpigmenten in die Haut an Brauen, Lippen oder als Lidstrich.",
       "behandler": "Kosmetiker/in (nicht ärztlich)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4619,7 +4616,7 @@
         "LED-Maske",
         "Lichttherapie Haut"
       ],
-      "beschreibung": "Rot-/Blaulicht gegen Akne und zur Regeneration.",
+      "beschreibung": "Bestrahlung der Haut mit rotem oder blauem LED-Licht.",
       "behandler": "Kosmetiker/in (nicht ärztlich)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4640,7 +4637,7 @@
         "Gesichtshaare entfernen",
         "Peach Fuzz"
       ],
-      "beschreibung": "Entfernt Hautschüppchen und Flaumhaare per Klinge.",
+      "beschreibung": "Abtragen von Hautschüppchen und Flaumhaaren mit einer Klinge.",
       "behandler": "Kosmetiker/in (nicht ärztlich)",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -4969,7 +4966,7 @@
       "bereich": "Vorsorge & Check-ups",
       "kategorie": "Zusätzliche Vorsorge (IGeL)",
       "name": "Manager-/Executive-Check-up",
-      "fachbegriff": "Umfassende Präventionsuntersuchung",
+      "fachbegriff": "Erweiterte Präventionsuntersuchung (Selbstzahler)",
       "synonyme": [
         "Executive Check",
         "Ganzkörper-Check"
@@ -5453,7 +5450,7 @@
       "synonyme": [
         "Lungenentzündung Impfung"
       ],
-      "beschreibung": "Schutz vor Lungenentzündung.",
+      "beschreibung": "Impfung gegen Pneumokokken, Erreger von Lungenentzündungen.",
       "behandler": "Hausarzt / Reisemediziner",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -5474,7 +5471,7 @@
         "Shingrix",
         "Gürtelrose"
       ],
-      "beschreibung": "Schutz vor Gürtelrose ab 60.",
+      "beschreibung": "Impfung gegen Gürtelrose ab 60.",
       "behandler": "Hausarzt / Reisemediziner",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -5494,7 +5491,7 @@
       "synonyme": [
         "Gebärmutterhalskrebs Impfung"
       ],
-      "beschreibung": "Schutz vor HPV-bedingten Krebsarten.",
+      "beschreibung": "Impfung gegen humane Papillomviren (HPV), die bestimmte Krebsarten auslösen können.",
       "behandler": "Hausarzt / Reisemediziner",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -5514,7 +5511,7 @@
       "synonyme": [
         "RSV"
       ],
-      "beschreibung": "Schutz vor RS-Virus (Ältere, Säuglinge).",
+      "beschreibung": "Impfung oder Antikörpergabe gegen das RS-Virus (Ältere, Säuglinge).",
       "behandler": "Hausarzt / Reisemediziner",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -5534,7 +5531,7 @@
       "synonyme": [
         "Zeckenimpfung"
       ],
-      "beschreibung": "Schutz vor Zecken-Hirnhautentzündung.",
+      "beschreibung": "Impfung gegen FSME, eine durch Zecken übertragene Hirnhautentzündung.",
       "behandler": "Hausarzt / Reisemediziner",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -6166,10 +6163,9 @@
       "fachbegriff": "Therapie mit GLP-1-Agonisten",
       "synonyme": [
         "Abnehmspritze",
-        "Wegovy",
-        "Mounjaro"
+        "GLP-1-Agonist"
       ],
-      "beschreibung": "Medikamentöse Gewichtsreduktion unter ärztlicher Aufsicht.",
+      "beschreibung": "Medikamente mit dem Ziel, das Körpergewicht zu senken, unter ärztlicher Aufsicht.",
       "behandler": "Facharzt Innere Medizin",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -6178,7 +6174,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Kasse zahlt Abnehmmedikamente i. d. R. nicht."
+      "hinweis": "Arzneimittel zur Gewichtsabnahme sind von der Versorgung durch die gesetzliche Krankenkasse ausgeschlossen (§ 34 Abs. 1 Satz 8 SGB V)."
     },
     {
       "id": "innere-medizin-nierensprechstunde",
@@ -6252,7 +6248,7 @@
       "synonyme": [
         "Rheuma Spritze"
       ],
-      "beschreibung": "Moderne Immuntherapie bei Rheuma.",
+      "beschreibung": "Behandlung mit biotechnologisch hergestellten Medikamenten (Biologika) bei Rheuma.",
       "behandler": "Facharzt Innere Medizin",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -6293,7 +6289,7 @@
       "synonyme": [
         "Checkpoint-Inhibitoren"
       ],
-      "beschreibung": "Therapie, die das Immunsystem gegen Krebs aktiviert.",
+      "beschreibung": "Medikamente, die das Immunsystem gegen Krebszellen richten sollen.",
       "behandler": "Facharzt Innere Medizin",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -6420,7 +6416,7 @@
       "synonyme": [
         "PrEP"
       ],
-      "beschreibung": "Medikamentöser Schutz vor HIV.",
+      "beschreibung": "Medikamente vor oder nach einem Ansteckungsrisiko mit dem Ziel, eine HIV-Infektion zu verhindern.",
       "behandler": "Facharzt Innere Medizin",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -6463,7 +6459,7 @@
         "Frauenarzt Vorsorge",
         "Jahresuntersuchung"
       ],
-      "beschreibung": "Jährliche Untersuchung inkl. Abstrich und Brustuntersuchung.",
+      "beschreibung": "Jährliche Untersuchung ab 20 Jahren. Abstrich von 20 bis 34 jährlich, ab 35 alle drei Jahre zusammen mit einem HPV-Test. Abtasten der Brust ab 30.",
       "behandler": "Facharzt Gynäkologie und Geburtshilfe",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -7067,7 +7063,7 @@
       "synonyme": [
         "Stoßwelle Potenz"
       ],
-      "beschreibung": "Stoßwellen zur Verbesserung der Durchblutung.",
+      "beschreibung": "Verfahren mit Stoßwellen am Penis.",
       "behandler": "Facharzt Urologie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -7235,7 +7231,7 @@
         "Tennisarm",
         "Kalkschulter"
       ],
-      "beschreibung": "Stoßwellen gegen Sehnenbeschwerden.",
+      "beschreibung": "Behandlung mit Stoßwellen bei Sehnenbeschwerden.",
       "behandler": "Facharzt Orthopädie und Unfallchirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -7256,7 +7252,7 @@
         "Knie Spritze",
         "Arthrose Spritze"
       ],
-      "beschreibung": "Gelenkschmiere bei Arthrose.",
+      "beschreibung": "Injektion von Hyaluronsäure ins Gelenk bei Arthrose.",
       "behandler": "Facharzt Orthopädie und Unfallchirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -7278,7 +7274,7 @@
         "PRP Knie",
         "Sportverletzung"
       ],
-      "beschreibung": "Eigenblut zur Heilung von Gelenken und Sehnen.",
+      "beschreibung": "Injektion von aufbereitetem Eigenblut in Gelenke oder Sehnen.",
       "behandler": "Facharzt Orthopädie und Unfallchirurgie",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -7299,7 +7295,7 @@
         "Akupunktur Rücken",
         "Knie"
       ],
-      "beschreibung": "Nadeln gegen chronische Schmerzen.",
+      "beschreibung": "Behandlung mit Nadeln bei chronischen Schmerzen.",
       "behandler": "Facharzt Orthopädie und Unfallchirurgie",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -7526,7 +7522,7 @@
       "synonyme": [
         "Versteifung Rücken"
       ],
-      "beschreibung": "Stabilisierung der Wirbelsäule.",
+      "beschreibung": "Operation, bei der Wirbel fest miteinander verbunden werden.",
       "behandler": "Facharzt Orthopädie und Unfallchirurgie",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -7717,7 +7713,7 @@
         "Tape",
         "Kinesiotape"
       ],
-      "beschreibung": "Elastische Tapes zur Unterstützung.",
+      "beschreibung": "Aufkleben elastischer Tapes auf die Haut.",
       "behandler": "Facharzt mit Zusatzbezeichnung Sportmedizin",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -7844,7 +7840,7 @@
         "Magenbypass",
         "Schlauchmagen"
       ],
-      "beschreibung": "Operative Gewichtsreduktion.",
+      "beschreibung": "Operation am Magen oder Darm mit dem Ziel, das Körpergewicht zu senken.",
       "behandler": "Facharzt Chirurgie (Allgemein-/Viszeral-/Gefäßchirurgie)",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -7907,7 +7903,7 @@
       "synonyme": [
         "Halsschlagader verengt"
       ],
-      "beschreibung": "Beseitigung von Verengungen der Halsschlagader.",
+      "beschreibung": "Operation an einer verengten Halsschlagader.",
       "behandler": "Facharzt Chirurgie (Allgemein-/Viszeral-/Gefäßchirurgie)",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -7927,7 +7923,7 @@
       "synonyme": [
         "Schaufensterkrankheit"
       ],
-      "beschreibung": "Wiederherstellen der Durchblutung.",
+      "beschreibung": "Eingriff an verengten Beinarterien mit dem Ziel, die Durchblutung wiederherzustellen.",
       "behandler": "Facharzt Chirurgie (Allgemein-/Viszeral-/Gefäßchirurgie)",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -7948,7 +7944,7 @@
         "Karpaltunnelsyndrom",
         "eingeschlafene Hand"
       ],
-      "beschreibung": "Entlastung des Handnervs.",
+      "beschreibung": "Durchtrennung des Bandes über dem Handnerv mit dem Ziel, den Nerv zu entlasten.",
       "behandler": "Facharzt Chirurgie (Allgemein-/Viszeral-/Gefäßchirurgie)",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -8011,7 +8007,7 @@
         "Spinalkanalstenose"
       ],
       "beschreibung": "Operationen an Gehirn, Rückenmark und Nerven.",
-      "behandler": "Facharzt Chirurgie (Allgemein-/Viszeral-/Gefäßchirurgie)",
+      "behandler": "Facharzt Neurochirurgie",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
       "gebuehrenordnung": "EBM / GOÄ · stationär: DRG",
@@ -8033,7 +8029,7 @@
         "TAVI"
       ],
       "beschreibung": "Operationen am Herzen.",
-      "behandler": "Facharzt Chirurgie (Allgemein-/Viszeral-/Gefäßchirurgie)",
+      "behandler": "Facharzt Herzchirurgie",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
       "gebuehrenordnung": "EBM / GOÄ · stationär: DRG",
@@ -8515,7 +8511,7 @@
         "Krise",
         "Notfall Psyche"
       ],
-      "beschreibung": "Sofortige Hilfe in akuten Krisen.",
+      "beschreibung": "Hilfe in akuten psychischen Krisen.",
       "behandler": "Psychiater / Psychologischer Psychotherapeut / Facharzt Psychosomatik",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -8848,7 +8844,7 @@
         "schiefe Nasenscheidewand",
         "Nasenatmung"
       ],
-      "beschreibung": "Verbesserung der Nasenatmung.",
+      "beschreibung": "Operation an der Nasenscheidewand mit dem Ziel, die Nasenatmung zu verbessern.",
       "behandler": "Facharzt HNO-Heilkunde",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -8910,7 +8906,7 @@
       "synonyme": [
         "Paukenröhrchen Kind"
       ],
-      "beschreibung": "Belüftung des Mittelohrs bei Kindern.",
+      "beschreibung": "Einsetzen eines Röhrchens ins Trommelfell mit dem Ziel, das Mittelohr zu belüften, z. B. bei Kindern.",
       "behandler": "Facharzt HNO-Heilkunde",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -8953,7 +8949,7 @@
         "Desensibilisierung",
         "Allergie Spritze"
       ],
-      "beschreibung": "Gewöhnung des Körpers an Allergene.",
+      "beschreibung": "Regelmäßige Gabe von Allergenen mit dem Ziel, den Körper an sie zu gewöhnen.",
       "behandler": "Facharzt HNO-Heilkunde",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -9048,7 +9044,7 @@
       "ausfallzeit": "bis 1 Woche",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Premiumlinsen (Multifokal) gegen Aufpreis."
+      "hinweis": "Sonderlinsen (z. B. Multifokallinsen) gegen Aufpreis."
     },
     {
       "id": "augenheilkunde-gruener-star-behandlung",
@@ -9060,7 +9056,7 @@
         "Grüner Star",
         "Glaukom"
       ],
-      "beschreibung": "Senkung des Augeninnendrucks.",
+      "beschreibung": "Behandlung mit dem Ziel, den Augeninnendruck zu senken.",
       "behandler": "Facharzt Augenheilkunde",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -9145,7 +9141,7 @@
         "Schielen",
         "Amblyopie"
       ],
-      "beschreibung": "Behandlung von Schielen, v. a. bei Kindern.",
+      "beschreibung": "Behandlung von Schielen bei Kindern und Erwachsenen.",
       "behandler": "Facharzt Augenheilkunde",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -9459,7 +9455,7 @@
         "CT",
         "Computertomograph"
       ],
-      "beschreibung": "Schnelle Schnittbilder mit Röntgen.",
+      "beschreibung": "Schnittbilder mit Röntgenstrahlung.",
       "behandler": "Facharzt Radiologie / Nuklearmedizin",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -9540,7 +9536,7 @@
       "synonyme": [
         "Prostata MRT"
       ],
-      "beschreibung": "Genaue Darstellung der Prostata.",
+      "beschreibung": "Schnittbilder der Prostata im MRT.",
       "behandler": "Facharzt Radiologie / Nuklearmedizin",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -9998,7 +9994,7 @@
         "Sturz",
         "Gleichgewicht Senioren"
       ],
-      "beschreibung": "Training und Maßnahmen gegen Stürze.",
+      "beschreibung": "Training und Maßnahmen mit dem Ziel, Stürzen vorzubeugen.",
       "behandler": "Facharzt Geriatrie / Palliativmediziner",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -10226,7 +10222,7 @@
         "Einrenken",
         "Chiropraktiker"
       ],
-      "beschreibung": "Lösen von Blockaden an Wirbelsäule und Gelenken.",
+      "beschreibung": "Handgriffe an Wirbelsäule und Gelenken.",
       "behandler": "Arzt mit Zusatzbezeichnung / Heilpraktiker / Osteopath",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -10310,7 +10306,7 @@
         "KG",
         "Krankengymnastik"
       ],
-      "beschreibung": "Übungstherapie zur Verbesserung der Beweglichkeit.",
+      "beschreibung": "Übungstherapie mit dem Ziel, die Beweglichkeit zu verbessern.",
       "behandler": "Physio-/Ergotherapeut, Logopäde, Podologe",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -10373,7 +10369,7 @@
         "Lymphdrainage",
         "Schwellung"
       ],
-      "beschreibung": "Entstauung bei Schwellungen.",
+      "beschreibung": "Grifftechnik bei Schwellungen mit dem Ziel, gestaute Lymphflüssigkeit abzuleiten.",
       "behandler": "Physio-/Ergotherapeut, Logopäde, Podologe",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -10394,7 +10390,7 @@
         "Massage",
         "Verspannung"
       ],
-      "beschreibung": "Lockerung verspannter Muskulatur.",
+      "beschreibung": "Massage verspannter Muskulatur mit dem Ziel, sie zu lockern.",
       "behandler": "Physio-/Ergotherapeut, Logopäde, Podologe",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -10602,7 +10598,7 @@
         "Podologe",
         "diabetischer Fuß"
       ],
-      "beschreibung": "Fußbehandlung, v. a. bei Diabetes.",
+      "beschreibung": "Fußbehandlung, z. B. bei Diabetes.",
       "behandler": "Physio-/Ergotherapeut, Logopäde, Podologe",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -11346,7 +11342,7 @@
         "Netzhautloch",
         "Netzhautriss Laser"
       ],
-      "beschreibung": "Laser gegen Netzhautrisse oder Gefäßneubildungen.",
+      "beschreibung": "Laserbehandlung bei Netzhautrissen oder Gefäßneubildungen.",
       "behandler": "Facharzt Augenheilkunde",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -11388,7 +11384,7 @@
         "Keratokonus",
         "Hornhautverkrümmung"
       ],
-      "beschreibung": "Stabilisierung der Hornhaut bei Keratokonus.",
+      "beschreibung": "Behandlung mit Riboflavin und UV-Licht bei Keratokonus, mit dem Ziel, die Hornhaut zu stabilisieren.",
       "behandler": "Facharzt Augenheilkunde",
       "kostentraeger": "Kasse nur bei med. Indikation, sonst Selbstzahler",
       "kostentraeger_code": "IND",
@@ -11504,7 +11500,7 @@
       "ausfallzeit": "1–3 Tage",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Kasse vor allem bei Feuermalen; kosmetische Gründe zahlen Sie selbst."
+      "hinweis": "Kasse z. B. bei Feuermalen; aus kosmetischen Gründen zahlen Sie selbst."
     },
     {
       "id": "kinder-jugendmedizin-asthma-bei-kindern",
@@ -11874,7 +11870,7 @@
         "Schiefhals",
         "Lidkrampf"
       ],
-      "beschreibung": "Spritzen gegen Muskelverkrampfungen.",
+      "beschreibung": "Injektionen in verkrampfte Muskeln bei Spastik oder Dystonie.",
       "behandler": "Facharzt Neurologie",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -11937,7 +11933,7 @@
         "Atemgymnastik",
         "COPD Physio"
       ],
-      "beschreibung": "Übungen für leichteres Atmen.",
+      "beschreibung": "Atemübungen mit dem Ziel, das Atmen zu erleichtern.",
       "behandler": "Physiotherapeut / Ergotherapeut / Logopäde / Podologe",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -12042,7 +12038,7 @@
         "Stimme Lehrer",
         "Sprechtraining"
       ],
-      "beschreibung": "Training für eine belastbare Stimme.",
+      "beschreibung": "Übungen mit dem Ziel, die Stimme im Beruf belastbarer zu machen.",
       "behandler": "Physiotherapeut / Ergotherapeut / Logopäde / Podologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -12085,7 +12081,7 @@
         "Hühnerauge",
         "Hornhaut"
       ],
-      "beschreibung": "Schonende Entfernung, ohne Verordnung.",
+      "beschreibung": "Entfernung von Hühneraugen und Hornhaut, ohne Verordnung.",
       "behandler": "Physiotherapeut / Ergotherapeut / Logopäde / Podologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -12411,7 +12407,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Ab fünf Dauermedikamenten, in der Regel einmal in zwölf Monaten."
+      "hinweis": "Ab fünf Dauermedikamenten; einmal in zwölf Monaten, bei erheblicher Umstellung der Medikation auch früher."
     },
     {
       "id": "digitale-gesundheit-apotheke-blutdruckmessung-in-der-apotheke",
@@ -12798,7 +12794,7 @@
         "Tinnitus Gerät",
         "Noiser"
       ],
-      "beschreibung": "Geräte gegen Ohrgeräusche.",
+      "beschreibung": "Geräte bei Ohrgeräuschen, z. B. mit Rauschgenerator.",
       "behandler": "Hörakustiker/in",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -12860,7 +12856,7 @@
       "synonyme": [
         "Pflegebett mieten"
       ],
-      "beschreibung": "Pflegebett, meist leihweise.",
+      "beschreibung": "Pflegebett, auch leihweise.",
       "behandler": "Sanitätshaus / Orthopädietechnik",
       "kostentraeger": "Kassenleistung",
       "kostentraeger_code": "GKV",
@@ -12964,7 +12960,7 @@
         "Toilettensitzerhöhung",
         "Duschhocker"
       ],
-      "beschreibung": "Hilfen für einen sicheren Alltag.",
+      "beschreibung": "Hilfsmittel für Bad und Toilette, z. B. Badewannenlift oder Duschhocker.",
       "behandler": "Sanitätshaus / Orthopädietechnik",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -12993,7 +12989,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Private Zusatzversicherungen erstatten teilweise."
+      "hinweis": "Ob eine private Zusatzversicherung etwas erstattet, vorher dort fragen."
     },
     {
       "id": "naturheilkunde-komplementaermedizin-fussreflexzonenmassage",
@@ -13023,9 +13019,9 @@
       "fachbegriff": "Craniosacrale Therapie",
       "synonyme": [
         "Cranio",
-        "sanfte Osteopathie"
+        "CST"
       ],
-      "beschreibung": "Sanfte manuelle Behandlung an Kopf und Rücken.",
+      "beschreibung": "Manuelle Behandlung mit leichtem Druck an Kopf und Rücken.",
       "behandler": "Heilpraktiker / Arzt mit Zusatzbezeichnung",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -13273,7 +13269,7 @@
         "Aphasie",
         "Sprache nach Schlaganfall"
       ],
-      "beschreibung": "Wiedererlernen von Sprechen und Verstehen.",
+      "beschreibung": "Therapie mit dem Ziel, Sprechen und Verstehen wieder zu erlernen.",
       "behandler": "Ergotherapeut / Logopäde / Podologe",
       "kostentraeger": "Kasse zahlt Festzuschuss/Teil – Eigenanteil",
       "kostentraeger_code": "GKV_EA",
@@ -13356,7 +13352,7 @@
         "Zehenkorrektur",
         "Druckstelle Zeh"
       ],
-      "beschreibung": "Angepasste Polster gegen Druckstellen.",
+      "beschreibung": "Angepasste Polster aus Silikon bei Druckstellen am Fuß.",
       "behandler": "Ergotherapeut / Logopäde / Podologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
