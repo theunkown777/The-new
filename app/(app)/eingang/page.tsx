@@ -85,7 +85,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
 
       <EingangAnfragen practiceId={practiceId} />
 
-      <section className="card mt-5 p-0" data-testid="eingang-offen">
+      <section className="card mt-5 p-0" data-testid="eingang-offen" data-hilfe="eingang-liste">
         <h2 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">{nurMeine ? "Von mir übernommen" : "Offen"} ({offen.length})</h2>
         {offen.length === 0 ? (
           <Leer symbol="eingang" eng>Nichts offen. Sobald ein Patient im Portal etwas abschickt, steht es hier, und in der Seitenleiste erscheint eine Zahl neben „Eingang“.</Leer>
@@ -103,6 +103,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
 
       {session!.user.role === "admin" && praxis && !praxis.isDemo && <MorgenMail aktiv={praxis.morgenMail} an={praxis.morgenMailAn ?? session!.user.email ?? ""} versandBereit={mailVersandAktiv()} />}
 
+      <div data-hilfe="eingang-wege">
       <Hinweis id="eingang-wege" titel="Was wo ankommt" ebene={2} className="mt-5 text-sm text-slate-700" testid="hinweis-eingang-wege">
         <ul className="space-y-1.5">
           <li><b>„Ich habe überwiesen“</b> im Portal: Die Rechnung steht unter Zahlungen auf „Gemeldet“. Sie prüfen den Kontoeingang und bestätigen dort; der Eintrag hier hakt sich dann von selbst ab.</li>
@@ -112,6 +113,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
           <li><b>Online gebuchte oder abgesagte Termine:</b> im Kalender unter Termine, mit dem Hinweis „online gebucht“.</li>
         </ul>
       </Hinweis>
+      </div>
     </div>
   );
 }

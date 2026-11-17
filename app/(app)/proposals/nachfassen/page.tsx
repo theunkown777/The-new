@@ -81,7 +81,7 @@ export default async function NachfassenPage() {
           />
         </div>
         <div className="card overflow-x-auto p-0">
-          <table className="w-full min-w-[46rem] text-sm" data-testid="nachfass-tabelle">
+          <table className="w-full min-w-[46rem] text-sm" data-testid="nachfass-tabelle" data-hilfe="nachfassen-liste">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-slate-500">
                 <th className="px-4 py-2">Patient</th>

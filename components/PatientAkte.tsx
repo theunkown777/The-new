@@ -67,7 +67,7 @@ export function PatientAkte({ patientId, entries, documents, isAdmin }: { patien
   const alte = entries.filter((e) => e.inaktiv).length;
 
   return (
-    <section className="card" data-testid="akte">
+    <section className="card" data-testid="akte" data-hilfe="patient-akte">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-semibold text-slate-900">Akte</h2>
         {alte > 0 && (

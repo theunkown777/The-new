@@ -89,7 +89,7 @@ export function SpecialtySettings({
       <fieldset disabled={readOnly} className="space-y-6">
         <div className="card space-y-2">
           <label className="label" htmlFor="fach">Fachgebiet der Praxis</label>
-          <select id="fach" className="input" value={v.specialty} onChange={(e) => setV({ ...v, specialty: e.target.value })}>
+          <select id="fach" data-hilfe="fachgebiet-wahl" className="input" value={v.specialty} onChange={(e) => setV({ ...v, specialty: e.target.value })}>
             {Object.entries(SPECIALTY_LABELS).map(([id, label]) => (
               <option key={id} value={id}>{label}</option>
             ))}
@@ -132,7 +132,7 @@ export function SpecialtySettings({
         )}
 
         {v.specialty !== DENTAL_ID && (
-          <div className="card space-y-3">
+          <div className="card space-y-3" data-hilfe="eigene-leistungen">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="font-medium text-slate-900">Eigene Leistungen</h2>
               <button type="button" className="btn btn-secondary" onClick={addOffer}>

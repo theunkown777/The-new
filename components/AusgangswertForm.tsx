@@ -30,7 +30,7 @@ export function AusgangswertForm({ wert }: { wert: Ausgangswert | null }) {
     router.refresh();
   }
   return (
-    <form onSubmit={speichern} className="grid gap-4 sm:grid-cols-3 print:hidden" data-testid="ausgangswert-form">
+    <form onSubmit={speichern} className="grid gap-4 sm:grid-cols-3 print:hidden" data-testid="ausgangswert-form" data-hilfe="wirkung-ausgangswerte">
       {feld("vorschlaegeMonat", "Vorschläge im Monat", "Wie viele Kostenvoranschläge oder Vorschläge geben Sie etwa im Monat mit?")}
       {feld("ohneEntscheidungProzent", "Ohne Entscheidung (%)", "Wie viel Prozent davon bleiben geschätzt ohne Rückmeldung?")}
       {feld("tageBisZahlung", "Tage bis zur Zahlung", "Wie viele Tage vergehen etwa von der Rechnung bis zum Geldeingang?")}

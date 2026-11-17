@@ -90,7 +90,7 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
         {fach !== "zahn" && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
       </div>
 
-      <div data-testid="eigene-leistung">
+      <div data-testid="eigene-leistung" data-hilfe="leistungsverzeichnis-eigene">
         <LeistungSchnell titel="Leistung nicht dabei? Eigene Leistung anlegen (nur Name und Preis)" />
       </div>
 
@@ -105,7 +105,7 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
         ))}
       </div>
 
-      <form action="/leistungsverzeichnis" className="flex flex-wrap gap-2">
+      <form action="/leistungsverzeichnis" className="flex flex-wrap gap-2" data-hilfe="leistungsverzeichnis-suche">
         {system && <input type="hidden" name="system" value={system} />}
         {alle && <input type="hidden" name="alle" value="1" />}
         <input name="q" defaultValue={q} placeholder="Suchen: Text oder Ziffer, z. B. Sonographie, 03000, Krone" className="input max-w-md flex-1" aria-label="Leistung suchen" />

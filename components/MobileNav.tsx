@@ -25,10 +25,9 @@ const LINKS = [
   { href: "/analyse", label: "Analyse" },
 ];
 
-/** Die untere Leiste (components/UntereLeiste.tsx) öffnet dieses Menü über „Mehr“. */
-export const MENUE_UMSCHALTEN = "sorrida:menue-umschalten";
-/** Meldet der unteren Leiste, ob das Menü gerade offen ist (detail: boolean). */
-export const MENUE_ZUSTAND = "sorrida:menue-zustand";
+// Die untere Leiste (components/UntereLeiste.tsx) öffnet dieses Menü über „Mehr“, „Zeig mir wo“ ebenso.
+import { MENUE_UMSCHALTEN, MENUE_ZUSTAND } from "@/lib/menueEreignisse";
+export { MENUE_UMSCHALTEN, MENUE_ZUSTAND };
 
 export function MobileNav({ userName, dental = true, berichte = dental, team = false, analyse = false, zahlungen = true, einstellungen = true, personPl = "Patienten", abschluss = "Behandlung", eingang = 0 }: { eingang?: number; userName?: string | null; dental?: boolean; berichte?: boolean; team?: boolean; analyse?: boolean; zahlungen?: boolean; einstellungen?: boolean; personPl?: string; abschluss?: string }) {
   // "kopf": aufgeklappt unter der Kopfzeile (drei Striche). "leiste": als Blatt über der unteren Leiste („Mehr“).
@@ -84,6 +83,7 @@ export function MobileNav({ userName, dental = true, berichte = dental, team = f
           <Link
             key={link.href}
             href={link.href}
+            data-hilfe={`menue:${link.href}`}
             onClick={zu}
             aria-current={aktiv(link.href) ? "page" : undefined}
             className="rounded-md px-2 py-2 text-brand-100 hover:bg-brand-700 hover:text-white aria-[current=page]:bg-brand-700 aria-[current=page]:font-semibold aria-[current=page]:text-white"
@@ -94,6 +94,7 @@ export function MobileNav({ userName, dental = true, berichte = dental, team = f
         ))}
         <Link
           href="/settings"
+          data-hilfe="menue:/settings"
           onClick={zu}
           aria-current={aktiv("/settings") ? "page" : undefined}
           className="rounded-md px-2 py-2 text-brand-100 hover:bg-brand-700 hover:text-white aria-[current=page]:bg-brand-700 aria-[current=page]:font-semibold aria-[current=page]:text-white"
@@ -102,6 +103,7 @@ export function MobileNav({ userName, dental = true, berichte = dental, team = f
         </Link>
         <Link
           href="/hilfe-praxis"
+          data-hilfe="menue:/hilfe-praxis"
           onClick={zu}
           aria-current={aktiv("/hilfe-praxis") ? "page" : undefined}
           className="rounded-md px-2 py-2 text-brand-100 hover:bg-brand-700 hover:text-white aria-[current=page]:bg-brand-700 aria-[current=page]:font-semibold aria-[current=page]:text-white"

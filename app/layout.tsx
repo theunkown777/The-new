@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { WegAnimationen } from "@/components/WegAnimationen";
+import { WebsiteHilfe } from "@/components/WebsiteHilfe";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -34,6 +35,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <WegAnimationen />
+        {/* Frag Sorrida auf den öffentlichen Seiten (prüft selbst, wo es erscheinen darf) */}
+        <WebsiteHilfe />
       </body>
     </html>
   );

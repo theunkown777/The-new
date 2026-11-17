@@ -205,7 +205,7 @@ export function ReportEditor({
         />
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3" data-hilfe="bericht-freigeben">
         <button
           onClick={() => save()}
           disabled={saving || status === "FINAL"}

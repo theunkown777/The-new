@@ -16,13 +16,17 @@ import {
   kiHilfenStand,
   kiLeistungUebersetzen,
   kiPreislisteLesen,
+  KI_HILFE_OPTIONEN,
+  hilfeTextBereinigen,
+  namensKandidaten,
+  ohneAnrede,
   ohnePersonenbezug,
   type KiClient,
 } from "@/lib/kiHilfen";
 
 /** Nachgebildeter KI-Dienst: merkt sich die Anfrage und antwortet mit dem vorgegebenen Text. */
 function nachbildung(antwort: string, stop: string = "end_turn") {
-  const create = vi.fn(async (_p: unknown) => ({ content: [{ type: "text", text: antwort }], stop_reason: stop }));
+  const create = vi.fn(async (_p: unknown, _o?: unknown) => ({ content: [{ type: "text", text: antwort }], stop_reason: stop }));
   return { client: { messages: { create } } as unknown as KiClient, create, anfrage: () => JSON.stringify(create.mock.calls[0]?.[0] ?? null) };
 }
 
@@ -145,12 +149,51 @@ describe("kiHilfeBeantworten", () => {
     { id: "vorschlag-neu", frage: "Wie lege ich einen Vorschlag an?", antwort: "Über Vorschläge → Neuer Vorschlag.", pfad: "Vorschläge → Neuer Vorschlag" },
     { id: "team-einladen", frage: "Wie lade ich jemanden ein?", antwort: "Unter Einstellungen → Team.", pfad: "Einstellungen → Team" },
   ];
+  type Anfrage = { system: { type: string; text: string }[]; messages: { content: string }[] };
+  const anfrageVon = (k: ReturnType<typeof nachbildung>) => k.create.mock.calls[0][0] as unknown as Anfrage;
   it("gibt Antwort und Quellen als Einträge der Sammlung zurück", async () => {
     const k = nachbildung('{"passt":true,"antwort":"Öffnen Sie Vorschläge und wählen Sie Neuer Vorschlag.","quellen":["H1"]}');
     const r = await kiHilfeBeantworten({ frage: "Wie mache ich einen neuen Vorschlag für Frau Müller, Tel. 0171 2345678?", eintraege: EINTRAEGE, client: k.client });
     expect(r).toEqual({ passt: true, antwort: "Öffnen Sie Vorschläge und wählen Sie Neuer Vorschlag.", quellen: ["vorschlag-neu"] });
     expect(k.anfrage()).not.toContain("0171");
-    expect(k.create.mock.calls[0][0]).toMatchObject({ system: HILFE_SYSTEM });
+    expect(k.anfrage()).not.toContain("Müller");
+    expect(k.anfrage()).toContain("Frau [NAME]");
+    expect(anfrageVon(k).system[0]).toEqual({ type: "text", text: HILFE_SYSTEM });
+  });
+  it("das ganze mitgegebene Wissen ist die Grundlage im System-Text, die Frage steht im Inhalt", async () => {
+    const viele = Array.from({ length: 160 }, (_, i) => ({ id: `e${i}`, frage: `Frage ${i}`, antwort: `Antwort ${i}`, pfad: "Menü" }));
+    const k = nachbildung('{"passt":true,"antwort":"So.","quellen":["H160","H2"]}');
+    const r = await kiHilfeBeantworten({ frage: "Wo ist das?", eintraege: viele, client: k.client });
+    const a = anfrageVon(k);
+    expect(a.system[1].text).toContain("H1\nFrage: Frage 0");
+    expect(a.system[1].text).toContain("H160\nFrage: Frage 159");
+    expect(a.messages[0].content).toContain("Wo ist das?");
+    expect(a.messages[0].content).not.toContain("Frage 159");
+    expect(r.quellen).toEqual(["e159", "e1"]);
+  });
+  it("Seitentitel und frühere Fragen gehen nur als bereinigter Kontext mit, höchstens drei", async () => {
+    const k = nachbildung('{"passt":false,"antwort":"","quellen":[]}');
+    await kiHilfeBeantworten({
+      frage: "Und wo genau?",
+      eintraege: EINTRAEGE,
+      seitentitel: "Zahlungen",
+      verlauf: ["alt eins", "Rechnung für Herrn Schmidt", "Erika Mustermann, geb. 03.04.1961", "Wie storniere ich?"],
+      namen: [{ firstName: "Erika", lastName: "Mustermann" }],
+      client: k.client,
+    });
+    const inhalt = anfrageVon(k).messages[0].content;
+    expect(inhalt).toContain("Geöffnete Seite (nur Kontext): Zahlungen");
+    expect(inhalt).toContain("Frühere Fragen (nur Kontext)");
+    expect(inhalt).not.toContain("alt eins");
+    expect(inhalt).toContain("Herrn [NAME]");
+    expect(inhalt).not.toMatch(/Schmidt|Erika|Mustermann|1961/);
+    expect(inhalt).toContain("Wie storniere ich?");
+  });
+  it("Zeitgrenze 20 Sekunden und höchstens eine Wiederholung je Anfrage", async () => {
+    const k = nachbildung('{"passt":false,"antwort":"","quellen":[]}');
+    await kiHilfeBeantworten({ frage: "x", eintraege: EINTRAEGE, client: k.client });
+    expect(k.create.mock.calls[0][1]).toEqual({ timeout: 20_000, maxRetries: 1 });
+    expect(KI_HILFE_OPTIONEN).toEqual({ timeout: 20_000, maxRetries: 1 });
   });
   it("passt nichts: leere Antwort, auch wenn die KI trotzdem Text liefert", async () => {
     const r = await kiHilfeBeantworten({ frage: "Wie rechne ich GOÄ 5 ab?", eintraege: EINTRAEGE, client: nachbildung('{"passt":false,"antwort":"Dazu weiß ich nichts.","quellen":[]}').client });
@@ -160,15 +203,29 @@ describe("kiHilfeBeantworten", () => {
     await expect(kiHilfeBeantworten({ frage: "x", eintraege: EINTRAEGE, client: nachbildung('{"passt":true,"antwort":"Irgendwas.","quellen":[]}').client })).rejects.toMatchObject({ grund: "format" });
     await expect(kiHilfeBeantworten({ frage: "x", eintraege: EINTRAEGE, client: nachbildung('{"passt":true,"antwort":"Irgendwas.","quellen":["H7"]}').client })).rejects.toMatchObject({ grund: "format" });
   });
-  it("höchstens fünf Einträge gehen an den Dienst; ohne Einträge keine Anfrage", async () => {
-    const viele = Array.from({ length: 8 }, (_, i) => ({ id: `e${i}`, frage: `Frage ${i}`, antwort: `Antwort ${i}`, pfad: "Menü" }));
-    const k = nachbildung('{"passt":false,"antwort":"","quellen":[]}');
-    await kiHilfeBeantworten({ frage: "x", eintraege: viele, client: k.client });
-    expect(k.anfrage()).toContain("Frage 4");
-    expect(k.anfrage()).not.toContain("Frage 5");
+  it("ohne Einträge keine Anfrage", async () => {
     const leer = nachbildung("{}");
     expect(await kiHilfeBeantworten({ frage: "x", eintraege: [], client: leer.client })).toEqual({ passt: false, antwort: "", quellen: [] });
     expect(leer.create).not.toHaveBeenCalled();
+  });
+});
+
+describe("Namen in Fragen", () => {
+  it("ersetzt Namen nach einer Anrede, auch unbekannte und klein geschriebene", () => {
+    expect(ohneAnrede("Vorschlag für Frau Müller anlegen")).toBe("Vorschlag für Frau [NAME] anlegen");
+    expect(ohneAnrede("Herrn Dr. Schmidt anrufen")).toBe("Herrn Dr. [NAME] anrufen");
+    expect(ohneAnrede("Fr. Yilmaz und Herr Hans Meier, frau müller")).toBe("Fr. [NAME] und Herr [NAME], frau [NAME]");
+    expect(ohneAnrede("Wie lege ich einen Patienten an?")).toBe("Wie lege ich einen Patienten an?");
+  });
+  it("Kandidaten für den Abgleich mit eigenen Patienten: großgeschriebene zuerst, ohne Doppelte, begrenzt", () => {
+    expect(namensKandidaten(["Rechnung für Erika Mustermann", "erika"])).toEqual(["Rechnung", "Erika", "Mustermann", "für", "erika"]);
+    expect(namensKandidaten(["a b c"])).toEqual([]);
+    expect(namensKandidaten([Array.from({ length: 50 }, (_, i) => `Name${String.fromCharCode(97 + (i % 26))}${String.fromCharCode(97 + Math.floor(i / 26))}`).join(" ")]).length).toBe(30);
+  });
+  it("hilfeTextBereinigen: bekannte Namen, Anrede, Kontakt, Datum", () => {
+    const t = hilfeTextBereinigen("Termin für Erika Mustermann (Frau Mustermann), 03.04.1961, erika@example.org", [{ firstName: "Erika", lastName: "Mustermann" }]);
+    expect(t).not.toMatch(/Erika|Mustermann|1961|example/);
+    expect(t).toContain("[DATUM]");
   });
 });
 

@@ -26,7 +26,7 @@ export function EmpfangPinSettings({ admin, gesetzt }: { admin: boolean; gesetzt
   }
 
   return (
-    <section className="card space-y-4" data-testid="empfang-pin">
+    <section className="card space-y-4" data-testid="empfang-pin" data-hilfe="empfang-pin">
       <div>
         <h2 className="font-semibold text-slate-900">Empfangs-PIN</h2>
         <p className="mt-1 text-sm text-slate-600" data-testid="empfang-pin-stand">{gesetzt ? "Eine PIN ist festgelegt. Sie können sie hier ändern." : "Noch keine PIN festgelegt. Ohne PIN lässt sich das Tablet nicht an Patienten übergeben."}</p>

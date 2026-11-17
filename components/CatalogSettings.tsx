@@ -149,7 +149,9 @@ export function CatalogSettings({ readOnly = false, systeme = "zahn", regionLabe
 
   return (
     <div className="space-y-6">
-      <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" onCreated={() => load(true)} />
+      <div data-hilfe="katalog-eigene">
+        <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" onCreated={() => load(true)} />
+      </div>
       <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
         Punktzahl und Festbetrag sind objektive Werte aus dem offiziellen Gebührenverzeichnis
         (GOZ/BEMA/BEL-II) und daher für alle Praxen geteilt, die diesen Referenzkatalog nutzen –

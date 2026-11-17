@@ -49,7 +49,7 @@ export function StandorteVerwalten({ standorte }: { standorte: S[] }) {
           </div>
         ))}
       </div>
-      <form onSubmit={save} className="card grid gap-3 sm:grid-cols-2" data-testid="standort-form">
+      <form onSubmit={save} className="card grid gap-3 sm:grid-cols-2" data-testid="standort-form" data-hilfe="standort-hinzufuegen">
         <h2 className="font-semibold text-slate-900 sm:col-span-2">{edit ? "Standort bearbeiten" : "Standort hinzufügen"}</h2>
         <label className="text-sm text-slate-600">Name<input className="input mt-1 w-full" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="z. B. Hauptpraxis, Zweigpraxis Nord" data-testid="standort-name" /></label>
         <label className="text-sm text-slate-600">Adresse (optional)<input className="input mt-1 w-full" value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></label>

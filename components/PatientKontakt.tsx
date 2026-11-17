@@ -41,7 +41,7 @@ export function PatientKontakt({ patientId, email, phone, einwilligungAm, whatsa
     if (res.ok) router.refresh();
   }
   return (
-    <form onSubmit={save} className="card space-y-3" data-testid="kontakt">
+    <form onSubmit={save} className="card space-y-3" data-testid="kontakt" data-hilfe="patient-kontakt">
       <h2 className="font-semibold text-slate-900">Kontakt und Stammdaten</h2>
       {!geburtsdatum && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="kontakt-geburtsdatum-hinweis">
@@ -62,7 +62,7 @@ export function PatientKontakt({ patientId, email, phone, einwilligungAm, whatsa
         <input className="input w-full" type="email" placeholder="E-Mail" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-label="E-Mail" data-testid="kontakt-email" />
         <input className="input w-full" type="tel" placeholder="Mobilnummer" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} aria-label="Mobilnummer" />
       </div>
-      <fieldset className="space-y-3 rounded-xl border border-slate-200 p-3" data-testid="kontakt-einwilligungen">
+      <fieldset className="space-y-3 rounded-xl border border-slate-200 p-3" data-testid="kontakt-einwilligungen" data-hilfe="patient-einwilligung">
         <legend className="px-1 text-sm font-medium text-slate-800">Einwilligungen des Patienten</legend>
         <p className="text-xs text-slate-500">
           Lesen Sie den Text vor oder drucken Sie ihn zum Unterschreiben aus. Setzen Sie das Häkchen erst, wenn der Patient zugestimmt hat.

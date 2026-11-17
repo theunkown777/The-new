@@ -29,7 +29,7 @@ describe("Seite /vertrauen", () => {
   });
 
   it("die übrigen Stellen behaupten ebenfalls nicht, dass keine Namen an den KI-Dienst gehen", () => {
-    for (const datei of ["app/datenschutz/page.tsx", "components/PraxisFaq.tsx", "components/KiHilfenSettings.tsx", "components/TerminUeberblick.tsx", "lib/dienstleister.ts", "app/(app)/settings/protokoll/page.tsx", "lib/hilfeWissen.ts"]) {
+    for (const datei of ["app/datenschutz/page.tsx", "components/PraxisFaq.tsx", "components/KiHilfenSettings.tsx", "components/TerminUeberblick.tsx", "lib/dienstleister.ts", "app/(app)/settings/protokoll/page.tsx", "lib/hilfeWissen/bedienung.ts", "lib/hilfeWissen/fehler.ts", "lib/hilfeWissen/praxismanager.ts", "lib/hilfeWissen/website.ts"]) {
       const text = fs.readFileSync(path.join(process.cwd(), datei), "utf8").replace(/\s+/g, " ");
       expect(text, datei).not.toMatch(/gehen keine Namen|geht nie an den KI-Dienst|gehen nicht an den KI-Dienst|und was nie/);
     }

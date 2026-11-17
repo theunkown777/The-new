@@ -367,7 +367,7 @@ export function ProposalEditor({
           <p className="text-sm text-slate-600">
             {gespraech ? "Ansicht für das Gespräch: Praxiszahlen und Eingabefelder sind ausgeblendet." : "Drehen Sie den Bildschirm zum Patienten? Dann blendet diese Ansicht alles aus, was nur die Praxis betrifft."}
           </p>
-          <button type="button" className={gespraech ? "btn-primary" : "btn-secondary"} aria-pressed={gespraech} onClick={() => setGespraech((g) => !g)} data-testid="gespraech-schalter">
+          <button type="button" className={gespraech ? "btn-primary" : "btn-secondary"} aria-pressed={gespraech} onClick={() => setGespraech((g) => !g)} data-testid="gespraech-schalter" data-hilfe="vorschlag-gespraech">
             {gespraech ? "Zurück zur Praxisansicht" : "Patient schaut mit"}
           </button>
         </div>

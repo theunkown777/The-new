@@ -132,7 +132,7 @@ export function EingangMeldungen() {
   useEffect(() => { setStand("Notification" in window ? Notification.permission : "fehlt"); }, []);
   if (stand === "fehlt" || stand === "unbekannt") return null;
   return (
-    <p className="text-xs text-slate-500" data-testid="eingang-meldungen">
+    <p className="text-xs text-slate-500" data-testid="eingang-meldungen" data-hilfe="eingang-meldungen">
       {stand === "granted" ? "Meldungen des Browsers sind eingeschaltet: Bei neuen Rückmeldungen erscheint ein Hinweis ohne Namen." : stand === "denied" ? "Meldungen sind im Browser gesperrt. Die Zahl im Tab-Titel sehen Sie trotzdem." : (
         <>Neue Rückmeldungen zeigt Sorrida als Zahl im Tab-Titel. <button type="button" className="text-brand-700 underline" onClick={async () => setStand(await Notification.requestPermission())}>Zusätzlich eine Meldung des Browsers erlauben</button> (ohne Namen).</>
       )}

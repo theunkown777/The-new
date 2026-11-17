@@ -33,6 +33,7 @@ export function BewertungsLinkForm({ start }: { start: string }) {
         speichern(url);
       }}
       data-testid="bewertungslink-form"
+      data-hilfe="bewertungslink"
     >
       <div>
         <label className="label" htmlFor="google-profil">Link zu Ihrem Google-Profil (freiwillig)</label>

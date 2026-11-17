@@ -40,7 +40,7 @@ export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschla
   const dazu = vorschlaege.filter((v) => !liste().includes(v)).slice(0, 8);
 
   return (
-    <section className="card space-y-4" aria-labelledby="b-neu" data-testid="neupatienten">
+    <section className="card space-y-4" aria-labelledby="b-neu" data-testid="neupatienten" data-hilfe="neupatienten-buchung">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 id="b-neu" className="font-semibold text-slate-900">Termine für neue Patienten</h2>

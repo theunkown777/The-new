@@ -58,7 +58,7 @@ export function PatientLinkPanel({ proposalId, state, firstName, sofort = false 
     : "";
 
   return (
-    <div className="card space-y-3" data-testid="patient-link-panel">
+    <div className="card space-y-3" data-testid="patient-link-panel" data-hilfe="vorschlag-patientenlink">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-medium text-slate-900">Patienten-Link</h2>
         {state.active && state.expiresAt && (

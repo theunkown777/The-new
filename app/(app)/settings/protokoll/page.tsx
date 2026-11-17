@@ -47,7 +47,7 @@ export default async function ProtokollPage(props: { searchParams: Promise<{ gru
   const ohne2fa = team.filter((u) => !u.totpEnabled);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6" data-testid="protokoll">
+    <div className="mx-auto max-w-4xl space-y-6" data-testid="protokoll" data-hilfe="protokoll-liste">
       <div>
         <Link href="/settings" className="ziel text-sm text-slate-500 hover:text-brand-700">← Einstellungen</Link>
         <h1 className="mt-2 font-display text-3xl text-slate-900">Protokoll und Datenschutz</h1>

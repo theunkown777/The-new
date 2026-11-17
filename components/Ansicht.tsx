@@ -40,7 +40,7 @@ export function AnsichtSchalter() {
     setAnsicht(neu);
   };
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3" data-testid="ansicht-schalter">
+    <div className="flex flex-wrap items-center justify-between gap-3" data-testid="ansicht-schalter" data-hilfe="ansicht-schalter">
       <div className="min-w-0">
         <p id="ansicht-titel" className="font-medium text-slate-900">
           Dunkle Ansicht <span className="ml-1 rounded-full border border-slate-300 px-2 py-0.5 text-xs font-normal text-slate-600">Beta</span>

@@ -53,7 +53,7 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
       {meldung && <p role={meldung.art === "fehler" ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-sm ${meldung.art === "fehler" ? "bg-red-50 text-red-800" : "bg-salbei-50 text-salbei-900"}`} data-testid="buchung-meldung">{meldung.text}</p>}
       {!admin && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Nur die Geschäftsführung kann diese Einstellungen ändern.</p>}
 
-      <section className="card space-y-4" aria-labelledby="b-regeln">
+      <section className="card space-y-4" aria-labelledby="b-regeln" data-hilfe="online-termine">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 id="b-regeln" className="font-semibold text-slate-900">1. Online-Termine für Patienten</h2>
@@ -96,7 +96,7 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
         {admin && <button type="button" className="btn-primary" disabled={busy === "speichern"} onClick={speichern} data-testid="buchung-speichern">{busy === "speichern" ? "Speichert …" : "Speichern"}</button>}
       </section>
 
-      <section className="card space-y-3" aria-labelledby="b-kalender">
+      <section className="card space-y-3" aria-labelledby="b-kalender" data-hilfe="kalender-uebertragen">
         <h2 id="b-kalender" className="font-semibold text-slate-900">2. Kalender der Praxis übertragen</h2>
         <p className="text-sm text-slate-600">
           Damit Patienten keine Zeit buchen, die in Ihrem Kalender schon belegt ist, liest Sorrida Ihren Kalender mit. Übernommen werden <b>nur Beginn und Ende</b> der Einträge,

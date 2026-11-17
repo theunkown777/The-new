@@ -95,7 +95,7 @@ export function ConnectorSettings({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-hilfe="connector-schluessel">
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       {!readOnly && (

@@ -30,7 +30,7 @@ export function ZeitRechner() {
   );
 
   return (
-    <div className="grid gap-12 lg:grid-cols-12" data-testid="zeitrechner">
+    <div id="zeitrechner" className="grid scroll-mt-6 gap-12 lg:grid-cols-12" data-testid="zeitrechner">
       <div className="lg:col-span-6">
         <h2 className="j-schau text-[clamp(2.4rem,4.6vw,3.8rem)]">
           Wie viel Zeit bekommt <em>Ihr Team</em> zurück?

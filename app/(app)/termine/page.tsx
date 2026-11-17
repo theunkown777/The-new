@@ -89,7 +89,7 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
       )}
 
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <div className="card !p-3 sm:!p-5" data-testid="auslastung">
+        <div className="card !p-3 sm:!p-5" data-testid="auslastung" data-hilfe="termine-auslastung">
           <p className="text-xs text-slate-500 sm:text-sm">Auslastung</p>
           <p className="mt-1 text-xl font-semibold sm:text-2xl tabular-nums text-slate-900">{a.prozent} %</p>
           <div className="mt-2 h-2 rounded-full bg-slate-200"><div className={`h-2 rounded-full ${a.prozent > 95 ? "bg-red-600" : "bg-brand-600"}`} style={{ width: `${Math.min(100, a.prozent)}%` }} /></div>

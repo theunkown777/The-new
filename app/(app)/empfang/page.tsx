@@ -15,7 +15,7 @@ export default async function EmpfangPage() {
   if (!session) redirect("/login?callbackUrl=/empfang");
   const praxis = await prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { empfangPinHash: true, isDemo: true } });
   return (
-    <div className="mx-auto max-w-2xl" data-testid="empfang">
+    <div className="mx-auto max-w-2xl" data-testid="empfang" data-hilfe="empfang-uebergabe">
       <h1 className="font-display text-3xl text-slate-900">Empfang</h1>
       <p className="mt-1 text-sm text-slate-600">Tablet an einen Patienten übergeben: Anamnesebogen ausfüllen, Einverständnis unterschreiben, Kontaktdaten prüfen.</p>
       <div className="mt-5">

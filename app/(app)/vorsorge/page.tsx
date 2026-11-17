@@ -95,9 +95,9 @@ export default async function VorsorgePage() {
           />
 
           {due.length === 0 ? (
-            <div className="card p-0"><Leer symbol="haken">Gerade ist niemand fällig.</Leer></div>
+            <div className="card p-0" data-hilfe="vorsorge-liste"><Leer symbol="haken">Gerade ist niemand fällig.</Leer></div>
           ) : (
-            <ul className="space-y-2" data-testid="vorsorge-liste">
+            <ul className="space-y-2" data-testid="vorsorge-liste" data-hilfe="vorsorge-liste">
               {shown.map(({ p, r, letzter }) => (
                 <li key={p.id} className="grid items-center gap-3 rounded-2xl bg-white px-4 py-3 md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)_auto]">
                   <Link href={`/patients?sel=${p.id}`} className="flex min-w-0 items-center gap-3">

@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { praxisManager } from "@/lib/praxisManager";
+import { praxisManager, themaAusAdresse } from "@/lib/praxisManager";
 import { loadRecallDue } from "@/lib/recallLoad";
 import { canSeeAnalytics } from "@/lib/permissions";
 import { PraxisManager } from "@/components/PraxisManager";
@@ -12,7 +12,8 @@ import { loadBillingCheck } from "@/lib/billingCheckLoad";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Praxismanager" };
 
-export default async function PraxisManagerPage() {
+export default async function PraxisManagerPage(props: { searchParams: Promise<{ thema?: string }> }) {
+  const thema = themaAusAdresse((await props.searchParams).thema);
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const now = new Date();
@@ -58,7 +59,8 @@ export default async function PraxisManagerPage() {
           führt nichts selbst aus: Jeder Vorschlag führt auf die Seite, auf der Sie prüfen und entscheiden.
         </p>
       </div>
-      <PraxisManager antworten={antworten} />
+      {/* key: Ein neues Thema in der Adresse (Frag Sorrida, „Zeig mir wo“) wählt es neu vor. */}
+      <PraxisManager key={thema ?? "alle"} antworten={antworten} start={thema} />
     </div>
   );
 }

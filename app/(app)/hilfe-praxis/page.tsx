@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isDental } from "@/lib/specialties";
 import { kiHilfenStand } from "@/lib/kiHilfen";
+import { menueRechteVon } from "@/lib/permissions";
+import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 import { HilfePraxis } from "@/components/HilfePraxis";
 
 export const metadata = { title: "Frag Sorrida" };
@@ -11,12 +13,24 @@ export const metadata = { title: "Frag Sorrida" };
 export default async function HilfePraxisPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
-  const praxis = await prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { specialty: true, kiHilfen: true } });
+  const [praxis, rechte] = await Promise.all([
+    prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { specialty: true, kiHilfen: true } }),
+    menueRechteVon(session.user.id, session.user.practiceId),
+  ]);
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="mb-2 font-display text-3xl text-slate-900">Frag Sorrida</h1>
-      <p className="mb-6 text-sm text-slate-500">Fragen zur Bedienung: Wo finde ich was, und wie geht es? Die Antworten kommen aus einer festen Sammlung von Hilfetexten.</p>
-      <HilfePraxis fach={isDental(praxis?.specialty) ? "zahn" : "andere"} ki={kiHilfenStand(praxis?.kiHilfen).aktiv} />
+      <p className="mb-6 text-sm text-slate-500">
+        Fragen zur Bedienung: Wo finde ich was, und wie geht es? Die Antworten kommen aus einer festen Sammlung von Hilfetexten. „Zeig mir wo“ führt zur
+        Stelle und markiert sie. Den Chat „Frag Sorrida“ gibt es auch unten rechts auf jeder Seite.
+      </p>
+      <HilfePraxis
+        fach={isDental(praxis?.specialty) ? "zahn" : "andere"}
+        ki={kiHilfenStand(praxis?.kiHilfen).aktiv}
+        rechte={rechte}
+        personPl={fachprofil(praxis?.specialty ?? "zahn").person.pl}
+        abschluss={abschlussWort(praxis?.specialty)}
+      />
     </div>
   );
 }

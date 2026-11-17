@@ -41,7 +41,7 @@ export default async function ReportsPage(props: {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-3xl text-slate-900">Berichte</h1>
-        <Link href="/reports/new" className="btn-primary">Neuer Bericht</Link>
+        <Link href="/reports/new" className="btn-primary" data-hilfe="bericht-neu">Neuer Bericht</Link>
       </div>
 
       <form method="get" className="card mb-6 flex flex-wrap items-end gap-3">

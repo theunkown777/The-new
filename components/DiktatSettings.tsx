@@ -20,7 +20,7 @@ export function DiktatSettings({ erlaubt, darfAendern }: { erlaubt: boolean; dar
   }
 
   return (
-    <section id="diktat" className="card mt-6 scroll-mt-6 text-sm" data-testid="diktat-einstellung">
+    <section id="diktat" data-hilfe="diktat-schalter" className="card mt-6 scroll-mt-6 text-sm" data-testid="diktat-einstellung">
       <h2 className="font-semibold text-slate-900">Diktat</h2>
       <p className="mt-1 text-slate-600">
         Sorrida lässt die Sprache vom Browser erkennen. Kann der Browser das <b>auf dem Gerät</b> (aktuelles Chrome mit geladenem deutschen

@@ -49,7 +49,7 @@ export function WartelisteKarte({ eintraege, anlaesse = [] }: { eintraege: Warte
   }
 
   return (
-    <section className="card space-y-3" id="warteliste" data-testid="warteliste" aria-labelledby="warteliste-titel">
+    <section className="card space-y-3" id="warteliste" data-testid="warteliste" data-hilfe="warteliste" aria-labelledby="warteliste-titel">
       <div className="flex items-center justify-between gap-2">
         <h2 id="warteliste-titel" className="font-semibold text-slate-900">Warteliste <span className="font-normal text-slate-500" data-testid="warteliste-anzahl">({eintraege.length})</span></h2>
         {!offen && <button type="button" className="btn btn-secondary text-sm" onClick={() => setOffen(true)} data-testid="warteliste-neu">Hinzufügen</button>}

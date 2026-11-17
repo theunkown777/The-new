@@ -38,7 +38,7 @@ export async function Einrichtung({ practiceId, isAdmin }: { practiceId: string;
   const offen = schritte.filter((s) => !s.fertig).length;
   if (offen === 0) return null;
   return (
-    <section className="card mb-6" data-testid="einrichtung">
+    <section className="card mb-6" data-testid="einrichtung" data-hilfe="einrichtung">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-semibold text-slate-900">Ihre Praxis einrichten</h2>
         <span className="text-sm text-slate-500">

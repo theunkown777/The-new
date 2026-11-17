@@ -38,7 +38,7 @@ export function PraxisStammdaten({ start, fehlt }: { start: Stammdaten; fehlt: s
   }
 
   return (
-    <form onSubmit={save} className="card space-y-4" data-testid="praxis-stammdaten">
+    <form onSubmit={save} className="card space-y-4" data-testid="praxis-stammdaten" data-hilfe="praxis-angaben">
       {fehlt.length > 0 && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="stammdaten-fehlt">
           <b>Es fehlt noch:</b> {fehlt.join(", ")}. Gegenüber Ihren Patienten sind Sie der Anbieter des Portals. Diese Angaben gehören deshalb auf

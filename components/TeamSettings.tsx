@@ -135,7 +135,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
     <div className="space-y-6">
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
-      <div className="card p-0">
+      <div className="card p-0" data-hilfe="team-liste">
         <h2 className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
           Mitglieder
         </h2>
@@ -236,7 +236,7 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
         </div>
       )}
 
-      <div className="card">
+      <div className="card" data-hilfe="team-einladen">
         <h2 className="mb-3 font-medium text-slate-900">Mitglied einladen</h2>
         <form onSubmit={handleInvite} className="flex flex-wrap items-end gap-3">
           <div className="min-w-[200px] flex-1">

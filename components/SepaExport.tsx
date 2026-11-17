@@ -24,7 +24,7 @@ export function SepaExport({ anzahl, summe, bereit }: { anzahl: number; summe: s
     router.refresh();
   }
   return (
-    <section className="card" data-testid="sepa">
+    <section className="card" data-testid="sepa" data-hilfe="zahlungen-sepa">
       <h2 className="font-semibold text-slate-900">SEPA-Lastschrift</h2>
       {!bereit ? (
         <p className="mt-1 text-sm text-slate-600">

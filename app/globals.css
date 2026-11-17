@@ -639,3 +639,21 @@ html.dunkel:has(.praxis-app) body { background-color: #191615; }
 .dunkel-nur { display: none; }
 .dunkel .praxis-app .dunkel-nur { display: block; }
 .dunkel .praxis-app .hell-nur { display: none; }
+
+/* Frag Sorrida, „Zeig mir wo“ (components/HilfeZeiger.tsx): sichtbare Markierung des gezeigten Elements.
+   Ein Ring statt einer Füllung, damit Text und Bedienung darunter lesbar bleiben; ohne Bewegung bei reduzierter Bewegung. */
+.hilfe-ziel {
+  outline: 3px solid var(--akzent, #5A1D1D) !important;
+  outline-offset: 4px !important;
+  border-radius: 6px;
+  scroll-margin: 6rem;
+  animation: hilfe-ziel-puls 1.1s ease-in-out 3;
+}
+@keyframes hilfe-ziel-puls {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(90 29 29 / 0.35); }
+  50% { box-shadow: 0 0 0 10px rgb(90 29 29 / 0); }
+}
+.dunkel .hilfe-ziel { outline-color: #E0ABA1 !important; }
+@media (prefers-reduced-motion: reduce) {
+  .hilfe-ziel { animation: none; }
+}

@@ -5,15 +5,24 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { auditFromSession } from "@/lib/audit";
 import { kiFehlerGrund } from "@/lib/anthropic";
-import { KI_ANTWORT_HINWEIS, KiAntwortFehler, kiHilfeBeantworten, kiHilfenZugang } from "@/lib/kiHilfen";
+import { KI_ANTWORT_HINWEIS, KiAntwortFehler, kiHilfeBeantworten, kiHilfenZugang, namensKandidaten } from "@/lib/kiHilfen";
 import { HILFE_WISSEN } from "@/lib/hilfeWissen";
-import { sucheHilfe } from "@/lib/hilfeSuche";
+import { hilfeText, sichtbareHilfe } from "@/lib/hilfeSuche";
+import { seitenTitel } from "@/lib/hilfeZeiger";
+import { menueRechteVon } from "@/lib/permissions";
 import { isDental } from "@/lib/specialties";
+import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 
-// „Frag Sorrida“ mit KI: Die Frage und die fünf besten Einträge der festen Wissenssammlung gehen an den
-// KI-Dienst. Er antwortet nur aus diesen Einträgen und nennt die Quelle; passt nichts, sagt er das.
-// Keine Patientendaten: Die Frage wird vor dem Senden bereinigt, die Einträge enthalten keine.
-const schema = z.object({ frage: z.string().trim().min(3).max(500) });
+// „Frag Sorrida“ mit KI, nur auf Knopfdruck und nur mit eingeschalteten KI-Hilfen (sonst 409/503).
+// An den KI-Dienst gehen: die Frage, bis zu drei frühere Fragen ohne Antworten, der Titel der geöffneten Seite aus einer
+// festen Liste (nie der Pfad mit Kennungen) und als Grundlage die ganze Wissenssammlung, gefiltert nach Fach und Rechten.
+// Vorher ersetzt Sorrida Namen eigener Patienten (Abgleich nur innerhalb dieser Praxis), Namen nach einer Anrede,
+// Kontaktdaten, Datumsangaben und Versichertennummern. Die Antwort stützt sich nur auf die Sammlung und nennt Quellen.
+const schema = z.object({
+  frage: z.string().trim().min(3).max(500),
+  seite: z.string().max(300).optional(),
+  verlauf: z.array(z.string().max(500)).max(3).optional(),
+});
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -21,23 +30,37 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Bitte geben Sie eine Frage ein (höchstens 500 Zeichen)." }, { status: 400 });
   const practiceId = session.user.practiceId;
+  const { frage, seite, verlauf = [] } = parsed.data;
 
-  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } });
-  const beste = sucheHilfe(parsed.data.frage, HILFE_WISSEN, { anzahl: 5, fach: isDental(praxis?.specialty) ? "zahn" : "andere" }).map((t) => t.eintrag);
-  // Ohne passenden Eintrag gibt es nichts, woraus die KI antworten dürfte: keine Anfrage an den Dienst.
-  if (beste.length === 0) return NextResponse.json({ passt: false, antwort: "", quellen: [], entwurf: true });
-
+  // Schalter, Zugang und Grenze je Stunde zuerst: Ohne eingeschaltete KI-Hilfen wird nichts gelesen und nichts gesendet.
   const zugang = await kiHilfenZugang(practiceId, "hilfe");
   if (!zugang.ok) return NextResponse.json({ error: zugang.error }, { status: zugang.status });
 
+  const [praxis, rechte] = await Promise.all([
+    prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }),
+    menueRechteVon(session.user.id, practiceId),
+  ]);
+  const woerter = { personPl: fachprofil(praxis?.specialty ?? "zahn").person.pl, abschluss: abschlussWort(praxis?.specialty) };
+  const eintraege = sichtbareHilfe(HILFE_WISSEN, { fach: isDental(praxis?.specialty) ? "zahn" : "andere", rechte }).map((e) => hilfeText(e, woerter));
+
+  // Namen eigener Patienten in Frage und Verlauf finden, damit genau diese ersetzt werden. Nur in dieser Praxis.
+  const kandidaten = namensKandidaten([frage, ...verlauf]);
+  const namen = kandidaten.length
+    ? await prisma.patient.findMany({
+        where: { practiceId, OR: kandidaten.flatMap((w) => [{ firstName: { equals: w, mode: "insensitive" as const } }, { lastName: { equals: w, mode: "insensitive" as const } }]) },
+        select: { firstName: true, lastName: true },
+        take: 50,
+      })
+    : [];
+
   try {
-    const r = await kiHilfeBeantworten({ frage: parsed.data.frage, eintraege: beste });
+    const r = await kiHilfeBeantworten({ frage, eintraege, seitentitel: seite ? seitenTitel(seite, woerter) : null, verlauf, namen });
     await auditFromSession(session, "ki.hilfe", { summary: r.passt ? `${r.quellen.length} Quellen` : "keine passende Quelle" });
-    const quellen = r.quellen.flatMap((id) => beste.filter((e) => e.id === id).map((e) => ({ id: e.id, frage: e.frage, pfad: e.pfad, href: e.href })));
-    return NextResponse.json({ passt: r.passt, antwort: r.antwort, quellen, entwurf: true });
+    const quellen = r.quellen.flatMap((id) => eintraege.filter((e) => e.id === id).map((e) => ({ id: e.id, frage: e.frage, pfad: e.pfad, href: e.href })));
+    return NextResponse.json({ passt: r.passt && quellen.length > 0, antwort: quellen.length ? r.antwort : "", quellen, entwurf: true });
   } catch (e) {
     if (e instanceof KiAntwortFehler) return NextResponse.json({ error: KI_ANTWORT_HINWEIS }, { status: 502 });
     console.error("KI-Hilfe fehlgeschlagen", e instanceof Error ? e.name : "Fehler");
-    return NextResponse.json({ error: `Antwort mit KI nicht möglich: ${kiFehlerGrund(e)} Die Einträge oben stehen weiter bereit.` }, { status: 502 });
+    return NextResponse.json({ error: `Antwort mit KI nicht möglich: ${kiFehlerGrund(e)} Die Einträge ohne KI stehen weiter bereit.` }, { status: 502 });
   }
 }

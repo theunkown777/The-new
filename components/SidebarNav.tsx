@@ -71,6 +71,7 @@ export function SidebarNav({ dental, berichte = dental, team = false, analyse = 
       <Link
         key={href}
         href={href}
+        data-hilfe={`menue:${href}`}
         aria-current={active ? "page" : undefined}
         className={`group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm ${active ? "bg-white font-semibold text-brand-800 shadow-[0_6px_18px_-14px_rgba(107,42,36,.7)]" : "text-slate-700 hover:bg-white/70 hover:text-brand-700"}`}
       >

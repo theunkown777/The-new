@@ -86,7 +86,7 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
             Umsatz, Annahmequoten und Hinweise aus Ihren Vorschlägen und Rechnungen, keine Schätzungen von außen. Die Zahlen zeigen, was war; über die Gründe sagen sie nichts.
           </p>
           <p className="mt-2 text-sm">
-            <Link href="/analyse/wirkung" className="font-medium text-brand-700 underline" data-testid="link-wirkung">Wirkungsbericht: vorher und heute im Vergleich →</Link>
+            <Link href="/analyse/wirkung" className="font-medium text-brand-700 underline" data-testid="link-wirkung" data-hilfe="analyse-wirkung-link">Wirkungsbericht: vorher und heute im Vergleich →</Link>
           </p>
         </div>
         <nav className="flex rounded-full bg-white p-1 text-sm shadow-sm ring-1 ring-slate-200" aria-label="Zeitraum">

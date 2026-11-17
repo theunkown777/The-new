@@ -14,7 +14,7 @@ export function ZweiFaktorAlle({ initial }: { initial: boolean }) {
     if (res.ok) { setAn(!an); router.refresh(); }
   }
   return (
-    <label className="mt-2 flex cursor-pointer items-start gap-2 text-xs text-slate-700">
+    <label className="mt-2 flex cursor-pointer items-start gap-2 text-xs text-slate-700" data-hilfe="zwei-faktor-alle">
       <input type="checkbox" className="mt-0.5 h-4 w-4" checked={an} disabled={busy} onChange={toggle} data-testid="zwei-faktor-alle" />
       <span>Auch für Mitarbeitende verlangen (für Admins immer Pflicht)</span>
     </label>

@@ -149,7 +149,7 @@ export default async function DashboardPage() {
         </Link>
       )}
 
-      <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]" data-testid="heute">
+      <section className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]" data-testid="heute" data-hilfe="heute-termine">
         <div className={`card p-0 ${termine.liste.length === 0 ? "self-start" : ""}`}>
           <div className="flex items-baseline justify-between px-5 pt-4">
             <h2 className="font-semibold text-slate-900">Termine heute</h2>

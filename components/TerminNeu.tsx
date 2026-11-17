@@ -44,7 +44,7 @@ export function TerminNeu({ tag, standorte, anlaesse = [] }: { tag: string; stan
   }
 
   return (
-    <form onSubmit={save} className="card space-y-3" data-testid="termin-neu">
+    <form onSubmit={save} className="card space-y-3" data-testid="termin-neu" data-hilfe="termin-eintragen">
       <h2 className="font-semibold text-slate-900">Termin eintragen</h2>
       <div className="relative">
         {patient ? (

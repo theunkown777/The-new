@@ -20,7 +20,7 @@ export function BankSettings({ initial, readOnly }: { initial: { accountHolder: 
   }
 
   return (
-    <form onSubmit={save} className="space-y-3" id="konto" data-testid="bank-settings">
+    <form onSubmit={save} className="space-y-3" id="konto" data-testid="bank-settings" data-hilfe="zahlungen-konto">
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="block text-sm">
           <span className="text-slate-600">Kontoinhaber</span>

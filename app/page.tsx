@@ -111,7 +111,7 @@ export default async function Start() {
         )}
 
         {/* Auftakt: Aussage links, die echte Patientenansicht rechts */}
-        <section className={`${rahmen} grid items-center gap-16 pb-24 pt-16 sm:pt-24 lg:grid-cols-12 lg:gap-8 lg:pb-32`} data-testid="auftakt">
+        <section id="auftakt" className={`${rahmen} grid scroll-mt-6 items-center gap-16 pb-24 pt-16 sm:pt-24 lg:grid-cols-12 lg:gap-8 lg:pb-32`} data-testid="auftakt">
           <div className="j-auftakt lg:col-span-7">
             <p className="flex items-center gap-3 text-[15px] text-tinte-2">
               <Laechelbogen className="h-2 w-10 text-brand-700" />
@@ -217,7 +217,7 @@ export default async function Start() {
         </div>
 
         {/* Ablauf und Nutzen für Patienten */}
-        <section className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
+        <section id="ablauf" className={`${rahmen} scroll-mt-6 border-t border-linie py-24 sm:py-36`}>
           <h2 className="j-schau max-w-3xl text-[clamp(2.4rem,4.6vw,3.8rem)]">
             So läuft es <em>in jeder Praxis.</em>
           </h2>
@@ -231,7 +231,7 @@ export default async function Start() {
             ))}
           </ol>
 
-          <div className="mt-24" data-testid="fuer-patienten">
+          <div id="fuer-patienten" className="mt-24 scroll-mt-6" data-testid="fuer-patienten">
             <h3 className="j-titel text-[2.2rem] text-tinte">
               Was Ihre Patienten <em className="text-salbei-700">davon haben</em>
             </h3>

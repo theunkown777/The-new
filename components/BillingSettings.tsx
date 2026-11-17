@@ -47,7 +47,7 @@ export function BillingSettings({
   }
 
   return (
-    <div className="card space-y-4">
+    <div className="card space-y-4" data-hilfe="punktwerte">
       <div>
         <h2 className="font-medium text-slate-900">Punktwerte</h2>
         <p className="mt-1 text-sm text-slate-500">

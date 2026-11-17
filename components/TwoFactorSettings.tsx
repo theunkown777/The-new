@@ -124,7 +124,7 @@ export function TwoFactorSettings({ initialEnabled }: { initialEnabled: boolean 
   }
 
   return (
-    <div className="card space-y-4">
+    <div className="card space-y-4" data-hilfe="zwei-faktor">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-medium text-slate-900">Zwei-Faktor-Authentifizierung (2FA)</h2>

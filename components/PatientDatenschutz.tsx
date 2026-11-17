@@ -31,7 +31,7 @@ export function PatientDatenschutz({ patientId, lastName }: { patientId: string;
   }
 
   return (
-    <section className="card mt-8" data-testid="datenschutz">
+    <section className="card mt-8" data-testid="datenschutz" data-hilfe="patient-datenschutz">
       <h2 className="font-semibold text-slate-900">Datenschutz</h2>
       <p className="mt-1 text-sm text-slate-600">
         Auskunft nach Art. 15 DSGVO als Datei. Löschen geht nur, wenn keine Aufbewahrungspflicht entgegensteht. Beides wird im Protokoll vermerkt.

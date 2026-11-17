@@ -33,7 +33,7 @@ export function Gebuehrenrechner({ werke, punktwerte }: { werke: Gebuehrenwerk[]
   }, [werk, punkte, faktor, pw, euro, anzahl, s, gruppe]);
 
   return (
-    <section className="card space-y-4" data-testid="gebuehrenrechner">
+    <section className="card space-y-4" data-testid="gebuehrenrechner" data-hilfe="gebuehrenrechner">
       <div>
         <h2 className="font-semibold text-slate-900">Gebührenrechner</h2>
         <p className="mt-1 text-sm text-slate-600">Betrag einer Position, Spanne und was eine begründete Steigerung bringt.</p>

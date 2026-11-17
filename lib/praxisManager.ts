@@ -218,6 +218,24 @@ const STICHWORTE: [ThemaId, RegExp][] = [
   ["engpaesse", /engpass|engpässe|hakt|problem|liegen|stau|wo klemmt|was fehlt|aufgabe|zu tun/i],
 ];
 
+/** Beschriftung des Knopfs unter einem Vorschlag: sagt, welche Seite sich öffnet (geprüft und ausgelöst wird dort). */
+export function vorschlagKnopf(href: string): string {
+  const pfad = href.split("?")[0];
+  const ZIELE: Record<string, string> = {
+    "/zahlungen": "Zahlungen öffnen",
+    "/reports": "Berichte öffnen",
+    "/vorsorge": "Vorsorge öffnen",
+    "/analyse": "Analyse öffnen",
+    "/proposals": "Vorschläge öffnen",
+    "/termine": "Termine öffnen",
+    "/abrechnungspruefung": "Abrechnungsprüfung öffnen",
+  };
+  return ZIELE[pfad] ?? "Seite öffnen";
+}
+
+/** Gültiges Thema aus der Adresse (?thema=…), sonst null. */
+export const themaAusAdresse = (wert: unknown): ThemaId | null => (typeof wert === "string" && wert in FRAGEN ? (wert as ThemaId) : null);
+
 export function themaFuerFrage(frage: string): ThemaId | null {
   for (const [t, re] of STICHWORTE) if (re.test(frage)) return t;
   return null;
