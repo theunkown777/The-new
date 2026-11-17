@@ -453,11 +453,22 @@ describe.skipIf(!process.env.DATABASE_URL)("Trennung der Praxen: Praxis A kommt 
   });
 
   type MitCookies = Response & { cookies: { getAll: () => { name: string; value: string; maxAge?: number }[] } };
+  // Gelesen werden die Set-Cookie-Zeilen, nicht res.cookies: Die Bestätigung im Portal setzt ihr Cookie als fertige
+  // Zeilen für die beiden Pfade des Links und löscht eine alte Fassung unter "/" (lib/portalPruefungCookie.ts).
+  // Dieser Krug kennt keine Pfade. Er übernimmt, was die Antwort setzt, und löscht nur, was sie nirgends neu setzt.
   const cookiesUebernehmen = (res: MitCookies) => {
-    for (const c of res.cookies.getAll()) {
-      if (!c.value || c.maxAge === 0) jar.delete(c.name);
-      else jar.set(c.name, c.value);
+    const gesetzt = new Map<string, string>();
+    const geloescht = new Set<string>();
+    for (const zeile of res.headers.getSetCookie()) {
+      const paar = zeile.split(";")[0];
+      const name = paar.slice(0, paar.indexOf("=")).trim();
+      let wert = paar.slice(paar.indexOf("=") + 1).trim();
+      try { wert = decodeURIComponent(wert); } catch { /* Wert bleibt, wie er ist */ }
+      if (!wert || /;\s*Max-Age=0\s*(;|$)/i.test(zeile)) geloescht.add(name);
+      else gesetzt.set(name, wert);
     }
+    for (const name of geloescht) if (!gesetzt.has(name)) jar.delete(name);
+    for (const [name, wert] of gesetzt) jar.set(name, wert);
   };
   /** Patientenportal: Geburtsdatum bestätigen, wie es der Patient vor der Unterschrift tut. */
   async function geburtsdatumBestaetigen(p: Ids) {

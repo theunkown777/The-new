@@ -23,14 +23,22 @@ import { praxisKennzeichen } from "@/lib/praxisKennung";
 import { portalKennung, portalSymbole } from "@/lib/portalKopf";
 import { darfAufGeraetMerken } from "@/lib/meinePraxenSchutz";
 import { PraxisKennzeile, PraxisStreifen } from "@/components/PraxisKennung";
-import { PraxisMerken } from "@/components/PraxisMerken";
+import { GemerktEntfernen, PraxisMerken } from "@/components/PraxisMerken";
 
 export const dynamic = "force-dynamic";
 // Tab-Titel, Titel der Web-App auf dem iPhone und Symbol tragen Praxisname und Gruppe (lib/praxisKennung.ts), damit
-// Hausarzt und Zahnarzt auf einem Gerät nicht zweimal „Mein Portal“ heißen. Abwägung: Der kurze Praxisname steht
-// dann sichtbar auf dem Startbildschirm. Das geschieht nur, wenn der Patient das Portal selbst dort ablegt; beim
-// Ablegen kann er den Namen ändern. Der volle Praxisname stand schon vorher im Manifest (name). Die Vorschau beim
-// Teilen (openGraph) bleibt ohne Praxisnamen.
+// Hausarzt und Zahnarzt auf einem Gerät nicht zweimal „Mein Portal“ heißen.
+// Abwägung Diskretion, vollständig:
+//   - Startbildschirm: Der kurze Praxisname steht sichtbar dort, aber nur, wenn der Patient das Portal selbst ablegt.
+//     Auf dem iPhone kann er den Namen dabei ändern; im Installationsdialog von Chrome unter Android nicht immer.
+//     Das Manifest (name) nennt Praxis und Fach; Android zeigt das beim Start der Web-App.
+//   - Tab-Titel (auch auf den Unterseiten): Er erscheint bei jedem Besuch ohne Zutun des Patienten, im Verlauf, in der
+//     Tab-Übersicht, im synchronisierten Verlauf (Google- oder Apple-Konto) und bei geteiltem Bildschirm.
+//   - Dafür spricht: Ohne Namen sehen Portale verschiedener Praxen gleich aus, und Patienten öffnen leichter das falsche.
+//     Der Link selbst steht ohnehin im Verlauf. Der Name des Patienten und Gesundheitsangaben stehen nie im Titel.
+//   - Offene Rechtsfrage (Kanzlei): Ist der Praxisname im Titel ohne Wahl zulässig, gerade bei sensiblen Fächern?
+//     Möglich wäre später, rein hinzufügend, ein neutraler Titel je Praxis (Einstellung der Praxis).
+// Die Vorschau beim Teilen (openGraph) bleibt ohne Praxisnamen.
 export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
   const params = await props.params;
   const k = await portalKennung(params.token);
@@ -50,11 +58,25 @@ export async function generateViewport(props: { params: Promise<{ token: string 
   return k ? { themeColor: k.farbe } : {};
 }
 
-function Expired() {
+/**
+ * „Dieser Link ist nicht mehr gültig“: abgelaufen oder von der Praxis durch einen neuen Link ersetzt (jede neue
+ * Nachricht oder Freigabe erzeugt einen neuen Link). Auf dem Gerät des Patienten (keine Praxis-Sitzung) dazu der
+ * Hinweis, den neuen Link zu merken, und auf Wunsch das Entfernen dieses Links aus „Meine Praxen auf diesem Gerät“.
+ */
+async function Expired({ token, lang }: { token: string; lang?: string }) {
+  const sprache = pickPortalLang(lang, (await headers()).get("accept-language"));
+  const g = GERAET_UI[sprache];
+  const aufGeraet = /^[A-Za-z0-9_-]{20,128}$/.test(token) && darfAufGeraetMerken((await cookies()).getAll().map((c) => c.name));
   return (
-    <main className="mx-auto max-w-xl px-4 py-16 text-center">
-      <h1 className="text-xl font-semibold text-slate-900">Dieser Link ist nicht mehr gültig</h1>
-      <p className="mt-3 text-slate-600">Aus Datenschutzgründen sind diese Links nur begrenzt gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen Link.</p>
+    <main className="mx-auto max-w-xl px-4 py-16 text-center" lang={sprache} dir={portalDir(sprache)} data-testid="portal-ungueltig">
+      <h1 className="text-xl font-semibold text-slate-900">{g.ungueltigTitel}</h1>
+      <p className="mt-3 text-slate-600">{g.ungueltigText}</p>
+      {aufGeraet && (
+        <>
+          <p className="mt-3 text-slate-600" data-testid="portal-ungueltig-hinweis">{g.ungueltigHinweis}</p>
+          <GemerktEntfernen token={token} t={{ ungueltigEntfernen: g.ungueltigEntfernen, ungueltigEntfernt: g.ungueltigEntfernt, ungueltigNichtGemerkt: g.ungueltigNichtGemerkt, nichtMoeglich: g.nichtMoeglich }} />
+        </>
+      )}
     </main>
   );
 }
@@ -64,7 +86,7 @@ function Expired() {
 export default async function PortalPage(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string; bezahlt?: string }> }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <Expired />;
+  if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <Expired token={params.token} lang={searchParams.lang} />;
   const now = new Date();
   const patient = await prisma.patient.findUnique({
     where: { portalTokenHash: hashToken(params.token) },
@@ -88,7 +110,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
       appointments: { where: { start: { gte: now }, status: { in: ["GEPLANT", "BESTAETIGT"] } }, orderBy: { start: "asc" }, take: 1, select: { start: true, minutes: true } },
     },
   });
-  if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < now) return <Expired />;
+  if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < now) return <Expired token={params.token} lang={searchParams.lang} />;
   if (!patient.portalViewedAt) await prisma.patient.update({ where: { id: patient.id }, data: { portalViewedAt: now } });
 
   const lang = pickPortalLang(searchParams.lang, (await headers()).get("accept-language"));
@@ -398,7 +420,18 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
           {merkenErlaubt && (
             <PraxisMerken
               eintrag={{ token: params.token, vorname: patient.firstName, praxisName: practice.name, fachKurz: kennung.fachKurz, gruppe: kennung.gruppe, ort: kennung.ort, gueltigBis: patient.portalExpiresAt.toISOString() }}
-              t={{ merken: geraet.merken, merkenHinweis: geraet.merkenHinweis, gemerkt: geraet.gemerkt, voll: geraet.voll, nichtMoeglich: geraet.nichtMoeglich, liste: geraet.liste }}
+              t={{
+                merken: geraet.merken,
+                merkenHinweis: geraet.merkenHinweis,
+                gemerkt: geraet.gemerkt,
+                voll: geraet.voll,
+                nichtMoeglich: geraet.nichtMoeglich,
+                nichtGemerkt: geraet.nichtGemerkt,
+                liste: geraet.liste,
+                aehnlichFrage: geraet.aehnlichFrage,
+                aehnlichErsetzen: geraet.aehnlichErsetzen,
+                aehnlichBeide: geraet.aehnlichBeide,
+              }}
               listeHref={lang === "de" ? "/meine-praxen" : `/meine-praxen?lang=${lang}`}
             />
           )}

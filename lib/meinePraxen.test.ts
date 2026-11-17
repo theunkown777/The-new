@@ -66,7 +66,7 @@ describe("Meine Praxen auf diesem Gerät: Liste", () => {
     expect(portalPfad(`${hausarzt.token},${zahnarzt.token}`)).toBeNull();
   });
 
-  it("derselbe Link oder ein erneuerter Link derselben Praxis ersetzt den Eintrag, der eigene Name bleibt", () => {
+  it("derselbe Link ersetzt seinen Eintrag, der eigene Name bleibt", () => {
     let liste = merken([], hausarzt, jetzt).praxen;
     liste = umbenennen(liste, hausarzt.token, "  Hausärztin   Mama ");
     expect(liste[0].eigenerName).toBe("Hausärztin Mama");
@@ -75,14 +75,45 @@ describe("Meine Praxen auf diesem Gerät: Liste", () => {
     expect(nochmal.art).toBe("erneuert");
     expect(nochmal.praxen).toHaveLength(1);
     expect(nochmal.praxen[0].gueltigBis).toBe("2027-02-01T10:00:00.000Z");
-    const neuerLink = merken(nochmal.praxen, { ...hausarzt, token: token("n") }, jetzt);
-    expect(neuerLink.art).toBe("erneuert");
-    expect(neuerLink.praxen.map((p) => p.token)).toEqual([token("n")]);
-    expect(neuerLink.praxen[0].eigenerName).toBe("Hausärztin Mama");
-    // Eine andere Person (Kind) bei derselben Praxis bleibt ein eigener Eintrag.
-    expect(merken(neuerLink.praxen, { ...hausarzt, token: token("k"), vorname: "Ben" }, jetzt).praxen).toHaveLength(2);
+    expect(nochmal.praxen[0].eigenerName).toBe("Hausärztin Mama");
     // Leerer Name setzt den Praxisnamen wieder ein.
-    expect(kartenTitel(umbenennen(neuerLink.praxen, token("n"), "  ")[0])).toBe("Hausarztpraxis Dr. Weber");
+    expect(kartenTitel(umbenennen(nochmal.praxen, hausarzt.token, "  ")[0])).toBe("Hausarztpraxis Dr. Weber");
+  });
+
+  it("ein anderer Link mit gleichem Namen ersetzt nichts von selbst: Der Patient wählt", () => {
+    let liste = merken([], hausarzt, jetzt).praxen;
+    liste = umbenennen(liste, hausarzt.token, "Hausärztin");
+    // Gleicher Name, gleiches Fach, gleicher Ort, gleicher Vorname: neuer Link derselben Praxis oder ein anderer
+    // Standort mit gleichem Namen (eigener Mandant). Ohne Wahl bleibt die Liste, wie sie ist.
+    const neuerLink = { ...hausarzt, token: token("n"), praxisName: "HAUSARZTPRAXIS Dr. Weber" };
+    const frage = merken(liste, neuerLink, jetzt);
+    expect(frage.art).toBe("aehnlich");
+    expect(frage.praxen).toBe(liste);
+    if (frage.art === "aehnlich") expect(frage.vorhanden.token).toBe(hausarzt.token);
+    // „Ja, alten Link ersetzen“: ein Eintrag, neuer Link, eigener Name bleibt.
+    const ersetzt = merken(liste, neuerLink, jetzt, "ersetzen");
+    expect(ersetzt.art).toBe("erneuert");
+    expect(ersetzt.praxen.map((p) => p.token)).toEqual([token("n")]);
+    expect(ersetzt.praxen[0].eigenerName).toBe("Hausärztin");
+    // „Nein, beide behalten“: zwei getrennte Karten.
+    const beide = merken(liste, neuerLink, jetzt, "beide");
+    expect(beide.art).toBe("neu");
+    expect(beide.praxen.map((p) => p.token)).toEqual([hausarzt.token, token("n")]);
+    // Eine andere Person (Kind) bei derselben Praxis ist kein gleich benannter Eintrag.
+    expect(merken(liste, { ...hausarzt, token: token("k"), vorname: "Ben" }, jetzt).art).toBe("neu");
+    // Ein anderer Ort oder ein anderes Fach auch nicht.
+    expect(merken(liste, { ...hausarzt, token: token("o"), ort: "Köln" }, jetzt).art).toBe("neu");
+  });
+
+  it("kürzt zu lange Namen, statt das Merken abzulehnen", () => {
+    const lang = merken([], { ...hausarzt, vorname: "Anna-" + "x".repeat(80), praxisName: "Praxis " + "y".repeat(200), ort: "z".repeat(70), fachKurz: "f".repeat(70) }, jetzt);
+    expect(lang.art).toBe("neu");
+    const e = lang.praxen[0];
+    expect([e.vorname.length, e.praxisName.length, e.ort.length, e.fachKurz.length]).toEqual([60, 160, 60, 60]);
+    // Ein Schriftzeichen aus zwei Teilen wird nicht zerteilt.
+    const emoji = merken([], { ...hausarzt, vorname: "a".repeat(59) + "😀" }, jetzt);
+    expect(emoji.art).toBe("neu");
+    expect(emoji.praxen[0].vorname).toBe("a".repeat(59));
   });
 
   it("entfernt genau einen Eintrag", () => {

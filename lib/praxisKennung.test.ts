@@ -55,7 +55,8 @@ describe("Kennzeichen einer Praxis (Fach, Ort, Gruppe, Farbe)", () => {
       ["Zahnarztpraxis Dr. Sonnenberg (Testpraxis 5)", DENTAL_ID, "Sonnenberg"],
       ["Praxis Dr. med. Anna Weber", "hausarzt", "Anna Weber"],
       ["Hausarztpraxis am Markt (Demo)", "hausarzt", "Am Markt"],
-      ["Gemeinschaftspraxis Dres. Kaya und Brandt", "hausarzt", "Kaya und"],
+      // Endet nie mit einem Verbindewort („Kaya und“ wird zu „Kaya“).
+      ["Gemeinschaftspraxis Dres. Kaya und Brandt", "hausarzt", "Kaya"],
       ["Physiotherapie Müller & Partner", "physio", "Müller"],
       ["Dr. Anna Weber, Fachärztin für Allgemeinmedizin", "hausarzt", "Anna Weber"],
       ["Praxis Weber", "hausarzt", "Praxis Weber"],
@@ -66,10 +67,8 @@ describe("Kennzeichen einer Praxis (Fach, Ort, Gruppe, Farbe)", () => {
       const kurz = kurzerPraxisname(name, fach);
       expect(kurz.length, name).toBeLessThanOrEqual(KURZNAME_MAX);
       expect(kurz.length, name).toBeGreaterThan(0);
-      if (name !== "Gemeinschaftspraxis Dres. Kaya und Brandt") expect(kurz, name).toBe(soll);
+      expect(kurz, name).toBe(soll);
     }
-    // Endet nie mit einem Verbindewort.
-    expect(kurzerPraxisname("Gemeinschaftspraxis Dres. Kaya und Brandt", "hausarzt")).toBe("Kaya");
     // Lange Wörter werden gekürzt, nie länger als erlaubt.
     expect(kurzerPraxisname("Rehabilitationszentrumsgesellschaft Nord", "physio").length).toBeLessThanOrEqual(KURZNAME_MAX);
   });

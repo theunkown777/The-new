@@ -24,10 +24,12 @@ export function PraxisKennzeile({ k, className = "" }: { k: Pick<PraxisKennzeich
 /**
  * Kopf für Unterseiten: Streifen, Monogramm in der Farbe der Gruppe, Praxisname, Fach und Ort.
  * `breite` passt den inneren Rahmen an die Seite an (max-w-xl, max-w-2xl, max-w-5xl).
+ * Als <header>: Steht das Band außerhalb von <main> (Anamnesebogen, Vorschlag), ist es der Seitenkopf (Landmarke
+ * „banner“); innerhalb von <main> ist es ein gewöhnlicher Kopf. So liegt kein Inhalt außerhalb einer Landmarke.
  */
 export function PraxisBand({ k, breite = "max-w-xl" }: { k: PraxisKennzeichen; breite?: string }) {
   return (
-    <div data-testid="praxis-band" data-gruppe={k.gruppe}>
+    <header data-testid="praxis-band" data-gruppe={k.gruppe}>
       <PraxisStreifen k={k} />
       <div className={`mx-auto flex items-center gap-3 px-4 pt-4 ${breite}`}>
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-semibold text-white" style={{ backgroundColor: k.farbe }} aria-hidden="true">
@@ -38,6 +40,6 @@ export function PraxisBand({ k, breite = "max-w-xl" }: { k: PraxisKennzeichen; b
           <PraxisKennzeile k={k} />
         </span>
       </div>
-    </div>
+    </header>
   );
 }

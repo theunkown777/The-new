@@ -5,6 +5,7 @@ import { hashToken } from "@/lib/tokens";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { eingabeTag } from "@/lib/portalPruefung";
 import { geburtsdatumPruefen } from "@/lib/portalPruefungServer";
+import { pruefCookieZeilen } from "@/lib/portalPruefungCookie";
 
 import { anschluss } from "@/lib/anschluss";
 export const dynamic = "force-dynamic";
@@ -17,7 +18,8 @@ const antwort = (body: Record<string, unknown>, status: number) => NextResponse.
 // Patientenportal (S5): Geburtsdatum bestätigen, bevor unterschrieben oder ein
 // Lastschriftmandat erteilt wird. Die Antwort sagt nur "stimmt" oder "stimmt
 // nicht" und wie viele Versuche bleiben, nie wie nah die Eingabe war. Bei
-// Erfolg gilt 30 Minuten lang ein signiertes httpOnly-Cookie für genau diesen Link.
+// Erfolg gilt 30 Minuten lang ein signiertes httpOnly-Cookie für genau diesen Link,
+// und der Browser schickt es auch nur an die Seiten und Schnittstellen dieses Links.
 export async function POST(req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
   // Grobe Bremse je Absender; die eigentliche Grenze zählt je Link in der Datenbank.
@@ -40,13 +42,9 @@ export async function POST(req: Request, props: { params: Promise<{ token: strin
   const erg = await geburtsdatumPruefen({ token: params.token, patient, eingabe: parsed.data });
   if (erg.ok) {
     const res = antwort({ ok: true }, 200);
-    res.cookies.set(erg.cookie.name, erg.cookie.wert, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: new URL(req.url).protocol === "https:" || req.headers.get("x-forwarded-proto") === "https",
-      path: "/",
-      maxAge: erg.cookie.maxAge,
-    });
+    // Nur unter /portal/<token> und /api/portal/<token>, nie unter "/" (lib/portalPruefungCookie.ts).
+    const sicher = new URL(req.url).protocol === "https:" || req.headers.get("x-forwarded-proto") === "https";
+    for (const zeile of pruefCookieZeilen(params.token, erg.cookie, sicher)) res.headers.append("Set-Cookie", zeile);
     return res;
   }
   if (erg.code === "OHNE_GEBURTSDATUM") return antwort({ error: "Ihre Praxis hat kein Geburtsdatum hinterlegt.", code: erg.code }, 409);

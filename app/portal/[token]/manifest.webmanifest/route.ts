@@ -8,8 +8,11 @@ import { praxisKennzeichen } from "@/lib/praxisKennung";
 // Jede Praxis bekommt ein eigenes Erscheinungsbild auf dem Startbildschirm: kurzer Praxisname statt „Mein Portal“,
 // Farbe und Symbol der Gruppe (Zahn, Arzt, Therapie; feste Dateien unter public/brand, Inhaltsrichtlinie 'self').
 // Abwägung Diskretion: Der kurze Praxisname ist auf dem Startbildschirm für jeden sichtbar, der das Gerät sieht.
-// Er erscheint nur, wenn der Patient das Portal selbst dort ablegt, und er kann den Namen dabei ändern. Der volle
-// Name stand schon vorher hier (name). Ohne Namen sähen Hausarzt und Zahnarzt gleich aus; das wiegt schwerer.
+// Er erscheint nur, wenn der Patient das Portal selbst dort ablegt. Auf dem iPhone kann er den Namen dabei ändern,
+// im Installationsdialog von Chrome unter Android nicht immer. name nennt Praxis und Fach (Android zeigt das beim
+// Start). Chrome kann installierte Web-Apps samt start_url mit dem Google-Konto abgleichen. Ohne Namen sähen
+// Hausarzt und Zahnarzt gleich aus; das wiegt schwerer. Die ganze Abwägung, auch zum Tab-Titel, steht in
+// app/portal/[token]/page.tsx; die Rechtsfrage dazu ist offen.
 export async function GET(_req: Request, props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
   const patient = await portalPatient(params.token);

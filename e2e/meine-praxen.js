@@ -2,7 +2,11 @@
 // Zwei Demo-Praxen verschiedener Fächer (Hausarzt, Zahnarzt) mit demselben Menschen („Zwilling“: gleicher Name und
 // gleiches Geburtsdatum), jeder mit eigenem Portal-Link. Geprüft wird:
 //   - Portal-Kopf, Unterseite und Manifest zeigen Fach, Ort, Farbe und kurzen Namen der jeweiligen Praxis.
-//   - Beide Praxen merken; /meine-praxen zeigt zwei getrennte Karten. Beim Öffnen der Liste kein Aufruf an /api.
+//   - Beide Praxen merken; /meine-praxen zeigt zwei getrennte Karten. Beim Öffnen der Liste kein Aufruf an /api und
+//     kein Portal vorab geladen. Gleicher Name mit anderem Link: Der Knopf fragt nach.
+//   - Das Cookie der Geburtsdatum-Bestätigung gilt nur für die Seiten dieses Links.
+//   - Ersetzter Link: Die Seite „nicht mehr gültig“ nimmt ihn auf Wunsch aus der Liste, ohne Aufruf an den Server.
+//   - Tastaturfokus nach Merken, Umbenennen und Entfernen; das Band der Praxis ist ein <header>.
 //   - Jede Anfrage trägt höchstens ein Token. Öffnen, Umbenennen, Entfernen, Ablauf, alles löschen.
 //   - Auf einem Gerät der Praxis (Sitzung, Empfangsmodus) gibt es keinen Knopf zum Merken und keine Liste.
 //   - Handy (390 px) und Bildschirm (1280 px), hell und dunkel.
@@ -75,11 +79,20 @@ function aufraeumen() {
     await fotos(hp, '02-portal-hausarzt-fuss-390');
     await hp.getByTestId('praxis-merken-knopf').click();
     pruef('Hausarzt: „Gemerkt“ nach dem Klick', await hp.getByTestId('praxis-gemerkt').isVisible());
+    pruef('Hausarzt: Tastaturfokus auf der Meldung', (await hp.evaluate(() => document.activeElement && document.activeElement.dataset.testid)) === 'praxis-gemerkt');
     await fotos(hp, '03-portal-hausarzt-gemerkt-390');
+
+    // Geburtsdatum bestätigen: Das Cookie geht nur an die Seiten dieses Links, nie an andere Praxen oder /meine-praxen.
+    const best = await hc.request.post(`${L}/api/portal/${tA}/pruefung`, { data: { tag: 12, monat: 5, jahr: 1980 } });
+    const pp = (await hc.cookies()).filter((c) => c.name.startsWith('sorrida_pp_'));
+    pruef('Bestätigung: Cookie nur unter /portal/<Link> und /api/portal/<Link>', best.status() === 200 && JSON.stringify(pp.map((c) => c.path).sort()) === JSON.stringify([`/api/portal/${tA}`, `/portal/${tA}`]), `${best.status()} ${pp.map((c) => c.path).join(', ')}`);
+    const mit = async (u) => (await hc.cookies(`${L}${u}`)).filter((c) => c.name.startsWith('sorrida_pp_')).length;
+    pruef('Bestätigung: Browser schickt das Cookie nicht an Praxis B, /meine-praxen oder die Startseite', (await mit(`/portal/${tA}`)) === 1 && (await mit(`/portal/${tB}`)) === 0 && (await mit(`/api/portal/${tB}/pruefung`)) === 0 && (await mit('/meine-praxen')) === 0 && (await mit('/')) === 0);
 
     // Unterseite mit Band
     await hp.goto(`${L}/portal/${tA}/fragen`);
     pruef('Unterseite: Band mit Praxisname, Fach und Ort', (await hp.getByTestId('praxis-band').innerText()).includes('Hausarztpraxis · Münster'));
+    pruef('Unterseite: Band ist ein <header> (Landmarke)', (await hp.getByTestId('praxis-band').evaluate((e) => e.tagName)) === 'HEADER');
     await fotos(hp, '04-portal-unterseite-fragen-390');
 
     // Portal der Zahnarztpraxis
@@ -92,9 +105,28 @@ function aufraeumen() {
     await hp.getByTestId('praxis-merken-knopf').click();
     pruef('Zahnarzt: „Gemerkt“ nach dem Klick', await hp.getByTestId('praxis-gemerkt').isVisible());
 
+    // Gleicher Name, anderer Link (etwa ein neuer Link der Praxis): Der Knopf fragt nach, statt still zu ersetzen.
+    const ALT = 'f'.repeat(64);
+    await hp.evaluate((alt) => {
+      const s = JSON.parse(localStorage.getItem('sorrida:meine-praxen:v1'));
+      s.praxen.find((e) => e.praxisName.startsWith('Hausarzt')).token = alt;
+      localStorage.setItem('sorrida:meine-praxen:v1', JSON.stringify(s));
+    }, ALT);
+    await hp.goto(`${L}/portal/${tA}`);
+    await hp.getByTestId('praxis-merken-knopf').click();
+    pruef('Gleicher Name, anderer Link: Frage statt stillem Ersetzen', await hp.getByTestId('praxis-merken-frage').isVisible());
+    pruef('Frage: Tastaturfokus auf der Frage', (await hp.evaluate(() => document.activeElement && document.activeElement.id)) === 'praxis-merken-frage');
+    await hp.getByTestId('praxis-merken-frage').scrollIntoViewIfNeeded();
+    await fotos(hp, '05b-portal-frage-gleicher-name-390');
+    await hp.getByTestId('praxis-merken-ersetzen').click();
+    pruef('Ersetzen: „Gemerkt“, Fokus auf der Meldung', (await hp.getByTestId('praxis-gemerkt').isVisible()) && (await hp.evaluate(() => document.activeElement && document.activeElement.dataset.testid)) === 'praxis-gemerkt');
+    const nachErsetzen = await hp.evaluate(() => JSON.parse(localStorage.getItem('sorrida:meine-praxen:v1')).praxen.map((e) => e.token));
+    pruef('Ersetzen: alter Link weg, neuer Link an seiner Stelle', JSON.stringify(nachErsetzen) === JSON.stringify([tA, tB]));
+
     // Anamnese-Link der Zahnarztpraxis zeigt die Kennung
     await hp.goto(`${L}/a/${tAnam}`);
     pruef('/a: Band der Zahnarztpraxis', (await hp.getByTestId('praxis-band').getAttribute('data-gruppe')) === 'zahn');
+    pruef('/a: Band ist ein <header>', (await hp.getByTestId('praxis-band').evaluate((e) => e.tagName)) === 'HEADER');
     await fotos(hp, '06-anamnese-link-390');
     await hp.goto(`${L}/t/${kBuch}`);
     pruef('/t: Streifen, Fach und Ort der Zahnarztpraxis', (await hp.getByTestId('praxis-streifen').getAttribute('data-gruppe')) === 'zahn' && (await hp.getByTestId('praxis-kennzeile').innerText()) === 'Zahnarztpraxis · Münster');
@@ -107,10 +139,22 @@ function aufraeumen() {
     await hp.waitForURL('**/meine-praxen');
     await hp.getByTestId('meine-praxen-liste').waitFor();
     await hp.waitForTimeout(800);
-    const beimOeffnen = anfragen.slice(ab).filter((u) => u.startsWith('/api/'));
-    pruef('Beim Öffnen der Liste kein Aufruf an /api', beimOeffnen.length === 0, beimOeffnen.join(', '));
+    const anServer = (von) => anfragen.slice(von).filter((u) => /^\/(api|portal)\//.test(u));
+    pruef('Beim Öffnen der Liste kein Aufruf an /api und kein Portal vorab geladen', anServer(ab).length === 0, anServer(ab).join(', '));
     const karten = hp.getByTestId('meine-praxis');
     pruef('Zwei getrennte Karten', (await karten.count()) === 2);
+    const ab2 = anfragen.length;
+    await hp.reload();
+    await hp.getByTestId('meine-praxen-liste').waitFor();
+    await karten.nth(1).scrollIntoViewIfNeeded();
+    await hp.waitForTimeout(1500);
+    pruef('Neu geladen, Karten sichtbar: weiterhin kein Portal vorab geladen', anServer(ab2).length === 0, anServer(ab2).join(', '));
+    pruef('Hinweis: Die Liste gilt nur in diesem Browser', (await hp.getByTestId('meine-praxen-nur-browser').innerText()).startsWith('Die Liste gilt nur in diesem Browser.'));
+    pruef('Karte: gültig, solange die Praxis keinen neuen Link schickt', (await karten.nth(0).innerText()).includes('solange die Praxis keinen neuen Link schickt'));
+    pruef('Keine eigenständige Web-App (eigener Speicher auf dem iPhone)', (await hp.locator('meta[name="apple-mobile-web-app-capable"], meta[name="mobile-web-app-capable"]').count()) === 0);
+    const mEn = await (await hc.request.get(`${L}/meine-praxen/manifest.webmanifest?lang=en`)).json();
+    const mDe = await (await hc.request.get(`${L}/meine-praxen/manifest.webmanifest`)).json();
+    pruef('Manifest: im Browser öffnen, Name in der Sprache der Seite', mDe.display === 'browser' && mDe.short_name === 'Meine Praxen' && mEn.display === 'browser' && mEn.lang === 'en' && mEn.short_name !== mDe.short_name && mEn.start_url === '/meine-praxen?lang=en', JSON.stringify(mEn).slice(0, 200));
     pruef('Karten in den Farben ihrer Gruppen', JSON.stringify(await karten.evaluateAll((k) => k.map((x) => x.dataset.gruppe))) === '["arzt","zahn"]');
     const text = await hp.getByTestId('meine-praxen-liste').innerText();
     pruef('Karten nennen Praxis, Fach, Ort, für wen und gültig bis', /Hausarztpraxis Dr\. Weber[\s\S]*Hausarztpraxis · Münster[\s\S]*Für Anna[\s\S]*Gültig bis/.test(text) && /Zahnarztpraxis Dr\. Sonnenberg[\s\S]*Zahnarztpraxis · Münster/.test(text), text.slice(0, 300));
@@ -119,7 +163,9 @@ function aufraeumen() {
     const gespeichert = JSON.parse(roh);
     const felder = [...new Set(gespeichert.praxen.flatMap((e) => Object.keys(e)))].sort().join(',');
     pruef('Gespeichert nur erlaubte Felder', felder === 'fachKurz,gemerktAm,gruppe,gueltigBis,ort,praxisName,token,vorname', felder);
-    pruef('Nichts Weiteres gespeichert (kein Nachname, kein Geburtsdatum, keine Kontaktdaten)', !/Zwilling|1980|example\.org|\+49/.test(roh));
+    // Ohne die Tokens geprüft: Ein zufälliges Token kann die Ziffern 1980 enthalten.
+    const ohneTokens = roh.replace(/"token":"[^"]*"/g, '');
+    pruef('Nichts Weiteres gespeichert (kein Nachname, kein Geburtsdatum, keine Kontaktdaten)', !/Zwilling|1980|example\.org|\+49/.test(ohneTokens), (ohneTokens.match(/Zwilling|1980|example\.org|\+49/) || [''])[0]);
     pruef('Nur dieser eine Schlüssel im Speicher', JSON.stringify(await hp.evaluate(() => Object.keys(localStorage))) === '["sorrida:meine-praxen:v1"]');
     const kopf = await hc.request.get(`${L}/meine-praxen`);
     pruef('Kopfzeilen: no-referrer und noindex', kopf.headers()['referrer-policy'] === 'no-referrer' && /noindex/.test(kopf.headers()['x-robots-tag'] || ''), JSON.stringify([kopf.headers()['referrer-policy'], kopf.headers()['x-robots-tag']]));
@@ -132,6 +178,7 @@ function aufraeumen() {
     await fotos(hp, '08-meine-praxen-umbenennen-390');
     await hp.getByTestId('meine-praxis-name-speichern').click();
     pruef('Umbenennen: eigener Name auf der Karte, Praxisname darunter', (await karten.nth(0).getByTestId('meine-praxis-titel').innerText()) === 'Hausärztin' && (await karten.nth(0).innerText()).includes('Praxis: Hausarztpraxis Dr. Weber (Demo)'));
+    pruef('Umbenennen: Fokus zurück auf „Umbenennen“ der Karte', (await hp.evaluate(() => document.activeElement && document.activeElement.dataset.testid)) === 'meine-praxis-umbenennen');
 
     // Öffnen: genau ein Portal
     await karten.nth(1).getByTestId('meine-praxis-oeffnen').click();
@@ -146,6 +193,7 @@ function aufraeumen() {
     await karten.nth(0).getByTestId('meine-praxis-entfernen-ja').click();
     pruef('Entfernen: eine Karte bleibt (Zahnarzt)', (await karten.count()) === 1 && (await karten.nth(0).getAttribute('data-gruppe')) === 'zahn');
     pruef('Entfernen: Meldung für Bildschirmleser', (await hp.getByTestId('meine-praxen-meldung').innerText()) === 'Entfernt.');
+    pruef('Entfernen: Fokus auf der nächsten Karte', (await hp.evaluate(() => document.activeElement && document.activeElement.dataset.testid + ':' + document.activeElement.textContent)).startsWith('meine-praxis-titel:Zahnarztpraxis'));
 
     // Abgelaufen (auf dem Gerät verglichen): Datum im Speicher zurücksetzen
     await hp.evaluate(() => {
@@ -157,6 +205,25 @@ function aufraeumen() {
     await hp.getByTestId('meine-praxen-liste').waitFor();
     pruef('Abgelaufener Link: Hinweis statt „Öffnen“', (await hp.getByTestId('meine-praxis-abgelaufen').innerText()).includes('Abgelaufen am 02.01.2026') && (await hp.getByTestId('meine-praxis-oeffnen').count()) === 0);
     await fotos(hp, '10-meine-praxen-abgelaufen-390');
+
+    // Von der Praxis ersetzter Link: Die Seite „nicht mehr gültig“ nimmt ihn auf Wunsch aus der Liste (nur auf dem Gerät).
+    const tErsetzt = token();
+    await hp.evaluate((alt) => {
+      const s = JSON.parse(localStorage.getItem('sorrida:meine-praxen:v1'));
+      s.praxen.push({ ...s.praxen[0], token: alt, gueltigBis: '2099-01-01T00:00:00.000Z' });
+      localStorage.setItem('sorrida:meine-praxen:v1', JSON.stringify(s));
+    }, tErsetzt);
+    await hp.goto(`${L}/portal/${tErsetzt}`);
+    pruef('Ersetzter Link: Seite „nicht mehr gültig“ mit Hinweis auf den neuen Link', (await hp.getByTestId('portal-ungueltig').isVisible()) && (await hp.getByTestId('portal-ungueltig-hinweis').innerText()).includes('neuen Link'));
+    await fotos(hp, '10b-link-nicht-mehr-gueltig-390');
+    const vorEntfernen = anfragen.length;
+    await hp.getByTestId('gemerkt-entfernen').click();
+    const restTokens = await hp.evaluate(() => JSON.parse(localStorage.getItem('sorrida:meine-praxen:v1')).praxen.map((e) => e.token));
+    pruef('Ersetzter Link: entfernt, Fokus auf der Meldung, die anderen bleiben', (await hp.getByTestId('gemerkt-entfernt').innerText()).startsWith('Entfernt.') && (await hp.evaluate(() => document.activeElement && document.activeElement.dataset.testid)) === 'gemerkt-entfernt' && JSON.stringify(restTokens) === JSON.stringify([tB]), restTokens.join(','));
+    pruef('Ersetzter Link: Entfernen fragt den Server nicht', anServer(vorEntfernen).length === 0, anServer(vorEntfernen).join(', '));
+    await fotos(hp, '10c-link-entfernt-390');
+    await hp.goto(`${L}/meine-praxen`);
+    await hp.getByTestId('meine-praxen-liste').waitFor();
 
     // Kaputter Speicher wird verworfen
     await hp.evaluate(() => localStorage.setItem('sorrida:meine-praxen:v1', '{kaputt'));
@@ -176,7 +243,7 @@ function aufraeumen() {
     await fotos(hp, '11-meine-praxen-leer-arabisch-390');
 
     // Jede Anfrage trägt höchstens ein Token
-    const zwei = anfragen.filter((u) => [tA, tB, tAnam].filter((t) => u.includes(t)).length > 1);
+    const zwei = anfragen.filter((u) => [tA, tB, tAnam, tErsetzt, ALT].filter((t) => u.includes(t)).length > 1);
     pruef('Keine Anfrage mit mehr als einem Token', zwei.length === 0, zwei.join(', '));
     await hc.close();
 

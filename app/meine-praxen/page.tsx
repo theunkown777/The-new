@@ -18,8 +18,11 @@ export async function generateMetadata(props: { searchParams: Promise<{ lang?: s
     title: t.liste,
     robots: { index: false, follow: false },
     referrer: "no-referrer",
-    manifest: "/meine-praxen/manifest.webmanifest",
-    appleWebApp: { capable: true, title: t.kurzTitel, statusBarStyle: "default" },
+    manifest: lang === "de" ? "/meine-praxen/manifest.webmanifest" : `/meine-praxen/manifest.webmanifest?lang=${lang}`,
+    // Bewusst keine eigenständige Web-App (capable: false, im Manifest display "browser"): Auf dem iPhone hat eine
+    // Web-App vom Home-Bildschirm einen eigenen Speicher, getrennt von Safari. Die Liste wäre dort leer. So öffnet
+    // das Symbol die Seite im Browser, mit derselben Liste wie beim Merken.
+    appleWebApp: { capable: false, title: t.kurzTitel },
     icons: { icon: [{ url: "/brand/meine-praxen.svg", type: "image/svg+xml" }], apple: [{ url: "/brand/meine-praxen-180.png", sizes: "180x180" }] },
   };
 }
@@ -46,6 +49,7 @@ export default async function MeinePraxenSeite(props: { searchParams: Promise<{ 
           <h1 className="font-display mt-4 text-3xl leading-tight sm:text-4xl">{t.liste}</h1>
           <p className="mt-3 text-base leading-relaxed text-slate-700 dark:text-[#D5CCC2]" data-testid="meine-praxen-einleitung">{t.einleitung}</p>
           <p className="mt-2 text-sm text-slate-600 dark:text-[#BDB3A8]">{t.geteilt}</p>
+          <p className="mt-2 text-sm text-slate-600 dark:text-[#BDB3A8]" data-testid="meine-praxen-nur-browser">{t.nurBrowser}</p>
         </header>
 
         <MeinePraxen t={t} locale={PORTAL_LOCALE[lang]} praxisGeraet={praxisGeraet} />

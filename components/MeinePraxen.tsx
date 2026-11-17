@@ -28,6 +28,12 @@ export function MeinePraxen({ t, locale, praxisGeraet }: { t: GeraetUi; locale: 
   const [stand, setStand] = useState<Stand>({ geladen: false });
   const [meldung, setMeldung] = useState("");
   const [allesFrage, setAllesFrage] = useState(false);
+  // Wohin der Tastaturfokus geht, wenn das fokussierte Element verschwindet: Token einer Karte oder die Meldung.
+  const [fokus, setFokus] = useState<string | null>(null);
+  const meldungRef = useRef<HTMLParagraphElement>(null);
+  const allesFrageRef = useRef<HTMLParagraphElement>(null);
+  const allesKnopfRef = useRef<HTMLButtonElement>(null);
+  const allesFrageVorher = useRef(false);
 
   // Gelesen wird erst im Browser, nach dem Öffnen der Seite. Auf einem Gerät der Praxis gar nicht.
   useEffect(() => {
@@ -35,12 +41,36 @@ export function MeinePraxen({ t, locale, praxisGeraet }: { t: GeraetUi; locale: 
     setStand({ geladen: true, ...gemerktePraxenLesen() });
   }, [praxisGeraet]);
 
+  useEffect(() => {
+    if (fokus !== "meldung") return;
+    meldungRef.current?.focus();
+    setFokus(null);
+  }, [fokus]);
+
+  // Frage „Alles löschen?“: Fokus auf die Frage; nach „Abbrechen“ zurück auf den Knopf.
+  useEffect(() => {
+    if (allesFrage) allesFrageRef.current?.focus();
+    else if (allesFrageVorher.current) allesKnopfRef.current?.focus();
+    allesFrageVorher.current = allesFrage;
+  }, [allesFrage]);
+
   const datum = (iso: string) => new Date(iso).toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Berlin" });
 
-  function speichern(praxen: GemerktePraxis[], text: string) {
-    if (!gemerktePraxenSchreiben(praxen)) return setMeldung(t.nichtMoeglich);
+  function speichern(praxen: GemerktePraxis[], text: string): boolean {
+    if (!gemerktePraxenSchreiben(praxen)) {
+      setMeldung(t.nichtMoeglich);
+      return false;
+    }
     setStand({ geladen: true, verfuegbar: true, praxen });
     setMeldung(text);
+    return true;
+  }
+
+  function entfernenUndWeiter(praxen: GemerktePraxis[], token: string) {
+    const i = praxen.findIndex((x) => x.token === token);
+    const rest = entfernen(praxen, token);
+    // Die Karte verschwindet: Fokus auf die nächste Karte, sonst die vorige, sonst die Meldung.
+    if (speichern(rest, t.entfernt)) setFokus(rest[i]?.token ?? rest[i - 1]?.token ?? "meldung");
   }
 
   function allesLoeschen() {
@@ -48,10 +78,11 @@ export function MeinePraxen({ t, locale, praxisGeraet }: { t: GeraetUi; locale: 
     setStand((s) => (s.geladen ? { ...s, praxen: [] } : s));
     setAllesFrage(false);
     setMeldung(t.geloescht);
+    setFokus("meldung");
   }
 
   const status = (
-    <p className="mt-4 min-h-[1.25rem] text-sm font-medium text-salbei-800 dark:text-[#C7D6C2]" role="status" aria-live="polite" data-testid="meine-praxen-meldung">
+    <p ref={meldungRef} tabIndex={-1} className="mt-4 min-h-[1.25rem] text-sm font-medium text-salbei-800 outline-none dark:text-[#C7D6C2]" role="status" aria-live="polite" data-testid="meine-praxen-meldung">
       {meldung}
     </p>
   );
@@ -86,8 +117,10 @@ export function MeinePraxen({ t, locale, praxisGeraet }: { t: GeraetUi; locale: 
               p={p}
               t={t}
               datum={datum}
+              fokusTitel={fokus === p.token}
+              onFokusErledigt={() => setFokus(null)}
               onUmbenennen={(name) => speichern(umbenennen(stand.praxen, p.token, name), "")}
-              onEntfernen={() => speichern(entfernen(stand.praxen, p.token), t.entfernt)}
+              onEntfernen={() => entfernenUndWeiter(stand.praxen, p.token)}
             />
           ))}
         </ul>
@@ -97,14 +130,14 @@ export function MeinePraxen({ t, locale, praxisGeraet }: { t: GeraetUi; locale: 
         <div className="mt-6 border-t border-slate-200 pt-5 dark:border-[#3D3733]">
           {allesFrage ? (
             <div className="space-y-3">
-              <p className="text-sm font-medium">{t.allesFrage}</p>
+              <p ref={allesFrageRef} tabIndex={-1} className="text-sm font-medium outline-none">{t.allesFrage}</p>
               <div className="flex flex-wrap gap-2">
                 <button type="button" className={KNOPF_ACHTUNG} onClick={allesLoeschen} data-testid="meine-praxen-alles-ja">{t.jaAlles}</button>
                 <button type="button" className={KNOPF_NEBEN} onClick={() => setAllesFrage(false)}>{t.abbrechen}</button>
               </div>
             </div>
           ) : (
-            <button type="button" className={KNOPF_NEBEN} onClick={() => { setAllesFrage(true); setMeldung(""); }} data-testid="meine-praxen-alles">
+            <button ref={allesKnopfRef} type="button" className={KNOPF_NEBEN} onClick={() => { setAllesFrage(true); setMeldung(""); }} data-testid="meine-praxen-alles">
               {t.allesLoeschen}
             </button>
           )}
@@ -114,13 +147,44 @@ export function MeinePraxen({ t, locale, praxisGeraet }: { t: GeraetUi; locale: 
   );
 }
 
-function Karte({ p, t, datum, onUmbenennen, onEntfernen }: { p: GemerktePraxis; t: GeraetUi; datum: (iso: string) => string; onUmbenennen: (name: string) => void; onEntfernen: () => void }) {
+type KarteProps = {
+  p: GemerktePraxis;
+  t: GeraetUi;
+  datum: (iso: string) => string;
+  /** Fokus auf den Titel dieser Karte (nachdem die Karte davor entfernt wurde). */
+  fokusTitel: boolean;
+  onFokusErledigt: () => void;
+  onUmbenennen: (name: string) => void;
+  onEntfernen: () => void;
+};
+
+function Karte({ p, t, datum, fokusTitel, onFokusErledigt, onUmbenennen, onEntfernen }: KarteProps) {
   const [art, setArt] = useState<"ansicht" | "umbenennen" | "entfernen">("ansicht");
   const [name, setName] = useState(p.eigenerName ?? "");
+  // Nach Speichern oder Abbrechen geht der Fokus auf den Knopf zurück, der die Bearbeitung geöffnet hat.
+  const [zurueck, setZurueck] = useState<"umbenennen" | "entfernen" | null>(null);
   const feld = useRef<HTMLInputElement>(null);
+  const frage = useRef<HTMLParagraphElement>(null);
+  const titel = useRef<HTMLHeadingElement>(null);
+  const knopfUmbenennen = useRef<HTMLButtonElement>(null);
+  const knopfEntfernen = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (art === "umbenennen") feld.current?.focus();
-  }, [art]);
+    else if (art === "entfernen") frage.current?.focus();
+    else if (zurueck) {
+      (zurueck === "umbenennen" ? knopfUmbenennen : knopfEntfernen).current?.focus();
+      setZurueck(null);
+    }
+  }, [art, zurueck]);
+  useEffect(() => {
+    if (!fokusTitel) return;
+    titel.current?.focus();
+    onFokusErledigt();
+  }, [fokusTitel, onFokusErledigt]);
+  const schliessen = (von: "umbenennen" | "entfernen") => {
+    setArt("ansicht");
+    setZurueck(von);
+  };
 
   const farbe = GRUPPEN_FARBE[p.gruppe];
   const pfad = portalPfad(p.token);
@@ -142,7 +206,7 @@ function Karte({ p, t, datum, onUmbenennen, onEntfernen }: { p: GemerktePraxis; 
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={GRUPPEN_SYMBOL[p.gruppe].svg} alt="" className="h-11 w-11 shrink-0 rounded-xl" />
           <div className="min-w-0 [overflow-wrap:anywhere]">
-            <h2 id={titelId} className="text-base font-semibold text-slate-900 dark:text-[#F1ECE6]" data-testid="meine-praxis-titel">
+            <h2 id={titelId} ref={titel} tabIndex={-1} className="text-base font-semibold text-slate-900 outline-none dark:text-[#F1ECE6]" data-testid="meine-praxis-titel">
               {kartenTitel(p)}
             </h2>
             {p.eigenerName && <p className={`text-sm ${TEXT_2}`}>{fuellen(t.praxis, { name: p.praxisName })}</p>}
@@ -166,7 +230,7 @@ function Karte({ p, t, datum, onUmbenennen, onEntfernen }: { p: GemerktePraxis; 
             onSubmit={(e) => {
               e.preventDefault();
               onUmbenennen(name);
-              setArt("ansicht");
+              schliessen("umbenennen");
             }}
           >
             <label htmlFor={`${titelId}-name`} className="block text-sm font-medium">{t.eigenerName}</label>
@@ -183,17 +247,17 @@ function Karte({ p, t, datum, onUmbenennen, onEntfernen }: { p: GemerktePraxis; 
             <p id={`${titelId}-hinweis`} className={`text-xs ${TEXT_2}`}>{t.eigenerNameHinweis}</p>
             <div className="flex flex-wrap gap-2">
               <button type="submit" className={KNOPF_HAUPT} data-testid="meine-praxis-name-speichern">{t.speichern}</button>
-              <button type="button" className={KNOPF_NEBEN} onClick={() => { setName(p.eigenerName ?? ""); setArt("ansicht"); }}>{t.abbrechen}</button>
+              <button type="button" className={KNOPF_NEBEN} onClick={() => { setName(p.eigenerName ?? ""); schliessen("umbenennen"); }}>{t.abbrechen}</button>
             </div>
           </form>
         )}
 
         {art === "entfernen" && (
           <div className="mt-4 space-y-2" role="group" aria-label={t.entfernenFrage}>
-            <p className="text-sm font-medium">{t.entfernenFrage}</p>
+            <p ref={frage} tabIndex={-1} className="text-sm font-medium outline-none">{t.entfernenFrage}</p>
             <div className="flex flex-wrap gap-2">
               <button type="button" className={KNOPF_ACHTUNG} onClick={onEntfernen} data-testid="meine-praxis-entfernen-ja">{t.jaEntfernen}</button>
-              <button type="button" className={KNOPF_NEBEN} onClick={() => setArt("ansicht")}>{t.abbrechen}</button>
+              <button type="button" className={KNOPF_NEBEN} onClick={() => schliessen("entfernen")}>{t.abbrechen}</button>
             </div>
           </div>
         )}
@@ -205,10 +269,10 @@ function Karte({ p, t, datum, onUmbenennen, onEntfernen }: { p: GemerktePraxis; 
                 {t.oeffnen}
               </a>
             )}
-            <button type="button" className={KNOPF_NEBEN} onClick={() => setArt("umbenennen")} aria-describedby={titelId} data-testid="meine-praxis-umbenennen">
+            <button ref={knopfUmbenennen} type="button" className={KNOPF_NEBEN} onClick={() => setArt("umbenennen")} aria-describedby={titelId} data-testid="meine-praxis-umbenennen">
               {t.umbenennen}
             </button>
-            <button type="button" className={KNOPF_NEBEN} onClick={() => setArt("entfernen")} aria-describedby={titelId} data-testid="meine-praxis-entfernen">
+            <button ref={knopfEntfernen} type="button" className={KNOPF_NEBEN} onClick={() => setArt("entfernen")} aria-describedby={titelId} data-testid="meine-praxis-entfernen">
               {t.entfernen}
             </button>
           </div>

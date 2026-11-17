@@ -69,26 +69,59 @@ export function listeSchreiben(praxen: GemerktePraxis[]): string {
   return JSON.stringify({ v: 1, praxen: praxen.slice(0, MAX_PRAXEN).map(sauber) });
 }
 
-export type MerkErgebnis = { art: "neu" | "erneuert"; praxen: GemerktePraxis[] } | { art: "voll" | "ungueltig"; praxen: GemerktePraxis[] };
+export type MerkErgebnis =
+  | { art: "neu" | "erneuert"; praxen: GemerktePraxis[] }
+  /** Ein Eintrag mit gleichem Praxisnamen, Fach, Ort und Vornamen, aber anderem Link: Der Patient entscheidet. */
+  | { art: "aehnlich"; praxen: GemerktePraxis[]; vorhanden: GemerktePraxis }
+  | { art: "voll" | "ungueltig"; praxen: GemerktePraxis[] };
 
-const gleichePraxis = (a: Pick<GemerktePraxis, "praxisName" | "fachKurz" | "ort" | "vorname">, b: typeof a) =>
+/** Antwort des Patienten auf die Frage nach einem gleich benannten Eintrag. */
+export type MerkWahl = "ersetzen" | "beide";
+
+/** Höchstlängen der Texte eines Eintrags (wie eintragSchema). */
+const LAENGE = { vorname: 60, praxisName: 160, fachKurz: 60, ort: 60 } as const;
+
+/** Text auf die erlaubte Länge kürzen, ohne ein Schriftzeichen zu teilen. Andere Werte bleiben, wie sie sind. */
+function kuerzen(wert: unknown, max: number): unknown {
+  if (typeof wert !== "string") return wert;
+  let t = wert.replace(/\s+/g, " ").trim().slice(0, max);
+  if (/[\uD800-\uDBFF]$/.test(t)) t = t.slice(0, -1);
+  return t.trim();
+}
+
+/** Lange Namen (Vorname, Praxis, Fach, Ort) werden gekürzt statt abgelehnt: Merken soll nicht an der Länge scheitern. */
+const gekuerzt = (neu: NeuePraxis): NeuePraxis => ({
+  ...neu,
+  vorname: kuerzen(neu.vorname, LAENGE.vorname) as string,
+  praxisName: kuerzen(neu.praxisName, LAENGE.praxisName) as string,
+  fachKurz: kuerzen(neu.fachKurz, LAENGE.fachKurz) as string,
+  ort: kuerzen(neu.ort, LAENGE.ort) as string,
+});
+
+const gleichBenannt = (a: Pick<GemerktePraxis, "praxisName" | "fachKurz" | "ort" | "vorname">, b: typeof a) =>
   [a.praxisName, a.fachKurz, a.ort, a.vorname].join("\n").toLocaleLowerCase("de-DE") === [b.praxisName, b.fachKurz, b.ort, b.vorname].join("\n").toLocaleLowerCase("de-DE");
 
 /**
- * Eine Praxis merken. Derselbe Link ersetzt seinen Eintrag. Ein neuer Link derselben Praxis für dieselbe Person
- * (die Praxis hat den Link erneuert) ersetzt den alten Eintrag; der eigene Name der Karte bleibt.
- * Verglichen wird dabei nur innerhalb dieser einen Praxis, nie zwischen Praxen.
+ * Eine Praxis merken. Derselbe Link ersetzt seinen Eintrag (der eigene Name der Karte bleibt).
+ * Ein anderer Link mit gleichem Praxisnamen, Fach, Ort und Vornamen ersetzt nichts von selbst: Es kann ein neuer
+ * Link derselben Praxis sein, aber auch eine andere Praxis mit gleichem Namen (etwa ein zweiter Standort, der ein
+ * eigener Mandant ist). Dann kommt `aehnlich` zurück, und der Patient wählt: alten Link ersetzen oder beide behalten.
+ * Dieser Vergleich geschieht nur auf dem Gerät, mit den Angaben, die der Patient selbst gemerkt hat. Der Server
+ * vergleicht nie Praxen oder Patienten.
  */
-export function merken(liste: GemerktePraxis[], neu: NeuePraxis, jetzt = new Date()): MerkErgebnis {
-  const p = eintragSchema.safeParse({ ...neu, gemerktAm: jetzt.toISOString() });
+export function merken(liste: GemerktePraxis[], neu: NeuePraxis, jetzt = new Date(), wahl?: MerkWahl): MerkErgebnis {
+  const p = eintragSchema.safeParse({ ...gekuerzt(neu), gemerktAm: jetzt.toISOString() });
   if (!p.success) return { art: "ungueltig", praxen: liste };
   const eintrag = sauber({ ...p.data, eigenerName: undefined });
-  const i = liste.findIndex((x) => x.token === eintrag.token || gleichePraxis(x, eintrag));
-  if (i >= 0) {
+  const ersetzen = (i: number): MerkErgebnis => {
     const praxen = [...liste];
     praxen[i] = sauber({ ...eintrag, eigenerName: liste[i].eigenerName });
     return { art: "erneuert", praxen };
-  }
+  };
+  const gleich = liste.findIndex((x) => x.token === eintrag.token);
+  if (gleich >= 0) return ersetzen(gleich);
+  const aehnlich = wahl === "beide" ? -1 : liste.findIndex((x) => gleichBenannt(x, eintrag));
+  if (aehnlich >= 0) return wahl === "ersetzen" ? ersetzen(aehnlich) : { art: "aehnlich", praxen: liste, vorhanden: liste[aehnlich] };
   if (liste.length >= MAX_PRAXEN) return { art: "voll", praxen: liste };
   return { art: "neu", praxen: [...liste, eintrag] };
 }

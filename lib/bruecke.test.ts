@@ -8,11 +8,14 @@
 //   3. Keine Abfrage sucht Patienten über Name, Geburtsdatum, E-Mail, Telefon oder Versichertennummer ohne Praxis.
 //   4. Seiten unter app/portal laden Patienten nur über den Link (die Matrix in lib/mandantentrennung.matrix.ts sieht nur route.ts).
 //   5. Der Speicher auf dem Gerät wird nur an den vorgesehenen Stellen angefasst, nie in der Praxis-App.
+//   6. Cookies eines Patienten-Links gehen nur an die Seiten dieses Links, nie an "/" (sonst an jede Praxis).
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { GERAET_UI, PORTAL_LANGS } from "@/lib/portalI18n";
+import { pruefCookieName, pruefCookiePfade, pruefCookieZeilen, pruefToken } from "@/lib/portalPruefungCookie";
+import { hashToken } from "@/lib/tokens";
 import { freiOhneZugang } from "@/lib/vorschau";
 
 const WURZEL = process.cwd();
@@ -46,81 +49,212 @@ function bisZu(text: string, start: number): number {
   return text.length;
 }
 
-/** Wert hinter `name:` bzw. `name =` (Objekt, Aufruf oder Name) im Text ab Stelle `ab`. */
+/** Wert hinter `name:` bzw. `name =` (Objekt, Aufruf oder Name) ab Stelle `ab`. `await` und der Kopf einer Pfeilfunktion zählen nicht. */
 function wertAb(text: string, ab: number): string {
   let i = ab;
   while (/\s/.test(text[i] ?? "")) i++;
-  if ("{[(".includes(text[i])) return text.slice(i, bisZu(text, i));
+  if (/^await\s/.test(text.slice(i, i + 6))) return wertAb(text, i + 5);
+  if ("{[(".includes(text[i])) {
+    const ende = bisZu(text, i);
+    const pfeil = /^\s*(:\s*[\w<>[\]., ]+)?\s*=>\s*/.exec(text.slice(ende));
+    if (text[i] === "(" && pfeil) return wertAb(text, ende + pfeil[0].length);
+    const wert = text.slice(i, ende);
+    return /^\(\s*\{/.test(wert) ? wert.slice(1, -1).trim() : wert;
+  }
   const name = /^[\w$.!]+/.exec(text.slice(i))?.[0] ?? "";
   const nach = i + name.length;
   return text[nach] === "(" ? text.slice(i, bisZu(text, nach)) : name;
 }
 
-/** Bedingung (where) eines Prisma-Aufrufs, samt der Konstanten aus derselben Datei, die darin vorkommen. */
-function bedingung(datei: string, argument: string): string {
-  const m = /\bwhere\b\s*(:|,|\})/.exec(argument);
-  if (!m) return "";
-  let text = m[1] === ":" ? wertAb(argument, m.index + m[0].length) : "where";
+/** Schlüssel `name` auf oberster Ebene eines Objekts „{…}“: Stelle nach dem Doppelpunkt, "kurz" bei `{ name }`, sonst -1. */
+function obersterSchluessel(obj: string, name: string): number | "kurz" {
+  let tiefe = 0;
+  for (let i = 0; i < obj.length; i++) {
+    const c = obj[i];
+    if (c === '"' || c === "'" || c === "`") {
+      const q = c;
+      for (i++; i < obj.length && obj[i] !== q; i++) if (obj[i] === "\\") i++;
+      continue;
+    }
+    if (c === "(" || c === "{" || c === "[") tiefe++;
+    else if (c === ")" || c === "}" || c === "]") tiefe--;
+    else if (tiefe === 1 && obj.startsWith(name, i) && !/[\w$]/.test(obj[i - 1] ?? "") && !/[\w$]/.test(obj[i + name.length] ?? "")) {
+      const m = /^\s*(:|,|\})/.exec(obj.slice(i + name.length));
+      if (m) return m[1] === ":" ? i + name.length + m[0].length : "kurz";
+    }
+  }
+  return -1;
+}
+
+const ALS_MUSTER = (name: string) => name.replace(/\$/g, "\\$");
+/** Wert einer Konstanten: in derselben Datei oder, bei `import { name } from "@/…"`, in der eingebundenen Datei. */
+function aufloesen(datei: string, name: string, tiefe = 0): string | null {
+  const d = new RegExp(`\\b(?:const|let)\\s+${ALS_MUSTER(name)}\\b[^=;]*=`).exec(datei);
+  if (d) return wertAb(datei, d.index + d[0].length);
+  if (tiefe > 0) return null;
+  const imp = new RegExp(`import\\s*\\{[^}]*\\b${ALS_MUSTER(name)}\\b[^}]*\\}\\s*from\\s*["']@/([^"']+)["']`).exec(datei);
+  const ziel = imp && [`${imp[1]}.ts`, `${imp[1]}.tsx`].find((p) => existsSync(join(WURZEL, p)));
+  return ziel ? aufloesen(ohneKommentare(lies(ziel)), name, 1) : null;
+}
+
+/** Ein Objekt „{…}“, direkt oder über eine Konstante bzw. eine Hilfsfunktion `name(…)`; sonst null (nicht sichtbar). */
+function sichtbaresObjekt(datei: string, wert: string): string | null {
+  if (wert.startsWith("{")) return wert;
+  const m = /^([\w$]+)(\(|$)/.exec(wert);
+  const r = m ? aufloesen(datei, m[1]) : null;
+  return r && r.startsWith("{") ? r : null;
+}
+
+/**
+ * Bedingung (where) eines Prisma-Aufrufs samt der Konstanten und Hilfsfunktionen, die darin vorkommen.
+ * `sichtbar` ist falsch, wenn der Prüfer sie nicht ganz lesen kann: `findMany(args)` mit unbekanntem `args`,
+ * `where: filter` mit einem Parameter, `{ ...extra }` mit unbekanntem `extra`.
+ */
+function bedingung(datei: string, argument: string): { text: string; sichtbar: boolean } {
+  const obj = sichtbaresObjekt(datei, argument.slice(1, -1).trim());
+  if (!obj) return { text: argument, sichtbar: false };
+  const stelle = obersterSchluessel(obj, "where");
+  if (stelle === -1) return { text: "", sichtbar: true };
+  const roh = stelle === "kurz" ? "where" : wertAb(obj, stelle);
+  const kern = sichtbaresObjekt(datei, roh);
+  let text = kern ?? roh;
   for (let runde = 0; runde < 2; runde++) {
     for (const name of new Set(text.match(/\b[A-Za-z_$][\w$]*\b/g) ?? [])) {
-      const d = new RegExp(`\\b(?:const|let)\\s+${name.replace(/\$/g, "\\$")}\\b[^=;]*=`).exec(datei);
-      if (d) text += " " + wertAb(datei, d.index + d[0].length);
+      const r = aufloesen(datei, name);
+      if (r) text += " " + r;
     }
   }
-  return text;
+  const sichtbar = !!kern && [...kern.matchAll(/\.\.\.\s*([\w$]+)/g)].every((m) => sichtbaresObjekt(datei, m[1]) !== null);
+  return { text, sichtbar };
 }
 
-const PATIENT_AUFRUF = /\.patient\.(findMany|findFirst|findUnique|findFirstOrThrow|findUniqueOrThrow|count|groupBy|aggregate|updateMany|deleteMany)\s*\(/g;
+// Personen im Schema: Patient und Terminanfrage (Name, Geburtsdatum, Kontakt). Dazu Felder mit dem Namen des Patienten
+// in anderen Modellen (Lastschrift, Einverständnis). User, StaffInvite und Lead tragen Daten von Praxisteams und
+// Interessenten, keine Patientendaten.
 const KENNZEICHEN = /\b(firstName|lastName|birthDate|email|phone|insuranceNumber|patientNummer)\b/;
 const MANDANT = /\b(practiceId|portalTokenHash)\b/;
-
-function patientenAbfragen(quelle: string) {
-  const text = ohneKommentare(quelle);
-  const aus: { zeile: number; where: string; argument: string }[] = [];
-  for (const m of text.matchAll(PATIENT_AUFRUF)) {
-    const auf = m.index! + m[0].length - 1;
-    const argument = text.slice(auf, bisZu(text, auf));
-    aus.push({ zeile: text.slice(0, m.index).split("\n").length, where: bedingung(text, argument), argument });
+const NAMENSFELDER: Record<string, RegExp> = { patient: KENNZEICHEN, terminanfrage: KENNZEICHEN, invoice: /\bsepaName\b/, treatmentProposal: /\bagreedName\b/ };
+const PERSONEN = new Set(["Patient", "Terminanfrage"]);
+const MODELLE = new Map<string, { name: string; typ: string }[]>(
+  [...lies("prisma/schema.prisma").matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)].map((m) => [m[1], [...m[2].matchAll(/^\s+(\w+)\s+(\w+)/gm)].map((f) => ({ name: f[1], typ: f[2] }))]),
+);
+/** Beziehungsfelder, über die eine Bedingung Personen filtern kann (patient, patients, terminanfragen, …). */
+const BEZIEHUNGEN = [...new Set([...MODELLE.values()].flat().filter((f) => PERSONEN.has(f.typ)).map((f) => f.name))];
+/** Modelle, deren Bedingung (auch über Beziehungen, beliebig tief) Personen erreicht. Nur dort muss jede Bedingung lesbar sein. */
+const ERREICHT_PERSONEN = (() => {
+  const erreicht = new Set(PERSONEN);
+  for (let neu = true; neu; ) {
+    neu = false;
+    for (const [m, felder] of MODELLE) if (!erreicht.has(m) && felder.some((f) => erreicht.has(f.typ))) neu = !!erreicht.add(m);
   }
-  return aus;
-}
-/** Sucht die Abfrage Patienten über persönliche Kennzeichen, ohne auf eine Praxis oder einen Link begrenzt zu sein? */
-const sucheOhnePraxis = (where: string) => KENNZEICHEN.test(where) && !MANDANT.test(where);
+  return new Set([...[...erreicht].map((m) => m[0].toLowerCase() + m.slice(1)), ...Object.keys(NAMENSFELDER)]);
+})();
 
-// Begründete Ausnahmen (Datei:Zeile → Grund). Derzeit keine.
-const AUSNAHMEN: Record<string, string> = {};
+const ABFRAGE = /\.(\w+)\.(findMany|findFirst|findUnique|findFirstOrThrow|findUniqueOrThrow|count|groupBy|aggregate|updateMany|deleteMany)\s*\(/g;
+type Abfrage = { modell: string; zeile: number; where: string; sichtbar: boolean };
+function abfragen(quelle: string): Abfrage[] {
+  const text = ohneKommentare(quelle);
+  return [...text.matchAll(ABFRAGE)].map((m) => {
+    const auf = m.index! + m[0].length - 1;
+    const b = bedingung(text, text.slice(auf, bisZu(text, auf)));
+    return { modell: m[1], zeile: text.slice(0, m.index).split("\n").length, where: b.text, sichtbar: b.sichtbar };
+  });
+}
+/** Teile der Bedingung, die über eine Beziehung Personen filtern (`patient: { … }`), ohne select/include. */
+function ueberBeziehung(where: string): string {
+  let t = where;
+  for (let m; (m = /\b(select|include)\s*:\s*\{/.exec(t)); ) t = t.slice(0, m.index) + t.slice(bisZu(t, m.index + m[0].length - 1));
+  return [...t.matchAll(new RegExp(`\\b(${BEZIEHUNGEN.join("|")})\\s*:\\s*\\{`, "g"))].map((m) => t.slice(m.index! + m[0].length - 1, bisZu(t, m.index! + m[0].length - 1))).join(" ");
+}
+/**
+ * "fund": sucht Personen über Name, Geburtsdatum, Kontakt oder Versichertennummer, ohne auf eine Praxis oder einen Link
+ * begrenzt zu sein (im eigenen Modell oder über eine Beziehung). "unklar": Die Bedingung ist nicht ganz lesbar, nicht
+ * begrenzt und das Modell erreicht Personen. Beides muss behoben oder unten als Ausnahme begründet werden.
+ */
+function beurteilen(a: Abfrage): "fund" | "unklar" | "ok" {
+  if (MANDANT.test(a.where)) return "ok";
+  if (NAMENSFELDER[a.modell]?.test(a.where) || KENNZEICHEN.test(ueberBeziehung(a.where))) return "fund";
+  return !a.sichtbar && ERREICHT_PERSONEN.has(a.modell) ? "unklar" : "ok";
+}
+
+// Begründete Ausnahmen: Datei und ein Stück der Bedingung (keine Zeilennummer), mit Grund. Derzeit keine: Die früher
+// unklaren Bedingungen sind jetzt lesbar (portalProposalWhere aus lib/portalAuth.ts begrenzt auf den Patienten des Links,
+// offen() in lib/portalPruefungServer.ts auf den Hash des Links).
+const AUSNAHMEN: { datei: string; enthaelt: string; grund: string }[] = [];
 
 describe("Patienten werden nie über Praxen hinweg gesucht", () => {
-  it("der Prüfer erkennt eine Suche ohne Praxis und lässt eine begrenzte durch", () => {
-    const schlecht = patientenAbfragen(`const a = await prisma.patient.findMany({ where: { email: e } });
+  const urteile = (code: string) => abfragen(code).map(beurteilen);
+
+  it("der Prüfer erkennt eine Suche ohne Praxis, auch über eine Beziehung, und lässt eine begrenzte durch", () => {
+    expect(
+      urteile(`const a = await prisma.patient.findMany({ where: { email: e } });
       const b = await tx.patient.findFirst({ where: { firstName: v, lastName: n, birthDate: g }, select: { id: true } });
-      const w = { OR: [{ phone: t }] }; const c = await prisma.patient.count({ where: w });`);
-    expect(schlecht.map((a) => sucheOhnePraxis(a.where))).toEqual([true, true, true]);
-    const gut = patientenAbfragen(`const a = await prisma.patient.findMany({ where: { practiceId, email: e } });
+      const w = { OR: [{ phone: t }] }; const c = await prisma.patient.count({ where: w });
+      const d = await prisma.invoice.findMany({ where: { patient: { lastName: n } } });
+      const e2 = await prisma.practice.findMany({ where: { patients: { some: { email: m } } } });
+      const f = await prisma.terminanfrage.findFirst({ where: { phone: t } });
+      const g2 = await prisma.invoice.findFirst({ where: { sepaName: n } });
+      const h = await prisma.treatmentProposal.findMany({ where: { agreedName: { contains: n } } });`),
+    ).toEqual(["fund", "fund", "fund", "fund", "fund", "fund", "fund", "fund"]);
+    expect(
+      urteile(`const a = await prisma.patient.findMany({ where: { practiceId, email: e } });
       const where = { practiceId: s.user.practiceId, AND: [{ lastName: q }] }; const b = await prisma.patient.findMany({ where, orderBy: { lastName: "asc" } });
       const c = await prisma.patient.findUnique({ where: { portalTokenHash: h }, select: { firstName: true, birthDate: true } });
-      const meine = meinePatientenWhere(practiceId, u); const d = await prisma.patient.findMany({ where: { AND: [meine, { firstName: q }] } });`);
-    expect(gut.map((a) => sucheOhnePraxis(a.where))).toEqual([false, false, false, false]);
+      const meine = meinePatientenWhere(practiceId, u); const d = await prisma.patient.findMany({ where: { AND: [meine, { firstName: q }] } });
+      const e2 = await prisma.invoice.findMany({ where: { practiceId, patient: { lastName: n } } });
+      const vorschlag = await prisma.treatmentProposal.findUnique({ where: { shareTokenHash: h }, include: { patient: { select: { firstName: true } } } });
+      const f = await prisma.zweitmeinung.findFirst({ where: { proposalId: vorschlag.id } });
+      const g2 = await prisma.lead.findMany({ where: filter });`),
+    ).toEqual(["ok", "ok", "ok", "ok", "ok", "ok", "ok", "ok"]);
   });
 
-  it("keine Abfrage in app, lib und components sucht Patienten über Name, Geburtsdatum, E-Mail, Telefon oder Versichertennummer ohne practiceId", () => {
+  it("der Prüfer meldet Bedingungen, die er nicht lesen kann, statt sie durchzulassen", () => {
+    expect(
+      urteile(`export async function suche(args, filter, extra) {
+        const a = await prisma.patient.findMany(args);
+        const b = await prisma.patient.findFirst({ where: filter });
+        const c = await prisma.terminanfrage.count({ where: { ...extra } });
+        const d = await prisma.appointment.findMany({ where: filter });
+      }`),
+    ).toEqual(["unklar", "unklar", "unklar", "unklar"]);
+    // Lesbar über eine Hilfsfunktion in derselben Datei oder aus lib/ (hier lib/portalAuth.ts):
+    expect(
+      urteile(`import { portalProposalWhere } from "@/lib/portalAuth";
+      const offen = (h: string) => ({ linkHash: h, gesperrtBis: null });
+      const a = await prisma.portalPruefung.findFirst({ where: offen(x) });
+      const b = await prisma.treatmentProposal.findFirst({ where: { id, ...portalProposalWhere(patient.id) } });`),
+    ).toEqual(["ok", "ok"]);
+  });
+
+  it("kennt die Personen im Schema und die Wege dorthin", () => {
+    expect(BEZIEHUNGEN).toEqual(expect.arrayContaining(["patient", "patients", "terminanfragen"]));
+    for (const m of ["patient", "terminanfrage", "invoice", "treatmentProposal", "practice", "appointment", "portalPruefung"]) expect(ERREICHT_PERSONEN.has(m), m).toBe(true);
+  });
+
+  it("keine Abfrage in app, lib und components sucht Personen ohne Praxis, und jede Bedingung, die Personen erreicht, ist lesbar", () => {
     let gezaehlt = 0;
     const funde: string[] = [];
+    const genutzt = new Set<number>();
     for (const datei of QUELLEN) {
-      for (const a of patientenAbfragen(lies(datei))) {
+      for (const a of abfragen(lies(datei))) {
         gezaehlt++;
-        if (sucheOhnePraxis(a.where) && !AUSNAHMEN[`${datei}:${a.zeile}`]) funde.push(`${datei}:${a.zeile} ${a.where.replace(/\s+/g, " ").slice(0, 140)}`);
+        const urteil = beurteilen(a);
+        if (urteil === "ok") continue;
+        const ausnahme = AUSNAHMEN.findIndex((x) => x.datei === datei && a.where.includes(x.enthaelt));
+        if (ausnahme >= 0) genutzt.add(ausnahme);
+        else funde.push(`${urteil} ${datei}:${a.zeile} ${a.modell} ${a.where.replace(/\s+/g, " ").slice(0, 140)}`);
       }
     }
-    expect(gezaehlt, "der Prüfer findet die Abfragen").toBeGreaterThan(40);
+    expect(gezaehlt, "der Prüfer findet die Abfragen").toBeGreaterThan(400);
     expect(funde).toEqual([]);
+    expect(AUSNAHMEN.filter((_, i) => !genutzt.has(i)), "jede Ausnahme wird noch gebraucht").toEqual([]);
   });
 
   it("Seiten und Routen unter app/portal laden Patienten nur über den Link", () => {
     const funde: string[] = [];
     for (const datei of lauf("app/portal")) {
       const quelle = lies(datei);
-      for (const a of patientenAbfragen(quelle)) {
+      for (const a of abfragen(quelle).filter((x) => x.modell === "patient")) {
         const ueberLink = /\bportalTokenHash\b/.test(a.where) || (/portalPatient\(/.test(quelle) && /\bid\s*:\s*patient\.id\b/.test(a.where));
         if (!ueberLink) funde.push(`${datei}:${a.zeile}`);
       }
@@ -149,6 +283,46 @@ describe("Kein Aufruf nimmt mehrere Patienten-Tokens an", () => {
   it("keine Abfrage sucht mehrere Link-Hashes auf einmal", () => {
     const funde = QUELLEN.filter((d) => /[Tt]okenHash\s*:\s*\{\s*in\s*:|\.map\(\s*(\(?\w+\)?\s*=>\s*)?hashToken\b/.test(ohneKommentare(lies(d))));
     expect(funde).toEqual([]);
+  });
+});
+
+describe("Cookies eines Patienten-Links gehen nur an diesen Link", () => {
+  const token = "a".repeat(20) + "0123456789abcdef0123456789abcdef0123456789ab";
+  const cookie = { name: "sorrida_pp_0123456789abcdef", wert: "1700000000.sig_-1", maxAge: 1800 };
+
+  it("die Bestätigung des Geburtsdatums gilt nur unter /portal/<token> und /api/portal/<token>", () => {
+    expect(pruefCookiePfade(token)).toEqual([`/portal/${token}`, `/api/portal/${token}`]);
+    const zeilen = pruefCookieZeilen(token, cookie, true);
+    expect(zeilen).toEqual([
+      `sorrida_pp_0123456789abcdef=1700000000.sig_-1; Path=/portal/${token}; Max-Age=1800; HttpOnly; SameSite=Lax; Secure`,
+      `sorrida_pp_0123456789abcdef=1700000000.sig_-1; Path=/api/portal/${token}; Max-Age=1800; HttpOnly; SameSite=Lax; Secure`,
+      // räumt ein früher unter "/" gesetztes Cookie desselben Links ab
+      "sorrida_pp_0123456789abcdef=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax; Secure",
+    ]);
+    for (const z of zeilen.filter((x) => /Path=\/;/.test(x))) expect(z).toMatch(/^sorrida_pp_[0-9a-f]{16}=; Path=\/; Max-Age=0;/);
+    expect(pruefCookieZeilen(token, cookie, false)[0]).not.toMatch(/Secure/);
+    // echter Name und Wert, wie lib/portalPruefungServer.ts sie bildet
+    const linkHash = hashToken(token);
+    const echt = { name: pruefCookieName(linkHash), wert: pruefToken({ linkHash, patientId: "p1", geburtstag: "1990-01-01" }, 1_700_000_000_000, "geheim"), maxAge: 1800 };
+    expect(pruefCookieZeilen(token, echt, true)).toHaveLength(3);
+  });
+  it("lehnt einen fremden Link oder Wert ab, statt eine Zeile zu bauen", () => {
+    for (const falsch of ["kurz", "../../api", `${token}/x`, `${token}; Path=/`, ""]) expect(() => pruefCookiePfade(falsch), falsch).toThrow();
+    expect(() => pruefCookieZeilen(token, { ...cookie, wert: "x; Path=/" }, true)).toThrow();
+    expect(() => pruefCookieZeilen(token, { ...cookie, name: "sitzung" }, true)).toThrow();
+  });
+  it("Seiten und Schnittstellen für Patienten setzen kein Cookie unter \"/\"", () => {
+    // Cookies mit Pfad "/" setzen nur Praxis-Gerät (Empfangsmodus, Übergabe), Praxis-Sitzung, Bereich und Vorschau-Zugang.
+    const ordner = ["app/portal", "app/api/portal", "app/a", "app/api/a", "app/t", "app/api/t", "app/p", "app/meine-praxen"];
+    const dateien = ordner.flatMap((o) => (existsSync(join(WURZEL, o)) ? lauf(o) : []));
+    expect(dateien.length).toBeGreaterThan(20);
+    for (const d of dateien) {
+      const q = ohneKommentare(lies(d));
+      expect(q, d).not.toMatch(/path:\s*["'`]\/["'`]|Path=\/[;"'`]/);
+      expect(q, d).not.toMatch(/cookies(\(\))?\.set\(/);
+    }
+    const route = ohneKommentare(lies("app/api/portal/[token]/pruefung/route.ts"));
+    expect(route).toMatch(/for \(const zeile of pruefCookieZeilen\(params\.token, erg\.cookie, sicher\)\) res\.headers\.append\("Set-Cookie", zeile\)/);
   });
 });
 
@@ -189,6 +363,14 @@ describe("/meine-praxen: nur auf dem Gerät", () => {
     expect(liste).toMatch(/href=\{pfad\}/);
     expect(liste).toMatch(/const pfad = portalPfad\(p\.token\)/);
   });
+  it("lädt kein Portal vorab: gewöhnliche Links statt next/link, kein prefetch, kein Router", () => {
+    // next/link lädt sichtbare Ziele im Hintergrund vor. Auf /meine-praxen ginge damit beim Öffnen der Liste jedes
+    // gemerkte Portal an den Server, alle in einem Moment. Das prüft auch e2e/meine-praxen.js im Browser.
+    for (const d of ["app/meine-praxen/page.tsx", "components/MeinePraxen.tsx", "components/PraxisMerken.tsx"]) {
+      const q = ohneKommentare(lies(d));
+      expect(q, d).not.toMatch(/next\/link|next\/navigation|\bprefetch\b|prerender|speculationrules|useRouter|\brouter\./i);
+    }
+  });
   it("ist auf der Vorschau-Domain frei, für Suchmaschinen gesperrt und ohne Referrer", async () => {
     expect(freiOhneZugang("/meine-praxen")).toBe(true);
     expect(freiOhneZugang("/meine-praxen/manifest.webmanifest")).toBe(true);
@@ -199,7 +381,15 @@ describe("/meine-praxen: nur auf dem Gerät", () => {
     expect(lies("app/robots.ts")).toMatch(/"\/meine-praxen"/);
     const manifest = lies("app/meine-praxen/manifest.webmanifest/route.ts");
     expect(manifest).toMatch(/scope: "\/meine-praxen"/);
-    expect(ohneKommentare(manifest)).not.toMatch(/token|prisma|params|cookies|headers\(/i);
+    // Aus der Adresse kommt nur die Sprache (searchParams.get("lang")), nie ein Token oder eine Praxis.
+    expect(ohneKommentare(manifest)).not.toMatch(/token|prisma|cookies|headers\(|\bparams\b/i);
+    expect(ohneKommentare(manifest).match(/searchParams\.get\(["'](\w+)["']\)/g)).toEqual(['searchParams.get("lang")']);
+  });
+  it("öffnet vom Home-Bildschirm im Browser, nicht als eigene Web-App mit eigenem Speicher (iPhone)", () => {
+    expect(ohneKommentare(lies("app/meine-praxen/manifest.webmanifest/route.ts"))).toMatch(/display: "browser"/);
+    const seite = ohneKommentare(lies("app/meine-praxen/page.tsx"));
+    expect(seite).toMatch(/appleWebApp: \{ capable: false/);
+    expect(seite).toMatch(/data-testid="meine-praxen-nur-browser">\{t\.nurBrowser\}/);
   });
 });
 
@@ -218,9 +408,17 @@ describe("Speicher auf dem Gerät: nur an den vorgesehenen Stellen", () => {
     expect(portal).toMatch(/const merkenErlaubt = darfAufGeraetMerken\(\(await cookies\(\)\)\.getAll\(\)\.map\(\(c\) => c\.name\)\)/);
     expect(portal).toMatch(/\{merkenErlaubt && \(\s*<PraxisMerken/);
     // Beim Laden des Portals wird der Speicher nicht gelesen: erst der Klick.
-    const knopf = lies("components/PraxisMerken.tsx");
+    const knopf = ohneKommentare(lies("components/PraxisMerken.tsx"));
     expect(knopf).not.toMatch(/useEffect/);
-    expect(knopf).toMatch(/function klick\(\) \{\s*const lese = gemerktePraxenLesen\(\)/);
+    expect(knopf).toMatch(/function klick\((wahl\?: MerkWahl)?\) \{\s*const lese = gemerktePraxenLesen\(\)/);
+    expect(knopf.match(/function klick\(/g)).toHaveLength(2);
+    expect(knopf.match(/const lese = gemerktePraxenLesen\(\)/g)).toHaveLength(2);
+  });
+  it("die Seite „Link nicht mehr gültig“ bietet das Entfernen nur unter derselben Regel an", () => {
+    const portal = ohneKommentare(lies("app/portal/[token]/page.tsx"));
+    expect(portal).toMatch(/darfAufGeraetMerken\(\(await cookies\(\)\)\.getAll\(\)\.map\(\(c\) => c\.name\)\)/);
+    expect(portal).toMatch(/<GemerktEntfernen token=\{token\}/);
+    expect(portal.match(/<Expired token=\{params\.token\} lang=\{searchParams\.lang\} \/>/g)).toHaveLength(2);
   });
 });
 
@@ -258,7 +456,7 @@ describe("Rechtstexte nennen die Brücke", () => {
   it("die Datenschutzerklärung beschreibt den Speicher auf dem Gerät mit allen Feldern", () => {
     const seite = lies("app/datenschutz/page.tsx").replace(/\s+/g, " ");
     expect(seite).toMatch(/id="meine-praxen"/);
-    for (const wort of ["nur", "Link zum Portal", "Vorname", "Name, Fach und Ort der Praxis", "bis wann der Link gilt", "wann Sie ihn gemerkt haben", "eigener Name", "weder an unseren Server noch an eine Praxis", "löschen"]) expect(seite).toContain(wort);
+    for (const wort of ["nur", "Link zum Portal", "Vorname der Person, für die der Link gilt", "Name, Fach und Ort der Praxis", "Art der Praxis", "nur in diesem Browser", "Gastzugang", "nach unserer Einschätzung", "bis wann der Link gilt", "wann Sie ihn gemerkt haben", "eigener Name", "weder an unseren Server noch an eine Praxis", "löschen"]) expect(seite).toContain(wort);
   });
   it("das AVV-Muster sagt zu, dass Sorrida keine Mandanten verknüpft und nicht abgleicht", () => {
     const avv = lies("app/avv/page.tsx").replace(/\s+/g, " ");
