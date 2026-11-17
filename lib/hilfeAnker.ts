@@ -49,6 +49,8 @@ export const SEITEN_ANKER = {
   "patient-behandler": { seite: "/patients/[id]", name: "Auswahl „Behandelt von“" },
   "patient-ueberblick": { seite: "/patients/[id]", name: "Überblick vor dem Termin" },
   "patient-datenschutz": { seite: "/patients/[id]", name: "Datenschutz: Export und Löschen" },
+  "patient-kurzcheck": { seite: "/patients/[id]", name: "Kurz-Fragebogen vor dem Termin" },
+  "patient-anamnese": { seite: "/patients/[id]", name: "Bereich „Anamnese“" },
   "abschluss-start": { seite: "/abschluss/new", name: "Formular zum Abschließen" },
   // Vorschläge und Berichte
   "vorschlag-neu": { seite: "/proposals", name: "Knopf „Neuer Vorschlag“" },
@@ -76,6 +78,7 @@ export const SEITEN_ANKER = {
   "leistungsverzeichnis-suche": { seite: "/leistungsverzeichnis", name: "Suche im Leistungsverzeichnis" },
   "leistungsverzeichnis-eigene": { seite: "/leistungsverzeichnis", name: "Eigene Leistung anlegen" },
   "hilfe-frage": { seite: "/hilfe-praxis", name: "Feld für Ihre Frage" },
+  "rundgang-start": { seite: "/hilfe-praxis", name: "Abschnitt „Rundgang durch Sorrida“" },
   "suche-oeffnen": { seite: "/dashboard", name: "Suche (Strg+K)", ueberall: true },
   abmelden: { seite: "/dashboard", name: "Knopf „Abmelden“", ueberall: true, imMenue: true },
   // Einstellungen

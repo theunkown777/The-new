@@ -126,11 +126,12 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
         <PatientKontakt praxisName={session!.user.practiceName} patientName={`${patient.firstName} ${patient.lastName}`} nachfassAm={patient.nachfassConsentAt ? de(patient.nachfassConsentAt) : null} vermerk={leseVermerk(patient.einwilligungVermerk)} patientId={patient.id} geburtsdatum={patient.birthDate ? patient.birthDate.toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" }) : null} email={patient.email} phone={patient.phone} geschlecht={patient.geschlecht} einwilligungAm={patient.contactConsentAt ? de(patient.contactConsentAt) : null} whatsappAm={patient.whatsappConsentAt ? de(patient.whatsappConsentAt) : null} whatsappDirekt={whatsappApiAktiv()} />
       </div>
 
-      <div className="mb-8">
+      {/* Anker für „Zeig mir wo“ hier am Rahmen: Anamnese und Kurzcheck selbst tragen keine (lib/hilfeAnker.test.ts) */}
+      <div className="mb-8" data-hilfe="patient-kurzcheck">
         <KurzcheckKarte eintraege={kurzchecks} />
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8" data-hilfe="patient-anamnese">
         <AnamnesisPanel patientId={patient.id} firstName={patient.firstName} summary={anamnesis} />
       </div>
 

@@ -12,7 +12,7 @@ export async function RundgangStart({ userId, practiceId }: { userId: string; pr
   ]);
   const anzahl = appStationen({ rechte, personPl: "", abschluss: "" }).length;
   return (
-    <section className="card mt-8" aria-labelledby="rundgang-start-titel" data-testid="rundgang-start">
+    <section className="card mt-8" aria-labelledby="rundgang-start-titel" data-testid="rundgang-start" data-hilfe="rundgang-start">
       <h2 id="rundgang-start-titel" className="font-semibold text-slate-900">
         Rundgang durch Sorrida
       </h2>
