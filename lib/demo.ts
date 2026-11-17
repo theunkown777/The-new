@@ -11,6 +11,7 @@ import { eingangAusBestand } from "@/lib/eingang";
 import { fachprofil, passtZuPerson } from "@/lib/fachprofile";
 import { computeProposal } from "@/lib/proposalSchema";
 import { QUESTIONS } from "@/lib/anamnesis";
+import { praxisLoeschen } from "@/lib/praxisLoeschen";
 
 // Gastzugang: Jeder Gast bekommt eine eigene, abgeschottete Demo-Praxis mit
 // erfundenen Beispielpatienten, damit er Sorrida so sieht wie ein Kunde,
@@ -113,31 +114,19 @@ function age(birth: string, today = new Date()): number {
   return a;
 }
 
-/** Abgelaufene Demo-Praxen samt aller abhängigen Daten löschen. */
+/**
+ * Abgelaufene Demo-Praxen samt aller abhängigen Daten löschen. Dieselbe Löschung wie nach Vertragsende
+ * (lib/praxisLoeschen.ts): jede Tabelle, eine Transaktion je Praxis.
+ */
 export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
   const expired = await prisma.practice.findMany({
     where: { isDemo: true, demoExpiresAt: { lt: now } },
     select: { id: true },
   });
-  for (const { id } of expired) {
-    await prisma.$transaction([
-      prisma.auditLog.deleteMany({ where: { practiceId: id } }),
-      prisma.appointment.deleteMany({ where: { practiceId: id } }),
-      prisma.location.deleteMany({ where: { practiceId: id } }),
-      prisma.patientEntry.deleteMany({ where: { practiceId: id } }),
-      prisma.patientDocument.deleteMany({ where: { practiceId: id } }),
-      prisma.invoice.deleteMany({ where: { practiceId: id } }),
-      prisma.treatmentProposal.deleteMany({ where: { practiceId: id } }),
-      prisma.anamnesisForm.deleteMany({ where: { practiceId: id } }),
-      prisma.reportRevision.deleteMany({ where: { report: { practiceId: id } } }),
-      prisma.report.deleteMany({ where: { practiceId: id } }),
-      prisma.patient.deleteMany({ where: { practiceId: id } }),
-      prisma.serviceTemplate.deleteMany({ where: { practiceId: id } }),
-      prisma.serviceCatalogItem.deleteMany({ where: { practiceId: id } }),
-      prisma.user.deleteMany({ where: { practiceId: id } }),
-      prisma.practice.delete({ where: { id } }),
-    ]);
-  }
+  // Eine Praxis, die nicht gelöscht werden kann, hält die übrigen nicht auf; der Fehler kommt am Ende.
+  const fehler: unknown[] = [];
+  for (const { id } of expired) await praxisLoeschen(prisma, id).catch((e: unknown) => void fehler.push(e));
+  if (fehler.length) throw new AggregateError(fehler, `${fehler.length} von ${expired.length} abgelaufenen Demo-Praxen nicht gelöscht`);
   return expired.length;
 }
 

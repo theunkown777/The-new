@@ -109,7 +109,7 @@ const EMAIL = `praxis${Date.now() % 100000}@sonnenberg-test.local`, PW = 'Testpr
   await p.goto(L + '/proposals/new?patientId=' + pid2); await p.waitForTimeout(1500);
   await p.locator(`button[aria-label^="Zahn 36"]:visible`).first().click(); await p.locator('main select').last().selectOption('zerstoert'); await p.waitForTimeout(500);
   const pk = await p.locator('main').innerText();
-  const pkTeil = pk.slice(pk.lastIndexOf('Stark zerstört, Krone nötig'), pk.indexOf('Beträge sind Schätzungen'));
+  const pkTeil = pk.slice(pk.lastIndexOf('Stark zerstört (Krone)'), pk.indexOf('Beträge sind Schätzungen'));
   ok('Privat: keine Kassenwörter in den Optionen', /Vollkeramik-Krone/.test(pkTeil) && !/Festzuschuss|Kassenfüllung|Regelversorgung|Kassenkrone/.test(pkTeil), pkTeil);
   await p.getByRole('button', { name: 'Vorschlag speichern' }).click(); await p.waitForURL(/proposals\/c/, { timeout: 20000 }); const prop2 = p.url().split('/').pop();
   await p.getByRole('button', { name: 'Link und QR-Code erzeugen' }).click(); await p.waitForTimeout(2000);

@@ -275,17 +275,30 @@ Beides muss stehen, bevor der erste Vertrag unterschrieben wird.
 
 ### Vertragsende: Export und Löschung (§ 10)
 
-Stand: Es gibt kein Skript. Der tägliche Lauf löscht nur Demo-Praxen (`lib/demo.ts`).
+Stand: Skript `scripts/praxis-loeschen.ts`. Es löscht alle Daten einer Praxis in einer Transaktion. Die Liste der
+Tabellen steht in `lib/praxisLoeschen.ts`. Dieselbe Liste nutzt der tägliche Lauf für abgelaufene Demo-Praxen.
+Ein Test (`lib/praxisLoeschen.test.ts`) schlägt fehl, wenn eine neue Tabelle im Schema nicht eingeordnet ist.
 
-Ablauf von Hand, bis das Skript gebaut ist:
+Ablauf:
 
 1. Gesamtexport für die Praxis erzeugen (Einstellungen → Protokoll → Gesamtexport, `app/api/settings/export/route.ts`) und der Praxis übergeben. Datum der Bereitstellung festhalten.
 2. 30 Tage nach Bereitstellung, oder früher auf Verlangen der Praxis: alle Daten der Praxis löschen.
-   Die Reihenfolge der Tabellen steht in `lib/demo.ts` (Löschen abgelaufener Demo-Praxen). Vorher prüfen,
-   ob dort jede Tabelle des aktuellen Schemas vorkommt.
+   - `DATABASE_URL` in der Shell auf die Datenbank der Anwendung setzen. Die Datei `.env` zählt nicht. Ohne die Angabe bricht das Skript ab.
+   - Die Kennung der Praxis steht in der Tabelle `Practice` (Neon-Konsole, SQL-Editor: `select id, name from "Practice"`).
+   - Erst der Probelauf. Er löscht nichts. Er zeigt Datenbank, Name und Kennung der Praxis und die Zahl der Zeilen je Tabelle:
+     `npx tsx scripts/praxis-loeschen.ts --praxis <Kennung>`
+   - Prüfen: richtige Datenbank, richtige Praxis, Zahlen plausibel. Meldet der Probelauf Verweise aus anderen Praxen,
+     löscht das Skript nicht. Dann erst klären.
+   - Dann löschen. Der Name hinter `--bestaetigen` muss genau stimmen (der Probelauf zeigt den fertigen Befehl):
+     `npx tsx scripts/praxis-loeschen.ts --praxis <Kennung> --ausfuehren --bestaetigen "<Name der Praxis>"`
+   - Danach gibt das Skript einen Bestätigungstext aus: Zeitpunkt (UTC), Name und Kennung der Praxis, Zahl je Tabelle,
+     Hinweis auf die Sicherungen. Er enthält keine Angaben zu Patienten. Text aufbewahren.
+   - Nicht gelöscht, nur von der Praxis getrennt: Fehlereinträge (`FehlerEintrag`). Sie enthalten keine Angaben zu Personen.
+     Anfragen über die Website (`Lead`) hängen nicht an der Praxis. Für sie gilt die eigene Löschfrist.
+   - Dokumente liegen heute in der Datenbank und werden mit gelöscht. Wird der Dokumentenspeicher (Abschnitt 9) eingeschaltet,
+     muss das Skript auch dort löschen.
+   - Wird die Datenbank später aus einer Sicherung von vor der Löschung wiederhergestellt (Abschnitt 2), das Skript für diese Praxis erneut ausführen.
 3. Sicherungen: Der Datenbank-Anbieter hält Sicherungen für den im Tarif eingestellten Zeitraum. Erst danach
    sind die Daten auch dort weg. Das gehört in die Bestätigung an die Praxis.
-4. Löschung der Praxis in Textform bestätigen.
-
-Offen: Schritt 2 als Skript mit Test bauen (`scripts/`), bevor der erste Vertrag unterschrieben wird.
+4. Löschung der Praxis in Textform bestätigen. Dafür den Text aus Schritt 2 nehmen.
 

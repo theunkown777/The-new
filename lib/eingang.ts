@@ -16,7 +16,7 @@ export const EINGANG_ARTEN = {
   VEREINBARUNG: { titel: "Vereinbarung unterschrieben", tun: "Vorschlag als angenommen eintragen und Termin planen.", gruppe: "Vorschläge" },
   ZWEITMEINUNG: { titel: "Zweitmeinung geteilt", tun: "Im Vorschlag ansehen und im Gespräch darauf eingehen.", gruppe: "Vorschläge" },
   // Der Patient hat in seiner Ansicht „Erinnern Sie mich“ gewählt (lib/erinnerungWunsch.ts). Sorrida verschickt nichts von selbst.
-  ERINNERUNG_GEWUENSCHT: { titel: "Erinnerung vom Patienten gewünscht", tun: "Vorschlag öffnen und den Patienten erinnern (Knopf dort) oder anrufen. Von selbst geht nichts raus.", gruppe: "Vorschläge" },
+  ERINNERUNG_GEWUENSCHT: { titel: "Erinnerung vom Patienten gewünscht", tun: "Vorschlag öffnen und den Patienten über den Knopf dort erinnern. Von selbst geht nichts raus.", gruppe: "Vorschläge" },
   TERMIN_GEBUCHT: { titel: "Termin online gebucht", tun: "Im Kalender ansehen, bei Bedarf bestätigen.", gruppe: "Termine" },
   TERMIN_ABGESAGT: { titel: "Termin online abgesagt", tun: "Die Zeit ist wieder frei; bei Bedarf neu vergeben.", gruppe: "Termine" },
   // Anfrage über die Buchungsseite für neue Patienten (/t/<kennung>). Dazu gibt es noch keinen Patienten und deshalb
