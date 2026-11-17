@@ -73,22 +73,70 @@ export function abstand(a: string, b: string, max = 2): number {
 const erlaubt = (len: number) => (len >= 8 ? 2 : len >= 4 ? 1 : 0);
 
 /**
- * Suchwörter, mit denen Menschen suchen, die aber eine Wirkung versprechen („Brille weg“). Sie helfen nur beim Finden und
- * werden nirgends angezeigt; die sichtbaren Synonyme („Auch gesucht als“) stehen im Katalog und werben nicht
- * (lib/rechtsgrenzen.test.ts). Keine Handelsnamen von Arzneimitteln.
+ * Suchwörter, mit denen Menschen suchen, die aber nicht angezeigt werden dürfen: Wörter mit Wirkversprechen („Brille weg“),
+ * frühere werbende Namen („Fett-weg-Spritze“) und Handelsnamen von Arzneimitteln und Geräten („Botox“, „Invisalign“;
+ * § 10 Abs. 1 und § 3 HWG). Sie stehen nur im Suchindex unten. Seiten, Titel, Meta-Angaben, Sitemap und „Auch gesucht als“
+ * lesen nur die Felder des Katalogs; die nennen keinen Handelsnamen und werben nicht (lib/rechtsgrenzen.test.ts).
  */
-export const NUR_SUCHE: Record<string, string[]> = {
+const NUR_SUCHE_JE_LEISTUNG: Record<string, string[]> = {
+  "zahnmedizin-professionelle-zahnreinigung": ["Airflow"],
+  "zahnmedizin-digitaler-abdruck": ["iTero"],
+  "zahnmedizin-frueherkennung-karies": ["DIAGNOdent"],
+  "zahnmedizin-fluoridierung": ["Zahnschutz"],
+  "zahnmedizin-zahnersatz-in-einer-sitzung-cerec": ["CEREC", "Same-Day-Krone"],
+  "zahnmedizin-kariesinfiltration": ["Icon"],
+  "zahnmedizin-regenerative-parodontaltherapie": ["Emdogain"],
+  "zahnmedizin-feste-zaehne-an-einem-tag": ["Feste Zähne an einem Tag", "All-on-4", "All-on-6"],
+  "zahnmedizin-vollkeramikkrone": ["Emax"],
+  "zahnmedizin-implantatgetragene-prothese": ["Locator"],
+  "zahnmedizin-computergesteuerte-betaeubung": ["The Wand"],
+  "aesthetische-zahnmedizin-bleaching-in-der-praxis": ["weiße Zähne"],
+  "aesthetische-zahnmedizin-zahnschmuck": ["Twinkles"],
   "aesthetische-zahnmedizin-keramik-veneers": ["Hollywood-Lächeln"],
-  "aesthetische-zahnmedizin-komplettes-smile-makeover": ["neues Lächeln"],
-  "aesthetische-medizin-minimal-invasiv-brauenlifting-mit-botox": ["Fox Eyes"],
-  "aesthetische-medizin-minimal-invasiv-gesicht-verschmaelern-masseter-botox": ["V-Shape", "Jawline slimming"],
-  "aesthetische-medizin-minimal-invasiv-handverjuengung": ["Hände jünger"],
-  "aesthetische-medizin-minimal-invasiv-fett-weg-spritze": ["Doppelkinn weg"],
-  "aesthetische-medizin-minimal-invasiv-laser-skin-resurfacing": ["Hautverjüngung"],
-  "aesthetische-medizin-minimal-invasiv-ultraschall-lifting": ["Facelift ohne OP"],
-  "plastische-aesthetische-chirurgie-intimbereich-verjuengung": ["Intimverjüngung"],
+  "aesthetische-zahnmedizin-non-prep-veneers": ["Lumineers"],
+  "aesthetische-zahnmedizin-digitales-smile-design": ["Smile Makeover"],
+  "aesthetische-zahnmedizin-komplettes-smile-makeover": ["neues Lächeln", "Smile Makeover"],
+  "kieferorthopaedie-unsichtbare-zahnspange": ["unsichtbare Zahnspange", "Invisalign"],
+  "kieferorthopaedie-innenliegende-zahnspange": ["Incognito"],
+  "aesthetische-medizin-minimal-invasiv-brauenlifting-mit-botox": ["Fox Eyes", "Brauenlifting", "Browlift"],
+  "aesthetische-medizin-minimal-invasiv-lip-flip": ["Lippen voller wirken lassen ohne Filler"],
+  "aesthetische-medizin-minimal-invasiv-botox-hals": ["Nefertiti Lift"],
+  "aesthetische-medizin-minimal-invasiv-gesicht-verschmaelern-masseter-botox": ["V-Shape", "Jawline slimming", "Gesicht verschmälern"],
+  "aesthetische-medizin-minimal-invasiv-lippenunterspritzung": ["volle Lippen"],
+  "aesthetische-medizin-minimal-invasiv-nasenkorrektur-ohne-op": ["Nasenkorrektur ohne OP", "Liquid Nose Job", "15-Minuten-Nase"],
+  "aesthetische-medizin-minimal-invasiv-handverjuengung": ["Hände jünger", "Handverjüngung"],
+  "aesthetische-medizin-minimal-invasiv-full-face-behandlung": ["Liquid Facelift", "Liquid Lift", "8-Punkt-Lift"],
+  "aesthetische-medizin-minimal-invasiv-skinbooster": ["Profhilo"],
+  "aesthetische-medizin-minimal-invasiv-kollagen-stimulator": ["Sculptra", "Radiesse", "Kollagenaufbau"],
+  "aesthetische-medizin-minimal-invasiv-polynukleotide": ["Rejuran"],
+  "aesthetische-medizin-minimal-invasiv-vampir-lifting": ["Vampir-Lifting", "Vampire Facial"],
+  "aesthetische-medizin-minimal-invasiv-fett-weg-spritze": ["Doppelkinn weg", "Fett-weg-Spritze", "Fettwegspritze"],
+  "aesthetische-medizin-minimal-invasiv-microneedling": ["Dermapen"],
+  "aesthetische-medizin-minimal-invasiv-radiofrequenz-microneedling": ["Morpheus8", "Potenza"],
+  "aesthetische-medizin-minimal-invasiv-laser-skin-resurfacing": ["Hautverjüngung", "Fraxel"],
+  "aesthetische-medizin-minimal-invasiv-ipl-photoverjuengung": ["Photoverjüngung"],
+  "aesthetische-medizin-minimal-invasiv-laser-haarentfernung": ["Haare weglasern"],
+  "aesthetische-medizin-minimal-invasiv-tattooentfernung": ["Tattoo weglasern"],
+  "aesthetische-medizin-minimal-invasiv-ultraschall-lifting": ["Facelift ohne OP", "Ultraschall-Lifting", "Ultherapy"],
+  "aesthetische-medizin-minimal-invasiv-radiofrequenz-straffung": ["Radiofrequenz-Straffung", "RF-Straffung", "Thermage"],
+  "aesthetische-medizin-minimal-invasiv-fett-wegfrieren": ["Fett wegfrieren", "Fettabbau Kälte", "CoolSculpting"],
+  "aesthetische-medizin-minimal-invasiv-muskelaufbau-fettreduktion-per-geraet": ["Muskelaufbau per Gerät", "Body Contouring", "Emsculpt"],
+  "plastische-aesthetische-chirurgie-fettabsaugung": ["Vaser"],
+  "plastische-aesthetische-chirurgie-bauchdeckenstraffung": ["Mommy Makeover"],
+  "plastische-aesthetische-chirurgie-intimbereich-verjuengung": ["Intimverjüngung", "Intimbereich-Verjüngung"],
   "weitere-selbstzahler-eingriffe-augenlasern-lasik-femto-lasik": ["Brille weg"],
+  "weitere-selbstzahler-eingriffe-augenlasern-smile": ["SMILE", "ReLEx SMILE"],
+  "weitere-selbstzahler-eingriffe-hydrafacial": ["Hydrafacial", "Aquafacial"],
+  "impfungen-reisemedizin-guertelrose-impfung": ["Shingrix"],
+  "dermatologie-medizinisch-muttermal-check-mit-auflichtmikroskop": ["Fotofinder"],
+  "hilfsmittel-gesundheitshandwerk-hoertest-beim-hoerakustiker": ["Hörtest kostenlos"],
 };
+
+/** Wer „Botox“ sucht, findet jede Leistung mit dem Wirkstoff Botulinumtoxin; angezeigt wird nur der Wirkstoff. */
+export const BOTULINUMTOXIN_IDS = LEISTUNGEN.filter((l) => /Botulinumtoxin/.test(`${l.kategorie} ${l.name} ${l.fachbegriff}`)).map((l) => l.id);
+
+export const NUR_SUCHE: Record<string, string[]> = { ...NUR_SUCHE_JE_LEISTUNG };
+for (const id of BOTULINUMTOXIN_IDS) NUR_SUCHE[id] = [...(NUR_SUCHE[id] ?? []), "Botox"];
 
 type Index = { l: Leistung; felder: { text: string; woerter: string[]; gewicht: number }[] };
 const INDEX: Index[] = LEISTUNGEN.map((l) => ({

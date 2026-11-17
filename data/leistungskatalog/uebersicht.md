@@ -4,7 +4,7 @@
 
 **Kinderzahnheilkunde:** Früherkennung Kleinkind, Individualprophylaxe Kinder, Fissurenversiegelung, Milchzahnbehandlung, Kinderkrone, Lückenhalter, Behandlung Kreidezähne, Kinderbehandlung unter Lachgas oder Narkose
 
-**Füllungen & Zahnerhaltung:** Kunststofffüllung (Kassenstandard), Komposit-Füllung (Mehrschicht), Glasionomer-Füllung, Keramik-Inlay, Gold-Inlay, Onlay / Teilkrone, Zahnersatz in einer Sitzung (CEREC), Zahnhalsfüllung, Behandlung empfindlicher Zähne, Kariesinfiltration, Aufbaufüllung
+**Füllungen & Zahnerhaltung:** Kunststofffüllung (Kassenstandard), Komposit-Füllung (Mehrschicht), Glasionomer-Füllung, Keramik-Inlay, Gold-Inlay, Onlay / Teilkrone, Zahnersatz in einer Sitzung (CAD/CAM), Zahnhalsfüllung, Behandlung empfindlicher Zähne, Kariesinfiltration, Aufbaufüllung
 
 **Wurzelbehandlung (Endodontie):** Wurzelkanalbehandlung, Wurzelbehandlung mit Mikroskop, Revision einer Wurzelbehandlung, Wurzelspitzenresektion, Vitalerhaltung des Zahnnervs, Zahnaufhellung von innen
 
@@ -12,11 +12,11 @@
 
 **Oralchirurgie:** Zahnentfernung, Weisheitszahn-OP, Freilegung verlagerter Zähne, Zystenentfernung, Abszessbehandlung, Lippenbändchen-Korrektur, Probeentnahme, Kieferkammerhalt nach Zahnentfernung, Plättchenreiches Fibrin (PRF)
 
-**Implantologie:** Zahnimplantat (Einzelzahn), Keramikimplantat, Sofortimplantat, Feste Zähne an einem Tag, Mini-Implantate, Navigierte Implantation, Knochenaufbau, Sinuslift, Implantatkrone / -brücke, Implantat-Entzündung behandeln, Implantat-Nachsorge
+**Implantologie:** Zahnimplantat (Einzelzahn), Keramikimplantat, Sofortimplantat, Sofortversorgung auf Implantaten, Mini-Implantate, Navigierte Implantation, Knochenaufbau, Sinuslift, Implantatkrone / -brücke, Implantat-Entzündung behandeln, Implantat-Nachsorge
 
 **Zahnersatz (Prothetik):** Vollkeramikkrone, Metallkeramikkrone, Goldkrone, Brücke, Klebebrücke, Teilprothese, Teleskop- oder Geschiebeprothese, Vollprothese, Implantatgetragene Prothese, Prothese unterfüttern / reparieren, Provisorium
 
-**Funktion, Kiefergelenk & Schlaf:** Funktionsanalyse, CMD-Behandlung, Knirscherschiene, Schnarcherschiene, Botox gegen Zähneknirschen
+**Funktion, Kiefergelenk & Schlaf:** Funktionsanalyse, CMD-Behandlung, Knirscherschiene, Schnarcherschiene, Botulinumtoxin bei Zähneknirschen
 
 **Komfort & Angstpatienten:** Örtliche Betäubung, Computergesteuerte Betäubung, Lachgas-Sedierung, Dämmerschlaf, Vollnarkose, Zahnarzt-Hypnose
 
@@ -30,13 +30,13 @@
 
 **Veneers & Zahnform:** Keramik-Veneers, Non-Prep-Veneers, Komposit-Veneers, Zahnform-Korrektur, Zahnlücken schließen, Zähne glätten / konturieren, Schwarze Dreiecke schließen
 
-**Lächeln-Planung:** Digitales Smile Design, Probe-Lächeln (Mock-up), Komplettes Smile Makeover
+**Lächeln-Planung:** Digitales Smile Design, Probe-Lächeln (Mock-up), Kombinierte ästhetische Zahnbehandlung
 
-**Rote Ästhetik (Zahnfleisch):** Zahnfleischkorrektur bei Gummy Smile, Zahnfleisch aufhellen, Botox bei Gummy Smile
+**Rote Ästhetik (Zahnfleisch):** Zahnfleischkorrektur bei Gummy Smile, Zahnfleisch aufhellen, Botulinumtoxin bei sichtbarem Zahnfleisch beim Lächeln
 
 ### Kieferorthopädie (9)
 
-**Zahnspangen:** Feste Zahnspange, Unsichtbare Zahnspange, Innenliegende Zahnspange, Keramik-Brackets, Lose Zahnspange, Kieferorthopädische Frühbehandlung, Retainer, Erwachsenen-Kieferorthopädie, Kieferfehlstellung operativ korrigieren
+**Zahnspangen:** Feste Zahnspange, Durchsichtige Zahnschienen (Aligner), Innenliegende Zahnspange, Keramik-Brackets, Lose Zahnspange, Kieferorthopädische Frühbehandlung, Retainer, Erwachsenen-Kieferorthopädie, Kieferfehlstellung operativ korrigieren
 
 ### Mund-, Kiefer- & Gesichtschirurgie (5)
 
@@ -44,19 +44,19 @@
 
 ### Ästhetische Medizin (minimal-invasiv) (49)
 
-**Botulinumtoxin (Botox):** Botox Zornesfalte, Botox Stirnfalten, Botox Krähenfüße, Brauenlifting mit Botox, Lip Flip, Botox Kinn & Mundwinkel, Botox Hals, Gesicht verschmälern (Masseter-Botox), Bunny Lines, Behandlung von starkem Schwitzen, Botox bei Migräne
+**Botulinumtoxin:** Botulinumtoxin an der Zornesfalte, Botulinumtoxin an der Stirn, Botulinumtoxin an den Augenfältchen (Krähenfüße), Augenbrauen anheben mit Botulinumtoxin, Lip Flip, Botulinumtoxin an Kinn und Mundwinkeln, Botulinumtoxin am Hals, Botulinumtoxin in den Kaumuskel (Masseter), Bunny Lines, Behandlung von starkem Schwitzen, Botulinumtoxin bei chronischer Migräne
 
-**Hyaluron-Filler:** Lippenunterspritzung, Nasolabialfalten auffüllen, Marionettenfalten auffüllen, Wangenaufbau, Tränenrinne, Kinnaufbau mit Filler, Jawline / Kieferkontur, Nasenkorrektur ohne OP, Schläfen auffüllen, Handverjüngung, Full-Face-Behandlung, Filler auflösen
+**Hyaluron-Filler:** Lippenunterspritzung, Nasolabialfalten auffüllen, Marionettenfalten auffüllen, Wangenaufbau, Tränenrinne, Kinnaufbau mit Filler, Jawline / Kieferkontur, Nasenkorrektur mit Filler, Schläfen auffüllen, Filler am Handrücken, Full-Face-Behandlung, Filler auflösen
 
-**Hautqualität & Kollagen:** Skinbooster, Kollagen-Stimulator, Polynukleotide, Vampir-Lifting, Mesotherapie, Fett-weg-Spritze, Fadenlifting
+**Hautqualität & Kollagen:** Skinbooster, Kollagen-Stimulator, Polynukleotide, Eigenbluttherapie (PRP) im Gesicht, Mesotherapie, Injektionslipolyse, Fadenlifting
 
-**Haut & Laser:** Microneedling, Radiofrequenz-Microneedling, Chemisches Peeling, Laser-Skin-Resurfacing, IPL / Photoverjüngung, Laser-Haarentfernung, Tattooentfernung, Couperose & Besenreiser, Pigmentflecken entfernen, Aknenarben behandeln, Akne-Behandlung
+**Haut & Laser:** Microneedling, Radiofrequenz-Microneedling, Chemisches Peeling, Laser-Skin-Resurfacing, IPL-Behandlung der Haut, Laser-Haarentfernung, Tattooentfernung, Couperose & Besenreiser, Pigmentflecken entfernen, Aknenarben behandeln, Akne-Behandlung
 
-**Straffung ohne OP:** Ultraschall-Lifting, Radiofrequenz-Straffung, Fett wegfrieren, Muskelstimulation per Gerät (HIFEM/EMS), Cellulite-Behandlung
+**Gerätebehandlungen an Haut und Körper:** Ultraschall-Behandlung der Haut, Radiofrequenz-Behandlung der Haut, Kryolipolyse (Kältebehandlung), Muskelstimulation per Gerät (HIFEM/EMS), Cellulite-Behandlung
 
 **Haare:** Haarausfall-Behandlung, Haartransplantation
 
-**Wellness-Medizin:** Infusionstherapie
+**Infusionen:** Infusionstherapie
 
 ### Plastische & Ästhetische Chirurgie (33)
 
@@ -66,15 +66,15 @@
 
 **Körper:** Fettabsaugung, Bauchdeckenstraffung, Oberarmstraffung, Oberschenkelstraffung, Bodylift, Po-Vergrößerung mit Eigenfett, Lipödem-Behandlung
 
-**Intimbereich:** Schamlippenkorrektur, Intimbereich-Verjüngung
+**Intimbereich:** Schamlippenkorrektur, Laser- oder Radiofrequenzbehandlung im Intimbereich
 
 **Haut-Chirurgie:** Muttermal entfernen, Narbenkorrektur, Lipom entfernen, Lidgelbflecken entfernen, Hautanhängsel entfernen
 
 ### Weitere Selbstzahler-Eingriffe (9)
 
-**Augen:** Augenlasern (LASIK/Femto-LASIK), Augenlasern (SMILE), Augenlasern (PRK/LASEK), Linsentausch
+**Augen:** Augenlasern (LASIK/Femto-LASIK), Augenlasern (Lentikelextraktion), Augenlasern (PRK/LASEK), Linsentausch
 
-**Kosmetik (nicht ärztlich):** Hydrafacial, Mikrodermabrasion, Permanent Make-up, LED-Lichttherapie, Dermaplaning
+**Kosmetik (nicht ärztlich):** Hautreinigung mit Wasser-Peeling, Mikrodermabrasion, Permanent Make-up, LED-Lichttherapie, Dermaplaning
 
 ### Vorsorge & Check-ups (18)
 
@@ -122,7 +122,7 @@
 
 ### Urologie & Andrologie (17)
 
-**Urologie:** Urologische Vorsorge, Blasenspiegelung, Nierensteine, Behandlung vergrößerter Prostata, Blasenschwäche, Blasenentzündung, Prostatakrebs-Behandlung, Harnröhrenverengung, Botox in die Blase, Kinderurologie, Magnetstimulation des Beckenbodens
+**Urologie:** Urologische Vorsorge, Blasenspiegelung, Nierensteine, Behandlung vergrößerter Prostata, Blasenschwäche, Blasenentzündung, Prostatakrebs-Behandlung, Harnröhrenverengung, Botulinumtoxin in die Blase, Kinderurologie, Magnetstimulation des Beckenbodens
 
 **Andrologie (Männergesundheit):** Erektionsstörungen, Stoßwellentherapie bei Erektionsstörung, Testosteron-Check, Spermiogramm, Sterilisation beim Mann, Beschneidung
 
@@ -248,7 +248,7 @@
 
 ### Urologie & Andrologie (17)
 
-**Urologie:** Urologische Vorsorge, Blasenspiegelung, Nierensteine, Behandlung vergrößerter Prostata, Blasenschwäche, Blasenentzündung, Prostatakrebs-Behandlung, Harnröhrenverengung, Botox in die Blase, Kinderurologie, Magnetstimulation des Beckenbodens
+**Urologie:** Urologische Vorsorge, Blasenspiegelung, Nierensteine, Behandlung vergrößerter Prostata, Blasenschwäche, Blasenentzündung, Prostatakrebs-Behandlung, Harnröhrenverengung, Botulinumtoxin in die Blase, Kinderurologie, Magnetstimulation des Beckenbodens
 
 ### HNO (Hals-Nasen-Ohren) (17)
 

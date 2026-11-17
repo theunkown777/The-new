@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BEREICHE, KATALOG, LEISTUNGEN, NUR_SUCHE, abstand, alsEigeneLeistung, filtern, kostenHinweis, leistung, navigation, normalisieren, suchen, vorherNachherErlaubt } from "./leistungskatalog";
+import { BEREICHE, BOTULINUMTOXIN_IDS, KATALOG, LEISTUNGEN, NUR_SUCHE, abstand, alsEigeneLeistung, filtern, kostenHinweis, leistung, navigation, normalisieren, suchen, vorherNachherErlaubt } from "./leistungskatalog";
 
 const erster = (q: string) => suchen(q)[0]?.id;
 
@@ -59,15 +59,34 @@ describe("Leistungskatalog", () => {
     for (const id of ["aesthetische-medizin-minimal-invasiv-jawline-kieferkontur", "aesthetische-medizin-minimal-invasiv-tattooentfernung", "innere-medizin-medikamentoese-adipositastherapie"])
       expect(alsEigeneLeistung(leistung(id)!).kasseWenn, id).toBeUndefined();
   });
-  it("Suchwörter mit Wirkversprechen finden die Leistung, stehen aber nicht in den sichtbaren Synonymen", () => {
+  it("Suchwörter mit Wirkversprechen und Handelsnamen finden die Leistung, stehen aber nicht in den sichtbaren Feldern", () => {
+    const sichtbar = (l: (typeof LEISTUNGEN)[number]) => normalisieren([l.name, l.fachbegriff, l.kategorie, ...l.synonyme, l.beschreibung, l.hinweis].join(" | "));
     for (const [id, woerter] of Object.entries(NUR_SUCHE)) {
       const l = leistung(id);
       expect(l, id).not.toBeNull();
       for (const w of woerter) {
-        expect(suchen(w).slice(0, 3).map((x) => x.id), w).toContain(id);
+        // Teilen sich mehrere Leistungen ein Suchwort („Botox“), stehen sie alle vorn.
+        const mit = Object.values(NUR_SUCHE).filter((x) => x.includes(w)).length;
+        expect(suchen(w).slice(0, Math.max(3, mit)).map((x) => x.id), w).toContain(id);
         expect(l!.synonyme, w).not.toContain(w);
+        expect(sichtbar(l!), `${id}: ${w}`).not.toContain(normalisieren(w));
       }
     }
+  });
+  it("„Botox“ findet alle Leistungen mit Botulinumtoxin, angezeigt wird nur der Wirkstoff", () => {
+    expect(BOTULINUMTOXIN_IDS.length).toBe(15);
+    expect(new Set(suchen("Botox").map((l) => l.id))).toEqual(new Set(BOTULINUMTOXIN_IDS));
+    expect(erster("Botox Zornesfalte")).toBe("aesthetische-medizin-minimal-invasiv-botox-zornesfalte");
+    expect(erster("Botox Blase")).toBe("urologie-andrologie-botox-in-die-blase");
+    expect(erster("Botox Zähneknirschen")).toBe("zahnmedizin-botox-gegen-zaehneknirschen");
+    expect(erster("Botox Migräne")).toBe("aesthetische-medizin-minimal-invasiv-botox-bei-migraene");
+    for (const id of BOTULINUMTOXIN_IDS) expect(leistung(id)!.name, id).not.toMatch(/botox/i);
+  });
+  it("umbenannte Leistungen behalten ihre Adresse (id_name)", () => {
+    expect(leistung("aesthetische-medizin-minimal-invasiv-fett-weg-spritze")?.name).toBe("Injektionslipolyse");
+    expect(leistung("zahnmedizin-feste-zaehne-an-einem-tag")?.name).toBe("Sofortversorgung auf Implantaten");
+    expect(leistung("kieferorthopaedie-unsichtbare-zahnspange")?.name).toBe("Durchsichtige Zahnschienen (Aligner)");
+    expect(leistung("urologie-andrologie-botox-in-die-blase")?.name).toBe("Botulinumtoxin in die Blase");
   });
   it("HWG: keine Galerie bei Lippenunterspritzung", () => {
     const l = suchen("Lippenunterspritzung")[0];

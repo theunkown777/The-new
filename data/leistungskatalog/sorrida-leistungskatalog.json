@@ -65,7 +65,7 @@
       "synonyme": [
         "Zahnreinigung",
         "Prophylaxe",
-        "Airflow",
+        "Pulverstrahl",
         "Dentalhygiene"
       ],
       "beschreibung": "Entfernung harter und weicher Beläge, Politur, Fluoridierung.",
@@ -171,7 +171,6 @@
       "fachbegriff": "Intraoralscan",
       "synonyme": [
         "3D-Scan Zähne",
-        "iTero",
         "Scan statt Abdruck"
       ],
       "beschreibung": "Optischer Abdruck ohne Abdruckmasse.",
@@ -213,8 +212,8 @@
       "name": "Früherkennung Karies",
       "fachbegriff": "Kariesdiagnostik (Laser/Transillumination)",
       "synonyme": [
-        "DIAGNOdent",
-        "Kariesscan"
+        "Kariesscan",
+        "Laser-Kariesdiagnostik"
       ],
       "beschreibung": "Untersuchung mit Laser oder Licht mit dem Ziel, Karies ohne Röntgen früh zu erkennen.",
       "behandler": "Zahnarzt",
@@ -256,7 +255,7 @@
       "fachbegriff": "Lokale Fluoridierung",
       "synonyme": [
         "Fluoridlack",
-        "Zahnschutz"
+        "Fluorid"
       ],
       "beschreibung": "Auftragen von Fluoridlack mit dem Ziel, den Zahnschmelz zu härten.",
       "behandler": "Zahnarzt",
@@ -632,11 +631,11 @@
       "id": "zahnmedizin-zahnersatz-in-einer-sitzung-cerec",
       "bereich": "Zahnmedizin",
       "kategorie": "Füllungen & Zahnerhaltung",
-      "name": "Zahnersatz in einer Sitzung (CEREC)",
+      "name": "Zahnersatz in einer Sitzung (CAD/CAM)",
       "fachbegriff": "CAD/CAM-Chairside-Restauration",
       "synonyme": [
-        "CEREC",
-        "Same-Day-Krone"
+        "Chairside-Krone",
+        "CAD/CAM-Krone"
       ],
       "beschreibung": "Inlay oder Krone in einer Sitzung gefräst.",
       "behandler": "Zahnarzt",
@@ -696,9 +695,8 @@
       "bereich": "Zahnmedizin",
       "kategorie": "Füllungen & Zahnerhaltung",
       "name": "Kariesinfiltration",
-      "fachbegriff": "Kariesinfiltration (Icon)",
+      "fachbegriff": "Kariesinfiltration mit Kunststoff",
       "synonyme": [
-        "Icon",
         "White Spots",
         "Initialkaries ohne Bohren"
       ],
@@ -931,7 +929,7 @@
       "name": "Regenerative Parodontaltherapie",
       "fachbegriff": "GTR / Schmelzmatrixproteine",
       "synonyme": [
-        "Emdogain",
+        "Schmelzmatrixproteine",
         "Knochenregeneration Zahnfleisch"
       ],
       "beschreibung": "Operation mit dem Ziel, verlorenen Zahnhalteapparat wieder aufzubauen.",
@@ -1303,11 +1301,10 @@
       "id": "zahnmedizin-feste-zaehne-an-einem-tag",
       "bereich": "Zahnmedizin",
       "kategorie": "Implantologie",
-      "name": "Feste Zähne an einem Tag",
-      "fachbegriff": "All-on-4 / All-on-6 Sofortversorgung",
+      "name": "Sofortversorgung auf Implantaten",
+      "fachbegriff": "Implantatgetragene Sofortversorgung des zahnlosen Kiefers",
       "synonyme": [
-        "All-on-4",
-        "Sofortversorgung",
+        "Sofortbelastung",
         "feste dritte Zähne"
       ],
       "beschreibung": "Vier bis sechs Implantate in einem zahnlosen Kiefer. Sitzen sie beim Einsetzen fest genug im Knochen, wird am selben Tag eine provisorische feste Brücke befestigt; die endgültige Brücke folgt nach der Einheilung.",
@@ -1472,8 +1469,7 @@
       "fachbegriff": "Vollkeramische Krone (Zirkon/Lithiumdisilikat)",
       "synonyme": [
         "Zirkonkrone",
-        "Keramikkrone",
-        "Emax"
+        "Keramikkrone"
       ],
       "beschreibung": "Krone ganz aus Keramik, ohne Metall.",
       "behandler": "Zahnarzt",
@@ -1640,7 +1636,7 @@
       "bereich": "Zahnmedizin",
       "kategorie": "Zahnersatz (Prothetik)",
       "name": "Implantatgetragene Prothese",
-      "fachbegriff": "Implantatprothese (Locator/Steg)",
+      "fachbegriff": "Implantatprothese (Druckknopf/Steg)",
       "synonyme": [
         "Druckknopfprothese",
         "Stegprothese"
@@ -1788,8 +1784,8 @@
       "id": "zahnmedizin-botox-gegen-zaehneknirschen",
       "bereich": "Zahnmedizin",
       "kategorie": "Funktion, Kiefergelenk & Schlaf",
-      "name": "Botox gegen Zähneknirschen",
-      "fachbegriff": "Botulinumtoxin in den Kaumuskel (Masseter)",
+      "name": "Botulinumtoxin bei Zähneknirschen",
+      "fachbegriff": "Botulinumtoxin-Injektion in den Masseter bei Bruxismus",
       "synonyme": [
         "Bruxismus Botulinumtoxin",
         "Masseter-Injektion"
@@ -1831,7 +1827,7 @@
       "bereich": "Zahnmedizin",
       "kategorie": "Komfort & Angstpatienten",
       "name": "Computergesteuerte Betäubung",
-      "fachbegriff": "Computergestützte Anästhesie (z. B. The Wand)",
+      "fachbegriff": "Computergestützte Anästhesie",
       "synonyme": [
         "computergesteuerte Spritze"
       ],
@@ -2084,8 +2080,7 @@
       "fachbegriff": "In-Office-Bleaching",
       "synonyme": [
         "Zahnaufhellung",
-        "Bleaching beim Zahnarzt",
-        "weiße Zähne"
+        "Bleaching beim Zahnarzt"
       ],
       "beschreibung": "Auftragen eines Bleichgels in der Praxis mit dem Ziel, die Zähne aufzuhellen.",
       "behandler": "Zahnarzt",
@@ -2145,7 +2140,7 @@
       "bereich": "Ästhetische Zahnmedizin",
       "kategorie": "Zahnaufhellung",
       "name": "Zahnschmuck",
-      "fachbegriff": "Dental Jewelry / Twinkles",
+      "fachbegriff": "Dental Jewelry",
       "synonyme": [
         "Zahnstein Glitzer",
         "Zahn-Diamant"
@@ -2189,7 +2184,6 @@
       "name": "Non-Prep-Veneers",
       "fachbegriff": "Veneers ohne Beschleifen",
       "synonyme": [
-        "Lumineers",
         "No-Prep-Veneers"
       ],
       "beschreibung": "Veneers ohne oder mit minimalem Beschleifen.",
@@ -2315,8 +2309,7 @@
       "name": "Digitales Smile Design",
       "fachbegriff": "Digital Smile Design (DSD)",
       "synonyme": [
-        "Lächeln planen",
-        "Smile Makeover"
+        "Lächeln planen"
       ],
       "beschreibung": "Digitale Simulation des geplanten Ergebnisses.",
       "behandler": "Zahnarzt",
@@ -2354,10 +2347,10 @@
       "id": "aesthetische-zahnmedizin-komplettes-smile-makeover",
       "bereich": "Ästhetische Zahnmedizin",
       "kategorie": "Lächeln-Planung",
-      "name": "Komplettes Smile Makeover",
+      "name": "Kombinierte ästhetische Zahnbehandlung",
       "fachbegriff": "Ästhetische Gesamtrehabilitation",
       "synonyme": [
-        "Smile Makeover"
+        "Gesamtplanung Zahnästhetik"
       ],
       "beschreibung": "Kombination aus Bleaching, Veneers, KFO, Zahnfleisch.",
       "behandler": "Zahnarzt",
@@ -2417,7 +2410,7 @@
       "id": "aesthetische-zahnmedizin-botox-bei-gummy-smile",
       "bereich": "Ästhetische Zahnmedizin",
       "kategorie": "Rote Ästhetik (Zahnfleisch)",
-      "name": "Botox bei Gummy Smile",
+      "name": "Botulinumtoxin bei sichtbarem Zahnfleisch beim Lächeln",
       "fachbegriff": "Botulinumtoxin Oberlippenheber",
       "synonyme": [
         "Gummy Smile Botulinumtoxin"
@@ -2458,11 +2451,10 @@
       "id": "kieferorthopaedie-unsichtbare-zahnspange",
       "bereich": "Kieferorthopädie",
       "kategorie": "Zahnspangen",
-      "name": "Unsichtbare Zahnspange",
+      "name": "Durchsichtige Zahnschienen (Aligner)",
       "fachbegriff": "Aligner-Therapie",
       "synonyme": [
-        "Invisalign",
-        "durchsichtige Schienen",
+        "Schienen-Zahnspange",
         "Aligner"
       ],
       "beschreibung": "Durchsichtige Schienen, die schrittweise gewechselt werden, mit dem Ziel, die Zahnstellung zu korrigieren.",
@@ -2483,8 +2475,7 @@
       "name": "Innenliegende Zahnspange",
       "fachbegriff": "Linguale Apparatur",
       "synonyme": [
-        "Lingualtechnik",
-        "Incognito"
+        "Lingualtechnik"
       ],
       "beschreibung": "Brackets auf der Innenseite der Zähne.",
       "behandler": "Kieferorthopäde",
@@ -2732,8 +2723,8 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-botox-zornesfalte",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
-      "name": "Botox Zornesfalte",
+      "kategorie": "Botulinumtoxin",
+      "name": "Botulinumtoxin an der Zornesfalte",
       "fachbegriff": "Glabella-Behandlung",
       "synonyme": [
         "Zornesfalte",
@@ -2753,8 +2744,8 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-botox-stirnfalten",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
-      "name": "Botox Stirnfalten",
+      "kategorie": "Botulinumtoxin",
+      "name": "Botulinumtoxin an der Stirn",
       "fachbegriff": "Frontalis-Behandlung",
       "synonyme": [
         "Stirnfalten",
@@ -2774,8 +2765,8 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-botox-kraehenfuesse",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
-      "name": "Botox Krähenfüße",
+      "kategorie": "Botulinumtoxin",
+      "name": "Botulinumtoxin an den Augenfältchen (Krähenfüße)",
       "fachbegriff": "Lateral-Canthal-Behandlung",
       "synonyme": [
         "Lachfalten Augen",
@@ -2795,11 +2786,11 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-brauenlifting-mit-botox",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
-      "name": "Brauenlifting mit Botox",
-      "fachbegriff": "Chemisches Browlift",
+      "kategorie": "Botulinumtoxin",
+      "name": "Augenbrauen anheben mit Botulinumtoxin",
+      "fachbegriff": "Botulinumtoxin an den Brauenabsenkern",
       "synonyme": [
-        "Augenbrauen anheben"
+        "Brauen anheben"
       ],
       "beschreibung": "Injektion mit dem Ziel, die Augenbrauen leicht anzuheben.",
       "behandler": "Arzt (approbiert)",
@@ -2815,11 +2806,11 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-lip-flip",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
+      "kategorie": "Botulinumtoxin",
       "name": "Lip Flip",
       "fachbegriff": "Botulinumtoxin Oberlippe",
       "synonyme": [
-        "Lippen voller wirken lassen ohne Filler"
+        "Oberlippe Botulinumtoxin"
       ],
       "beschreibung": "Injektion in den Lippenmuskel mit dem Ziel, die Oberlippe leicht nach außen zu drehen.",
       "behandler": "Arzt (approbiert)",
@@ -2835,8 +2826,8 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-botox-kinn-mundwinkel",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
-      "name": "Botox Kinn & Mundwinkel",
+      "kategorie": "Botulinumtoxin",
+      "name": "Botulinumtoxin an Kinn und Mundwinkeln",
       "fachbegriff": "Mentalis/DAO-Behandlung",
       "synonyme": [
         "Pflasterstein-Kinn",
@@ -2856,12 +2847,11 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-botox-hals",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
-      "name": "Botox Hals",
-      "fachbegriff": "Platysma-Behandlung / Nefertiti-Lift",
+      "kategorie": "Botulinumtoxin",
+      "name": "Botulinumtoxin am Hals",
+      "fachbegriff": "Platysma-Behandlung",
       "synonyme": [
         "Halsfalten",
-        "Nefertiti Lift",
         "Platysmabänder"
       ],
       "beschreibung": "Injektion in den Halsmuskel mit dem Ziel, Halsbänder zu glätten und die Kieferlinie zu straffen.",
@@ -2878,9 +2868,9 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-gesicht-verschmaelern-masseter-botox",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
-      "name": "Gesicht verschmälern (Masseter-Botox)",
-      "fachbegriff": "Masseter-Reduktion",
+      "kategorie": "Botulinumtoxin",
+      "name": "Botulinumtoxin in den Kaumuskel (Masseter)",
+      "fachbegriff": "Masseter-Behandlung (ästhetisch)",
       "synonyme": [
         "Masseter-Injektion",
         "Kaumuskel verkleinern"
@@ -2899,7 +2889,7 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-bunny-lines",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
+      "kategorie": "Botulinumtoxin",
       "name": "Bunny Lines",
       "fachbegriff": "Nasalis-Behandlung",
       "synonyme": [
@@ -2919,7 +2909,7 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-behandlung-von-starkem-schwitzen",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
+      "kategorie": "Botulinumtoxin",
       "name": "Behandlung von starkem Schwitzen",
       "fachbegriff": "Botulinumtoxin bei Hyperhidrose",
       "synonyme": [
@@ -2940,9 +2930,9 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-botox-bei-migraene",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Botulinumtoxin (Botox)",
-      "name": "Botox bei Migräne",
-      "fachbegriff": "Botulinumtoxin bei chronischer Migräne",
+      "kategorie": "Botulinumtoxin",
+      "name": "Botulinumtoxin bei chronischer Migräne",
+      "fachbegriff": "Botulinumtoxin-Injektionen in Kopf- und Nackenmuskeln",
       "synonyme": [
         "Migräne Botulinumtoxin"
       ],
@@ -2965,7 +2955,6 @@
       "fachbegriff": "Lippenaugmentation mit Hyaluronsäure",
       "synonyme": [
         "Lippen aufspritzen",
-        "volle Lippen",
         "Russian Lips"
       ],
       "beschreibung": "Filler-Injektion in die Lippen mit dem Ziel, Volumen und Kontur zu geben.",
@@ -3107,11 +3096,10 @@
       "id": "aesthetische-medizin-minimal-invasiv-nasenkorrektur-ohne-op",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Hyaluron-Filler",
-      "name": "Nasenkorrektur ohne OP",
+      "name": "Nasenkorrektur mit Filler",
       "fachbegriff": "Nicht-chirurgische Rhinoplastik",
       "synonyme": [
-        "Liquid Nose Job",
-        "15-Minuten-Nase",
+        "Nase unterspritzen",
         "Höcker ausgleichen"
       ],
       "beschreibung": "Filler-Injektion mit dem Ziel, Höcker und Asymmetrien der Nase auszugleichen.",
@@ -3149,7 +3137,7 @@
       "id": "aesthetische-medizin-minimal-invasiv-handverjuengung",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Hyaluron-Filler",
-      "name": "Handverjüngung",
+      "name": "Filler am Handrücken",
       "fachbegriff": "Filler-Injektion am Handrücken",
       "synonyme": [
         "Handrücken Filler",
@@ -3171,10 +3159,9 @@
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Hyaluron-Filler",
       "name": "Full-Face-Behandlung",
-      "fachbegriff": "Ganzheitliche Gesichtsbehandlung (Liquid Facelift)",
+      "fachbegriff": "Kombinierte Filler-Behandlung des Gesichts",
       "synonyme": [
-        "Liquid Lift",
-        "8-Punkt-Lift"
+        "Filler ganzes Gesicht"
       ],
       "beschreibung": "Kombinierte Volumen- und Konturbehandlung des Gesichts.",
       "behandler": "Arzt (approbiert)",
@@ -3213,9 +3200,8 @@
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Hautqualität & Kollagen",
       "name": "Skinbooster",
-      "fachbegriff": "Hyaluron-Skinbooster (z. B. Profhilo)",
+      "fachbegriff": "Hyaluron-Injektionen in die Haut",
       "synonyme": [
-        "Profhilo",
         "Hyaluron Haut",
         "Feuchtigkeit Haut"
       ],
@@ -3237,9 +3223,9 @@
       "name": "Kollagen-Stimulator",
       "fachbegriff": "Biostimulatoren (PLLA, CaHA)",
       "synonyme": [
-        "Sculptra",
-        "Radiesse",
-        "Kollagenaufbau"
+        "Biostimulator",
+        "Poly-L-Milchsäure",
+        "Calciumhydroxylapatit"
       ],
       "beschreibung": "Injektion von Stoffen wie PLLA oder CaHA, die die körpereigene Kollagenbildung anregen sollen.",
       "behandler": "Arzt (approbiert)",
@@ -3260,7 +3246,7 @@
       "fachbegriff": "PN-/PDRN-Behandlung",
       "synonyme": [
         "Lachs-DNA",
-        "Rejuran"
+        "PDRN"
       ],
       "beschreibung": "Injektionen mit Polynukleotiden in die Haut, auch um die Augen.",
       "behandler": "Arzt (approbiert)",
@@ -3277,11 +3263,10 @@
       "id": "aesthetische-medizin-minimal-invasiv-vampir-lifting",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Hautqualität & Kollagen",
-      "name": "Vampir-Lifting",
+      "name": "Eigenbluttherapie (PRP) im Gesicht",
       "fachbegriff": "PRP-Behandlung (Eigenblut)",
       "synonyme": [
-        "Eigenbluttherapie",
-        "Vampire Facial",
+        "Eigenblut Gesicht",
         "PRP"
       ],
       "beschreibung": "Injektion von Plasma aus Eigenblut in die Haut mit dem Ziel, die Hauterneuerung anzuregen.",
@@ -3320,11 +3305,10 @@
       "id": "aesthetische-medizin-minimal-invasiv-fett-weg-spritze",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Hautqualität & Kollagen",
-      "name": "Fett-weg-Spritze",
-      "fachbegriff": "Injektionslipolyse (Deoxycholsäure)",
+      "name": "Injektionslipolyse",
+      "fachbegriff": "Deoxycholsäure-Injektion",
       "synonyme": [
         "Doppelkinn Injektion",
-        "Fettwegspritze",
         "Lipolyse"
       ],
       "beschreibung": "Injektion eines Wirkstoffs in kleine Fettpolster, z. B. am Doppelkinn, mit dem Ziel, sie abzubauen.",
@@ -3366,7 +3350,6 @@
       "name": "Microneedling",
       "fachbegriff": "Kollagen-Induktionstherapie",
       "synonyme": [
-        "Dermapen",
         "Needling"
       ],
       "beschreibung": "Feine Nadelstiche in die Haut mit dem Ziel, die Hauterneuerung anzuregen.",
@@ -3387,8 +3370,7 @@
       "name": "Radiofrequenz-Microneedling",
       "fachbegriff": "RF-Microneedling",
       "synonyme": [
-        "Morpheus8",
-        "Potenza"
+        "RF-Needling"
       ],
       "beschreibung": "Microneedling mit zusätzlicher Wärme durch Hochfrequenz.",
       "behandler": "Arzt / Dermatologe",
@@ -3431,8 +3413,7 @@
       "fachbegriff": "Fraktionierter CO2-/Erbium-Laser",
       "synonyme": [
         "CO2-Laser",
-        "Laser Falten",
-        "Fraxel"
+        "Laser Falten"
       ],
       "beschreibung": "Behandlung mit fraktioniertem Laser mit dem Ziel, Falten, Narben und Hautunebenheiten zu mildern.",
       "behandler": "Facharzt Dermatologie",
@@ -3449,7 +3430,7 @@
       "id": "aesthetische-medizin-minimal-invasiv-ipl-photoverjuengung",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Haut & Laser",
-      "name": "IPL / Photoverjüngung",
+      "name": "IPL-Behandlung der Haut",
       "fachbegriff": "Intense Pulsed Light",
       "synonyme": [
         "Pigmentflecken",
@@ -3474,8 +3455,8 @@
       "name": "Laser-Haarentfernung",
       "fachbegriff": "Laser-Epilation (Dioden-/Alexandrit-Laser)",
       "synonyme": [
-        "Haare weglasern",
-        "Laser Epilation"
+        "Laser Epilation",
+        "Haarentfernung mit Laser"
       ],
       "beschreibung": "Haarentfernung mit Laserlicht.",
       "behandler": "Arzt oder Fachpersonal mit Fachkunde nach § 5 Abs. 1 NiSV",
@@ -3495,7 +3476,7 @@
       "name": "Tattooentfernung",
       "fachbegriff": "Pikosekunden-/Q-Switch-Laser",
       "synonyme": [
-        "Tattoo weglasern",
+        "Tattoo lasern",
         "Permanent-Make-up entfernen"
       ],
       "beschreibung": "Laserbehandlung mit dem Ziel, Farbpigmente in der Haut zu zerkleinern.",
@@ -3598,12 +3579,11 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-ultraschall-lifting",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Straffung ohne OP",
-      "name": "Ultraschall-Lifting",
-      "fachbegriff": "HIFU (z. B. Ultherapy)",
+      "kategorie": "Gerätebehandlungen an Haut und Körper",
+      "name": "Ultraschall-Behandlung der Haut",
+      "fachbegriff": "Hochintensiver fokussierter Ultraschall (HIFU)",
       "synonyme": [
         "HIFU",
-        "Ultherapy",
         "HIFU Gesicht"
       ],
       "beschreibung": "Fokussierter Ultraschall, der tiefere Hautschichten erwärmt.",
@@ -3620,12 +3600,12 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-radiofrequenz-straffung",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Straffung ohne OP",
-      "name": "Radiofrequenz-Straffung",
-      "fachbegriff": "Monopolare Radiofrequenz (z. B. Thermage)",
+      "kategorie": "Gerätebehandlungen an Haut und Körper",
+      "name": "Radiofrequenz-Behandlung der Haut",
+      "fachbegriff": "Monopolare Radiofrequenz",
       "synonyme": [
-        "Thermage",
-        "RF-Straffung"
+        "RF-Behandlung",
+        "Radiofrequenz Gesicht"
       ],
       "beschreibung": "Erwärmung der Haut durch Hochfrequenz, mit dem Ziel, sie zu straffen.",
       "behandler": "Arzt / Dermatologe",
@@ -3641,12 +3621,11 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-fett-wegfrieren",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Straffung ohne OP",
-      "name": "Fett wegfrieren",
-      "fachbegriff": "Kryolipolyse",
+      "kategorie": "Gerätebehandlungen an Haut und Körper",
+      "name": "Kryolipolyse (Kältebehandlung)",
+      "fachbegriff": "Kontrollierte Kühlung des Fettgewebes",
       "synonyme": [
-        "CoolSculpting",
-        "Fettabbau Kälte"
+        "Kältebehandlung Fettpolster"
       ],
       "beschreibung": "Kühlung von Fettpolstern mit dem Ziel, Fettzellen abzubauen.",
       "behandler": "Arzt / Fachpersonal",
@@ -3662,13 +3641,11 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-muskelaufbau-fettreduktion-per-geraet",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Straffung ohne OP",
+      "kategorie": "Gerätebehandlungen an Haut und Körper",
       "name": "Muskelstimulation per Gerät (HIFEM/EMS)",
-      "fachbegriff": "HIFEM / EMS-Body-Contouring",
+      "fachbegriff": "Hochintensive elektromagnetische Muskelstimulation (HIFEM) / EMS",
       "synonyme": [
-        "Emsculpt",
-        "Body Contouring",
-        "Muskelaufbau per Gerät"
+        "elektromagnetische Muskelstimulation"
       ],
       "beschreibung": "Elektromagnetische Stimulation der Muskeln.",
       "behandler": "Fachpersonal mit Fachkunde nach § 7 NiSV",
@@ -3684,7 +3661,7 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-cellulite-behandlung",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Straffung ohne OP",
+      "kategorie": "Gerätebehandlungen an Haut und Körper",
       "name": "Cellulite-Behandlung",
       "fachbegriff": "Cellulite-Therapie (Stoßwelle, Subzision)",
       "synonyme": [
@@ -3749,7 +3726,7 @@
     {
       "id": "aesthetische-medizin-minimal-invasiv-infusionstherapie",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
-      "kategorie": "Wellness-Medizin",
+      "kategorie": "Infusionen",
       "name": "Infusionstherapie",
       "fachbegriff": "Vitamin-/Mikronährstoff-Infusion",
       "synonyme": [
@@ -4168,11 +4145,10 @@
       "bereich": "Plastische & Ästhetische Chirurgie",
       "kategorie": "Körper",
       "name": "Fettabsaugung",
-      "fachbegriff": "Liposuktion (Tumeszenz, Vaser)",
+      "fachbegriff": "Liposuktion (Tumeszenz, ultraschallassistiert)",
       "synonyme": [
         "Fett absaugen",
-        "Lipo",
-        "Vaser"
+        "Lipo"
       ],
       "beschreibung": "Absaugen von Fettgewebe.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
@@ -4193,8 +4169,7 @@
       "fachbegriff": "Abdominoplastik",
       "synonyme": [
         "Bauchstraffung",
-        "Fettschürze",
-        "Mommy Makeover"
+        "Fettschürze"
       ],
       "beschreibung": "Entfernung überschüssiger Bauchhaut, bei Bedarf mit Raffung der Bauchmuskeln.",
       "behandler": "Facharzt Plastische und Ästhetische Chirurgie",
@@ -4335,7 +4310,7 @@
       "id": "plastische-aesthetische-chirurgie-intimbereich-verjuengung",
       "bereich": "Plastische & Ästhetische Chirurgie",
       "kategorie": "Intimbereich",
-      "name": "Intimbereich-Verjüngung",
+      "name": "Laser- oder Radiofrequenzbehandlung im Intimbereich",
       "fachbegriff": "Vaginale Laser-/RF-Behandlung",
       "synonyme": [
         "Vaginal-Laser",
@@ -4483,10 +4458,9 @@
       "id": "weitere-selbstzahler-eingriffe-augenlasern-smile",
       "bereich": "Weitere Selbstzahler-Eingriffe",
       "kategorie": "Augen",
-      "name": "Augenlasern (SMILE)",
-      "fachbegriff": "SMILE / Lentikelextraktion",
+      "name": "Augenlasern (Lentikelextraktion)",
+      "fachbegriff": "Refraktive Lentikelextraktion (KLEx)",
       "synonyme": [
-        "SMILE",
         "schnittarmes Lasern"
       ],
       "beschreibung": "Laserbehandlung der Hornhaut über einen kleinen Schnitt, ohne Flap.",
@@ -4547,11 +4521,10 @@
       "id": "weitere-selbstzahler-eingriffe-hydrafacial",
       "bereich": "Weitere Selbstzahler-Eingriffe",
       "kategorie": "Kosmetik (nicht ärztlich)",
-      "name": "Hydrafacial",
+      "name": "Hautreinigung mit Wasser-Peeling",
       "fachbegriff": "Hydradermabrasion",
       "synonyme": [
-        "Hydrafacial",
-        "Aquafacial"
+        "Gesichtsreinigung"
       ],
       "beschreibung": "Reinigung, Peeling und Auftragen von Pflegestoffen in einer Behandlung.",
       "behandler": "Kosmetiker/in (nicht ärztlich)",
@@ -5468,8 +5441,8 @@
       "name": "Gürtelrose-Impfung",
       "fachbegriff": "Herpes-zoster-Impfung",
       "synonyme": [
-        "Shingrix",
-        "Gürtelrose"
+        "Gürtelrose",
+        "Herpes zoster"
       ],
       "beschreibung": "Impfung gegen Gürtelrose ab 60.",
       "behandler": "Hausarzt / Reisemediziner",
@@ -9202,7 +9175,7 @@
       "fachbegriff": "Dermatoskopie / Videodermatoskopie",
       "synonyme": [
         "Muttermal Mapping",
-        "Fotofinder"
+        "digitale Auflichtmikroskopie"
       ],
       "beschreibung": "Digitale Kontrolle von Muttermalen.",
       "behandler": "Facharzt Dermatologie",
@@ -11654,7 +11627,7 @@
       "id": "urologie-andrologie-botox-in-die-blase",
       "bereich": "Urologie & Andrologie",
       "kategorie": "Urologie",
-      "name": "Botox in die Blase",
+      "name": "Botulinumtoxin in die Blase",
       "fachbegriff": "Botulinumtoxin-Injektion in die Harnblase",
       "synonyme": [
         "überaktive Blase",
@@ -12749,7 +12722,7 @@
       "name": "Hörtest beim Hörakustiker",
       "fachbegriff": "Ton- und Sprachaudiometrie",
       "synonyme": [
-        "Hörtest kostenlos"
+        "Hörtest Akustiker"
       ],
       "beschreibung": "Hörtest ohne Rezept.",
       "behandler": "Hörakustiker/in",

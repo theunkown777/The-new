@@ -12,6 +12,14 @@ GEBO_DEFAULT = {
 }
 
 
+# Frühere Namen umbenannter Leistungen: (Bereich, neuer Name) → alter Name. Wie id_name bei E() in build_katalog.py:
+# Die ID entsteht aus dem alten Namen, damit die Adresse /leistungen/<id> gleich bleibt.
+FRUEHERE_NAMEN = {
+    ("Urologie & Andrologie", "Botulinumtoxin in die Blase"): "Botox in die Blase",
+}
+_frueher_benutzt = set()
+
+
 def F(bereich, behandler, block, gebo=None, ust=False, hwg="nein"):
     B(bereich)
     kat = None
@@ -29,8 +37,11 @@ def F(bereich, behandler, block, gebo=None, ust=False, hwg="nein"):
         g = gebo or GEBO_DEFAULT[kt]
         if gebo is None and inv == "O" and aus in ("3", "4"):
             g += " · stationär: DRG"
+        id_name = FRUEHERE_NAMEN.get((bereich, name))
+        if id_name:
+            _frueher_benutzt.add((bereich, name))
         E(kat, name, fach, syn, desc, behandler, kt, g, inv, aus, hwg=hwg,
-          ust=(ust and kt == "SZ"), hinweis=hinweis)
+          ust=(ust and kt == "SZ"), hinweis=hinweis, id_name=id_name)
 
 
 F("Vorsorge & Check-ups", "Hausarzt / jeweiliger Facharzt", """
@@ -83,7 +94,7 @@ Standardimpfungen | Impfungen nach STIKO | Tetanus, Diphtherie, Keuchhusten, Pol
 Grippeimpfung | Influenza-Impfung | Grippeschutz | Jährliche Impfung gegen Grippe. | GKV | M | 0
 Corona-Impfung | COVID-19-Impfung | Covid Booster | Impfung gegen COVID-19. | GKV | M | 0
 Pneumokokken-Impfung | Pneumokokken-Impfung | Lungenentzündung Impfung | Impfung gegen Pneumokokken, Erreger von Lungenentzündungen. | GKV | M | 0
-Gürtelrose-Impfung | Herpes-zoster-Impfung | Shingrix, Gürtelrose | Impfung gegen Gürtelrose ab 60. | GKV | M | 0
+Gürtelrose-Impfung | Herpes-zoster-Impfung | Gürtelrose, Herpes zoster | Impfung gegen Gürtelrose ab 60. | GKV | M | 0
 HPV-Impfung | HPV-Impfung | Gebärmutterhalskrebs Impfung | Impfung gegen humane Papillomviren (HPV), die bestimmte Krebsarten auslösen können. | GKV | M | 0
 RSV-Impfung | RSV-Impfung | RSV | Impfung oder Antikörpergabe gegen das RS-Virus (Ältere, Säuglinge). | GKV | M | 0
 FSME-Impfung | FSME-Impfung | Zeckenimpfung | Impfung gegen FSME, eine durch Zecken übertragene Hirnhautentzündung. | GKV | M | 0
@@ -332,7 +343,7 @@ Augen-Lid-Operationen | Lidchirurgie (medizinisch) | Hängelid, Lidfehlstellung 
 F("Dermatologie (medizinisch)", "Facharzt Dermatologie", """
 ## Haut
 Hautarzt-Sprechstunde | Dermatologische Untersuchung | Hautarzt, Ausschlag | Untersuchung von Haut, Haaren und Nägeln. | GKV | N | 0
-Muttermal-Check mit Auflichtmikroskop | Dermatoskopie / Videodermatoskopie | Muttermal Mapping, Fotofinder | Digitale Kontrolle von Muttermalen. | SZ | N | 0
+Muttermal-Check mit Auflichtmikroskop | Dermatoskopie / Videodermatoskopie | Muttermal Mapping, digitale Auflichtmikroskopie | Digitale Kontrolle von Muttermalen. | SZ | N | 0
 Neurodermitis-Behandlung | Atopische Dermatitis-Therapie | Neurodermitis, Ekzem | Behandlung von Neurodermitis. | GKV | N | 0
 Schuppenflechte-Behandlung | Psoriasis-Therapie | Psoriasis, Schuppenflechte | Behandlung inkl. Lichttherapie und Biologika. | GKV | N | 0
 Lichttherapie | UV-Phototherapie | UVB-Therapie | UV-Licht bei Hautkrankheiten. | GKV | N | 0
@@ -531,7 +542,7 @@ F("Urologie & Andrologie", "Facharzt Urologie", """
 ## Urologie
 Prostatakrebs-Behandlung | Radikale Prostatektomie / Strahlentherapie bei Prostatakarzinom | Prostatakrebs OP, Prostata entfernen | Behandlung von Prostatakrebs. | GKV | O | 4 | Bei lokal begrenztem Prostatakarzinom Anspruch auf Zweitmeinung (§ 27b SGB V).
 Harnröhrenverengung | Urethrotomie / Harnröhrenplastik | schwacher Harnstrahl, Harnröhrenstriktur | Erweiterung einer verengten Harnröhre. | GKV | O | 2
-Botox in die Blase | Botulinumtoxin-Injektion in die Harnblase | überaktive Blase, Dranginkontinenz | Spritzen in die Blasenwand bei Reizblase. | GKV | M | 0
+Botulinumtoxin in die Blase | Botulinumtoxin-Injektion in die Harnblase | überaktive Blase, Dranginkontinenz | Spritzen in die Blasenwand bei Reizblase. | GKV | M | 0
 Kinderurologie | Kinderurologische Eingriffe | Hodenhochstand, Vorhautverengung Kind | Behandlung urologischer Probleme bei Kindern. | GKV | O | 2
 Magnetstimulation des Beckenbodens | Extrakorporale Magnetstimulation | Beckenbodenstuhl, Magnetstuhl | Training der Beckenbodenmuskulatur im Sitzen. | SZ | N | 0
 """)
@@ -622,7 +633,7 @@ Vergrößernde Sehhilfen | Versorgung mit vergrößernden Sehhilfen | Lupe, Lupe
 
 F("Hilfsmittel & Gesundheitshandwerk", "Hörakustiker/in", """
 ## Hörakustik
-Hörtest beim Hörakustiker | Ton- und Sprachaudiometrie | Hörtest kostenlos | Hörtest ohne Rezept. | SZ | N | 0 | Für eine Versorgung über die Kasse braucht es eine ärztliche Verordnung.
+Hörtest beim Hörakustiker | Ton- und Sprachaudiometrie | Hörtest Akustiker | Hörtest ohne Rezept. | SZ | N | 0 | Für eine Versorgung über die Kasse braucht es eine ärztliche Verordnung.
 Gehörschutz nach Maß | Individueller Gehörschutz (Otoplastik) | Musiker Gehörschutz, Schlafen, Lärm | Angepasster Schutz aus einem Ohrabdruck. | SZ | N | 0
 Tinnitus-Versorgung | Hörsystem mit Rauschgenerator | Tinnitus Gerät, Noiser | Geräte bei Ohrgeräuschen, z. B. mit Rauschgenerator. | GKV_EA | N | 0
 Hörgeräte-Service | Nachsorge und Reparatur von Hörsystemen | Hörgerät reparieren, reinigen | Reinigung, Kontrolle und Reparatur. | GKV | N | 0 | Ob der Service bei Kassenversorgung in der Versorgungspauschale enthalten ist, beim Hörakustiker fragen.
@@ -684,3 +695,6 @@ F("Hilfsmittel & Gesundheitshandwerk", "Hörakustiker/in", """
 Hörgeräte für Kinder | Kinderhörsystem-Versorgung (Pädakustik) | Hörgerät Kind | Hörversorgung für Kinder und Jugendliche. | GKV | N | 0
 Hörgeräte-Zubehör | Zubehör für Hörsysteme | Akkus, Batterien, Streamer, Ladegerät | Batterien, Akkus und Verbindungszubehör. | SZ | N | 0
 """, gebo="Hilfsmittelverzeichnis (GKV) / Privat")
+
+# Jeder frühere Name muss zu einer Zeile passen, sonst bekäme die umbenannte Leistung eine neue Adresse.
+assert _frueher_benutzt == set(FRUEHERE_NAMEN), set(FRUEHERE_NAMEN) - _frueher_benutzt
