@@ -43,6 +43,12 @@ Der Anbieter sichert die Datenbank fortlaufend. Wie weit man zurückgehen kann, 
 Den Zeitraum vorher in der Neon-Konsole nachsehen (Projekt, Einstellungen, Aufbewahrung der Historie) und hier eintragen: ______________
 Diese Angabe braucht auch das Löschen einer Praxis (Abschnitt 11, `--sicherung-tage`, in ganzen Tagen, angefangene Tage aufrunden).
 
+Stand 17.11.2026: Die Datenbank läuft über den Vercel-Marketplace im Neon-Tarif **Free**. Laut Neon reicht die Historie dort
+höchstens **6 Stunden** zurück (https://neon.com/docs/postgres/backup-restore/history-window). Dazu kann es **einen** manuell
+angelegten Snapshot geben, der bleibt, bis man ihn löscht. Für `--sicherung-tage` heißt das: `1`, solange kein Snapshot und kein
+alter Branch mit Praxisdaten besteht (in der Konsole unter Snapshots und Branches nachsehen). Längere Zeiträume gibt es erst in
+bezahlten Tarifen (Launch bis 7 Tage, Scale bis 30 Tage). Vor der ersten echten Praxis entscheiden, ob 6 Stunden reichen.
+
 ### Ablauf
 
 1. **Ruhe bewahren und Zeitpunkt festlegen.** Bis wann waren die Daten sicher in Ordnung? Uhrzeit in deutscher Zeit notieren.
