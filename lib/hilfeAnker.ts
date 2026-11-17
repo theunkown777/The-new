@@ -4,7 +4,9 @@
 //
 // lib/hilfeAnker.test.ts liest app/ und components/ von der Platte und prüft in beide Richtungen:
 // Jeder Schlüssel hier steht als data-hilfe im Code, und jedes data-hilfe im Code steht hier.
-// Reine Daten ohne Abhängigkeiten, damit nichts davon die Website schwerer macht.
+// Reine Daten ohne Abhängigkeiten (außer den ebenso reinen Fragen des Praxismanagers), damit nichts davon die Website schwerer macht.
+
+import { FRAGEN, PM_THEMEN, type ThemaId } from "@/lib/praxisManagerFragen";
 
 export interface AnkerInfo {
   /** Seite, auf der das Element steht. Dynamische Teile wie [id] stehen in eckigen Klammern. */
@@ -13,6 +15,8 @@ export interface AnkerInfo {
   name: string;
   /** Steht in jeder Seite der App (Seitenleiste, Kopfzeile). */
   ueberall?: boolean;
+  /** Steht am Handy im Menü: Der Zeiger öffnet es, wenn das Element sonst nicht sichtbar ist. */
+  imMenue?: boolean;
 }
 
 /** Bedienelemente auf den Seiten der App. */
@@ -73,6 +77,7 @@ export const SEITEN_ANKER = {
   "leistungsverzeichnis-eigene": { seite: "/leistungsverzeichnis", name: "Eigene Leistung anlegen" },
   "hilfe-frage": { seite: "/hilfe-praxis", name: "Feld für Ihre Frage" },
   "suche-oeffnen": { seite: "/dashboard", name: "Suche (Strg+K)", ueberall: true },
+  abmelden: { seite: "/dashboard", name: "Knopf „Abmelden“", ueberall: true, imMenue: true },
   // Einstellungen
   "fachgebiet-wahl": { seite: "/settings/fachgebiet", name: "Auswahl „Fachgebiet der Praxis“" },
   "eigene-leistungen": { seite: "/settings/fachgebiet", name: "Eigene Leistungen" },
@@ -127,9 +132,9 @@ export const MENUE_ZIELE = {
 } as const;
 export type MenueZiel = keyof typeof MENUE_ZIELE;
 
-/** Themen des Praxismanagers (gleiche Kennungen wie ThemaId in lib/praxisManager.ts; der Test prüft das). */
-export const PM_THEMEN = ["rechnungen", "berichte", "vorsorge", "umsatz", "engpaesse", "termine", "abrechnung"] as const;
-export type PmThema = (typeof PM_THEMEN)[number];
+/** Themen des Praxismanagers: dieselbe Liste wie in lib/praxisManager.ts (beide lesen lib/praxisManagerFragen.ts). */
+export { PM_THEMEN };
+export type PmThema = ThemaId;
 
 /** Abschnitte der Startseite der Website (Attribut id="…"). */
 export const WEBSITE_ANKER = {
@@ -152,26 +157,17 @@ export type HilfeAnker = SeitenAnker | `menue:${MenueZiel}` | `praxismanager:${P
 export const menueAnker = (href: MenueZiel): HilfeAnker => `menue:${href}`;
 export const istMenueAnker = (a: string): boolean => a.startsWith("menue:");
 
-const PM_NAME: Record<PmThema, string> = {
-  rechnungen: "Welche Rechnungen sind offen?",
-  berichte: "Welche Berichte warten auf Freigabe?",
-  vorsorge: "Wer ist zur Vorsorge fällig?",
-  umsatz: "Wie läuft der Umsatz?",
-  engpaesse: "Wo hakt es gerade?",
-  termine: "Wie voll ist der Kalender?",
-  abrechnung: "Was ist nicht abgerechnet?",
-};
-
 /** Beschreibung eines Ankers; null, wenn es ihn nicht gibt. */
 export function ankerInfo(anker: string): AnkerInfo | null {
-  if (anker in SEITEN_ANKER) return SEITEN_ANKER[anker as SeitenAnker];
+  // Object.hasOwn statt „in“: sonst gälten auch „toString“ oder „constructor“ als Anker.
+  if (Object.hasOwn(SEITEN_ANKER, anker)) return SEITEN_ANKER[anker as SeitenAnker];
   const [art, rest] = [anker.slice(0, anker.indexOf(":")), anker.slice(anker.indexOf(":") + 1)];
-  if (art === "menue" && rest in MENUE_ZIELE) return { seite: rest, name: `Menüpunkt „${MENUE_ZIELE[rest as MenueZiel]}“`, ueberall: true };
+  if (art === "menue" && Object.hasOwn(MENUE_ZIELE, rest)) return { seite: rest, name: `Menüpunkt „${MENUE_ZIELE[rest as MenueZiel]}“`, ueberall: true };
   if ((art === "praxismanager" || art === "praxismanager-knopf") && (PM_THEMEN as readonly string[]).includes(rest)) {
-    const frage = PM_NAME[rest as PmThema];
+    const frage = FRAGEN[rest as PmThema];
     return { seite: "/praxismanager", name: art === "praxismanager" ? `Thema „${frage}“` : `Knopf zum Thema „${frage}“` };
   }
-  if (art === "website" && rest in WEBSITE_ANKER) return WEBSITE_ANKER[rest as WebsiteAnker];
+  if (art === "website" && Object.hasOwn(WEBSITE_ANKER, rest)) return WEBSITE_ANKER[rest as WebsiteAnker];
   return null;
 }
 

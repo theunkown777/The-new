@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { auditFromSession } from "@/lib/audit";
 import { kiFehlerGrund } from "@/lib/anthropic";
-import { KI_ANTWORT_HINWEIS, KiAntwortFehler, kiHilfeBeantworten, kiHilfenZugang, namensKandidaten } from "@/lib/kiHilfen";
+import { KI_ANTWORT_HINWEIS, KiAntwortFehler, gefundeneNamen, kiHilfeBeantworten, kiHilfenZugang, namensFilter, namensKandidaten } from "@/lib/kiHilfen";
 import { HILFE_WISSEN } from "@/lib/hilfeWissen";
 import { hilfeText, sichtbareHilfe } from "@/lib/hilfeSuche";
 import { seitenTitel } from "@/lib/hilfeZeiger";
@@ -44,14 +44,10 @@ export async function POST(req: Request) {
   const eintraege = sichtbareHilfe(HILFE_WISSEN, { fach: isDental(praxis?.specialty) ? "zahn" : "andere", rechte }).map((e) => hilfeText(e, woerter));
 
   // Namen eigener Patienten in Frage und Verlauf finden, damit genau diese ersetzt werden. Nur in dieser Praxis.
+  // Vor- und Nachnamen getrennt und je Name nur einmal (distinct): Auch 60 Patienten „Thomas“ verdrängen keinen
+  // zweiten Namen. Ohne Obergrenze; die Zahl der Zeilen ist durch die verschiedenen Namen der Praxis begrenzt.
   const kandidaten = namensKandidaten([frage, ...verlauf]);
-  const namen = kandidaten.length
-    ? await prisma.patient.findMany({
-        where: { practiceId, OR: kandidaten.flatMap((w) => [{ firstName: { equals: w, mode: "insensitive" as const } }, { lastName: { equals: w, mode: "insensitive" as const } }]) },
-        select: { firstName: true, lastName: true },
-        take: 50,
-      })
-    : [];
+  const namen = kandidaten.length ? await eigeneNamen(practiceId, kandidaten) : [];
 
   try {
     const r = await kiHilfeBeantworten({ frage, eintraege, seitentitel: seite ? seitenTitel(seite, woerter) : null, verlauf, namen });
@@ -63,4 +59,22 @@ export async function POST(req: Request) {
     console.error("KI-Hilfe fehlgeschlagen", e instanceof Error ? e.name : "Fehler");
     return NextResponse.json({ error: `Antwort mit KI nicht möglich: ${kiFehlerGrund(e)} Die Einträge ohne KI stehen weiter bereit.` }, { status: 502 });
   }
+}
+
+/** Wörter aus Frage und Verlauf, die Vor- oder Nachname (oder ein Teil davon) eines eigenen Patienten sind. */
+async function eigeneNamen(practiceId: string, kandidaten: string[]): Promise<string[]> {
+  const mode = "insensitive" as const;
+  const [vor, nach] = await Promise.all([
+    prisma.patient.findMany({
+      where: { practiceId, OR: kandidaten.flatMap((w) => namensFilter(w).map((f) => ({ firstName: { ...f, mode } }))) },
+      select: { firstName: true },
+      distinct: ["firstName"],
+    }),
+    prisma.patient.findMany({
+      where: { practiceId, OR: kandidaten.flatMap((w) => namensFilter(w).map((f) => ({ lastName: { ...f, mode } }))) },
+      select: { lastName: true },
+      distinct: ["lastName"],
+    }),
+  ]);
+  return gefundeneNamen(kandidaten, [...vor.map((p) => p.firstName), ...nach.map((p) => p.lastName)]);
 }

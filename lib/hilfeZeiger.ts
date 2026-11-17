@@ -143,7 +143,7 @@ export function zeigZiel(e: Pick<HilfeEintrag, "anker" | "href" | "pfad">, k: { 
     if (ziel !== null) {
       if (!seiteErlaubt(ziel, k)) return null;
       const gleicheSeite = info.ueberall || ziel === mitAbfrage || (!ziel.includes("?") && musterPasst(aktuell, ziel));
-      return { href: gleicheSeite ? mitAbfrage : ziel, anker: e.anker, selektor: ankerSelektor(e.anker), name: info.name, pfad: e.pfad, menue: istMenueAnker(e.anker), gleicheSeite };
+      return { href: gleicheSeite ? mitAbfrage : ziel, anker: e.anker, selektor: ankerSelektor(e.anker), name: info.name, pfad: e.pfad, menue: istMenueAnker(e.anker) || !!info.imMenue, gleicheSeite };
     }
   }
   const href = e.href.split("#")[0];

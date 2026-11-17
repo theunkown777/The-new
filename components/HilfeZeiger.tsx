@@ -118,7 +118,13 @@ export function HilfeZeiger() {
         el = await warten(a.selektor, nr, Date.now() + 1500);
       }
       if (nr !== lauf.current) return;
-      if (!el) return zeigeHinweis(`Hier nicht sichtbar. Menü: ${a.pfad}`);
+      if (!el) {
+        // Nichts zu markieren: Hinweis zeigen und den Fokus zurück auf den Knopf von Frag Sorrida geben,
+        // damit er nach dem Schließen des Chats nicht im Leeren hängt.
+        zeigeHinweis(`Hier nicht sichtbar. ${a.anker.startsWith("website:") ? "Ort" : "Menü"}: ${a.pfad}`);
+        document.querySelector<HTMLElement>('[data-testid="frag-sorrida-knopf"]')?.focus();
+        return;
+      }
       markieren(el, a);
     }
 

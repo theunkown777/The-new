@@ -8,8 +8,67 @@ import type { MenueRechte } from "@/lib/rollen";
 
 const OHNE_GEWICHT = new Set(
   ("wie wo was wer wann warum wieso weshalb welche welcher welches kann koennen ich man wir sie mir mich uns einen eine einer eines einem ein den dem das der die des ist sind war mit fuer in im an am auf aus zu zum zur und oder bei von vom " +
-    "mein meine meinen meiner unser unsere sorrida bitte moechte will muss soll es gibt geht mache machen tun nicht noch auch nur dann wenn denn so da hier dort etwas mal eigentlich ueber nach vor durch als ob dass hat habe haben hatte wird werden wurde").split(" "),
+    "mein meine meinen meiner unser unsere sorrida bitte moechte will muss soll es gibt geht mache machen tun nicht noch auch nur dann wenn denn so da hier dort etwas mal eigentlich ueber nach vor durch als ob dass hat habe haben hatte wird werden wurde " +
+    // Füllverben der Alltagssprache: „Wo stelle ich … ein?“ sucht nicht nach „Stellen“, „Kann ich … nutzen?“ nicht nach „Nutzen“.
+    "ab stelle stellen nutze nutzen benutze benutzen verwende verwenden bekomme bekommen kriege kriegen").split(" "),
 );
+
+// Gleiche Bedeutung, andere Wörter. Gilt nur für die Frage: Ein Wort der Frage passt auch, wenn im Eintrag eines dieser
+// Wörter steht (etwas schwächer als das Wort selbst). Bewusst kurz und nur mit Paaren, die in der App dasselbe meinen.
+const SYNONYME: [string, string][] = [
+  ["absagen abgesagt", "abgesagt absagen"],
+  ["löschen", "entfernen"],
+  ["versenden verschicken zusenden übermitteln", "schicken senden"],
+  ["schicken", "senden"],
+  ["senden", "schicken"],
+  ["hinzufügen erstellen", "anlegen"],
+  ["anlegen", "erstellen"],
+  ["öffnungszeiten öffnungszeit", "sprechzeiten"],
+  ["steuerberater steuerberaterin steuerbüro", "datev steuerberatung"],
+  ["logout ausloggen abmeldung", "abmelden"],
+  ["login einloggen", "anmelden"],
+  ["kostenvoranschlag", "vorschlag kostenvorschlag"],
+  ["rückgängig", "stornieren zurücksetzen"],
+  ["unbezahlt unbezahlte", "überfällig offen"],
+  ["ausdrucken ausdruck", "drucken pdf"],
+  ["mitarbeiterin mitarbeiter kollegin kollege", "team"],
+];
+/** Nach dem gleichen Wortstamm wie die Frage geordnet. Bei Bedarf befüllt, damit der Import nichts rechnet. */
+let synonymStaemme: Map<string, string[]> | null = null;
+function synonymeVon(w: string): string[] {
+  if (!synonymStaemme) {
+    synonymStaemme = new Map();
+    for (const [von, zu] of SYNONYME) {
+      const ziel = woerter(zu);
+      for (const v of woerter(von)) synonymStaemme.set(v, [...new Set([...(synonymStaemme.get(v) ?? []), ...ziel.filter((z) => z !== v)])]);
+    }
+  }
+  return synonymStaemme.get(w) ?? [];
+}
+/** Ein Wort der Frage, das nur über ein Synonym passt, zählt mit diesem Anteil. */
+const SYNONYM_GEWICHT = 0.8;
+
+// Trennbare Verben: „Wie sage ich den Termin ab?“ meint „absagen“, „Wo trage ich das ein?“ meint „eintragen“.
+// Steht ein solcher Wortteil am Ende der Frage, wird er mit dem Verb vor (oder nach) „ich“, „wir“ oder „man“ verbunden.
+const TRENNTEIL = "ab|an|auf|aus|ein|mit|nach|vor|zu|zurück|zurueck|hinzu|fest|weg|um";
+const MODALVERB = /^(kann|koennen|können|muss|muessen|müssen|soll|sollen|darf|duerfen|dürfen|will|wollen|moechte|möchte|mag|werde|wird)$/i;
+const FRAGEWORT = /^(wie|wo|was|wann|warum|wieso|weshalb|welche[rsnm]?|wer|und|oder|dann|wenn)$/i;
+/** „… sage ich den Termin ab?“: Verb vor ich/wir/man, Wortteil am Ende. */
+const VERB_VOR_ICH = new RegExp(`(?<![\\p{L}])(\\p{L}+)(\\s+(?:ich|wir|man)\\s[^.?!]*?)\\s(?:${TRENNTEIL})\\s*([.?!]*)\\s*$`, "iu");
+/** „Ich melde mich ab“: ich/wir, dann das Verb, Wortteil am Ende. */
+const ICH_VERB = new RegExp(`^(\\s*(?:ich|wir)\\s+)(\\p{L}+)([^.?!]*?)\\s(?:${TRENNTEIL})\\s*([.?!]*)\\s*$`, "iu");
+const TEIL_AM_ENDE = new RegExp(`\\s(${TRENNTEIL})\\s*[.?!]*\\s*$`, "iu");
+
+/** Verbindet ein getrenntes Verb wieder („sage … ab“ → „absage …“). Sonst bleibt die Frage, wie sie ist. */
+export function trennbareVerben(frage: string): string {
+  const teil = TEIL_AM_ENDE.exec(frage)?.[1]?.toLowerCase();
+  if (!teil) return frage;
+  const vor = VERB_VOR_ICH.exec(frage);
+  if (vor && !MODALVERB.test(vor[1]) && !FRAGEWORT.test(vor[1])) return `${frage.slice(0, vor.index)}${teil}${vor[1].toLowerCase()}${vor[2]}${vor[3]}`;
+  const ich = ICH_VERB.exec(frage);
+  if (ich && !MODALVERB.test(ich[2])) return `${ich[1]}${teil}${ich[2].toLowerCase()}${ich[3]}${ich[4]}`;
+  return frage;
+}
 
 // Fächer sagen statt „Patienten“ auch „Klienten“ oder „Kunden“ (lib/fachprofile.ts). Die Sammlung schreibt „Patienten“.
 const PERSON_WORT: Record<string, string> = {
@@ -95,19 +154,28 @@ const gehoertZurSeite = (e: HilfeEintrag, pfad: string) => (e.seiten ?? []).some
  */
 export function sucheHilfe(frage: string, eintraege: HilfeEintrag[], opt: HilfeKontext & { anzahl?: number } = {}): HilfeTreffer[] {
   const liste = sichtbareHilfe(eintraege, opt);
-  const gesucht = [...new Set(woerter(frage.slice(0, 500)))];
+  const gesucht = [...new Set(woerter(trennbareVerben(frage.slice(0, 500))))];
   if (gesucht.length === 0 || liste.length === 0) return [];
   const treffer = liste.map((eintrag) => {
     const f = felder(eintrag);
     const beste = (feld: string[], w: string) => feld.reduce((m, x) => Math.max(m, passt(x, w)), 0);
-    const je = gesucht.map((w) => Math.max(3 * beste(f.stich, w), 2 * beste(f.meld, w), 2 * beste(f.frage, w), 2 * beste(f.pfad, w), beste(f.antwort, w)));
-    return { eintrag, je };
+    const wert = (w: string) => Math.max(3 * beste(f.stich, w), 2 * beste(f.meld, w), 2 * beste(f.frage, w), 2 * beste(f.pfad, w), beste(f.antwort, w));
+    const je = gesucht.map((w) => Math.max(wert(w), ...synonymeVon(w).map((s) => SYNONYM_GEWICHT * wert(s))));
+    const hat = (w: string) => f.stich.includes(w) || f.meld.includes(w) || f.frage.includes(w) || f.pfad.includes(w) || f.antwort.includes(w);
+    const genau = gesucht.map((w) => hat(w) || synonymeVon(w).some(hat));
+    return { eintrag, je, genau };
   });
-  // Seltene Wörter zählen mehr: Gewicht je Wort nach der Zahl der Einträge, in denen es vorkommt.
+  // Seltene Wörter zählen mehr: Gewicht je Wort nach der Zahl der Einträge, in denen es (oder ein Synonym) als ganzes
+  // Wort vorkommt. Bloße Wortanfänge zählen dabei nicht mit: Sonst machte „öffnen“ in vielen Antworten das seltene
+  // Wort „Öffnungszeiten“ zu einem häufigen. Nur wenn es nirgends als ganzes Wort steht, zählen auch die Wortanfänge.
   const gewicht = gesucht.map((_, i) => {
-    const n = treffer.filter((t) => t.je[i] > 0).length;
+    const n = treffer.filter((t) => t.genau[i]).length || treffer.filter((t) => t.je[i] > 0).length;
     return n === 0 ? 0 : Math.log(1 + liste.length / n) / Math.log(1 + liste.length);
   });
+  const hauptthema = (e: HilfeEintrag) => {
+    const h = woerter(e.stichwoerter[0] ?? "");
+    return h.length > 0 && h.every((w) => gesucht.includes(w));
+  };
   return treffer
     .map((t) => {
       const roh = t.je.reduce((s, p, i) => s + p * gewicht[i], 0);
@@ -116,7 +184,8 @@ export function sucheHilfe(frage: string, eintraege: HilfeEintrag[], opt: HilfeK
     })
     .filter((t) => t.roh >= HILFE_MINDESTPUNKTE && t.anteil >= HILFE_MINDESTANTEIL)
     .map(({ eintrag, punkte }) => ({ eintrag, punkte }))
-    .sort((a, b) => b.punkte - a.punkte)
+    // Bei gleichen Punkten zuerst der Eintrag, dessen erstes Stichwort (sein Hauptthema) gefragt ist, sonst die Reihenfolge der Sammlung.
+    .sort((a, b) => b.punkte - a.punkte || Number(hauptthema(b.eintrag)) - Number(hauptthema(a.eintrag)))
     .slice(0, opt.anzahl ?? 3);
 }
 

@@ -9,7 +9,7 @@ import type { MenueRechte } from "@/lib/rollen";
 import { CHAT_START, FRAGE_MAX, chatSchritt, frueheFragen, kiKnopfZeigen, praxismanagerThema, type ChatNachricht } from "@/lib/hilfeChat";
 import { appChatErlaubt, seiteErlaubt, seitenMuster, seitenTitel, websiteChatErlaubt, zeigZiel, type ZeigAuftrag } from "@/lib/hilfeZeiger";
 import { MENUE_ZUSTAND } from "@/lib/menueEreignisse";
-import type { PmThema } from "@/lib/hilfeAnker";
+import { FRAGEN } from "@/lib/praxisManagerFragen";
 import { hilfeZeigen } from "@/components/HilfeZeiger";
 
 // „Frag Sorrida“ als Chat: schwebender Knopf unten rechts, Fenster mit Fokusfalle, Escape schließt.
@@ -35,16 +35,6 @@ async function laden(modus: Modus): Promise<Paket> {
   const w = await import("@/lib/hilfeWissen");
   return { wissen: w.HILFE_WISSEN, hinweis: w.HILFE_HINWEIS, such };
 }
-
-const PM_FRAGE: Record<PmThema, string> = {
-  rechnungen: "Welche Rechnungen sind offen?",
-  berichte: "Welche Berichte warten auf Freigabe?",
-  vorsorge: "Wer ist zur Vorsorge fällig?",
-  umsatz: "Wie läuft der Umsatz?",
-  engpaesse: "Wo hakt es gerade?",
-  termine: "Wie voll ist der Kalender?",
-  abrechnung: "Was ist nicht abgerechnet?",
-};
 
 const WEBSITE_START = ["web-was", "web-faecher", "web-kosten", "web-demo"];
 
@@ -94,6 +84,8 @@ export function FragSorrida({
   const feld = useRef<HTMLInputElement>(null);
   const verlaufEnde = useRef<HTMLDivElement>(null);
   const kiAktiv = modus === "app" && ki;
+  // Auf der Website gibt es kein Menü im Sinn der App; die Pfade dort nennen Abschnitte und Seiten.
+  const ortWort = modus === "website" ? "Ort" : "Menü";
   const woerter = useMemo(() => ({ personPl, abschluss }), [personPl, abschluss]);
   const kontext = useMemo(() => ({ fach, rechte }), [fach, rechte]);
 
@@ -121,20 +113,16 @@ export function FragSorrida({
     [kontext],
   );
 
+  // Die Meldungen liest der Effekt weiter unten, sobald Chat offen und Hilfetexte geladen sind.
   async function oeffnen() {
     setOffen(true);
-    let p = paket;
-    if (!p) {
-      try {
-        p = await laden(modus);
-        setPaket(p);
-        setLadeFehler(false);
-      } catch {
-        setLadeFehler(true);
-        return;
-      }
+    if (paket) return;
+    try {
+      setPaket(await laden(modus));
+      setLadeFehler(false);
+    } catch {
+      setLadeFehler(true);
     }
-    meldungenLesen(p);
   }
 
   const schliessen = useCallback(() => {
@@ -142,7 +130,26 @@ export function FragSorrida({
     window.setTimeout(() => knopf.current?.focus(), 0);
   }, []);
 
-  // Beim Öffnen: Fokus ins Feld, Seite dahinter nicht scrollen (am Handy).
+  // Solange der Chat offen ist, bleiben die erkannten Meldungen aktuell: nach einem Seitenwechsel und wenn eine
+  // Meldung erst nach dem Öffnen erscheint (etwa nach dem Speichern). Änderungen im Chat selbst zählen nicht.
+  useEffect(() => {
+    if (!offen || !paket) return;
+    meldungenLesen(paket);
+    let t: number | undefined;
+    const imChat = (n: Node) => !!(n instanceof Element ? n : n.parentElement)?.closest("[data-frag-sorrida]");
+    const beobachter = new MutationObserver((aenderungen) => {
+      if (aenderungen.every((a) => imChat(a.target))) return;
+      window.clearTimeout(t);
+      t = window.setTimeout(() => meldungenLesen(paket), 250);
+    });
+    beobachter.observe(document.body, { childList: true, subtree: true, characterData: true });
+    return () => {
+      beobachter.disconnect();
+      window.clearTimeout(t);
+    };
+  }, [offen, paket, pfad, meldungenLesen]);
+
+  // Beim Öffnen: Fokus ins Feld.
   useEffect(() => {
     if (!offen) return;
     const t = window.setTimeout(() => feld.current?.focus(), 0);
@@ -227,7 +234,7 @@ export function FragSorrida({
       <div className={haupt ? "" : "mt-2 border-t border-slate-100 pt-2"} data-testid="frag-sorrida-eintrag" data-eintrag={e.id}>
         <p className="font-medium text-slate-900">{t.frage}</p>
         <p className="mt-1 text-slate-700">{t.antwort}</p>
-        <p className="mt-1 text-xs text-slate-500">Menü: {t.pfad}</p>
+        <p className="mt-1 text-xs text-slate-500">{ortWort}: {t.pfad}</p>
         {aktionen(e)}
       </div>
     );
@@ -302,7 +309,7 @@ export function FragSorrida({
                 <span className="font-medium text-slate-900">Das bedeutet: </span>
                 {text(e).antwort}
               </p>
-              <p className="mt-1 text-xs text-slate-500">Menü: {text(e).pfad}</p>
+              <p className="mt-1 text-xs text-slate-500">{ortWort}: {text(e).pfad}</p>
               {aktionen(e)}
             </>
           )}
@@ -311,14 +318,14 @@ export function FragSorrida({
     }
     const [erster, ...weitere] = n.eintraege.map(eintragVon).filter((e): e is HilfeEintrag => !!e);
     const pm = n.thema
-      ? zielFuer({ anker: `praxismanager:${n.thema}`, href: `/praxismanager?thema=${n.thema}`, pfad: `Praxismanager → ${PM_FRAGE[n.thema]}` })
+      ? zielFuer({ anker: `praxismanager:${n.thema}`, href: `/praxismanager?thema=${n.thema}`, pfad: `Praxismanager → ${FRAGEN[n.thema]}` })
       : null;
     return (
       <li key={n.id} className="rounded-xl border border-slate-200 bg-white p-3 text-sm" data-testid="frag-sorrida-antwort">
         {n.thema && (
           <div className="mb-2 border-b border-slate-100 pb-2" data-testid="frag-sorrida-praxismanager">
             <p className="text-slate-700">
-              Die Frage <q className="font-medium text-slate-900">{PM_FRAGE[n.thema]}</q> beantwortet der Praxismanager aus Ihren Daten. Die Zahlen stehen dort, nicht hier im Chat.
+              Die Frage <q className="font-medium text-slate-900">{FRAGEN[n.thema]}</q> beantwortet der Praxismanager aus Ihren Daten. Die Zahlen stehen dort, nicht hier im Chat.
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               {pm && (
@@ -486,7 +493,7 @@ export function FragSorrida({
                   onChange={(e) => setFrage(e.target.value)}
                   data-testid="frag-sorrida-feld"
                 />
-                <button type="submit" className="btn btn-primary shrink-0 bg-brand-700 px-3 text-white" disabled={!paket || frage.trim().length < 2} data-testid="frag-sorrida-senden">
+                <button type="submit" className="btn btn-primary shrink-0 bg-brand-700 px-3 text-white disabled:bg-slate-100 disabled:text-slate-600 disabled:opacity-100" disabled={!paket || frage.trim().length < 2} data-testid="frag-sorrida-senden">
                   Fragen
                 </button>
               </div>

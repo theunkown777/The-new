@@ -12,6 +12,7 @@ import { ZeitRechner } from "@/components/ZeitRechner";
 import { PraxisFaq } from "@/components/PraxisFaq";
 import { ZweiAnsichten } from "@/components/ZweiAnsichten";
 import { JournalFuss, JournalKopf } from "@/components/start/JournalKopf";
+import { WebsiteHilfe } from "@/components/WebsiteHilfe";
 import { PatientenKarte } from "@/components/start/PatientenKarte";
 import { Laechelbogen } from "@/components/Behandlungsweg";
 import { websiteBasis } from "@/lib/betreiber";
@@ -282,6 +283,7 @@ export default async function Start() {
       </main>
 
       <JournalFuss />
+      <WebsiteHilfe />
     </div>
   );
 }

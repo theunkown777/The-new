@@ -5,8 +5,9 @@
 // Mensch die Aktion prüft und auslöst.
 
 import { formatCent, invoiceView } from "@/lib/invoices";
+import { FRAGEN, type ThemaId } from "@/lib/praxisManagerFragen";
 
-export type ThemaId = "rechnungen" | "berichte" | "vorsorge" | "umsatz" | "engpaesse" | "termine" | "abrechnung";
+export { FRAGEN, PM_THEMEN, themaAusAdresse, type ThemaId } from "@/lib/praxisManagerFragen";
 
 export interface Snapshot {
   now: Date;
@@ -37,16 +38,6 @@ export interface Antwort {
 const DAY = 864e5;
 const tage = (a: Date, b: Date) => Math.floor((a.getTime() - b.getTime()) / DAY);
 const n = (x: number, eins: string, viele: string) => `${x} ${x === 1 ? eins : viele}`;
-
-export const FRAGEN: Record<ThemaId, string> = {
-  rechnungen: "Welche Rechnungen sind offen?",
-  berichte: "Welche Berichte warten auf Freigabe?",
-  vorsorge: "Wer ist zur Vorsorge fällig?",
-  umsatz: "Wie läuft der Umsatz?",
-  engpaesse: "Wo hakt es gerade?",
-  termine: "Wie voll ist der Kalender?",
-  abrechnung: "Was ist nicht abgerechnet?",
-};
 
 function rechnungen(s: Snapshot): Antwort {
   const offen = s.invoices.filter((i) => i.status === "OFFEN" || i.status === "GEMELDET");
@@ -230,11 +221,8 @@ export function vorschlagKnopf(href: string): string {
     "/termine": "Termine öffnen",
     "/abrechnungspruefung": "Abrechnungsprüfung öffnen",
   };
-  return ZIELE[pfad] ?? "Seite öffnen";
+  return Object.hasOwn(ZIELE, pfad) ? ZIELE[pfad] : "Seite öffnen";
 }
-
-/** Gültiges Thema aus der Adresse (?thema=…), sonst null. */
-export const themaAusAdresse = (wert: unknown): ThemaId | null => (typeof wert === "string" && wert in FRAGEN ? (wert as ThemaId) : null);
 
 export function themaFuerFrage(frage: string): ThemaId | null {
   for (const [t, re] of STICHWORTE) if (re.test(frage)) return t;

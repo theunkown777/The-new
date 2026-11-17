@@ -41,7 +41,7 @@ export const WEBSITE_WISSEN: HilfeEintrag[] = [
   {
     id: "web-pilot",
     frage: "Was ist das Pilotprogramm?",
-    antwort: `Zurzeit nehmen wir nur Pilotpraxen auf. ${PILOT_KURZ}, und die Einrichtung übernehmen wir mit Ihnen. Einen Pilotplatz fragen Sie über die Hilfe-Seite an.`,
+    antwort: `Im Pilotprogramm startet Sorrida mit den ersten Praxen. ${PILOT_KURZ}, und die Einrichtung übernehmen wir mit Ihnen. Einen Pilotplatz fragen Sie über die Hilfe-Seite an.`,
     pfad: "Hilfe → Pilotprogramm",
     href: "/hilfe#pilot",
     stichwoerter: ["Pilot", "Pilotprogramm", "Pilotplatz", "kostenlos", "testen", "anfragen", "registrieren"],
@@ -189,11 +189,10 @@ export const WEBSITE_WISSEN: HilfeEintrag[] = [
   {
     id: "web-anmelden",
     frage: "Wie melde ich meine Praxis an?",
-    antwort: "Die Registrierung ist zurzeit geschlossen, weil wir nur Pilotpraxen aufnehmen. Fragen Sie einen Pilotplatz über die Hilfe-Seite an. Bis dahin können Sie Sorrida in der Demo-Praxis ansehen.",
-    pfad: "Hilfe → Pilotprogramm",
-    href: "/hilfe#pilot",
+    antwort: "Auf der Seite „Praxis registrieren“ legen Sie das Konto Ihrer Praxis an. Solange Sorrida nur Pilotpraxen aufnimmt, steht dort stattdessen die Anfrage für einen Pilotplatz. Ansehen können Sie Sorrida jederzeit in der Demo-Praxis.",
+    pfad: "Praxis registrieren",
+    href: "/register",
     stichwoerter: ["anmelden", "registrieren", "Registrierung", "Konto", "Zugang", "Praxis anmelden"],
-    anker: "website:pilot",
     art: W,
   },
   {

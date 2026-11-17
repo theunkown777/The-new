@@ -16,7 +16,12 @@ async function laden(o: { kiHilfen?: boolean; verfuegbar?: boolean; antwort?: st
   vi.resetModules();
   const create = vi.fn(async (_p: unknown, _o?: unknown) => ({ content: [{ type: "text", text: o.antwort ?? '{"passt":true,"antwort":"So geht es.","quellen":["H1"]}' }], stop_reason: "end_turn" }));
   const findUnique = vi.fn(async (_a: unknown) => ({ kiHilfen: o.kiHilfen ?? true, isDemo: false, specialty: "allgemein" }));
-  const findMany = vi.fn(async (_a: { where: { practiceId: string; OR: unknown[] } }) => o.patienten ?? []);
+  // Nachbildung von distinct: je Feld (Vor- oder Nachname) jeder Wert nur einmal, wie in der Datenbank.
+  const findMany = vi.fn(async (a: { where: { practiceId: string; OR: unknown[] }; distinct?: ("firstName" | "lastName")[]; take?: number }) => {
+    const feld = a.distinct?.[0];
+    const liste = o.patienten ?? [];
+    return feld ? liste.filter((p, i) => liste.findIndex((q) => q[feld] === p[feld]) === i) : liste;
+  });
   const audit = vi.fn(async () => undefined);
   vi.doMock("next-auth", () => ({ getServerSession: async () => (o.sitzung === false ? null : { user: { id: "u1", practiceId: "praxis-a", role: o.rolle ?? "admin", name: "Test", email: "t@example.org", practiceName: "Praxis A" } }) }));
   vi.doMock("@/lib/auth", () => ({ authOptions: {} }));
@@ -75,6 +80,27 @@ describe("POST /api/ki/hilfe", () => {
     expect(t.inhalt()).not.toMatch(/Erika|Mustermann|Yilmaz|0171/);
     expect(t.inhalt()).toContain("Frau [NAME]");
     expect(t.gesendet()).not.toMatch(/Erika|Mustermann|Yilmaz/);
+  });
+  it("Vor- und Nachnamen getrennt und je Name einmal: 60 Patienten „Thomas“ verdrängen keinen zweiten Namen", async () => {
+    const thomas = Array.from({ length: 60 }, (_, i) => ({ firstName: "Thomas", lastName: `Nachname${String.fromCharCode(97 + (i % 26))}${String.fromCharCode(97 + Math.floor(i / 26))}` }));
+    const t = await laden({ patienten: [...thomas, { firstName: "Aylin", lastName: "Yilmaz" }] });
+    await t.fragen({ frage: "Wo ist die Rechnung von Thomas und von yilmaz?" });
+    expect(t.findMany).toHaveBeenCalledTimes(2);
+    const aufrufe = t.findMany.mock.calls.map((c) => c[0]);
+    expect(aufrufe.map((a) => a.distinct)).toEqual([["firstName"], ["lastName"]]);
+    for (const a of aufrufe) {
+      expect(a.take).toBeUndefined();
+      expect(a.where.practiceId).toBe("praxis-a");
+    }
+    expect(t.inhalt()).not.toMatch(/Thomas|yilmaz/i);
+  });
+  it("lange Frage und Verlauf: ein klein getippter Name wird trotzdem gesucht und ersetzt; Genitiv auch", async () => {
+    const t = await laden({ patienten: [{ firstName: "Aylin", lastName: "Yilmaz" }, { firstName: "Hans", lastName: "Müller" }] });
+    const lang = "Wie trage ich bei der Rechnung den Betrag, die Leistung, das Datum, die Ziffer, den Faktor, den Steigerungssatz, die Begründung, den Hinweis, die Kasse, den Anteil, die Mahnung, das Konto, die Bank, die Buchung, den Export, die Datei, die Vorlage, den Katalog, die Position und den Preis ein?";
+    await t.fragen({ frage: `${lang} Und wo ist Müllers Rechnung?`, verlauf: ["wo ist die akte von yilmaz", lang, lang] });
+    expect(JSON.stringify(t.findMany.mock.calls[0][0].where.OR)).toContain("yilmaz");
+    expect(t.inhalt()).not.toMatch(/yilmaz|Müller/i);
+    expect(t.inhalt()).toContain("[NAME] Rechnung");
   });
   it("Seitentitel nur aus der festen Liste, nie die Kennung aus dem Pfad", async () => {
     const t = await laden({});

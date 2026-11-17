@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { praxisManager, themaFuerFrage, type Snapshot } from "./praxisManager";
+import { FRAGEN, praxisManager, themaAusAdresse, themaFuerFrage, vorschlagKnopf, type Snapshot } from "./praxisManager";
 
 const now = new Date("2026-11-20T10:00:00");
 const d = (s: string) => new Date(s);
@@ -68,5 +68,22 @@ describe("Praxismanager", () => {
     expect(themaFuerFrage("Welche Berichte muss ich freigeben?")).toBe("berichte");
     expect(themaFuerFrage("Wo hakt es?")).toBe("engpaesse");
     expect(themaFuerFrage("Wie wird das Wetter?")).toBeNull();
+  });
+
+  it("liest das Thema aus der Adresse nur, wenn es ein echtes Thema ist", () => {
+    for (const t of Object.keys(FRAGEN)) expect(themaAusAdresse(t)).toBe(t);
+    // Namen aus dem Objekt-Prototyp sind keine Themen (früher mit „in“ geprüft und durchgelassen).
+    for (const w of ["toString", "constructor", "__proto__", "hasOwnProperty", "valueOf", "", "Rechnungen", "rechnungen "]) expect(themaAusAdresse(w), w).toBeNull();
+    for (const w of [undefined, null, 1, ["rechnungen"], { thema: "rechnungen" }]) expect(themaAusAdresse(w)).toBeNull();
+  });
+
+  it("beschriftet den Knopf unter einem Vorschlag mit der Seite, die sich öffnet", () => {
+    expect(vorschlagKnopf("/zahlungen?filter=ueberfaellig")).toBe("Zahlungen öffnen");
+    expect(vorschlagKnopf("/reports")).toBe("Berichte öffnen");
+    expect(vorschlagKnopf("/abrechnungspruefung")).toBe("Abrechnungsprüfung öffnen");
+    expect(vorschlagKnopf("/termine?tag=morgen")).toBe("Termine öffnen");
+    expect(vorschlagKnopf("/irgendwo")).toBe("Seite öffnen");
+    expect(vorschlagKnopf("toString")).toBe("Seite öffnen");
+    expect(vorschlagKnopf("constructor")).toBe("Seite öffnen");
   });
 });

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { BEDIENUNG, FEHLER, HILFE_HINWEIS, HILFE_WISSEN, PRAXISMANAGER, WEBSITE_HINWEIS, WEBSITE_WISSEN, type HilfeEintrag } from "@/lib/hilfeWissen";
-import { fragenZurSeite, hilfeText, meldungenErkennen, seitePasst, sichtbareHilfe, sucheHilfe } from "@/lib/hilfeSuche";
+import { fragenZurSeite, hilfeText, meldungenErkennen, seitePasst, sichtbareHilfe, sucheHilfe, trennbareVerben } from "@/lib/hilfeSuche";
 import { ankerInfo, PM_THEMEN } from "@/lib/hilfeAnker";
 import { menueRechte } from "@/lib/rollen";
 
@@ -53,6 +53,16 @@ describe("Wissenssammlung", () => {
     for (const e of PRAXISMANAGER) expect(e.art, e.id).toBe("praxismanager");
     for (const e of WEBSITE_WISSEN) expect(e.art, e.id).toBe("website");
     for (const e of HILFE_WISSEN) expect(e.art, e.id).not.toBe("website");
+  });
+  it("beschreibt, statt zu urteilen, und bleibt fachneutral, wo der Eintrag für alle Fächer gilt", () => {
+    for (const e of ALLES) {
+      const t = `${e.frage} ${e.antwort} ${e.pfad}`;
+      expect(t, e.id).not.toMatch(/fallen seltener aus|verlässt die Praxis/i);
+      if (e.nur !== "zahn") expect(t, e.id).not.toMatch(/ärztlich|\bKZV\b|\bGOZ\b|\bBEMA\b|Zahnschema/);
+    }
+    expect(PRAXISMANAGER.find((e) => e.id === "pm-zahlen")?.antwort).toContain("ohne KI");
+    // Ob die Registrierung offen ist, schaltet REGISTRIERUNG_OFFEN zur Laufzeit. Feste Texte sagen dazu nichts Festes.
+    for (const e of WEBSITE_WISSEN) expect(e.antwort, e.id).not.toMatch(/zurzeit geschlossen|zurzeit nehmen wir nur/i);
   });
   it("keine Werbewörter, keine Zusagen, keine Gedankenstrich-Einschübe", () => {
     for (const e of ALLES) {
@@ -115,7 +125,8 @@ describe("sucheHilfe", () => {
     ["Kollegin einladen", "team-einladen"],
     ["zwei faktor einrichten", "zwei-faktor"],
     ["Preisliste importieren", "preisliste"],
-    ["Mikrofon geht nicht", "diktat"],
+    // Das Mikrofon ist das Hauptthema des Fehler-Eintrags („Erlauben Sie dem Browser den Zugriff auf das Mikrofon“).
+    ["Mikrofon geht nicht", "meldung-diktat"],
     ["DATEV Export für den Steuerberater", "datev"],
     ["Wer hat das geändert?", "protokoll"],
     ["Kalender von Google verbinden", "kalender"],
@@ -233,5 +244,107 @@ describe("Seite, Platzhalter und Meldungen", () => {
     expect(meldungenErkennen({ alarme: [], seite: "Nicht angemeldet" }, HILFE_WISSEN)).toEqual([]);
     expect(meldungenErkennen({ alarme: ["Nicht angemeldet"] }, HILFE_WISSEN).map((m) => m.eintrag.id)).toEqual(["meldung-nicht-angemeldet"]);
     expect(meldungenErkennen({ alarme: [] }, HILFE_WISSEN)).toEqual([]);
+  });
+});
+
+// Alltagsfragen, so formuliert, wie man sie tippt: Der passende Eintrag muss unter den ersten drei sein.
+// Gesucht wird wie in der App: Konto der Praxisleitung, Fach „andere“ (und die Fragen ohne Fachbezug auch als Zahnarztpraxis).
+const ALLTAG: [string, string[]][] = [
+  ["Wie sage ich einen Termin ab?", ["termin-status"]],
+  ["Wie lösche ich einen Termin?", ["termin-status"]],
+  ["Ein Patient hat abgesagt, was mache ich?", ["termin-status"]],
+  ["Wie schicke ich eine Rechnung?", ["bezahl-link", "rechnung-anlegen"]],
+  ["Wie versende ich eine Rechnung an den Patienten?", ["bezahl-link", "rechnung-anlegen"]],
+  ["Wie bekomme ich die Rechnungen zum Steuerberater?", ["datev"]],
+  ["Wie gebe ich die Buchungen an die Buchhaltung?", ["datev"]],
+  ["Wo stelle ich das Logo der Praxis ein?", ["praxis-angaben"]],
+  ["Wie ändere ich die Öffnungszeiten?", ["praxis-angaben", "online-termine"]],
+  ["Wo trage ich unsere Sprechzeiten ein?", ["praxis-angaben", "online-termine"]],
+  ["Kann ich WhatsApp nutzen?", ["whatsapp"]],
+  ["Wie ändere ich mein Passwort?", ["passwort-aendern"]],
+  ["Ich habe mein Passwort vergessen", ["passwort-aendern", "meldung-passwort-falsch"]],
+  ["Wie melde ich mich ab?", ["abmelden"]],
+  ["Wo ist der Logout?", ["abmelden"]],
+  ["Wie füge ich einen neuen Patienten hinzu?", ["patient-anlegen"]],
+  ["Wie lege ich einen neuen Patienten an?", ["patient-anlegen"]],
+  ["Wie suche ich einen Patienten?", ["patient-suchen"]],
+  ["Wo ändere ich die Telefonnummer eines Patienten?", ["patient-kontakt"]],
+  ["Wie lösche ich einen Patienten?", ["patient-datenschutz"]],
+  ["Wie importiere ich meine alten Patientendaten?", ["patient-import"]],
+  ["Wie ordne ich einen Patienten einer Behandlerin zu?", ["patient-behandler"]],
+  ["Wie mache ich einen Kostenvoranschlag?", ["vorschlag-neu", "vorschlag-schnell"]],
+  ["Wie schicke ich dem Patienten den Vorschlag?", ["vorschlag-link"]],
+  ["Hat der Patient den Vorschlag schon angenommen?", ["vorschlag-antwort"]],
+  ["Wie erinnere ich an eine unbezahlte Rechnung?", ["zahlungserinnerung"]],
+  ["Wie mahne ich einen Patienten?", ["zahlungserinnerung"]],
+  ["Der Patient hat bezahlt, wo trage ich das ein?", ["zahlung-bestaetigen"]],
+  ["Wie mache ich eine Rechnung rückgängig?", ["rechnung-stornieren"]],
+  ["Wie lege ich eine neue Mitarbeiterin an?", ["team-einladen"]],
+  ["Wie gebe ich einer Kollegin Zugang?", ["team-einladen"]],
+  ["Wie entferne ich eine Mitarbeiterin, die gekündigt hat?", ["team-entfernen"]],
+  ["Wie schalte ich die KI ein?", ["ki-hilfen"]],
+  ["Gibt es einen Dunkelmodus?", ["dunkle-ansicht"]],
+  ["Wie richte ich 2FA ein?", ["zwei-faktor"]],
+  ["Ich habe ein neues Handy bekommen", ["zwei-faktor-geraet"]],
+  ["Können Patienten online Termine buchen?", ["online-termine", "neupatienten"]],
+  ["Wie verbinde ich meinen Google Kalender?", ["kalender"]],
+  ["Wie erinnere ich Patienten an ihren Termin?", ["termin-bestaetigen"]],
+  ["Wie schicke ich eine Terminerinnerung per SMS?", ["termin-bestaetigen"]],
+  ["Wo sehe ich, was ich heute zu tun habe?", ["uebersicht", "einrichtung", "eingang"]],
+  ["Was fehlt mir noch bei der Einrichtung?", ["einrichtung"]],
+  ["Wie drucke ich einen Bericht aus?", ["bericht-pdf"]],
+  ["Wie ändere ich meine Preise?", ["preise", "vorschlagspreise"]],
+  ["Wie lade ich ein Dokument zum Patienten hoch?", ["patient-akte"]],
+  ["Wo trage ich die IBAN der Praxis ein?", ["bankverbindung"]],
+  ["Wie ändere ich die Adresse der Praxis?", ["praxis-angaben"]],
+  ["Wo sehe ich, wer etwas geändert hat?", ["protokoll"]],
+  ["Wie benutze ich das Tablet im Wartezimmer?", ["empfang"]],
+  ["Wie schicke ich den Anamnesebogen?", ["patient-anamnese"]],
+  ["Wie gebe ich einen Arztbrief frei?", ["bericht-freigeben"]],
+  ["Wo stelle ich die Sprache für den Patienten ein?", ["vorschlag-sprachen"]],
+  ["Wie trage ich jemanden auf die Warteliste ein?", ["warteliste-eintragen"]],
+  ["Wie verbinde ich meine Praxissoftware?", ["praxissoftware"]],
+  ["Wie lese ich den Kontoauszug ein?", ["bankabgleich"]],
+  ["Was macht die Lastschrift?", ["sepa"]],
+  ["Wie ziehe ich Geld per Lastschrift ein?", ["sepa"]],
+];
+
+describe("Alltagsfragen", () => {
+  const leitung = menueRechte("admin", false);
+  it("sind mindestens 40 und verweisen nur auf vorhandene Einträge", () => {
+    expect(ALLTAG.length).toBeGreaterThanOrEqual(40);
+    for (const [, soll] of ALLTAG) for (const id of soll) expect(HILFE_WISSEN.some((e) => e.id === id), id).toBe(true);
+  });
+  it.each(ALLTAG)("%s", (frage, soll) => {
+    const t = sucheHilfe(frage, HILFE_WISSEN, { fach: "andere", rechte: leitung }).map((x) => x.eintrag.id);
+    expect(t.some((id) => soll.includes(id)), `${frage} → ${t.join(", ")}`).toBe(true);
+  });
+  it("die Fragen aus der Prüfung stehen jetzt an erster Stelle", () => {
+    const erste = (f: string) => sucheHilfe(f, HILFE_WISSEN, { fach: "andere", rechte: leitung })[0]?.eintrag.id;
+    expect(erste("Wie sage ich einen Termin ab?")).toBe("termin-status");
+    expect(erste("Wie lösche ich einen Termin?")).toBe("termin-status");
+    expect(erste("Wie bekomme ich die Rechnungen zum Steuerberater?")).toBe("datev");
+    expect(erste("Wo stelle ich das Logo der Praxis ein?")).toBe("praxis-angaben");
+    expect(erste("Kann ich WhatsApp nutzen?")).toBe("whatsapp");
+    expect(erste("Wie ändere ich mein Passwort?")).toBe("passwort-aendern");
+    expect(erste("Wie melde ich mich ab?")).toBe("abmelden");
+  });
+  it("auch als Zahnarztpraxis", () => {
+    for (const [frage, soll] of ALLTAG) {
+      const t = sucheHilfe(frage, HILFE_WISSEN, { fach: "zahn", rechte: leitung }).map((x) => x.eintrag.id);
+      expect(t.some((id) => soll.includes(id)), `${frage} → ${t.join(", ")}`).toBe(true);
+    }
+  });
+  it("trennbare Verben werden wieder verbunden, sonst bleibt die Frage gleich", () => {
+    expect(trennbareVerben("Wie sage ich einen Termin ab?")).toBe("Wie absage ich einen Termin?");
+    expect(trennbareVerben("Der Patient hat bezahlt, wo trage ich das ein?")).toBe("Der Patient hat bezahlt, wo eintrage ich das?");
+    expect(trennbareVerben("Ich melde mich ab")).toBe("Ich abmelde mich");
+    for (const f of ["Wie kann ich mich abmelden?", "Kann ich das ab?", "Wie lange dauert das?", "Termine ab Montag"]) expect(trennbareVerben(f)).toBe(f);
+  });
+  it("Synonyme zählen etwas schwächer als das Wort selbst", () => {
+    const p = (f: string) => sucheHilfe(f, HILFE_WISSEN, { anzahl: 5 }).find((x) => x.eintrag.id === "datev")?.punkte ?? 0;
+    expect(p("Steuerberatung")).toBeGreaterThan(0);
+    expect(p("Steuerbüro")).toBeGreaterThan(0);
+    expect(p("Steuerbüro")).toBeLessThan(p("Steuerberatung"));
   });
 });

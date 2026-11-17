@@ -78,7 +78,10 @@ export const kiKnopfZeigen = (n: ChatNachricht, kiAktiv: boolean): boolean => ki
 
 // ------------------------------------------------------------ Praxismanager-Weiche
 
-/** Freie Frage einem Thema des Praxismanagers zuordnen (dieselben Stichwörter wie lib/praxisManager.ts themaFuerFrage). */
+/**
+ * Freie Frage einem Thema des Praxismanagers zuordnen. Bewusst enger als themaFuerFrage in lib/praxisManager.ts:
+ * Dort ist die Frage schon im Praxismanager, hier muss der Chat Fragen zu Zahlen sicher von Fragen zur Bedienung trennen.
+ */
 const PM_STICHWORTE: [PmThema, RegExp][] = [
   ["abrechnung", /abgerechnet|nicht in rechnung|leistung(en)? (fehl|vergessen)/i],
   ["termine", /termin|kalender|auslastung|frei(e|er)? (slot|platz)/i],
@@ -91,6 +94,8 @@ const PM_STICHWORTE: [PmThema, RegExp][] = [
 
 /** Fragt jemand nach den eigenen Zahlen („Welche Rechnungen sind offen?“) statt nach der Bedienung („Wo sehe ich …“)? */
 const DATENFRAGE = /^\s*(welche[rsn]?\b|wer\b|wie ?viele?\b|wie läuft|wie laeuft|wie voll|wo hakt|was ist (noch )?(nicht|offen|liegen|heute|überfällig)|was steht (heute|an)|was fehlt|was muss ich heute|gibt es (noch )?offene|sind (noch )?.{0,30}offen|haben wir|habe ich (noch )?offene)/i;
+/** „Was fehlt mir noch bei der Einrichtung?“ fragt nach der Liste „Ihre Praxis einrichten“, nicht nach Engpässen. */
+const EINRICHTUNG = /einricht|eingerichtet|einstellung|konto|passwort|zwei-faktor/i;
 const BEDIENFRAGE = /^\s*(wie (lege|trage|kann|mache|schalte|richte|finde|bekomme|ändere|aendere|erstelle|schicke|sende|storniere|exportiere|gebe|lade|verbinde|nutze)|wo (finde|sehe|trage|lege|ändere|aendere|stelle|kann)|warum|was bedeutet|was heißt|was heisst|was ist der|was ist die|was ist das)/i;
 
 /**
@@ -99,7 +104,7 @@ const BEDIENFRAGE = /^\s*(wie (lege|trage|kann|mache|schalte|richte|finde|bekomm
  */
 export function praxismanagerThema(frage: string, opt: { analyse?: boolean } = {}): PmThema | null {
   const f = frage.trim();
-  if (!DATENFRAGE.test(f) || BEDIENFRAGE.test(f)) return null;
+  if (!DATENFRAGE.test(f) || BEDIENFRAGE.test(f) || EINRICHTUNG.test(f)) return null;
   for (const [t, re] of PM_STICHWORTE) if (re.test(f)) return t === "umsatz" && opt.analyse === false ? null : t;
   return null;
 }

@@ -86,6 +86,9 @@ describe("Praxismanager-Weiche", () => {
   ])("%s → %s", (f, t) => expect(praxismanagerThema(f)).toBe(t));
   it("Fragen zur Bedienung bleiben bei der Hilfe", () => {
     for (const f of ["Wo sehe ich offene Rechnungen?", "Wie trage ich einen Termin ein?", "Wie lege ich einen Vorschlag an?", "Was bedeutet Beachten im Praxismanager?", "Warum zeigt der Praxismanager keinen Umsatz?"]) expect(praxismanagerThema(f), f).toBeNull();
+    // Fragen zur Einrichtung gehören zur Hilfe (Liste „Ihre Praxis einrichten“), nicht zu den Engpässen.
+    for (const f of ["Was fehlt mir noch bei der Einrichtung?", "Was fehlt noch, bis die Praxis eingerichtet ist?", "Was fehlt in meinen Einstellungen?"]) expect(praxismanagerThema(f), f).toBeNull();
+    expect(praxismanagerThema("Was fehlt gerade?")).toBe("engpaesse");
   });
   it("Umsatz nur mit Recht auf die Analyse", () => {
     expect(praxismanagerThema("Wie läuft der Umsatz?", { analyse: false })).toBeNull();

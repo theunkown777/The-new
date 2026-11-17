@@ -201,26 +201,110 @@ export const KI_HILFE_EINTRAEGE_MAX = 250;
 /** Zeitgrenze je Anfrage im Chat und Zahl der Wiederholungen. */
 export const KI_HILFE_OPTIONEN: KiAnfrageOptionen = { timeout: 20_000, maxRetries: 1 };
 
-// Anrede vor einem Namen: „Frau Müller“, „Herrn Dr. Schmidt“, „Fr. Yilmaz“ → „Frau [NAME]“.
-const ANREDE = /(?<![\p{L}])([Ff]rau|[Hh]errn?|[Ff]r\.|[Hh]r\.)(\s+(?:(?:[Dd]r|[Pp]rof)\.\s*)*)([\p{L}][\p{L}'’-]+(?:\s+\p{Lu}[\p{L}'’-]+)?)/gu;
+// Anrede vor einem Namen: „Frau Müller“, „Herrn Dr. Schmidt“, „Fr. Yilmaz“, „Frau Maria Anna Schmidt“, „Herr von der Heide“
+// → „Frau [NAME]“. Bis zu drei Namenswörter, dazu Namenszusätze (von, van, de, der …). Das erste Wort darf klein
+// geschrieben sein („frau müller“), die weiteren nur groß: Sonst verschwände das Wort danach („Frau Müller anrufen“).
+const PARTIKEL = "(?:[Vv]on|[Vv]an|[Vv]om|[Zz]u|[Zz]um|[Zz]ur|[Dd]e|[Dd]el|[Dd]ella|[Dd]er|[Dd]en|[Dd]i|[Dd]a|[Dd]u|[Ll]e|[Ll]a|[Tt]en|[Tt]er)";
+const NAMENSWORT = "[\\p{L}][\\p{L}'’-]+";
+const NAMENSWORT_GROSS = "\\p{Lu}[\\p{L}'’-]+";
+const ANREDE = new RegExp(
+  `(?<![\\p{L}])([Ff]rau|[Hh]errn?|[Ff]r\\.|[Hh]r\\.)(\\s+(?:(?:[Dd]r|[Pp]rof|med|dent|rer|nat)\\.\\s*)*)` +
+    `((?:${PARTIKEL}\\s+){0,2}${NAMENSWORT}(?:\\s+(?:${PARTIKEL}\\s+){0,2}${NAMENSWORT_GROSS}){0,2})`,
+  "gu",
+);
 export const PLATZHALTER_NAME = "[NAME]";
 
-/** Ersetzt Namen nach einer Anrede („Frau X“, „Herr X“) durch [NAME], auch wenn Sorrida den Namen nicht kennt. */
+/** Ersetzt Namen nach einer Anrede („Frau X“, „Herr X Y“, „Herr von der X“) durch [NAME], auch wenn Sorrida den Namen nicht kennt. */
 export const ohneAnrede = (text: string): string => text.replace(ANREDE, (_m, anrede: string, titel: string) => `${anrede}${titel || " "}${PLATZHALTER_NAME}`);
 
 /**
- * Wörter einer Frage, die ein Name sein könnten (ab drei Buchstaben, großgeschriebene zuerst). Die Route sucht damit
- * die eigenen Patienten der Praxis, um genau diese Namen vor dem Senden zu ersetzen.
+ * Wörter, die nie als Name gesucht werden: häufige Artikel, Pronomen, Präpositionen, Fragewörter und Hilfsverben.
+ * Bewusst nur solche Wörter: Viele Nachnamen sind zugleich Hauptwörter (Koch, Bauer, Richter, Wolf) oder kurz (Le, Di),
+ * die bleiben Kandidaten. Lieber ein Wort zu viel ersetzt als einen Namen gesendet.
  */
-export function namensKandidaten(texte: string[], max = 30): string[] {
-  const alle = texte.flatMap((t) => [...t.matchAll(/[\p{L}][\p{L}'’-]{2,40}/gu)].map((m) => m[0]));
-  const gross = alle.filter((w) => /^\p{Lu}/u.test(w));
-  const klein = alle.filter((w) => !/^\p{Lu}/u.test(w));
-  return [...new Set([...gross, ...klein])].slice(0, max);
+const KEIN_NAME = new Set(
+  ("der die das den dem des ein eine einen einem einer eines kein keine keinen keinem keiner und oder aber sondern mit ohne " +
+    "fuer für von vom zu zum zur im in ins am an ans auf aus bei beim nach vor ueber über unter durch um bis ab als seit gegen " +
+    "wie wo was wer wen wem wessen wann warum wieso weshalb welche welcher welches welchen welchem woher wohin womit " +
+    "ich du er sie es wir ihr mir mich dir dich uns euch ihn ihm ihnen sich man mein meine meinen meinem meiner meines " +
+    "dein deine sein seine seinen seinem seiner ihre ihren ihrem ihrer unser unsere unseren dieser diese dieses diesen diesem " +
+    "ist sind war waren bin bist hat habe haben hatte hatten wird werden wurde wurden kann kannst koennen können muss muessen müssen " +
+    "soll sollen darf duerfen dürfen moechte möchte nicht noch auch nur schon dann wenn denn dass ob so da hier dort jetzt " +
+    "heute bitte doch mal ja nein gibt geht").split(" "),
+);
+
+const klein = (w: string) => w.toLocaleLowerCase("de");
+
+/**
+ * Wörter einer Frage (und der früheren Fragen), die ein Name sein könnten. Die Route sucht damit die eigenen Patienten
+ * der Praxis, um genau diese Namen vor dem Senden zu ersetzen. Ohne Obergrenze (die Eingaben sind ohnehin auf
+ * 4 × 500 Zeichen begrenzt), groß und klein geschriebene gleich: Ein klein getippter Name fällt nicht hinten herunter.
+ * Ergänzt werden Teile mit Bindestrich und die Grundform eines Genitivs („Müllers“ → „Müller“).
+ */
+export function namensKandidaten(texte: string[]): string[] {
+  const roh = texte.flatMap((t) => [...t.matchAll(/[\p{L}][\p{L}'’-]{1,40}/gu)].map((m) => m[0].replace(/['’-]+$/u, "")));
+  const varianten = roh.flatMap((w) => {
+    const teile = w.includes("-") ? w.split("-") : [];
+    const ohneGenitiv = /['’]s$/iu.test(w) ? [w.slice(0, -2)] : /s$/u.test(w) && w.length >= 5 ? [w.slice(0, -1)] : [];
+    return [w.replace(/['’]s$/iu, ""), ...ohneGenitiv, ...teile];
+  });
+  const gesehen = new Set<string>();
+  const out: string[] = [];
+  for (const w of varianten) {
+    const k = klein(w);
+    if (w.length < 2 || KEIN_NAME.has(k) || gesehen.has(k)) continue;
+    gesehen.add(k);
+    out.push(w);
+  }
+  return out;
 }
 
-/** Bereinigt einen Text für die Hilfe-KI: bekannte Namen, Anrede-Namen, Kontaktdaten, Datumsangaben, Versichertennummern. */
-export const hilfeTextBereinigen = (text: string, namen: { firstName: string; lastName: string }[] = []) => ohneAnrede(ohnePersonenbezug(text, namen));
+/**
+ * Bedingungen für die Suche eines Wortes in einem Namensfeld: der ganze Name oder ein Teil davon
+ * („Anna Maria“, „von der Heide“, „Müller-Lüdenscheidt“). Groß und klein schreibt die Route nicht vor (mode insensitive).
+ */
+export const namensFilter = (w: string) => [
+  { equals: w },
+  { startsWith: `${w} ` },
+  { startsWith: `${w}-` },
+  { endsWith: ` ${w}` },
+  { endsWith: `-${w}` },
+  { contains: ` ${w} ` },
+];
+
+/**
+ * Aus den gefundenen Namen der Praxis (Vor- und Nachnamen, je einmal) die Wörter, die in der Frage stehen und ersetzt
+ * werden. Namenszusätze („von“, „der“) bleiben stehen; sie verraten allein niemanden.
+ */
+export function gefundeneNamen(kandidaten: string[], namen: string[]): string[] {
+  const gesucht = new Set(kandidaten.map(klein));
+  const out = new Set<string>();
+  for (const n of namen) {
+    for (const teil of n.split(/[\s-]+/u)) {
+      const k = klein(teil);
+      if (k.length >= 2 && !KEIN_NAME.has(k) && gesucht.has(k)) out.add(teil);
+    }
+  }
+  return [...out];
+}
+
+const escapeRe = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Ersetzt die gegebenen Namen als ganze Wörter durch [NAME], auch im Genitiv („Müllers“, „Müller’s“). */
+export function namenErsetzen(text: string, namen: string[]): string {
+  let out = text;
+  for (const n of [...namen].sort((a, b) => b.length - a.length)) {
+    if (n.trim().length < 2) continue;
+    out = out.replace(new RegExp(`(?<![\\p{L}])${escapeRe(n.trim())}(?:['’]?s|['’])?(?![\\p{L}])`, "giu"), PLATZHALTER_NAME);
+  }
+  return out;
+}
+
+/**
+ * Bereinigt einen Text für die Hilfe-KI: Kontaktdaten, Datumsangaben und Versichertennummern, die Namen eigener
+ * Patienten (aus gefundeneNamen) und Namen nach einer Anrede.
+ */
+export const hilfeTextBereinigen = (text: string, namen: string[] = []) => ohneAnrede(namenErsetzen(ohnePersonenbezug(text), namen));
 
 /** Die Wissenssammlung als Grundlage im System-Text: neutrale Kennungen H1, H2 … */
 export function hilfeGrundlage(eintraege: KiHilfeEintrag[]): string {
@@ -239,7 +323,8 @@ export async function kiHilfeBeantworten(o: {
   seitentitel?: string | null;
   /** Bis zu drei frühere Fragen dieses Chats, ohne Antworten */
   verlauf?: string[];
-  namen?: { firstName: string; lastName: string }[];
+  /** Namen eigener Patienten, die in Frage oder Verlauf stehen (gefundeneNamen) */
+  namen?: string[];
   client?: KiClient;
 }): Promise<KiHilfeAntwort> {
   const liste = o.eintraege.slice(0, KI_HILFE_EINTRAEGE_MAX);
@@ -258,7 +343,7 @@ export async function kiHilfeBeantworten(o: {
   ].filter(Boolean).join("\n\n");
   // Zwei Blöcke: feste Regeln und die Sammlung. Beide ändern sich je Fach und Konto kaum. Zwischenspeichern beim Dienst
   // (cache_control) kennt die installierte SDK-Fassung 0.32.1 nur in der Beta-Schnittstelle, nicht in messages.create;
-  // deshalb ohne. Mit einer neueren Fassung genügt cache_control am zweiten Block.
+  // deshalb ohne. Mit einer neueren Fassung genügt cache_control am zweiten Block. Kosten: docs/BETRIEB.md, Abschnitt 12.
   const system: Anthropic.TextBlockParam[] = [{ type: "text", text: HILFE_SYSTEM }, { type: "text", text: hilfeGrundlage(liste) }];
   const r = await kiJson({ system, inhalt, schema, maxTokens: 4000, client: o.client, optionen: KI_HILFE_OPTIONEN });
   if (!r.passt) return { passt: false, antwort: "", quellen: [] };

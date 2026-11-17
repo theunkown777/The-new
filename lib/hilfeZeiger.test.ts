@@ -60,6 +60,11 @@ describe("zeigZiel", () => {
     expect(zeigZiel(eintrag("patient-einwilligung"), { pfad: "/patients/clx9" })).toMatchObject({ anker: "patient-einwilligung", gleicheSeite: true, href: "/patients/clx9" });
     expect(zeigZiel(eintrag("patient-einwilligung"), { pfad: "/dashboard" })).toMatchObject({ anker: "menue:/patients", menue: true, href: "/patients", gleicheSeite: false });
   });
+  it("Knopf „Abmelden“: auf jeder Seite, am Handy im Menü (der Zeiger öffnet es)", () => {
+    expect(zeigZiel(eintrag("abmelden"), { pfad: "/termine?tag=heute" })).toMatchObject({ anker: "abmelden", href: "/termine?tag=heute", gleicheSeite: true, menue: true, selektor: '[data-hilfe="abmelden"]' });
+    // Passwort: Seite außerhalb der App, kein Menüpunkt, also nichts zu zeigen (nur „Seite öffnen“).
+    expect(zeigZiel(eintrag("passwort-aendern"), { pfad: "/dashboard" })).toBeNull();
+  });
   it("ohne eigenen Anker: Menüpunkt; ohne Menüpunkt: nichts zu zeigen", () => {
     expect(zeigZiel(eintrag("rechnung-stornieren"), { pfad: "/dashboard", rechte: admin })).toMatchObject({ anker: "menue:/zahlungen", href: "/zahlungen" });
     expect(zeigZiel(eintrag("hilfe"), { pfad: "/dashboard" })).toBeNull();

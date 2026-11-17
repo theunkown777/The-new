@@ -65,7 +65,7 @@ export const PRAXISMANAGER: HilfeEintrag[] = [
   {
     id: "pm-berichte",
     frage: "Was sagt mir der Praxismanager zu Berichten?",
-    antwort: "Das Thema zählt Berichte, die noch als Entwurf auf ärztliche Prüfung warten. Liegt einer seit drei Tagen oder länger, steht „Beachten“ dabei. Mit dem Knopf öffnen Sie die Entwürfe und geben sie nach Prüfung frei.",
+    antwort: "Das Thema zählt Berichte, die noch als Entwurf auf Prüfung und Freigabe warten. Liegt einer seit drei Tagen oder länger, steht „Beachten“ dabei. Mit dem Knopf öffnen Sie die Entwürfe und geben sie nach Prüfung frei.",
     pfad: "Praxismanager → Welche Berichte warten auf Freigabe?",
     href: "/praxismanager?thema=berichte",
     stichwoerter: ["Berichte", "Freigabe", "Entwurf", "warten", "Praxismanager", "Thema Berichte"],
@@ -110,7 +110,7 @@ export const PRAXISMANAGER: HilfeEintrag[] = [
   {
     id: "pm-umsatz-bezahlt",
     frage: "Warum ist der Umsatz im Praxismanager kleiner als erwartet?",
-    antwort: "Gezählt werden nur Rechnungen, die in Sorrida als bezahlt markiert sind. Die Abrechnung über Ihre Praxissoftware, KV oder KZV ist nicht enthalten. Bestätigen Sie Zahlungseingänge unter Zahlungen, damit sie mitzählen.",
+    antwort: "Gezählt werden nur Rechnungen, die in Sorrida als bezahlt markiert sind. Was Sie über Ihre Praxissoftware oder eine Abrechnungsstelle abrechnen, ist nicht enthalten. Bestätigen Sie Zahlungseingänge unter Zahlungen, damit sie mitzählen.",
     pfad: "Praxismanager → Wie läuft der Umsatz?",
     href: "/praxismanager?thema=umsatz",
     stichwoerter: ["kleiner", "zu niedrig", "bezahlt markiert", "Praxissoftware", "fehlt Umsatz", "erwartet"],
@@ -180,7 +180,7 @@ export const PRAXISMANAGER: HilfeEintrag[] = [
   {
     id: "pm-unbestaetigt",
     frage: "Was heißt „Termine morgen noch nicht bestätigt“ im Praxismanager?",
-    antwort: "Für morgen stehen Termine, die noch keine Bestätigung haben. Bestätigte Termine fallen seltener aus. Mit dem Knopf öffnen Sie die Termine und bereiten Bestätigungen vor, den Text verschicken Sie selbst.",
+    antwort: "Für morgen stehen Termine, die noch keine Bestätigung haben. Mit dem Knopf öffnen Sie die Termine und bereiten Bestätigungen vor, den Text verschicken Sie selbst.",
     pfad: "Praxismanager → Wie voll ist der Kalender?",
     href: "/praxismanager?thema=termine",
     stichwoerter: ["nicht bestätigt", "morgen", "Bestätigung", "unbestätigt", "Praxismanager"],
@@ -202,7 +202,7 @@ export const PRAXISMANAGER: HilfeEintrag[] = [
   {
     id: "pm-zahlen",
     frage: "Woher hat der Praxismanager seine Zahlen?",
-    antwort: "Nur aus den Daten Ihrer Praxis in Sorrida: Rechnungen, Berichte, Vorschläge, Anamnesebögen, Vorsorge und Termine. Termine sehen Sie nur für die Standorte, die Ihr Konto sehen darf. Nichts davon verlässt die Praxis oder geht an eine KI.",
+    antwort: "Nur aus den Daten Ihrer Praxis in Sorrida: Rechnungen, Berichte, Vorschläge, Anamnesebögen, Vorsorge und Termine. Termine sehen Sie nur für die Standorte, die Ihr Konto sehen darf. Der Praxismanager rechnet ohne KI, die Zahlen gehen an keinen KI-Dienst.",
     pfad: "Praxismanager",
     href: "/praxismanager",
     stichwoerter: ["Zahlen", "woher", "Daten", "Quelle", "stimmen nicht", "Standort"],

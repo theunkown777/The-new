@@ -18,6 +18,9 @@ import {
   kiPreislisteLesen,
   KI_HILFE_OPTIONEN,
   hilfeTextBereinigen,
+  gefundeneNamen,
+  namenErsetzen,
+  namensFilter,
   namensKandidaten,
   ohneAnrede,
   ohnePersonenbezug,
@@ -178,7 +181,7 @@ describe("kiHilfeBeantworten", () => {
       eintraege: EINTRAEGE,
       seitentitel: "Zahlungen",
       verlauf: ["alt eins", "Rechnung für Herrn Schmidt", "Erika Mustermann, geb. 03.04.1961", "Wie storniere ich?"],
-      namen: [{ firstName: "Erika", lastName: "Mustermann" }],
+      namen: ["Erika", "Mustermann"],
       client: k.client,
     });
     const inhalt = anfrageVon(k).messages[0].content;
@@ -217,15 +220,47 @@ describe("Namen in Fragen", () => {
     expect(ohneAnrede("Fr. Yilmaz und Herr Hans Meier, frau müller")).toBe("Fr. [NAME] und Herr [NAME], frau [NAME]");
     expect(ohneAnrede("Wie lege ich einen Patienten an?")).toBe("Wie lege ich einen Patienten an?");
   });
-  it("Kandidaten für den Abgleich mit eigenen Patienten: großgeschriebene zuerst, ohne Doppelte, begrenzt", () => {
-    expect(namensKandidaten(["Rechnung für Erika Mustermann", "erika"])).toEqual(["Rechnung", "Erika", "Mustermann", "für", "erika"]);
-    expect(namensKandidaten(["a b c"])).toEqual([]);
-    expect(namensKandidaten([Array.from({ length: 50 }, (_, i) => `Name${String.fromCharCode(97 + (i % 26))}${String.fromCharCode(97 + Math.floor(i / 26))}`).join(" ")]).length).toBe(30);
+  it("Anrede: bis zu drei Namenswörter und Namenszusätze", () => {
+    expect(ohneAnrede("Termin für Frau Maria Anna Schmidt")).toBe("Termin für Frau [NAME]");
+    expect(ohneAnrede("Rechnung an Herr von der Heide schicken")).toBe("Rechnung an Herr [NAME] schicken");
+    expect(ohneAnrede("Herrn Prof. Dr. van Dijk anrufen")).toBe("Herrn Prof. Dr. [NAME] anrufen");
+    expect(ohneAnrede("Vorschlag für Frau de la Cruz")).toBe("Vorschlag für Frau [NAME]");
+    // Das Wort nach dem Namen bleibt, wenn es klein geschrieben ist.
+    expect(ohneAnrede("Wie schicke ich Frau Müller die Rechnung?")).toBe("Wie schicke ich Frau [NAME] die Rechnung?");
   });
-  it("hilfeTextBereinigen: bekannte Namen, Anrede, Kontakt, Datum", () => {
-    const t = hilfeTextBereinigen("Termin für Erika Mustermann (Frau Mustermann), 03.04.1961, erika@example.org", [{ firstName: "Erika", lastName: "Mustermann" }]);
+  it("Kandidaten für den Abgleich: ohne Obergrenze, klein geschriebene gleichwertig, ohne Füllwörter", () => {
+    expect(namensKandidaten(["Rechnung für Erika Mustermann", "erika"])).toEqual(["Rechnung", "Erika", "Mustermann"]);
+    expect(namensKandidaten(["a b c"])).toEqual([]);
+    const viele = Array.from({ length: 50 }, (_, i) => `Name${String.fromCharCode(97 + (i % 26))}${String.fromCharCode(97 + Math.floor(i / 26))}`).join(" ");
+    expect(namensKandidaten([viele])).toHaveLength(50);
+  });
+  it("lange Frage mit vielen großgeschriebenen Wörtern: ein klein getippter Name im Verlauf bleibt Kandidat", () => {
+    const lang = "Wie trage ich bei der Rechnung den Betrag, die Leistung, das Datum, die Ziffer, den Faktor, den Steigerungssatz, die Begründung, den Hinweis, die Kasse, den Anteil, die Mahnung, das Konto, die Bank, die Buchung, den Export, die Datei, die Vorlage, den Katalog, die Position, den Preis, den Eigenanteil, die Erstattung, die Praxis, die Sprechzeit, die Anschrift, den Standort, den Termin, den Bericht und die Versicherung ein?";
+    const k = namensKandidaten([lang, "wo ist die akte von yilmaz"]);
+    expect(k.length).toBeGreaterThan(30);
+    expect(k).toContain("yilmaz");
+  });
+  it("Genitiv und Bindestrich: Grundform und Teile werden mitgesucht", () => {
+    const k = namensKandidaten(["Wo ist Müllers Rechnung und die von Schmidt’s Akte? Frau Meier-Lüdenscheidt"]);
+    expect(k).toEqual(expect.arrayContaining(["Müllers", "Müller", "Schmidt", "Meier-Lüdenscheidt", "Meier", "Lüdenscheidt"]));
+  });
+  it("gefundene Namen: nur Teile, die in der Frage stehen; Namenszusätze bleiben", () => {
+    const k = namensKandidaten(["Rechnung von Herrn von der Heide und anna"]);
+    expect(gefundeneNamen(k, ["von der Heide", "Anna Maria", "Zander"]).sort()).toEqual(["Anna", "Heide"]);
+  });
+  it("namenErsetzen: ganze Wörter, ohne Groß und Klein, auch im Genitiv", () => {
+    expect(namenErsetzen("Müllers Rechnung und müller’s Akte, Müller", ["Müller"])).toBe("[NAME] Rechnung und [NAME] Akte, [NAME]");
+    expect(namenErsetzen("Müllerstraße bleibt", ["Müller"])).toBe("Müllerstraße bleibt");
+    expect(namenErsetzen("Meier-Lüdenscheidt", ["Meier", "Lüdenscheidt"])).toBe("[NAME]-[NAME]");
+  });
+  it("namensFilter: ganzer Name oder Teil davon", () => {
+    expect(namensFilter("Maria")).toEqual([{ equals: "Maria" }, { startsWith: "Maria " }, { startsWith: "Maria-" }, { endsWith: " Maria" }, { endsWith: "-Maria" }, { contains: " Maria " }]);
+  });
+  it("hilfeTextBereinigen: bekannte Namen, Genitiv, Anrede, Kontakt, Datum", () => {
+    const t = hilfeTextBereinigen("Termin für Erika Mustermann (Frau Mustermann), Mustermanns Rechnung, 03.04.1961, erika@example.org", ["Erika", "Mustermann"]);
     expect(t).not.toMatch(/Erika|Mustermann|1961|example/);
     expect(t).toContain("[DATUM]");
+    expect(t).toContain("[NAME] Rechnung");
   });
 });
 

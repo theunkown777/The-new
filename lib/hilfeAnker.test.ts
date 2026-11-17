@@ -67,6 +67,8 @@ describe("Hilfsfunktionen", () => {
     expect(ankerInfo("gibt-es-nicht")).toBeNull();
     expect(ankerInfo("menue:/nirgends")).toBeNull();
     expect(ankerInfo("praxismanager:wetter")).toBeNull();
+    // Namen aus dem Objekt-Prototyp sind keine Anker.
+    for (const a of ["toString", "constructor", "__proto__", "menue:toString", "menue:constructor", "website:toString", "website:__proto__", "praxismanager:toString"]) expect(ankerInfo(a), a).toBeNull();
   });
   it("Selektor: data-hilfe in der App, id auf der Website, ohne Anführungszeichen von außen", () => {
     expect(ankerSelektor("vorschlag-neu")).toBe('[data-hilfe="vorschlag-neu"]');
