@@ -32,9 +32,10 @@ def slug(s):
     return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
 
 
-def E(kat, name, fach, syn, desc, beh, kt, gebo, inv, aus, hwg="nein", ust=False, hinweis=""):
+def E(kat, name, fach, syn, desc, beh, kt, gebo, inv, aus, hwg="nein", ust=False, hinweis="", id_name=None):
+    # id_name: früherer Name, wenn eine Leistung umbenannt wurde. So bleibt die Adresse /leistungen/<id> gleich.
     items.append(OrderedDict(
-        id=slug(f"{_bereich}-{name}"),
+        id=slug(f"{_bereich}-{id_name or name}"),
         bereich=_bereich,
         kategorie=kat,
         name=name,
@@ -69,7 +70,7 @@ HNO = "Facharzt HNO / Plastische Chirurgie"
 B("Zahnmedizin")
 k = "Vorsorge & Diagnostik"
 E(k, "Kontrolluntersuchung", "Eingehende Untersuchung (01)", "Check-up, Vorsorge, Halbjahreskontrolle, Bonusheft", "Untersuchung von Zähnen, Zahnfleisch und Mundschleimhaut, Eintrag ins Bonusheft.", ZA, "GKV", "BEMA 01 / GOZ Abschnitt A (0010)", "N", "0")
-E(k, "Professionelle Zahnreinigung", "PZR", "Zahnreinigung, Prophylaxe, Airflow, Dentalhygiene", "Entfernung harter und weicher Beläge, Politur, Fluoridierung.", "Zahnarzt / Dentalhygienikerin (ZMP, DH)", "PKV", "GOZ Abschnitt B (1040)", "N", "0", hinweis="Viele Krankenkassen geben Zuschuss.")
+E(k, "Professionelle Zahnreinigung", "PZR", "Zahnreinigung, Prophylaxe, Airflow, Dentalhygiene", "Entfernung harter und weicher Beläge, Politur, Fluoridierung.", "Zahnarzt / Dentalhygienikerin (ZMP, DH)", "PKV", "GOZ Abschnitt B (1040)", "N", "0", hinweis="Ob die Krankenkasse einen Zuschuss gibt, vorher bei der Kasse fragen.")
 E(k, "Zahnsteinentfernung", "Entfernung harter Beläge", "Zahnstein entfernen", "Einmal jährlich Entfernung von Zahnstein.", ZA, "GKV", "BEMA 107 / GOZ 4050, 4055", "N", "0")
 E(k, "Röntgen – Einzelbild", "Zahnfilm / Bissflügelaufnahme", "Röntgenbild, Bitewing", "Kleines Röntgenbild zur Karies- oder Wurzeldiagnostik.", ZA, "GKV", "BEMA Ä925 / GOÄ 5000", "N", "0")
 E(k, "Röntgen – Panoramaaufnahme", "Orthopantomogramm (OPG)", "OPG, Panoramabild", "Übersichtsröntgen aller Zähne und Kiefer.", ZA, "GKV", "BEMA Ä935d / GOÄ 5004", "N", "0")
@@ -167,7 +168,7 @@ E(k, "Funktionsanalyse", "Klinische/instrumentelle Funktionsanalyse", "CMD-Diagn
 E(k, "CMD-Behandlung", "Therapie craniomandibulärer Dysfunktion", "Kieferschmerzen, Kiefergelenk knackt, CMD", "Behandlung von Kiefergelenk- und Muskelbeschwerden.", ZA, "IND", "GOZ J + H / BEMA K1–K4", "N", "0")
 E(k, "Knirscherschiene", "Okklusionsschiene / Aufbissschiene", "Beißschiene, Bruxismus-Schiene, Nachtschiene", "Schützt Zähne vor Abrieb durch Knirschen.", ZA, "IND", "BEMA K1 / GOZ 7000", "N", "0")
 E(k, "Schnarcherschiene", "Unterkieferprotrusionsschiene (UKPS)", "Anti-Schnarch-Schiene, Schlafapnoe-Schiene", "Schiebt den Unterkiefer vor und hält Atemwege frei.", ZA, "IND", "BEMA (bei Schlafapnoe-Diagnose) / GOZ analog", "N", "0", hinweis="Kasse bei ärztlich diagnostizierter Schlafapnoe.")
-E(k, "Botox gegen Zähneknirschen", "Botulinumtoxin in den Kaumuskel (Masseter)", "Bruxismus Botox, Masseter Botox", "Entspannt überaktive Kaumuskeln.", ARZT, "SZ", "GOÄ analog", "M", "0", hwg="prüfen", hinweis="Rechtsprechung: Botox durch Zahnärzte umstritten/teils untersagt – ärztliche Durchführung empfohlen.")
+E(k, "Botox gegen Zähneknirschen", "Botulinumtoxin in den Kaumuskel (Masseter)", "Bruxismus Botox, Masseter Botox", "Entspannt überaktive Kaumuskeln.", ARZT, "SZ", "GOÄ analog", "M", "0", hwg="prüfen", hinweis="Im Katalog als ärztliche Leistung geführt. Ob auch Zahnärztinnen und Zahnärzte sie erbringen dürfen, richtet sich nach dem Berufsrecht.")
 
 k = "Komfort & Angstpatienten"
 E(k, "Örtliche Betäubung", "Lokalanästhesie", "Spritze, Betäubung", "Schmerzausschaltung im Behandlungsbereich.", ZA, "GKV", "BEMA I, L1 / GOZ 0080–0100", "M", "0")
@@ -284,23 +285,23 @@ E(k, "Fadenlifting", "Fadenlifting (PDO/PLLA-Fäden)", "Threadlift, Fäden Gesic
 
 k = "Haut & Laser"
 E(k, "Microneedling", "Kollagen-Induktionstherapie", "Dermapen, Needling", "Feine Nadeln regen Hauterneuerung an.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "M", "1", ust=True)
-E(k, "Radiofrequenz-Microneedling", "RF-Microneedling", "Morpheus8, Potenza", "Microneedling mit Wärme für Straffung und Narben.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "M", "2", ust=True, hwg="prüfen")
+E(k, "Radiofrequenz-Microneedling", "RF-Microneedling", "Morpheus8, Potenza", "Microneedling mit zusätzlicher Wärme durch Hochfrequenz.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "M", "2", ust=True, hwg="prüfen", hinweis="§ 6 Abs. 2 NiSV: Hochfrequenzanwendungen, bei denen die Oberhaut als Schutzbarriere verletzt wird, dürfen nur approbierte Ärztinnen und Ärzte mit entsprechender ärztlicher Weiterbildung oder Fortbildung durchführen.")
 E(k, "Chemisches Peeling", "Chemical Peel (oberflächlich/mittel/tief)", "Fruchtsäurepeeling, TCA-Peeling, Peeling", "Säurepeeling gegen Pigmente, Falten, Akne.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "M", "2", ust=True)
 E(k, "Laser-Skin-Resurfacing", "Fraktionierter CO2-/Erbium-Laser", "CO2-Laser, Hautverjüngung Laser, Fraxel", "Lasert Falten, Narben und Hautunebenheiten weg.", DERM, "SZ", "GOÄ analog", "M", "3", ust=True, hwg="prüfen")
-E(k, "IPL / Photoverjüngung", "Intense Pulsed Light", "Pigmentflecken, Rötungen, IPL", "Lichtbehandlung gegen Pigmente und Rötungen.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "N", "0", ust=True)
-E(k, "Laser-Haarentfernung", "Dauerhafte Haarentfernung (Dioden-/Alexandrit-Laser)", "Haare weglasern, Laser Epilation", "Dauerhafte Reduktion unerwünschter Haare.", "Arzt (seit NiSV-Fachkunde auch Fachpersonal)", "SZ", "GOÄ analog", "N", "0", ust=True)
-E(k, "Tattooentfernung", "Pikosekunden-/Q-Switch-Laser", "Tattoo weglasern, Permanent-Make-up entfernen", "Zerkleinert Farbpigmente in der Haut.", ARZT, "SZ", "GOÄ analog", "M", "1", ust=True, hinweis="NiSV: Tattooentfernung per Laser nur durch Ärzte.")
+E(k, "IPL / Photoverjüngung", "Intense Pulsed Light", "Pigmentflecken, Rötungen, IPL", "Lichtbehandlung gegen Pigmente und Rötungen.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "N", "0", ust=True, hinweis="§ 5 Abs. 2 NiSV: Die Behandlung von Gefäßveränderungen und pigmentierten Hautveränderungen mit Laser oder intensiven Lichtquellen dürfen nur approbierte Ärztinnen und Ärzte mit entsprechender ärztlicher Weiterbildung oder Fortbildung durchführen.")
+E(k, "Laser-Haarentfernung", "Laser-Epilation (Dioden-/Alexandrit-Laser)", "Haare weglasern, Laser Epilation", "Haarentfernung mit Laserlicht.", "Arzt oder Fachpersonal mit Fachkunde nach § 5 Abs. 1 NiSV", "SZ", "GOÄ analog", "N", "0", ust=True)
+E(k, "Tattooentfernung", "Pikosekunden-/Q-Switch-Laser", "Tattoo weglasern, Permanent-Make-up entfernen", "Zerkleinert Farbpigmente in der Haut.", ARZT, "SZ", "GOÄ analog", "M", "1", ust=True, hinweis="§ 5 Abs. 2 NiSV: Die Entfernung von Tätowierungen oder Permanent-Make-up mit Laser oder intensiven Lichtquellen dürfen nur approbierte Ärztinnen und Ärzte mit entsprechender ärztlicher Weiterbildung oder Fortbildung durchführen.")
 E(k, "Couperose & Besenreiser", "Gefäßlaser / Sklerotherapie", "rote Äderchen, Besenreiser, Rosazea", "Verödet sichtbare Äderchen.", "Dermatologe / Phlebologe", "SZ", "GOÄ analog", "M", "1", ust=True)
 E(k, "Pigmentflecken entfernen", "Pigmentlaser / Melasma-Therapie", "Altersflecken, Sonnenflecken, Melasma", "Hellt Pigmentstörungen auf.", DERM, "SZ", "GOÄ analog", "M", "1", ust=True)
 E(k, "Aknenarben behandeln", "Narbentherapie (Laser, Subzision, Needling)", "Aknenarben, Narben glätten", "Glättet eingesunkene Narben.", DERM, "SZ", "GOÄ analog", "M", "2", ust=True)
 E(k, "Akne-Behandlung", "Medizinische Aknetherapie", "Pickel, unreine Haut", "Medizinische Behandlung aktiver Akne.", DERM, "IND", "GOÄ / EBM", "N", "0")
 
 k = "Straffung ohne OP"
-E(k, "Ultraschall-Lifting", "HIFU (z. B. Ultherapy)", "HIFU, Ultherapy, Facelift ohne OP", "Fokussierter Ultraschall strafft tiefe Hautschichten.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "N", "0", ust=True, hwg="prüfen")
+E(k, "Ultraschall-Lifting", "HIFU (z. B. Ultherapy)", "HIFU, Ultherapy, Facelift ohne OP", "Fokussierter Ultraschall, der tiefere Hautschichten erwärmt.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "N", "0", ust=True, hwg="prüfen", hinweis="§ 9 Abs. 2 NiSV: Ultraschallanwendungen zur gezielten thermischen Gewebekoagulation oder Fettgewebereduktion dürfen nur approbierte Ärztinnen und Ärzte durchführen.")
 E(k, "Radiofrequenz-Straffung", "Monopolare Radiofrequenz (z. B. Thermage)", "Thermage, RF-Straffung", "Wärme strafft Haut an Gesicht und Körper.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "N", "0", ust=True)
 E(k, "Fett wegfrieren", "Kryolipolyse", "CoolSculpting, Fettabbau Kälte", "Baut Fettpolster durch Kälte ab.", "Arzt / Fachpersonal", "SZ", "GOÄ analog", "N", "0", ust=True, hwg="prüfen")
-E(k, "Muskelaufbau & Fettreduktion per Gerät", "HIFEM / EMS-Body-Contouring", "Emsculpt, Body Contouring", "Elektromagnetische Muskelstimulation.", "Fachpersonal", "SZ", "–", "N", "0", ust=True)
-E(k, "Cellulite-Behandlung", "Cellulite-Therapie (Stoßwelle, Subzision)", "Orangenhaut, Cellulite", "Glättet Dellen an Po und Oberschenkeln.", "Arzt / Fachpersonal", "SZ", "GOÄ analog", "M", "1", ust=True)
+E(k, "Muskelstimulation per Gerät (HIFEM/EMS)", "HIFEM / EMS-Body-Contouring", "Emsculpt, Body Contouring, Muskelaufbau per Gerät", "Elektromagnetische Stimulation der Muskeln.", "Fachpersonal mit Fachkunde nach § 7 NiSV", "SZ", "–", "N", "0", ust=True, hinweis="§ 7 NiSV regelt die Fachkunde für Muskelstimulation zum Muskelaufbau und zur Muskelstraffung. Hochfrequenzanwendungen zur thermischen Fettgewebereduktion dürfen nach § 6 Abs. 2 NiSV nur approbierte Ärztinnen und Ärzte mit entsprechender Weiterbildung oder Fortbildung durchführen.", id_name="Muskelaufbau & Fettreduktion per Gerät")
+E(k, "Cellulite-Behandlung", "Cellulite-Therapie (Stoßwelle, Subzision)", "Orangenhaut, Cellulite", "Stoßwelle oder Subzision im Bereich von Cellulite an Po und Oberschenkeln.", "Arzt (Subzision); Stoßwelle auch Fachpersonal", "SZ", "GOÄ analog", "M", "1", ust=True)
 
 k = "Haare"
 E(k, "Haarausfall-Behandlung", "PRP / Mesotherapie Kopfhaut", "Haarausfall, Haare dünner, PRP Haare", "Stimuliert Haarwurzeln durch Eigenblut oder Wirkstoffe.", "Arzt / Dermatologe", "SZ", "GOÄ analog", "M", "0", ust=True)

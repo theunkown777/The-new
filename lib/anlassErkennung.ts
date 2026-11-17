@@ -55,7 +55,7 @@ export const SYNONYME: Record<string, string[]> = {
   // Frauenheilkunde
   krebsvorsorge: ["Krebsvorsorge", "Krebsfrüherkennung", "Abstrich", "PAP", "Gebärmutter", "Gebärmutterhals", "Eierstöcke", "HPV-Test"],
   brust: ["Brust", "Brustultraschall", "Tastuntersuchung", "Brustkrebs", "Mammasonographie"],
-  schwangerschaft: ["schwanger", "Schwangerschaft", "Toxoplasmose", "3D-Ultraschall", "Mutterschaftsvorsorge", "SSW"],
+  schwangerschaft: ["schwanger", "Schwangerschaft", "Toxoplasmose", "Mutterschaftsvorsorge", "SSW"],
   verhuetung: ["Verhütung", "verhüten", "Pille", "Spirale", "Kupferspirale", "Hormonspirale"],
   wechseljahre: ["Wechseljahre", "Menopause", "Hitzewallungen", "Hormonstatus", "Klimakterium"],
   hpv: ["HPV-Impfung", "Impfung gegen HPV"],
@@ -85,7 +85,8 @@ export const SYNONYME: Record<string, string[]> = {
   rhythmus: ["Herzrhythmusstörung", "Rhythmusstörung", "Vorhofflimmern", "Herzstolpern", "Herzrasen", "Langzeit-EKG", "Smartwatch", "Extrasystolen"],
   sportkardio: ["Sportkardiologie", "Leistungssport", "Sportuntersuchung", "Sporttauglichkeit", "Herzultraschall", "Marathon", "Wettkampf"],
   // Radiologie
-  mrt_wunsch: ["MRT", "CT", "Kernspin", "Kernspintomographie", "Ganzkörper-MRT", "Schnittbild", "Computertomographie"],
+  // Nur MRT: Ein CT „auf Wunsch“ gibt es nicht (rechtfertigende Indikation nach § 83 Abs. 3 StrlSchG).
+  mrt_wunsch: ["MRT", "Kernspin", "Kernspintomographie", "Ganzkörper-MRT", "Schnittbild"],
   mamma: ["Mammographie", "Mammografie", "Brustkrebs", "Brust", "Screening"],
   knochen: ["Knochendichte", "Knochendichtemessung", "DXA", "Osteoporose"],
   // Neurologie

@@ -14,6 +14,8 @@ const ui: Ui = {
   kasseWenn: "Sağlık sigortası öder:",
   nutzen: "Faydası hakkında:",
   quelle: "Kaynak:",
+  abgerufen: "erişim tarihi",
+  hinweisPraxis: "Muayenehanenizin notu:",
   fineMed: (until) =>
     `Bağlayıcı olmayan maliyet tahmini; Almanya'daki hekim ücret tarifesine (Gebührenordnung für Ärzte, GOÄ) göre hesaplanmıştır. Ücreti hasta tarafından ödenen hizmetler (IGeL) isteğe bağlıdır; hizmetten önce sizinle yazılı bir anlaşma yaparız. Karar vermek için acele etmeyin. Bu bağlantı ${until} tarihine kadar geçerlidir.`,
   deadlineTitle: "Kron, köprü ve protezler için önemli:",
@@ -232,7 +234,7 @@ const content: Record<string, string> = {
   "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.": "Bazı özel ek sigortalar bunu karşılar. Lütfen önceden sigortanıza sorun.",
   "Manche privaten Zusatzversicherungen erstatten einen Teil. Bitte vorher dort fragen.": "Bazı özel ek sigortalar masrafın bir kısmını geri öder. Lütfen önceden sigortanıza sorun.",
   "Ersetzt keine ärztliche Untersuchung.": "Hekim muayenesinin yerini tutmaz.",
-  "Fragen Sie in der Praxis, was diese Leistung in Ihrer Situation leisten kann.": "Bu hizmetin sizin durumunuzda ne sağlayabileceğini muayenehanenize sorun.",
+  "Fragen Sie in der Praxis, was in Ihrer Situation für und was gegen diese Leistung spricht.": "Sizin durumunuzda bu hizmetin lehine ve aleyhine neler olduğunu muayenehanenize sorun.",
   "Mit neuer Verordnung wieder Kassenleistung.": "Yeni bir hekim reçetesiyle yeniden sağlık sigortası kapsamındadır.",
 };
 

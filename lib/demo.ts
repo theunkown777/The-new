@@ -116,18 +116,24 @@ function age(birth: string, today = new Date()): number {
 
 /**
  * Abgelaufene Demo-Praxen samt aller abhängigen Daten löschen. Dieselbe Löschung wie nach Vertragsende
- * (lib/praxisLoeschen.ts): jede Tabelle, eine Transaktion je Praxis.
+ * (lib/praxisLoeschen.ts): jede Tabelle, eine Transaktion je Praxis. Wirft nicht: Eine Praxis, die nicht gelöscht
+ * werden kann (z. B. LoeschAbbruch wegen Verweisen zwischen Praxen), hält die übrigen nicht auf und steht in `fehler`.
  */
-export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
+export async function abgelaufeneDemosLoeschen(now = new Date()): Promise<{ geloescht: number; fehler: { id: string; fehler: unknown }[] }> {
   const expired = await prisma.practice.findMany({
     where: { isDemo: true, demoExpiresAt: { lt: now } },
     select: { id: true },
   });
-  // Eine Praxis, die nicht gelöscht werden kann, hält die übrigen nicht auf; der Fehler kommt am Ende.
-  const fehler: unknown[] = [];
-  for (const { id } of expired) await praxisLoeschen(prisma, id).catch((e: unknown) => void fehler.push(e));
-  if (fehler.length) throw new AggregateError(fehler, `${fehler.length} von ${expired.length} abgelaufenen Demo-Praxen nicht gelöscht`);
-  return expired.length;
+  const fehler: { id: string; fehler: unknown }[] = [];
+  for (const { id } of expired) await praxisLoeschen(prisma, id).catch((e: unknown) => void fehler.push({ id, fehler: e }));
+  return { geloescht: expired.length - fehler.length, fehler };
+}
+
+/** Wie abgelaufeneDemosLoeschen, wirft aber am Ende, wenn eine Praxis nicht gelöscht werden konnte. */
+export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
+  const { geloescht, fehler } = await abgelaufeneDemosLoeschen(now);
+  if (fehler.length) throw new AggregateError(fehler.map((f) => f.fehler), `${fehler.length} von ${geloescht + fehler.length} abgelaufenen Demo-Praxen nicht gelöscht`);
+  return geloescht;
 }
 
 /** Neue Demo-Praxis mit Beispieldaten; liefert die Zugangsdaten für die sofortige Anmeldung. */

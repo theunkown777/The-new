@@ -124,7 +124,7 @@ export const BEFUNDMODELLE: Record<string, Region[]> = {
       { text: "Endometriose", icd: "N80.9" },
     ] },
     { id: "uterus", name: "Gebärmutter", befunde: [{ text: "Leiomyom des Uterus", icd: "D25.9", anlass: "krebsvorsorge" }] },
-    { id: "schwangerschaft", name: "Schwangerschaft", befunde: [{ text: "Überwachung einer normalen Schwangerschaft", icd: "Z34", anlass: "schwangerschaft", abrechnung: "Mutterschaftsvorsorge nach Richtlinie; zusätzliche Ultraschalle auf Wunsch sind IGeL." }] },
+    { id: "schwangerschaft", name: "Schwangerschaft", befunde: [{ text: "Überwachung einer normalen Schwangerschaft", icd: "Z34", anlass: "schwangerschaft", abrechnung: "Mutterschaftsvorsorge nach Richtlinie. Ultraschall ohne medizinischen Zweck ist verboten, wenn dabei ein Fötus exponiert wird (§ 10 NiSV)." }] },
     { id: "infekt", name: "Infektionen", befunde: [{ text: "Akute Kolpitis", icd: "N76.0" }] },
   ],
   uro: [

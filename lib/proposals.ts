@@ -96,6 +96,11 @@ export interface ProposalOption {
   nutzen?: string;
   /** Quelle der Aussage in `nutzen` (lib/nutzenQuelle.ts). */
   nutzenQuelle?: NutzenQuellen;
+  /**
+   * `nutzen` ist ein Text, den die Praxis selbst zu einer eigenen Leistung eingetragen hat. Er erscheint als „Hinweis der
+   * Praxis“, nicht im Kasten „Zum Nutzen“: Dort steht nur, was eine Quelle sagt, oder ein neutraler Satz.
+   */
+  nutzenVonPraxis?: boolean;
   /** Gesetzliche Zuzahlung für Erwachsene (siehe zuzahlungBetrag). */
   zuzahlung?: boolean | "heilmittel" | "hilfsmittel";
   /** Eigene Bezeichnung der Leistungsart, z. B. "Selbstzahlerleistung" in Therapiepraxen. */
@@ -825,8 +830,9 @@ export function optionTypeLabel(t: OptionType, insurance: "GKV" | "PKV"): string
 
 export const formatEuro = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
 
-/** Zeile „Zum Nutzen“ im Schreiben, mit Quelle samt Adresse, wenn eine hinterlegt ist. */
+/** Zeile „Zum Nutzen“ im Schreiben, mit Quelle samt Adresse, wenn eine hinterlegt ist. Text der Praxis als „Hinweis der Praxis“. */
 function nutzenZeile(o: ProposalOption): string {
+  if (o.nutzenVonPraxis) return `      Hinweis der Praxis zu ${o.name}: ${o.nutzen}`;
   const quelle = quellenText(o.nutzenQuelle);
   return `      Zum Nutzen: ${o.nutzen}${quelle ? ` (${quelle})` : ""}`;
 }

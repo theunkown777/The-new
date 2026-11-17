@@ -6,7 +6,7 @@
 // wo eine Regel je Kasse verschieden ist, steht das dabei.
 
 import type { Anlass } from "@/lib/specialties";
-import { NUTZEN_FRAGEN } from "@/lib/nutzenQuelle";
+import { NUTZEN_FRAGEN, igelMonitor } from "@/lib/nutzenQuelle";
 
 export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
   kardio: [
@@ -275,7 +275,8 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "check_apo", label: "Gesundheitscheck", bereich: "Messung",
       options: [
-        { id: "apo_check_bz", name: "Blutzucker oder HbA1c", type: "igel", price: 10, benefits: ["Ergebnis in Minuten"], nutzen: "Ersetzt keine ärztliche Untersuchung." },
+        // Abruf der Seite des IGeL-Monitors am 17.11.2026 (wie lib/specialties.ts NUTZEN_STAND); Abgleich: lib/igelMonitor.test.ts
+        { id: "apo_check_bz", name: "Blutzucker oder HbA1c", type: "igel", price: 10, benefits: ["Ergebnis in Minuten"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „HbA1c-Bestimmung zur Früherkennung eines Typ-2-Diabetes“ mit „unklar“. Ersetzt keine ärztliche Untersuchung.", nutzenQuelle: igelMonitor("HbA1c-Bestimmung zur Früherkennung eines Typ-2-Diabetes", "hba1c-bestimmung-zur-frueherkennung-eines-typ-2-diabetes", "17.11.2026", "unklar") },
         { id: "apo_check_chol", name: "Cholesterin", type: "igel", price: 10, benefits: ["Ergebnis in Minuten"], nutzen: "Ersetzt keine ärztliche Untersuchung." },
       ],
     },

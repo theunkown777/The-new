@@ -78,7 +78,7 @@ describe("Vorschläge für Arztpraxen", () => {
       "Zum Nutzen: Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Ultraschall der Eierstöcke zur Krebsfrüherkennung“ mit „negativ“ und die IGeL „Ultraschall zur Früherkennung von Gebärmutterkörperkrebs“ mit „tendenziell negativ“.",
     );
     // Mit Quelle samt Adresse, damit der Satz im Schreiben nachprüfbar ist.
-    expect(letter).toContain("(Quellen: IGeL-Monitor (Medizinischer Dienst Bund), https://igel-monitor.de/igel-a-z/igel/show/ultraschall-der-eierstoecke-zur-krebsfrueherkennung.html, Stand 17.11.2026; ");
+    expect(letter).toContain("(Quellen: IGeL-Monitor (Medizinischer Dienst Bund), https://igel-monitor.de/igel-a-z/igel/show/ultraschall-der-eierstoecke-zur-krebsfrueherkennung.html, abgerufen am 17.11.2026; ");
     expect(letter).toContain("Selbstzahlerleistungen (IGeL) sind freiwillig");
     expect(letter).not.toContain("Heil- und Kostenplan");
   });
@@ -122,7 +122,11 @@ describe("Gesundheitsberufe (Heilmittel)", () => {
     const items = buildProposal(input, DEFAULT_PRICES);
     const letter = buildLetter({ items, choices: {}, patient: input.patient, patientName: "Herr Test", practiceName: "Physio", date: new Date("2026-11-02"), fach: "physio" });
     expect(letter).toContain("10 % der Kosten plus 10 € je Verordnung");
-    expect(letter).not.toContain("IGeL");
+    // Keine IGeL-Regeln (Vereinbarung nach BMV-Ä). Erlaubt ist nur das Zitat des IGeL-Monitors im Kasten „Zum Nutzen“
+    // (Osteopathie bei unspezifischen Kreuzschmerzen): Es nennt die Bewertung mit Quelle, so wie die Seite sie überschreibt.
+    const ohneZitat = letter.replace(/^ *Zum Nutzen: Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „[^“]+“ mit „[^“]+“\. \(Quellen?: IGeL-Monitor [^\n]*$/gm, "");
+    expect(letter).toContain("Osteopathie bei unspezifischen Kreuzschmerzen");
+    expect(ohneZitat).not.toContain("IGeL");
     const steps = buildNextSteps({ items, choices: { a_ruecken: "kg_selbst" }, patient: input.patient, reportFinal: true, hasProposal: true, fach: "physio" });
     expect(steps.find((s) => s.id === "igel")?.text).toContain("Privatvereinbarung");
   });

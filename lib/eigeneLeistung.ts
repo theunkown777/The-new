@@ -50,7 +50,7 @@ export const istLeistungSprache = (x: unknown): x is LeistungSprache => typeof x
 
 const eineUebersetzung = z.object({
   name: z.string().trim().max(160),
-  /** Übersetzung des Hinweises zur Leistung (bei eigenen Leistungen: „Hinweis zum Nutzen“). */
+  /** Übersetzung des Hinweises zur Leistung (bei eigenen Leistungen: „Hinweis der Praxis“). */
   kurz: z.string().trim().max(400).optional(),
   /** Entwurf der KI. Bleibt als Herkunft stehen, auch nach der Prüfung. */
   maschinell: z.boolean().optional(),

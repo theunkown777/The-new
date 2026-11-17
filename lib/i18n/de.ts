@@ -13,6 +13,8 @@ const ui: Ui = {
   kasseWenn: "Kasse zahlt:",
   nutzen: "Zum Nutzen:",
   quelle: "Quelle:",
+  abgerufen: "abgerufen am",
+  hinweisPraxis: "Hinweis der Praxis:",
   fineMed: (until) =>
     `Unverbindliche Kostenschätzung nach der Gebührenordnung für Ärzte (GOÄ). Selbstzahlerleistungen (IGeL) sind freiwillig; vor der Leistung schließen wir eine schriftliche Vereinbarung mit Ihnen. Nehmen Sie sich Zeit für Ihre Entscheidung. Dieser Link ist gültig bis ${until}.`,
   deadlineTitle: "Wichtig für Zahnersatz:",

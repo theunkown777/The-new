@@ -3,7 +3,7 @@
     "projekt": "Sorrida",
     "version": "2.0",
     "erstellt": "2026-11-06",
-    "anzahl": 641,
+    "anzahl": 640,
     "legende": {
       "kostentraeger": {
         "GKV": "Kassenleistung",
@@ -77,7 +77,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Viele Krankenkassen geben Zuschuss."
+      "hinweis": "Ob die Krankenkasse einen Zuschuss gibt, vorher bei der Kasse fragen."
     },
     {
       "id": "zahnmedizin-zahnsteinentfernung",
@@ -1803,7 +1803,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "prüfen",
-      "hinweis": "Rechtsprechung: Botox durch Zahnärzte umstritten/teils untersagt – ärztliche Durchführung empfohlen."
+      "hinweis": "Im Katalog als ärztliche Leistung geführt. Ob auch Zahnärztinnen und Zahnärzte sie erbringen dürfen, richtet sich nach dem Berufsrecht."
     },
     {
       "id": "zahnmedizin-oertliche-betaeubung",
@@ -3393,7 +3393,7 @@
         "Morpheus8",
         "Potenza"
       ],
-      "beschreibung": "Microneedling mit Wärme für Straffung und Narben.",
+      "beschreibung": "Microneedling mit zusätzlicher Wärme durch Hochfrequenz.",
       "behandler": "Arzt / Dermatologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3402,7 +3402,7 @@
       "ausfallzeit": "bis 1 Woche",
       "ust_pflichtig": true,
       "hwg_vorher_nachher": "prüfen",
-      "hinweis": ""
+      "hinweis": "§ 6 Abs. 2 NiSV: Hochfrequenzanwendungen, bei denen die Oberhaut als Schutzbarriere verletzt wird, dürfen nur approbierte Ärztinnen und Ärzte mit entsprechender ärztlicher Weiterbildung oder Fortbildung durchführen."
     },
     {
       "id": "aesthetische-medizin-minimal-invasiv-chemisches-peeling",
@@ -3468,20 +3468,20 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": true,
       "hwg_vorher_nachher": "nein",
-      "hinweis": ""
+      "hinweis": "§ 5 Abs. 2 NiSV: Die Behandlung von Gefäßveränderungen und pigmentierten Hautveränderungen mit Laser oder intensiven Lichtquellen dürfen nur approbierte Ärztinnen und Ärzte mit entsprechender ärztlicher Weiterbildung oder Fortbildung durchführen."
     },
     {
       "id": "aesthetische-medizin-minimal-invasiv-laser-haarentfernung",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Haut & Laser",
       "name": "Laser-Haarentfernung",
-      "fachbegriff": "Dauerhafte Haarentfernung (Dioden-/Alexandrit-Laser)",
+      "fachbegriff": "Laser-Epilation (Dioden-/Alexandrit-Laser)",
       "synonyme": [
         "Haare weglasern",
         "Laser Epilation"
       ],
-      "beschreibung": "Dauerhafte Reduktion unerwünschter Haare.",
-      "behandler": "Arzt (seit NiSV-Fachkunde auch Fachpersonal)",
+      "beschreibung": "Haarentfernung mit Laserlicht.",
+      "behandler": "Arzt oder Fachpersonal mit Fachkunde nach § 5 Abs. 1 NiSV",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
       "gebuehrenordnung": "GOÄ analog",
@@ -3510,7 +3510,7 @@
       "ausfallzeit": "1–3 Tage",
       "ust_pflichtig": true,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "NiSV: Tattooentfernung per Laser nur durch Ärzte."
+      "hinweis": "§ 5 Abs. 2 NiSV: Die Entfernung von Tätowierungen oder Permanent-Make-up mit Laser oder intensiven Lichtquellen dürfen nur approbierte Ärztinnen und Ärzte mit entsprechender ärztlicher Weiterbildung oder Fortbildung durchführen."
     },
     {
       "id": "aesthetische-medizin-minimal-invasiv-couperose-besenreiser",
@@ -3609,7 +3609,7 @@
         "Ultherapy",
         "Facelift ohne OP"
       ],
-      "beschreibung": "Fokussierter Ultraschall strafft tiefe Hautschichten.",
+      "beschreibung": "Fokussierter Ultraschall, der tiefere Hautschichten erwärmt.",
       "behandler": "Arzt / Dermatologe",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
@@ -3618,7 +3618,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": true,
       "hwg_vorher_nachher": "prüfen",
-      "hinweis": ""
+      "hinweis": "§ 9 Abs. 2 NiSV: Ultraschallanwendungen zur gezielten thermischen Gewebekoagulation oder Fettgewebereduktion dürfen nur approbierte Ärztinnen und Ärzte durchführen."
     },
     {
       "id": "aesthetische-medizin-minimal-invasiv-radiofrequenz-straffung",
@@ -3666,14 +3666,15 @@
       "id": "aesthetische-medizin-minimal-invasiv-muskelaufbau-fettreduktion-per-geraet",
       "bereich": "Ästhetische Medizin (minimal-invasiv)",
       "kategorie": "Straffung ohne OP",
-      "name": "Muskelaufbau & Fettreduktion per Gerät",
+      "name": "Muskelstimulation per Gerät (HIFEM/EMS)",
       "fachbegriff": "HIFEM / EMS-Body-Contouring",
       "synonyme": [
         "Emsculpt",
-        "Body Contouring"
+        "Body Contouring",
+        "Muskelaufbau per Gerät"
       ],
-      "beschreibung": "Elektromagnetische Muskelstimulation.",
-      "behandler": "Fachpersonal",
+      "beschreibung": "Elektromagnetische Stimulation der Muskeln.",
+      "behandler": "Fachpersonal mit Fachkunde nach § 7 NiSV",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
       "gebuehrenordnung": "–",
@@ -3681,7 +3682,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": true,
       "hwg_vorher_nachher": "nein",
-      "hinweis": ""
+      "hinweis": "§ 7 NiSV regelt die Fachkunde für Muskelstimulation zum Muskelaufbau und zur Muskelstraffung. Hochfrequenzanwendungen zur thermischen Fettgewebereduktion dürfen nach § 6 Abs. 2 NiSV nur approbierte Ärztinnen und Ärzte mit entsprechender Weiterbildung oder Fortbildung durchführen."
     },
     {
       "id": "aesthetische-medizin-minimal-invasiv-cellulite-behandlung",
@@ -3693,8 +3694,8 @@
         "Orangenhaut",
         "Cellulite"
       ],
-      "beschreibung": "Glättet Dellen an Po und Oberschenkeln.",
-      "behandler": "Arzt / Fachpersonal",
+      "beschreibung": "Stoßwelle oder Subzision im Bereich von Cellulite an Po und Oberschenkeln.",
+      "behandler": "Arzt (Subzision); Stoßwelle auch Fachpersonal",
       "kostentraeger": "Selbstzahler (keine Kassenleistung)",
       "kostentraeger_code": "SZ",
       "gebuehrenordnung": "GOÄ analog",
@@ -4982,7 +4983,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": ""
+      "hinweis": "Röntgen oder CT ohne Krankheitszeichen und ohne konkreten Verdacht ist Früherkennung und nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht (Stand 17.11.2026: nur für Brustkrebs und für Lungenkrebs bei Personen von 50 bis 75 Jahren mit langjährigem starkem Zigarettenkonsum, auch nach einem Rauchstopp vor weniger als zehn Jahren, § 2 Lungenkrebs-Früherkennungs-Verordnung)."
     },
     {
       "id": "vorsorge-check-ups-ganzkoerper-mrt",
@@ -5610,7 +5611,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Viele Kassen erstatten freiwillig."
+      "hinweis": "Ob die Kasse die Kosten übernimmt, vorher bei der Kasse fragen."
     },
     {
       "id": "impfungen-reisemedizin-malariaprophylaxe",
@@ -6155,7 +6156,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": ""
+      "hinweis": "Ohne Krankheitszeichen und ohne konkreten Verdacht ist die Messung Früherkennung mit Röntgenstrahlung. Sie ist nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht; für die Osteoporose gibt es keine (Stand 17.11.2026)."
     },
     {
       "id": "innere-medizin-medikamentoese-adipositastherapie",
@@ -6747,26 +6748,6 @@
       "hinweis": ""
     },
     {
-      "id": "gynaekologie-geburtshilfe-3d-4d-ultraschall",
-      "bereich": "Gynäkologie & Geburtshilfe",
-      "kategorie": "Schwangerschaft & Geburt",
-      "name": "3D/4D-Ultraschall",
-      "fachbegriff": "3D-/4D-Sonographie",
-      "synonyme": [
-        "Baby-Kino"
-      ],
-      "beschreibung": "Räumlicher Ultraschall auf Wunsch.",
-      "behandler": "Facharzt Gynäkologie und Geburtshilfe",
-      "kostentraeger": "Selbstzahler (keine Kassenleistung)",
-      "kostentraeger_code": "SZ",
-      "gebuehrenordnung": "GOÄ (IGeL / Selbstzahler)",
-      "invasivitaet": "nicht-invasiv",
-      "ausfallzeit": "keine",
-      "ust_pflichtig": false,
-      "hwg_vorher_nachher": "nein",
-      "hinweis": ""
-    },
-    {
       "id": "gynaekologie-geburtshilfe-praenataldiagnostik",
       "bereich": "Gynäkologie & Geburtshilfe",
       "kategorie": "Schwangerschaft & Geburt",
@@ -7075,7 +7056,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Potenzmittel sind meist Selbstzahler."
+      "hinweis": "Ob die Kasse Arzneimittel dafür übernimmt, vorher bei der Kasse fragen."
     },
     {
       "id": "urologie-andrologie-stosswellentherapie-bei-erektionsstoerung",
@@ -7640,7 +7621,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Viele Kassen bezuschussen."
+      "hinweis": "Ob die Kasse einen Zuschuss gibt, vorher bei der Kasse fragen."
     },
     {
       "id": "sportmedizin-leistungsdiagnostik",
@@ -9548,7 +9529,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": ""
+      "hinweis": "Ohne Krankheitszeichen und ohne konkreten Verdacht ist die Untersuchung Früherkennung mit Röntgenstrahlung. Sie ist nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht; für die koronare Herzkrankheit gibt es keine (Stand 17.11.2026)."
     },
     {
       "id": "radiologie-nuklearmedizin-prostata-mrt",
@@ -10233,7 +10214,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Viele Kassen bezuschussen."
+      "hinweis": "Ob die Kasse einen Zuschuss gibt, vorher bei der Kasse fragen."
     },
     {
       "id": "naturheilkunde-komplementaermedizin-chiropraktik-manuelle-medizin",
@@ -10274,7 +10255,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Wirksamkeit wissenschaftlich nicht belegt – keine Heilversprechen."
+      "hinweis": ""
     },
     {
       "id": "naturheilkunde-komplementaermedizin-naturheilverfahren",
@@ -11459,7 +11440,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Leitungswasser-Iontophorese oft Kassenleistung, Botulinum meist Selbstzahler."
+      "hinweis": "Ob die Kasse zahlt, hängt vom Verfahren und vom Befund ab; vorher bei der Kasse fragen."
     },
     {
       "id": "dermatologie-medizinisch-vorstufen-von-hellem-hautkrebs",
@@ -12198,7 +12179,7 @@
       "ausfallzeit": "1–3 Tage",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Die Rufbereitschaft zahlen Eltern oft selbst; manche Kassen erstatten sie."
+      "hinweis": "Ob die Kasse die Rufbereitschaftspauschale der Hebamme übernimmt, vorher bei der Kasse fragen."
     },
     {
       "id": "hebammenhilfe-beleggeburt",
@@ -12219,7 +12200,7 @@
       "ausfallzeit": "1–3 Tage",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Rufbereitschaft oft privat."
+      "hinweis": "Ob die Kasse die Rufbereitschaftspauschale der Hebamme übernimmt, vorher bei der Kasse fragen."
     },
     {
       "id": "hebammenhilfe-babymassage-und-babykurse",
@@ -12741,7 +12722,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Arbeitsschutzbrillen zahlt oft der Arbeitgeber."
+      "hinweis": "Bei Arbeitsschutzbrillen beim Arbeitgeber nach den Kosten fragen."
     },
     {
       "id": "hilfsmittel-gesundheitshandwerk-vergroessernde-sehhilfen",
@@ -12847,7 +12828,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Bei Kassenversorgung meist in der Versorgungspauschale enthalten."
+      "hinweis": "Ob der Service bei Kassenversorgung in der Versorgungspauschale enthalten ist, beim Hörakustiker fragen."
     },
     {
       "id": "hilfsmittel-gesundheitshandwerk-bandagen",
@@ -13032,7 +13013,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Wirksamkeit wissenschaftlich nicht belegt – keine Heilversprechen."
+      "hinweis": ""
     },
     {
       "id": "naturheilkunde-komplementaermedizin-craniosacrale-behandlung",
@@ -13053,7 +13034,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Wirksamkeit wissenschaftlich nicht belegt – keine Heilversprechen."
+      "hinweis": ""
     },
     {
       "id": "krankenhaus-wahlleistungen-stationaere-behandlung",
@@ -13135,7 +13116,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Zahlen viele private Zusatzversicherungen."
+      "hinweis": "Ob eine private Zusatzversicherung zahlt, vorher dort fragen."
     },
     {
       "id": "krankenhaus-wahlleistungen-zweibettzimmer",
@@ -13197,7 +13178,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Kasse zahlt, wenn medizinisch nötig, etwa bei kleinen Kindern."
+      "hinweis": "Kasse zahlt, wenn die Mitaufnahme aus medizinischen Gründen notwendig ist (§ 2 Abs. 2 Satz 2 Nr. 3 KHEntgG)."
     },
     {
       "id": "therapieberufe-heilmittel-motorisch-funktionelle-ergotherapie",
@@ -13405,7 +13386,7 @@
       "ausfallzeit": "keine",
       "ust_pflichtig": false,
       "hwg_vorher_nachher": "nein",
-      "hinweis": "Bei ärztlicher Bescheinigung zahlt oft der Arbeitgeber."
+      "hinweis": "Ob der Arbeitgeber die Kosten trägt, beim Arbeitgeber oder beim Betriebsarzt fragen."
     },
     {
       "id": "hilfsmittel-gesundheitshandwerk-brillen-service",

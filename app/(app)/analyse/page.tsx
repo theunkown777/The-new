@@ -156,8 +156,9 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
                   <span className="text-slate-400 transition group-open:rotate-90" aria-hidden="true">›</span>
                 </summary>
                 <dl className="mt-3 space-y-2 pl-5 text-sm">
-                  <div><dt className="font-semibold text-slate-700">Warum das wichtig ist</dt><dd className="text-slate-600">{r.warum}</dd></div>
-                  <div><dt className="font-semibold text-slate-700">Was Sie tun können</dt><dd className="text-slate-600">{r.tun}</dd></div>
+                  {/* Ein reiner Zahlenhinweis (ohne „tun“) nennt seine Grundlage und legt nichts nahe. */}
+                  <div><dt className="font-semibold text-slate-700">{r.tun ? "Warum das wichtig ist" : "Grundlage der Zahl"}</dt><dd className="text-slate-600">{r.warum}</dd></div>
+                  {r.tun && <div><dt className="font-semibold text-slate-700">Was Sie tun können</dt><dd className="text-slate-600">{r.tun}</dd></div>}
                 </dl>
               </details>
             );

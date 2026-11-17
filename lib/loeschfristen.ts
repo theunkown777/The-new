@@ -17,7 +17,7 @@ export const LOESCHFRISTEN = [
   // 360 statt 365 Tage: Der Lauf kommt einmal in der Nacht. So ist jede Anfrage sicher vor Ablauf von 12 Monaten gelöscht,
   // wie es die Datenschutzerklärung zusagt (app/datenschutz/page.tsx, Abschnitt 4).
   { id: "anfragen", daten: "Anfragen über die Website (Pilot, Hilfe), offen oder erledigt", frist: "spätestens 12 Monate nach Eingang", tage: 360, grund: "Vertriebs- und Supportkontakt; so steht es in der Datenschutzerklärung" },
-  { id: "protokoll", daten: "Protokolleinträge", frist: "3 Jahre", tage: 3 * 365, grund: "Nachweis nach Art. 5 Abs. 2 und Art. 32 DSGVO, regelmäßige Verjährung (§ 195 BGB)" },
+  { id: "protokoll", daten: "Protokolleinträge", frist: "3 Jahre; bei Vertragsende mit den übrigen Daten der Praxis (AVV § 10)", tage: 3 * 365, grund: "Nachweis nach Art. 5 Abs. 2 und Art. 32 DSGVO, regelmäßige Verjährung (§ 195 BGB)" },
   { id: "terminanfrage", daten: "Online-Anfragen neuer Patienten, die nicht bestätigt wurden (offen oder abgelehnt); bei bestätigten die Kopie der Anmeldedaten", frist: "30 Tage nach Eingang bzw. Bestätigung", tage: 29, grund: "Nur für die Terminvergabe erhoben; nach der Bestätigung stehen die Daten in Akte und Termin" },
   { id: "leselink", daten: "Lese-Links für Vertrauenspersonen (nur Hashwert, kein Name)", frist: "30 Tage nach Ablauf", tage: 29, grund: "Der Link gilt ohnehin nicht mehr" },
   { id: "warteliste", daten: "Erledigte Einträge der Warteliste", frist: "30 Tage nach Erledigung", tage: 29, grund: "Wunsch ist erfüllt oder zurückgezogen" },

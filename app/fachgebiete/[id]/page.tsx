@@ -278,7 +278,7 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
                   <b>Kein Druck:</b> Vorausgewählt ist immer die Kassenleistung. Was hervorgehoben wird, klickt die Praxis an. Sorrida lädt zur Bedenkzeit ein.
                 </li>
                 <li>
-                  <b>Ehrlich zum Nutzen:</b> Wo der IGeL-Monitor des Medizinischen Dienstes eine Leistung bewertet, steht seine Bewertung mit Quelle beim Angebot.
+                  <b>Nutzen nur mit Quelle:</b> Bei den Angeboten im Katalog, zu denen eine Bewertung des IGeL-Monitors des Medizinischen Dienstes hinterlegt ist, steht sie wörtlich mit Quelle beim Angebot.
                 </li>
                 <li>
                   <b>Kasse zuerst:</b> Wann die Kasse zahlt, steht bei jeder Leistung.

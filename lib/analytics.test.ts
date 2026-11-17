@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { analyze, kennzahlen, rowsOf, veraenderung, vergleichSatz, wochenSummen, zeitraumDavor, zeitvergleich, type ProposalFacts, type Row } from "@/lib/analytics";
 import type { ProposalItem } from "@/lib/proposals";
+import { igelMonitor } from "@/lib/nutzenQuelle";
 
 const now = new Date(2026, 9, 31);
 const DAY = 86400000;
@@ -15,8 +16,12 @@ const item: ProposalItem = {
   excluded: [],
   options: [
     { id: "k", type: "kasse", name: "Screening", total: 30, benefits: [] },
-    { id: "auf", type: "igel", name: "Auflicht", total: 40, benefits: [], nutzen: "Ohne Verdacht ist ein Zusatznutzen nicht belegt." },
+    { id: "auf", type: "igel", name: "Auflicht", total: 40, benefits: [], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Test“ mit „tendenziell negativ“.", nutzenQuelle: igelMonitor("Test", "test", "17.11.2026", "tendenziell negativ") },
     { id: "vid", type: "igel", name: "Video", total: 100, benefits: [] },
+    // Vorschlag aus der Zeit vor den Quellen: nur Text, keine hinterlegte Bewertung
+    { id: "alt", type: "igel", name: "Alt", total: 50, benefits: [], nutzen: "Ohne Verdacht ist ein Zusatznutzen nicht belegt." },
+    { id: "unklar", type: "igel", name: "Unklar", total: 60, benefits: [], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Test 2“ mit „unklar“.", nutzenQuelle: igelMonitor("Test 2", "test-2", "17.11.2026", "unklar") },
+    { id: "zwei", type: "igel", name: "Zwei", total: 70, benefits: [], nutzenQuelle: [igelMonitor("A", "a", "17.11.2026", "unklar"), igelMonitor("B", "b", "17.11.2026", "negativ")] },
   ],
 };
 
@@ -28,8 +33,18 @@ function facts(i: number, over: Partial<ProposalFacts> = {}): ProposalFacts {
 describe("rowsOf", () => {
   it("trennt Kassen- und Privatanteil", () => {
     expect(rowsOf(facts(1), [item], { a: "k" })[0]).toMatchObject({ kasse: 30, privat: 0, art: "Kassenleistung" });
-    expect(rowsOf(facts(1), [item], { a: "auf" })[0]).toMatchObject({ kasse: 0, privat: 40, unbelegt: true });
+    expect(rowsOf(facts(1), [item], { a: "auf" })[0]).toMatchObject({ kasse: 0, privat: 40, igelNegativ: true });
     expect(rowsOf(facts(1, { patient: { ...gkv, insurance: "PKV" } }), [item], { a: "k" })[0]).toMatchObject({ kasse: 0, privat: 30 });
+  });
+
+  it("zählt nach der hinterlegten Bewertung des IGeL-Monitors, nicht nach dem Text", () => {
+    const wahl = (id: string) => rowsOf(facts(1), [item], { a: id })[0].igelNegativ;
+    expect(wahl("auf")).toBe(true); // „tendenziell negativ“
+    expect(wahl("zwei")).toBe(false); // gemischt: „unklar“ und „negativ“ zählt nicht
+    expect(wahl("unklar")).toBe(false);
+    expect(wahl("alt")).toBe(false); // alter Vorschlag ohne Quelle
+    expect(wahl("vid")).toBe(false);
+    expect(wahl("k")).toBe(false);
   });
 });
 
@@ -57,9 +72,45 @@ describe("analyze", () => {
     expect(a.leistungen[0]).toMatchObject({ name: "Auflicht", angenommen: 8, quote: 67, anteil: 1 });
     expect(a.faktoren[0]).toMatchObject({ a: { quote: 100, n: 6 }, b: { quote: 33, n: 6 }, punkte: 67 });
     const ids = a.risiken.map((r) => r.id);
-    expect(ids).toEqual(expect.arrayContaining(["konzentration", "unbelegt", "rueckmeldung", "ueberfaellig"]));
+    expect(ids).toEqual(expect.arrayContaining(["konzentration", "igel-monitor", "rueckmeldung", "ueberfaellig"]));
     expect(a.risiken[0].stufe).not.toBe("info");
     expect(a.staerken.join(" ")).toContain("Prozentpunkte");
+    // Hinweis zum IGeL-Monitor: Zahl mit Quelle, ohne Wertung und ohne Rat
+    const igel = a.risiken.find((r) => r.id === "igel-monitor")!;
+    expect(igel.titel).toBe("100 % der Selbstzahler-Einnahmen aus Leistungen, bei denen jede im Kasten „Zum Nutzen“ genannte Bewertung des IGeL-Monitors „negativ“ oder „tendenziell negativ“ lautet");
+    expect(igel.stufe).toBe("info");
+    expect(igel.tun).toBeUndefined();
+    expect(igel.warum).toContain("„Auflicht“");
+    expect(igel.warum).toContain("auch bei älteren Vorschlägen");
+    expect(igel.warum).toContain("nur für bestimmte Gruppen");
+    expect(`${igel.titel} ${igel.warum}`).not.toMatch(/belegt|Kritik|Vertrauen|anbieten|stärker|sollte|empfehl/i);
+  });
+
+  it("IGeL-Monitor: nur angenommene Leistungen mit Quelle zählen, Anteil an den Selbstzahler-Einnahmen", () => {
+    const proposals: ProposalFacts[] = [];
+    const rows: Row[] = [];
+    const wahl = ["auf", "alt", "unklar", "vid", "zwei"]; // 40 + 50 + 60 + 100 + 70 = 320 privat
+    wahl.forEach((id, i) => {
+      const p = facts(i);
+      proposals.push(p);
+      rows.push(...rowsOf(p, [item], { a: id }));
+    });
+    // abgelehnt: zählt nicht
+    const abgelehnt = facts(9, { status: "ABGELEHNT" });
+    proposals.push(abgelehnt);
+    rows.push(...rowsOf(abgelehnt, [item], { a: "zwei" }));
+    const a = analyze({ proposals, rows, invoices: [], now, zeitraumTage: 90 });
+    const igel = a.risiken.find((r) => r.id === "igel-monitor")!;
+    // 40 / 320 = 13 %; „Zwei“ hat gemischte Bewertungen und zählt nicht
+    expect(igel.titel).toMatch(/^13 % der Selbstzahler-Einnahmen aus Leistungen, bei denen jede/);
+    expect(igel.warum).toContain("„Auflicht“");
+    expect(igel.warum).not.toContain("„Zwei“");
+    expect(igel.warum).not.toContain("„Alt“");
+
+    // Nur alte Vorschläge ohne Quelle: kein Hinweis
+    const nurAlt = facts(1);
+    const b = analyze({ proposals: [nurAlt], rows: rowsOf(nurAlt, [item], { a: "alt" }), invoices: [], now, zeitraumTage: 90 });
+    expect(b.risiken.map((r) => r.id)).not.toContain("igel-monitor");
   });
 
   it("zeigt keine Quoten bei zu wenigen Fällen", () => {

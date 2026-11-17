@@ -6,10 +6,10 @@
 // Dazu die Quellen selbst: die Angebote aller Fächer (lib/specialties.ts, lib/fachangebote.ts) und die
 // Beispielkarte der Zahnmedizin auf der Website (lib/dentalShowcase.ts).
 import { describe, expect, it } from "vitest";
-import { DEFAULT_PRICES, FINDINGS, GLOBAL_FINDINGS, buildProposal, type FindingCode, type GlobalCode, type PatientFactors, type ProposalInput } from "./proposals";
+import { DEFAULT_PRICES, FINDINGS, GLOBAL_FINDINGS, buildLetter, buildProposal, type FindingCode, type GlobalCode, type PatientFactors, type ProposalInput } from "./proposals";
 import { ALLE_SPECIALTIES, DENTAL_ID, type Specialty } from "./specialties";
 import { DENTAL_SHOWCASE } from "./dentalShowcase";
-import { IGEL_MONITOR, NUTZEN_FRAGEN, quellenListe, quellenText } from "./nutzenQuelle";
+import { IGEL_MONITOR, NUTZEN_FRAGEN, NUTZEN_OHNE_QUELLE, quellenListe, quellenText, schreibenMitNutzenOhneQuelle } from "./nutzenQuelle";
 import { readFileSync } from "node:fs";
 
 const HALTBARKEIT = /haltbar|langlebig|lebensdauer|hält\s+(\d|lange|länger|am längsten|ein leben)|jahre haltbar/i;
@@ -260,39 +260,65 @@ describe("der Kasten „Zum Nutzen“: Aussagen zu Nutzen und Studienlage nur mi
       for (const q of igel) {
         expect(q.url, wo).toMatch(/^https:\/\/igel-monitor\.de\/igel-a-z\/igel\/show\/[a-z0-9-]+\.html$/);
         expect(o.nutzen, wo).toContain(`„${q.titel}“`);
+        // Beschränkt die Seite die Bewertung auf eine Gruppe, steht diese Gruppe wörtlich im Satz.
+        if (q.geltung) expect(o.nutzen, `${wo}: Geltungsbereich`).toContain(q.geltung);
       }
       // Jede genannte Stufe ist eine Stufe des IGeL-Monitors; je Quelle mindestens eine.
       const genannt = [...o.nutzen!.matchAll(/mit „([^“]+)“/g)].map((m) => m[1]);
       expect(genannt.length, wo).toBeGreaterThan(0);
       for (const stufe of genannt) expect(STUFEN, `${wo}: „${stufe}“`).toContain(stufe);
       if (!/jeweils/.test(o.nutzen!)) expect(genannt.length, wo).toBe(igel.length);
+      // Die hinterlegte Stufe (für die Auswertung der Praxis, lib/analytics.ts) ist die, die im Satz steht, in derselben Reihenfolge.
+      for (const q of igel) expect(STUFEN, `${wo}: Stufe hinterlegt`).toContain(q.bewertung);
+      if (/jeweils/.test(o.nutzen!)) for (const q of igel) expect(q.bewertung, wo).toBe(genannt[0]);
+      else expect(igel.map((q) => q.bewertung), wo).toEqual(genannt);
     }
     expect(n).toBeGreaterThan(10);
   });
 
-  it("Rechtslage nur als wörtliches Zitat mit Norm und Adresse (Wahlarzt: § 2 Abs. 2 KHEntgG)", () => {
+  it("Rechtslage nur als wörtliches Zitat mit Norm und Adresse (Wahlarzt: § 2 Abs. 2 Satz 1 und § 17 Abs. 1 Satz 1 KHEntgG)", () => {
     const wahlarzt = alle().find((x) => x.wo === "klinik/wahlarzt")!.o;
-    const [q] = quellenListe(wahlarzt.nutzenQuelle);
-    expect(q.name).toBe("§ 2 Abs. 2 KHEntgG");
-    expect(q.url).toBe("https://www.gesetze-im-internet.de/khentgg/__2.html");
-    expect(wahlarzt.nutzen).toMatch(/^§ 2 Abs\. 2 Satz 1 KHEntgG: „Allgemeine Krankenhausleistungen sind die Krankenhausleistungen, die .+ notwendig sind\.“$/);
+    const quellen = quellenListe(wahlarzt.nutzenQuelle);
+    expect(quellen.map((q) => [q.name, q.url])).toEqual([
+      ["§ 2 Abs. 2 Satz 1 KHEntgG", "https://www.gesetze-im-internet.de/khentgg/__2.html"],
+      ["§ 17 Abs. 1 Satz 1 KHEntgG", "https://www.gesetze-im-internet.de/khentgg/__17.html"],
+    ]);
+    // Jede Norm steht so im Satz, wie sie als Quelle genannt ist, und wird wörtlich zitiert.
+    expect(wahlarzt.nutzen).toMatch(
+      /^§ 2 Abs\. 2 Satz 1 KHEntgG: „Allgemeine Krankenhausleistungen sind die Krankenhausleistungen, die .+ notwendig sind\.“ § 17 Abs\. 1 Satz 1 KHEntgG: „Neben den Entgelten .+ als Wahlleistungen gesondert berechnet werden, wenn .+ vereinbart ist\.“$/,
+    );
     // Ohne Quelle keine Norm im Kasten.
     for (const { wo, o } of alle()) if (o.nutzen && /§/.test(o.nutzen)) expect(quellenListe(o.nutzenQuelle).length, wo).toBeGreaterThan(0);
   });
 
   it("ohne Quelle nur der neutrale Satz oder eine reine Abrechnungstatsache", () => {
-    const ERLAUBT_OHNE_QUELLE = new Set([
-      NUTZEN_FRAGEN,
-      "Ersetzt keine ärztliche Untersuchung.",
-      "Keine Krankenbehandlung und keine Kassenleistung.",
-      "Behandlung aus kosmetischem Wunsch, keine Kassenleistung.",
-      "Training ohne Krankheitswert, keine Kassenleistung.",
-      "Wunschleistung ohne medizinischen Anlass, keine Kassenleistung.",
-    ]);
+    expect(NUTZEN_OHNE_QUELLE.has(NUTZEN_FRAGEN)).toBe(true);
     for (const { wo, o } of alle()) {
       if (!o.nutzen || quellenListe(o.nutzenQuelle).length) continue;
-      expect(ERLAUBT_OHNE_QUELLE.has(o.nutzen), `${wo}: „${o.nutzen}“`).toBe(true);
+      expect(NUTZEN_OHNE_QUELLE.has(o.nutzen), `${wo}: „${o.nutzen}“`).toBe(true);
     }
+  });
+
+  it("der neutrale Satz unterstellt keinen Nutzen („was diese Leistung leisten kann“)", () => {
+    expect(NUTZEN_FRAGEN).not.toMatch(/leisten kann|bringt|hilft/i);
+    expect(NUTZEN_FRAGEN).toMatch(/für .* gegen/);
+  });
+
+  it("ältere gespeicherte Schreiben mit Angaben zum Nutzen ohne Quelle werden erkannt (Abschlussseite bietet sie nicht zum Versand an)", () => {
+    expect(schreibenMitNutzenOhneQuelle("1. Vorsorge\n      Zum Nutzen: Ohne Beschwerden ist kein Nutzen belegt.")).toBe(true);
+    expect(schreibenMitNutzenOhneQuelle(`      Zum Nutzen: ${NUTZEN_FRAGEN}`)).toBe(false);
+    expect(schreibenMitNutzenOhneQuelle("      Zum Nutzen: Der IGeL-Monitor … (Quelle: IGeL-Monitor (Medizinischer Dienst Bund), https://igel-monitor.de/…)")).toBe(false);
+    expect(schreibenMitNutzenOhneQuelle("      Hinweis der Praxis zu Lidrandpflege: Text der Praxis")).toBe(false);
+    // Jedes Schreiben, das heute entsteht, ist unauffällig.
+    for (const fach of ALLE_SPECIALTIES.filter((s) => s.id !== DENTAL_ID)) {
+      const items = buildProposal({ teeth: {}, globals: {}, patient: basis, fach: fach.id, anlaesse: fach.anlaesse.map((a) => a.id) }, DEFAULT_PRICES);
+      const choices = Object.fromEntries(items.map((i) => [i.key, i.options[i.options.length - 1].id]));
+      const brief = buildLetter({ items, choices, patient: basis, patientName: "Muster", practiceName: "Praxis", fach: fach.id, date: new Date("2026-11-17") });
+      expect(schreibenMitNutzenOhneQuelle(brief), fach.id).toBe(false);
+    }
+    const datei = readFileSync("components/WrapUpSummary.tsx", "utf8");
+    expect(datei).toContain("schreibenMitNutzenOhneQuelle(proposal.letterText)");
+    expect(datei).toContain("{!schreibenAlt && <CopyTextButton");
   });
 
   it("jede Stelle, die den Kasten zeigt, zeigt auch die Quelle (als Link: neues Fenster, ohne Referrer; im Schreiben mit Adresse)", () => {
@@ -314,8 +340,11 @@ describe("der Kasten „Zum Nutzen“: Aussagen zu Nutzen und Studienlage nur mi
     expect(grundsaetze).toContain(psa.nutzen!);
     expect(grundsaetze).toContain("<NutzenQuelleLink quelle={BEISPIEL_NUTZEN.quelle} />");
     expect(quellenText(psa.nutzenQuelle)).toBe(
-      "Quelle: IGeL-Monitor (Medizinischer Dienst Bund), https://igel-monitor.de/igel-a-z/igel/show/psa-test-zur-frueherkennung-von-prostatakrebs.html, Stand 17.11.2026",
+      "Quelle: IGeL-Monitor (Medizinischer Dienst Bund), https://igel-monitor.de/igel-a-z/igel/show/psa-test-zur-frueherkennung-von-prostatakrebs.html, abgerufen am 17.11.2026",
     );
+    // Der Tag des Abrufs steht sichtbar neben dem Link, nicht nur im Tooltip; in der Patientenansicht in deren Sprache.
+    expect(link).toMatch(/\(\$\{abgerufen\} \$\{liste\[0\]\.stand\}\)/);
+    expect(readFileSync("components/PatientProposalView.tsx", "utf8")).toContain("abgerufen={t.abgerufen}");
   });
 });
 
@@ -342,5 +371,34 @@ describe("keine unbelegten Mengenangaben zur Erstattung und kein Werbeton auf de
     }
     expect(n).toBeGreaterThan(20);
     for (const de of Object.keys(CONTENT_EN)) if (/erstatt|übernehm|zuschuss/i.test(de)) expect(de).not.toMatch(MENGE);
+  });
+});
+
+// Öffentlicher Leistungskatalog (app/leistungen/[id]): Die Hinweise beschreiben, sie werten nicht („Wirksamkeit nicht
+// belegt“, „umstritten“, „empfohlen“) und nennen keine Mengen ohne Quelle („viele Kassen“, „oft“, „meist“).
+describe("Leistungskatalog: Hinweise ohne Wertung und ohne Mengenangaben", () => {
+  const MENGE = /\b(viele|vielen|oft|häufig|meist|meistens|die meisten|fast alle)\b/i;
+  const WERTEND = /wirksam|wirkung|belegt|nachgewiesen|umstritten|empfohlen|empfehl|sinnvoll|bewährt|heilversprechen vermeiden/i;
+  it("kein Hinweis wertet oder nennt eine Menge ohne Quelle", async () => {
+    const { LEISTUNGEN, leistung } = await import("./leistungskatalog");
+    const mitHinweis = LEISTUNGEN.filter((l) => l.hinweis);
+    expect(mitHinweis.length).toBeGreaterThan(20);
+    // „Heilversprechen vermeiden (HWG)“ bei der Infusionstherapie ist ein Merkpunkt zur Werbung, keine Aussage über die Leistung.
+    for (const l of mitHinweis) {
+      expect(l.hinweis, l.id).not.toMatch(MENGE);
+      if (l.id !== "aesthetische-medizin-minimal-invasiv-infusionstherapie") expect(l.hinweis, l.id).not.toMatch(WERTEND);
+    }
+    // Wirkungs- und Haltbarkeitsaussagen in den Zeilen mit NiSV-Hinweisen (Prüfbefund): nur das Verfahren
+    for (const id of ["aesthetische-medizin-minimal-invasiv-laser-haarentfernung", "aesthetische-medizin-minimal-invasiv-ultraschall-lifting", "aesthetische-medizin-minimal-invasiv-radiofrequenz-microneedling", "aesthetische-medizin-minimal-invasiv-cellulite-behandlung"]) {
+      const l = leistung(id)!;
+      expect(l, id).not.toBeNull();
+      expect(`${l.fachbegriff} ${l.beschreibung}`, id).not.toMatch(/dauerhaft|strafft|straffung|glättet/i);
+    }
+    // § 7 NiSV deckt nur Muskelaufbau und Muskelstraffung; Fettreduktion mit Hochfrequenz ist ärztlich (§ 6 Abs. 2 NiSV).
+    const muskel = leistung("aesthetische-medizin-minimal-invasiv-muskelaufbau-fettreduktion-per-geraet")!;
+    expect(muskel.name).not.toMatch(/Fett/);
+    expect(muskel.hinweis).toMatch(/§ 6 Abs\. 2 NiSV/);
+    // Subzision ist ein Eingriff unter der Haut: ärztlich
+    expect(leistung("aesthetische-medizin-minimal-invasiv-cellulite-behandlung")!.behandler).toMatch(/^Arzt \(Subzision\)/);
   });
 });

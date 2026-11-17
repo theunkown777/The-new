@@ -5,7 +5,7 @@
 // Modell ohne Eintrag lässt den Test fehlschlagen.
 //
 // Teil 2 (nur mit Datenbank): Zwei Praxen mit Daten in jeder Tabelle. Eine wird gelöscht: Von ihr bleibt keine Zeile,
-// die andere ist danach genau wie vorher. Dazu: Abbruch bei falschem Namen und bei Verweisen aus anderen Praxen,
+// die andere ist danach genau wie vorher. Dazu: Abbruch bei falschem Namen und bei Verweisen zwischen Praxen (beide Richtungen),
 // abgelaufene Demo-Praxen, das Skript selbst.
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import crypto from "crypto";
@@ -13,11 +13,13 @@ import path from "path";
 import { execFile } from "child_process";
 import { fileURLToPath } from "url";
 import { Prisma, type PrismaClient } from "@prisma/client";
+import { resolveDatabaseUrls } from "./databaseUrl";
 import {
   LoeschAbbruch,
   OHNE_PRAXISBEZUG,
   SCHRITTE,
   argumenteLesen,
+  VOR_DEM_VERSAND,
   bestaetigungText,
   datenbankZiel,
   fremdeVerweise,
@@ -27,6 +29,7 @@ import {
   probelaufText,
   uebersichtText,
   zeitpunktUtc,
+  type FremderVerweis,
   type LoeschErgebnis,
 } from "./praxisLoeschen";
 
@@ -37,16 +40,20 @@ const MODELLE = Prisma.dmmf.datamodel.models;
 const IN_SCHRITTEN = new Set<string>(SCHRITTE.map((s) => s.modell));
 const OHNE = new Set<string>(Object.keys(OHNE_PRAXISBEZUG));
 
-/** Laut Schema mit Bezug zu einer Praxis: Feld practiceId/praxisId, oder Fremdschlüssel auf ein Modell mit Bezug. */
+/**
+ * Laut Schema mit Bezug zu einer Praxis: ein Feld, dessen Name nach einer Kennung der Praxis klingt (practiceId, praxisId,
+ * praxisKennung …; nicht Lead.practiceName, das ist ein Freitext der Anfrage),
+ * oder irgendeine Beziehung zu einem Modell mit Bezug, in jeder Richtung: Fremdschlüssel im Modell selbst, Fremdschlüssel
+ * auf der anderen Seite (z. B. Practice.logoId → Logo) und n:m-Beziehungen ohne Fremdschlüssel (Practice[] ↔ Tag[]).
+ * Prisma verlangt das Gegenfeld auf beiden Seiten einer Beziehung; deshalb sieht jedes Modell seine Beziehungen.
+ */
 function mitPraxisbezug(): Set<string> {
   const mit = new Set<string>(["Practice"]);
   for (let neu = true; neu; ) {
     neu = false;
     for (const m of MODELLE) {
       if (mit.has(m.name)) continue;
-      const bezug = m.fields.some(
-        (f) => (f.kind === "scalar" && /^(practiceId|praxisId)$/.test(f.name)) || (f.kind === "object" && (f.relationFromFields?.length ?? 0) > 0 && mit.has(f.type)),
-      );
+      const bezug = m.fields.some((f) => (f.kind === "scalar" && /^(prax|practi)\w*(id|kennung|key|ref)$/i.test(f.name)) || (f.kind === "object" && mit.has(f.type)));
       if (bezug) {
         mit.add(m.name);
         neu = true;
@@ -69,6 +76,12 @@ describe("Abgleich mit dem Schema", () => {
     const namen = new Set(MODELLE.map((m) => m.name));
     expect([...IN_SCHRITTEN, ...OHNE].filter((n) => !namen.has(n))).toEqual([]);
     expect(SCHRITTE.length).toBe(IN_SCHRITTEN.size);
+  });
+
+  it("OHNE_PRAXISBEZUG ist eine feste Liste: Jede Erweiterung steht ausdrücklich hier im Test", () => {
+    // Ein neues Modell, das beim Löschen einer Praxis stehen bleiben soll, wird hier mit Begründung im Code ergänzt.
+    // Die Schemaprüfung unten erkennt nicht jede denkbare Art von Bezug (etwa eine Kennung unter einem fremden Namen).
+    expect(Object.keys(OHNE_PRAXISBEZUG).sort()).toEqual(["AmtlicheLeistung", "ApiClient", "Lead", "LexikonEntry"]);
   });
 
   it("jedes Modell mit Bezug zu einer Praxis wird gelöscht, keins ohne Bezug", () => {
@@ -100,12 +113,30 @@ describe("Aufruf des Skripts", () => {
   it("ohne --ausfuehren ist es ein Probelauf", () => {
     expect(argumenteLesen(["--praxis", "cabc123"])).toEqual({ praxisId: "cabc123", ausfuehren: false });
   });
-  it("--ausfuehren braucht --bestaetigen mit dem Namen", () => {
-    expect(argumenteLesen(["--praxis", "cabc123", "--ausfuehren"])).toHaveProperty("fehler");
-    expect(argumenteLesen(["--praxis", "cabc123", "--ausfuehren", "--bestaetigen", "Praxis Dr. Muster"])).toEqual({ praxisId: "cabc123", ausfuehren: true, bestaetigen: "Praxis Dr. Muster" });
+  const loeschen = ["--praxis", "cabc123", "--ausfuehren", "--datenbank", "db.example.org:5432/app", "--bestaetigen", "Praxis Dr. Muster", "--sicherung-tage", "7"];
+  it("--ausfuehren braucht Datenbank, Namen und Tage der Sicherungen", () => {
+    expect(argumenteLesen(loeschen)).toEqual({ praxisId: "cabc123", ausfuehren: true, datenbank: "db.example.org:5432/app", bestaetigen: "Praxis Dr. Muster", sicherungTage: 7 });
+    for (const weg of ["--datenbank", "--bestaetigen", "--sicherung-tage"]) {
+      const i = loeschen.indexOf(weg);
+      expect(argumenteLesen([...loeschen.slice(0, i), ...loeschen.slice(i + 2)]), weg).toHaveProperty("fehler");
+    }
+    for (const tage of ["0", "TAGE", "7.5", "-3", "366", "1000"]) {
+      expect(argumenteLesen([...loeschen.slice(0, -1), tage]), tage).toHaveProperty("fehler");
+    }
   });
   it("lehnt fehlende, doppelte und unbekannte Angaben ab", () => {
-    for (const argv of [[], ["--praxis"], ["--praxis", "--ausfuehren"], ["--praxis", "a", "--praxis", "b"], ["--praxis", "a", "--loeschen"], ["--praxis", "a", "--bestaetigen", "X"], ["--praxis", "a", "--ausfuehren", "--ausfuehren", "--bestaetigen", "X"]]) {
+    for (const argv of [
+      [],
+      ["--praxis"],
+      ["--praxis", "--ausfuehren"],
+      ["--praxis", "a", "--praxis", "b"],
+      ["--praxis", "a", "--loeschen"],
+      ["--praxis", "a", "--bestaetigen", "X"],
+      ["--praxis", "a", "--datenbank", "x:1/y"],
+      ["--praxis", "a", "--sicherung-tage", "7"],
+      [...loeschen, "--ausfuehren"],
+      [...loeschen, "--datenbank", "x:1/y"],
+    ]) {
       expect(argumenteLesen(argv), argv.join(" ")).toHaveProperty("fehler");
     }
   });
@@ -124,18 +155,28 @@ describe("Texte", () => {
   it("Zeitpunkt in UTC", () => {
     expect(zeitpunktUtc(ergebnis.zeitpunkt)).toBe("17.11.2026 um 14:05:09 Uhr (UTC)");
   });
-  it("Bestätigung: Zeitpunkt, Praxis, Kennung, Zahl je Tabelle, Hinweis auf Sicherungen", () => {
-    const text = bestaetigungText(ergebnis);
+  it("Bestätigung: Zeitpunkt, Praxis, Kennung, Zahl je Tabelle, Sicherungen mit Dauer und Datum, Zeilen zum Ausfüllen", () => {
+    const text = bestaetigungText(ergebnis, { sicherungTage: 30 });
     expect(text).toContain("17.11.2026 um 14:05:09 Uhr (UTC)");
     expect(text).toContain("Praxis: Zahnarztpraxis Dr. O'Neill");
     expect(text).toContain("cpraxis0001");
     for (const z of ergebnis.zeilen) expect(text).toContain(`${z.text}: ${z.anzahl}`);
-    expect(text).toContain("Sicherungen");
+    expect(text).toContain("Sicherungen der Datenbank 30 Tage auf");
+    expect(text).toContain("Mit Ablauf des 17.12.2026 (UTC) sind sie auch dort gelöscht.");
+    expect(bestaetigungText(ergebnis, { sicherungTage: 1 })).toContain("1 Tag auf");
+    // Branches und E-Mail-Dienst sieht das Skript nicht: Der Betreiber füllt sie vor dem Versand aus.
+    expect(text).toContain(`(Branches): ${VOR_DEM_VERSAND}`);
+    expect(text).toContain(`E-Mail-Dienst: ${VOR_DEM_VERSAND}`);
+    // Über die Fehlereinträge nur, was die Bereinigung leistet, keine Zusage „keine Angaben zu Personen“
+    expect(text).not.toMatch(/keine Angaben zu Personen/);
+    expect(text).toContain("vor dem Speichern bereinigt");
     const geloescht = ergebnis.zeilen.filter((z) => !z.geleert).reduce((n, z) => n + z.anzahl, 0);
     expect(text).toContain(`Zusammen: ${geloescht}`);
   });
-  it("Probelauf nennt den Befehl zum Löschen mit dem Namen, sicher für die Shell", () => {
-    expect(probelaufText(ergebnis.praxis)).toContain(`--praxis cpraxis0001 --ausfuehren --bestaetigen 'Zahnarztpraxis Dr. O'\\''Neill'`);
+  it("Probelauf nennt den Befehl zum Löschen mit Datenbank und Namen, sicher für die Shell", () => {
+    expect(probelaufText(ergebnis.praxis, "localhost:5432/test")).toContain(
+      `--praxis cpraxis0001 --ausfuehren --datenbank 'localhost:5432/test' --bestaetigen 'Zahnarztpraxis Dr. O'\\''Neill' --sicherung-tage TAGE`,
+    );
     const uebersicht = uebersichtText({ ziel: "localhost:5432/test", praxis: ergebnis.praxis, zeilen: ergebnis.zeilen, verweise: [] });
     for (const s of SCHRITTE) expect(uebersicht).toContain(s.modell);
   });
@@ -285,7 +326,7 @@ describe.skipIf(!MIT_DB)("Löschen in der Datenbank", () => {
     expect(JSON.parse(jetztB.Patient)).toHaveLength(1);
 
     // Bestätigung: nur Zahlen, keine Angaben zu Personen
-    const text = bestaetigungText(ergebnis);
+    const text = bestaetigungText(ergebnis, { sicherungTage: 7 });
     expect(text).toContain(A.id);
     for (const wort of A.personen) expect(text).not.toContain(wort);
   }, 60_000);
@@ -297,7 +338,7 @@ describe.skipIf(!MIT_DB)("Löschen in der Datenbank", () => {
     const fremd = await prisma.report.create({ data: { practiceId: D.id, patientId: D.patient, authorId: C.nutzer, type: "BEFUND", serviceSummary: "fremd" } });
     const vorher = await praxisZaehlen(prisma, C.id);
     const abbildD = await abbild(D.id);
-    const erwartet = [{ von: "Report", feld: "author", nach: "User", anzahl: 1 }];
+    const erwartet = [{ von: "Report", feld: "author", nach: "User", richtung: "hinein", anzahl: 1 }];
     expect(await fremdeVerweise(prisma, C.id)).toEqual(erwartet);
     const fehler = await praxisLoeschen(prisma, C.id, { name: C.name }).catch((e: unknown) => e);
     expect(fehler).toBeInstanceOf(LoeschAbbruch);
@@ -306,6 +347,26 @@ describe.skipIf(!MIT_DB)("Löschen in der Datenbank", () => {
     expect(await abbild(D.id)).toEqual(abbildD);
     await prisma.report.delete({ where: { id: fremd.id } });
     expect(await fremdeVerweise(prisma, C.id)).toEqual([]);
+  }, 60_000);
+
+  it("bricht auch ab, wenn Zeilen der Praxis auf Daten einer anderen Praxis zeigen (umgekehrte Richtung)", async () => {
+    const G = await praxisAnlegen("G");
+    const H = await praxisAnlegen("H");
+    // Akteneintrag der Praxis G am Patienten der Praxis H: Er wäre bei H sichtbar und würde mit G gelöscht.
+    const eintrag = await prisma.patientEntry.create({ data: { practiceId: G.id, patientId: H.patient, art: "NOTIZ", text: "fremd" } });
+    const erwartetG: FremderVerweis[] = [{ von: "PatientEntry", feld: "patient", nach: "Patient", richtung: "hinaus", anzahl: 1 }];
+    expect(await fremdeVerweise(prisma, G.id)).toEqual(erwartetG);
+    expect(await fremdeVerweise(prisma, H.id)).toEqual([{ von: "PatientEntry", feld: "patient", nach: "Patient", richtung: "hinein", anzahl: 1 }]);
+    const vorher = await praxisZaehlen(prisma, G.id);
+    const fehler = await praxisLoeschen(prisma, G.id, { name: G.name }).catch((e: unknown) => e);
+    expect(fehler).toBeInstanceOf(LoeschAbbruch);
+    expect((fehler as LoeschAbbruch).verweise).toEqual(erwartetG);
+    expect(await praxisZaehlen(prisma, G.id)).toEqual(vorher);
+    expect(await prisma.patientEntry.count({ where: { id: eintrag.id } })).toBe(1);
+    const uebersicht = uebersichtText({ ziel: "x", praxis: { id: G.id, name: G.name, isDemo: false }, zeilen: vorher, verweise: erwartetG });
+    expect(uebersicht).toContain("Zeile(n) dieser Praxis zeigen auf Daten einer anderen Praxis");
+    await prisma.patientEntry.delete({ where: { id: eintrag.id } });
+    expect(await fremdeVerweise(prisma, G.id)).toEqual([]);
   }, 60_000);
 
   it("abgelaufene Demo-Praxen löscht der tägliche Lauf mit derselben Liste", async () => {
@@ -317,7 +378,29 @@ describe.skipIf(!MIT_DB)("Löschen in der Datenbank", () => {
     expect(await prisma.fehlerEintrag.findUnique({ where: { fingerabdruck: E.abdruck } })).toMatchObject({ practiceId: null });
   }, 60_000);
 
-  it("Skript: ohne DATABASE_URL nichts, Probelauf löscht nichts, falscher Name bricht ab, richtiger Name löscht", async () => {
+  it("nächtlicher Lauf: Eine Demo-Praxis, die sich nicht löschen lässt, hält den Lauf nicht an und kommt ins Fehlerlog", async () => {
+    const J = await praxisAnlegen("J", { isDemo: true, demoExpiresAt: new Date("1970-01-01T00:00:01Z") });
+    const K = await praxisAnlegen("K");
+    // Bericht der Praxis K mit einem Konto der Demo-Praxis J als Verfasser: Das Löschen von J bricht ab.
+    const fremd = await prisma.report.create({ data: { practiceId: K.id, patientId: K.patient, authorId: J.nutzer, type: "BEFUND", serviceSummary: "fremd" } });
+    const { aufraeumen } = await import("./aufraeumen");
+    // Zeitpunkt weit in der Vergangenheit: Die übrigen Fristen treffen dann keine Zeile der Datenbank.
+    const jetzt = new Date("1970-01-01T00:00:02Z");
+    const ort = { ort: "/api/cron/aufraeumen", createdAt: jetzt };
+    try {
+      expect(await aufraeumen(jetzt)).toMatchObject({ demos: 0, demosFehler: 1 });
+      expect(await prisma.practice.count({ where: { id: J.id } })).toBe(1);
+      expect(await prisma.fehlerEintrag.count({ where: ort })).toBe(1);
+      await prisma.report.delete({ where: { id: fremd.id } });
+      expect(await aufraeumen(jetzt)).toMatchObject({ demos: 1, demosFehler: 0 });
+      expect(await prisma.practice.count({ where: { id: J.id } })).toBe(0);
+    } finally {
+      await prisma.report.deleteMany({ where: { id: fremd.id } });
+      await prisma.fehlerEintrag.deleteMany({ where: ort });
+    }
+  }, 60_000);
+
+  it("Skript: ohne DATABASE_URL nichts, Probelauf löscht nichts, falsche Datenbank oder falscher Name bricht ab, richtiger Aufruf löscht", async () => {
     const F = await praxisAnlegen("F");
     const tsx = path.join(WURZEL, "node_modules", ".bin", "tsx");
     const skript = path.join(WURZEL, "scripts", "praxis-loeschen.ts");
@@ -329,6 +412,8 @@ describe.skipIf(!MIT_DB)("Löschen in der Datenbank", () => {
       );
     const vorher = await praxisZaehlen(prisma, F.id);
     const allesAusgegeben: string[] = [];
+    const ziel = datenbankZiel(resolveDatabaseUrls({ DATABASE_URL: process.env.DATABASE_URL })!.direct);
+    const loeschen = (name: string, db = ziel) => ["--praxis", F.id, "--ausfuehren", "--datenbank", db, "--bestaetigen", name, "--sicherung-tage", "7"];
 
     const { DATABASE_URL: _weg, ...ohneDb } = process.env;
     const ohne = await lauf(["--praxis", F.id], ohneDb);
@@ -341,20 +426,30 @@ describe.skipIf(!MIT_DB)("Löschen in der Datenbank", () => {
     expect(probe.aus).toContain(`Praxis:      ${F.name}`);
     expect(probe.aus).toContain("Probelauf: Es wurde nichts gelöscht.");
     expect(probe.aus).toMatch(/Patient\s+1\s+Patientinnen und Patienten/);
+    expect(probe.aus).toContain(`--datenbank '${ziel}'`);
     expect(await praxisZaehlen(prisma, F.id)).toEqual(vorher);
 
-    const falsch = await lauf(["--praxis", F.id, "--ausfuehren", "--bestaetigen", F.name.toUpperCase()]);
+    // Andere Datenbank (z. B. ein Branch mit gleichen Kennungen und Namen): bricht vor dem Lesen ab
+    const andereDb = await lauf(loeschen(F.name, `anderer-${ziel}`));
+    allesAusgegeben.push(andereDb.aus, andereDb.fehler);
+    expect(andereDb.code).toBe(1);
+    expect(andereDb.fehler).toContain("--datenbank stimmt nicht");
+    expect(await praxisZaehlen(prisma, F.id)).toEqual(vorher);
+
+    const falsch = await lauf(loeschen(F.name.toUpperCase()));
     allesAusgegeben.push(falsch.aus, falsch.fehler);
     expect(falsch.code).toBe(1);
     expect(falsch.fehler).toContain("Nichts gelöscht");
     expect(await praxisZaehlen(prisma, F.id)).toEqual(vorher);
 
-    const echt = await lauf(["--praxis", F.id, "--ausfuehren", "--bestaetigen", F.name]);
+    const echt = await lauf(loeschen(F.name));
     allesAusgegeben.push(echt.aus, echt.fehler);
     expect(echt.code, echt.fehler).toBe(0);
     expect(echt.aus).toContain("Bestätigung der Löschung");
     expect(echt.aus).toContain("Uhr (UTC)");
     expect(echt.aus).toContain("- Patientinnen und Patienten: 1");
+    expect(echt.aus).toContain("Sicherungen der Datenbank 7 Tage auf");
+    expect(echt.aus).toContain("Vor dem Versand");
     expect((await praxisZaehlen(prisma, F.id)).filter((z) => z.anzahl > 0)).toEqual([]);
 
     // Nie Namen von Patienten, Konten oder Anfragenden in der Ausgabe

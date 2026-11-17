@@ -25,14 +25,14 @@ export function Entlastung({ therapie = false, journal = false }: { therapie?: b
       sorrida: "Patienten lesen Optionen und Kosten zu Hause auf dem Handy. Rückrufwünsche kommen gesammelt an.",
     },
     {
-      titel: therapie ? "Klare Preise statt Missverständnisse" : "Selbstzahlerleistungen, ohne dass der Ruf leidet",
+      titel: therapie ? "Klare Preise statt Missverständnisse" : "Selbstzahlerleistungen mit Quelle und Bedenkzeit",
       fakt: therapie
-        ? "Zuzahlung, Selbstzahler-Einheiten und Kassenzuschüsse verwirren viele Patienten."
+        ? "Zuzahlung, Selbstzahler-Einheiten und Kassenzuschüsse werfen bei Patienten Fragen auf."
         : "Über mögliche Schäden von IGeL werden Patienten kaum aufgeklärt. Gefordert sind Bedenkzeit und unabhängige Information.",
       quelle: therapie ? undefined : QUELLEN.igel,
       sorrida: therapie
         ? "Die gesetzliche Zuzahlung wird nach § 32 und § 61 SGB V berechnet, Selbstzahler-Einheiten stehen mit Preis und Hinweis auf Kassenzuschüsse daneben."
-        : "Kassenleistung zuerst, ehrlicher Hinweis zum Nutzen, Bedenkzeit und Kostenschätzung in Textform. Das schützt Patienten und den Ruf Ihrer Praxis.",
+        : "Kassenleistung zuerst, Angaben zum Nutzen nur mit Quelle, Bedenkzeit und Kostenschätzung in Textform.",
     },
     {
       titel: "Kein weiteres Insel-System",

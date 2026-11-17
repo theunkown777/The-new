@@ -6,14 +6,14 @@ import { igelMonitor } from "@/lib/nutzenQuelle";
 /** Beispiel für den Kasten „Zum Nutzen“: wörtlich wie beim PSA-Test im Katalog (lib/specialties.ts), mit Quelle. */
 const BEISPIEL_NUTZEN = {
   text: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „PSA-Test zur Früherkennung von Prostatakrebs“ mit „tendenziell negativ“.",
-  quelle: igelMonitor("PSA-Test zur Früherkennung von Prostatakrebs", "psa-test-zur-frueherkennung-von-prostatakrebs", "17.11.2026"),
+  quelle: igelMonitor("PSA-Test zur Früherkennung von Prostatakrebs", "psa-test-zur-frueherkennung-von-prostatakrebs", "17.11.2026", "tendenziell negativ"),
 };
 
 // Sorridas Haltung in fünf Sätzen, gesetzt wie ein Inhaltsverzeichnis: große Ziffer, Grundsatz, Erklärung,
 // und wo es das Produkt zeigt, das Bildelement, an dem man ihn wiedererkennt.
 const SAETZE: { titel: string; text: string; bild?: "sockel" | "nutzen" | "weg" }[] = [
   { titel: "Kasse zuerst", text: "Jeder Betrag baut auf dem Kassenanteil auf: erst was die Kasse zahlt, dann der eigene Anteil. Nie umgekehrt.", bild: "sockel" },
-  { titel: "Ehrlich zum Nutzen", text: "Wo der IGeL-Monitor des Medizinischen Dienstes eine Leistung bewertet, steht seine Bewertung mit Quelle beim Angebot. Eine eigene Wertung gibt Sorrida nicht ab. Wer vertraut, kommt wieder.", bild: "nutzen" },
+  { titel: "Nutzen nur mit Quelle", text: "Bei den Angeboten im Katalog, zu denen eine Bewertung des IGeL-Monitors des Medizinischen Dienstes hinterlegt ist, steht sie wörtlich mit Quelle beim Angebot. Eine eigene Wertung gibt Sorrida nicht ab.", bild: "nutzen" },
   { titel: "Ein Weg statt Listen", text: "Gespräch, Vorschlag, Entscheidung, Vereinbart, Bezahlt. Praxis und Patient sehen denselben Weg und den nächsten Schritt.", bild: "weg" },
   { titel: "Das Geld bleibt in der Praxis", text: "Bei Zahlung per GiroCode geht der volle Betrag direkt aufs Praxiskonto. Sorrida behält nichts ein und finanziert nichts vor. Für Kartenzahlung berechnet der Zahlungsdienst der Praxis seine eigenen Gebühren." },
   { titel: "Ein Preis, keine Zähler", text: "Kein Kontingent, das abläuft, keine Einheiten zum Nachkaufen. Was im Paket steht, ist drin." },

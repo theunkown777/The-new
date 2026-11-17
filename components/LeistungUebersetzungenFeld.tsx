@@ -73,7 +73,7 @@ export function LeistungUebersetzungenFeld({
       </summary>
       <div className="mt-3 space-y-3">
         <p className="text-xs text-slate-600">
-          Name und Hinweis zum Nutzen in den Sprachen der Patientenansicht. Patienten sehen eine Übersetzung erst, wenn „geprüft“ angehakt und gespeichert ist. Sonst bleibt der deutsche Text stehen.
+          Name und Hinweis der Praxis in den Sprachen der Patientenansicht. Patienten sehen eine Übersetzung erst, wenn „geprüft“ angehakt und gespeichert ist. Sonst bleibt der deutsche Text stehen.
         </p>
         {value && !aktuell && (
           <p className="rounded bg-amber-50 px-2 py-1 text-xs text-amber-900" data-testid="uebersetzung-veraltet">
@@ -123,8 +123,8 @@ export function LeistungUebersetzungenFeld({
                   lang={lang}
                   maxLength={400}
                   disabled={readOnly || !zu.kurz}
-                  placeholder={zu.kurz ? "Hinweis zum Nutzen" : "kein deutscher Hinweis hinterlegt"}
-                  aria-label={`Hinweis zum Nutzen auf ${LEISTUNG_SPRACHE_NAME[lang]}`}
+                  placeholder={zu.kurz ? "Hinweis der Praxis" : "kein deutscher Hinweis hinterlegt"}
+                  aria-label={`Hinweis der Praxis auf ${LEISTUNG_SPRACHE_NAME[lang]}`}
                   value={s?.kurz ?? ""}
                   onChange={(e) => setze(lang, { kurz: e.target.value, geprueft: s?.maschinell ? false : stand === "geprueft" })}
                 />

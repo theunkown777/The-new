@@ -85,7 +85,7 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
           <p className="text-xs text-slate-500">
             {v.specialty === DENTAL_ID
               ? "Zahnschema, Festzuschuss, Mehrkostenvereinbarung und Befund-Diktat."
-              : "Anlässe Ihres Fachs mit Kassenleistung zuerst und Selbstzahlerleistungen (IGeL) mit Hinweis, wann die Kasse zahlt, und ehrlicher Angabe zum Nutzen."}
+              : "Anlässe Ihres Fachs mit Kassenleistung zuerst und Selbstzahlerleistungen (IGeL) mit Hinweis, wann die Kasse zahlt, und Angaben zum Nutzen nur mit Quelle."}
           </p>
         </div>
 
@@ -178,8 +178,12 @@ export function SpecialtySettings({ initial, readOnly = false, katalog = [] }: {
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <input className="input" placeholder="Kasse zahlt, wenn … (optional)" aria-label="Kasse zahlt wenn" value={c.kasseWenn ?? ""} onChange={(e) => setOffer(i, { kasseWenn: e.target.value })} />
-                  <input className="input" placeholder="Hinweis zum Nutzen (optional)" aria-label="Hinweis zum Nutzen" value={c.nutzen ?? ""} onChange={(e) => setOffer(i, { nutzen: e.target.value })} />
+                  <input className="input" placeholder="Hinweis der Praxis (optional)" aria-label="Hinweis der Praxis" value={c.nutzen ?? ""} onChange={(e) => setOffer(i, { nutzen: e.target.value })} />
                 </div>
+                <p className="text-xs text-slate-500">
+                  Der Hinweis erscheint beim Patienten als „Hinweis der Praxis“, nicht im Kasten „Zum Nutzen“. Angaben zu Nutzen oder
+                  Wirkung bitte nur mit Quelle im Text.
+                </p>
                 <LeistungUebersetzungenFeld name={c.name} nutzen={c.nutzen} value={c.uebersetzungen} onChange={(u) => setOffer(i, { uebersetzungen: u })} ki={ki.aktiv} readOnly={readOnly} />
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                   <label className="flex items-center gap-2">

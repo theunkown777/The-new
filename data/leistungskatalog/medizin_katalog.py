@@ -51,7 +51,7 @@ Ultraschall Eierstöcke & Gebärmutter | Vaginalsonographie (IGeL) | Ultraschall
 Ultraschall der Brust | Mammasonographie | Brustultraschall | Ergänzende Untersuchung der Brust. | IND | N | 0
 Augeninnendruck-Messung | Glaukom-Früherkennung | Grüner Star Test, Augendruck | Messung zur Früherkennung von Grünem Star. | SZ | N | 0
 Erweiterter Labor-Check | Großes Blutbild / Vitamin- und Hormonstatus | Vitamin D Test, Schilddrüsenwerte, Bluttest | Erweiterte Laborwerte auf Wunsch. | SZ | N | 0
-Manager-/Executive-Check-up | Umfassende Präventionsuntersuchung | Executive Check, Ganzkörper-Check | Mehrstündige Rundum-Untersuchung mit Bildgebung. | SZ | N | 0
+Manager-/Executive-Check-up | Umfassende Präventionsuntersuchung | Executive Check, Ganzkörper-Check | Mehrstündige Rundum-Untersuchung mit Bildgebung. | SZ | N | 0 | Röntgen oder CT ohne Krankheitszeichen und ohne konkreten Verdacht ist Früherkennung und nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht (Stand 17.11.2026: nur für Brustkrebs und für Lungenkrebs bei Personen von 50 bis 75 Jahren mit langjährigem starkem Zigarettenkonsum, auch nach einem Rauchstopp vor weniger als zehn Jahren, § 2 Lungenkrebs-Früherkennungs-Verordnung).
 Ganzkörper-MRT | Präventives Ganzkörper-MRT | Ganzkörperscan | MRT des ganzen Körpers ohne konkreten Anlass. | SZ | N | 0
 Herz-Check | Belastungs-EKG und Herzultraschall (präventiv) | Herz Vorsorge | Herzuntersuchung ohne Beschwerden. | SZ | N | 0
 """)
@@ -90,7 +90,7 @@ FSME-Impfung | FSME-Impfung | Zeckenimpfung | Schutz vor Zecken-Hirnhautentzünd
 Kinderimpfungen | Impfungen im Kindesalter | Masern, Mumps, Röteln, Sechsfachimpfung | Alle empfohlenen Impfungen für Kinder. | GKV | M | 0
 ## Reisemedizin
 Reisemedizinische Beratung | Reiseberatung | Reiseimpfung Beratung, Tropenreise | Beratung zu Impfungen und Gesundheitsrisiken auf Reisen. | SZ | N | 0
-Reiseimpfungen | Reiseimpfungen | Gelbfieber, Typhus, Tollwut, Japanische Enzephalitis, Hepatitis A | Impfungen für Fernreisen. | IND | M | 0 | Viele Kassen erstatten freiwillig.
+Reiseimpfungen | Reiseimpfungen | Gelbfieber, Typhus, Tollwut, Japanische Enzephalitis, Hepatitis A | Impfungen für Fernreisen. | IND | M | 0 | Ob die Kasse die Kosten übernimmt, vorher bei der Kasse fragen.
 Malariaprophylaxe | Malaria-Prophylaxe | Malaria Tabletten | Medikamente und Beratung gegen Malaria. | SZ | N | 0
 Tauchtauglichkeit | Tauchtauglichkeitsuntersuchung | Tauchattest | Ärztliche Untersuchung für Taucher. | SZ | N | 0
 Höhen- und Flugtauglichkeit | Flugtauglichkeitsuntersuchung | Fliegerarzt | Tauglichkeit für Piloten oder Höhenaufenthalte. | SZ | N | 0
@@ -123,7 +123,7 @@ Lungenspiegelung | Bronchoskopie | Bronchoskopie | Spiegelung der Atemwege. | GK
 Diabetes-Behandlung | Diabetologie | Zucker, Diabetes Typ 1, Diabetes Typ 2, Insulinpumpe | Einstellung und Schulung bei Diabetes. | GKV | N | 0
 Schilddrüsen-Sprechstunde | Schilddrüsendiagnostik | Schilddrüse, Unterfunktion, Überfunktion, Hashimoto | Ultraschall und Laborwerte der Schilddrüse. | GKV | N | 0
 Hormonsprechstunde | Endokrinologische Diagnostik | Hormone, Testosteron, Cortisol | Abklärung hormoneller Störungen. | GKV | N | 0
-Osteoporose-Diagnostik | Knochendichtemessung (DXA) | Knochendichte, Osteoporose | Messung der Knochendichte. | IND | N | 0
+Osteoporose-Diagnostik | Knochendichtemessung (DXA) | Knochendichte, Osteoporose | Messung der Knochendichte. | IND | N | 0 | Ohne Krankheitszeichen und ohne konkreten Verdacht ist die Messung Früherkennung mit Röntgenstrahlung. Sie ist nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht; für die Osteoporose gibt es keine (Stand 17.11.2026).
 Medikamentöse Adipositastherapie | Therapie mit GLP-1-Agonisten | Abnehmspritze, Wegovy, Mounjaro | Medikamentöse Gewichtsreduktion unter ärztlicher Aufsicht. | SZ | M | 0 | Kasse zahlt Abnehmmedikamente i. d. R. nicht.
 ## Nephrologie (Niere)
 Nierensprechstunde | Nephrologie | Nierenwerte, Niereninsuffizienz | Abklärung von Nierenerkrankungen. | GKV | N | 0
@@ -162,7 +162,6 @@ Brustsprechstunde | Senologie | Knoten in der Brust, Brustschmerzen | Abklärung
 ## Schwangerschaft & Geburt
 Schwangerschaftsvorsorge | Mutterschaftsvorsorge | Schwangerschaft Untersuchung, Mutterpass | Vorsorgeuntersuchungen in der Schwangerschaft. | GKV | N | 0
 Ultraschall in der Schwangerschaft | Screening-Ultraschall | Babyultraschall, Feindiagnostik | Ultraschalluntersuchungen des Kindes. | GKV | N | 0
-3D/4D-Ultraschall | 3D-/4D-Sonographie | Baby-Kino | Räumlicher Ultraschall auf Wunsch. | SZ | N | 0
 Pränataldiagnostik | NIPT / Ersttrimester-Screening | Bluttest Trisomie, Nackenfaltenmessung | Untersuchungen auf genetische Auffälligkeiten. | IND | N | 0
 Geburt | Geburtshilfe (Klinik/Geburtshaus) | Entbindung, Kreißsaal | Begleitung der Geburt. | GKV | M | 3
 Kaiserschnitt | Sectio caesarea | Kaiserschnitt | Operative Entbindung. | GKV | O | 4
@@ -183,7 +182,7 @@ Behandlung vergrößerter Prostata | TURP / Laser-Prostata-OP | Prostata vergrö
 Blasenschwäche | Inkontinenztherapie | Inkontinenz, Reizblase | Behandlung von Blasenschwäche bei Mann und Frau. | GKV | N | 0
 Blasenentzündung | Harnwegsinfekt-Behandlung | Blasenentzündung, HWI | Behandlung von Harnwegsinfekten. | GKV | N | 0
 ## Andrologie (Männergesundheit)
-Erektionsstörungen | Behandlung erektiler Dysfunktion | Potenzprobleme, Erektionsprobleme | Diagnostik und Therapie von Erektionsstörungen. | IND | N | 0 | Potenzmittel sind meist Selbstzahler.
+Erektionsstörungen | Behandlung erektiler Dysfunktion | Potenzprobleme, Erektionsprobleme | Diagnostik und Therapie von Erektionsstörungen. | IND | N | 0 | Ob die Kasse Arzneimittel dafür übernimmt, vorher bei der Kasse fragen.
 Stoßwellentherapie bei Erektionsstörung | Low-Intensity Shockwave Therapy | Stoßwelle Potenz | Stoßwellen zur Verbesserung der Durchblutung. | SZ | N | 0
 Testosteron-Check | Hormondiagnostik Mann | Testosteronmangel | Abklärung eines Hormonmangels. | IND | N | 0
 Spermiogramm | Ejakulatanalyse | Fruchtbarkeit Mann | Untersuchung der Samenqualität. | IND | N | 0
@@ -219,7 +218,7 @@ Arbeits- und Wegeunfall | D-Arzt-Verfahren (BG) | Arbeitsunfall, Schulunfall, We
 
 F("Sportmedizin", "Facharzt mit Zusatzbezeichnung Sportmedizin", """
 ## Sportmedizin
-Sportmedizinische Untersuchung | Sporttauglichkeitsuntersuchung | Sportcheck, Sportattest | Check vor Trainings- oder Wettkampfbeginn. | SZ | N | 0 | Viele Kassen bezuschussen.
+Sportmedizinische Untersuchung | Sporttauglichkeitsuntersuchung | Sportcheck, Sportattest | Check vor Trainings- oder Wettkampfbeginn. | SZ | N | 0 | Ob die Kasse einen Zuschuss gibt, vorher bei der Kasse fragen.
 Leistungsdiagnostik | Laktat- / Spiroergometrie | Laktattest, VO2max, Spiroergometrie | Messung der Ausdauerleistung für Trainingsplanung. | SZ | N | 0
 Sportverletzungen | Sporttraumatologie | Bänderriss, Muskelfaserriss, Umknicken | Diagnose und Behandlung von Sportverletzungen. | GKV | N | 0
 Return-to-Sport-Test | Funktionelle Testung nach Verletzung | Return to Play | Test, ob nach Verletzung wieder voll belastbar. | SZ | N | 0
@@ -345,7 +344,7 @@ MRT | Magnetresonanztomographie | Kernspin, MRT | Schnittbilder ohne Strahlung. 
 CT | Computertomographie | CT, Computertomograph | Schnelle Schnittbilder mit Röntgen. | GKV | N | 0
 Ultraschall | Sonographie | Ultraschall | Bildgebung mit Schallwellen. | GKV | N | 0
 Mammographie (diagnostisch) | Mammographie | Bruströntgen | Röntgen der Brust bei Beschwerden. | GKV | N | 0
-Herz-CT / Kalk-Score | Kardio-CT | Kalkscore, Herz CT | CT der Herzkranzgefäße. | SZ | N | 0
+Herz-CT / Kalk-Score | Kardio-CT | Kalkscore, Herz CT | CT der Herzkranzgefäße. | SZ | N | 0 | Ohne Krankheitszeichen und ohne konkreten Verdacht ist die Untersuchung Früherkennung mit Röntgenstrahlung. Sie ist nach § 84 Abs. 1 StrlSchG nur zulässig, wenn eine Rechtsverordnung sie vorsieht; für die koronare Herzkrankheit gibt es keine (Stand 17.11.2026).
 Prostata-MRT | Multiparametrisches MRT der Prostata | Prostata MRT | Genaue Darstellung der Prostata. | IND | N | 0
 Szintigraphie | Szintigraphie (Schilddrüse/Skelett) | Schilddrüsenszintigraphie, Knochenszintigraphie | Funktionsbild mit radioaktiven Markern. | GKV | M | 0
 PET-CT | Positronen-Emissions-Tomographie | PET | Stoffwechsel-Bildgebung bei Krebs. | IND | M | 0
@@ -403,9 +402,9 @@ Wiedereingliederung | Stufenweise Wiedereingliederung | Hamburger Modell | Schri
 F("Naturheilkunde & Komplementärmedizin", "Arzt mit Zusatzbezeichnung / Heilpraktiker / Osteopath", """
 ## Komplementär
 Akupunktur | Akupunktur (TCM) | Akupunktur, Nadeln | Nadelbehandlung nach chinesischer Medizin. | IND | M | 0
-Osteopathie | Osteopathische Behandlung | Osteopath | Manuelle Behandlung von Funktionsstörungen. | SZ | N | 0 | Viele Kassen bezuschussen.
+Osteopathie | Osteopathische Behandlung | Osteopath | Manuelle Behandlung von Funktionsstörungen. | SZ | N | 0 | Ob die Kasse einen Zuschuss gibt, vorher bei der Kasse fragen.
 Chiropraktik / Manuelle Medizin | Chirotherapie | Einrenken, Chiropraktiker | Lösen von Blockaden an Wirbelsäule und Gelenken. | IND | N | 0
-Homöopathie | Klassische Homöopathie | Globuli | Behandlung mit homöopathischen Mitteln. | SZ | N | 0 | Wirksamkeit wissenschaftlich nicht belegt – keine Heilversprechen.
+Homöopathie | Klassische Homöopathie | Globuli | Behandlung mit homöopathischen Mitteln. | SZ | N | 0
 Naturheilverfahren | Phytotherapie / Schröpfen / Ausleitung | Schröpfen, Pflanzenheilkunde | Pflanzliche und physikalische Verfahren. | SZ | N | 0
 Hypnosetherapie | Medizinische Hypnose | Hypnose, Rauchentwöhnung Hypnose | Therapie unter Hypnose. | SZ | N | 0
 """)
@@ -506,7 +505,7 @@ Sehtest für den Führerschein (Augenarzt) | Augenärztliches Gutachten Fahrerla
 
 F("Dermatologie (medizinisch)", "Facharzt Dermatologie", """
 ## Haut
-Starkes Schwitzen | Hyperhidrose-Behandlung | Schwitzen, Leitungswasser-Iontophorese, Achselschweiß | Behandlung von übermäßigem Schwitzen. | IND | N | 0 | Leitungswasser-Iontophorese oft Kassenleistung, Botulinum meist Selbstzahler.
+Starkes Schwitzen | Hyperhidrose-Behandlung | Schwitzen, Leitungswasser-Iontophorese, Achselschweiß | Behandlung von übermäßigem Schwitzen. | IND | N | 0 | Ob die Kasse zahlt, hängt vom Verfahren und vom Befund ab; vorher bei der Kasse fragen.
 Vorstufen von hellem Hautkrebs | Behandlung aktinischer Keratosen (Kryo, PDT, Creme) | aktinische Keratose, Lichtschaden | Behandlung rauer, lichtgeschädigter Hautstellen. | IND | M | 1
 Chronische Wunden | Behandlung chronischer Wunden | offenes Bein, Ulcus cruris | Versorgung schlecht heilender Wunden. | GKV | M | 0
 Gefäßlaser | Lasertherapie von Gefäßveränderungen | Feuermal, Besenreiser Gesicht, Couperose | Laser bei erweiterten Äderchen. | IND | M | 1 | Kasse vor allem bei Feuermalen; kosmetische Gründe zahlen Sie selbst.
@@ -572,8 +571,8 @@ Kosmetische Fußpflege | Fußpflege ohne Verordnung | Fußpflege, Pediküre | Pf
 F("Hebammenhilfe", "Hebamme", """
 ## Hebamme
 Hilfe bei Beschwerden in der Schwangerschaft | Hebammenhilfe bei Schwangerschaftsbeschwerden | Übelkeit Schwangerschaft, Wehen, Rückenschmerzen Schwangerschaft | Beratung und Hilfe durch die Hebamme. | GKV | N | 0
-Hausgeburt oder Geburtshaus | Außerklinische Geburtshilfe | Hausgeburt, Geburtshaus | Geburt mit Hebamme außerhalb der Klinik. | GKV_EA | N | 1 | Die Rufbereitschaft zahlen Eltern oft selbst; manche Kassen erstatten sie.
-Beleggeburt | Geburt mit Beleghebamme | Beleghebamme, eigene Hebamme Klinik | Ihre Hebamme begleitet Sie in der Klinik. | GKV_EA | N | 1 | Rufbereitschaft oft privat.
+Hausgeburt oder Geburtshaus | Außerklinische Geburtshilfe | Hausgeburt, Geburtshaus | Geburt mit Hebamme außerhalb der Klinik. | GKV_EA | N | 1 | Ob die Kasse die Rufbereitschaftspauschale der Hebamme übernimmt, vorher bei der Kasse fragen.
+Beleggeburt | Geburt mit Beleghebamme | Beleghebamme, eigene Hebamme Klinik | Ihre Hebamme begleitet Sie in der Klinik. | GKV_EA | N | 1 | Ob die Kasse die Rufbereitschaftspauschale der Hebamme übernimmt, vorher bei der Kasse fragen.
 Babymassage und Babykurse | Kurse für Eltern mit Säugling | Babymassage, Babykurs | Kurse im ersten Lebensjahr. | SZ | N | 0
 Akupunktur zur Geburtsvorbereitung | Geburtsvorbereitende Akupunktur | Akupunktur Schwangerschaft | Nadeln in den letzten Schwangerschaftswochen. | SZ | M | 0
 """, gebo="Hebammenhilfevertrag (GKV) / Privat")
@@ -610,7 +609,7 @@ F("Hilfsmittel & Gesundheitshandwerk", "Augenoptiker/in", """
 Sehtest beim Optiker | Augenglasbestimmung | Sehtest, Sehstärke messen | Bestimmung der Sehstärke für Brille oder Kontaktlinsen. | SZ | N | 0 | Ersetzt keine augenärztliche Untersuchung.
 Kinderbrille | Brillengläser bis 18 Jahre | Brille Kind | Gläser für Kinder und Jugendliche. | GKV_EA | N | 0 | Kasse zahlt Gläser bis 18 Jahre bis zum Festbetrag; die Fassung zahlen Sie selbst.
 Kontaktlinsenanpassung | Anpassung von Kontaktlinsen | Linsen anpassen, Probelinsen | Ausmessen, Probetragen und Kontrolle. | SZ | N | 0 | Kasse nur bei bestimmten Augenerkrankungen.
-Sportbrille und Schutzbrille | Sport- und Arbeitsschutzbrille mit Sehstärke | Sportbrille, Schutzbrille | Brille für Sport oder Beruf. | SZ | N | 0 | Arbeitsschutzbrillen zahlt oft der Arbeitgeber.
+Sportbrille und Schutzbrille | Sport- und Arbeitsschutzbrille mit Sehstärke | Sportbrille, Schutzbrille | Brille für Sport oder Beruf. | SZ | N | 0 | Bei Arbeitsschutzbrillen beim Arbeitgeber nach den Kosten fragen.
 Vergrößernde Sehhilfen | Versorgung mit vergrößernden Sehhilfen | Lupe, Lupenbrille, Bildschirmlesegerät | Hilfen bei starker Sehschwäche. | GKV_EA | N | 0
 """, gebo="Hilfsmittelverzeichnis (GKV) / Privat")
 
@@ -619,7 +618,7 @@ F("Hilfsmittel & Gesundheitshandwerk", "Hörakustiker/in", """
 Hörtest beim Hörakustiker | Ton- und Sprachaudiometrie | Hörtest kostenlos | Hörtest ohne Rezept. | SZ | N | 0 | Für eine Versorgung über die Kasse braucht es eine ärztliche Verordnung.
 Gehörschutz nach Maß | Individueller Gehörschutz (Otoplastik) | Musiker Gehörschutz, Schlafen, Lärm | Angepasster Schutz aus einem Ohrabdruck. | SZ | N | 0
 Tinnitus-Versorgung | Hörsystem mit Rauschgenerator | Tinnitus Gerät, Noiser | Geräte gegen Ohrgeräusche. | GKV_EA | N | 0
-Hörgeräte-Service | Nachsorge und Reparatur von Hörsystemen | Hörgerät reparieren, reinigen | Reinigung, Kontrolle und Reparatur. | GKV | N | 0 | Bei Kassenversorgung meist in der Versorgungspauschale enthalten.
+Hörgeräte-Service | Nachsorge und Reparatur von Hörsystemen | Hörgerät reparieren, reinigen | Reinigung, Kontrolle und Reparatur. | GKV | N | 0 | Ob der Service bei Kassenversorgung in der Versorgungspauschale enthalten ist, beim Hörakustiker fragen.
 """, gebo="Hilfsmittelverzeichnis (GKV) / Privat")
 
 F("Hilfsmittel & Gesundheitshandwerk", "Sanitätshaus / Orthopädietechnik", """
@@ -636,8 +635,8 @@ Hilfen für Bad und Wohnung | Hilfsmittel für Bad und Toilette | Badewannenlift
 F("Naturheilkunde & Komplementärmedizin", "Heilpraktiker / Arzt mit Zusatzbezeichnung", """
 ## Komplementär
 Erstgespräch beim Heilpraktiker | Ausführliche Anamnese | Heilpraktiker Termin | Ausführliches Gespräch und Untersuchung. | SZ | N | 0 | Private Zusatzversicherungen erstatten teilweise.
-Fußreflexzonenmassage | Reflexzonentherapie am Fuß | Reflexzonen | Massage bestimmter Zonen am Fuß. | SZ | N | 0 | Wirksamkeit wissenschaftlich nicht belegt – keine Heilversprechen.
-Craniosacrale Behandlung | Craniosacrale Therapie | Cranio, sanfte Osteopathie | Sanfte manuelle Behandlung an Kopf und Rücken. | SZ | N | 0 | Wirksamkeit wissenschaftlich nicht belegt – keine Heilversprechen.
+Fußreflexzonenmassage | Reflexzonentherapie am Fuß | Reflexzonen | Massage bestimmter Zonen am Fuß. | SZ | N | 0
+Craniosacrale Behandlung | Craniosacrale Therapie | Cranio, sanfte Osteopathie | Sanfte manuelle Behandlung an Kopf und Rücken. | SZ | N | 0
 """)
 
 F("Krankenhaus & Wahlleistungen", "Krankenhaus", """
@@ -646,10 +645,10 @@ Stationäre Behandlung | Krankenhausbehandlung | Krankenhaus, stationär, Aufnah
 Ambulante Operation im Krankenhaus | Ambulantes Operieren im Krankenhaus | ambulante OP Klinik | Eingriff ohne Übernachtung. | GKV | O | 1
 Übergangspflege | Übergangspflege im Krankenhaus | Pflege nach dem Krankenhaus | Pflege in der Klinik, wenn sie zu Hause noch nicht möglich ist. | GKV | N | 0
 ## Wahlleistungen
-Einbettzimmer | Wahlleistung Unterkunft (Einbettzimmer) | Einzelzimmer Krankenhaus | Eigenes Zimmer gegen Aufpreis. | PKV | N | 0 | Zahlen viele private Zusatzversicherungen.
+Einbettzimmer | Wahlleistung Unterkunft (Einbettzimmer) | Einzelzimmer Krankenhaus | Eigenes Zimmer gegen Aufpreis. | PKV | N | 0 | Ob eine private Zusatzversicherung zahlt, vorher dort fragen.
 Zweibettzimmer | Wahlleistung Unterkunft (Zweibettzimmer) | Doppelzimmer Krankenhaus | Zimmer mit höchstens einer weiteren Person. | PKV | N | 0
 Chefarztbehandlung | Wahlärztliche Leistungen | Chefarzt, Privatbehandlung Krankenhaus | Behandlung durch die Chefärztin oder den Chefarzt. | PKV | N | 0 | Abrechnung nach GOÄ; vorher schriftlich vereinbaren.
-Begleitperson | Mitaufnahme einer Begleitperson | Rooming-in, Eltern im Krankenhaus | Eine Begleitperson übernachtet mit. | IND | N | 0 | Kasse zahlt, wenn medizinisch nötig, etwa bei kleinen Kindern.
+Begleitperson | Mitaufnahme einer Begleitperson | Rooming-in, Eltern im Krankenhaus | Eine Begleitperson übernachtet mit. | IND | N | 0 | Kasse zahlt, wenn die Mitaufnahme aus medizinischen Gründen notwendig ist (§ 2 Abs. 2 Satz 2 Nr. 3 KHEntgG).
 """, gebo="DRG / Wahlleistungsvereinbarung (GOÄ)")
 
 F("Therapieberufe (Heilmittel)", "Ergotherapeut / Logopäde / Podologe", """
@@ -669,7 +668,7 @@ Druckentlastung am Fuß | Orthesen aus Silikon (Druckschutz) | Zehenkorrektur, D
 
 F("Hilfsmittel & Gesundheitshandwerk", "Augenoptiker/in", """
 ## Augenoptik
-Bildschirmarbeitsplatzbrille | Bildschirmarbeitsplatzbrille | Computerbrille, Büro Brille | Brille für den Abstand zum Bildschirm. | SZ | N | 0 | Bei ärztlicher Bescheinigung zahlt oft der Arbeitgeber.
+Bildschirmarbeitsplatzbrille | Bildschirmarbeitsplatzbrille | Computerbrille, Büro Brille | Brille für den Abstand zum Bildschirm. | SZ | N | 0 | Ob der Arbeitgeber die Kosten trägt, beim Arbeitgeber oder beim Betriebsarzt fragen.
 Brillen-Service | Anpassung und Reparatur von Brillen | Brille richten, Brille reparieren | Nachanpassen, Reinigen und kleine Reparaturen. | SZ | N | 0
 """, gebo="Hilfsmittelverzeichnis (GKV) / Privat")
 

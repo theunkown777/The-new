@@ -7,6 +7,7 @@ import { REPORT_STATUS_LABELS, REPORT_TYPE_LABELS } from "@/lib/reportLabels";
 import { CopyTextButton } from "@/components/CopyTextButton";
 import { PatientLinkPanel } from "@/components/PatientLinkPanel";
 import { patientLinkState } from "@/lib/patientLink";
+import { schreibenMitNutzenOhneQuelle } from "@/lib/nutzenQuelle";
 
 // Ergebnis des Abschluss-Schritts: was automatisch entstanden ist und was
 // Rezeption bzw. Behandler noch erledigen müssen. Gemeinsam genutzt von der
@@ -46,6 +47,8 @@ export async function WrapUpSummary({
     fach: input?.success ? input.data.fach : undefined,
   });
   const jv = patientFactors ? vergleicheJahre(items, ch, patientFactors) : null;
+  // Schreiben, die vor der Regel „Nutzen nur mit Quelle“ gespeichert wurden: bleiben als Nachweis, aber ohne Knopf zum Kopieren.
+  const schreibenAlt = proposal ? schreibenMitNutzenOhneQuelle(proposal.letterText) : false;
   const text = report.editedText ?? report.generatedText ?? "";
 
   return (
@@ -110,8 +113,15 @@ export async function WrapUpSummary({
               <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 font-sans text-xs leading-relaxed text-slate-700">
                 {proposal.letterText}
               </pre>
+              {schreibenAlt && (
+                <p className="text-xs text-amber-800" data-testid="schreiben-alt">
+                  Dieses Schreiben ist mit einem älteren Stand gespeichert und enthält Angaben zum Nutzen ohne Quelle. Es bleibt als
+                  Nachweis erhalten, ist aber nicht zum Versand gedacht. Für ein neues Schreiben den Vorschlag öffnen und speichern;
+                  ist er schon angenommen oder abgelehnt, einen neuen Vorschlag anlegen.
+                </p>
+              )}
               <div className="flex flex-wrap gap-2">
-                <CopyTextButton text={proposal.letterText} label="Patientenschreiben kopieren" />
+                {!schreibenAlt && <CopyTextButton text={proposal.letterText} label="Patientenschreiben kopieren" />}
                 <Link href={links.proposal.replace(":id", proposal.id)} className="btn-secondary">
                   Vorschlag mit Patient besprechen
                 </Link>

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { anfragenFaellig, stichtag } from "@/lib/loeschfristen";
-import { cleanupExpiredDemos } from "@/lib/demo";
+import { abgelaufeneDemosLoeschen } from "@/lib/demo";
+import { fehlerSchreiben } from "@/lib/fehlerSpeicher";
 
 /** Wendet die automatischen Löschfristen an (lib/loeschfristen.ts). Idempotent. */
 export async function aufraeumen(now = new Date()) {
@@ -30,6 +31,13 @@ export async function aufraeumen(now = new Date()) {
   const fehlerlog = await prisma.fehlerEintrag.deleteMany({ where: { zuletztAt: { lt: stichtag("fehlerlog", now) } } });
   // Empfangsmodus: abgelaufene geparkte Sitzungen (nur Hashwert einer Kennung, lib/empfangParkung.ts)
   await prisma.empfangParkung.deleteMany({ where: { expiresAt: { lt: now } } });
-  const demos = await cleanupExpiredDemos(now);
-  return { token: ev.count + pr.count + inv.count + lt.count, portal: portal.count, anamnese: anam.count, anfragen: leads.count, protokoll: logs.count, terminanfragen: anfragenOffen.count + anfragenBestaetigt.count, warteliste: warteliste.count, fehlerlog: fehlerlog.count, demos };
+  // Abgelaufene Demo-Praxen. Lässt sich eine nicht löschen, laufen die übrigen Schritte der Nacht trotzdem weiter
+  // (Kalender, Erinnerungen, Fehler-Mail in app/api/cron/aufraeumen/route.ts). Der Fehler kommt ins Fehlerlog und
+  // damit in die tägliche Fehler-Mail; die Praxis bleibt stehen, bis der Grund geklärt ist.
+  const demoLauf = await abgelaufeneDemosLoeschen(now);
+  for (const f of demoLauf.fehler) {
+    console.error("Abgelaufene Demo-Praxis nicht gelöscht", f.id, f.fehler);
+    await fehlerSchreiben({ quelle: "server", ort: "/api/cron/aufraeumen", meldung: `Abgelaufene Demo-Praxis nicht gelöscht: ${f.fehler instanceof Error ? f.fehler.message : String(f.fehler)}` }, null, now);
+  }
+  return { token: ev.count + pr.count + inv.count + lt.count, portal: portal.count, anamnese: anam.count, anfragen: leads.count, protokoll: logs.count, terminanfragen: anfragenOffen.count + anfragenBestaetigt.count, warteliste: warteliste.count, fehlerlog: fehlerlog.count, demos: demoLauf.geloescht, demosFehler: demoLauf.fehler.length };
 }

@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "Behandlungsvorschlag mit Kassenleistung und Eigenanteil, Patienten-Link, digitale Anamnese und To-dos, zugeschnitten auf Ihr Fach: Hausarzt, Fachärzte von Augen bis Radiologie, Zahnmedizin, Psychotherapie, Physio- und Ergotherapie, Logopädie und Podologie.",
   openGraph: {
     title: "Sorrida – damit beide Seiten lächeln",
-    description: "Kassenleistung zuerst, Selbstzahlerleistungen ehrlich erklärt, Patient entscheidet zu Hause und meldet sich zurück.",
+    description: "Kassenleistung zuerst, Selbstzahlerleistungen mit Preis, Patient entscheidet zu Hause und meldet sich zurück.",
     images: [{ url: "/og/sorrida.png", width: 1200, height: 630 }],
   },
 };

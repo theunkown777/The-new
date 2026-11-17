@@ -18,7 +18,7 @@ export const RATGEBER_GRUPPEN = [
     titel: "Für Arzt- und Psychotherapiepraxen",
     text: "Selbstzahlerleistungen vereinbaren, GOÄ-Rechnung erklären, Vorsorge auf Kasse, Kostenerstattung, Hilfsmittel.",
     kasten:
-      "Anlass auswählen, Sorrida stellt die Kassenleistung und die Selbstzahlerleistung nebeneinander: mit Preis, mit dem Hinweis, wann die Kasse zahlt, und mit einer ehrlichen Angabe zum Nutzen. Der Patient bekommt alles als Link aufs Handy.",
+      "Anlass auswählen, Sorrida stellt die Kassenleistung und die Selbstzahlerleistung nebeneinander: mit Preis, mit dem Hinweis, wann die Kasse zahlt, und Angaben zum Nutzen nur mit Quelle. Der Patient bekommt alles als Link aufs Handy.",
     massgeblich:
       "Gesetz, Bundesmantelvertrag und Gebührenordnung in der aktuellen Fassung, die Richtlinien des Gemeinsamen Bundesausschusses sowie die Vorgaben von KBV, Kassenärztlicher Vereinigung, Kammer und Krankenkasse",
   },
@@ -120,7 +120,7 @@ export const RATGEBER = [
     slug: "vorsorge-kassenleistung-oder-igel",
     title: "Vorsorge: Was die Kasse zahlt und was Selbstzahlerleistung ist",
     description:
-      "Check-up, Hautkrebs-Screening und Krebsfrüherkennung auf einen Blick: Alter, Abstände und die häufigsten Selbstzahlerleistungen daneben, mit ehrlicher Einordnung des Nutzens.",
+      "Check-up, Hautkrebs-Screening und Krebsfrüherkennung auf einen Blick: Alter, Abstände und Selbstzahlerleistungen daneben, mit der Bewertung des IGeL-Monitors.",
     updated: "2026-11-13",
     gruppe: "arzt",
     faecher: ["hausarzt", "haut", "gyn", "uro", "gastro"],

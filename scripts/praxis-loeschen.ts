@@ -2,8 +2,11 @@
 //
 // Probelauf (löscht nichts):
 //   npx tsx scripts/praxis-loeschen.ts --praxis <Kennung>
-// Löschen:
-//   npx tsx scripts/praxis-loeschen.ts --praxis <Kennung> --ausfuehren --bestaetigen "<genauer Name der Praxis>"
+// Löschen (der Probelauf zeigt den fertigen Befehl):
+//   npx tsx scripts/praxis-loeschen.ts --praxis <Kennung> --ausfuehren --datenbank <Rechner:Port/Datenbank> \
+//     --bestaetigen "<genauer Name der Praxis>" --sicherung-tage <Tage>
+// --datenbank bindet die Bestätigung an die Datenbank: Ein Branch beim Anbieter ist eine Kopie mit gleichen Kennungen
+// und Namen und hat einen anderen Rechnernamen. --sicherung-tage steht in der Bestätigung (docs/BETRIEB.md, Abschnitt 2).
 //
 // Braucht DATABASE_URL in der Umgebung (die Datei .env zählt nicht). Gibt nur Name und Kennung der Praxis und Zahlen
 // je Tabelle aus, nie Angaben zu Patienten. Liste der Tabellen und Reihenfolge: lib/praxisLoeschen.ts.
@@ -32,6 +35,10 @@ async function main(): Promise<number> {
     return 2;
   }
   const ziel = L.datenbankZiel(adressen.direct);
+  if (aufruf.ausfuehren && aufruf.datenbank !== ziel) {
+    console.error(`Die Angabe hinter --datenbank stimmt nicht mit der Datenbank aus DATABASE_URL überein (${ziel}). Nichts gelesen, nichts gelöscht.`);
+    return 1;
+  }
   const prisma = new PrismaClient({ datasourceUrl: adressen.direct });
   try {
     const praxis = await prisma.practice.findUnique({ where: { id: aufruf.praxisId }, select: { id: true, name: true, isDemo: true } });
@@ -48,7 +55,7 @@ async function main(): Promise<number> {
       return 1;
     }
     if (!aufruf.ausfuehren) {
-      console.log(L.probelaufText(praxis));
+      console.log(L.probelaufText(praxis, ziel));
       return 0;
     }
     if (aufruf.bestaetigen !== praxis.name) {
@@ -59,8 +66,10 @@ async function main(): Promise<number> {
     const ergebnis = await L.praxisLoeschen(prisma, praxis.id, { name: aufruf.bestaetigen });
     console.log("Gelöscht. Text für die Bestätigung an die Praxis (Textform):");
     console.log("----------------------------------------------------------------");
-    console.log(L.bestaetigungText(ergebnis));
+    console.log(L.bestaetigungText(ergebnis, { sicherungTage: aufruf.sicherungTage! }));
     console.log("----------------------------------------------------------------");
+    console.log("Vor dem Versand: Branches beim Datenbank-Anbieter und den E-Mail-Dienst prüfen und die Zeilen in eckigen");
+    console.log("Klammern ausfüllen (docs/BETRIEB.md, Abschnitt 11).");
     return 0;
   } catch (e) {
     // Die Löschung läuft in einer Transaktion: Bricht sie ab, bleibt alles stehen. Der Probelauf zeigt den Stand.

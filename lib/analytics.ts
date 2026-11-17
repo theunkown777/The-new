@@ -1,4 +1,5 @@
 import { RATEN_ANGEHALTEN } from "@/lib/installments";
+import { igelNegativ } from "@/lib/nutzenQuelle";
 import { chosenOption, money, typeLabelOf, type PatientFactors, type ProposalItem, type ProposalOption } from "@/lib/proposals";
 
 // Praxis-Analyse: Womit verdient die Praxis ihr Geld, warum nehmen Patienten
@@ -22,7 +23,12 @@ export interface Row {
   kasse: number;
   /** Euro, die die Praxis privat abrechnet (Eigenanteil, IGeL, PKV). */
   privat: number;
-  unbelegt: boolean;
+  /**
+   * Jede Quelle des IGeL-Monitors im Kasten „Zum Nutzen“ trägt die Bewertung „negativ“ oder „tendenziell negativ“
+   * (lib/nutzenQuelle.ts, igelNegativ). Gemischte Bewertungen oder keine Quelle: false. Grundlage ist der heutige
+   * Katalog (lib/analyticsLoad.ts baut jeden Vorschlag neu auf), auch bei älteren Vorschlägen.
+   */
+  igelNegativ: boolean;
 }
 
 export interface ProposalFacts {
@@ -46,8 +52,6 @@ export interface InvoiceFacts {
   dueDate: Date;
 }
 
-const UNBELEGT = /nicht (sicher )?belegt|kein (zusatz)?nutzen belegt|nicht geklärt|umstritten|kein medizinischer nutzen|nicht notwendig/i;
-
 /** Gewählte Optionen eines Vorschlags in Analysezeilen umwandeln. */
 export function rowsOf(p: Pick<ProposalFacts, "id" | "status" | "createdAt" | "patient">, items: ProposalItem[], choices: Record<string, string>): Row[] {
   return items.flatMap((item) => {
@@ -66,7 +70,7 @@ export function rowsOf(p: Pick<ProposalFacts, "id" | "status" | "createdAt" | "p
         type: o.type,
         kasse: Math.max(0, o.total - privat),
         privat,
-        unbelegt: !!o.nutzen && UNBELEGT.test(o.nutzen),
+        igelNegativ: igelNegativ(o.nutzenQuelle),
       },
     ];
   });
@@ -141,8 +145,10 @@ export interface Risk {
   id: string;
   stufe: "hoch" | "mittel" | "info";
   titel: string;
+  /** Warum der Punkt wichtig ist; bei einem reinen Zahlenhinweis ohne `tun` die Grundlage der Zahl. */
   warum: string;
-  tun: string;
+  /** Was die Praxis tun kann. Fehlt bei reinen Zahlenhinweisen, die nichts nahelegen (IGeL-Monitor). */
+  tun?: string;
 }
 
 export interface Analysis {
@@ -223,18 +229,23 @@ export function analyze(args: {
       id: "konzentration",
       stufe: "mittel",
       titel: `${Math.round(top.anteil * 100)} % des Selbstzahler-Umsatzes hängen an einer Leistung`,
-      warum: `„${top.name}“ bringt den Großteil der privaten Einnahmen. Ändern sich Nachfrage, Kassenregeln oder Preise, fehlt das Geld sofort.`,
-      tun: "Weitere Leistungen aktiv anbieten, die zu Ihren Patienten passen, und die Preise der Hauptleistung jährlich prüfen.",
+      // Nur die Zahl, kein Rat, mehr Leistungen anzubieten: Sorrida empfiehlt keine Selbstzahlerleistungen (components/PraxisFaq.tsx).
+      warum: `Grundlage: Anteil von „${top.name}“ an den Selbstzahler-Einnahmen aus angenommenen Vorschlägen. Ändern sich Nachfrage, Kassenregeln oder Preise dieser Leistung, betrifft das diesen Anteil.`,
     });
   }
-  const unbelegtPrivat = acc.filter((r) => r.unbelegt).reduce((s, r) => s + r.privat, 0);
-  if (privat > 0 && unbelegtPrivat / privat > 0.3) {
+  // Nur eine Zahl mit Quelle, keine eigene Wertung und kein Rat: gezählt wird nach der Bewertung, die heute als Quelle im
+  // Kasten „Zum Nutzen“ hinterlegt ist, auch bei älteren Vorschlägen. Gemischte Bewertungen zählen nicht.
+  const igelNegativRows = acc.filter((r) => r.igelNegativ && r.privat > 0);
+  const igelNegativPrivat = igelNegativRows.reduce((s, r) => s + r.privat, 0);
+  if (privat > 0 && igelNegativPrivat > 0) {
+    const prozent = Math.round((igelNegativPrivat / privat) * 100);
+    const namen = groupBy(igelNegativRows, (r) => r.leistung).map((g) => `„${g.name}“`);
+    const liste = namen.length > 3 ? `${namen.slice(0, 3).join(", ")} und weitere` : namen.join(", ");
     risiken.push({
-      id: "unbelegt",
-      stufe: "mittel",
-      titel: `${Math.round((unbelegtPrivat / privat) * 100)} % der Selbstzahler-Einnahmen ohne belegten Nutzen`,
-      warum: "Leistungen, deren Nutzen wissenschaftlich nicht belegt ist, geraten bei Verbraucherschützern, Kassen und Bewertungsportalen schnell in die Kritik. Das kostet Vertrauen.",
-      tun: "Die Nutzenangabe im Vorschlag stehen lassen, schriftlich aufklären und die Einwilligung vor der Behandlung einholen. Leistungen mit belegtem Nutzen stärker anbieten.",
+      id: "igel-monitor",
+      stufe: "info",
+      titel: `${prozent < 1 ? "Unter 1" : prozent} % der Selbstzahler-Einnahmen aus Leistungen, bei denen jede im Kasten „Zum Nutzen“ genannte Bewertung des IGeL-Monitors „negativ“ oder „tendenziell negativ“ lautet`,
+      warum: `Gezählt sind angenommene Leistungen (${liste}) nach den Bewertungen des IGeL-Monitors (Medizinischer Dienst Bund), die heute im Katalog hinterlegt sind, auch bei älteren Vorschlägen. Leistungen mit gemischten Bewertungen zählen nicht. Manche Bewertungen gelten nur für bestimmte Gruppen (z. B. nach Alter oder ohne Beschwerden); das prüft die Auswertung nicht.`,
     });
   }
   for (const g of leistungen) {

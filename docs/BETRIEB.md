@@ -41,6 +41,7 @@ Eigene Hilfsmittel:
 
 Der Anbieter sichert die Datenbank fortlaufend. Wie weit man zurückgehen kann, hängt vom Tarif ab.
 Den Zeitraum vorher in der Neon-Konsole nachsehen (Projekt, Einstellungen, Aufbewahrung der Historie) und hier eintragen: ______________
+Diese Angabe braucht auch das Löschen einer Praxis (Abschnitt 11, `--sicherung-tage`, in ganzen Tagen, angefangene Tage aufrunden).
 
 ### Ablauf
 
@@ -180,6 +181,9 @@ Nur für die Browser-Durchläufe (Abschnitt 8): `BASIS`, `DB`, `BILDER`, `E2E_IP
 ### Monatlich
 
 - [ ] Neon: Speicherverbrauch und Aufbewahrung der Historie prüfen.
+- [ ] Bewertungen des IGeL-Monitors nachprüfen: `IGEL_MONITOR_ONLINE=1 npx vitest run lib/igelMonitor.test.ts` (hinter einem Proxy
+  zusätzlich `NODE_USE_ENV_PROXY=1`). Schlägt er fehl, hat der IGeL-Monitor eine Seite neu angelegt, entfernt oder neu bewertet:
+  Katalog (`lib/specialties.ts`, `lib/fachangebote.ts`) und Liste im Test nachziehen, Abrufdatum anpassen.
 - [ ] Lauf „Amtliche Daten prüfen“ (am 2. des Monats) ansehen. Gibt es ein Issue „Amtliche Daten: neuer Stand verfügbar“? Dann nachsehen und einlesen.
 - [ ] Abhängigkeiten: `npm outdated` und `npm audit` ansehen, Sicherheitsmeldungen einspielen.
 - [ ] Dienstleister: Hat sich bei Vertrag, Standort oder Unterauftragnehmern etwas geändert? Dann `lib/dienstleister.ts` pflegen und die Praxen
@@ -275,8 +279,10 @@ Beides muss stehen, bevor der erste Vertrag unterschrieben wird.
 
 ### Vertragsende: Export und Löschung (§ 10)
 
-Stand: Skript `scripts/praxis-loeschen.ts`. Es löscht alle Daten einer Praxis in einer Transaktion. Die Liste der
-Tabellen steht in `lib/praxisLoeschen.ts`. Dieselbe Liste nutzt der tägliche Lauf für abgelaufene Demo-Praxen.
+Stand: Skript `scripts/praxis-loeschen.ts`. Es löscht alle Daten einer Praxis in einer Transaktion, auch das Protokoll
+der Praxis (`AuditLog`; so steht es in der Datenschutzerklärung, Abschnitt 6, und in `lib/loeschfristen.ts`). Die Liste der
+Tabellen steht in `lib/praxisLoeschen.ts`. Dieselbe Liste nutzt der tägliche Lauf für abgelaufene Demo-Praxen; lässt sich eine
+nicht löschen, steht das im Fehlerlog (Abschnitt 10) und in der täglichen Fehler-Mail, die übrigen Schritte laufen weiter.
 Ein Test (`lib/praxisLoeschen.test.ts`) schlägt fehl, wenn eine neue Tabelle im Schema nicht eingeordnet ist.
 
 Ablauf:
@@ -287,18 +293,30 @@ Ablauf:
    - Die Kennung der Praxis steht in der Tabelle `Practice` (Neon-Konsole, SQL-Editor: `select id, name from "Practice"`).
    - Erst der Probelauf. Er löscht nichts. Er zeigt Datenbank, Name und Kennung der Praxis und die Zahl der Zeilen je Tabelle:
      `npx tsx scripts/praxis-loeschen.ts --praxis <Kennung>`
-   - Prüfen: richtige Datenbank, richtige Praxis, Zahlen plausibel. Meldet der Probelauf Verweise aus anderen Praxen,
-     löscht das Skript nicht. Dann erst klären.
-   - Dann löschen. Der Name hinter `--bestaetigen` muss genau stimmen (der Probelauf zeigt den fertigen Befehl):
-     `npx tsx scripts/praxis-loeschen.ts --praxis <Kennung> --ausfuehren --bestaetigen "<Name der Praxis>"`
+   - Prüfen: richtige Datenbank, richtige Praxis, Zahlen plausibel. Meldet der Probelauf Verweise zwischen dieser und anderen
+     Praxen (in beide Richtungen), löscht das Skript nicht. Dann erst klären.
+   - Dann löschen. Der Probelauf zeigt den fertigen Befehl. `--datenbank` muss genau der Zeile „Datenbank:“ entsprechen
+     (ein Branch hat einen anderen Rechnernamen), der Name hinter `--bestaetigen` muss genau stimmen, und `TAGE` wird durch
+     die Aufbewahrung der Sicherungen aus Abschnitt 2 ersetzt:
+     `npx tsx scripts/praxis-loeschen.ts --praxis <Kennung> --ausfuehren --datenbank <Rechner:Port/Datenbank> --bestaetigen "<Name der Praxis>" --sicherung-tage <Tage>`
    - Danach gibt das Skript einen Bestätigungstext aus: Zeitpunkt (UTC), Name und Kennung der Praxis, Zahl je Tabelle,
-     Hinweis auf die Sicherungen. Er enthält keine Angaben zu Patienten. Text aufbewahren.
-   - Nicht gelöscht, nur von der Praxis getrennt: Fehlereinträge (`FehlerEintrag`). Sie enthalten keine Angaben zu Personen.
+     Dauer der Sicherungen und das Datum, ab dem die Daten auch dort gelöscht sind. Er enthält keine Angaben zu Patienten.
+     Zwei Zeilen in eckigen Klammern füllt der Betreiber aus (Schritt 3). Text aufbewahren.
+   - Nicht gelöscht, nur von der Praxis getrennt: Fehlereinträge (`FehlerEintrag`). Sie werden vor dem Speichern bereinigt
+     (Abschnitt 10); die Bereinigung erkennt Muster, keine Bedeutungen. Gelöscht werden sie 30 Tage nach dem letzten Auftreten.
      Anfragen über die Website (`Lead`) hängen nicht an der Praxis. Für sie gilt die eigene Löschfrist.
    - Dokumente liegen heute in der Datenbank und werden mit gelöscht. Wird der Dokumentenspeicher (Abschnitt 9) eingeschaltet,
      muss das Skript auch dort löschen.
    - Wird die Datenbank später aus einer Sicherung von vor der Löschung wiederhergestellt (Abschnitt 2), das Skript für diese Praxis erneut ausführen.
-3. Sicherungen: Der Datenbank-Anbieter hält Sicherungen für den im Tarif eingestellten Zeitraum. Erst danach
-   sind die Daten auch dort weg. Das gehört in die Bestätigung an die Praxis.
-4. Löschung der Praxis in Textform bestätigen. Dafür den Text aus Schritt 2 nehmen.
+3. Vor der Bestätigung, was das Skript nicht sieht:
+   - Sicherungen: Der Datenbank-Anbieter hält Sicherungen für den im Tarif eingestellten Zeitraum (Abschnitt 2). Erst danach
+     sind die Daten auch dort weg. Dauer und Datum stehen im Text aus Schritt 2 (`--sicherung-tage`).
+   - Branches: In der Neon-Konsole alle Branches des Projekts auflisten. Jeder Branch außer dem Haupt-Branch, der vor der
+     Löschung angelegt wurde (zum Beispiel aus einer Wiederherstellung, Abschnitt 2), ist eine vollständige Kopie mit den Daten
+     der Praxis. Solche Branches löschen, oder das Skript dort mit der Adresse des Branches ausführen. In die Zeile „Branches“
+     des Bestätigungstexts eintragen, was geschehen ist (zum Beispiel „keine weiteren Branches“ oder „Branch … am … gelöscht“).
+   - E-Mail-Dienst (Resend): In der Resend-Konsole nachsehen, wie lange gesendete E-Mails mit Inhalt gespeichert bleiben
+     (Aufbewahrung laut Tarif), und hier eintragen: ______________. Diese Angabe in die Zeile „E-Mail-Dienst“ eintragen
+     (zum Beispiel „Gesendete E-Mails bewahrt der E-Mail-Dienst … Tage auf; danach sind sie dort gelöscht.“).
+4. Löschung der Praxis in Textform bestätigen. Dafür den Text aus Schritt 2 mit den ausgefüllten Zeilen aus Schritt 3 nehmen.
 

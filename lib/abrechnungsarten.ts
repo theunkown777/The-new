@@ -140,7 +140,7 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     begriffe: [["IGeL", "Leistung, die die Kasse nicht zahlt"], ["Behandlungsvertrag", "schriftliche Vereinbarung vor IGeL"]],
     geldhebel: [
       { problem: "IGeL wird mündlich vereinbart, Rechnung wird später bestritten", massnahme: "Vereinbarung digital mit Kostenangabe", inSorrida: "Vorschlag mit digitalem Einverständnis und PDF" },
-      { problem: "Patient versteht den Nutzen nicht und lehnt ab", massnahme: "Ehrliche Nutzenangabe und wann die Kasse zahlt", inSorrida: "Behandlungsweg mit Kassen-Sockel" },
+      { problem: "Patient kennt Kassenregel und Preis nicht", massnahme: "Preis, Hinweis zur Kasse und Bedenkzeit schriftlich", inSorrida: "Behandlungsweg mit Kassen-Sockel" },
     ],
   },
   mehrkosten_zahn: {
@@ -173,7 +173,7 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     geldhebel: [
       { problem: "Formfehler auf der Verordnung führen zu Absetzungen", massnahme: "Verordnung vor Behandlungsbeginn prüfen", inSorrida: "Prüfliste (geplant)" },
       { problem: "Zuzahlung wird nicht eingezogen", massnahme: "Zuzahlung als Rechnung mit GiroCode", inSorrida: "Rechnungen, Portal" },
-      { problem: "Selbstzahlerangebote (z. B. Präventionskurse) werden nicht genutzt", massnahme: "Angebote mit ehrlichem Nutzen im Behandlungsweg", inSorrida: "Vorschläge Therapie" },
+      { problem: "Patient kennt Preis und Kassenregel von Selbstzahlerangeboten (z. B. Präventionskurse) nicht", massnahme: "Preis und Hinweis zur Kasse schriftlich, Bedenkzeit", inSorrida: "Vorschläge Therapie" },
     ],
   },
   hebamme: {

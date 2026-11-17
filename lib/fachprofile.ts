@@ -176,7 +176,7 @@ export const FACHPROFILE: Record<string, FachProfil> = {
     sitzungstypen: [
       { name: "MRT", description: "Auf Überweisung oder Wunsch", leistungen: [L("radiologie", "MRT (Region)", "EBM", "–", "Bildgebung", true), L("radiologie", "Kontrastmittelgabe", "SONSTIGES", "–", "Bildgebung"), L("radiologie", "Befundung und Bericht", "SONSTIGES", "–", "Befund")] },
       { name: "CT oder Röntgen", description: "Auf Überweisung", leistungen: [L("radiologie", "CT (Region)", "EBM", "–", "Bildgebung", true), L("radiologie", "Röntgen (Region)", "EBM", "–", "Bildgebung", true), L("radiologie", "Befundung und Bericht", "SONSTIGES", "–", "Befund")] },
-      { name: "Knochendichtemessung", description: "DXA, Kasse bei Fraktur ohne Trauma bzw. Verdacht, sonst IGeL", leistungen: [L("radiologie", "Osteodensitometrie (DXA)", "GOAE", "–", "Bildgebung"), beratung("radiologie")] },
+      { name: "Knochendichtemessung", description: "DXA, Kasse bei Fraktur ohne Trauma bzw. Verdacht, sonst IGeL; ohne Krankheitszeichen und konkreten Verdacht Früherkennung, nicht zulässig (§ 84 Abs. 1 StrlSchG)", leistungen: [L("radiologie", "Osteodensitometrie (DXA)", "GOAE", "–", "Bildgebung"), beratung("radiologie")] },
     ],
   }),
   neuro: arzt("neuro", {

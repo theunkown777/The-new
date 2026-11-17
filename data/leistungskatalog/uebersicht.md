@@ -52,7 +52,7 @@
 
 **Haut & Laser:** Microneedling, Radiofrequenz-Microneedling, Chemisches Peeling, Laser-Skin-Resurfacing, IPL / Photoverjüngung, Laser-Haarentfernung, Tattooentfernung, Couperose & Besenreiser, Pigmentflecken entfernen, Aknenarben behandeln, Akne-Behandlung
 
-**Straffung ohne OP:** Ultraschall-Lifting, Radiofrequenz-Straffung, Fett wegfrieren, Muskelaufbau & Fettreduktion per Gerät, Cellulite-Behandlung
+**Straffung ohne OP:** Ultraschall-Lifting, Radiofrequenz-Straffung, Fett wegfrieren, Muskelstimulation per Gerät (HIFEM/EMS), Cellulite-Behandlung
 
 **Haare:** Haarausfall-Behandlung, Haartransplantation
 
@@ -112,11 +112,11 @@
 
 **Infektiologie:** HIV-/STI-Test, HIV-Prophylaxe, Long-COVID-Sprechstunde
 
-### Gynäkologie & Geburtshilfe (23)
+### Gynäkologie & Geburtshilfe (22)
 
 **Frauengesundheit:** Frauenärztliche Vorsorge, Verhütungsberatung, Spirale einsetzen, Verhütungsstäbchen, Endometriose-Sprechstunde, Wechseljahre-Beratung, Zyklusstörungen & PCOS, Gebärmutterspiegelung, Bauchspiegelung (Gynäkologie), Gebärmutterentfernung, Inkontinenz- & Beckenbodenbehandlung, Brustsprechstunde
 
-**Schwangerschaft & Geburt:** Schwangerschaftsvorsorge, Ultraschall in der Schwangerschaft, 3D/4D-Ultraschall, Pränataldiagnostik, Geburt, Kaiserschnitt, Schwangerschaftsabbruch
+**Schwangerschaft & Geburt:** Schwangerschaftsvorsorge, Ultraschall in der Schwangerschaft, Pränataldiagnostik, Geburt, Kaiserschnitt, Schwangerschaftsabbruch
 
 **Kinderwunsch:** Kinderwunsch-Beratung, Insemination, Künstliche Befruchtung, Eizellen einfrieren
 

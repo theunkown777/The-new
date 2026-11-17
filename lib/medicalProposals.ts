@@ -80,6 +80,8 @@ export function buildMedicalProposal(input: ProposalInput): ProposalItem[] {
       benefits: c.benefits ?? [],
       hinweis: c.kasseWenn,
       nutzen: c.nutzen,
+      // Text der Praxis, keine Angabe mit Quelle: erscheint als „Hinweis der Praxis“ (lib/proposals.ts ProposalOption)
+      ...(c.nutzen ? { nutzenVonPraxis: true } : {}),
       typeLabel: isTherapie(spec) && !c.kasse ? "Selbstzahlerleistung" : undefined,
     });
     groups.set(c.anlass, list);

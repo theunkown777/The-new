@@ -16,6 +16,10 @@ export type Ui = {
   nutzen: string;
   /** Vor dem Link zur Quelle im Kasten „Zum Nutzen“ (z. B. „Quelle: IGeL-Monitor“). */
   quelle: string;
+  /** Hinter der Quelle, vor dem Tag, an dem die Seite gelesen wurde („Quelle: IGeL-Monitor (abgerufen am 17.11.2026)“). */
+  abgerufen: string;
+  /** Vor dem Text, den die Praxis selbst zu einer eigenen Leistung eingetragen hat (statt „Zum Nutzen:“). */
+  hinweisPraxis: string;
   fineMed: (until: string) => string;
   deadlineTitle: string;
   deadline: (days: number) => string;

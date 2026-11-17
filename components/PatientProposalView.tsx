@@ -371,8 +371,8 @@ export function PatientProposalView(props: Props) {
                       )}
                       {o.nutzen && (
                         <p className="mt-1 text-xs text-amber-800">
-                          {t.nutzen} <Rt text={o.nutzen} lang={lang} z={zusatz} />
-                          <NutzenQuelleLink quelle={o.nutzenQuelle} label={t.quelle} />
+                          {o.nutzenVonPraxis ? t.hinweisPraxis : t.nutzen} <Rt text={o.nutzen} lang={lang} z={zusatz} />
+                          <NutzenQuelleLink quelle={o.nutzenQuelle} label={t.quelle} abgerufen={t.abgerufen} />
                         </p>
                       )}
                       <p className={`mt-2 text-xs text-slate-500 ${o.total === 0 ? "hidden" : ""}`}>

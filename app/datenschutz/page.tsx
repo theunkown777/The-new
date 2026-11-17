@@ -145,7 +145,8 @@ export default function DatenschutzPage() {
           Für das Konto verarbeiten wir Praxisname, Fachgebiet, Name, E-Mail-Adresse, Passwort (nur als Hash), Rolle, Zeitpunkte der Anmeldung
           und ein Änderungsprotokoll (Art. 6 Abs. 1 lit. b DSGVO). Zur Bestätigung der E-Mail-Adresse senden wir einen Link. Bei der
           Registrierung speichern wir außerdem, wann die Praxis die Pflichthinweise bestätigt hat. Ohne diese Angaben können wir kein Konto
-          einrichten. Kontodaten löschen wir nach Vertragsende, Protokolleinträge nach {protokollJahre} Jahren.
+          einrichten. Kontodaten löschen wir nach Vertragsende. Protokolleinträge löschen wir nach {protokollJahre} Jahren, bei Vertragsende
+          zusammen mit den übrigen Daten der Praxis.
         </p>
         <p>
           Patientendaten, die Praxen in Sorrida verarbeiten, verarbeiten wir ausschließlich im Auftrag der jeweiligen Praxis (Art. 28 DSGVO).

@@ -722,7 +722,7 @@ export function ProposalEditor({
                               {o.hinweis && <span className="text-xs text-green-800">Kasse: {o.hinweis}</span>}
                               {o.nutzen && !gespraech && (
                                 <span className="text-xs text-amber-800">
-                                  Nutzen: {o.nutzen}
+                                  {o.nutzenVonPraxis ? "Hinweis der Praxis" : "Nutzen"}: {o.nutzen}
                                   <NutzenQuelleLink quelle={o.nutzenQuelle} link={false} />
                                 </span>
                               )}

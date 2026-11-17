@@ -76,7 +76,7 @@ export default function Page() {
         <li>Der Nutzen wird größer dargestellt, als er belegt ist.</li>
       </ol>
 
-      <h2>Ehrlich zum Nutzen</h2>
+      <h2>Was der IGeL-Monitor sagt</h2>
       <p>
         Der IGeL-Monitor des Medizinischen Dienstes Bund bewertet Selbstzahlerleistungen nach der Studienlage. Einige Beispiele
         (Stand November 2026):
@@ -98,18 +98,19 @@ export default function Page() {
         </tbody>
       </table>
       <p>
-        Patienten kennen diese Bewertungen oft schon. Wer sie von sich aus nennt und erklärt, für wen die Leistung im
-        Einzelfall in Frage kommt, wirkt glaubwürdiger als jedes Faltblatt.
+        Die Bewertungen sind öffentlich; Patientinnen und Patienten können sie auf igel-monitor.de selbst nachlesen
+        (siehe Quellen).
       </p>
 
       <h2>In drei Sätzen erklärt</h2>
       <blockquote className="border-l-4 border-brand-300 pl-4 italic text-slate-600">
         „Ihre Kasse bezahlt bei diesem Anlass [Kassenleistung]. Zusätzlich gibt es [Leistung], das ist keine Kassenleistung und kostet
-        [Betrag]. Der Nutzen ist [ehrliche Einordnung]; Sie müssen sich heute nicht entscheiden, ich gebe Ihnen alles schriftlich mit.“
+        [Betrag]. Zum Nutzen: [Bewertung des IGeL-Monitors, wo es eine gibt]; Sie müssen sich heute nicht entscheiden, ich gebe Ihnen alles schriftlich mit.“
       </blockquote>
       <p>
-        Sorrida stellt Kassenleistung und Selbstzahlerleistung nebeneinander, nennt bei jedem Angebot, wann die Kasse zahlt und was
-        zum Nutzen bekannt ist, und legt für das Team die Aufgabe an, die schriftliche Vereinbarung vor der Leistung einzuholen.
+        Sorrida stellt Kassenleistung und Selbstzahlerleistung nebeneinander und nennt Hinweise, wann die Kasse zahlt. Wo im Katalog
+        eine Bewertung des IGeL-Monitors hinterlegt ist, steht sie wörtlich mit Quelle beim Angebot. Für das Team legt Sorrida die
+        Aufgabe an, die schriftliche Vereinbarung vor der Leistung einzuholen.
       </p>
 
       <h2>Quellen</h2>
