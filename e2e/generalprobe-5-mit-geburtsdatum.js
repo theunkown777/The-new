@@ -61,7 +61,7 @@ const EMAIL = `praxis${Date.now() % 100000}@sonnenberg-test.local`, PW = 'Testpr
   ok('Schreiben: 2027 „per Gesetz“ und vorläufig', /per Gesetz[\s\S]*vorläufig/.test(ergebnis));
   await shot('02-ergebnis', true);
   await p.getByRole('button', { name: 'Link und QR-Code erzeugen' }).click(); await p.waitForTimeout(2000);
-  const link = (await p.locator('main').innerHTML()).match(/https?:\/\/[^"<\s]*\/p\/[A-Za-z0-9_-]+/)[0];
+  const link = (await p.locator('main').innerHTML()).match(/https?:\/\/[^"<\s]*\/p\/[A-Za-z0-9_-]+/)[0].replace(/^https?:\/\/[^/]+/, L);
   const propId = sql(`select id from "TreatmentProposal" where "patientId"='${pid}' order by "createdAt" desc limit 1`);
 
   // Nachfass-Liste vor der Antwort
@@ -96,7 +96,7 @@ const EMAIL = `praxis${Date.now() % 100000}@sonnenberg-test.local`, PW = 'Testpr
   await p.goto(L + '/zahlungen'); await p.getByRole('button', { name: 'Rechnung erstellen' }).first().click(); await p.waitForTimeout(600); await p.getByRole('button', { name: 'Rechnung anlegen' }).click(); await p.waitForTimeout(2000);
   ok('Zahlungen: „1 Rechnung“ (Einzahl)', /1 Rechnung\n/.test(await p.locator('main').innerText()));
   await p.getByRole('button', { name: 'Link zum Bezahlen senden' }).click(); await p.waitForTimeout(2000);
-  const portal = (await p.content()).match(/https?:\/\/[^"<\s&]*\/portal\/[A-Za-z0-9_-]+/)?.[0];
+  const portal = (await p.content()).match(/https?:\/\/[^"<\s&]*\/portal\/[A-Za-z0-9_-]+/)?.[0]?.replace(/^https?:\/\/[^/]+/, L);
   await hp.goto(portal); await hp.waitForTimeout(2000); let po = await hp.locator('body').innerText();
   ok('Portal: Anteil stimmt mit Rechnung überein', new RegExp(`Ihr Anteil\\s*${erwartet.toLocaleString('de-DE').replace('.', '\\.')} €`).test(po), po.match(/Ihr Anteil\s*[^\n]*/)?.[0]);
   await hp.getByRole('button', { name: /bezahlen|zahlen/i }).first().click().catch(() => {}); await hp.waitForTimeout(500);
@@ -113,7 +113,7 @@ const EMAIL = `praxis${Date.now() % 100000}@sonnenberg-test.local`, PW = 'Testpr
   ok('Privat: keine Kassenwörter in den Optionen', /Vollkeramik-Krone/.test(pkTeil) && !/Festzuschuss|Kassenfüllung|Regelversorgung|Kassenkrone/.test(pkTeil), pkTeil);
   await p.getByRole('button', { name: 'Vorschlag speichern' }).click(); await p.waitForURL(/proposals\/c/, { timeout: 20000 }); const prop2 = p.url().split('/').pop();
   await p.getByRole('button', { name: 'Link und QR-Code erzeugen' }).click(); await p.waitForTimeout(2000);
-  const link2 = (await p.locator('main').innerHTML()).match(/https?:\/\/[^"<\s]*\/p\/[A-Za-z0-9_-]+/)[0];
+  const link2 = (await p.locator('main').innerHTML()).match(/https?:\/\/[^"<\s]*\/p\/[A-Za-z0-9_-]+/)[0].replace(/^https?:\/\/[^/]+/, L);
   await hp.goto(link2); await hp.waitForTimeout(1500); await hp.getByText('Vollkeramik-Krone').first().click(); await hp.getByRole('button', { name: 'Diese Auswahl besprechen' }).click(); await hp.waitForTimeout(2000);
   const portal2 = await p.evaluate(async (id) => (await (await fetch(`/api/patients/${id}/portal`, { method: 'POST' })).json()).url, pid2);
   await hp.goto(portal2.replace(/^https?:\/\/[^/]+/, L) + '/vereinbarung/' + prop2); await hp.waitForTimeout(2000);
