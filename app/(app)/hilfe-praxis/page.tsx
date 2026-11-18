@@ -7,6 +7,7 @@ import { kiHilfenStand } from "@/lib/kiHilfen";
 import { menueRechteVon } from "@/lib/permissions";
 import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 import { hinweisArt } from "@/lib/praxisKennung";
+import { gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
 import { HilfePraxis } from "@/components/HilfePraxis";
 import { RundgangStart } from "@/components/RundgangStart";
 
@@ -34,6 +35,7 @@ export default async function HilfePraxisPage() {
         rechte={rechte}
         personPl={fachprofil(praxis?.specialty).person.pl}
         abschluss={abschlussWort(praxis?.specialty)}
+        gebuehrenrechner={gebuehrenwerkeFuer(praxis?.specialty).length > 0}
       />
       {/* Rundgang neu starten (components/RundgangStart.tsx) */}
       <RundgangStart userId={session.user.id} practiceId={session.user.practiceId} />

@@ -1,5 +1,5 @@
 import { normWort, wortstamm } from "@/lib/anlassErkennung";
-import type { HilfeEintrag } from "@/lib/hilfeWissen/typ";
+import type { HilfeEintrag, HilfeMerkmal } from "@/lib/hilfeWissen/typ";
 import type { MenueRechte } from "@/lib/rollen";
 
 // Suche in der Wissenssammlung ohne KI: Die Wörter der Frage werden mit Stichwörtern, Meldungen, Frage, Menüpfad
@@ -88,11 +88,16 @@ function woerter(text: string): string[] {
 function passt(a: string, b: string): number {
   if (a === b) return 1;
   const [kurz, lang] = a.length <= b.length ? [a, b] : [b, a];
+  // Ein Verb passt nicht zu einem zusammengesetzten Wort, das mit seiner Form auf „-ung“ beginnt: „öffnen“ ist nicht
+  // „Öffnungszeiten“, „rechnen“ nicht „Rechnungsnummer“. „Einrichtung“ und „einrichten“ passen weiter.
+  if (lang.startsWith(kurz) && UNG_WORT.test(lang.slice(kurz.length))) return 0;
   // gleicher Wortanfang: ab fünf Buchstaben immer, bei kurzen Wörtern nur mit kurzer Endung („neu“ und „neuen“)
   if (lang.startsWith(kurz) && (kurz.length >= 5 || (kurz.length >= 3 && lang.length - kurz.length <= 2))) return 0.6;
   // zusammengesetztes Wort im Eintrag enthält das gesuchte Wort („Patientenliste“ und „Liste“)
   return b.length >= 5 && a.length > b.length && a.includes(b) ? 0.6 : 0;
 }
+/** Rest eines Worts nach dem Verbstamm, wenn danach ein weiteres Wort folgt („öffn|ungszeit“, „änd|erungsverlauf“). */
+const UNG_WORT = /^(?:er)?ungs\p{L}{3,}/u;
 
 /** Platzhalter für die Suche: Gesucht wird mit den üblichen Wörtern, angezeigt mit denen des Fachs. */
 const fuerSuche = (t: string) => t.replace(/\{P\}/g, "Patienten").replace(/\{A\}/g, "Behandlung");
@@ -123,6 +128,15 @@ export const HILFE_MINDESTPUNKTE = 1;
 export const HILFE_MINDESTANTEIL = 0.5;
 /** Aufschlag für Einträge, die zur geöffneten Seite gehören. */
 export const SEITEN_BONUS = 1.15;
+/**
+ * Fehler-Einträge erklären Meldungen und Probleme. Fragt jemand nach der Bedienung („Wo trage ich … ein?“), ohne
+ * ein Problem zu nennen, zählen sie mit diesem Anteil. So steht die Bedienung mit der genauen Stelle vorn.
+ */
+export const FEHLER_OHNE_PROBLEM = 0.7;
+/** Nennt die Frage ein Problem („Warum kann ich … nicht …?“) oder ist sie eine eingefügte Meldung, zählen Fehler-Einträge etwas mehr. */
+export const FEHLER_BEI_PROBLEM = 1.1;
+/** Wörter, mit denen jemand ein Problem beschreibt (Umlaute ausgeschrieben, klein). */
+const PROBLEM_WORT = /(?<![\p{L}])(warum|wieso|weshalb|nicht|nichts|kein\p{L}*|fehler\p{L}*|fehlt|fehlen\p{L}*|meldung\p{L}*|bedeute\p{L}*|heisst|gesperrt|sperre|problem\p{L}*|klappt|funktioniert|falsch|ungueltig\p{L}*|abgelaufen|verweigert|blockiert|kaputt|hakt)(?![\p{L}])/u;
 
 /** Was die Suche über das Konto und die Seite weiß. Alles optional. */
 export interface HilfeKontext {
@@ -130,13 +144,17 @@ export interface HilfeKontext {
   fach?: "zahn" | "andere";
   /** Rechte des Kontos (lib/rollen.ts); ohne Angabe: keine Einschränkung */
   rechte?: MenueRechte;
+  /** Was die Praxis hat, z. B. { gebuehrenrechner: false } in der Physiotherapie; ohne Angabe: keine Einschränkung */
+  merkmale?: Partial<Record<HilfeMerkmal, boolean>>;
   /** Pfad der geöffneten Seite (z. B. /patients/abc); nur für den Seitenbonus */
   seite?: string;
 }
 
-/** Einträge, die für dieses Fach und dieses Konto gelten. */
-export function sichtbareHilfe(eintraege: HilfeEintrag[], k: Pick<HilfeKontext, "fach" | "rechte"> = {}): HilfeEintrag[] {
-  return eintraege.filter((e) => (!e.nur || !k.fach || e.nur === k.fach) && (!e.recht || !k.rechte || k.rechte[e.recht]));
+/** Einträge, die für dieses Fach, diese Praxis und dieses Konto gelten. */
+export function sichtbareHilfe(eintraege: HilfeEintrag[], k: Pick<HilfeKontext, "fach" | "rechte" | "merkmale"> = {}): HilfeEintrag[] {
+  return eintraege.filter(
+    (e) => (!e.nur || !k.fach || e.nur === k.fach) && (!e.recht || !k.rechte || k.rechte[e.recht]) && (!e.nurMit || k.merkmale?.[e.nurMit] !== false),
+  );
 }
 
 /** Passt eine Seite zum Muster eines Eintrags? Dynamische Teile ([id]) passen auf jeden Wert. */
@@ -172,6 +190,12 @@ export function sucheHilfe(frage: string, eintraege: HilfeEintrag[], opt: HilfeK
     const n = treffer.filter((t) => t.genau[i]).length || treffer.filter((t) => t.je[i] > 0).length;
     return n === 0 ? 0 : Math.log(1 + liste.length / n) / Math.log(1 + liste.length);
   });
+  // Nennt die Frage kein Problem und ist sie keine eingefügte Meldung, geht es um die Bedienung.
+  const frageNorm = meldungNorm(frage.slice(0, 500));
+  const nennProblem = PROBLEM_WORT.test(normWort(frageNorm));
+  const eingefuegt = (e: HilfeEintrag) =>
+    (e.meldungen ?? []).some((m) => { const n = meldungNorm(m); return n.length >= 4 && (frageNorm.includes(n) || (frageNorm.length >= 20 && n.includes(frageNorm))); });
+  const artFaktor = (e: HilfeEintrag) => (e.art !== "fehler" ? 1 : nennProblem || eingefuegt(e) ? FEHLER_BEI_PROBLEM : FEHLER_OHNE_PROBLEM);
   const hauptthema = (e: HilfeEintrag) => {
     const h = woerter(e.stichwoerter[0] ?? "");
     return h.length > 0 && h.every((w) => gesucht.includes(w));
@@ -180,7 +204,7 @@ export function sucheHilfe(frage: string, eintraege: HilfeEintrag[], opt: HilfeK
     .map((t) => {
       const roh = t.je.reduce((s, p, i) => s + p * gewicht[i], 0);
       const bonus = opt.seite && gehoertZurSeite(t.eintrag, opt.seite) ? SEITEN_BONUS : 1;
-      return { eintrag: t.eintrag, anteil: t.je.filter((p) => p > 0).length / gesucht.length, roh, punkte: Math.round(roh * bonus * 100) / 100 };
+      return { eintrag: t.eintrag, anteil: t.je.filter((p) => p > 0).length / gesucht.length, roh, punkte: Math.round(roh * bonus * artFaktor(t.eintrag) * 100) / 100 };
     })
     .filter((t) => t.roh >= HILFE_MINDESTPUNKTE && t.anteil >= HILFE_MINDESTANTEIL)
     .map(({ eintrag, punkte }) => ({ eintrag, punkte }))
@@ -214,7 +238,7 @@ export interface ErkannteMeldung { meldung: string; eintrag: HilfeEintrag }
  * `seite`: übriger Text der Seite. Läuft nur im Browser; zurück kommt nur der Text aus der Wissenssammlung,
  * nie der Text der Seite selbst (darin könnten Namen stehen).
  */
-export function meldungenErkennen(texte: { alarme: string[]; seite?: string }, eintraege: HilfeEintrag[], opt: Pick<HilfeKontext, "fach" | "rechte"> & { anzahl?: number } = {}): ErkannteMeldung[] {
+export function meldungenErkennen(texte: { alarme: string[]; seite?: string }, eintraege: HilfeEintrag[], opt: Pick<HilfeKontext, "fach" | "rechte" | "merkmale"> & { anzahl?: number } = {}): ErkannteMeldung[] {
   const alarme = texte.alarme.map(meldungNorm).filter(Boolean);
   const seite = meldungNorm(texte.seite ?? "");
   const gefunden: ErkannteMeldung[] = [];

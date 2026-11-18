@@ -23,7 +23,8 @@ const STIL: Record<RundgangVariante, { karte: string; stand: string; titel: stri
     text: "text-[15px] leading-relaxed text-[#5E5650]",
     link: "j-link font-semibold text-brand-700",
     zu: "grid h-10 w-10 shrink-0 place-items-center rounded-[6px] text-tinte-2 hover:bg-papier-2 hover:text-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5A1D1D]",
-    zurueck: "j-knopf j-knopf-linie !min-h-[42px] !px-4 text-sm aria-disabled:cursor-default aria-disabled:opacity-50 aria-disabled:hover:border-[#C4B6A6] aria-disabled:hover:text-tinte",
+    // Gesperrt (Station 1) mit eigenen Farben statt blasser: Text bleibt bei mindestens 4,5:1 (docs/GESTALTUNG.md).
+    zurueck: "j-knopf j-knopf-linie !min-h-[42px] !px-4 text-sm aria-disabled:cursor-default aria-disabled:border-[#DDD3C8] aria-disabled:bg-papier-2 aria-disabled:text-tinte-2 aria-disabled:hover:border-[#DDD3C8] aria-disabled:hover:text-tinte-2",
     weiter: "j-knopf j-knopf-voll !min-h-[42px] !px-4 text-sm",
   },
   app: {
@@ -34,7 +35,8 @@ const STIL: Record<RundgangVariante, { karte: string; stand: string; titel: stri
     text: "text-sm leading-relaxed text-slate-700",
     link: "font-medium text-brand-700 underline",
     zu: "flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-slate-50 hover:text-brand-700",
-    zurueck: "btn btn-secondary aria-disabled:cursor-default aria-disabled:opacity-50",
+    // Gesperrt: dieselben Farben wie gesperrte Knöpfe in der App (app/globals.css, .btn[aria-disabled="true"]).
+    zurueck: "btn btn-secondary aria-disabled:cursor-default",
     weiter: "btn btn-primary",
   },
 };

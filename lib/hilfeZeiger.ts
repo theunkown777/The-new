@@ -168,6 +168,18 @@ function musterPasst(pfad: string, muster: string): boolean {
   return p.length === m.length && m.every((t, i) => (/^\[[^\]]+\]$/.test(t) ? p[i].length > 0 : t === p[i]));
 }
 
+/** Ab diesem Anteil der Fensterhöhe gilt ein Ziel als hoch: Dann zeigt der Zeiger seinen Anfang statt der Mitte. */
+export const ZIEL_HOCH_ANTEIL = 0.8;
+
+/**
+ * Wohin „Zeig mir wo“ scrollt: kleine Ziele in die Mitte, hohe Ziele (z. B. ein ganzer Abschnitt am Handy) mit dem
+ * Anfang nach oben. Sonst sähe man nur die Mitte des Abschnitts, ohne Überschrift. Den Abstand zum oberen Rand
+ * gibt scroll-margin von .hilfe-ziel (app/globals.css).
+ */
+export function zielBlock(zielHoehe: number, fensterHoehe: number): "center" | "start" {
+  return fensterHoehe > 0 && zielHoehe > fensterHoehe * ZIEL_HOCH_ANTEIL ? "start" : "center";
+}
+
 /** Aus mehreren Kandidaten das sichtbare Element wählen (Seitenleiste am Desktop, untere Leiste oder Menü am Handy). */
 export function ankerWaehlen<T extends { sichtbar: boolean }>(kandidaten: T[]): T | null {
   return kandidaten.find((k) => k.sichtbar) ?? null;

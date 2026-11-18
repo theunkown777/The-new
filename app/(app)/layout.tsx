@@ -30,6 +30,7 @@ import { kiHilfenStand } from "@/lib/kiHilfen";
 import { Suspense } from "react";
 import { AppRundgang } from "@/components/AppRundgang";
 import { appStationen } from "@/lib/rundgang";
+import { gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -159,6 +160,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             ki={kiHilfenStand(currentUser?.practice.kiHilfen).aktiv}
             personPl={personen}
             abschluss={abschlussWort(currentUser?.practice.specialty)}
+            gebuehrenrechner={gebuehrenwerkeFuer(currentUser?.practice.specialty).length > 0}
           />
         )}
         {!sperre && <HilfeZeiger />}

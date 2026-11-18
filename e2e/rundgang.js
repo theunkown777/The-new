@@ -10,7 +10,7 @@
 //            Ende speichert nur „sorrida-rundgang“ = „zu“, Fokus auf dem letzten Abschnitt; Esc mit Fokus in der
 //            Karte und nach einem Klick auf die Seite; „Nein danke“; Start über /#rundgang von einer Unterseite;
 //            Fachseite ohne doppelte ids, jedes Ziel der Inhaltsnavigation genau einmal.
-//   App      Gastzugang: Führung verschiebt beim Laden nichts (Platzhalter gleich hoch); Überblick per Tastatur, Esc
+//   App      Gastzugang: Führung verschiebt beim Laden nichts (Platzhalter gleich hoch); Rundgang per Tastatur, Esc
 //            auf Station 1 gibt den Fokus an den Link zurück; 10 Stationen; Esc nach Klick auf die Seite, ohne Suche;
 //            Kürzel-Dialog; Führung ausblenden (blitzt beim Laden nicht auf) und wieder einblenden; Hinweis auf der
 //            Übersicht für ein neues echtes Konto.
@@ -250,7 +250,7 @@ async function app(b, name, opt) {
   await ctxOhne.close();
   pruef(`${name}: Führung: Platzhalter beim Laden, Inhalt verrutscht nicht`, platz === 1 && Math.abs(mitJs - ohneJs) <= 1, `mit JS ${mitJs}, beim Laden ${ohneJs}, Platzhalter ${platz}`);
 
-  // Tastatur: Überblick mit Enter öffnen, auf Station 1 Esc: Der Fokus geht zurück an den Link.
+  // Tastatur: „Rundgang in 10 Stationen“ mit Enter öffnen, auf Station 1 Esc: Der Fokus geht zurück an den Link.
   const karte = p.getByTestId('rundgang-karte');
   await p.getByTestId('demo-fuehrung-ueberblick').focus();
   await p.keyboard.press('Enter');
@@ -261,11 +261,11 @@ async function app(b, name, opt) {
   await karte.waitFor({ state: 'detached' });
   await p.waitForURL((u) => !u.searchParams.has('rundgang'));
   await warte(150);
-  pruef(`${name}: Esc auf Station 1: Fokus zurück auf „Überblick“`, (await fokus(p)) === 'a#demo-fuehrung-ueberblick', await fokus(p));
+  pruef(`${name}: Esc auf Station 1: Fokus zurück auf „Rundgang“`, (await fokus(p)) === 'a#demo-fuehrung-ueberblick', await fokus(p));
 
   await p.getByTestId('demo-fuehrung-ueberblick').click();
   await karte.waitFor();
-  pruef(`${name}: Überblick startet bei Station 1 von 10`, (await p.getByTestId('rundgang-stand').textContent()).trim() === 'Station 1 von 10');
+  pruef(`${name}: Rundgang aus der Führung startet bei Station 1 von 10`, (await p.getByTestId('rundgang-stand').textContent()).trim() === 'Station 1 von 10');
   pruef(`${name}: Fokus auf der Überschrift`, (await fokus(p)) === 'h2#rundgang-titel', await fokus(p));
 
   for (let i = 0; i < APP.length; i++) {
@@ -297,7 +297,7 @@ async function app(b, name, opt) {
   await p.waitForURL((u) => !u.searchParams.has('rundgang'));
   pruef(`${name}: Esc nach Klick auf die Seite beendet, Adresse ohne ?rundgang`, !vorEsc.includes('rundgang'), `Fokus vor Esc: ${vorEsc}`);
   await warte(150);
-  pruef(`${name}: danach Fokus zurück auf „Überblick“`, (await fokus(p)) === 'a#demo-fuehrung-ueberblick', await fokus(p));
+  pruef(`${name}: danach Fokus zurück auf „Rundgang“`, (await fokus(p)) === 'a#demo-fuehrung-ueberblick', await fokus(p));
   pruef(`${name}: Esc öffnet keine Suche`, (await p.getByTestId('suche-dialog').count()) === 0);
   pruef(`${name}: nichts vom Rundgang im Speicher`, !JSON.stringify(await speicher(p)).includes('rundgang'));
 

@@ -2,10 +2,9 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { artenFuer } from "@/lib/abrechnungsarten";
+import { artenFuer, gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { Gebuehrenrechner } from "@/components/Gebuehrenrechner";
-import type { Gebuehrenwerk } from "@/lib/gebuehren";
 import { canSeeAnalytics } from "@/lib/permissions";
 import { loadBillingCheck } from "@/lib/billingCheckLoad";
 import { formatCent, invoiceView } from "@/lib/invoices";
@@ -36,10 +35,8 @@ export default async function AbrechnungPage() {
       })()
     : null;
   const arten = artenFuer(fach);
-  const werke = [...new Set(arten.map((a) => a.werk).filter((w): w is Gebuehrenwerk => !!w))];
-  // Rechner nur mit den Gebührenwerken, die das Fach wirklich nutzt (Zahn: BEMA/GOZ, Arzt: EBM/GOÄ, ggf. UV-GOÄ);
-  // Apotheke, Pflege, Heilmittel & Co. rechnen nicht nach Gebührenordnung und sehen keinen Rechner.
-  const alleWerke: Gebuehrenwerk[] = werke.includes("BEMA") || werke.includes("GOZ") ? [...new Set<Gebuehrenwerk>([...werke, "GOZ", "BEMA"])] : werke;
+  // Rechner nur mit den Gebührenwerken, die das Fach wirklich nutzt; Apotheke, Pflege, Heilmittel & Co. sehen keinen.
+  const alleWerke = gebuehrenwerkeFuer(fach);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6" data-testid="abrechnung">

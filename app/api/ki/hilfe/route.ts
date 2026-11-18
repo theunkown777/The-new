@@ -12,10 +12,11 @@ import { seitenTitel } from "@/lib/hilfeZeiger";
 import { menueRechteVon } from "@/lib/permissions";
 import { isDental } from "@/lib/specialties";
 import { abschlussWort, fachprofil } from "@/lib/fachprofile";
+import { gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
 
 // „Frag Sorrida“ mit KI, nur auf Knopfdruck und nur mit eingeschalteten KI-Hilfen (sonst 409/503).
 // An den KI-Dienst gehen: die Frage, bis zu drei frühere Fragen ohne Antworten, der Titel der geöffneten Seite aus einer
-// festen Liste (nie der Pfad mit Kennungen) und als Grundlage die ganze Wissenssammlung, gefiltert nach Fach und Rechten.
+// festen Liste (nie der Pfad mit Kennungen) und als Grundlage die ganze Wissenssammlung, gefiltert nach Fach, Praxis und Rechten.
 // Vorher ersetzt Sorrida Namen eigener Patienten (Abgleich nur innerhalb dieser Praxis), Namen nach einer Anrede,
 // Kontaktdaten, Datumsangaben und Versichertennummern. Die Antwort stützt sich nur auf die Sammlung und nennt Quellen.
 const schema = z.object({
@@ -41,7 +42,8 @@ export async function POST(req: Request) {
     menueRechteVon(session.user.id, practiceId),
   ]);
   const woerter = { personPl: fachprofil(praxis?.specialty ?? "zahn").person.pl, abschluss: abschlussWort(praxis?.specialty) };
-  const eintraege = sichtbareHilfe(HILFE_WISSEN, { fach: isDental(praxis?.specialty) ? "zahn" : "andere", rechte }).map((e) => hilfeText(e, woerter));
+  const merkmale = { gebuehrenrechner: gebuehrenwerkeFuer(praxis?.specialty).length > 0 };
+  const eintraege = sichtbareHilfe(HILFE_WISSEN, { fach: isDental(praxis?.specialty) ? "zahn" : "andere", rechte, merkmale }).map((e) => hilfeText(e, woerter));
 
   // Namen eigener Patienten in Frage und Verlauf finden, damit genau diese ersetzt werden. Nur in dieser Praxis.
   // Vor- und Nachnamen getrennt und je Name nur einmal (distinct): Auch 60 Patienten „Thomas“ verdrängen keinen

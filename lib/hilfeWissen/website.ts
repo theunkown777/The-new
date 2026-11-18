@@ -1,4 +1,4 @@
-import { PILOT_KURZ, PLANS, SETUP_EUR, eur } from "@/lib/pricing";
+import { PILOT_SATZ, PLANS, SETUP_EUR, eur } from "@/lib/pricing";
 import type { HilfeEintrag } from "./typ";
 
 // Frag Sorrida auf der öffentlichen Website: feste Antworten zu Sorrida, ohne KI und ohne Speicher im Browser.
@@ -41,7 +41,7 @@ export const WEBSITE_WISSEN: HilfeEintrag[] = [
   {
     id: "web-pilot",
     frage: "Was ist das Pilotprogramm?",
-    antwort: `Im Pilotprogramm startet Sorrida mit den ersten Praxen. ${PILOT_KURZ}, und die Einrichtung übernehmen wir mit Ihnen. Einen Pilotplatz fragen Sie über die Hilfe-Seite an.`,
+    antwort: `Im Pilotprogramm startet Sorrida mit den ersten Praxen. ${PILOT_SATZ} Die Einrichtung übernehmen wir mit Ihnen. Einen Pilotplatz fragen Sie über die Hilfe-Seite an.`,
     pfad: "Hilfe → Pilotprogramm",
     href: "/hilfe#pilot",
     stichwoerter: ["Pilot", "Pilotprogramm", "Pilotplatz", "kostenlos", "testen", "anfragen", "registrieren"],

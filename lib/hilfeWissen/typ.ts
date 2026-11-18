@@ -6,6 +6,9 @@ import type { MenueRechte } from "@/lib/rollen";
 
 export type HilfeArt = "bedienung" | "fehler" | "praxismanager" | "website";
 
+/** Was es nicht in jeder Praxis gibt. gebuehrenrechner: nur in Fächern mit Gebührenordnung (lib/abrechnungsarten.ts, gebuehrenwerkeFuer). */
+export type HilfeMerkmal = "gebuehrenrechner";
+
 export interface HilfeEintrag {
   id: string;
   frage: string;
@@ -22,6 +25,8 @@ export interface HilfeEintrag {
   anker?: HilfeAnker;
   /** Nur sichtbar, wenn das Konto dieses Recht hat (wie lib/suche.ts). */
   recht?: keyof MenueRechte;
+  /** Nur sichtbar, wenn die Praxis das hat (HilfeKontext.merkmale in lib/hilfeSuche.ts). */
+  nurMit?: HilfeMerkmal;
   /** Seiten, auf denen die Frage naheliegt („Fragen zu dieser Seite“), z. B. "/patients/[id]". */
   seiten?: string[];
   /** Ohne Angabe: bedienung. */

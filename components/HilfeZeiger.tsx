@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { HILFE_ZEIGEN, ZEIGER_MARKIERUNG_MS, ZEIGER_WARTEN_MS, ankerWaehlen, type ZeigAuftrag } from "@/lib/hilfeZeiger";
+import { HILFE_ZEIGEN, ZEIGER_MARKIERUNG_MS, ZEIGER_WARTEN_MS, ankerWaehlen, zielBlock, type ZeigAuftrag } from "@/lib/hilfeZeiger";
 import { MENUE_UMSCHALTEN, MENUE_ZUSTAND } from "@/lib/menueEreignisse";
 
 // „Zeig mir wo“: öffnet die Seite, wartet auf das Element mit data-hilfe (bzw. die id auf der Website), klappt
-// umschließende <details> auf, scrollt dorthin, setzt den Fokus und markiert es (Klasse hilfe-ziel in app/globals.css).
+// umschließende <details> auf, markiert es (Klasse hilfe-ziel in app/globals.css), scrollt dorthin (hohe Ziele mit dem
+// Anfang nach oben, sonst mittig) und setzt den Fokus.
 // Die Markierung verschwindet bei Klick, Escape oder nach acht Sekunden. Nicht gefunden: Menüpfad als Hinweis.
 // Einmal im Layout eingehängt (App und Website); ausgelöst über das Ereignis HILFE_ZEIGEN.
 
@@ -74,12 +75,13 @@ export function HilfeZeiger() {
     function markieren(el: HTMLElement, a: ZeigAuftrag) {
       for (let d = el.closest("details"); d; d = d.parentElement?.closest("details") ?? null) d.open = true;
       const ruhig = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      el.scrollIntoView({ block: "center", behavior: ruhig ? "auto" : "smooth" });
+      // Erst markieren, dann scrollen: Der Abstand nach oben (scroll-margin von .hilfe-ziel) gilt nur mit der Klasse.
+      el.classList.add("hilfe-ziel");
+      el.scrollIntoView({ block: zielBlock(el.getBoundingClientRect().height, window.innerHeight), behavior: ruhig ? "auto" : "smooth" });
       const fokussierbar = el.matches("a[href], button, input, select, textarea, summary, [tabindex]");
       const tabAlt = el.getAttribute("tabindex");
       if (!fokussierbar) el.setAttribute("tabindex", "-1");
       el.focus({ preventScroll: true });
-      el.classList.add("hilfe-ziel");
       zeigeHinweis(`Hier: ${a.name}`);
       const ende = () => {
         el.classList.remove("hilfe-ziel");

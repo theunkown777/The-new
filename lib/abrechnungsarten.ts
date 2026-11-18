@@ -214,6 +214,16 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
   },
 };
 
+/**
+ * Gebührenwerke für den Gebührenrechner unter Abrechnung: nur die, die das Fach wirklich nutzt (Zahn: BEMA/GOZ,
+ * Arzt: EBM/GOÄ, ggf. UV-GOÄ). Apotheke, Pflege, Heilmittel & Co. rechnen nicht nach Gebührenordnung: leere Liste,
+ * dann gibt es keinen Rechner (und Frag Sorrida erklärt ihn nicht).
+ */
+export function gebuehrenwerkeFuer(fach: string | null | undefined): Gebuehrenwerk[] {
+  const werke = [...new Set(artenFuer(fach).map((a) => a.werk).filter((w): w is Gebuehrenwerk => !!w))];
+  return werke.includes("BEMA") || werke.includes("GOZ") ? [...new Set<Gebuehrenwerk>([...werke, "GOZ", "BEMA"])] : werke;
+}
+
 /** Welche Abrechnungsarten für ein Fach relevant sind, wichtigste zuerst. */
 export function artenFuer(fach: string | null | undefined): Abrechnungsart[] {
   const f = fach ?? "hausarzt";

@@ -6,6 +6,7 @@ import { hinweisArt } from "@/lib/praxisKennung";
 import { fragenZurSeite, hilfeText, meldungenErkennen, seitePasst, sichtbareHilfe, sucheHilfe, trennbareVerben } from "@/lib/hilfeSuche";
 import { ankerInfo, PM_THEMEN } from "@/lib/hilfeAnker";
 import { menueRechte } from "@/lib/rollen";
+import { gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
 
 const erster = (frage: string, fach?: "zahn" | "andere") => sucheHilfe(frage, HILFE_WISSEN, { fach })[0]?.eintrag.id;
 const ids = (frage: string, anzahl = 3) => sucheHilfe(frage, HILFE_WISSEN, { anzahl }).map((t) => t.eintrag.id);
@@ -203,6 +204,20 @@ describe("sucheHilfe", () => {
     expect(erster("Preise ändern", "zahn")).toBe("vorschlagspreise");
     expect(erster("Preise ändern", "andere")).toBe("preise");
   });
+  it("erklärt den Gebührenrechner nur, wo /abrechnung ihn zeigt (Fächer mit Gebührenordnung)", () => {
+    const OHNE = ["physio", "ergo", "logo", "podo", "hebamme", "pflege", "apotheke", "hoerakustik", "optik", "sanitaetshaus", "heilpraktiker"];
+    for (const f of OHNE) expect(gebuehrenwerkeFuer(f), f).toEqual([]);
+    for (const f of ["zahn", "hausarzt", "augen", "psych", "aesthetik", "klinik", "andere"]) expect(gebuehrenwerkeFuer(f).length, f).toBeGreaterThan(0);
+    const frage = "Wie nutze ich den Gebührenrechner?";
+    expect(sucheHilfe(frage, HILFE_WISSEN, { fach: "andere", merkmale: { gebuehrenrechner: true } })[0]?.eintrag.id).toBe("gebuehrenrechner");
+    expect(sucheHilfe(frage, HILFE_WISSEN, { fach: "andere", merkmale: { gebuehrenrechner: false } }).map((t) => t.eintrag.id)).not.toContain("gebuehrenrechner");
+    expect(sichtbareHilfe(HILFE_WISSEN, { merkmale: { gebuehrenrechner: false } }).some((e) => e.nurMit === "gebuehrenrechner")).toBe(false);
+    // Seite, Chat, Seite „Frag Sorrida“ und KI lesen dieselbe Liste der Gebührenwerke.
+    expect(readFileSync("app/(app)/abrechnung/page.tsx", "utf8")).toContain("gebuehrenwerkeFuer(fach)");
+    expect(readFileSync("app/(app)/layout.tsx", "utf8")).toContain("gebuehrenrechner={gebuehrenwerkeFuer(currentUser?.practice.specialty).length > 0}");
+    expect(readFileSync("app/(app)/hilfe-praxis/page.tsx", "utf8")).toContain("gebuehrenrechner={gebuehrenwerkeFuer(praxis?.specialty).length > 0}");
+    expect(readFileSync("app/api/ki/hilfe/route.ts", "utf8")).toMatch(/gebuehrenrechner: gebuehrenwerkeFuer\(praxis\?\.specialty\)\.length > 0[\s\S]*sichtbareHilfe\(HILFE_WISSEN, \{[^}]*merkmale \}\)/);
+  });
   it("blendet Einträge aus, für die das Konto kein Recht hat (Behandler ohne Freigabe)", () => {
     const behandler = menueRechte("behandler", false);
     const t = sucheHilfe("DATEV Export für den Steuerberater", HILFE_WISSEN, { rechte: behandler }).map((x) => x.eintrag.id);
@@ -281,8 +296,10 @@ const ALLTAG: [string, string[]][] = [
   ["Wie bekomme ich die Rechnungen zum Steuerberater?", ["datev"]],
   ["Wie gebe ich die Buchungen an die Buchhaltung?", ["datev"]],
   ["Wo stelle ich das Logo der Praxis ein?", ["praxis-angaben"]],
-  ["Wie ändere ich die Öffnungszeiten?", ["praxis-angaben", "online-termine"]],
-  ["Wo trage ich unsere Sprechzeiten ein?", ["praxis-angaben", "online-termine"]],
+  ["Wie ändere ich die Öffnungszeiten?", ["online-termine"]],
+  ["Wo trage ich unsere Sprechzeiten ein?", ["online-termine"]],
+  ["Wo stelle ich die Empfangs-PIN ein?", ["empfang-pin"]],
+  ["Wie erstelle ich die DATEV-Datei?", ["datev"]],
   ["Kann ich WhatsApp nutzen?", ["whatsapp"]],
   ["Wie ändere ich mein Passwort?", ["passwort-aendern"]],
   ["Ich habe mein Passwort vergessen", ["passwort-aendern", "meldung-passwort-falsch"]],
@@ -342,8 +359,8 @@ describe("Alltagsfragen", () => {
     const t = sucheHilfe(frage, HILFE_WISSEN, { fach: "andere", rechte: leitung }).map((x) => x.eintrag.id);
     expect(t.some((id) => soll.includes(id)), `${frage} → ${t.join(", ")}`).toBe(true);
   });
+  const erste = (f: string) => sucheHilfe(f, HILFE_WISSEN, { fach: "andere", rechte: leitung })[0]?.eintrag.id;
   it("die Fragen aus der Prüfung stehen jetzt an erster Stelle", () => {
-    const erste = (f: string) => sucheHilfe(f, HILFE_WISSEN, { fach: "andere", rechte: leitung })[0]?.eintrag.id;
     expect(erste("Wie sage ich einen Termin ab?")).toBe("termin-status");
     expect(erste("Wie lösche ich einen Termin?")).toBe("termin-status");
     expect(erste("Wie bekomme ich die Rechnungen zum Steuerberater?")).toBe("datev");
@@ -351,6 +368,24 @@ describe("Alltagsfragen", () => {
     expect(erste("Kann ich WhatsApp nutzen?")).toBe("whatsapp");
     expect(erste("Wie ändere ich mein Passwort?")).toBe("passwort-aendern");
     expect(erste("Wie melde ich mich ab?")).toBe("abmelden");
+  });
+  it("„Zeig mir wo“ zeigt auf die richtige Stelle: Bedienung mit genauer Stelle vor Fehler-Einträgen (auch als Zahnarztpraxis, auch auf der Übersicht)", () => {
+    const FAELLE: [string, string][] = [
+      ["Wie ändere ich die Öffnungszeiten?", "online-termine"],
+      ["Wo trage ich unsere Sprechzeiten ein?", "online-termine"],
+      ["Wo stelle ich die Empfangs-PIN ein?", "empfang-pin"],
+      ["Wie erstelle ich die DATEV-Datei?", "datev"],
+    ];
+    for (const fach of ["andere", "zahn"] as const) for (const seite of [undefined, "/dashboard"]) for (const [frage, id] of FAELLE) {
+      for (const rechte of [leitung, undefined]) expect(sucheHilfe(frage, HILFE_WISSEN, { fach, seite, rechte })[0]?.eintrag.id, `${fach} ${seite ?? "-"}: ${frage}`).toBe(id);
+    }
+    // Wer ein Problem nennt, bekommt den Fehler-Eintrag; eingefügte Meldungen auch ohne Problemwort.
+    expect(erste("Warum kann ich die Empfangs-PIN nicht einstellen?")).toBe("meldung-nur-geschaeftsfuehrung");
+    expect(erste("Bitte mindestens eine Sprechzeit eintragen.")).toBe("meldung-online-termine-zuerst");
+    expect(erste("Diktat funktioniert nicht")).toBe("meldung-diktat");
+    // „öffnen“ in Antworten und Menüpfaden passt nicht zu „Öffnungszeiten“.
+    expect(ids("Öffnungszeiten", 5)).not.toContain("patient-kontakt");
+    expect(ids("Öffnungszeiten", 5)).not.toContain("bericht-verlauf");
   });
   it("auch als Zahnarztpraxis", () => {
     for (const [frage, soll] of ALLTAG) {

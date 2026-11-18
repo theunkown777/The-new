@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { APP_BEREICHE, SEITEN_TITEL, ankerWaehlen, appChatErlaubt, seiteErlaubt, seitenMuster, seitenSchluessel, seitenTitel, websiteChatErlaubt, zeigZiel } from "@/lib/hilfeZeiger";
+import { APP_BEREICHE, SEITEN_TITEL, ankerWaehlen, appChatErlaubt, seiteErlaubt, seitenMuster, seitenSchluessel, seitenTitel, websiteChatErlaubt, zeigZiel, zielBlock } from "@/lib/hilfeZeiger";
 import { HILFE_WISSEN, WEBSITE_WISSEN } from "@/lib/hilfeWissen";
 import { menueRechte } from "@/lib/rollen";
 
@@ -113,6 +113,19 @@ describe("Wo Frag Sorrida erscheint", () => {
   it("APP_BEREICHE stimmt mit den Ordnern unter app/(app) überein", () => {
     const ordner = readdirSync(join("app", "(app)"), { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort();
     expect([...APP_BEREICHE].sort()).toEqual(ordner);
+  });
+  it("hohe Ziele zeigt der Zeiger mit dem Anfang oben, kleine mittig", () => {
+    // Abschnitt Preise am Handy: 2224 px hoch bei 844 px Fenster. Mittig läge seine Überschrift weit über dem Bildschirm.
+    expect(zielBlock(2224, 844)).toBe("start");
+    expect(zielBlock(779, 844)).toBe("start");
+    expect(zielBlock(600, 844)).toBe("center");
+    expect(zielBlock(863, 1280)).toBe("center");
+    expect(zielBlock(40, 0)).toBe("center");
+    // Die Klasse mit dem Abstand nach oben (scroll-margin) steht vor dem Scrollen am Element.
+    const quelle = readFileSync("components/HilfeZeiger.tsx", "utf8");
+    expect(quelle.indexOf('el.classList.add("hilfe-ziel")')).toBeGreaterThan(-1);
+    expect(quelle.indexOf('el.classList.add("hilfe-ziel")')).toBeLessThan(quelle.indexOf("el.scrollIntoView("));
+    expect(readFileSync("app/globals.css", "utf8")).toMatch(/\.hilfe-ziel \{[^}]*scroll-margin: 6rem/);
   });
   it("ankerWaehlen nimmt das sichtbare Element", () => {
     expect(ankerWaehlen([{ sichtbar: false, n: 1 }, { sichtbar: true, n: 2 }])?.n).toBe(2);

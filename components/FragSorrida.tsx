@@ -63,9 +63,12 @@ export function FragSorrida({
   ki = false,
   personPl = "Patienten",
   abschluss = "Behandlung",
+  gebuehrenrechner,
 }: {
   modus?: Modus;
   fach?: "zahn" | "andere";
+  /** Gibt es unter Abrechnung den Gebührenrechner (lib/abrechnungsarten.ts, gebuehrenwerkeFuer)? Ohne Angabe: ja. */
+  gebuehrenrechner?: boolean;
   /** Art der Praxis für den festen Hinweis (lib/praxisKennung.ts: hinweisArt). Ohne Angabe: zahn bzw. neutral. */
   hinweisArt?: HinweisArt;
   rechte?: MenueRechte;
@@ -91,7 +94,7 @@ export function FragSorrida({
   // Auf der Website gibt es kein Menü im Sinn der App; die Pfade dort nennen Abschnitte und Seiten.
   const ortWort = modus === "website" ? "Ort" : "Menü";
   const woerter = useMemo(() => ({ personPl, abschluss }), [personPl, abschluss]);
-  const kontext = useMemo(() => ({ fach, rechte }), [fach, rechte]);
+  const kontext = useMemo(() => ({ fach, rechte, merkmale: gebuehrenrechner === undefined ? undefined : { gebuehrenrechner } }), [fach, rechte, gebuehrenrechner]);
 
   const erlaubt = modus === "website" ? websiteChatErlaubt(pfad) : appChatErlaubt(pfad);
 
@@ -266,7 +269,7 @@ export function FragSorrida({
                 <ul className="mt-1 space-y-1">
                   {k.quellen.map(eintragVon).filter((e): e is HilfeEintrag => !!e).map((e) => (
                     <li key={e.id}>
-                      <Link href={e.href} className="text-brand-700 underline" onClick={() => setOffen(false)}>{text(e).frage}</Link>
+                      <Link href={e.href} className="ziel text-brand-700 underline" onClick={() => setOffen(false)}>{text(e).frage}</Link>
                     </li>
                   ))}
                 </ul>
@@ -367,7 +370,7 @@ export function FragSorrida({
             <ul className="mt-1 space-y-1">
               {weitere.map((e) => (
                 <li key={e.id}>
-                  <button type="button" className="text-left text-sm text-brand-700 underline" onClick={() => senden({ typ: "eintrag", frage: text(e).frage, eintrag: e.id })}>
+                  <button type="button" className="ziel text-left text-sm text-brand-700 underline" onClick={() => senden({ typ: "eintrag", frage: text(e).frage, eintrag: e.id })}>
                     {text(e).frage}
                   </button>
                 </li>
@@ -444,7 +447,7 @@ export function FragSorrida({
                       <p className="text-slate-800">
                         Auf dieser Seite steht: <q className="font-medium">{m.meldung}</q>
                       </p>
-                      <button type="button" className="mt-1 text-sm font-medium text-brand-700 underline" onClick={() => senden({ typ: "meldung", meldung: m.meldung, eintrag: m.eintrag.id })} data-testid="frag-sorrida-meldung">
+                      <button type="button" className="ziel mt-1 text-sm font-medium text-brand-700 underline" onClick={() => senden({ typ: "meldung", meldung: m.meldung, eintrag: m.eintrag.id })} data-testid="frag-sorrida-meldung">
                         Was bedeutet das?
                       </button>
                     </div>
@@ -503,7 +506,7 @@ export function FragSorrida({
               </div>
               <p id={`${uid}-hinweis`} className="mt-1.5 text-xs text-slate-500">Bitte keine Patientendaten eingeben: keine Namen, keine Geburtsdaten, keine Befunde.</p>
               {!leer && (
-                <button type="button" className="mt-1 text-xs text-slate-500 underline hover:text-brand-700" onClick={() => senden({ typ: "leeren" })} data-testid="frag-sorrida-leeren">
+                <button type="button" className="ziel mt-1 text-xs text-slate-500 underline hover:text-brand-700" onClick={() => senden({ typ: "leeren" })} data-testid="frag-sorrida-leeren">
                   Verlauf leeren
                 </button>
               )}

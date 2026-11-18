@@ -459,10 +459,14 @@ html:has(.praxis-app) body { background-color: #F5F2EE; }
 :where(.praxis-app) .btn-secondary:hover { border-color: var(--akzent); color: rgb(var(--brand-700)); background-color: var(--feld); }
 :where(.praxis-app) .btn-primary:active,
 :where(.praxis-app) .btn-secondary:active { transform: scale(0.98); }
-/* Gesperrte Knöpfe bleiben lesbar (mindestens 4,5:1), statt nur blasser zu werden. */
+/* Gesperrte Knöpfe bleiben lesbar (mindestens 4,5:1), statt nur blasser zu werden. Auch über aria-disabled gesperrte
+   (z. B. „Zurück“ auf Station 1 des Rundgangs), die fokussierbar bleiben. */
 :where(.praxis-app) .btn:disabled,
 :where(.praxis-app) .btn-primary:disabled,
-:where(.praxis-app) .btn-secondary:disabled {
+:where(.praxis-app) .btn-secondary:disabled,
+:where(.praxis-app) .btn[aria-disabled="true"],
+:where(.praxis-app) .btn-primary[aria-disabled="true"],
+:where(.praxis-app) .btn-secondary[aria-disabled="true"] {
   opacity: 1;
   background-color: rgb(var(--slate-fl-100));
   border-color: rgb(var(--slate-li-200));
@@ -623,8 +627,8 @@ html:has(.praxis-app) body { background-color: #F5F2EE; }
 html.dunkel:has(.praxis-app) body { background-color: #191615; }
 .dunkel .praxis-app ::selection { background: #7A2F28; color: #fff; }
 /* Nur bedienbare Knöpfe: Ein gesperrter Knopf behält sein gesperrtes Aussehen (sonst sähe er in der dunklen Ansicht bedienbar aus). */
-.dunkel .praxis-app .btn-primary:not(:disabled) { background-color: rgb(var(--brand-fl-700)); color: #fff; }
-.dunkel .praxis-app .btn-primary:not(:disabled):hover { background-color: rgb(var(--brand-fl-800)); }
+.dunkel .praxis-app .btn-primary:not(:disabled):not([aria-disabled="true"]) { background-color: rgb(var(--brand-fl-700)); color: #fff; }
+.dunkel .praxis-app .btn-primary:not(:disabled):not([aria-disabled="true"]):hover { background-color: rgb(var(--brand-fl-800)); }
 .dunkel .praxis-app select:where(:not([multiple]):not([size])) {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23E0ABA1' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
 }

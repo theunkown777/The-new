@@ -8,8 +8,8 @@ import { patientenansichtOeffnen } from "@/components/DemoPatientButton";
 import { FUEHRUNG_LEER, FUEHRUNG_SCHLUESSEL, FUEHRUNG_SCHRITTE, fuehrungAktuell, fuehrungErledigt, fuehrungFertig, fuehrungLesen, fuehrungNachSeite, type FuehrungZustand } from "@/lib/demoFuehrung";
 import { APP_RUNDGANG_START, FUEHRUNG_SCHRITT_EREIGNIS, FUEHRUNG_WIEDER_EREIGNIS } from "@/lib/rundgang";
 
-// Nur im Gastzugang: schmale Leiste über dem Inhalt mit drei Schritten zum Mitklicken und dem Weg zum Überblick
-// (Rundgang durch alle Hauptseiten, components/AppRundgang.tsx). Der Stand liegt im sessionStorage dieses Tabs.
+// Nur im Gastzugang: schmale Leiste über dem Inhalt mit drei Schritten zum Mitklicken und dem Link zum Rundgang
+// (durch alle Hauptseiten, components/AppRundgang.tsx). Der Stand liegt im sessionStorage dieses Tabs.
 // Wegklicken blendet die Leiste für diesen Tab aus; „Führung wieder einblenden“ (im „Mehr“ des Hinweises oben und
 // unter Frag Sorrida) holt sie über ein Ereignis zurück; ist sie schon offen, springt der Fokus auf den aktuellen Schritt.
 // Bis der Stand gelesen ist, steht an ihrer Stelle ein Platzhalter: dieselbe Leiste mit dem Anfangsstand, aber
@@ -159,11 +159,11 @@ export function DemoFuehrung({ ueberblick }: { ueberblick?: number }) {
               </li>
             )}
           </ol>
-          {/* Überblick: Rundgang durch alle Hauptseiten der App, Stand in der Adresse (?rundgang=n). */}
+          {/* Rundgang durch alle Hauptseiten der App, Stand in der Adresse (?rundgang=n). Heißt überall „Rundgang“. */}
           {ueberblick ? (
             <Link href={APP_RUNDGANG_START} className="ziel shrink-0 rounded-md px-2 py-1 font-medium text-brand-700 underline hover:bg-slate-50" data-testid={tid("demo-fuehrung-ueberblick")}>
-              <span className="sm:hidden">Überblick<span className="sr-only"> in {ueberblick} Stationen</span></span>
-              <span className="hidden sm:inline">Überblick in {ueberblick} Stationen</span>
+              <span className="sm:hidden">Rundgang<span className="sr-only"> in {ueberblick} Stationen</span></span>
+              <span className="hidden sm:inline">Rundgang in {ueberblick} Stationen</span>
             </Link>
           ) : null}
           <button type="button" onClick={platz ? undefined : () => merken({ ...z, zu: true })} aria-label="Führung ausblenden" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-slate-50 hover:text-brand-700" data-testid={tid("demo-fuehrung-zu")}>

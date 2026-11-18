@@ -38,8 +38,12 @@ export const eur = (n: number) => `${n.toLocaleString("de-DE")} €`;
 /** Kurzfassung für Fließtext und FAQ. */
 export const PRICE_SHORT = `${eur(PLANS[0].preis)} im Monat für Einzelpraxen, ${eur(PLANS[1].preis)} für bis zu fünf Behandelnde, MVZ ab ${eur(PLANS[2].preis)}`;
 export const PRICE_TERMS = `Alles enthalten, ohne Zähler. Geplante Preise ab dem allgemeinen Start; bis dahin nehmen wir nur Pilotpraxen auf. Einrichtung einmalig ${eur(SETUP_EUR)}, für Pilotpraxen kostenlos.`;
+/** Wie lange Sorrida für Pilotpraxen kostenlos ist. */
+const PILOT_DAUER = "drei Monate";
 /** Kurzform für Stellen, an denen bisher „30 Tage kostenlos“ stand. */
-export const PILOT_KURZ = "Für Pilotpraxen drei Monate kostenlos";
+export const PILOT_KURZ = `Für Pilotpraxen ${PILOT_DAUER} kostenlos`;
+/** Dasselbe als ganzer Satz, für Antworten in ganzen Sätzen (Frag Sorrida). */
+export const PILOT_SATZ = `Für Pilotpraxen ist Sorrida ${PILOT_DAUER} kostenlos.`;
 /** Wohin „Pilotplatz anfragen“ führt, wenn die Seite selbst kein Anfrageformular hat. */
 export const PILOT_ZIEL = "/hilfe#pilot";
 // Die frühere Zusage „die Preise bleiben auch danach Endpreise, ohne Aufschlag“ steht hier bewusst nicht mehr:

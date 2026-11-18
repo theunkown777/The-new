@@ -114,6 +114,17 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
   /** Bedienung mit dem Finger (sonst Maus): bestimmt den Hinweis zum Drehen */
   const [finger, setFinger] = useState(true);
   const modell = useRef<OrtModellGriff | null>(null);
+  // Nach „Weiter“ oder „Zurück“ verschwindet der Knopf oft oder ist gesperrt. Der Fokus geht deshalb auf die Überschrift
+  // der neuen Frage: Der Bildschirmleser sagt sie an, und der nächste Tab führt zu ihren Antworten. Beim ersten Laden nicht.
+  const titelRef = useRef<HTMLHeadingElement>(null);
+  const dankeRef = useRef<HTMLHeadingElement>(null);
+  const letzterSchritt = useRef(schritt);
+  useEffect(() => {
+    if (letzterSchritt.current === schritt) return;
+    letzterSchritt.current = schritt;
+    titelRef.current?.focus();
+  }, [schritt]);
+  useEffect(() => { if (fertig) dankeRef.current?.focus(); }, [fertig]);
   useEffect(() => {
     const geht = webglDa();
     setKannRaum(geht);
@@ -180,7 +191,7 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
     return (
       <div className="rounded-3xl bg-white p-6 text-center" role="status" data-testid="kurz-danke">
         <svg viewBox="0 0 64 64" className="mx-auto h-16 w-16 text-salbei-600" fill="none" stroke="currentColor" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx={32} cy={32} r={27} /><path d="M20 33l8 8 16-18" /></svg>
-        <h2 className="mt-3 font-display text-2xl text-slate-900">{t("danke", { name: vorname })}</h2>
+        <h2 ref={dankeRef} tabIndex={-1} className="mt-3 font-display text-2xl text-slate-900">{t("danke", { name: vorname })}</h2>
         <p className="mt-1 text-sm text-slate-600">{t("dankeText", { praxis })}</p>
         <a href={`/portal/${token}${paket.lang === "de" ? "" : `?lang=${paket.lang}`}`} className="btn-primary mt-4 inline-block">{t("uebersicht")}</a>
       </div>
@@ -204,9 +215,9 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
       <div className="flex items-center gap-2" aria-hidden="true">
         {folge.map((s, i) => <span key={s} className={`h-2 flex-1 rounded-full transition-colors ${i <= stelle ? "bg-brand-600" : "bg-slate-200"}`} />)}
       </div>
-      <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-brand-700" data-testid="kurz-zaehler">{t("frage", { i: stelle + 1, n: folge.length })}</p>
-      <h2 className="mt-1 font-display text-2xl leading-tight text-slate-900">{TITEL[schritt]}</h2>
-      <p className="mt-1 text-sm text-slate-600">{UNTER[schritt]}</p>
+      <p id="kurz-zaehler" className="mt-3 text-xs font-semibold uppercase tracking-wide text-brand-700" data-testid="kurz-zaehler">{t("frage", { i: stelle + 1, n: folge.length })}</p>
+      <h2 ref={titelRef} tabIndex={-1} aria-describedby="kurz-zaehler kurz-unter" className="mt-1 font-display text-2xl leading-tight text-slate-900" data-testid="kurz-titel">{TITEL[schritt]}</h2>
+      <p id="kurz-unter" className="mt-1 text-sm text-slate-600">{UNTER[schritt]}</p>
 
       <div className="mt-4" key={schritt}>
         {schritt === 0 && (

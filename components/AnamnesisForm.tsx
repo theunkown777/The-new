@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import { hinweisTeile, type AnamneseProfil } from "@/lib/anamneseProfile";
 
 type Ans = { yes?: boolean; detail?: string };
@@ -50,6 +51,11 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
   const [vorbef, setVorbef] = useState<{ stand: string; werte: Record<string, Ans> } | null>(null);
   const [geprueft, setGeprueft] = useState(false);
   const gepruefRef = useRef<HTMLInputElement>(null);
+  // Beim Absenden noch Fragen offen: Die offenen Fragen sind markiert („Noch offen“), und der Fokus springt zur ersten.
+  // Die Markierung einer Frage verschwindet, sobald sie beantwortet ist; die Meldung zählt mit.
+  const [offenMarkiert, setOffenMarkiert] = useState(false);
+  const frageRefs = useRef<Record<string, HTMLFieldSetElement | null>>({});
+  const uid = useId();
   const answersRef = useRef(answers);
   useEffect(() => {
     answersRef.current = answers;
@@ -83,9 +89,24 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (open > 0) {
-      setError(`Bitte noch ${open} ${open === 1 ? "Frage" : "Fragen"} beantworten.`);
+      // Erst markieren (flushSync), dann den Fokus setzen: So liest der Screenreader beim Sprung die Markierung und die
+      // Meldung mit (aria-describedby). Steht der Fokus schon dort, erst lösen, damit er neu angesagt wird.
+      flushSync(() => {
+        setError("");
+        setOffenMarkiert(true);
+      });
+      const erste = QUESTIONS.find((q) => answers[q.key]?.yes === undefined);
+      const feld = erste ? frageRefs.current[erste.key] : null;
+      if (feld) {
+        const ruhig = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+        feld.scrollIntoView({ block: "center", behavior: ruhig ? "auto" : "smooth" });
+        const knopf = feld.querySelector<HTMLInputElement>("input[type=radio]");
+        if (knopf && document.activeElement === knopf) knopf.blur();
+        knopf?.focus({ preventScroll: true });
+      }
       return;
     }
+    setOffenMarkiert(false);
     if (confirmName.trim().length < 2) {
       setError("Bitte bestätigen Sie die Angaben mit Ihrem Namen.");
       return;
@@ -162,13 +183,28 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
         {QUESTIONS.map((q, i) => {
           const a = answers[q.key] ?? {};
           const vomGeraet = vorbef && vorbef.werte[q.key] && gleich(answers[q.key], vorbef.werte[q.key]);
+          const nochOffen = offenMarkiert && a.yes === undefined;
+          const offenId = `${uid}-offen-${i}`;
           return (
-            <fieldset key={q.key} className="rounded-2xl border border-slate-200 bg-white p-4" data-vom-geraet={vomGeraet ? "ja" : undefined}>
+            <fieldset
+              key={q.key}
+              ref={(el) => {
+                frageRefs.current[q.key] = el;
+              }}
+              className={`rounded-2xl border bg-white p-4 ${nochOffen ? "border-red-300 ring-1 ring-red-300" : "border-slate-200"}`}
+              data-vom-geraet={vomGeraet ? "ja" : undefined}
+              data-offen={nochOffen ? "ja" : undefined}
+            >
               <legend className="sr-only">{q.text}</legend>
               <p className="font-medium text-slate-900">
                 <span className="mr-1 text-slate-500">{i + 1}.</span>
                 {q.text}
               </p>
+              {nochOffen && (
+                <p id={offenId} className="mt-1 text-sm font-medium text-red-700" data-testid="anamnese-noch-offen">
+                  Noch offen
+                </p>
+              )}
               {vomGeraet && geraet && (
                 <p className="mt-2 inline-block rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900 ring-1 ring-amber-200" lang={geraet.lang} dir={geraet.dir} data-testid="anamnese-vom-geraet">
                   {geraet.markiert(vorbef.stand)}
@@ -187,6 +223,8 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
                       type="radio"
                       name={q.key}
                       className="sr-only"
+                      aria-invalid={nochOffen || undefined}
+                      aria-describedby={nochOffen ? `${offenId} anamnese-fehler` : undefined}
                       checked={a.yes === v}
                       onChange={() => setAnswers((s) => ({ ...s, [q.key]: { ...s[q.key], yes: v as boolean } }))}
                     />
@@ -257,6 +295,13 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
           </div>
         )}
 
+        {/* Ohne role=alert: Angesagt wird die Meldung mit der ersten offenen Frage, auf die der Fokus springt. So wiederholt
+            sie sich nicht bei jeder Antwort, während sie mitzählt. */}
+        {!error && offenMarkiert && open > 0 && (
+          <p id="anamnese-fehler" className="text-sm text-red-700" data-testid="anamnese-fehler-offen">
+            Bitte noch {open} {open === 1 ? "Frage" : "Fragen"} beantworten. Sie sind mit „Noch offen“ markiert.
+          </p>
+        )}
         {error && (
           <p
             id="anamnese-fehler"
