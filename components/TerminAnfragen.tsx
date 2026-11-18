@@ -16,7 +16,7 @@ type Erledigt = { id: string; name: string; status: "BESTAETIGT" | "ABGELEHNT"; 
 // Karte „Online-Anfragen neuer Patienten“ auf der Terminseite: bestätigen (Patient neu anlegen oder
 // einem vorhandenen zuordnen) oder ablehnen. Danach steht ein Text zum Kopieren bereit;
 // Sorrida verschickt nichts von allein.
-export function TerminAnfragen({ anfragen }: { anfragen: AnfrageZeile[] }) {
+export function TerminAnfragen({ anfragen, personPl = "Patienten" }: { anfragen: AnfrageZeile[]; personPl?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -42,13 +42,13 @@ export function TerminAnfragen({ anfragen }: { anfragen: AnfrageZeile[] }) {
   if (offen.length === 0 && erledigt.length === 0) return null;
   return (
     <section className="card space-y-3" id="anfragen" data-testid="terminanfragen" data-hilfe="terminanfragen" aria-labelledby="anfragen-titel">
-      <h2 id="anfragen-titel" className="font-semibold text-slate-900">Online-Anfragen neuer Patienten <span className="font-normal text-slate-500" data-testid="terminanfragen-anzahl">({offen.length})</span></h2>
-      <p className="text-xs text-slate-500">Erst mit Ihrer Bestätigung entstehen Patient und Termin. Die gewünschte Zeit ist 24 Stunden reserviert.</p>
+      <h2 id="anfragen-titel" className="font-semibold text-slate-900">Online-Anfragen neuer {personPl} <span className="font-normal text-slate-500" data-testid="terminanfragen-anzahl">({offen.length})</span></h2>
+      <p className="text-xs text-slate-500">Erst mit Ihrer Bestätigung entstehen Akte und Termin. Die gewünschte Zeit ist 24 Stunden reserviert.</p>
       {fehler && <p className="text-sm text-red-700" role="alert" data-testid="terminanfrage-fehler">{fehler}</p>}
 
       {erledigt.map((e) => (
         <div key={e.id} className={`rounded-xl p-3 text-sm ${e.status === "BESTAETIGT" ? "bg-salbei-50" : "bg-slate-50"}`} data-testid="terminanfrage-erledigt">
-          <p className="font-medium text-slate-900">{e.name}: {e.status === "BESTAETIGT" ? `bestätigt${e.neuAngelegt ? ", Patient neu angelegt" : ", vorhandenem Patienten zugeordnet"}` : "abgelehnt"}</p>
+          <p className="font-medium text-slate-900">{e.name}: {e.status === "BESTAETIGT" ? `bestätigt${e.neuAngelegt ? ", Akte neu angelegt" : ", vorhandener Akte zugeordnet"}` : "abgelehnt"}</p>
           <p className="mt-1 text-xs text-slate-600">Bitte geben Sie Bescheid{e.phone ? ` · ${e.phone}` : ""}{e.email ? ` · ${e.email}` : ""}. Sorrida hat nichts verschickt.</p>
           <p className="mt-2 whitespace-pre-wrap break-words rounded-lg bg-white p-2 text-slate-800" data-testid="terminanfrage-text">{e.text}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">

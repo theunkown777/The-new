@@ -273,7 +273,7 @@ export const RUNDGANG_APP: AppStation[] = [
     ohneEinstellungen: {
       titel: "Mein Konto",
       text: [
-        "Ihr eigenes Konto: Unter Sicherheit richten Sie die Zwei-Faktor-Anmeldung ein. Dazu gibt es das Leistungslexikon zum Nachschlagen.",
+        "Ihr eigenes Konto: Unter Sicherheit richten Sie die Zwei-Faktor-Anmeldung ein.{lexikon}",
         "Im Leistungsverzeichnis im Menü schlagen Sie die amtlichen Leistungen Ihres Fachs nach.",
         "Die Einstellungen der Praxis verwaltet die Praxisleitung.",
       ],
@@ -296,6 +296,8 @@ export interface AppKontext {
   personPl: string;
   /** „Behandlung“, „Versorgung“ … (lib/fachprofile.ts, abschlussWort) */
   abschluss: string;
+  /** Zahnarztpraxis: nur dort gibt es das Leistungslexikon. */
+  zahn?: boolean;
 }
 
 export interface AppStationFertig {
@@ -305,7 +307,8 @@ export interface AppStationFertig {
   text: string[];
 }
 
-const einsetzen = (t: string, k: AppKontext) => t.replaceAll("{personen}", k.personPl).replaceAll("{abschluss}", k.abschluss);
+const einsetzen = (t: string, k: AppKontext) =>
+  t.replaceAll("{personen}", k.personPl).replaceAll("{abschluss}", k.abschluss).replaceAll("{lexikon}", k.zahn ? " Dazu gibt es das Leistungslexikon zum Nachschlagen." : "");
 
 /** Stationen für dieses Konto: nach Rechten gefiltert, Platzhalter ersetzt. */
 export function appStationen(k: AppKontext): AppStationFertig[] {

@@ -144,7 +144,8 @@ async function praxisAnlegen(k: string): Promise<Ids> {
   const linkToken = `link${marke}0123456789abcdef`;
   const schluesselRoh = `sor_conn_${marke}0123456789abcdef`;
   // Empfangs-PIN gesetzt, damit die Übergabe bis zur Prüfung des Patienten kommt.
-  const p = (await prisma.practice.create({ data: { name: `Praxis ${marke}`, accountHolder: `Inhaber ${marke}`, empfangPinHash: bcrypt.hashSync("2580", 4) } })).id;
+  // Zahnarztpraxis ausdrücklich: Die Vorschläge unten sind Zahnvorschläge (teeth).
+  const p = (await prisma.practice.create({ data: { name: `Praxis ${marke}`, accountHolder: `Inhaber ${marke}`, specialty: "zahn", empfangPinHash: bcrypt.hashSync("2580", 4) } })).id;
   angelegt.push(p);
   const nutzer = await prisma.user.create({ data: { email: `leitung-${mail}@pruef.invalid`, passwordHash: "x", name: `Leitung ${marke}`, role: "admin", practiceId: p, emailVerifiedAt: new Date() } });
   const mitarbeit = await prisma.user.create({ data: { email: `empfang-${mail}@pruef.invalid`, passwordHash: "x", name: `Empfang ${marke}`, role: "staff", practiceId: p } });

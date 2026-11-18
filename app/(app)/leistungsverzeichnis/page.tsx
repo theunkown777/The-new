@@ -10,9 +10,12 @@ import { katalogEintrag, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 import { LeistungenImport } from "@/components/LeistungenImport";
 import { LeistungSchnell } from "@/components/LeistungSchnell";
+import { leistungsBeispiel, systemGruppe } from "@/lib/fachprofile";
 import { KvBezirkWahl } from "@/components/KvBezirkWahl";
-import { alleFilter, fachFilter, GAST_HINWEIS, sortiereSysteme } from "@/lib/amtlich/gliederung";
+import { alleFilter, fachFilter, GAST_HINWEIS, quellenFuer, sortiereSysteme } from "@/lib/amtlich/gliederung";
 import { seiteAus } from "@/lib/adresse";
+import { rechnetUeberKv } from "@/lib/abrechnungsarten";
+import { importVorgaben } from "@/lib/importVerzeichnisse";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Leistungsverzeichnis" };
@@ -83,16 +86,16 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
             {alle ? "Nur mein Fach anzeigen" : "Alle Fächer anzeigen"}
           </Link>
         </p>
-        {gast && (
+        {gast && (alle || rechnetUeberKv(fach)) && (
           <p className="mt-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-900" data-testid="ebm-gast-hinweis">
             {GAST_HINWEIS}
           </p>
         )}
-        {fach !== "zahn" && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
+        {rechnetUeberKv(fach) && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
       </div>
 
       <div data-testid="eigene-leistung" data-hilfe="leistungsverzeichnis-eigene">
-        <LeistungSchnell titel="Leistung nicht dabei? Eigene Leistung anlegen (nur Name und Preis)" />
+        <LeistungSchnell titel="Leistung nicht dabei? Eigene Leistung anlegen (nur Name und Preis)" beispiel={leistungsBeispiel(systemGruppe(fach))} />
       </div>
 
       <div className="flex flex-wrap gap-2" data-testid="systeme">
@@ -169,13 +172,8 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
           </div>
         )}
       </section>
-      {admin && <LeistungenImport />}
-      <p className="text-xs text-slate-500">
-        Quellen: GOÄ, GOZ, SGB XI und BBhV (gesetze-im-internet.de), EBM (KBV-Stammdatei nach Lizenzvereinbarung der KBV), BEMA (KZBV), Heilmittel und Hebammenhilfe
-        (Verträge des GKV-Spitzenverbands), Häusliche Krankenpflege (G-BA-Richtlinie), Hilfsmittelverzeichnis (GKV-Spitzenverband), UV-GOÄ (DGUV, Stand 01.07.2026, Betrag für die allgemeine Heilbehandlung). EBM-Beträge mit dem Orientierungswert
-        2026 ({EBM_ORIENTIERUNGSWERT.toLocaleString("de-DE")} Cent je Punkt) ohne regionale Zuschläge; BEMA-Punkte mit dem Punktwert Ihrer KZV. Keine Abrechnungsberatung. OPS: Herausgegeben vom Bundesinstitut für Arzneimittel und Medizinprodukte (BfArM) im Auftrag des
-        Bundesministeriums für Gesundheit (BMG). Die Erstellung erfolgt unter Verwendung der maschinenlesbaren Fassung des BfArM.
-      </p>
+      {admin && <LeistungenImport vorgaben={importVorgaben(fach)} />}
+      <p className="text-xs text-slate-500" data-testid="quellen">{quellenFuer(proSystem.map((s) => s.system), EBM_ORIENTIERUNGSWERT).join(" ")}</p>
     </div>
   );
 }

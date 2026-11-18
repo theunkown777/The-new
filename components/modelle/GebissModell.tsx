@@ -188,7 +188,8 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
             {marken.bearbeitbar && !mehrfach && (
               <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                 <button type="button" className="btn-secondary text-sm" onClick={() => { setMehrfach(true); setAuswahl([]); }} data-testid="modell-mehrfach-start">Mehrere Zähne auf einmal markieren</button>
-                {zumVorschlag.length > 0 && (
+                {/* Nur in der Zahnarztpraxis (dort kommen die Befunde mit): Der Zahn-Vorschlag übernimmt die markierten Zähne. */}
+                {befunde && zumVorschlag.length > 0 && (
                   <a href={`/proposals/new?patientId=${patientId}&modell=1`} className="font-medium text-brand-700 hover:underline" data-testid="modell-zum-vorschlag">
                     Behandlungsvorschlag aus {zumVorschlag.length === 1 ? "dem markierten Zahn" : `den ${zumVorschlag.length} markierten Zähnen`} →
                   </a>
@@ -201,7 +202,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                 gewaehlt={[...auswahl].sort((a, b) => a - b).map((nr) => ({ teil: zahnKennung(nr), name: `Zahn ${nr}` }))}
                 marken={marken}
                 befunde={befunde && auswahl.every(bleibend) ? befunde : undefined}
-                platzhalter="Hinweis, z. B. „Hier sind die Füllungen geplant.“"
+                platzhalter={befunde ? "Hinweis, z. B. „Hier sind die Füllungen geplant.“" : "Hinweis, z. B. „Diese Zähne brechen gerade durch.“"}
                 onEntfernen={(teil) => setAuswahl((a) => a.filter((x) => zahnKennung(x) !== teil))}
                 onFertig={() => { setMehrfach(false); setAuswahl([]); }}
               />
@@ -225,7 +226,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                 <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">{zahn.milch ? t("Gut zu wissen") : t("Häufige Probleme und Behandlungen")}</h4>
                 <p className="mt-1 text-sm leading-relaxed text-slate-800">{zahn.milch ? t(MILCHZAHN_HINWEIS) : t(ZAHNARTEN[zahn.art].typisch)}</p>
                 {!marken.bearbeitbar && <PraxisHinweis notiz={marken.notizVon(zahnKennung(zahn.fdi))} />}
-                <MarkierFeld key={zahn.fdi} teil={zahnKennung(zahn.fdi)} marken={marken} befunde={bleibend(zahn.fdi) ? befunde : undefined} platzhalter="Hinweis, z. B. „Hier ist die Füllung geplant.“" />
+                <MarkierFeld key={zahn.fdi} teil={zahnKennung(zahn.fdi)} marken={marken} befunde={bleibend(zahn.fdi) ? befunde : undefined} platzhalter={befunde ? "Hinweis, z. B. „Hier ist die Füllung geplant.“" : "Hinweis, z. B. „Dieser Zahn bricht gerade durch.“"} />
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button type="button" className="btn-secondary text-sm" onClick={() => zahnWaehlen(zahn.fdi, true)}>{t("Im Modell zeigen")}</button>
                   <button type="button" className="btn-secondary text-sm" onClick={() => setReiter("aufbau")}>{t("Aufbau eines Zahns ansehen")}</button>

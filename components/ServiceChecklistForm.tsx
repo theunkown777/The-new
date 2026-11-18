@@ -8,6 +8,7 @@ import { MicButton } from "@/components/MicButton";
 import { LeistungsverzeichnisAuswahl } from "@/components/LeistungsverzeichnisAuswahl";
 import { FREIE_ZUSAMMENSTELLUNG } from "@/lib/amtlich/gliederung";
 import { PatientAuswahl } from "@/components/PatientAuswahl";
+import { aufVerordnung as fachAufVerordnung, fachWoerter } from "@/lib/fachprofile";
 
 function formatEuro(cents: number): string {
   return (cents / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
@@ -106,10 +107,13 @@ export function ServiceChecklistForm({
   submitLabel = "Bericht generieren",
   submittingLabel = "Bericht wird generiert…",
   onCreated,
-  regionLabel = "Zahn/Region",
+  regionLabel = "Region",
+  fach,
 }: {
   /** Bezeichnung des Regionsfelds je Fach (Zahn, Auge, Ohr, Körperregion); null blendet es aus */
   regionLabel?: string | null;
+  /** Fach der Praxis für Wörter wie Patient/Kunde und Behandlungs-/Einsatzdatum; ohne Angabe neutral. */
+  fach?: string | null;
   patients: PatientOption[];
   initialPatientId?: string;
   practicePunktwerte: { gozPunktwertCent: number | null; bemaPunktwertCent: number | null };
@@ -127,6 +131,9 @@ export function ServiceChecklistForm({
   onCreated?: (reportId: string) => Promise<string>;
 }) {
   const router = useRouter();
+  const w = fachWoerter(fach);
+  // Heilmittel, Pflege, Hilfsmittel und Apotheke arbeiten auf ärztliche Verordnung, nicht auf Überweisung.
+  const aufVerordnung = fachAufVerordnung(fach);
   const [patientId, setPatientId] = useState(initialPatientId ?? patients[0]?.id ?? "");
   const [type, setType] = useState<"BEFUND" | "KRANKENKASSE" | "UEBERWEISER">("BEFUND");
   const [treatmentDate, setTreatmentDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -313,7 +320,7 @@ export function ServiceChecklistForm({
     setError(null);
 
     if (!patientId) {
-      setError("Bitte einen Patienten auswählen.");
+      setError(`Bitte ${w.einePerson} auswählen.`);
       return;
     }
     if (!selectedTemplate) {
@@ -387,7 +394,7 @@ export function ServiceChecklistForm({
   if (patients.length === 0) {
     return (
       <div className="card text-sm text-slate-500">
-        Bitte legen Sie zuerst einen Patienten an, bevor Sie einen Bericht erstellen.
+        Bitte legen Sie zuerst {w.einePerson} an, bevor Sie einen Bericht erstellen.
       </div>
     );
   }
@@ -401,11 +408,11 @@ export function ServiceChecklistForm({
       <div className="card space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="label" htmlFor="abschluss-patient">Patient</label>
+            <label className="label" htmlFor="abschluss-patient">{w.person}</label>
             <PatientAuswahl id="abschluss-patient" patients={patients} value={patientId} onChange={setPatientId} nachnameZuerst={false} />
           </div>
           <div>
-            <label className="label" htmlFor="abschluss-behandlungsdatum">Behandlungsdatum</label>
+            <label className="label" htmlFor="abschluss-behandlungsdatum">{w.datum}</label>
             <input id="abschluss-behandlungsdatum"
               type="date"
               className="input"
@@ -462,7 +469,7 @@ export function ServiceChecklistForm({
             >
               <option value="BEFUND">Befund-/Behandlungsbericht</option>
               <option value="KRANKENKASSE">Bericht an Krankenkasse</option>
-              <option value="UEBERWEISER">Bericht an die überweisende Praxis</option>
+              <option value="UEBERWEISER">{aufVerordnung ? "Bericht an die verordnende Praxis" : "Bericht an die überweisende Praxis"}</option>
             </select>
           </div>
         </div>

@@ -1097,6 +1097,16 @@ export const SPECIALTY_AUSWAHL: Record<string, string> = {
   andere: "Andere Fachrichtung (nur eigene Leistungen)",
 };
 
+/** Zahnmedizin nur bei ausdrücklichem Fach "zahn". Fehlt das Fach, ist nichts zahnärztlich, sondern neutral. */
 export function isDental(fach: string | null | undefined): boolean {
+  return fach === DENTAL_ID;
+}
+
+/**
+ * Nur für gespeicherte Vorschläge (input.fach): Zahnvorschläge tragen seit jeher kein fach, alle anderen Fächer
+ * speichern ihr Fach mit (app/api/proposals setzt es aus der Praxis). Ohne fach ist ein Vorschlag also ein
+ * Zahnvorschlag. Für das Fach einer Praxis gilt isDental.
+ */
+export function istZahnVorschlag(fach: string | null | undefined): boolean {
   return !fach || fach === DENTAL_ID;
 }

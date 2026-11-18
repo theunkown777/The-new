@@ -414,7 +414,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "abschluss-ergebnis",
     frage: "Was passiert nach dem Abschließen einer Behandlung?",
-    antwort: "Sorrida zeigt danach die To-dos, den Bericht zum Prüfen und Freigeben und den Behandlungsvorschlag. Das Patientenschreiben können Sie dort kopieren. Mit „Nächste Behandlung abschließen“ geht es weiter.",
+    antwort: "Sorrida zeigt danach die To-dos, den Bericht zum Prüfen und Freigeben und den Vorschlag. Das Schreiben an die {P} können Sie dort kopieren. Über den Knopf oben rechts geht es mit dem nächsten Abschluss weiter.",
     pfad: "{A} abschließen → Ergebnis",
     href: "/abschluss/new",
     stichwoerter: ["danach", "To-dos", "Ergebnis", "Patientenschreiben", "abgeschlossen", "nächste"],
@@ -952,6 +952,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   },
   {
     id: "lexikon",
+    nur: "zahn",
     frage: "Was ist das Leistungslexikon?",
     antwort: "Das Leistungslexikon ist ein Nachschlagewerk zu gängigen Selbstzahlerleistungen für das Beratungsgespräch. Es ist nicht patientenbezogen und spricht keine Empfehlung aus.",
     pfad: "Einstellungen → Leistungslexikon",

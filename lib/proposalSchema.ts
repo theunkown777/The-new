@@ -15,7 +15,7 @@ import {
   type Prices,
   type ProposalInput,
 } from "@/lib/proposals";
-import { SPECIALTY_IDS } from "@/lib/specialties";
+import { SPECIALTY_IDS, isDental } from "@/lib/specialties";
 import { leistungUebersetzungenSchema } from "@/lib/eigeneLeistung";
 
 export const customOfferSchema = z.object({
@@ -59,6 +59,26 @@ export const proposalInputSchema = z.object({
     })
     .optional(),
 });
+
+/**
+ * Fach eines neuen Vorschlags kommt vom Server, nicht vom Browser: das Fach der Praxis. Zahnvorschläge speichern wie
+ * seit jeher kein fach (lib/specialties.ts istZahnVorschlag), alle anderen ihr Fach. So wird ein Vorschlag ohne fach
+ * (etwa aus einem veralteten Tab) in einer Orthopädie nicht still zum Zahnvorschlag.
+ */
+export function mitPraxisFach<T extends ProposalInput>(input: T, praxisFach: string | null | undefined): T {
+  const rest: T = { ...input };
+  delete rest.fach;
+  if (isDental(praxisFach)) return rest;
+  return { ...rest, fach: praxisFach && (SPECIALTY_IDS as readonly string[]).includes(praxisFach) ? praxisFach : "andere" };
+}
+
+/** Beim Bearbeiten bleibt das gespeicherte Fach (auch „ohne fach“ = Zahnvorschlag); der Browser ändert es nicht. */
+export function mitGespeichertemFach<T extends ProposalInput>(input: T, gespeichert: unknown): T {
+  const rest: T = { ...input };
+  delete rest.fach;
+  const fach = (gespeichert as { fach?: unknown } | null)?.fach;
+  return typeof fach === "string" && (SPECIALTY_IDS as readonly string[]).includes(fach) ? { ...rest, fach } : rest;
+}
 
 export const choicesSchema = z.record(z.string().max(40), z.string().max(40));
 export const proposalStatusSchema = z.enum(PROPOSAL_STATUSES);

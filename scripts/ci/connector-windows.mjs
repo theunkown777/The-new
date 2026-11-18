@@ -15,7 +15,8 @@ const fehler = (m) => { console.error("FEHLER: " + m); process.exitCode = 1; };
 
 const cmd = process.argv[2];
 if (cmd === "vorbereiten") {
-  const practice = await prisma.practice.create({ data: { name: PRAXIS } });
+  // Fach ausdrücklich: Der freigegebene Bericht unten ist hausärztlich (Wundversorgung) und geht per GDT zurück.
+  const practice = await prisma.practice.create({ data: { name: PRAXIS, specialty: "hausarzt" } });
   await prisma.user.create({ data: { email: "ci-windows@sorrida.test", name: "CI Windows", role: "staff", practiceId: practice.id, passwordHash: "x" } });
   const key = "sor_conn_" + crypto.randomBytes(32).toString("hex");
   await prisma.connectorKey.create({ data: { practiceId: practice.id, name: "Windows-Runner", keyHash: crypto.createHash("sha256").update(key).digest("hex"), keyPrefix: key.slice(0, 15) } });

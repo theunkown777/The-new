@@ -2,6 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { billingCheck } from "@/lib/billingCheck";
 import { isDental } from "@/lib/specialties";
 
+/**
+ * „Termin ohne Dokumentation“ prüft Sorrida nur dort, wo es die Dokumentation führt (Zahnmedizin mit Berichten).
+ * Arztpraxen und die übrigen Fächer dokumentieren in ihrer Praxissoftware; dort gibt es diese Prüfung und ihre Zahl nicht.
+ */
+export function terminDokuGeprueft(fach: string | null | undefined): boolean {
+  return isDental(fach);
+}
+
 /** Lädt die Daten der letzten zwölf Monate und prüft sie. */
 export async function loadBillingCheck(practiceId: string, now = new Date()) {
   const seit = new Date(now.getTime() - 400 * 864e5);
@@ -18,10 +26,8 @@ export async function loadBillingCheck(practiceId: string, now = new Date()) {
       select: { id: true, code: true, title: true, faktorMin: true, faktorMax: true, regelhoechstfaktor: true, begruendungspflichtAbFaktor: true, ausschlussMit: true, frequenzlimitAnzahl: true, frequenzlimitZeitraumTage: true },
     }),
   ]);
-  // „Termin ohne Dokumentation“ nur dort, wo Sorrida die Dokumentation führt
-  // (Zahnmedizin mit Berichten). Arztpraxen dokumentieren im PVS.
   const practice = await prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } });
-  if (!isDental(practice?.specialty)) appointments.length = 0;
+  if (!terminDokuGeprueft(practice?.specialty)) appointments.length = 0;
   const ids = new Set([...appointments.map((a) => a.patientId), ...reports.map((r) => r.patientId), ...proposals.map((p) => p.patientId)]);
   const patients = await prisma.patient.findMany({ where: { practiceId, id: { in: [...ids] } }, select: { id: true, firstName: true, lastName: true } });
   const invoiced = new Set(invoices.map((i) => i.proposalId));

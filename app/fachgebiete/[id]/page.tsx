@@ -7,6 +7,7 @@ import { PublicShell } from "@/components/PublicShell";
 import { SpecialtyIcon } from "@/components/SpecialtyIcon";
 import { PilotProgram } from "@/components/PilotProgram";
 import { Entlastung } from "@/components/Entlastung";
+import { systemGruppe } from "@/lib/fachprofile";
 import { PraxisFaq } from "@/components/PraxisFaq";
 import { NutzenQuelleLink } from "@/components/NutzenQuelleLink";
 import { DENTAL_SHOWCASE } from "@/lib/dentalShowcase";
@@ -297,7 +298,7 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
           </section>
 
           {/* Ziel des Inhaltsverzeichnisses ist die Überschrift im Baustein (id="entlastung"); hier keine zweite id. */}
-          <Entlastung therapie={therapie} />
+          <Entlastung gruppe={dental ? "zahn" : therapie ? "therapie" : systemGruppe(s.id) === "arzt" ? "arzt" : "andere"} />
 
           <PilotProgram fach={s.id} kurz={s.kurz} therapie={therapie} dental={dental} />
 

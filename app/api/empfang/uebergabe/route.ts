@@ -35,7 +35,7 @@ export async function GET(req: Request) {
   }, { headers: { "Cache-Control": "no-store" } });
 }
 
-// „An Patient übergeben“: Das Tablet zeigt danach nur noch die Schritte für diesen Patienten.
+// „Tablet übergeben“: Das Tablet zeigt danach nur noch die Schritte für diesen Patienten.
 // Die Praxis-Sitzung wird aus dem Browser genommen und verschlüsselt geparkt; zurück führt nur die
 // Empfangs-PIN (app/api/empfang/entsperren). Die Patientenansicht hängt am Übergabe-Token.
 export async function POST(req: Request) {

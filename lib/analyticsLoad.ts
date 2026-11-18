@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { analyze, rowsOf, zeitvergleich, type ProposalFacts, type Row } from "@/lib/analytics";
-import { isDental } from "@/lib/specialties";
+import { isDental, istZahnVorschlag } from "@/lib/specialties";
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -47,7 +47,7 @@ export async function loadAnalysis(practiceId: string, zeitraumTage: number, now
       wantsInstallments: p.patientWantsInstallments,
       shareCreatedAt: p.shareCreatedAt,
       patientRespondedAt: p.patientRespondedAt,
-      dental: isDental(input.data.fach),
+      dental: istZahnVorschlag(input.data.fach),
     };
     proposals.push(f);
     rows.push(...rowsOf(f, buildProposal(input.data, prices).filter((i) => i.options.length), choices.success ? choices.data : {}));

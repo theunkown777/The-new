@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ARTEN, ART_LABEL, type Art } from "@/lib/akte";
+import { dokumentBeispiele } from "@/lib/fachprofile";
 
 type Entry = { id: string; art: string; text: string; code: string | null; datum: string | null; inaktiv: boolean; createdBy: string | null; createdAt: string };
 type Doc = { id: string; name: string; mime: string; size: number; createdAt: string; createdBy: string | null };
@@ -15,7 +16,7 @@ const ART_CLS: Record<Art, string> = {
   NOTIZ: "bg-white text-slate-700 ring-slate-200",
 };
 
-export function PatientAkte({ patientId, entries, documents, isAdmin }: { patientId: string; entries: Entry[]; documents: Doc[]; isAdmin: boolean }) {
+export function PatientAkte({ patientId, entries, documents, isAdmin, fach }: { patientId: string; entries: Entry[]; documents: Doc[]; isAdmin: boolean; fach?: string | null }) {
   const router = useRouter();
   const [art, setArt] = useState<Art>("DIAGNOSE");
   const [text, setText] = useState("");
@@ -129,7 +130,7 @@ export function PatientAkte({ patientId, entries, documents, isAdmin }: { patien
           </label>
         </div>
         {documents.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500">Arztbriefe, Röntgenbilder oder Überweisungen als PDF, PNG oder JPEG, bis 5 MB.</p>
+          <p className="mt-2 text-sm text-slate-500">{dokumentBeispiele(fach)} als PDF, PNG oder JPEG, bis 5 MB.</p>
         ) : (
           <ul className="mt-2 divide-y divide-slate-100 text-sm">
             {documents.map((d) => (

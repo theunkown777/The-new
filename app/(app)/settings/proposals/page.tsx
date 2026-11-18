@@ -1,4 +1,6 @@
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { isDental } from "@/lib/specialties";
 import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -12,8 +14,10 @@ export default async function ProposalPricesPage() {
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({
     where: { id: session!.user.practiceId },
-    select: { proposalPrices: true, installments: true },
+    select: { proposalPrices: true, installments: true, specialty: true },
   });
+  // Preise der Zahn-Vorschläge (Kronen, Füllungen …); andere Fächer pflegen Preise unter Fachgebiet und Leistungen.
+  if (!isDental(practice?.specialty)) redirect("/settings/fachgebiet");
 
   return (
     <div className="mx-auto max-w-2xl">

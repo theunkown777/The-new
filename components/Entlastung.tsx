@@ -9,41 +9,88 @@ const QUELLEN = {
 
 type Karte = { titel: string; zahl?: string; fakt: string; quelle?: string; sorrida: string };
 
-export function Entlastung({ therapie = false, journal = false }: { therapie?: boolean; journal?: boolean }) {
-  const karten: Karte[] = [
-    {
-      titel: "Weniger Bürokratie",
-      zahl: "76 %",
-      fakt: "76 % der Ärztinnen und Ärzte sagen, dass Verwaltung ihre medizinische Arbeit einschränkt.",
-      quelle: QUELLEN.buerokratie,
-      sorrida: "Ein Klick nach dem Gespräch erzeugt Patienteninformation, Vereinbarungs-Hinweis und To-dos.",
-    },
-    {
-      titel: "Entlastung für das Team",
-      fakt: "Fehlendes Personal ist neben der Bürokratie das größte Problem der Praxen und ein häufiger Grund für den vorzeitigen Ausstieg.",
-      quelle: QUELLEN.personal,
-      sorrida: "Patienten lesen Optionen und Kosten zu Hause auf dem Handy. Rückrufwünsche kommen gesammelt an.",
-    },
-    {
-      titel: therapie ? "Klare Preise statt Missverständnisse" : "Selbstzahlerleistungen mit Quelle und Bedenkzeit",
-      fakt: therapie
-        ? "Zuzahlung, Selbstzahler-Einheiten und Kassenzuschüsse werfen bei Patienten Fragen auf."
-        : "Über mögliche Schäden von IGeL werden Patienten kaum aufgeklärt. Gefordert sind Bedenkzeit und unabhängige Information.",
-      quelle: therapie ? undefined : QUELLEN.igel,
-      sorrida: therapie
-        ? "Die gesetzliche Zuzahlung wird nach § 32 und § 61 SGB V berechnet, Selbstzahler-Einheiten stehen mit Preis und Hinweis auf Kassenzuschüsse daneben."
-        : "Kassenleistung zuerst, Angaben zum Nutzen nur mit Quelle, Bedenkzeit und Kostenschätzung in Textform.",
-    },
+/**
+ * Wer die Karten liest: zahn, arzt, therapie oder andere (Apotheke, Versorgung, Pflege, Hebamme, Heilpraktiker).
+ * Ohne Angabe die Startseite für alle Fächer. Zahlen aus Umfragen unter Ärztinnen und Ärzten (Zi, KBV) stehen nur
+ * dort, wo sie passen; IGeL nur bei Ärzten, VDDS-media nur bei Zahnärzten, GDT bei Ärzten.
+ */
+export type EntlastungGruppe = "zahn" | "arzt" | "therapie" | "andere";
+
+export function entlastungKarten(gruppe?: EntlastungGruppe): Karte[] {
+  const alle = !gruppe;
+  const aerztlich = alle || gruppe === "arzt";
+  return [
+    aerztlich
+      ? {
+          titel: "Weniger Bürokratie",
+          zahl: "76 %",
+          fakt: "76 % der Ärztinnen und Ärzte sagen, dass Verwaltung ihre medizinische Arbeit einschränkt.",
+          quelle: QUELLEN.buerokratie,
+          sorrida: "Ein Klick nach dem Gespräch erzeugt Patienteninformation, Vereinbarungs-Hinweis und To-dos.",
+        }
+      : {
+          titel: "Weniger Bürokratie",
+          fakt: "Nach jedem Termin fallen Notizen, Informationen und Aufgaben an.",
+          sorrida: "Ein Klick nach dem Gespräch erzeugt die Information zum Mitnehmen, den Hinweis zur Vereinbarung und die To-dos.",
+        },
+    aerztlich
+      ? {
+          titel: "Entlastung für das Team",
+          fakt: "Fehlendes Personal ist neben der Bürokratie das größte Problem der Praxen und ein häufiger Grund für den vorzeitigen Ausstieg.",
+          quelle: QUELLEN.personal,
+          sorrida: "Patienten lesen Optionen und Kosten zu Hause auf dem Handy. Rückrufwünsche kommen gesammelt an.",
+        }
+      : {
+          titel: "Entlastung für das Team",
+          fakt: "Fragen zu Kosten und Terminen kommen oft am Telefon und am Empfang an.",
+          sorrida: "Optionen und Kosten stehen zum Nachlesen auf dem Handy. Rückrufwünsche kommen gesammelt an.",
+        },
+    gruppe === "zahn"
+      ? {
+          titel: "Mehrkosten verständlich vor dem Heil- und Kostenplan",
+          fakt: "Festzuschuss, Eigenanteil und Mehrkosten werfen bei Patienten Fragen auf.",
+          sorrida: "Kassenleistung (Regelversorgung) zuerst, jede Alternative mit Eigenanteil, 2026 und 2027 im Vergleich.",
+        }
+      : gruppe === "therapie"
+        ? {
+            titel: "Klare Preise statt Missverständnisse",
+            fakt: "Zuzahlung, Selbstzahler-Einheiten und Kassenzuschüsse werfen bei Patienten Fragen auf.",
+            sorrida: "Die gesetzliche Zuzahlung wird nach § 32 und § 61 SGB V berechnet, Selbstzahler-Einheiten stehen mit Preis und Hinweis auf Kassenzuschüsse daneben.",
+          }
+        : gruppe === "arzt"
+          ? {
+              titel: "Selbstzahlerleistungen mit Quelle und Bedenkzeit",
+              fakt: "Über mögliche Schäden von IGeL werden Patienten kaum aufgeklärt. Gefordert sind Bedenkzeit und unabhängige Information.",
+              quelle: QUELLEN.igel,
+              sorrida: "Kassenleistung zuerst, Angaben zum Nutzen nur mit Quelle, Bedenkzeit und Kostenschätzung in Textform.",
+            }
+          : {
+              titel: "Selbstzahler- und Privatleistungen mit Preis und Bedenkzeit",
+              fakt: "Wo die Kasse nicht oder nur teilweise zahlt, entstehen Fragen zu Kosten und Nutzen.",
+              sorrida: "Kassenleistung zuerst, Angaben zum Nutzen nur mit Quelle, Bedenkzeit und Kostenschätzung in Textform.",
+            },
     {
       titel: "Kein weiteres Insel-System",
-      zahl: "über 50 %",
-      fakt: "Mehr als die Hälfte der Praxen spricht mit Patienten schon überwiegend digital. Was bremst, sind Störungen und Programme, die nicht zusammenpassen (KBV PraxisBarometer 2025).",
-      quelle: QUELLEN.kbv,
-      sorrida: therapie
-        ? "Läuft im Browser, ohne Installation und ohne Umstellung Ihrer Abrechnung."
-        : "Öffnet sich aus Ihrer Praxissoftware (VDDS-media oder GDT) mit dem aktuellen Patienten. Ihre Abrechnung bleibt, wo sie ist.",
+      ...(aerztlich
+        ? {
+            zahl: "über 50 %",
+            fakt: "Mehr als die Hälfte der Praxen spricht mit Patienten schon überwiegend digital. Was bremst, sind Störungen und Programme, die nicht zusammenpassen (KBV PraxisBarometer 2025).",
+            quelle: QUELLEN.kbv,
+          }
+        : { fakt: "Programme, die nicht zusammenpassen, kosten im Alltag Zeit." }),
+      sorrida: alle
+        ? "Öffnet sich aus Ihrer Praxissoftware (GDT oder VDDS-media) mit der aktuellen Akte. Ihre Abrechnung bleibt, wo sie ist."
+        : gruppe === "zahn"
+          ? "Öffnet sich aus Ihrer Praxissoftware (VDDS-media) mit dem aktuellen Patienten. Ihre Abrechnung bleibt, wo sie ist."
+          : gruppe === "arzt"
+            ? "Öffnet sich aus Ihrer Praxissoftware (GDT) mit dem aktuellen Patienten. Ihre Abrechnung bleibt, wo sie ist."
+            : "Läuft im Browser, ohne Installation und ohne Umstellung Ihrer Abrechnung.",
     },
   ];
+}
+
+export function Entlastung({ gruppe, journal = false }: { gruppe?: EntlastungGruppe; journal?: boolean }) {
+  const karten = entlastungKarten(gruppe);
   if (journal)
     return (
       <section aria-labelledby="entlastung" data-testid="entlastung">

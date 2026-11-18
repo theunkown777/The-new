@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isDental } from "@/lib/specialties";
+import { fachWoerter } from "@/lib/fachprofile";
 import { festzuschuss2027Amtlich, formatEuro, resolvePrices, showsJahresvergleich, wort2027 } from "@/lib/proposals";
 import { nachfassListe, nachfassSumme } from "@/lib/nachfassen";
 import { darfWhatsapp } from "@/lib/whatsapp";
@@ -32,7 +33,10 @@ export default async function NachfassenPage() {
   ]);
   const zeilen = nachfassListe(proposals, resolvePrices(practice?.proposalPrices), now);
   const summe = nachfassSumme(zeilen, now);
-  const vorStichtag = showsJahresvergleich(now);
+  // Der Stichtag 1.1.2027 betrifft nur den Festzuschuss für Zahnersatz: Spalte und Hinweis nur in der Zahnmedizin
+  // (oder solange noch Zahnersatz-Vorschläge offen sind).
+  const vorStichtag = showsJahresvergleich(now) && (isDental(practice?.specialty) || zeilen.some((z) => z.stichtag));
+  const w = fachWoerter(practice?.specialty);
 
   return (
     <div>
@@ -84,7 +88,7 @@ export default async function NachfassenPage() {
           <table className="w-full min-w-[46rem] text-sm" data-testid="nachfass-tabelle" data-hilfe="nachfassen-liste">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-2">Patient</th>
+                <th className="px-4 py-2">{w.person}</th>
                 <th className="px-4 py-2">Stand</th>
                 <th className="px-4 py-2 text-right">Eigenanteil</th>
                 {vorStichtag && <th className="whitespace-nowrap px-4 py-2 text-right">ab 2027</th>}
@@ -144,7 +148,7 @@ export default async function NachfassenPage() {
         </>
       )}
       <p className="mt-4 max-w-3xl text-xs text-slate-500">
-        Die Erinnerung nennt weder Befund noch Betrag, nur den persönlichen Link. Schreiben Sie nur Patienten an, die eingewilligt haben, an offene Vorschläge erinnert zu werden (Patientenakte, Kontakt und Stammdaten). Den Hinweis auf den 1. Januar 2027 enthält der Text nur mit dieser Einwilligung. Eigenanteile sind Schätzungen{isDental(practice?.specialty) ? "; verbindlich ist der Heil- und Kostenplan" : "; verbindlich ist die schriftliche Vereinbarung vor der Leistung"}.
+        Die Erinnerung nennt weder Befund noch Betrag, nur den persönlichen Link. Schreiben Sie nur {w.personen} an, die eingewilligt haben, an offene Vorschläge erinnert zu werden (Akte, Kontakt und Stammdaten).{vorStichtag ? " Den Hinweis auf den 1. Januar 2027 enthält der Text nur mit dieser Einwilligung." : ""} Eigenanteile sind Schätzungen{isDental(practice?.specialty) ? "; verbindlich ist der Heil- und Kostenplan" : "; verbindlich ist die schriftliche Vereinbarung vor der Leistung"}.
       </p>
     </div>
   );

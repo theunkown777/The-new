@@ -16,7 +16,7 @@ import { AkteAnlegen } from "@/components/AkteAnlegen";
 import { whatsappApiAktiv } from "@/lib/whatsapp";
 import { BefundAuswahl } from "@/components/BefundAuswahl";
 import { befundmodell } from "@/lib/befundmodelle";
-import { SPECIALTY_LABELS } from "@/lib/specialties";
+import { SPECIALTY_LABELS, isDental } from "@/lib/specialties";
 import { TerminUeberblick } from "@/components/TerminUeberblick";
 import { loadBriefing } from "@/lib/briefingLoad";
 import { kiVerfuegbar } from "@/lib/anthropic";
@@ -25,6 +25,7 @@ import { ModellWahl } from "@/components/modelle/ModellWahl";
 import { MODELL_BEFUNDE } from "@/lib/modelle/markierung";
 import { KurzcheckKarte } from "@/components/kurzcheck/KurzcheckKarte";
 import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
+import { fachWoerter } from "@/lib/fachprofile";
 
 export default async function PatientDetailPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -59,7 +60,8 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
     prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }),
     prisma.user.findMany({ where: { practiceId }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
-  const fach = praxis?.specialty ?? "hausarzt";
+  const fach = praxis?.specialty ?? "andere";
+  const w = fachWoerter(fach);
   const kurzchecks = await prisma.kurzcheck.findMany({ where: { practiceId, patientId: patient.id }, orderBy: { createdAt: "desc" }, take: 5, select: { id: true, antworten: true, createdAt: true } });
   const modellMarken = await prisma.modellMarkierung.findMany({ where: { practiceId, patientId: patient.id }, select: { modell: true, teil: true, notiz: true, befund: true }, orderBy: { createdAt: "asc" } });
 
@@ -90,7 +92,7 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
             Nur Bericht
           </Link>
           <Link href={`/abschluss/new?patientId=${patient.id}`} className="btn-primary">
-            Behandlung abschließen
+            {w.abschluss} abschließen
           </Link>
         </div>
       </div>
@@ -100,6 +102,7 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
         <PatientAkte
           patientId={patient.id}
           isAdmin={session!.user.role === "admin"}
+          fach={fach}
           entries={entries.map((e) => ({ id: e.id, art: e.art, text: e.text, code: e.code, datum: e.datum ? de(e.datum) : null, inaktiv: e.inaktiv, createdBy: e.createdBy, createdAt: de(e.createdAt) }))}
           documents={documents.map((d) => ({ ...d, createdAt: de(d.createdAt) }))}
         />
@@ -109,6 +112,7 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
         <BefundAuswahl
           patientId={patient.id}
           regionen={befundmodell(fach, { geschlecht: patient.geschlecht })}
+          fach={fach}
           fachName={SPECIALTY_LABELS[fach] ?? "Allgemeinmedizin"}
           vorhanden={entries.filter((e) => !e.inaktiv && e.code).map((e) => e.code!)}
         />
@@ -117,9 +121,9 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
       <section className="mb-8" aria-labelledby="am-modell" data-testid="patient-modell">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="am-modell" className="text-sm font-semibold uppercase tracking-wide text-slate-500">Am Modell zeigen</h2>
-          <span className="text-xs text-slate-500">Stelle antippen, erklären und für den Patientenlink markieren</span>
+          <span className="text-xs text-slate-500">Stelle antippen, erklären und für den Link {w.fuerPerson} markieren</span>
         </div>
-        <ModellWahl fach={fach} patientId={patient.id} markierungen={modellMarken} befunde={MODELL_BEFUNDE} geschlecht={patient.geschlecht === "M" ? "M" : patient.geschlecht === "W" ? "W" : null} />
+        <ModellWahl fach={fach} patientId={patient.id} markierungen={modellMarken} befunde={isDental(fach) ? MODELL_BEFUNDE : undefined} geschlecht={patient.geschlecht === "M" ? "M" : patient.geschlecht === "W" ? "W" : null} />
       </section>
 
       <div className="mb-8 scroll-mt-24" id="kontakt">
@@ -140,7 +144,7 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
       </h2>
       {patient.reports.length === 0 ? (
         <div className="card text-sm text-slate-500">
-          Für diesen Patienten wurde noch kein Bericht erstellt.
+          Noch kein Bericht erstellt.
         </div>
       ) : (
         <div className="card divide-y divide-slate-100 p-0">
@@ -171,11 +175,11 @@ export default async function PatientDetailPage(props: { params: Promise<{ id: s
       )}
 
       <h2 className="mb-3 mt-8 text-sm font-semibold uppercase tracking-wide text-slate-500">
-        Behandlungsvorschläge
+        {w.vorschlaege}
       </h2>
       {patient.proposals.length === 0 ? (
         <div className="card text-sm text-slate-500">
-          Für diesen Patienten gibt es noch keinen Behandlungsvorschlag.
+          Noch kein Vorschlag erstellt.
         </div>
       ) : (
         <div className="card divide-y divide-slate-100 p-0">

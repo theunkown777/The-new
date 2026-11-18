@@ -1,4 +1,4 @@
-import { abschlussWort } from "@/lib/fachprofile";
+import { fachWoerter } from "@/lib/fachprofile";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -23,6 +23,8 @@ export default async function NewWrapUpPage(props: { searchParams: Promise<{ pat
     }),
   ]);
 
+  const w = fachWoerter(practice?.specialty);
+
   if (!patient) {
     // Bei vielen Patienten: Suche statt Komplettliste; ohne Suche die zuletzt angelegten.
     const q = (searchParams.q ?? "").trim().slice(0, 60);
@@ -38,18 +40,18 @@ export default async function NewWrapUpPage(props: { searchParams: Promise<{ pat
     });
     return (
       <div className="mx-auto max-w-2xl">
-        <h1 className="mb-2 font-display text-3xl text-slate-900">{abschlussWort(practice?.specialty)} abschließen</h1>
+        <h1 className="mb-2 font-display text-3xl text-slate-900">{w.abschluss} abschließen</h1>
         <p className="mb-6 text-sm text-slate-500">
-          Für welchen Patienten? Schneller geht es direkt aus Ihrer Praxissoftware (Einstellungen → Praxissoftware).
+          Für wen? Schneller geht es direkt aus Ihrer Praxissoftware (Einstellungen → Praxissoftware).
         </p>
         <form action="/abschluss/new" className="mb-4 flex gap-2" role="search">
-          <input name="q" defaultValue={q} className="input" placeholder="Name suchen" aria-label="Patient suchen" autoFocus />
+          <input name="q" defaultValue={q} className="input" placeholder="Name suchen" aria-label={`${w.person} suchen`} autoFocus />
           <button className="btn-secondary">Suchen</button>
         </form>
         {!q && patients.length > 0 && <p className="mb-2 text-xs text-slate-500">Zuletzt angelegt:</p>}
         {patients.length === 0 ? (
           <div className="card text-sm text-slate-500">
-            {q ? "Kein Patient gefunden. " : "Noch keine Patienten. "} <Link href="/patients/new" className="font-medium text-brand-600 hover:underline">Patient anlegen</Link>
+            {q ? "Niemand gefunden. " : `Noch keine ${w.personen}. `} <Link href="/patients/new" className="font-medium text-brand-600 hover:underline">{w.person} anlegen</Link>
           </div>
         ) : (
           <div className="card divide-y divide-slate-100 p-0">
@@ -69,10 +71,10 @@ export default async function NewWrapUpPage(props: { searchParams: Promise<{ pat
 
   return (
     <div>
-      <h1 className="mb-1 font-display text-3xl text-slate-900">{abschlussWort(practice?.specialty)} abschließen</h1>
+      <h1 className="mb-1 font-display text-3xl text-slate-900">{w.abschluss} abschließen</h1>
       <p className="mb-6 text-sm text-slate-500">
         {patient.firstName} {patient.lastName} · Leistungen prüfen, optional Befunde anklicken, einmal abschließen.
-        Bericht, Vorschlag, Patientenschreiben und To-dos entstehen automatisch.
+        Bericht, Vorschlag, {w.schreiben} und To-dos entstehen automatisch.
       </p>
       <div>
         <TreatmentWrapUp

@@ -12,11 +12,13 @@ type Props = {
   plaetze: number;
   vorschau: Vorschau;
   demo: boolean;
+  /** Personenwort des Fachs in der Mehrzahl (lib/fachprofile.ts) */
+  personPl?: string;
 };
 const TAGE = ["1", "2", "3", "4", "5", "6", "7"] as const;
 
 /** Online-Termine: Sprechzeiten, Regeln, Kalender der Praxis übertragen, Sorrida-Termine im eigenen Kalender. */
-export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, demo }: Props) {
+export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, demo, personPl = "Patienten" }: Props) {
   const router = useRouter();
   const [aktiv, setAktiv] = useState(start.buchungAktiv);
   const [zeiten, setZeiten] = useState<Sprechzeiten>(start.sprechzeiten);
@@ -56,8 +58,8 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
       <section className="card space-y-4" aria-labelledby="b-regeln" data-hilfe="online-termine">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 id="b-regeln" className="font-semibold text-slate-900">1. Online-Termine für Patienten</h2>
-            <p className="mt-1 text-sm text-slate-600">Patienten buchen über ihren Patientenlink. Sie sehen nur Zeiten, die in Ihrer Sprechzeit liegen und noch frei sind.</p>
+            <h2 id="b-regeln" className="font-semibold text-slate-900">1. Online-Termine für {personPl}</h2>
+            <p className="mt-1 text-sm text-slate-600">{personPl} buchen über ihren persönlichen Link. Sie sehen nur Zeiten, die in Ihrer Sprechzeit liegen und noch frei sind.</p>
           </div>
           <label className="flex shrink-0 items-center gap-2 text-sm font-medium text-slate-900">
             <input type="checkbox" className="h-5 w-5" checked={aktiv} disabled={!admin} onChange={(e) => setAktiv(e.target.checked)} data-testid="buchung-aktiv" />
@@ -99,12 +101,12 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
       <section className="card space-y-3" aria-labelledby="b-kalender" data-hilfe="kalender-uebertragen">
         <h2 id="b-kalender" className="font-semibold text-slate-900">2. Kalender der Praxis übertragen</h2>
         <p className="text-sm text-slate-600">
-          Damit Patienten keine Zeit buchen, die in Ihrem Kalender schon belegt ist, liest Sorrida Ihren Kalender mit. Übernommen werden <b>nur Beginn und Ende</b> der Einträge,
+          Damit niemand eine Zeit bucht, die in Ihrem Kalender schon belegt ist, liest Sorrida Ihren Kalender mit. Übernommen werden <b>nur Beginn und Ende</b> der Einträge,
           keine Namen, Titel oder Notizen. Dafür braucht Ihr Kalender eine Adresse im Format iCalendar (ICS). Dieses Format geben zum Beispiel Google, Outlook und Apple aus.
         </p>
         {kalender.verbunden ? (
           <div className="rounded-xl bg-salbei-50 p-3 text-sm text-salbei-900" data-testid="kalender-verbunden">
-            <p><b>Verbunden</b> mit {kalender.host}. {kalender.abo} belegte Zeiten übernommen{kalender.syncAt ? `, zuletzt abgeglichen ${kalender.syncAt}` : ""}. Abgleich automatisch, sobald ein Patient Termine ansieht (höchstens alle 15 Minuten).</p>
+            <p><b>Verbunden</b> mit {kalender.host}. {kalender.abo} belegte Zeiten übernommen{kalender.syncAt ? `, zuletzt abgeglichen ${kalender.syncAt}` : ""}. Abgleich automatisch, sobald jemand Termine ansieht (höchstens alle 15 Minuten).</p>
             {kalender.fehler && <p className="mt-1 text-red-800">Letzter Abgleich fehlgeschlagen: {kalender.fehler}</p>}
             {admin && <div className="mt-2 flex flex-wrap gap-2">
               <button type="button" className="btn-secondary text-sm" disabled={!!busy} onClick={() => aktion("kalender-abgleichen", {}, (d) => `Abgeglichen: ${d.anzahl} belegte Zeiten.`)}>Jetzt abgleichen</button>
@@ -141,7 +143,7 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
 
       <section className="card space-y-3" aria-labelledby="b-abo">
         <h2 id="b-abo" className="font-semibold text-slate-900">3. Sorrida-Termine in Ihrem Kalender sehen</h2>
-        <p className="text-sm text-slate-600">Mit diesem Abo erscheinen Termine aus Sorrida, auch online gebuchte, in Ihrem eigenen Kalender. Ohne Patientennamen, weil Kalenderdienste den Link auf ihren Servern abrufen. Den Namen sehen Sie in Sorrida unter Termine.</p>
+        <p className="text-sm text-slate-600">Mit diesem Abo erscheinen Termine aus Sorrida, auch online gebuchte, in Ihrem eigenen Kalender. Ohne Namen, weil Kalenderdienste den Link auf ihren Servern abrufen. Den Namen sehen Sie in Sorrida unter Termine.</p>
         {link && <div className="rounded-xl bg-salbei-50 p-3 text-sm"><p className="font-medium text-salbei-900">Ihr Abo-Link. Er wird nur jetzt angezeigt:</p><p className="mt-1 break-all font-mono text-xs text-slate-800" data-testid="abo-link">{link}</p><p className="mt-1 text-xs text-slate-600">In Ihrem Kalender als „Kalender per URL abonnieren“ einfügen.</p></div>}
         {admin && <div className="flex flex-wrap gap-2">
           <button type="button" className="btn-secondary text-sm" disabled={!!busy} onClick={async () => { const d = await aktion("abo-link", {}, () => "Abo-Link erzeugt."); if (d?.link) setLink(d.link as string); }} data-testid="abo-erzeugen">{kalender.feed ? "Neuen Link erzeugen (alter wird ungültig)" : "Abo-Link erzeugen"}</button>
@@ -150,8 +152,8 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
       </section>
 
       <section className="card" aria-labelledby="b-vorschau" data-testid="buchung-vorschau">
-        <h2 id="b-vorschau" className="font-semibold text-slate-900">Das sehen Ihre Patienten</h2>
-        {!start.buchungAktiv ? <p className="mt-1 text-sm text-slate-600">Online-Termine sind ausgeschaltet. Patienten sehen im Patientenlink keinen Buchungsknopf.</p>
+        <h2 id="b-vorschau" className="font-semibold text-slate-900">Das sehen Ihre {personPl}</h2>
+        {!start.buchungAktiv ? <p className="mt-1 text-sm text-slate-600">Online-Termine sind ausgeschaltet. Der persönliche Link zeigt dann keinen Buchungsknopf.</p>
           : vorschau.length === 0 ? <p className="mt-1 text-sm text-amber-800">Im gewählten Zeitraum ist nichts frei. Bitte Sprechzeiten und Kalender prüfen.</p>
           : <ul className="mt-2 space-y-2 text-sm">{vorschau.slice(0, 5).map((t) => <li key={t.tag}><span className="font-medium text-slate-900">{t.name}:</span> <span className="text-slate-700">{t.zeiten.slice(0, 10).join(" · ")}{t.zeiten.length > 10 ? ` · und ${t.zeiten.length - 10} weitere` : ""}</span></li>)}</ul>}
       </section>

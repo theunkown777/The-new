@@ -8,7 +8,7 @@ import { kontoDarf } from "@/lib/permissions";
 // Was jedes Konto sieht, auch ohne Zugang zu den Einstellungen der Praxis (Rolle Behandler/in).
 const FUER_ALLE = ["/settings/security", "/settings/lexikon"];
 
-// `nur`: Karte nur für Zahnarztpraxen (Punktwerte GOZ/BEMA, Preise der Zahn-Vorschläge).
+// `nur`: Karte nur für Zahnarztpraxen (Punktwerte GOZ/BEMA, Preise der Zahn-Vorschläge, Leistungslexikon).
 const CARDS: { href: string; title: string; description: string; nur?: "zahn" }[] = [
   {
     href: "/settings/fachgebiet",
@@ -61,6 +61,8 @@ const CARDS: { href: string; title: string; description: string; nur?: "zahn" }[
     href: "/settings/lexikon",
     title: "Leistungslexikon",
     description: "Nachschlagewerk zu gängigen Selbstzahlerleistungen – nicht patientenbezogen.",
+    // Die Einträge (PZR, Füllungen, Prothetik …) sind zahnärztlich.
+    nur: "zahn",
   },
   {
     href: "/settings/termine",

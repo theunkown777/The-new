@@ -123,3 +123,35 @@ export function fachFilter(fach: string, kvBezirk: string | null, gast = false) 
 export function alleFilter(gast = false) {
   return gast ? { NOT: [gastSperre()] } : {};
 }
+
+const QUELLEN: [string[], string][] = [
+  [["GOAE"], "GOÄ (gesetze-im-internet.de)"],
+  [["GOZ"], "GOZ (gesetze-im-internet.de)"],
+  [["SGB_XI"], "SGB XI (gesetze-im-internet.de)"],
+  [["HEILPRAKTIKER"], "BBhV (gesetze-im-internet.de)"],
+  [["EBM"], "EBM (KBV-Stammdatei nach Lizenzvereinbarung der KBV)"],
+  [["BEMA"], "BEMA (KZBV)"],
+  [["HEILMITTEL"], "Heilmittel (Verträge des GKV-Spitzenverbands)"],
+  [["HEBAMME"], "Hebammenhilfe (Verträge des GKV-Spitzenverbands)"],
+  [["HKP"], "Häusliche Krankenpflege (G-BA-Richtlinie)"],
+  [["HMV", "HMV_PRODUKT"], "Hilfsmittelverzeichnis (GKV-Spitzenverband)"],
+  [["UVGOAE"], "UV-GOÄ (DGUV, Stand 01.07.2026, Betrag für die allgemeine Heilbehandlung)"],
+];
+export const OPS_HINWEIS =
+  "OPS: Herausgegeben vom Bundesinstitut für Arzneimittel und Medizinprodukte (BfArM) im Auftrag des Bundesministeriums für Gesundheit (BMG). Die Erstellung erfolgt unter Verwendung der maschinenlesbaren Fassung des BfArM.";
+
+/**
+ * Quellenangaben unter dem Leistungsverzeichnis, nur für die Verzeichnisse, die die Praxis gerade sieht. So steht bei
+ * einer Physiotherapie kein BEMA und keine KZV, bei einer Zahnarztpraxis kein EBM.
+ */
+export function quellenFuer(systeme: string[], ebmOrientierungswert: number): string[] {
+  const da = new Set(systeme);
+  const teile: string[] = [];
+  const liste = QUELLEN.filter(([s]) => s.some((x) => da.has(x))).map(([, t]) => t);
+  if (liste.length) teile.push(`Quellen: ${liste.join(", ")}.`);
+  if (da.has("EBM")) teile.push(`EBM-Beträge mit dem Orientierungswert 2026 (${ebmOrientierungswert.toLocaleString("de-DE")} Cent je Punkt) ohne regionale Zuschläge.`);
+  if (da.has("BEMA")) teile.push("BEMA-Punkte mit dem Punktwert Ihrer KZV.");
+  teile.push("Keine Abrechnungsberatung.");
+  if (da.has("OPS")) teile.push(OPS_HINWEIS);
+  return teile;
+}

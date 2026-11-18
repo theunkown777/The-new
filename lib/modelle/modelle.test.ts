@@ -163,7 +163,7 @@ describe("Passendes Modell je Fachrichtung", () => {
       for (const m of modelleFuerFach(s.id).modelle) expect(MODELL_IDS, s.id).toContain(m);
     }
     expect(hauptModell("zahn")).toBe("gebiss");
-    expect(hauptModell(null)).toBe("gebiss");
+    expect(hauptModell(null)).toBe("koerper");
     expect(hauptModell("augen")).toBe("auge");
     expect(hauptModell("hno")).toBe("ohr");
     expect(hauptModell("haut")).toBe("haut");

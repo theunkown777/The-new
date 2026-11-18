@@ -24,7 +24,8 @@ export function apiKeyPrefix(key: string): string {
 }
 
 export interface ApiAuthResult {
-  client?: { id: string; name: string };
+  /** fach: Fachrichtung, für die der Schlüssel ausgestellt ist (null bei älteren Schlüsseln). */
+  client?: { id: string; name: string; fach: string | null };
   error?: string;
   status?: number;
 }
@@ -53,7 +54,7 @@ export async function authenticateApiRequest(req: Request): Promise<ApiAuthResul
     .update({ where: { id: client.id }, data: { lastUsedAt: new Date() } })
     .catch(() => {});
 
-  return { client: { id: client.id, name: client.name } };
+  return { client: { id: client.id, name: client.name, fach: client.fach } };
 }
 
 /**

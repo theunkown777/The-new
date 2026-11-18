@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { EINGANG_ARTEN, eingangAnfragen } from "@/lib/eingang";
+import { praxisFach } from "@/lib/katalogScope";
+import { fachprofil } from "@/lib/fachprofile";
 
 const zeit = (d: Date) => d.toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
 
@@ -12,9 +14,10 @@ export async function EingangAnfragen({ practiceId }: { practiceId: string }) {
   const anfragen = await eingangAnfragen(practiceId);
   if (anfragen.length === 0) return null;
   const a = EINGANG_ARTEN.TERMINANFRAGE;
+  const P = fachprofil(await praxisFach(practiceId)).person;
   return (
     <section className="card mt-5 p-0" data-testid="eingang-anfragen">
-      <h2 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">Online-Anfragen neuer Patienten ({anfragen.length})</h2>
+      <h2 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">Online-Anfragen neuer {P.pl} ({anfragen.length})</h2>
       <ul className="divide-y divide-slate-100">
         {anfragen.map((e) => (
           <li key={e.id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:gap-4" data-testid="eingang-anfrage">

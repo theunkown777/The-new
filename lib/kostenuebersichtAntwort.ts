@@ -4,7 +4,7 @@ import { kostenuebersicht } from "@/lib/kostenuebersicht";
 import { buildProposal, resolvePrices } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { leseStammdaten } from "@/lib/praxisStammdaten";
-import { isDental, isTherapie, specialty } from "@/lib/specialties";
+import { isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
 import { consumeAttempt } from "@/lib/rateLimit";
 
 import { anschluss } from "@/lib/anschluss";
@@ -37,7 +37,7 @@ export async function kostenuebersichtAntwort(p: {
       patient: input.data.patient,
       praxisWahl: choicesSchema.safeParse(p.choices).data ?? {},
       patientWahl: gesendet,
-      dental: isDental(input.data.fach),
+      dental: istZahnVorschlag(input.data.fach),
       therapie: isTherapie(specialty(input.data.fach)),
     }),
   );

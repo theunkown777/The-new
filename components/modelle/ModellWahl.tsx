@@ -21,17 +21,16 @@ export function ModellWahl(props: Parameters<typeof ModellWahlInnen>[0] & { text
   return <ModellSprache texte={texte}><ModellWahlInnen {...rest} /></ModellSprache>;
 }
 
-function ModellWahlInnen({ fach, markierungen = [], patientId, geschlecht, einspaltig = false, alle = false, start, befunde }: {
+function ModellWahlInnen({ fach, markierungen = [], patientId, geschlecht, einspaltig = false, start, befunde }: {
   /** Praxisansicht Gebiss: wählbare Befunde für den Behandlungsvorschlag */
   befunde?: Record<string, string>;
   fach: string | null | undefined; markierungen?: Marke[]; patientId?: string; geschlecht?: "W" | "M" | null; einspaltig?: boolean;
-  /** Alle fünf Modelle anbieten (Menü „Modelle“), sonst nur die des Fachs */
-  alle?: boolean; start?: ModellId;
+  start?: ModellId;
 }) {
   const t = useT();
   const f = modelleFuerFach(fach);
   const mitMarken = MODELL_IDS.filter((m) => markierungen.some((x) => x.modell === m));
-  const liste = Array.from(new Set<ModellId>([...f.modelle, ...mitMarken, ...(alle ? MODELL_IDS : [])]));
+  const liste = Array.from(new Set<ModellId>([...f.modelle, ...mitMarken]));
   // Im Patientenportal zuerst das Modell zeigen, in dem die Praxis etwas markiert hat
   const [aktiv, setAktiv] = useState<ModellId>(start && liste.includes(start) ? start : !patientId && mitMarken.length && !mitMarken.includes(liste[0]) ? mitMarken[0] : liste[0]);
   const marken = markierungen.filter((x) => x.modell === aktiv).map((x) => ({ teil: x.teil, notiz: x.notiz, befund: x.befund ?? null }));

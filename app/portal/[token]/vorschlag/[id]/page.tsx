@@ -9,7 +9,7 @@ import { resolveInstallments } from "@/lib/installments";
 import { UI, empfehlungJe, langDir, pickLang, type PatientLang } from "@/lib/patientI18n";
 import { uebersetzungsWoerterbuch } from "@/lib/eigeneLeistung";
 import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
-import { isDental, isTherapie, specialty } from "@/lib/specialties";
+import { isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
 import { portalPatient, portalProposalWhere } from "@/lib/portalAuth";
 import { LESE_LINK_MAX, leseLinksAktiv } from "@/lib/leseLink";
 import { PraxisBand } from "@/components/PraxisKennung";
@@ -56,7 +56,7 @@ export default async function PortalProposal(props: { params: Promise<{ token: s
   const saved = choicesSchema.safeParse(proposal.choices);
   const patientChoices = choicesSchema.safeParse(proposal.patientChoices);
   const items = buildProposal(input.data, resolvePrices(proposal.practice.proposalPrices)).filter((i) => i.options.length > 0);
-  const dental = isDental(input.data.fach);
+  const dental = istZahnVorschlag(input.data.fach);
   const texte = items.flatMap((i) => [i.title, ...i.options.map((o) => o.name)]);
   const zweitmeinungen = await prisma.zweitmeinung.findMany({ where: { proposalId: proposal.id }, orderBy: { createdAt: "asc" } });
   const now = new Date();

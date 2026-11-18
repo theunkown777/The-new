@@ -6,8 +6,10 @@ import { einbettung } from "@/lib/terminEinbettung";
 
 // Einstellungen: Terminbuchung für neue Patienten. Schalter, Anlässe, Link und Einbettungs-Code
 // für die Website der Praxis (Knopf oder Rahmen).
-export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschlaege, stammdatenFehlt = [] }: {
+export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschlaege, stammdatenFehlt = [], personPl = "Patienten" }: {
   admin: boolean; demo: boolean; buchungAktiv: boolean;
+  /** Personenwort des Fachs in der Mehrzahl (lib/fachprofile.ts), z. B. Patienten, Kunden, Frauen */
+  personPl?: string;
   /** Angaben der Praxis, die die Buchungsseite zeigen muss und die noch fehlen (lib/praxisStammdaten.ts buchungsseiteFehlt) */
   stammdatenFehlt?: string[];
   start: { aktiv: boolean; url: string | null; anlaesse: string[] };
@@ -43,22 +45,22 @@ export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschla
     <section className="card space-y-4" aria-labelledby="b-neu" data-testid="neupatienten" data-hilfe="neupatienten-buchung">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 id="b-neu" className="font-semibold text-slate-900">Termine für neue Patienten</h2>
+          <h2 id="b-neu" className="font-semibold text-slate-900">Termine für neue {personPl}</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Wer noch keinen Patientenlink hat, fragt über eine eigene Seite einen Termin an. Sie sehen die Anfrage unter Termine und im Eingang und bestätigen sie mit einem Klick.
-            Erst dann entstehen Patient und Termin. Die gewünschte Zeit ist 24 Stunden reserviert.
+            Wer noch keinen persönlichen Link hat, fragt über eine eigene Seite einen Termin an. Sie sehen die Anfrage unter Termine und im Eingang und bestätigen sie mit einem Klick.
+            Erst dann entstehen Akte und Termin. Die gewünschte Zeit ist 24 Stunden reserviert.
           </p>
         </div>
         <label className="flex shrink-0 items-center gap-2 text-sm font-medium text-slate-900">
           <input type="checkbox" className="h-5 w-5" checked={aktiv} disabled={!admin} onChange={(e) => setAktiv(e.target.checked)} data-testid="neupatienten-aktiv" />
-          Für neue Patienten anbieten
+          Für neue {personPl} anbieten
         </label>
       </div>
       {meldung && <p role={meldung.art === "fehler" ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-sm ${meldung.art === "fehler" ? "bg-red-50 text-red-800" : "bg-salbei-50 text-salbei-900"}`} data-testid="neupatienten-meldung">{meldung.text}</p>}
       {!buchungAktiv && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Dafür müssen oben „Online-Termine anbieten“ eingeschaltet und Sprechzeiten gespeichert sein.</p>}
       {stammdatenFehlt.length > 0 && (
         <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="neupatienten-stammdaten-fehlen">
-          Die Buchungsseite zeigt neuen Patienten, wer Ihre Praxis ist und wo Ihre Datenschutzhinweise stehen. Es fehlt noch: {stammdatenFehlt.join(" und ")}.{" "}
+          Die Buchungsseite zeigt neuen {personPl}, wer Ihre Praxis ist und wo Ihre Datenschutzhinweise stehen. Es fehlt noch: {stammdatenFehlt.join(" und ")}.{" "}
           {demo ? "Im Gastzugang lässt sich die Seite trotzdem ausprobieren." : "Vorher lässt sich die Seite nicht einschalten."}{" "}
           <a href="/settings/praxis" className="font-medium underline">Angaben der Praxis eintragen</a>
         </p>
@@ -73,7 +75,7 @@ export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschla
           {dazu.map((v) => <button key={v} type="button" className="rounded-full bg-white px-2.5 py-1 ring-1 ring-slate-200 hover:ring-brand-300" onClick={() => setAnlaesse((a) => [...a.split("\n").map((x) => x.trim()).filter(Boolean), v].join("\n"))}>+ {v}</button>)}
         </p>
       )}
-      <p className="text-xs text-slate-500">Bitte allgemeine Anlässe wählen. Neue Patienten sollen hier keine Krankheitsangaben machen müssen.</p>
+      <p className="text-xs text-slate-500">Bitte allgemeine Anlässe wählen. Neue {personPl} sollen hier keine Krankheitsangaben machen müssen.</p>
       {admin && <button type="button" className="btn btn-primary" disabled={busy} onClick={() => sende({ aktion: "speichern", aktiv, anlaesse: liste() }, "Gespeichert.")} data-testid="neupatienten-speichern">{busy ? "Speichert …" : "Speichern"}</button>}
 
       {url && code && (

@@ -2,11 +2,11 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { artenFuer, gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
+import { abrechnungsStelle, artenFuer, gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
 import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { Gebuehrenrechner } from "@/components/Gebuehrenrechner";
 import { canSeeAnalytics } from "@/lib/permissions";
-import { loadBillingCheck } from "@/lib/billingCheckLoad";
+import { loadBillingCheck, terminDokuGeprueft } from "@/lib/billingCheckLoad";
 import { formatCent, invoiceView } from "@/lib/invoices";
 
 export const dynamic = "force-dynamic";
@@ -30,13 +30,16 @@ export default async function AbrechnungPage() {
           { label: "Nicht in Rechnung gestellt", cent: pruefung.reduce((a, b) => a + (b.betragCent ?? 0), 0), text: "angenommene Vorschläge ohne Rechnung", href: "/abrechnungspruefung" },
           { label: "Überfällig", cent: ueber.reduce((a, i) => a + i.amountCent, 0), text: `${ueber.length} ${ueber.length === 1 ? "Rechnung" : "Rechnungen"}, Erinnerung fällig`, href: "/zahlungen?f=ueberfaellig" },
           { label: "Noch nicht entschieden", cent: vorschlaege._sum.eigenanteilCent ?? 0, text: `${vorschlaege._count} offene Vorschläge (6 Monate)`, href: "/proposals" },
-          { label: "Termine ohne Dokumentation", anzahl: pruefung.filter((b) => b.art === "ohne_doku").length, text: "Leistungen evtl. nicht erfasst", href: "/abrechnungspruefung" },
+          // Nur wo Sorrida die Dokumentation der Termine prüft (lib/billingCheckLoad.ts), sonst stünde hier immer 0.
+          ...(terminDokuGeprueft(fach) ? [{ label: "Termine ohne Dokumentation", anzahl: pruefung.filter((b) => b.art === "ohne_doku").length, text: "Leistungen evtl. nicht erfasst", href: "/abrechnungspruefung" }] : []),
         ];
       })()
     : null;
   const arten = artenFuer(fach);
   // Rechner nur mit den Gebührenwerken, die das Fach wirklich nutzt; Apotheke, Pflege, Heilmittel & Co. sehen keinen.
   const alleWerke = gebuehrenwerkeFuer(fach);
+  // KZV nur für Zahnmedizin, KV nur für Vertragsärzte; Heilmittel, Pflege, Apotheke & Co. rechnen anders ab.
+  const stelle = abrechnungsStelle(fach);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6" data-testid="abrechnung">
@@ -44,7 +47,7 @@ export default async function AbrechnungPage() {
         <h1 className="font-display text-3xl text-slate-900">Abrechnung</h1>
         <p className="mt-1 max-w-3xl text-sm text-slate-600">
           Alle Abrechnungsarten für {SPECIALTY_LABELS[fach] ?? "Ihr Fach"}: wer zahlt, wie gerechnet wird, die Fachbegriffe und worauf zu achten ist.
-          Abgerechnet wird weiter über Ihre Praxissoftware bzw. KV/KZV.
+          Abgerechnet wird weiter über Ihre Praxissoftware{stelle ? ` bzw. ${stelle.ueber}` : ""}.
         </p>
       </div>
 
@@ -105,7 +108,7 @@ export default async function AbrechnungPage() {
         ))}
       </div>
       <p className="text-xs text-slate-500">
-        Nachschlagewerk ohne Gewähr; verbindlich sind die jeweiligen Gebührenordnungen, Verträge und Richtlinien. Fragen zur Abrechnung beantwortet Ihre KV/KZV.
+        Nachschlagewerk ohne Gewähr; verbindlich sind die jeweiligen Gebührenordnungen, Verträge und Richtlinien. {stelle ? `Fragen zur Abrechnung beantwortet ${stelle.wer}.` : ""}
         Weiter zur <Link href="/abrechnungspruefung" className="underline">Abrechnungsprüfung</Link>.
       </p>
     </div>

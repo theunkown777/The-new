@@ -1,4 +1,4 @@
-import { fachprofil } from "@/lib/fachprofile";
+import { fachWoerter } from "@/lib/fachprofile";
 import { Leer } from "@/components/Leer";
 import { praxisFach } from "@/lib/katalogScope";
 import Link from "next/link";
@@ -45,7 +45,8 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
   const practiceId = session!.user.practiceId;
   // Listen einlesen darf nur die Praxisleitung (lib/rollen.ts); ohne Recht entfällt der Link.
   const darfEinlesen = await kontoDarf(session!.user.id, "patienten.import", practiceId);
-  const P = fachprofil(await praxisFach(practiceId)).person;
+  const w = fachWoerter(await praxisFach(practiceId));
+  const P = { sg: w.person, pl: w.personen };
   const q = (searchParams.q ?? "").trim().slice(0, 60);
   const filter: FilterKey = searchParams.filter && searchParams.filter in FILTERS ? (searchParams.filter as FilterKey) : "alle";
   // Seitenzahl aus der Adresse begrenzen: Eine riesige Zahl wäre für die Datenbank kein gültiger Versatz.
@@ -121,8 +122,8 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
         ...selected.anamnesisForms.filter((a) => a.submittedAt).map((a) => ({ at: a.submittedAt!, text: "Anamnese ausgefüllt" })),
         ...selected.proposals.flatMap((pr) => [
           { at: pr.createdAt, text: `Vorschlag erstellt · Eigenanteil ${formatCent(pr.eigenanteilCent)}`, href: `/proposals/${pr.id}` },
-          ...(pr.shareCreatedAt ? [{ at: pr.shareCreatedAt, text: "Patienten-Link gesendet" }] : []),
-          ...(pr.patientViewedAt ? [{ at: pr.patientViewedAt, text: "Vom Patienten geöffnet" }] : []),
+          ...(pr.shareCreatedAt ? [{ at: pr.shareCreatedAt, text: "Link gesendet" }] : []),
+          ...(pr.patientViewedAt ? [{ at: pr.patientViewedAt, text: `${w.vonPerson.charAt(0).toUpperCase()}${w.vonPerson.slice(1)} geöffnet` }] : []),
           ...(pr.patientRespondedAt ? [{ at: pr.patientRespondedAt, text: pr.patientResponse === "RUECKRUF" ? "Rückruf gewünscht" : "Möchte besprechen" }] : []),
           ...(pr.agreedAt ? [{ at: pr.agreedAt, text: `Einverständnis digital unterschrieben (${pr.agreedName})`, href: `/proposals/${pr.id}` }] : []),
           ...(pr.status === "ANGENOMMEN" || pr.status === "ABGELEHNT" ? [{ at: pr.updatedAt, text: PROPOSAL_STATUS_LABELS[pr.status] }] : []),
@@ -274,7 +275,7 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
 
           <h3 className="mt-5 flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-6 text-brand-600" />Was Sie tun können</h3>
           <ul className="mt-2 divide-y divide-slate-100 text-sm">
-            <li><Link href={`/abschluss/new?patientId=${selected.id}`} className="flex justify-between py-2 font-medium text-brand-700 hover:text-brand-800">Behandlung abschließen <span aria-hidden="true">→</span></Link></li>
+            <li><Link href={`/abschluss/new?patientId=${selected.id}`} className="flex justify-between py-2 font-medium text-brand-700 hover:text-brand-800">{w.abschluss} abschließen <span aria-hidden="true">→</span></Link></li>
             <li><Link href={`/proposals/new?patientId=${selected.id}`} className="flex justify-between py-2 text-slate-700 hover:text-brand-700">Neuer Vorschlag <span aria-hidden="true">→</span></Link></li>
             {selected.proposals[0] && (
               <li><Link href={`/proposals/${selected.proposals[0].id}`} className="flex justify-between py-2 text-slate-700 hover:text-brand-700">Letzten Vorschlag öffnen, Link senden <span aria-hidden="true">→</span></Link></li>

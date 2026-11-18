@@ -6,7 +6,8 @@ import { BefundDiktat } from "@/components/BefundDiktat";
 import { favoritenFuerFach, type Favorit } from "@/lib/favoriten";
 import { AnlassPicker } from "@/components/AnlassPicker";
 import { AnlassStichworte } from "@/components/AnlassStichworte";
-import { DENTAL_ID, isDental, isTherapie, specialty } from "@/lib/specialties";
+import { DENTAL_ID, isDental, isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
+import { fachWoerter } from "@/lib/fachprofile";
 import type { DiktatResult } from "@/lib/befundDiktat";
 import {
   ABGEWAEHLT,
@@ -111,7 +112,7 @@ export function ProposalEditor({
   /** Im Abschluss-Schritt: ohne eigene Speichern-Knöpfe und Schreiben-Reiter, gespeichert wird gemeinsam. */
   compact?: boolean;
   onChange?: (input: ProposalInput, choices: Record<string, string>) => void;
-  /** Fachgebiet der Praxis; ohne Angabe Zahnmedizin. */
+  /** Fachgebiet der Praxis für neue Vorschläge; ohne Angabe neutral ("andere"), nie Zahnmedizin. */
   fach?: string;
   /** Preise und eigene Leistungen einer Arztpraxis. */
   med?: MedInput;
@@ -128,9 +129,11 @@ export function ProposalEditor({
     existing?.input.globals ?? Object.fromEntries((initialGlobals ?? []).map((k) => [k, true])),
   );
   const [choices, setChoices] = useState<Record<string, string>>(existing?.choices ?? {});
-  const fach = existing ? existing.input.fach : practiceFach;
-  const dental = isDental(fach);
+  // Gespeicherte Vorschläge: ohne fach ein Zahnvorschlag (istZahnVorschlag). Neue Vorschläge: das Fach der Praxis.
+  const fach = existing ? existing.input.fach : practiceFach || "andere";
+  const dental = existing ? istZahnVorschlag(fach) : isDental(fach);
   const spec = specialty(fach);
+  const w = fachWoerter(fach);
   const medData = existing?.input.med ?? practiceMed ?? {};
   const [anlaesse, setAnlaesse] = useState<string[]>(existing?.input.anlaesse ?? []);
   const [selected, setSelected] = useState<number>(modellZaehne[0]?.zahn ?? 16);
@@ -201,8 +204,7 @@ export function ProposalEditor({
   }
 
   // Favoriten: häufige Kombinationen mit einem Klick übernehmen bzw. die aktuelle Auswahl speichern.
-  // Ohne Fach ist es ein alter Vorschlag aus der Zeit vor den Fachrichtungen, also zahnärztlich (wie isDental(undefined)).
-  const favoritFach = fach ?? DENTAL_ID;
+  const favoritFach = dental ? DENTAL_ID : fach || "andere";
   const meineFavoriten = favoritenFuerFach(favoriten, favoritFach);
   function favoritAnwenden(f: Favorit) {
     if (dental) {
@@ -284,7 +286,7 @@ export function ProposalEditor({
         return;
       }
     } else if (!patientId) {
-      setError("Bitte zuerst einen Patienten wählen.");
+      setError(`Bitte zuerst ${w.einePerson} wählen.`);
       return;
     }
     setSaving(true);
@@ -367,10 +369,10 @@ export function ProposalEditor({
       {!compact && (
         <div className={`flex flex-wrap items-center justify-between gap-3 ${gespraech ? "rounded-xl bg-[#F5F2EE] px-4 py-3" : ""}`}>
           <p className="text-sm text-slate-600">
-            {gespraech ? "Ansicht für das Gespräch: Praxiszahlen und Eingabefelder sind ausgeblendet." : "Drehen Sie den Bildschirm zum Patienten? Dann blendet diese Ansicht alles aus, was nur die Praxis betrifft."}
+            {gespraech ? "Ansicht für das Gespräch: Praxiszahlen und Eingabefelder sind ausgeblendet." : `Drehen Sie den Bildschirm ${w.zurPerson}? Dann blendet diese Ansicht alles aus, was nur die Praxis betrifft.`}
           </p>
           <button type="button" className={gespraech ? "btn-primary" : "btn-secondary"} aria-pressed={gespraech} onClick={() => setGespraech((g) => !g)} data-testid="gespraech-schalter" data-hilfe="vorschlag-gespraech">
-            {gespraech ? "Zurück zur Praxisansicht" : "Patient schaut mit"}
+            {gespraech ? "Zurück zur Praxisansicht" : `${w.person} schaut mit`}
           </button>
         </div>
       )}
@@ -378,7 +380,7 @@ export function ProposalEditor({
       <div className={gespraech ? "grid gap-6" : "grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]"} data-gespraech={gespraech ? "an" : "aus"}>
         <fieldset disabled={locked} className={gespraech ? "hidden" : "space-y-6"}>
           <div className="card space-y-4">
-            <h2 className="font-medium text-slate-900">{schnell && !existing ? "Ohne Akte" : "Patient"}</h2>
+            <h2 className="font-medium text-slate-900">{schnell && !existing ? "Ohne Akte" : w.person}</h2>
             {schnell && !existing ? (
               <div>
                 <label className="label" htmlFor="proposal-kuerzel">Kürzel</label>
@@ -387,7 +389,7 @@ export function ProposalEditor({
               </div>
             ) : (
             <div>
-              <label className="label" htmlFor="proposal-patient">Patient</label>
+              <label className="label" htmlFor="proposal-patient">{w.person}</label>
               <PatientAuswahl id="proposal-patient" patients={patients} value={patientId} disabled={!!existing} onChange={changePatient} leer="Bitte wählen…" />
             </div>
             )}
@@ -499,7 +501,7 @@ export function ProposalEditor({
               <p className="mt-2 text-xs text-orange-900/80">
                 {dental
                   ? "Zähne mit Befund sind schon im Zahnschema eingetragen. Zähne ohne Befund sind orange umrandet: antippen und den Befund wählen."
-                  : "Diese Stellen hat die Praxis im Modell für den Patienten markiert. Wählen Sie unten den passenden Anlass."}
+                  : `Diese Stellen hat die Praxis im Modell ${w.fuerPerson} markiert. Wählen Sie unten den passenden Anlass.`}
               </p>
             </div>
           )}
@@ -613,7 +615,7 @@ export function ProposalEditor({
               hint={summary.baseTotal ? `+${Math.round((delta / summary.baseTotal) * 100)} % ggü. ${factors.insurance === "PKV" ? "Basis" : "Kasse"}` : undefined}
               accent
             />
-            <Stat label="Eigenanteil Patient" value={formatEuro(summary.netto)} />
+            <Stat label={`Eigenanteil ${w.person}`} value={formatEuro(summary.netto)} />
           </div>
           )}
 
@@ -639,7 +641,7 @@ export function ProposalEditor({
                   <p className="text-xs text-slate-500">Festzuschuss nach Befund, {pct(2027)}{festzuschuss2027Amtlich() ? "" : "; Beträge 2027 voraussichtlich"}</p>
                 </div>
                 <div className="rounded-lg bg-white p-3">
-                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Mehrkosten für den Patienten</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Mehrkosten {w.fuerPerson}</p>
                   <p className="mt-0.5 text-lg font-semibold tabular-nums text-red-700">+{formatEuro(jv.mehrkosten)}</p>
                   <p className="text-xs text-slate-500">bei der gewählten Versorgung</p>
                 </div>
@@ -665,7 +667,7 @@ export function ProposalEditor({
                 onClick={() => setTab(t)}
                 className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium ${tab === t ? "border-brand-600 text-slate-900" : "border-transparent text-slate-500 hover:text-slate-700"}`}
               >
-                {t === "praxis" ? "Praxisansicht" : "Schreiben an Patient"}
+                {t === "praxis" ? "Praxisansicht" : `Schreiben an ${w.person}`}
               </button>
             ))}
           </div>}
@@ -785,7 +787,7 @@ export function ProposalEditor({
           <p className={gespraech ? "hidden" : "text-xs text-slate-500"}>
             {dental
               ? "Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Vorausgewählt ist immer die Kassen- bzw. Regelleistung. Was Sie mit Ihrer Patientin oder Ihrem Patienten vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware."
-              : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Vorausgewählt ist immer die Kassenleistung. Was Sie mit Ihrer Patientin oder Ihrem Patienten vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. ${isTherapie(spec) ? "Selbstzahlerleistungen vereinbaren Sie vor der Behandlung schriftlich." : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
+              : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Vorausgewählt ist immer die Kassenleistung. Was Sie im Gespräch vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. ${isTherapie(spec) ? `Selbstzahlerleistungen vereinbaren Sie ${w.vorAbschluss} schriftlich.` : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
           </p>
 
           {!compact && !gespraech && patientWahl && (
@@ -794,19 +796,19 @@ export function ProposalEditor({
               data-testid="patient-wahl"
             >
               <p className="font-semibold">
-                {existing?.patientFirstName ?? "Der Patient"} hat {wahlUnterschrieben ? "unterschrieben" : "gewählt"}:
+                {existing?.patientFirstName ?? w.derPerson} hat {wahlUnterschrieben ? "unterschrieben" : "gewählt"}:
               </p>
               <p className="mt-0.5">{wahlText}</p>
               {!locked && wahlWeichtAb && (
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <span className="text-xs">Ihre Planung oben weicht davon ab.</span>
                   <button type="button" className="btn-secondary !py-1 text-xs" onClick={() => setChoices((c) => ({ ...c, ...patientWahl }))} data-testid="wahl-uebernehmen">
-                    Wahl des Patienten übernehmen
+                    Wahl {w.desPerson} übernehmen
                   </button>
                 </div>
               )}
               {!locked && !wahlWeichtAb && <p className="mt-1 text-xs">Ihre Planung entspricht dieser Wahl.</p>}
-              {locked && wahlWeichtAb && <p className="mt-1 text-xs">Festgehalten ist eine andere Wahl. Für die Wahl des Patienten bitte einen neuen Vorschlag anlegen.</p>}
+              {locked && wahlWeichtAb && <p className="mt-1 text-xs">Festgehalten ist eine andere Wahl. Für die Wahl {w.desPerson} bitte einen neuen Vorschlag anlegen.</p>}
             </div>
           )}
 
@@ -823,7 +825,7 @@ export function ProposalEditor({
                   s === "ANGENOMMEN" && !locked && wahlWeichtAb && patientWahl ? (
                     <span key={s} className="contents">
                       <button type="button" disabled={saving} onClick={() => save(s, { ...choices, ...patientWahl })} className="btn-primary" data-testid="annehmen-patientenwahl">
-                        Wahl des Patienten annehmen
+                        Wahl {w.desPerson} annehmen
                       </button>
                       <button type="button" disabled={saving} onClick={() => save(s)} className="btn-secondary">
                         Mit Ihrer Planung annehmen

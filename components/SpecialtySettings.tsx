@@ -8,6 +8,7 @@ import { uebersetzungenBereinigt, type LeistungUebersetzungen } from "@/lib/eige
 import { LeistungUebersetzungenFeld } from "@/components/LeistungUebersetzungenFeld";
 import { useKiHilfen } from "@/components/useKiHilfen";
 import { neueKatalogBezeichnung, passtZuSuche, schonUebernommen, type KatalogVorschlag } from "@/lib/katalogUebernahme";
+import { fachWoerter, preisRahmen, systemGruppe } from "@/lib/fachprofile";
 
 /** Eigene Leistung mit den Übersetzungen für die Patientenansicht (lib/eigeneLeistung.ts). */
 type Angebot = CustomOffer & { uebersetzungen?: LeistungUebersetzungen };
@@ -97,14 +98,14 @@ export function SpecialtySettings({
           <p className="text-xs text-slate-500">
             {v.specialty === DENTAL_ID
               ? "Zahnschema, Festzuschuss, Mehrkostenvereinbarung und Befund-Diktat."
-              : "Anlässe Ihres Fachs mit Kassenleistung zuerst und Selbstzahlerleistungen (IGeL) mit Hinweis, wann die Kasse zahlt, und Angaben zum Nutzen nur mit Quelle."}
+              : `Anlässe Ihres Fachs mit Kassenleistung zuerst und Selbstzahlerleistungen${systemGruppe(v.specialty) === "arzt" ? " (IGeL)" : ""} mit Hinweis, wann die Kasse zahlt, und Angaben zum Nutzen nur mit Quelle.`}
           </p>
         </div>
 
         {spec && (
           <div className="card space-y-3">
             <h2 className="font-medium text-slate-900">Preise für {spec.kurz}</h2>
-            <p className="text-sm text-slate-500">Beispielwerte im üblichen GOÄ-Rahmen. Tragen Sie Ihre Preise ein, so wie Sie sie Patienten nennen.</p>
+            <p className="text-sm text-slate-500">{preisRahmen(v.specialty)} Tragen Sie Ihre Preise ein, so wie Sie sie {fachWoerter(v.specialty).personen} nennen.</p>
             {spec.anlaesse.map((a) => (
               <div key={a.id} className="space-y-2">
                 <h3 className="text-sm font-medium text-slate-700">{a.label}</h3>

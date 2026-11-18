@@ -141,6 +141,8 @@ export interface SeitenEintrag {
   stichworte: string[];
   /** Nur in Zahnarztpraxen vorhanden */
   nurZahn?: boolean;
+  /** Stichwörter, die nur in Zahnarztpraxen passen (z. B. „gebiss“) */
+  zahnStichworte?: string[];
   /** Nur sichtbar, wenn das Konto dieses Recht hat */
   recht?: keyof MenueRechte;
 }
@@ -156,7 +158,7 @@ export const SEITEN: SeitenEintrag[] = [
   { href: "/patients", titel: "{P} und Wege", art: "Seite", stichworte: ["patienten", "kartei", "behandlungsweg", "personen", "liste"] },
   { href: "/patients/new", titel: "{P}: neu anlegen", art: "Seite", stichworte: ["patient anlegen", "neuer patient", "aufnahme"] },
   { href: "/patients/import", titel: "{P}: Liste einlesen", art: "Seite", stichworte: ["import", "csv", "praxissoftware", "umzug", "einlesen", "übernahme", "excel"], recht: "import" },
-  { href: "/modelle", titel: "Modelle", art: "Seite", stichworte: ["anatomie", "3d", "körper", "gebiss", "zeigen", "markieren"] },
+  { href: "/modelle", titel: "Modelle", art: "Seite", stichworte: ["anatomie", "3d", "körper", "zeigen", "markieren"], zahnStichworte: ["gebiss", "zähne"] },
   { href: "/abschluss/new", titel: "{A} abschließen", art: "Seite", stichworte: ["abschluss", "sitzung", "fertig", "dokumentation"] },
   { href: "/proposals", titel: "Vorschläge", art: "Seite", stichworte: ["kostenvoranschlag", "angebot", "eigenanteil", "behandlungsvorschlag", "plan"] },
   { href: "/proposals/new", titel: "Neuer Vorschlag", art: "Seite", stichworte: ["vorschlag erstellen", "anlegen"] },
@@ -176,7 +178,7 @@ export const SEITEN: SeitenEintrag[] = [
   { href: "/settings/templates", titel: "Vorlagen", art: "Einstellung", stichworte: ["sitzungstyp", "sitzungstypen", "checkliste"], recht: "einstellungen" },
   { href: "/settings/connector", titel: "Praxissoftware", art: "Einstellung", stichworte: ["anbindung", "schnittstelle", "connector", "gdt", "vdds", "pvs", "schlüssel"], recht: "einstellungen" },
   { href: "/settings/proposals", titel: "Vorschlagspreise", art: "Einstellung", stichworte: ["preise", "ratenzahlung", "raten", "eigenanteil"], nurZahn: true, recht: "einstellungen" },
-  { href: "/settings/lexikon", titel: "Leistungslexikon", art: "Einstellung", stichworte: ["nachschlagewerk", "selbstzahlerleistungen", "lexikon"] },
+  { href: "/settings/lexikon", titel: "Leistungslexikon", art: "Einstellung", stichworte: ["nachschlagewerk", "selbstzahlerleistungen", "lexikon"], nurZahn: true },
   { href: "/settings/termine", titel: "Online-Termine und Kalender", art: "Einstellung", stichworte: ["buchung", "online buchen", "sprechzeiten", "kalender", "ics", "google", "outlook", "abo"], recht: "einstellungen" },
   { href: "/settings/standorte", titel: "Standorte", art: "Einstellung", stichworte: ["zweigpraxis", "filiale", "behandlungsplätze", "räume", "hauptpraxis"], recht: "einstellungen" },
   { href: "/settings/protokoll", titel: "Protokoll und Datenschutz", art: "Einstellung", stichworte: ["audit", "dsgvo", "export", "wer hat was", "anmeldungen", "löschen"], recht: "team" },
@@ -196,7 +198,11 @@ const titelFuer = (s: SeitenEintrag, k: Pick<SeitenKontext, "personPl" | "abschl
 
 /** Seiten, die dieses Konto in dieser Praxis überhaupt hat. */
 export function sichtbareSeiten(k: SeitenKontext): SeitenEintrag[] {
-  return SEITEN.filter((s) => (!s.nurZahn || k.zahn) && (!s.recht || k.rechte[s.recht])).map((s) => ({ ...s, titel: titelFuer(s, k) }));
+  return SEITEN.filter((s) => (!s.nurZahn || k.zahn) && (!s.recht || k.rechte[s.recht])).map((s) => ({
+    ...s,
+    titel: titelFuer(s, k),
+    stichworte: k.zahn && s.zahnStichworte ? [...s.stichworte, ...s.zahnStichworte] : s.stichworte,
+  }));
 }
 
 /** Rang einer Seite: Titel zählt voll, Stichwörter knapp darunter. */

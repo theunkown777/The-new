@@ -3,12 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { uebergabeMelden } from "@/components/EmpfangWache";
+import { fachWoerter } from "@/lib/fachprofile";
 
 type P = { id: string; firstName: string; lastName: string; birthDate: string | null };
 type Lage = { anamneseOffen: boolean; anamneseZuletzt: string | null; einverstaendnisse: number };
 
 // Empfang: Patient suchen, Schritte wählen, Tablet übergeben oder QR-Code für das eigene Handy zeigen.
-export function Empfang({ pinGesetzt, admin, minuten, leerlauf }: { pinGesetzt: boolean; admin: boolean; minuten: number; leerlauf: number }) {
+export function Empfang({ pinGesetzt, admin, minuten, leerlauf, fach }: { pinGesetzt: boolean; admin: boolean; minuten: number; leerlauf: number; fach?: string | null }) {
+  const w = fachWoerter(fach);
+  const derPerson = w.derPerson.charAt(0).toLowerCase() + w.derPerson.slice(1);
   const [q, setQ] = useState("");
   const [treffer, setTreffer] = useState<P[]>([]);
   const [patient, setPatient] = useState<P | null>(null);
@@ -111,7 +114,7 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf }: { pinGesetzt: 
 
       {patient && (
         <section className="card space-y-3" aria-labelledby="empfang-was">
-          <h2 id="empfang-was" className="font-semibold text-slate-900">2. Was soll der Patient erledigen?</h2>
+          <h2 id="empfang-was" className="font-semibold text-slate-900">2. Was soll {derPerson} erledigen?</h2>
           <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={kontakt} onChange={(e) => setKontakt(e.target.checked)} data-testid="empfang-schritt-kontakt" /><span>Kontaktdaten prüfen<span className="block text-xs text-slate-500">E-Mail, Mobilnummer und Einwilligung in Nachrichten</span></span></label>
           <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={anamnese} onChange={(e) => { beruehrt.current.anamnese = true; setAnamnese(e.target.checked); }} data-testid="empfang-schritt-anamnese" /><span>Anamnesebogen ausfüllen<span className="block text-xs text-slate-500">{lage ? (lage.anamneseOffen ? "Ein Bogen ist offen." : lage.anamneseZuletzt ? `Zuletzt ausgefüllt am ${lage.anamneseZuletzt}.` : "Noch nie ausgefüllt.") : "wird geprüft …"}</span></span></label>
           <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={unterschrift} onChange={(e) => { beruehrt.current.unterschrift = true; setUnterschrift(e.target.checked); }} data-testid="empfang-schritt-unterschrift" /><span>Einverständnis unterschreiben<span className="block text-xs text-slate-500" data-testid="empfang-offene-einverstaendnisse">{lage ? (lage.einverstaendnisse === 0 ? "Zurzeit ist nichts zu unterschreiben." : `${lage.einverstaendnisse} ${lage.einverstaendnisse === 1 ? "Einverständnis ist" : "Einverständnisse sind"} offen.`) : "wird geprüft …"}</span></span></label>
@@ -119,14 +122,14 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf }: { pinGesetzt: 
           {fehler && <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800" role="alert" data-testid="empfang-fehler">{fehler}</p>}
 
           <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-3">
-            <button type="button" className="btn btn-primary" disabled={!!busy || !pinGesetzt || schritte === 0} onClick={uebergeben} data-testid="empfang-uebergeben">{busy === "uebergabe" ? "Übergibt …" : "An Patient übergeben"}</button>
+            <button type="button" className="btn btn-primary" disabled={!!busy || !pinGesetzt || schritte === 0} onClick={uebergeben} data-testid="empfang-uebergeben">{busy === "uebergabe" ? "Übergibt …" : "Tablet übergeben"}</button>
             <button type="button" className="btn btn-secondary" disabled={!!busy} onClick={qrZeigen} data-testid="empfang-qr">{busy === "qr" ? "Erzeugt …" : "QR-Code zeigen"}</button>
           </div>
           <p className="text-xs leading-relaxed text-slate-500">
-            <b className="text-slate-700">An Patient übergeben:</b> Das Tablet zeigt danach nur noch die Schritte für diese Person, ohne Menü und ohne andere Patienten. Auf dem Gerät ist so lange niemand angemeldet.
+            <b className="text-slate-700">Tablet übergeben:</b> Das Tablet zeigt danach nur noch die Schritte für diese Person, ohne Menü und ohne andere {w.personen}. Auf dem Gerät ist so lange niemand angemeldet.
             Nach „Fertig“, nach {leerlauf} Minuten ohne Eingabe oder spätestens nach {minuten} Minuten sperrt es sich. Zurück kommen Sie mit der Empfangs-PIN.
             {" "}<span data-testid="empfang-hinweis-tabs">Andere offene Tabs von Sorrida in diesem Browser wechseln bei der Übergabe ebenfalls in die Patientenansicht. Bitte schließen Sie vorher andere Fenster mit Patientendaten, auch die anderer Programme.</span>
-            {" "}<b className="text-slate-700">QR-Code zeigen:</b> Der Patient scannt den Code und füllt alles am eigenen Handy aus.
+            {" "}<b className="text-slate-700">QR-Code zeigen:</b> {w.derPerson} scannt den Code und füllt alles am eigenen Handy aus.
           </p>
         </section>
       )}

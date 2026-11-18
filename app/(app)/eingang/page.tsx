@@ -8,6 +8,7 @@ import { EINGANG_ARTEN, eingangZiel, istEingangArt } from "@/lib/eingang";
 import { EingangAktion, EingangAlle, EingangMeldungen, EingangUebernehmen } from "@/components/EingangAktion";
 import { MorgenMail } from "@/components/MorgenMail";
 import { EingangAnfragen } from "@/components/EingangAnfragen";
+import { fachWoerter } from "@/lib/fachprofile";
 import { EingangAntwort } from "@/components/EingangAntwort";
 import { hatAntwortEntwurf } from "@/lib/antwortBausteine";
 import { mailVersandAktiv } from "@/lib/email";
@@ -24,7 +25,8 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const sel = { id: true, art: true, entityId: true, hinweis: true, createdAt: true, erledigtAt: true, erledigtVon: true, zustaendigId: true, zustaendigName: true, patientId: true, patient: { select: { firstName: true, lastName: true } } } as const;
-  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { morgenMail: true, morgenMailAn: true, isDemo: true } });
+  const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { morgenMail: true, morgenMailAn: true, isDemo: true, specialty: true } });
+  const w = fachWoerter(praxis?.specialty);
   const [offenAlle, erledigt] = await Promise.all([
     prisma.eingang.findMany({ where: { practiceId, erledigtAt: null }, orderBy: { createdAt: "desc" }, take: 200, select: sel }),
     prisma.eingang.findMany({ where: { practiceId, erledigtAt: { gte: new Date(Date.now() - 14 * 864e5) } }, orderBy: { erledigtAt: "desc" }, take: 50, select: sel }),
@@ -71,7 +73,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl text-slate-900">Eingang</h1>
-          <p className="mt-1 max-w-2xl text-sm text-slate-500">Alles, was Patienten über ihren Link selbst auslösen, kommt hier an: gemeldete Zahlungen, abgeschickte Anamnesebögen, Rückmeldungen zu Vorschlägen und online gebuchte Termine.</p>
+          <p className="mt-1 max-w-2xl text-sm text-slate-500">Alles, was {w.personen} über ihren Link selbst auslösen, kommt hier an: gemeldete Zahlungen, abgeschickte Anamnesebögen, Rückmeldungen zu Vorschlägen und online gebuchte Termine.</p>
         </div>
         <EingangAlle anzahl={offenAlle.length} />
       </div>
@@ -88,7 +90,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
       <section className="card mt-5 p-0" data-testid="eingang-offen" data-hilfe="eingang-liste">
         <h2 className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">{nurMeine ? "Von mir übernommen" : "Offen"} ({offen.length})</h2>
         {offen.length === 0 ? (
-          <Leer symbol="eingang" eng>Nichts offen. Sobald ein Patient im Portal etwas abschickt, steht es hier, und in der Seitenleiste erscheint eine Zahl neben „Eingang“.</Leer>
+          <Leer symbol="eingang" eng>Nichts offen. Sobald jemand im Portal etwas abschickt, steht es hier, und in der Seitenleiste erscheint eine Zahl neben „Eingang“.</Leer>
         ) : (
           <ul className="divide-y divide-slate-100">{offen.map((e) => zeile(e, false))}</ul>
         )}
@@ -108,7 +110,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
         <ul className="space-y-1.5">
           <li><b>„Ich habe überwiesen“</b> im Portal: Die Rechnung steht unter Zahlungen auf „Gemeldet“. Sie prüfen den Kontoeingang und bestätigen dort; der Eintrag hier hakt sich dann von selbst ab.</li>
           <li><b>Online bezahlt, Ratenwunsch, Lastschriftmandat:</b> unter Zahlungen bei der Rechnung.</li>
-          <li><b>Anamnesebogen:</b> in der Akte des Patienten, mit Warnhinweisen (z. B. Allergien) oben.</li>
+          <li><b>Anamnesebogen:</b> in der Akte {w.desPerson}, mit Warnhinweisen (z. B. Allergien) oben.</li>
           <li><b>Rückmeldung zum Vorschlag, Unterschrift, Zweitmeinung:</b> im jeweiligen Vorschlag.</li>
           <li><b>Online gebuchte oder abgesagte Termine:</b> im Kalender unter Termine, mit dem Hinweis „online gebucht“.</li>
         </ul>

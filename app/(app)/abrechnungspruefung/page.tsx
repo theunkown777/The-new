@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { loadBillingCheck } from "@/lib/billingCheckLoad";
+import { loadBillingCheck, terminDokuGeprueft } from "@/lib/billingCheckLoad";
+import { abrechnungsStelle } from "@/lib/abrechnungsarten";
+import { prisma } from "@/lib/prisma";
 import { ART_TITEL, type BefundArt } from "@/lib/billingCheck";
 import { formatCent } from "@/lib/invoices";
 
@@ -12,7 +14,13 @@ const REIHENFOLGE: BefundArt[] = ["ohne_rechnung", "ohne_doku", "faktor", "aussc
 
 export default async function AbrechnungsPruefungPage() {
   const session = await getServerSession(authOptions);
-  const befunde = await loadBillingCheck(session!.user.practiceId);
+  const [befunde, practice] = await Promise.all([
+    loadBillingCheck(session!.user.practiceId),
+    prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true } }),
+  ]);
+  const fach = practice?.specialty;
+  const stelle = abrechnungsStelle(fach);
+  const terminDoku = terminDokuGeprueft(fach);
   const offenCent = befunde.reduce((a, b) => a + (b.betragCent ?? 0), 0);
   return (
     <div className="mx-auto max-w-4xl space-y-6" data-testid="abrechnungspruefung">
@@ -20,13 +28,13 @@ export default async function AbrechnungsPruefungPage() {
         <h1 className="font-display text-3xl text-slate-900">Abrechnungsprüfung</h1>
         <p className="mt-1 text-sm text-slate-600">
           Was in den letzten zwölf Monaten nicht abgerechnet oder fehlerhaft erfasst wurde. Grundlage sind Termine, Berichte, Vorschläge und Rechnungen in Sorrida
-          sowie die Regeln Ihres Leistungskatalogs. Die Prüfung ersetzt nicht die Prüfung durch Praxissoftware oder KZV/KV, fängt aber typische Lücken vorher ab.
+          sowie die Regeln Ihres Leistungskatalogs. Die Prüfung ersetzt nicht die Prüfung durch Ihre Praxissoftware{stelle ? ` oder ${stelle.ueber}` : ""}, fängt aber typische Lücken vorher ab.
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className={`grid gap-4 ${terminDoku ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
         <div className="card"><p className="text-sm text-slate-500">Hinweise</p><p className="mt-1 text-2xl font-semibold tabular-nums">{befunde.length}</p></div>
         <div className="card"><p className="text-sm text-slate-500">Nicht in Rechnung gestellt</p><p className="mt-1 text-2xl font-semibold tabular-nums">{formatCent(offenCent)}</p><p className="mt-1 text-xs text-slate-500">aus angenommenen Vorschlägen</p></div>
-        <div className="card"><p className="text-sm text-slate-500">Termine ohne Dokumentation</p><p className="mt-1 text-2xl font-semibold tabular-nums">{befunde.filter((b) => b.art === "ohne_doku").length}</p></div>
+        {terminDoku && <div className="card"><p className="text-sm text-slate-500">Termine ohne Dokumentation</p><p className="mt-1 text-2xl font-semibold tabular-nums">{befunde.filter((b) => b.art === "ohne_doku").length}</p></div>}
       </div>
       {befunde.length === 0 && <p className="card text-sm text-slate-600">Keine Auffälligkeiten gefunden.</p>}
       {REIHENFOLGE.map((art) => {

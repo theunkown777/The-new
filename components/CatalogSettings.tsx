@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Haken } from "@/components/Haken";
 import { LeistungSchnell } from "@/components/LeistungSchnell";
 import { faktorVerzeichnisse, kategorieBeispiel, SYSTEM_LABEL, systemeFuer } from "@/lib/katalogBeispiele";
+import { leistungsBeispiel } from "@/lib/fachprofile";
 
 type CatalogItem = {
   id: string;
@@ -143,7 +144,7 @@ export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { re
   return (
     <div className="space-y-6">
       <div data-hilfe="katalog-eigene">
-        <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" onCreated={() => load(true)} />
+        <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" beispiel={leistungsBeispiel(systeme)} onCreated={() => load(true)} />
       </div>
       <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
         Punktzahl und Festbetrag sind objektive Werte aus dem offiziellen Gebührenverzeichnis

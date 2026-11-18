@@ -241,3 +241,24 @@ export function artenFuer(fach: string | null | undefined): Abrechnungsart[] {
     : ["gkv_ebm", "pkv_goae", "beihilfe", "igel"];
   return ids.map((i) => ARTEN[i]);
 }
+
+/** Rechnet das Fach Kassenleistungen über die Kassenärztliche Vereinigung ab (EBM)? Nicht Zahnmedizin (KZV), Therapie, Pflege usw. */
+export function rechnetUeberKv(fach: string | null | undefined): boolean {
+  return artenFuer(fach).some((a) => a.id === "gkv_ebm");
+}
+
+/**
+ * Über wen das Fach mit den Kassen abrechnet, für Sätze wie „Abgerechnet wird weiter über Ihre Praxissoftware bzw. die KZV“
+ * (ueber) und „Fragen zur Abrechnung beantwortet Ihre KZV“ (wer). Zahnmedizin: KZV, Vertragsärzte: KV, Apotheke:
+ * Apothekenrechenzentrum, Pflege: Pflegekasse, Heilmittel, Hebamme und Hilfsmittel: Krankenkasse oder Abrechnungszentrum.
+ * null, wenn das Fach nur privat abrechnet (Heilpraktiker, Ästhetik, Wahlleistungen der Klinik).
+ */
+export function abrechnungsStelle(fach: string | null | undefined): { ueber: string; wer: string } | null {
+  const ids = new Set(artenFuer(fach).map((a) => a.id));
+  if (ids.has("gkv_bema")) return { ueber: "die KZV", wer: "Ihre KZV" };
+  if (ids.has("gkv_ebm")) return { ueber: "die KV", wer: "Ihre KV" };
+  if (ids.has("apotheke")) return { ueber: "Ihr Apothekenrechenzentrum", wer: "Ihr Apothekenrechenzentrum" };
+  if (ids.has("pflege")) return { ueber: "die Pflegekasse oder Ihr Abrechnungszentrum", wer: "die Pflegekasse oder Ihr Abrechnungszentrum" };
+  if (ids.has("heilmittel") || ids.has("hebamme") || ids.has("hilfsmittel")) return { ueber: "die Krankenkasse oder Ihr Abrechnungszentrum", wer: "die Krankenkasse oder Ihr Abrechnungszentrum" };
+  return null;
+}

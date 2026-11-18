@@ -53,7 +53,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const menue = await menueRechteVon(session.user.id, session.user.practiceId);
   const analyse = menue.analyse;
   // Rundgang durch die Hauptseiten (?rundgang=n), nach Rechten gefiltert (lib/rundgang.ts)
-  const rundgang = appStationen({ rechte: menue, personPl: personen, abschluss: abschlussWort(currentUser?.practice.specialty) });
+  const rundgang = appStationen({ rechte: menue, personPl: personen, abschluss: abschlussWort(currentUser?.practice.specialty), zahn: dental });
   const eingang = await eingangOffen(session.user.practiceId).catch(() => 0);
   // Ohne eingerichtete Zwei-Faktor-Anmeldung zeigt Sorrida bei Pflicht nur die
   // Einrichtung, keine Patientendaten.
@@ -122,7 +122,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </header>
         {/* Suche über alles (Strg+K) und Tastenkürzel; ohne eingerichtete Pflicht-2FA nicht verfügbar */}
         {!sperre && <Suche personPl={personen} personSg={person} />}
-        {demo && <DemoBanner expiresAt={demo} role={session.user.role} userName={session.user.name} />}
+        {demo && <DemoBanner expiresAt={demo} role={session.user.role} userName={session.user.name} personPl={personen} />}
         {demo && !sperre && <DemoFuehrung ueberblick={rundgang.length} />}
         {!demo && !currentUser?.emailVerifiedAt && <VerifyEmailBanner />}
         <main id="inhalt" className="praxis-inhalt px-4 py-6 sm:px-6 sm:py-8 lg:px-10">

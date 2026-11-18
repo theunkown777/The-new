@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { ServiceChecklistForm } from "@/components/ServiceChecklistForm";
 import { ProposalEditor } from "@/components/ProposalEditor";
 import { AnamnesisFlags } from "@/components/AnamnesisFlags";
-import { DENTAL_ID, isDental } from "@/lib/specialties";
+import { isDental } from "@/lib/specialties";
 import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 import type { AnamnesisSummary } from "@/lib/anamnesisView";
 import type { MedInput, Prices, ProposalInput } from "@/lib/proposals";
@@ -68,9 +68,9 @@ export function TreatmentWrapUp({
     <div className="space-y-4" data-hilfe="abschluss-start">
     {anamnesis && <AnamnesisFlags flags={anamnesis.flags} submittedAt={anamnesis.submittedAt} vorbefuelltStand={anamnesis.vorbefuelltStand} />}
     <ServiceChecklistForm
-      // Das Fach kommt immer aus resolveMed (lib/practiceMed.ts). Fehlt es, zeigt diese Ansicht wie isDental(undefined)
-      // den zahnärztlichen Abschluss (alte Vorschläge ohne Fach); die Beschriftung passt dazu. Bewusst so belassen.
-      regionLabel={fachprofil(isDental(fach) ? DENTAL_ID : fach).region}
+      // Das Fach kommt aus resolveMed (lib/practiceMed.ts); ohne Fach neutral, nie Zahnmedizin.
+      regionLabel={fachprofil(fach).region}
+      fach={fach}
       patients={[patient]}
       initialPatientId={patient.id}
       practicePunktwerte={practicePunktwerte}

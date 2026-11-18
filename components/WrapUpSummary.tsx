@@ -8,6 +8,7 @@ import { CopyTextButton } from "@/components/CopyTextButton";
 import { PatientLinkPanel } from "@/components/PatientLinkPanel";
 import { patientLinkState } from "@/lib/patientLink";
 import { schreibenMitNutzenOhneQuelle } from "@/lib/nutzenQuelle";
+import { fachWoerter } from "@/lib/fachprofile";
 
 // Ergebnis des Abschluss-Schritts: was automatisch entstanden ist und was
 // Rezeption bzw. Behandler noch erledigen müssen. Gemeinsam genutzt von der
@@ -26,7 +27,7 @@ export async function WrapUpSummary({
     include: {
       patient: true,
       proposals: { orderBy: { createdAt: "desc" }, take: 1 },
-      practice: { select: { proposalPrices: true } },
+      practice: { select: { proposalPrices: true, specialty: true } },
     },
   });
   if (!report) return null;
@@ -50,21 +51,24 @@ export async function WrapUpSummary({
   // Schreiben, die vor der Regel „Nutzen nur mit Quelle“ gespeichert wurden: bleiben als Nachweis, aber ohne Knopf zum Kopieren.
   const schreibenAlt = proposal ? schreibenMitNutzenOhneQuelle(proposal.letterText) : false;
   const text = report.editedText ?? report.generatedText ?? "";
+  // Wörter des Fachs: Behandlung/Beratung/Einsatz, Patient/Kunde/Frau (lib/fachprofile.ts)
+  const w = fachWoerter(report.practice.specialty);
+  const zurPerson = w.zurPerson.charAt(0).toUpperCase() + w.zurPerson.slice(1);
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-green-700">Behandlung abgeschlossen</p>
+          <p className="text-sm font-medium text-green-700">{w.abschluss} abgeschlossen</p>
           <h1 className="font-display text-3xl text-slate-900">
             {report.patient.firstName} {report.patient.lastName}
           </h1>
           <p className="text-sm text-slate-500">
             {(report.treatmentDate ?? report.createdAt).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })} · Automatisch erstellt:
-            Bericht{proposal ? ", Behandlungsvorschlag, Patientenschreiben" : ""} und {steps.length} To-dos
+            Bericht{proposal ? `, ${w.vorschlag}, ${w.schreiben}` : ""} und {steps.length} To-dos
           </p>
         </div>
-        <Link href={links.newWrapUp} className="btn-secondary">Nächste Behandlung abschließen</Link>
+        <Link href={links.newWrapUp} className="btn-secondary">{w.naechsterAbschluss} abschließen</Link>
       </div>
 
       <section className="card space-y-3">
@@ -101,7 +105,7 @@ export async function WrapUpSummary({
         </section>
 
         <section className="card space-y-3">
-          <h2 className="font-medium text-slate-900">Behandlungsvorschlag</h2>
+          <h2 className="font-medium text-slate-900">{w.vorschlag}</h2>
           {proposal ? (
             <>
               <p className="text-sm text-slate-600">
@@ -121,9 +125,9 @@ export async function WrapUpSummary({
                 </p>
               )}
               <div className="flex flex-wrap gap-2">
-                {!schreibenAlt && <CopyTextButton text={proposal.letterText} label="Patientenschreiben kopieren" />}
+                {!schreibenAlt && <CopyTextButton text={proposal.letterText} label={`${w.schreiben} kopieren`} />}
                 <Link href={links.proposal.replace(":id", proposal.id)} className="btn-secondary">
-                  Vorschlag mit Patient besprechen
+                  Vorschlag {w.mitPerson} besprechen
                 </Link>
               </div>
             </>
@@ -139,7 +143,7 @@ export async function WrapUpSummary({
         <PatientLinkPanel proposalId={proposal.id} state={patientLinkState(proposal, items)} firstName={report.patient.firstName} />
       )}
 
-      <Link href={links.patient} className="text-sm text-brand-600 hover:underline">← Zum Patienten</Link>
+      <Link href={links.patient} className="text-sm text-brand-600 hover:underline">← {zurPerson}</Link>
     </div>
   );
 }

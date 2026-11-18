@@ -400,6 +400,53 @@ export function abschlussWort(fach: string | null | undefined): string {
   return "Behandlung";
 }
 
+/**
+ * Wörter des Fachs für Sätze mit Artikel. Patient, Kunde und Klient haben im Akkusativ und Dativ die Form der
+ * Mehrzahl („einen Patienten“, „zum Kunden“), Patientin und Frau die der Einzahl („eine Frau“, „zur Patientin“).
+ * Einsatz und Besuch sind männlich („Ersten Einsatz abschließen“), Behandlung, Beratung und Versorgung weiblich.
+ */
+export function fachWoerter(fach: string | null | undefined) {
+  const { sg, pl } = fachprofil(fach).person;
+  const weiblich = sg === "Frau" || sg.endsWith("in");
+  const abschluss = abschlussWort(fach);
+  const abschlussMaennlich = abschluss === "Einsatz" || abschluss === "Besuch";
+  return {
+    person: sg,
+    personen: pl,
+    /** „einen Patienten“, „eine Patientin“, „einen Kunden“, „eine Frau“ */
+    einePerson: weiblich ? `eine ${sg}` : `einen ${pl}`,
+    /** „Ersten Patienten“, „Erste Frau“ (Akkusativ, Satzanfang) */
+    erstePerson: weiblich ? `Erste ${sg}` : `Ersten ${pl}`,
+    /** „zum Patienten“, „zur Frau“ */
+    zurPerson: weiblich ? `zur ${sg}` : `zum ${pl}`,
+    /** „für den Patienten“, „für die Frau“ */
+    fuerPerson: weiblich ? `für die ${sg}` : `für den ${pl}`,
+    /** „vom Patienten“, „von der Frau“ */
+    vonPerson: weiblich ? `von der ${sg}` : `vom ${pl}`,
+    /** „mit dem Patienten“, „mit der Frau“ */
+    mitPerson: weiblich ? `mit der ${sg}` : `mit dem ${pl}`,
+    /** „Patientenschreiben“; wo das Fach nicht von Patienten spricht, schlicht „Schreiben“ */
+    schreiben: sg.startsWith("Patient") ? "Patientenschreiben" : "Schreiben",
+    /** „Der Patient“, „Die Frau“ (Satzanfang) */
+    derPerson: weiblich ? `Die ${sg}` : `Der ${sg}`,
+    /** „des Patienten“, „der Patientin“ (Genitiv) */
+    desPerson: weiblich ? `der ${sg}` : `des ${pl}`,
+    abschluss,
+    /** „vor der Behandlung“, „vor dem Einsatz“ */
+    vorAbschluss: `vor ${abschlussMaennlich ? "dem" : "der"} ${abschluss}`,
+    /** „Erste Behandlung“, „Ersten Einsatz“ (Akkusativ, Satzanfang) */
+    ersterAbschluss: `${abschlussMaennlich ? "Ersten" : "Erste"} ${abschluss}`,
+    /** „Nächste Behandlung“, „Nächsten Besuch“ (Akkusativ, Satzanfang) */
+    naechsterAbschluss: `${abschlussMaennlich ? "Nächsten" : "Nächste"} ${abschluss}`,
+    /** „Behandlungsdatum“, „Einsatzdatum“, „Besuchsdatum“ */
+    datum: abschluss === "Einsatz" ? "Einsatzdatum" : `${abschluss}sdatum`,
+    /** „Behandlungsvorschlag“, „Beratungsvorschlag“, „Einsatzvorschlag“ */
+    vorschlag: abschluss === "Einsatz" ? "Einsatzvorschlag" : `${abschluss}svorschlag`,
+    /** „Behandlungsvorschläge“, „Beratungsvorschläge“, „Einsatzvorschläge“ */
+    vorschlaege: abschluss === "Einsatz" ? "Einsatzvorschläge" : `${abschluss}svorschläge`,
+  };
+}
+
 /** Passt ein Angebot/Befund mit Geschlechts- oder Altersbezug zu diesem Patienten? Unbekanntes Geschlecht schließt nichts aus. */
 export function passtZuPerson(
   bedingung: { geschlecht?: "W" | "M"; abAlter?: number; bisAlter?: number },
@@ -423,6 +470,58 @@ export function systemGruppe(fach: string | null | undefined): string {
   if (f === "hebamme") return "hebamme";
   if (f === "heilpraktiker") return "selbst";
   return "arzt";
+}
+
+/** Woran sich die Beispielpreise orientieren: GOÄ nur bei Ärzten, GebüH bei Heilpraktikern, sonst übliche Privatpreise. */
+export function preisRahmen(fach: string | null | undefined): string {
+  const g = systemGruppe(fach);
+  if (g === "arzt") return "Beispielwerte im üblichen GOÄ-Rahmen.";
+  if (g === "selbst") return "Beispielwerte im Rahmen des Gebührenverzeichnisses für Heilpraktiker (GebüH).";
+  if (g === "therapie") return "Beispielwerte im Rahmen üblicher Privatpreise.";
+  return "Beispielwerte.";
+}
+
+/** Beispiel für den Namen einer eigenen Leistung, je Systemgruppe (systemGruppe). Bleaching nur in der Zahnmedizin. */
+export function leistungsBeispiel(gruppe: string): string {
+  if (gruppe === "zahn") return "Bleaching";
+  if (gruppe === "therapie") return "Kinesio-Taping";
+  if (gruppe === "arzt") return "Reiseimpfberatung";
+  if (gruppe === "apotheke") return "Medikationsanalyse";
+  if (gruppe === "hebamme") return "Babymassage-Kurs";
+  return "Beratungsgespräch";
+}
+
+/** Beispiele für Dokumente in der Akte, je Fach. Röntgenbilder und Überweisungen nicht bei Apotheke, Optik usw. */
+export function dokumentBeispiele(fach: string | null | undefined): string {
+  const f = fach ?? "";
+  if (f === "apotheke") return "Rezepte, Medikationspläne oder Arztbriefe";
+  if (f === "optik") return "Brillenpässe, Refraktionswerte oder Verordnungen";
+  if (f === "hoerakustik") return "Audiogramme, Verordnungen oder Kostenvoranschläge";
+  if (f === "sanitaetshaus") return "Verordnungen, Kostenvoranschläge oder Maßblätter";
+  if (f === "pflege") return "Pflegegutachten, Verordnungen oder Arztbriefe";
+  if (f === "hebamme") return "Befunde, Arztbriefe oder Kopien aus dem Mutterpass";
+  const g = systemGruppe(f);
+  if (g === "zahn") return "Röntgenbilder, Heil- und Kostenpläne oder Arztbriefe";
+  if (g === "therapie") return "Verordnungen, Arztbriefe oder Befunde";
+  if (g === "selbst") return "Befunde, Laborwerte oder Arztbriefe";
+  return "Arztbriefe, Röntgenbilder oder Überweisungen";
+}
+
+/** Wer die Diagnose stellt, für den Hinweis unter der Befundauswahl. Leer, wo das Fach keine Diagnosen kodiert. */
+export function diagnoseHinweis(fach: string | null | undefined): string {
+  const f = fach ?? "";
+  if (f === "psych") return "Die Diagnose stellen Ärztin, Arzt, Psychotherapeutin oder Psychotherapeut.";
+  const g = systemGruppe(f);
+  if (g === "zahn") return "Die Diagnose stellt die Zahnärztin oder der Zahnarzt.";
+  if (g === "therapie") return "Maßgeblich ist die Diagnose laut ärztlicher Verordnung.";
+  if (g === "selbst") return "Die Diagnose stellen Sie selbst.";
+  if (g === "arzt") return "Die Diagnose stellt die Ärztin oder der Arzt.";
+  return "";
+}
+
+/** Arbeitet das Fach auf Verordnung (Heilmittel, Pflege, Hilfsmittel, Apotheke)? Dann geht der Bericht an die verordnende Praxis. */
+export function aufVerordnung(fach: string | null | undefined): boolean {
+  return ["therapie", "pflege", "versorgung", "apotheke"].includes(systemGruppe(fach));
 }
 
 const NUR_MANN = /(\(Mann\)|Prostata|PSA)/;

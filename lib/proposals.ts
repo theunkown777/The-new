@@ -1,4 +1,4 @@
-import { isDental, isTherapie, specialty } from "@/lib/specialties";
+import { isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
 import { buildMedicalProposal } from "@/lib/medicalProposals";
 import { tabelle2027 } from "@/lib/festzuschuss2027";
 import { quellenText, type NutzenQuellen } from "@/lib/nutzenQuelle";
@@ -468,7 +468,7 @@ function lueckenItem(g: LueckenGruppe, input: ProposalInput, P: Prices): Proposa
 }
 
 export function buildProposal(input: ProposalInput, prices: Prices): ProposalItem[] {
-  if (!isDental(input.fach)) return buildMedicalProposal(input);
+  if (!istZahnVorschlag(input.fach)) return buildMedicalProposal(input);
   // Lücken zuerst je Kiefer planen: ein Eintrag je Lücke bzw. Kiefer statt je fehlendem Zahn.
   const gruppen = [...planKiefer(UPPER_TEETH, input.teeth), ...planKiefer(LOWER_TEETH, input.teeth)];
   const lueckeBei = new Map<number, ProposalItem>();
@@ -859,7 +859,7 @@ export function buildLetter(args: {
   fach?: string;
 }): string {
   const { items, choices, patient, patientName, practiceName, date } = args;
-  const dental = isDental(args.fach);
+  const dental = istZahnVorschlag(args.fach);
   const therapie = isTherapie(specialty(args.fach));
   const jv = vergleicheJahre(items, choices, patient);
   // Den Vergleich nur zeigen, solange eine Bewilligung zu den alten Sätzen noch möglich ist.

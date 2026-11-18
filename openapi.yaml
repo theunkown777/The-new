@@ -223,8 +223,10 @@ components:
           description: >
             Fachrichtung der Praxis. Bestimmt Stil und Platzhalter des Berichts
             (z. B. Zahnangaben in der Zahnmedizin, Körperregion in der Hausarztpraxis).
-            Ohne Angabe bleibt es wie bisher bei der Zahnmedizin. Praxen anderer
-            Fachrichtungen geben das Fach bitte immer mit.
+            Ohne Angabe gilt die Fachrichtung, für die Ihr API-Schlüssel ausgestellt
+            ist. Ist dort keine hinterlegt, gilt Zahnmedizin nur, wenn die Einträge
+            GOZ oder BEMA nennen; sonst ist der Bericht fachneutral ("andere").
+            Geben Sie das Fach am besten immer mit.
         patient:
           type: object
           required: [firstName, lastName]

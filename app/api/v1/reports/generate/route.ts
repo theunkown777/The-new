@@ -41,8 +41,8 @@ export async function POST(req: Request) {
       reportType,
       practiceName,
       authorName,
-      // Ohne Angabe wie bisher zahnmedizinisch (lib/berichtApi.ts), nicht still im hausärztlichen Stil.
-      fach: berichtFachFuerApi(fach),
+      // Ohne Angabe das Fach des Schlüssels, dann die Verzeichnisse der Einträge, sonst neutral (lib/berichtApi.ts).
+      fach: berichtFachFuerApi(fach, auth.client.fach, entries),
       patient: {
         firstName: patient.firstName,
         lastName: patient.lastName,

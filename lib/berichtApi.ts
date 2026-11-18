@@ -33,10 +33,19 @@ export const generateReportSchema = z.object({
 });
 
 /**
- * Fach für den Bericht. Ohne Angabe bleibt es bewusst bei der Zahnmedizin: So hat die Schnittstelle von Anfang an
- * gearbeitet (Zahnangaben in toothNumbers, Verzeichnisse GOZ und BEMA), und bestehende Partner bekommen denselben
- * Bericht wie bisher. Partner anderer Fachrichtungen geben `fach` mit (openapi.yaml).
+ * Fach für den Bericht, in dieser Reihenfolge (openapi.yaml):
+ * 1. `fach` im Aufruf,
+ * 2. die Fachrichtung, für die der Schlüssel ausgestellt ist (ApiClient.fach; ein Schlüssel gehört zu keiner Praxis),
+ * 3. Zahnmedizin nur, wenn die Einträge zahnärztliche Verzeichnisse nennen (GOZ, BEMA),
+ * 4. sonst neutral "andere". Zahnmedizin ist nie der stille Standard.
  */
-export function berichtFachFuerApi(fach: string | null | undefined): string {
-  return fach || DENTAL_ID;
+export function berichtFachFuerApi(
+  fach: string | null | undefined,
+  schluesselFach: string | null | undefined,
+  entries: { system: string }[],
+): string {
+  if (fach) return fach;
+  if (schluesselFach && (SPECIALTY_IDS as readonly string[]).includes(schluesselFach)) return schluesselFach;
+  if (entries.some((e) => e.system === "GOZ" || e.system === "BEMA")) return DENTAL_ID;
+  return "andere";
 }

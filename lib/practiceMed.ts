@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { customOfferSchema } from "@/lib/proposalSchema";
-import { DENTAL_ID, SPECIALTY_IDS } from "@/lib/specialties";
+import { SPECIALTY_IDS } from "@/lib/specialties";
 import type { CustomOffer, MedInput } from "@/lib/proposals";
 
 // Fachgebiet und Praxisdaten für Arztpraxen lesen bzw. prüfen.
@@ -18,10 +18,8 @@ export function resolveMed(p: { specialty?: string | null; medPrices?: unknown; 
   const prices = z.record(z.string(), z.number()).safeParse(p.medPrices);
   const custom = z.array(customOfferSchema).safeParse(p.customOffers);
   return {
-    // Bewusst wie die Datenbank (Practice.specialty mit Vorgabe "zahn") und isDental(null): Ohne Praxisdatensatz
-    // bleibt es beim zahnärztlichen Ablauf. Eine Seite, die specialty nicht mitliest, fiele sonst still aus der
-    // Zahnmedizin heraus. Sichtbare Texte ohne Praxis setzen die Seiten selbst neutral.
-    fach: p.specialty || DENTAL_ID,
+    // Ohne Fach neutral ("andere"), nie Zahnmedizin. Alle Aufrufer lesen specialty mit.
+    fach: p.specialty || "andere",
     med: { prices: prices.success ? prices.data : {}, custom: custom.success ? (custom.data as CustomOffer[]) : [] },
   };
 }

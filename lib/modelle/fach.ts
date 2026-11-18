@@ -58,7 +58,8 @@ export const FACH_MODELLE: Record<string, FachModelle> = {
 };
 const STANDARD: FachModelle = { modelle: ["koerper", "haut", "auge", "ohr"], ebenen: ORGANE };
 
-export const modelleFuerFach = (fach: string | null | undefined): FachModelle => FACH_MODELLE[fach || "zahn"] ?? STANDARD;
+/** Modelle des Fachs. Ohne Fach der neutrale Standard (Körper zuerst), nie das Gebiss. */
+export const modelleFuerFach = (fach: string | null | undefined): FachModelle => (fach && FACH_MODELLE[fach]) || STANDARD;
 export const hauptModell = (fach: string | null | undefined): ModellId => modelleFuerFach(fach).modelle[0];
 /** Organ bzw. Bereich, den das Körpermodell dieses Fachs zuerst allein zeigt (null = ganzer Körper). */
 export const fokusFuerFach = (fach: string | null | undefined): FokusId | null => modelleFuerFach(fach).fokus ?? null;

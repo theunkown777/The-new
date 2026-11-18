@@ -135,7 +135,7 @@ describe("Rundgang auf der Website", () => {
 describe("Fachseiten", () => {
   it("jedes Ziel der Inhaltsnavigation steht genau einmal als id, keine id doppelt", () => {
     const seite = lesen("app/fachgebiete/[id]/page.tsx");
-    expect(seite).toMatch(/<Entlastung therapie=\{therapie\} \/>/);
+    expect(seite).toMatch(/<Entlastung gruppe=\{dental \? "zahn" : therapie \? "therapie" : systemGruppe\(s\.id\) === "arzt" \? "arzt" : "andere"\} \/>/);
     expect(seite).toMatch(/<PraxisFaq therapie=\{therapie\} dental=\{dental\} \/>/);
     const ziele = [...(seite.match(/const nav[^;]*;/)?.[0] ?? "").matchAll(/\["#([\w-]+)"/g)].map((m) => m[1]);
     expect(ziele).toEqual(["beispiel", "automatisch", "entlastung", "pilot", "faq"]);

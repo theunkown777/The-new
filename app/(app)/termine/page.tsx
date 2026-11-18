@@ -110,6 +110,7 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
       </div>
 
       <TerminAnfragen
+        personPl={fachprofil(practice?.specialty).person.pl}
         anfragen={anfragen.map((a) => ({
           id: a.id, name: `${a.lastName}, ${a.firstName}`, geboren: a.birthDate.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" }),
           phone: a.phone, email: a.email, anlass: a.anlass,

@@ -214,7 +214,7 @@ export default async function DashboardPage() {
         <div className="mx-auto mt-4 max-w-2xl">
           <Behandlungsweg erreicht={5} aktuell={null} size="gross" labels={STATIONEN.map((st, i) => `${st} · ${proStation[i]}`)} animate />
         </div>
-        <p className="mt-1 text-xs text-slate-500">Je Patient der jüngste Vorschlag der letzten 90 Tage, abgelehnte nicht mitgezählt.</p>
+        <p className="mt-1 text-xs text-slate-500">Je {P.sg} der jüngste Vorschlag der letzten 90 Tage, abgelehnte nicht mitgezählt.</p>
       </section>
 
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">

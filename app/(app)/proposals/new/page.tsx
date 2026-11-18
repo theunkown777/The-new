@@ -6,6 +6,7 @@ import { ProposalEditor } from "@/components/ProposalEditor";
 import { resolveMed } from "@/lib/practiceMed";
 import { favoritenLesen } from "@/lib/favoriten";
 import Link from "next/link";
+import { fachWoerter } from "@/lib/fachprofile";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 import { MODELLE, MODELL_BEFUNDE, istBleibenderZahn, teilBezeichnung, teilGueltig, type Modell } from "@/lib/modelle/markierung";
 
@@ -48,7 +49,7 @@ export default async function NewProposalPage(props: {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
-        <h1 className="font-display text-3xl text-slate-900">Neuer Behandlungsvorschlag</h1>
+        <h1 className="font-display text-3xl text-slate-900">Neuer {fachWoerter(practice?.specialty).vorschlag}</h1>
         <Link href="/proposals/schnell" className="text-sm text-brand-700 underline" data-testid="link-schnell">Schnellvorschlag ohne Akte</Link>
       </div>
       <ProposalEditor

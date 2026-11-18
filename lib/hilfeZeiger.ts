@@ -68,7 +68,7 @@ export const SEITEN_TITEL: Record<string, { titel: string; recht?: keyof MenueRe
   "/settings/connector": { titel: "Praxissoftware", recht: "einstellungen" },
   "/settings/empfang": { titel: "Empfang (PIN)", recht: "einstellungen" },
   "/settings/security": { titel: "Sicherheit" },
-  "/settings/lexikon": { titel: "Leistungslexikon" },
+  "/settings/lexikon": { titel: "Leistungslexikon", nurZahn: true },
   "/settings/termine": { titel: "Online-Termine und Kalender", recht: "einstellungen" },
   "/settings/standorte": { titel: "Standorte", recht: "einstellungen" },
   "/settings/protokoll": { titel: "Protokoll und Datenschutz", recht: "team" },

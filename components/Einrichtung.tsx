@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { isDental } from "@/lib/specialties";
+import { fachWoerter } from "@/lib/fachprofile";
 
 // Erste Schritte für eine neue Praxis: steht oben auf der Übersicht, bis alles erledigt ist.
 // Nur für die Praxisleitung (Rolle admin), nie in Demo- und Gastpraxen.
@@ -12,6 +13,7 @@ export async function Einrichtung({ practiceId, isAdmin }: { practiceId: string;
   });
   if (!practice || practice.isDemo) return null;
   const dental = isDental(practice.specialty);
+  const w = fachWoerter(practice.specialty);
   const [nutzer, einladungen, connector, patienten, berichte, vorschlaege] = await Promise.all([
     prisma.user.count({ where: { practiceId } }),
     prisma.staffInvite.count({ where: { practiceId } }),
@@ -28,12 +30,12 @@ export async function Einrichtung({ practiceId, isAdmin }: { practiceId: string;
       href: dental ? "/settings/proposals" : "/settings/fachgebiet",
       fertig: dental ? practice.proposalPrices != null : practice.medPrices != null || practice.customOffers != null,
     },
-    { id: "bank", text: "Bankverbindung hinterlegen", hilfe: "Für den GiroCode: Patienten zahlen direkt auf Ihr Konto.", href: "/zahlungen#konto", fertig: !!practice.iban },
+    { id: "bank", text: "Bankverbindung hinterlegen", hilfe: `Für den GiroCode: ${w.personen} zahlen direkt auf Ihr Konto.`, href: "/zahlungen#konto", fertig: !!practice.iban },
     { id: "team", text: "Team einladen", hilfe: "Empfang und Behandelnde mit eigenem Zugang.", href: "/settings/team", fertig: nutzer > 1 || einladungen > 0 },
-    { id: "pvs", text: "Praxissoftware anbinden (optional)", hilfe: "Sorrida öffnet sich dann mit dem gewählten Patienten.", href: "/settings/connector", fertig: connector > 0 },
+    { id: "pvs", text: "Praxissoftware anbinden (optional)", hilfe: "Sorrida öffnet sich dann mit der Akte, die Sie dort gewählt haben.", href: "/settings/connector", fertig: connector > 0 },
     { id: "ausgang", text: "Ausgangswerte schätzen (3 Zahlen)", hilfe: "Damit Sie später sehen, was Sorrida verändert hat.", href: "/analyse/wirkung", fertig: practice.ausgangswert != null },
-    { id: "patient", text: "Ersten Patienten anlegen", hilfe: "Oder über die Praxissoftware übernehmen.", href: "/patients/new", fertig: patienten > 0 },
-    { id: "abschluss", text: "Erste Behandlung abschließen", hilfe: "Ein Klick: Bericht, Vorschlag, Patienten-Link und To-dos.", href: "/abschluss/new", fertig: berichte + vorschlaege > 0 },
+    { id: "patient", text: `${w.erstePerson} anlegen`, hilfe: "Oder über die Praxissoftware übernehmen.", href: "/patients/new", fertig: patienten > 0 },
+    { id: "abschluss", text: `${w.ersterAbschluss} abschließen`, hilfe: "Ein Klick: Bericht, Vorschlag, Link und To-dos.", href: "/abschluss/new", fertig: berichte + vorschlaege > 0 },
   ];
   const offen = schritte.filter((s) => !s.fertig).length;
   if (offen === 0) return null;

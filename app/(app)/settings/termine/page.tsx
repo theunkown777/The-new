@@ -33,11 +33,12 @@ export default async function TermineOnlinePage() {
     <div className="mx-auto max-w-3xl">
       <p className="text-sm"><Link href="/settings" className="text-brand-700 hover:underline">← Einstellungen</Link></p>
       <h1 className="mt-1 font-display text-3xl text-slate-900">Online-Termine und Kalender</h1>
-      <p className="mt-1 text-sm text-slate-500">Patienten buchen selbst und sehen nur freie Zeiten. Ihr vorhandener Kalender wird dabei berücksichtigt.</p>
+      <p className="mt-1 text-sm text-slate-500">{fachprofil(feed?.specialty).person.pl} buchen selbst und sehen nur freie Zeiten. Ihr vorhandener Kalender wird dabei berücksichtigt.</p>
       <div className="mt-5">
         <BuchungSettings
           admin={session!.user.role === "admin"}
           demo={p.isDemo}
+          personPl={fachprofil(feed?.specialty).person.pl}
           start={{ buchungAktiv: p.buchungAktiv, sprechzeiten: lage!.eingabe.sprechzeiten, buchungMinuten: p.buchungMinuten, buchungVorlaufStd: p.buchungVorlaufStd, buchungTageVoraus: p.buchungTageVoraus }}
           kalender={{ verbunden: !!p.kalenderUrl, host: p.kalenderUrl ? new URL(p.kalenderUrl).hostname : null, syncAt: p.kalenderSyncAt ? p.kalenderSyncAt.toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Berlin" }) : null, fehler: p.kalenderSyncFehler, abo, datei, feed: !!feed?.kalenderFeedHash }}
           plaetze={lage!.eingabe.plaetze}
@@ -52,6 +53,7 @@ export default async function TermineOnlinePage() {
           start={{ aktiv: p.neupatientenBuchung, url: p.buchungKennung ? `${basis}/t/${p.buchungKennung}` : null, anlaesse: anlaesseLesen(p.buchungAnlaesse) }}
           vorschlaege={fachprofil(feed?.specialty).termine}
           stammdatenFehlt={buchungsseiteFehlt(leseStammdaten(feed?.stammdaten))}
+          personPl={fachprofil(feed?.specialty).person.pl}
         />
       </div>
       <section className="card mt-5 space-y-2 text-sm text-slate-700" data-testid="whatsapp-status">

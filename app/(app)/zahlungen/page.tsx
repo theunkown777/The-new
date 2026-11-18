@@ -18,6 +18,7 @@ import { onlineZahlungStatus } from "@/lib/onlineZahlung";
 import { darfZahlungen } from "@/lib/permissions";
 import { briefMoeglich } from "@/lib/erstattungsbrief";
 import { DENTAL_ID } from "@/lib/specialties";
+import { fachWoerter } from "@/lib/fachprofile";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zahlungen" };
@@ -88,6 +89,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
     }),
   ]);
   const t = invoiceTotals(all, now);
+  const w = fachWoerter(practice?.specialty);
   const raten = all.filter((i) => i.wantsInstallments && (i.status === "OFFEN" || i.status === "GEMELDET")).length;
   const isAdmin = session!.user.role === "admin";
   const fmtDate = (d: Date) => d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" });
@@ -120,7 +122,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
           <p className="mt-1 text-xs text-slate-500">{t.ueberfaellig} {t.ueberfaellig === 1 ? "Rechnung" : "Rechnungen"}</p>
         </div>
         <div className="card">
-          <p className="text-sm text-slate-500">Vom Patienten gemeldet</p>
+          <p className="text-sm text-slate-500">{w.vonPerson.charAt(0).toUpperCase() + w.vonPerson.slice(1)} gemeldet</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{formatCent(t.gemeldetCent)}</p>
           <p className="mt-1 text-xs text-slate-500">Zahlungseingang prüfen{raten ? ` · ${raten}× Raten angefragt` : ""}</p>
         </div>
@@ -134,7 +136,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
       {!practice?.iban && (
         <section className="card border-amber-200 bg-amber-50">
           <h2 className="font-semibold text-slate-900">Bankverbindung hinterlegen</h2>
-          <p className="mb-4 mt-1 text-sm text-slate-600">Damit Patienten im Portal per GiroCode zahlen können. Das Geld geht direkt auf Ihr Praxiskonto, Sorrida berührt es nicht.</p>
+          <p className="mb-4 mt-1 text-sm text-slate-600">Damit {w.personen} im Portal per GiroCode zahlen können. Das Geld geht direkt auf Ihr Praxiskonto, Sorrida berührt es nicht.</p>
           <BankSettings initial={{ accountHolder: practice?.name ?? "", iban: "", bic: "" }} readOnly={!isAdmin} />
         </section>
       )}
@@ -177,7 +179,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
               <table className="w-full text-sm" data-testid="invoice-table">
                 <thead>
                   <tr className="text-left text-xs uppercase tracking-wider text-slate-500">
-                    <th className="px-4 py-2 font-semibold">Patient</th>
+                    <th className="px-4 py-2 font-semibold">{w.person}</th>
                     <th className="px-4 py-2 font-semibold">Rechnung</th>
                     <th className="px-4 py-2 font-semibold">Fällig</th>
                     <th className="px-4 py-2 text-right font-semibold">Betrag</th>
@@ -253,7 +255,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
           )}
           <section className="card" aria-labelledby="online-titel" data-hilfe="zahlungen-online">
             <h2 id="online-titel" className="font-semibold text-slate-900">Online-Zahlung mit DATEV-Anbindung</h2>
-            <p className="mt-1 mb-3 text-sm text-slate-600">Patienten bezahlen offene Rechnungen im Portal; die Zahlung landet über den DATEV-Datenservice in der Buchhaltung.</p>
+            <p className="mt-1 mb-3 text-sm text-slate-600">{w.personen} bezahlen offene Rechnungen im Portal; die Zahlung landet über den DATEV-Datenservice in der Buchhaltung.</p>
             <OnlineZahlungEinrichten {...onlineZahlungStatus()} konto={practice?.stripeAccountId ?? null} istAdmin={isAdmin} meldung={searchParams?.stripe} />
           </section>
           <section className="card" aria-labelledby="datev-titel" data-hilfe="zahlungen-datev">
@@ -275,12 +277,12 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
             </section>
           )}
           <section className="rounded-2xl bg-[#F5F2EE] p-5 text-sm text-slate-600">
-            <p className="font-semibold text-slate-800">So läuft es für den Patienten</p>
+            <p className="font-semibold text-slate-800">So läuft es {w.fuerPerson}</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
-              <li>Er bekommt den Link zu seinem Behandlungsweg per SMS oder QR-Code.</li>
-              <li>Er sieht offene Rechnungen mit Fälligkeit, ohne App und Konto.</li>
-              <li>Er zahlt per GiroCode oder kopiert IBAN und Verwendungszweck.</li>
-              <li>Er tippt „Ich habe überwiesen“; Sie bestätigen den Eingang hier.</li>
+              <li>Den persönlichen Link gibt es per SMS oder QR-Code.</li>
+              <li>Dort stehen offene Rechnungen mit Fälligkeit, ohne App und Konto.</li>
+              <li>Gezahlt wird per GiroCode oder mit kopierter IBAN und Verwendungszweck.</li>
+              <li>Nach „Ich habe überwiesen“ bestätigen Sie den Eingang hier.</li>
             </ol>
           </section>
         </aside>

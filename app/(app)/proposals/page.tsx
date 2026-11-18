@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { PROPOSAL_STATUS_LABELS, formatEuro } from "@/lib/proposals";
 import { PROPOSAL_STATUS_BADGE } from "@/lib/proposalLabels";
 import { MIN_DECIDED_FOR_COMPARISON, proposalStats } from "@/lib/proposalStats";
+import { praxisFach } from "@/lib/katalogScope";
+import { fachWoerter } from "@/lib/fachprofile";
 
 /** So viele Vorschläge zeigt die Liste höchstens; ältere stehen beim Patienten und in der Suche. */
 const LISTE_MAX = 200;
@@ -16,7 +18,7 @@ export default async function ProposalsPage() {
 
   // Die Liste zeigt die neuesten Vorschläge und lädt nur, was eine Zeile braucht (ohne Befunde und Schreiben).
   // Die Kennzahlen rechnen über alle Vorschläge der Praxis, aber nur mit den sechs Feldern, die sie brauchen.
-  const [proposals, zahlen] = await Promise.all([
+  const [proposals, zahlen, fach] = await Promise.all([
     prisma.treatmentProposal.findMany({
       where: { practiceId },
       orderBy: { createdAt: "desc" },
@@ -27,7 +29,9 @@ export default async function ProposalsPage() {
       where: { practiceId },
       select: { status: true, shareCreatedAt: true, patientViewedAt: true, patientRespondedAt: true, baseTotalCent: true, planTotalCent: true },
     }),
+    praxisFach(practiceId),
   ]);
+  const w = fachWoerter(fach);
   const gesamt = zahlen.length;
 
   const stats = proposalStats(zahlen);
@@ -39,7 +43,7 @@ export default async function ProposalsPage() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-3xl text-slate-900">Behandlungsvorschläge</h1>
+        <h1 className="font-display text-3xl text-slate-900">{w.vorschlaege}</h1>
         <div className="flex flex-wrap items-center gap-3">
           <Link href="/proposals/nachfassen" className="btn-secondary" data-testid="link-nachfassen" data-hilfe="vorschlag-nachfassen">Nachfassen</Link>
           <Link href="/proposals/schnell" className="btn-secondary" data-testid="schnellvorschlag" data-hilfe="vorschlag-schnell">Schnellvorschlag ohne Akte</Link>
@@ -144,10 +148,10 @@ export default async function ProposalsPage() {
               <div className="flex flex-wrap items-center gap-2">
                 {p.patientResponse ? (
                   <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
-                    {p.patientResponse === "RUECKRUF" ? "Rückruf gewünscht" : "Patient möchte besprechen"}
+                    {p.patientResponse === "RUECKRUF" ? "Rückruf gewünscht" : "Besprechung gewünscht"}
                   </span>
                 ) : p.patientViewedAt ? (
-                  <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-800">vom Patienten gelesen</span>
+                  <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-800">{w.vonPerson} gelesen</span>
                 ) : null}
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${PROPOSAL_STATUS_BADGE[p.status]}`}>
                   {PROPOSAL_STATUS_LABELS[p.status]}

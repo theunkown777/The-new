@@ -27,6 +27,7 @@ export default async function NewReportPage(props: {
       <h1 className="mb-6 font-display text-3xl text-slate-900">Neuer Bericht</h1>
       <ServiceChecklistForm
         regionLabel={fachprofil(practice?.specialty).region}
+        fach={practice?.specialty}
         patients={patients}
         initialPatientId={searchParams.patientId}
         practicePunktwerte={{

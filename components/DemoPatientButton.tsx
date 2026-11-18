@@ -26,7 +26,7 @@ export async function patientenansichtOeffnen(): Promise<boolean> {
   return false;
 }
 
-export function DemoPatientButton() {
+export function DemoPatientButton({ personPl = "Patienten" }: { personPl?: string }) {
   const [busy, setBusy] = useState(false);
   return (
     <button
@@ -43,7 +43,7 @@ export function DemoPatientButton() {
         }
       }}
     >
-      {busy ? "Link wird erzeugt …" : "Patientenansicht öffnen (Link eines Beispielpatienten)"}
+      {busy ? "Link wird erzeugt …" : `Ansicht für ${personPl} öffnen (Beispiel-Link)`}
     </button>
   );
 }

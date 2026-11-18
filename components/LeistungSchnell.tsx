@@ -9,8 +9,10 @@ type Item = { id: string; code: string; title: string; festbetragCent: number | 
  * vergibt Sorrida. `onCreated` bekommt die fertige Katalogposition, z. B. um sie gleich in die
  * Sitzung zu übernehmen.
  */
-export function LeistungSchnell({ vorgabe = "", onCreated, offen = false, titel = "Eigene Leistung anlegen", knopf = "Anlegen" }: {
+export function LeistungSchnell({ vorgabe = "", onCreated, offen = false, titel = "Eigene Leistung anlegen", knopf = "Anlegen", beispiel = "Beratungsgespräch" }: {
   vorgabe?: string; onCreated?: (item: never) => void; offen?: boolean; titel?: string; knopf?: string;
+  /** Beispielname im Feld, passend zum Fach (lib/fachprofile.ts leistungsBeispiel) */
+  beispiel?: string;
 }) {
   const [auf, setAuf] = useState(offen);
   const [name, setName] = useState(vorgabe);
@@ -46,7 +48,7 @@ export function LeistungSchnell({ vorgabe = "", onCreated, offen = false, titel 
       <p className="text-sm font-medium text-slate-900">{titel}</p>
       <p className="text-xs text-slate-600">Nur der Name ist nötig. Ziffer und Einordnung vergibt Sorrida, den Preis können Sie später ergänzen.</p>
       <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-        <input className="input w-full sm:flex-1" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name, z. B. Bleaching" aria-label="Name der Leistung" maxLength={120}
+        <input className="input w-full sm:flex-1" value={name} onChange={(e) => setName(e.target.value)} placeholder={`Name, z. B. ${beispiel}`} aria-label="Name der Leistung" maxLength={120}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); anlegen(); } }} data-testid="leistung-schnell-name" />
         <input className="input w-full sm:w-36" value={preis} onChange={(e) => setPreis(e.target.value)} placeholder="Preis in €" inputMode="decimal" aria-label="Preis in Euro (freiwillig)"
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); anlegen(); } }} data-testid="leistung-schnell-preis" />

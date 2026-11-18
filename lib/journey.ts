@@ -76,7 +76,7 @@ export function journey(input: JourneyInput, now = new Date()): Journey {
       erreicht: 3,
       aktuell: 3,
       praxis: {
-        text: p.patientResponse === "RUECKRUF" ? "Rückruf gewünscht: heute anrufen" : "Patient möchte besprechen: Termin vereinbaren",
+        text: p.patientResponse === "RUECKRUF" ? "Rückruf gewünscht: heute anrufen" : "Besprechung gewünscht: Termin vereinbaren",
         tone: wartet ? "achtung" : "aktiv",
       },
       patient: "Danke für Ihre Rückmeldung. Sie ist bei der Praxis angekommen.",

@@ -16,7 +16,7 @@ export type ReportType = "BEFUND" | "KRANKENKASSE" | "UEBERWEISER";
 export const REPORT_TYPES = ["BEFUND", "KRANKENKASSE", "UEBERWEISER"] as const satisfies readonly ReportType[];
 
 interface GenerateReportInput {
-  /** Fach der Praxis; bestimmt Stil und Wortwahl (Standard: Zahnmedizin) */
+  /** Fach der Praxis; bestimmt Stil und Wortwahl (ohne Angabe allgemein, lib/fachprofile.ts) */
   fach?: string;
   reportType: ReportType;
   practiceName: string;

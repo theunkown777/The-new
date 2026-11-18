@@ -10,7 +10,7 @@ import { resolveInstallments } from "@/lib/installments";
 import { UI, empfehlungJe, langDir, pickLang, type PatientLang } from "@/lib/patientI18n";
 import { uebersetzungsWoerterbuch } from "@/lib/eigeneLeistung";
 import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
-import { isDental, isTherapie, specialty } from "@/lib/specialties";
+import { isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
 import { LESE_LINK_MAX, leseLinksAktiv } from "@/lib/leseLink";
 import { erinnernMoeglich } from "@/lib/erinnerungWunsch";
 
@@ -67,7 +67,7 @@ export default async function PatientLinkPage(props: {
   }
 
   const items = buildProposal(input.data, resolvePrices(proposal.practice.proposalPrices)).filter((i) => i.options.length > 0);
-  const dental = isDental(input.data.fach);
+  const dental = istZahnVorschlag(input.data.fach);
   const texte = items.flatMap((i) => [i.title, ...i.options.map((o) => o.name)]);
   const zweitmeinungen = await prisma.zweitmeinung.findMany({ where: { proposalId: proposal.id }, orderBy: { createdAt: "asc" } });
   // Die Sprachwahl gibt es für jedes Fach. Bezeichnungen, die nur auf Deutsch vorliegen (Angebote der

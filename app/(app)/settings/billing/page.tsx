@@ -1,4 +1,6 @@
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { isDental } from "@/lib/specialties";
 import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -9,8 +11,10 @@ export default async function BillingSettingsPage() {
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({
     where: { id: session!.user.practiceId },
-    select: { gozPunktwertCent: true, bemaPunktwertCent: true },
+    select: { gozPunktwertCent: true, bemaPunktwertCent: true, specialty: true },
   });
+  // GOZ-/BEMA-Punktwerte gibt es nur in der Zahnmedizin.
+  if (!isDental(practice?.specialty)) redirect("/settings");
 
   return (
     <div className="mx-auto max-w-xl">

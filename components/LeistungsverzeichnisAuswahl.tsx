@@ -17,6 +17,8 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
   const [offen, setOffen] = useState(offenStart);
   const [gliederung, setGliederung] = useState<Gliederung[] | null>(null);
   const [kv, setKv] = useState<string | null>(null);
+  const [kvMoeglich, setKvMoeglich] = useState(false);
+  const [beispiel, setBeispiel] = useState<string | undefined>(undefined);
   const [system, setSystem] = useState<string | null>(null);
   const [kapitel, setKapitel] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -39,6 +41,8 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
     fetch("/api/amtliche-leistungen/fach").then((r) => r.json()).then((d) => {
       setGliederung(d.gliederung ?? []);
       setKv(d.kvName ?? null);
+      setKvMoeglich(!!d.kvMoeglich);
+      if (typeof d.beispiel === "string") setBeispiel(d.beispiel);
       if (d.gliederung?.[0]) setSystem(d.gliederung[0].system);
     }).catch(() => setFehler("Leistungsverzeichnis nicht erreichbar"));
   }, [offen, gliederung]);
@@ -99,7 +103,7 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
                       </button>
                     ))}
                   </div>
-                  {gliederung.some((g) => g.system === "KV_REGIONAL") ? null : kv === null && (
+                  {!kvMoeglich || gliederung.some((g) => g.system === "KV_REGIONAL") ? null : kv === null && (
                     <p className="text-xs text-slate-500">Regionale KV-Ziffern erscheinen, sobald unter Praxis → Leistungsverzeichnis Ihr KV-Bezirk gewählt ist.</p>
                   )}
                   {aktuelles && (
@@ -124,7 +128,7 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
                     <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900" data-testid="auswahl-nichts">
                       Nichts gefunden für „{suche}“. Tipps: ein kürzeres Wort (z. B. „Wund“ statt „Wundversorgung“), die Ziffer selbst (z. B. 03000) oder ein anderes Wort (z. B. „Sono“ für Ultraschall).
                       Fehlt eine Praxisleistung ganz, legen Sie sie gleich hier als eigene Leistung an:
-                      <div className="mt-2"><LeistungSchnell offen vorgabe={suche} titel={`„${suche}“ als eigene Leistung anlegen`} knopf="Anlegen und übernehmen" onCreated={(it) => onAdd([it])} /></div>
+                      <div className="mt-2"><LeistungSchnell offen vorgabe={suche} beispiel={beispiel} titel={`„${suche}“ als eigene Leistung anlegen`} knopf="Anlegen und übernehmen" onCreated={(it) => onAdd([it])} /></div>
                     </div>
                   )}
                   <p className="mb-1 text-xs text-slate-500" data-testid="auswahl-treffer">{liste.anzahl.toLocaleString("de-DE")} Leistungen{liste.anzahl > liste.leistungen.length ? `, die ersten ${liste.leistungen.length}` : ""}</p>
@@ -149,7 +153,7 @@ export function LeistungsverzeichnisAuswahl({ onAdd, offenStart = false, frei = 
               )}
               {!(liste && !laedt && liste.anzahl === 0) && (
                 <div className="border-t border-slate-100 pt-3">
-                  <LeistungSchnell titel="Eigene Leistung anlegen (nur Name und Preis)" knopf="Anlegen und übernehmen" onCreated={(it) => onAdd([it])} />
+                  <LeistungSchnell beispiel={beispiel} titel="Eigene Leistung anlegen (nur Name und Preis)" knopf="Anlegen und übernehmen" onCreated={(it) => onAdd([it])} />
                 </div>
               )}
             </>
