@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { fachText } from "@/lib/fachText";
 
 type Tag = { tag: string; zeiten: string[] };
 const tagName = (tag: string) => new Date(`${tag}T12:00:00Z`).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
@@ -13,8 +14,9 @@ const termin = (iso: string) => `${new Date(iso).toLocaleDateString("de-DE", { w
  * Es entsteht eine Anfrage; die Praxis bestätigt sie. Kein fremder Dienst, kein Captcha:
  * Schutz über verstecktes Lockfeld, Zeitstempel und Begrenzung auf dem Server.
  */
-export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv: boolean; minuten: number; tage: Tag[]; anlaesse: string[]; stempel: string; beispiel: boolean; /** Datenschutzhinweise der Praxis, falls hinterlegt (https-Adresse) */ datenschutzUrl?: string | null }) {
+export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv: boolean; minuten: number; tage: Tag[]; anlaesse: string[]; stempel: string; beispiel: boolean; /** Datenschutzhinweise der Praxis, falls hinterlegt (https-Adresse) */ datenschutzUrl?: string | null; /** Fach der Praxis: „die Apotheke bestätigt“, „beim Pflegedienst“ (lib/fachText.ts) */ fach?: string | null }) {
   const { kennung, praxis, anlaesse, beispiel } = props;
+  const ft = (s: string) => fachText(s, props.fach);
   const [tage, setTage] = useState<Tag[]>(props.tage);
   const [aktiv, setAktiv] = useState(props.aktiv);
   const [minuten, setMinuten] = useState(props.minuten);
@@ -39,7 +41,7 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
   async function senden(e: React.FormEvent) {
     e.preventDefault();
     if (!zeit) return setFehler("Bitte wählen Sie zuerst eine Zeit.");
-    if (!f.mobil.trim() && !f.email.trim()) return setFehler("Bitte tragen Sie eine Mobilnummer oder eine E-Mail-Adresse ein, damit die Praxis Sie erreicht.");
+    if (!f.mobil.trim() && !f.email.trim()) return setFehler(ft("Bitte tragen Sie eine Mobilnummer oder eine E-Mail-Adresse ein, damit die Praxis Sie erreicht."));
     if (!datenschutz) return setFehler("Bitte bestätigen Sie, dass Sie die Datenschutzhinweise gelesen haben.");
     setBusy(true); setFehler(null);
     const res = await fetch(`/api/t/${kennung}`, {
@@ -62,7 +64,7 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
       <div className="rounded-2xl bg-salbei-50 p-5 text-salbei-900" role="status" data-testid="neutermin-fertig">
         <p className="text-lg font-semibold">Ihre Anfrage ist angekommen.</p>
         <p className="mt-2 text-sm">Gewünschte Zeit: <b>{termin(fertig)}</b> bei {praxis}.</p>
-        <p className="mt-2 text-sm">Die Zeit ist 24 Stunden für Sie reserviert. Der Termin gilt erst, wenn die Praxis ihn bestätigt. Die Praxis sieht Ihre Anfrage mit den angegebenen Kontaktdaten.</p>
+        <p className="mt-2 text-sm">{ft("Die Zeit ist 24 Stunden für Sie reserviert. Der Termin gilt erst, wenn die Praxis ihn bestätigt. Die Praxis sieht Ihre Anfrage mit den angegebenen Kontaktdaten.")}</p>
         {beispiel && <p className="mt-2 text-sm">Dies war ein Beispiel. Es meldet sich niemand bei Ihnen.</p>}
       </div>
     );
@@ -76,8 +78,8 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
 
       <section className="rounded-2xl bg-white p-4" aria-labelledby="neutermin-zeiten">
         <h2 id="neutermin-zeiten" className="text-sm font-semibold text-slate-900">1. Freie Zeit wählen</h2>
-        {!aktiv ? <p className="mt-2 text-sm text-slate-600" data-testid="neutermin-inaktiv">{praxis} bietet zurzeit keine Online-Termine an. Bitte rufen Sie in der Praxis an.</p>
-          : tage.length === 0 ? <p className="mt-2 text-sm text-slate-600" data-testid="neutermin-keine">In den nächsten Wochen ist online keine Zeit frei. Bitte rufen Sie in der Praxis an.</p>
+        {!aktiv ? <p className="mt-2 text-sm text-slate-600" data-testid="neutermin-inaktiv">{praxis} bietet zurzeit keine Online-Termine an. {ft("Bitte rufen Sie in der Praxis an.")}</p>
+          : tage.length === 0 ? <p className="mt-2 text-sm text-slate-600" data-testid="neutermin-keine">{ft("In den nächsten Wochen ist online keine Zeit frei. Bitte rufen Sie in der Praxis an.")}</p>
           : (
             <>
               <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-2" role="tablist" aria-label="Tag">
@@ -116,7 +118,7 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
             <label className="block"><span className="label">Mobilnummer</span><input type="tel" inputMode="tel" className="input" value={f.mobil} onChange={setze("mobil")} maxLength={30} autoComplete="tel" placeholder="z. B. 0171 2345678" data-testid="neutermin-mobil" /></label>
             <label className="block"><span className="label">oder E-Mail</span><input type="email" inputMode="email" className="input" value={f.email} onChange={setze("email")} maxLength={200} autoComplete="email" data-testid="neutermin-email" /></label>
           </div>
-          <p className="-mt-1 text-xs text-slate-500">Eines von beiden genügt. Darüber bestätigt die Praxis Ihren Termin.</p>
+          <p className="-mt-1 text-xs text-slate-500">{ft("Eines von beiden genügt. Darüber bestätigt die Praxis Ihren Termin.")}</p>
           <label className="block"><span className="label">Anlass</span>
             <select className="input" value={f.anlass} onChange={setze("anlass")} required data-testid="neutermin-anlass">
               <option value="" disabled>Bitte wählen</option>
@@ -129,18 +131,18 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
           </div>
           <div className="rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600" data-testid="neutermin-datenschutz-text">
             <b className="text-slate-800">Datenschutz in Kürze:</b> Verantwortlich für Ihre Daten ist {praxis}. Ihre Angaben werden nur für die Terminvergabe verwendet.
-            Kommt kein Termin zustande, werden sie nach spätestens 30 Tagen gelöscht. Die Seite stellt Sorrida im Auftrag der Praxis technisch bereit.{" "}
+            Kommt kein Termin zustande, werden sie nach spätestens 30 Tagen gelöscht. {ft("Die Seite stellt Sorrida im Auftrag der Praxis technisch bereit.")}{" "}
             {props.datenschutzUrl
-              ? <>Die vollständigen <a href={props.datenschutzUrl} target="_blank" rel="noopener noreferrer" className="underline" data-testid="neutermin-datenschutz-link">Datenschutzhinweise der Praxis</a> öffnen sich in einem neuen Fenster.</>
-              : "Die vollständigen Datenschutzhinweise erhalten Sie von der Praxis."}
+              ? <>Die vollständigen <a href={props.datenschutzUrl} target="_blank" rel="noopener noreferrer" className="underline" data-testid="neutermin-datenschutz-link">{ft("Datenschutzhinweise der Praxis")}</a> öffnen sich in einem neuen Fenster.</>
+              : ft("Die vollständigen Datenschutzhinweise erhalten Sie von der Praxis.")}
           </div>
           {/* Bestätigt wird nur, was die Seite auch zeigt: mit Link die Hinweise der Praxis, sonst der Hinweis oben. */}
           <label className="flex items-start gap-2 text-sm text-slate-800">
             <input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={datenschutz} onChange={(e) => setDatenschutz(e.target.checked)} required data-testid="neutermin-datenschutz" />
-            <span data-testid="neutermin-datenschutz-bestaetigung">{props.datenschutzUrl ? "Ich habe die Datenschutzhinweise der Praxis gelesen." : "Ich habe den Hinweis zum Datenschutz oben gelesen."}</span>
+            <span data-testid="neutermin-datenschutz-bestaetigung">{props.datenschutzUrl ? ft("Ich habe die Datenschutzhinweise der Praxis gelesen.") : "Ich habe den Hinweis zum Datenschutz oben gelesen."}</span>
           </label>
           <button className="btn btn-primary w-full" disabled={busy} data-testid="neutermin-senden">{busy ? "Sendet …" : "Termin anfragen"}</button>
-          <p className="text-center text-xs text-slate-500">Die Zeit wird 24 Stunden für Sie reserviert. Der Termin gilt, sobald die Praxis ihn bestätigt.</p>
+          <p className="text-center text-xs text-slate-500">{ft("Die Zeit wird 24 Stunden für Sie reserviert. Der Termin gilt, sobald die Praxis ihn bestätigt.")}</p>
         </form>
       )}
     </div>

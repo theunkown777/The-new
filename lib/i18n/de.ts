@@ -78,7 +78,7 @@ const ui: Ui = {
   contentNote: "",
   germanOnlyNote: "",
   expiredTitle: "Dieser Link ist nicht mehr gültig",
-  expiredText: "Aus Datenschutzgründen sind Patienten-Links nur begrenzt gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen Link.",
+  expiredText: "Aus Datenschutzgründen sind persönliche Links nur begrenzt gültig. Bitte fragen Sie nach einem neuen Link.",
   goneTitle: "Dieser Vorschlag ist nicht verfügbar",
   goneText: "Bitte fragen Sie in Ihrer Praxis nach.",
   // Kostenübersicht als PDF, Lese-Link, „Erinnern Sie mich“, Vorlesen und die drei Kacheln oben

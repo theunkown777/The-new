@@ -41,7 +41,8 @@ export async function POST(req: Request) {
     prisma.practice.findUnique({ where: { id: practiceId }, select: { specialty: true } }),
     menueRechteVon(session.user.id, practiceId),
   ]);
-  const woerter = { personPl: fachprofil(praxis?.specialty).person.pl, abschluss: abschlussWort(praxis?.specialty) };
+  const { sg: person, pl: personPl } = fachprofil(praxis?.specialty).person;
+  const woerter = { personPl, person, abschluss: abschlussWort(praxis?.specialty) };
   const merkmale = { gebuehrenrechner: gebuehrenwerkeFuer(praxis?.specialty).length > 0 };
   // Wie /hilfe-praxis: Zahn-Einträge nur bei Fach "zahn" (isDental ist ohne Fach false).
   const eintraege = sichtbareHilfe(HILFE_WISSEN, { fach: isDental(praxis?.specialty) ? "zahn" : "andere", rechte, merkmale }).map((e) => hilfeText(e, woerter));

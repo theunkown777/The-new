@@ -18,7 +18,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "einrichtung",
     frage: "Was bedeutet die Liste „Ihre Praxis einrichten“?",
-    antwort: "Die Liste auf der Übersicht zeigt die ersten Schritte: Preise eintragen, Bankverbindung, Team einladen, ersten Patienten anlegen. Ein Haken erscheint, sobald ein Schritt erledigt ist. Jeder Punkt führt auf die passende Seite.",
+    antwort: "Die Liste auf der Übersicht zeigt die ersten Schritte: Preise eintragen, Bankverbindung, Team einladen, den ersten Patienten anlegen. Ein Haken erscheint, sobald ein Schritt erledigt ist. Jeder Punkt führt auf die passende Seite.",
     pfad: "Übersicht → Ihre Praxis einrichten",
     href: "/dashboard",
     stichwoerter: ["einrichten", "Einrichtung", "Checkliste", "erste Schritte", "Start", "Haken"],
@@ -185,7 +185,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   },
   {
     id: "terminanfrage-zuordnen",
-    frage: "Die Online-Anfrage passt zu einem Patienten, den es schon gibt. Was tun?",
+    frage: "Die Online-Anfrage passt zu einem Patienten aus dem Bestand. Was tun?",
     antwort: "Hat jemand denselben Namen und dasselbe Geburtsdatum wie ein Patient in Ihrem Bestand, zeigt Sorrida das bei der Anfrage. Sie können die Anfrage diesem Patienten zuordnen. Neue Kontaktdaten übernimmt Sorrida nur, wenn Sie das Häkchen setzen.",
     pfad: "Termine → Online-Anfragen neuer Patienten",
     href: "/termine#anfragen",
@@ -196,7 +196,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "vorsorge",
     frage: "Wo sehe ich, welche Vorsorge fällig ist?",
-    antwort: "Unter „Vorsorge fällig“ stehen Kassenleistungen, an die Ihre Patienten erinnert werden möchten. Gezeigt wird, was jetzt oder in den nächsten 14 Tagen fällig ist. Auch hier steht die Kassenleistung zuerst.",
+    antwort: "Unter „Vorsorge fällig“ stehen Kassenleistungen, an die sich Ihre Patienten erinnern lassen möchten. Gezeigt wird, was jetzt oder in den nächsten 14 Tagen fällig ist. Auch hier steht die Kassenleistung zuerst.",
     pfad: "Vorsorge fällig",
     href: "/vorsorge",
     stichwoerter: ["Vorsorge", "fällig", "Recall", "Kontrolle", "Kassenleistung", "Wiedervorstellung"],
@@ -216,7 +216,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "empfang",
     frage: "Wie nutze ich das Tablet am Empfang?",
-    antwort: "Öffnen Sie Empfang, wählen Sie den Patienten und was er erledigen soll. Dann übergeben Sie das Tablet. Er füllt den Anamnesebogen aus, unterschreibt und prüft seine Kontaktdaten. Mit der Empfangs-PIN kommt das Team danach zurück.",
+    antwort: "Öffnen Sie Empfang, wählen Sie den Patienten und die Schritte. Dann übergeben Sie das Tablet. Am Tablet füllt der Patient den Anamnesebogen aus, unterschreibt und prüft die Kontaktdaten. Mit der Empfangs-PIN kommt das Team danach zurück.",
     pfad: "Empfang",
     href: "/empfang",
     stichwoerter: ["Empfang", "Tablet", "Anamnesebogen", "Wartezimmer", "unterschreiben", "Übergabe"],
@@ -255,7 +255,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "patient-liste",
     frage: "Wo sehe ich, wo jeder Patient gerade steht?",
-    antwort: "Die Liste unter {P} zeigt jeden Patienten auf seinem Behandlungsweg mit dem nächsten Schritt. Über die Filter oben grenzen Sie die Liste ein, zum Beispiel auf „Rückruf gewünscht“ oder „Nur meine“.",
+    antwort: "Die Liste unter {P} zeigt bei jedem Patienten den Stand und den nächsten Schritt. Über die Filter oben grenzen Sie die Liste ein, zum Beispiel auf „Rückruf gewünscht“ oder „Nur meine“.",
     pfad: "{P} und Wege",
     href: "/patients",
     stichwoerter: ["Patienten", "Liste", "Behandlungsweg", "Wege", "nächster Schritt", "Filter"],
@@ -385,7 +385,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   },
   {
     id: "patient-link-senden",
-    frage: "Wie bekommt ein Patient den Link zu seinem Behandlungsweg?",
+    frage: "Wie bekommt ein Patient den Link zum Behandlungsweg?",
     antwort: "In der Liste unter {P} gibt es beim Patienten „Behandlungsweg senden“. Sorrida zeigt Link und QR-Code und bereitet einen SMS-Text vor, den Sie kopieren. Ein neuer Link ersetzt einen früheren Link dieses Patienten.",
     pfad: "{P} → Behandlungsweg senden",
     href: "/patients",
@@ -522,7 +522,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   },
   {
     id: "vorschlag-link",
-    frage: "Wie bekommt der Patient seinen Vorschlag?",
+    frage: "Wie bekommt der Patient den Vorschlag?",
     antwort: "Im gespeicherten Vorschlag erzeugen Sie unter „Patienten-Link“ einen persönlichen Link mit QR-Code. Sie geben ihn persönlich mit oder schicken ihn auf einem Weg, dem der Patient zugestimmt hat. Von selbst verschickt Sorrida nichts.",
     pfad: "Vorschläge → Vorschlag öffnen → Patienten-Link",
     href: "/proposals",
@@ -581,7 +581,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "berichte-menue",
     frage: "Warum fehlt der Menüpunkt Berichte?",
-    antwort: "In Praxen ohne Zahnmedizin erscheint der Menüpunkt Berichte, sobald es einen Bericht gibt. Einen Bericht an die überweisende Praxis erstellen Sie beim Abschließen einer Sitzung unter „{A} abschließen“.",
+    antwort: "Der Menüpunkt Berichte erscheint, sobald es einen Bericht gibt. Einen Bericht an die überweisende Praxis erstellen Sie beim Abschließen einer Sitzung unter „{A} abschließen“.",
     pfad: "{A} abschließen",
     href: "/abschluss/new",
     stichwoerter: ["Berichte", "Menüpunkt", "fehlt", "nicht sichtbar", "überweisende Praxis", "Arztbrief"],
@@ -674,7 +674,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "bezahl-link",
     frage: "Wie schicke ich einem Patienten den Link zum Bezahlen?",
-    antwort: "Hat der Patient noch keinen gültigen Link, steht unter Zahlungen bei der Rechnung „Link zum Bezahlen senden“. Im Portal sieht er die offene Rechnung und zahlt per GiroCode oder kopiert IBAN und Verwendungszweck.",
+    antwort: "Hat der Patient noch keinen gültigen Link, steht unter Zahlungen bei der Rechnung „Link zum Bezahlen senden“. Im Portal sieht der Patient die offene Rechnung und zahlt per GiroCode oder kopiert IBAN und Verwendungszweck.",
     pfad: "Zahlungen → Link zum Bezahlen senden",
     href: "/zahlungen",
     stichwoerter: ["Link zum Bezahlen", "bezahlen", "Rechnung schicken", "GiroCode", "Portal", "Überweisung", "Verwendungszweck"],
@@ -1183,7 +1183,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "konto",
     frage: "Ich sehe nur „Mein Konto“ statt Einstellungen. Warum?",
-    antwort: "Mit der Rolle Behandlerin oder Behandler sehen Sie unter „Mein Konto“ nur Ihr eigenes Konto mit Sicherheit und Leistungslexikon. Die Einstellungen der Praxis verwaltet die Praxisleitung.",
+    antwort: "Mit der Rolle Behandlerin oder Behandler sehen Sie unter „Mein Konto“ nur Ihr eigenes Konto, zum Beispiel die Sicherheit. Die Einstellungen der Praxis verwaltet die Praxisleitung.",
     pfad: "Mein Konto",
     href: "/settings",
     stichwoerter: ["Mein Konto", "Einstellungen fehlen", "nicht sichtbar", "Rolle", "eigenes Konto"],
@@ -1229,7 +1229,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "tastenkuerzel",
     frage: "Welche Tastenkürzel gibt es?",
-    antwort: "Die Taste „?“ zeigt alle Kürzel. Zum Beispiel führt „g“ und danach „p“ zu den Patienten, „g“ und „z“ zu den Zahlungen, und „n“ öffnet einen neuen Vorschlag. Während Sie in ein Feld schreiben, gelten die Kürzel nicht.",
+    antwort: "Die Taste „?“ zeigt alle Kürzel. Zum Beispiel führt „g“ und danach „p“ zu den {P}, „g“ und „z“ zu den Zahlungen, und „n“ öffnet einen neuen Vorschlag. Während Sie in ein Feld schreiben, gelten die Kürzel nicht.",
     pfad: "Taste ?",
     href: "/dashboard",
     stichwoerter: ["Tastenkürzel", "Tastatur", "Kürzel", "Shortcut", "Taste"],

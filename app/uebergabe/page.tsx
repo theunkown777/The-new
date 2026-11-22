@@ -1,6 +1,7 @@
 import { uebergabeAktuell, uebergabeSchritte } from "@/lib/empfangServer";
 import { EmpfangKontakt } from "@/components/EmpfangKontakt";
 import { EmpfangFertig } from "@/components/EmpfangWaechter";
+import { fachText } from "@/lib/fachText";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,8 @@ export default async function UebergabePage() {
   if (!a) return null; // Das Layout zeigt die Sperre.
   const { uebergabe: u, patient } = a;
   const s = await uebergabeSchritte(u);
+  // Feste Sätze in den Wörtern des Fachs („an die Apotheke“, „beim Pflegedienst“), lib/fachText.ts
+  const ft = (t: string) => fachText(t, patient.practice.specialty);
   const datum = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Europe/Berlin" });
   const erledigt = <span className="rounded-full bg-salbei-100 px-2.5 py-1 text-xs font-medium text-salbei-800" data-testid="schritt-erledigt">✓ Erledigt</span>;
   const nichtsZuTun = u.zwecke.length === 1 && u.zwecke[0] === "unterschrift" && s.einverstaendnisse.length === 0 && s.unterschrieben === 0;
@@ -24,7 +27,7 @@ export default async function UebergabePage() {
           <section className="rounded-2xl bg-white p-5" aria-labelledby="s-kontakt" data-testid="schritt-kontakt">
             <h2 id="s-kontakt" className="text-lg font-semibold text-slate-900">Ihre Kontaktdaten</h2>
             <p className="mt-1 text-sm text-slate-600">Stimmen E-Mail-Adresse und Mobilnummer noch? Bitte prüfen und bei Bedarf berichtigen.</p>
-            <EmpfangKontakt email={patient.email ?? ""} phone={patient.phone ?? ""} mail={!!patient.contactConsentAt} whatsapp={!!patient.whatsappConsentAt} praxis={patient.practice.name} />
+            <EmpfangKontakt email={patient.email ?? ""} phone={patient.phone ?? ""} mail={!!patient.contactConsentAt} whatsapp={!!patient.whatsappConsentAt} praxis={patient.practice.name} fach={patient.practice.specialty} />
           </section>
         )}
 
@@ -36,11 +39,11 @@ export default async function UebergabePage() {
             </div>
             {s.anamneseOffen && !s.anamneseFertig ? (
               <>
-                <p className="mt-1 text-sm text-slate-600">Einige Fragen zu Ihrer Gesundheit, etwa drei Minuten. Ihre Antworten gehen direkt an die Praxis.</p>
+                <p className="mt-1 text-sm text-slate-600">{ft("Einige Fragen zu Ihrer Gesundheit, etwa drei Minuten. Ihre Antworten gehen direkt an die Praxis.")}</p>
                 <a href="/uebergabe/anamnese" className="btn btn-primary mt-4 w-full sm:w-auto" data-testid="schritt-anamnese-start">Jetzt ausfüllen</a>
               </>
             ) : s.anamneseFertig ? (
-              <p className="mt-1 text-sm text-slate-600">Vielen Dank. Ihr Bogen ist bei der Praxis angekommen.</p>
+              <p className="mt-1 text-sm text-slate-600">{ft("Vielen Dank. Ihr Bogen ist bei der Praxis angekommen.")}</p>
             ) : (
               <p className="mt-1 text-sm text-slate-600">Zurzeit ist kein Bogen offen. Bitte fragen Sie am Empfang.</p>
             )}
@@ -54,7 +57,7 @@ export default async function UebergabePage() {
               {s.einverstaendnisse.length === 0 && erledigt}
             </div>
             {s.einverstaendnisse.length === 0 ? (
-              <p className="mt-1 text-sm text-slate-600">Vielen Dank. Ihr Einverständnis ist bei der Praxis angekommen.</p>
+              <p className="mt-1 text-sm text-slate-600">{ft("Vielen Dank. Ihr Einverständnis ist bei der Praxis angekommen.")}</p>
             ) : (
               <>
                 <p className="mt-1 text-sm text-slate-600">Bitte lesen Sie die Erklärung in Ruhe und unterschreiben Sie mit dem Finger.</p>

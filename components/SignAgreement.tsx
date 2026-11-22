@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PRUEFUNG_NOETIG, pruefText, type PruefStatus } from "@/lib/portalPruefung";
 import { GeburtsdatumBestaetigt, GeburtsdatumPruefung } from "@/components/PortalPruefung";
+import { fachText } from "@/lib/fachText";
 
 type Pruefung = {
   /** "noetig": erst Geburtsdatum bestätigen; "bestaetigt": schon geschehen; "ohne": Praxis hat keines hinterlegt */
@@ -15,7 +16,7 @@ type Pruefung = {
 
 // Einverständnis im Patientenportal. Vor der Unterschrift bestätigt der Patient
 // sein Geburtsdatum (S5); der Server verlangt das unabhängig von dieser Ansicht.
-export function SignAgreement({ pruefung, ...rest }: { postUrl: string; backHref: string; text: string; defaultName: string; pruefung?: Pruefung }) {
+export function SignAgreement({ pruefung, ...rest }: { postUrl: string; backHref: string; text: string; defaultName: string; pruefung?: Pruefung; /** Fach der Praxis: „Ihre Apotheke“, „vor der Beratung“ (lib/fachText.ts) */ fach?: string | null }) {
   const [status, setStatus] = useState<PruefStatus>(pruefung?.status ?? "ohne");
   // Das Formular bleibt stehen, wenn die Bestätigung beim Ausfüllen abläuft: Name und Unterschrift gehen nicht verloren.
   const [formGezeigt, setFormGezeigt] = useState(status !== "noetig");
@@ -56,7 +57,7 @@ export function SignAgreement({ pruefung, ...rest }: { postUrl: string; backHref
 
 // Erklärung lesen, Namen eintippen, mit Finger oder Maus unterschreiben. Die
 // Unterschrift wird als kleines PNG gespeichert.
-function SignForm({ postUrl, backHref, text, defaultName, gesperrt, kopf, onPruefungNoetig }: { postUrl: string; backHref: string; text: string; defaultName: string; gesperrt: boolean; kopf: React.ReactNode; onPruefungNoetig: () => void }) {
+function SignForm({ postUrl, backHref, text, defaultName, gesperrt, kopf, onPruefungNoetig, fach }: { postUrl: string; backHref: string; text: string; defaultName: string; gesperrt: boolean; kopf: React.ReactNode; onPruefungNoetig: () => void; fach?: string | null }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const [hasInk, setHasInk] = useState(false);
@@ -136,8 +137,8 @@ function SignForm({ postUrl, backHref, text, defaultName, gesperrt, kopf, onPrue
     return (
       <div className="rounded-3xl bg-white p-6 text-center" role="status" data-testid="vereinbarung-fertig">
         <p className="font-display text-3xl text-slate-900">Vielen Dank</p>
-        <p className="mt-2 text-slate-600">Ihr Einverständnis ist bei Ihrer Praxis angekommen. Die schriftliche Vereinbarung unterschreiben Sie vor der Behandlung in der Praxis.</p>
-        <a href={backHref} className="btn-primary !bg-salbei-600 hover:!bg-salbei-700 !border-salbei-600 mt-6 inline-block">Zurück zu Ihrem Behandlungsweg</a>
+        <p className="mt-2 text-slate-600">{fachText("Ihr Einverständnis ist bei Ihrer Praxis angekommen. Die schriftliche Vereinbarung unterschreiben Sie vor der Behandlung in der Praxis.", fach)}</p>
+        <a href={backHref} className="btn-primary !bg-salbei-600 hover:!bg-salbei-700 !border-salbei-600 mt-6 inline-block">{fachText("Zurück zu Ihrem Behandlungsweg", fach)}</a>
       </div>
     );
 

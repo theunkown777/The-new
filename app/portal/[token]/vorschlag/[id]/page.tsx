@@ -6,7 +6,7 @@ import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } f
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
-import { UI, empfehlungJe, langDir, pickLang, type PatientLang } from "@/lib/patientI18n";
+import { UI, empfehlungJe, langDir, pickLang, uiFuer, type PatientLang } from "@/lib/patientI18n";
 import { uebersetzungsWoerterbuch } from "@/lib/eigeneLeistung";
 import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
 import { isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
@@ -19,8 +19,9 @@ export const dynamic = "force-dynamic";
 // Titel im Browser in der Sprache der Ansicht.
 export async function generateMetadata(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
   const searchParams = await props.searchParams;
-  const titel = UI[pickLang(searchParams.lang, (await headers()).get("accept-language"))].pageTitle;
   const k = await portalKennung((await props.params).token);
+  // In den Wörtern des Fachs („Ihr Beratungsvorschlag“), lib/fachText.ts
+  const titel = uiFuer(pickLang(searchParams.lang, (await headers()).get("accept-language")), false, k?.fach).pageTitle;
   return { title: k ? `${titel} · ${k.name}` : titel, icons: k ? portalSymbole(k) : undefined, robots: { index: false, follow: false }, referrer: "no-referrer" };
 }
 
@@ -87,13 +88,14 @@ export default async function PortalProposal(props: { params: Promise<{ token: s
       dental={dental}
       zusatz={uebersetzungsWoerterbuch(input.data.med?.custom, lang)}
       therapie={isTherapie(specialty(input.data.fach))}
+      fach={input.data.fach}
       arztDativ={specialty(input.data.fach)?.arztDativ}
       zweitmeinung={{
         apiUrl: `/api/portal/${params.token}/vorschlag/${proposal.id}/zweitmeinung`,
         eintraege: zweitmeinungen.map(alsEintrag),
-        hinweis: zweitmeinungHinweis(texte, dental),
+        hinweis: zweitmeinungHinweis(texte, dental, input.data.fach),
         anspruch: !!anspruchAufZweitmeinung(texte),
-        fragen: vergleichsFragen(dental),
+        fragen: vergleichsFragen(dental, input.data.fach),
       }}
       pdfUrl={`${api}/pdf`}
       share={{ apiUrl: `${api}/lesen`, links: leseLinks, max: LESE_LINK_MAX }}

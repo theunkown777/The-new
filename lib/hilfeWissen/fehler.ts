@@ -328,7 +328,7 @@ export const FEHLER: HilfeEintrag[] = [
   {
     id: "meldung-geburtsdatum-pruefung",
     frage: "Was bedeutet „Ohne Geburtsdatum-Prüfung unterschrieben“?",
-    antwort: "Der Patient hat digital unterschrieben, ohne sein Geburtsdatum zu bestätigen, weil in der Akte keines hinterlegt war. Tragen Sie das Geburtsdatum in der Akte nach. Lassen Sie die Vereinbarung bei Bedarf in der Praxis bestätigen.",
+    antwort: "Der Patient hat digital unterschrieben, ohne das Geburtsdatum zu bestätigen, weil in der Akte keines hinterlegt war. Tragen Sie das Geburtsdatum in der Akte nach. Lassen Sie die Vereinbarung bei Bedarf in der Praxis bestätigen.",
     pfad: "{P} → Patient öffnen → Kontakt und Stammdaten",
     href: "/patients",
     stichwoerter: ["Geburtsdatum", "Prüfung", "unterschrieben", "Einverständnis", "nachtragen", "fehlt"],

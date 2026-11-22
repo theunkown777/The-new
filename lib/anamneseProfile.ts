@@ -335,8 +335,8 @@ export const ANAMNESE_JE_FACH: Record<string, FachAnamnese> = {
   logo: { gruppe: "heilberuf", fragen: ["verordnung", "schlucken", "hoergeraet", "sprachen_zuhause"], anliegen: ["zuzahlung", "uebungen"] },
   podo: { gruppe: "heilberuf", fragen: ["verordnung", "fuesse_gefuehl", "fuesse_wunden", "orthopaedische_schuhe"], anliegen: ["zuzahlung", "fussbehandlung_kasse"] },
   // Die Frage „Sind Sie schwanger?“ aus der Basis ist bei der Hebamme selbstverständlich und entfällt.
-  hebamme: { gruppe: "heilberuf", selbstAb: SELBST_AB_ALTER_VERTRAULICH, ohneFragen: ["schwanger"], zweck: "betreuen", fragen: ["mutterpass", "geburten", "fruehere_schwangerschaft"], anliegen: ["hebammenhilfe_kasse", "wochenbett"] },
-  pflege: { gruppe: "heilberuf", zweck: "versorgen", fragen: ["pflegegrad", "sturz", "hilfsmittel_alltag", "vollmacht"], anliegen: ["pflegekasse", "angehoerige"] },
+  hebamme: { gruppe: "heilberuf", selbstAb: SELBST_AB_ALTER_VERTRAULICH, ohneFragen: ["schwanger"], ohneAnliegen: ["angst"], zweck: "betreuen", fragen: ["mutterpass", "geburten", "fruehere_schwangerschaft"], anliegen: ["hebammenhilfe_kasse", "wochenbett"] },
+  pflege: { gruppe: "heilberuf", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["pflegegrad", "sturz", "hilfsmittel_alltag", "vollmacht"], anliegen: ["pflegekasse", "angehoerige"] },
   apotheke: { gruppe: "heilberuf", zweck: "beraten", ohneAnliegen: ["angst"], fragen: ["medikationsplan", "ohne_rezept", "mehrere_praxen"], anliegen: ["zuzahlung_befreiung", "medikamente_durchsehen"] },
   hoerakustik: { gruppe: "vertraulich", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["hoergeraet", "verordnung", "ohrgeraeusche", "ohr_op_entzuendung"], anliegen: ["hoergeraet_kasse"] },
   optik: { gruppe: "vertraulich", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["brille", "kontaktlinsen", "augen_op", "bildschirm"], anliegen: ["brillenglaeser_kasse"] },
@@ -395,6 +395,12 @@ export function anspracheFuer(fach: string | null | undefined, alter: number | n
   const d = ANAMNESE_JE_FACH[anamneseFach(fach)];
   return d.ansprache === "eltern" || (alter != null && alter < (d.selbstAb ?? ELTERN_BIS_ALTER + 1)) ? "eltern" : "patient";
 }
+
+/**
+ * Fragt das Fach nach Angst vor der Behandlung? Nicht dort, wo nicht behandelt wird (Apotheke, Hilfsmittel, Pflege,
+ * Hebamme). Gilt für den Gesundheitsfragebogen und den Kurz-Fragebogen gleich.
+ */
+export const fragtNachAngst = (fach: string | null | undefined) => !ANAMNESE_JE_FACH[anamneseFach(fach)].ohneAnliegen?.includes("angst");
 
 /** Der Bogen für ein Fach und eine Person: Fragen und Anliegen gefiltert nach Geschlecht und Alter. */
 export function anamneseFuer(fach: string | null | undefined, person: Person = {}): AnamneseProfil {

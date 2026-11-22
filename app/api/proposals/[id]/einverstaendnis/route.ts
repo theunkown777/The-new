@@ -14,7 +14,7 @@ export async function GET(_req: Request, props: { params: Promise<{ id: string }
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
   const p = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, practiceId: session.user.practiceId, agreedAt: { not: null } },
-    include: { patient: true, practice: { select: { name: true, proposalPrices: true } } },
+    include: { patient: true, practice: { select: { name: true, proposalPrices: true, specialty: true } } },
   });
   if (!p || !p.agreedAt) return NextResponse.json({ error: "Kein Einverständnis vorhanden" }, { status: 404 });
   const ctx = agreementContext(p);
@@ -31,6 +31,7 @@ export async function GET(_req: Request, props: { params: Promise<{ id: string }
     signedName: p.agreedName ?? "",
     signaturePng: png,
     pruefung: pruefVermerk(p.agreedGeprueftAt),
+    fach: p.practice.specialty,
   });
   return new NextResponse(new Uint8Array(pdf), {
     headers: { "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="einverstaendnis-${p.patient.lastName}-${p.id.slice(0, 6)}.pdf"`, "Cache-Control": "no-store" },

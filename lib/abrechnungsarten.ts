@@ -3,6 +3,7 @@
 // verbindlich sind die jeweiligen Gebührenordnungen und Verträge.
 
 import type { Gebuehrenwerk } from "@/lib/gebuehren";
+import { RECALL_RULES } from "@/lib/recall";
 
 export type ArtId = "apotheke" | "klinik_wahl" | "heilpraktiker" | "gkv_ebm" | "gkv_bema" | "zahnersatz" | "pkv_goae" | "pkv_goz" | "beihilfe" | "igel" | "mehrkosten_zahn" | "bg" | "heilmittel" | "hebamme" | "selbstzahler_therapie" | "pflege" | "hilfsmittel";
 
@@ -224,6 +225,41 @@ export function gebuehrenwerkeFuer(fach: string | null | undefined): Gebuehrenwe
   return werke.includes("BEMA") || werke.includes("GOZ") ? [...new Set<Gebuehrenwerk>([...werke, "GOZ", "BEMA"])] : werke;
 }
 
+/** Extrabudgetäre Vorsorge, die das Fach selbst erbringt. Fächer ohne Eintrag (z. B. Radiologie, Kardiologie) sehen den Hinweis nicht. */
+const EBM_VORSORGE: Record<string, string> = {
+  hausarzt: "Check-up, Hautkrebs-Screening, Impfungen",
+  haut: "Hautkrebs-Screening",
+  gyn: "Krebsfrüherkennung",
+  uro: "Krebsfrüherkennung beim Mann",
+  kinder: "U-Untersuchungen, Impfungen",
+  gastro: "Darmkrebs-Früherkennung",
+};
+
+/** EBM mit den Wörtern des Fachs: Versicherten- und Chronikerpauschale gibt es nur hausärztlich und in der Kinderheilkunde. */
+function ebmFuer(fach: string): Abrechnungsart {
+  const a = ARTEN.gkv_ebm;
+  const [vorsorge, zuschlaege, ...rest] = a.geldhebel;
+  const hausaerztlich = fach === "hausarzt" || fach === "kinder";
+  const beispiele = EBM_VORSORGE[fach];
+  const geldhebel = [
+    ...(beispiele
+      ? [{ ...vorsorge, problem: `Fällige Vorsorge (${beispiele}) ist im Praxisalltag nicht sichtbar; sie wird extrabudgetär vergütet`, inSorrida: RECALL_RULES[fach] ? vorsorge.inSorrida : undefined }]
+      : []),
+    hausaerztlich ? zuschlaege : { ...zuschlaege, problem: "Zuschlagspositionen vergessen" },
+    ...rest,
+  ];
+  // Fachärzte: Grundpauschale statt Versicherten- und Chronikerpauschale; „extrabudgetär“ ohne hausärztliche Beispiele.
+  const begriffe = hausaerztlich
+    ? a.begriffe
+    : [
+        ...a.begriffe
+          .filter(([b]) => b !== "Versichertenpauschale" && b !== "Chronikerpauschale")
+          .map(([b, text]): [string, string] => (b === "extrabudgetär" ? [b, "außerhalb des Budgets voll vergütet"] : [b, text])),
+        ["Grundpauschale", "Pauschale je Patient und Quartal im Kapitel des Fachs"] as [string, string],
+      ];
+  return { ...a, begriffe, geldhebel };
+}
+
 /** Welche Abrechnungsarten für ein Fach relevant sind, wichtigste zuerst. */
 export function artenFuer(fach: string | null | undefined): Abrechnungsart[] {
   const f = fach ?? "hausarzt";
@@ -239,7 +275,7 @@ export function artenFuer(fach: string | null | undefined): Abrechnungsart[] {
     : f === "aesthetik" ? ["pkv_goae", "igel"]
     : ["chirurgie", "ortho", "hausarzt", "radiologie"].includes(f) ? ["gkv_ebm", "pkv_goae", "beihilfe", "igel", "bg"]
     : ["gkv_ebm", "pkv_goae", "beihilfe", "igel"];
-  return ids.map((i) => ARTEN[i]);
+  return ids.map((i) => (i === "gkv_ebm" ? ebmFuer(f) : ARTEN[i]));
 }
 
 /** Rechnet das Fach Kassenleistungen über die Kassenärztliche Vereinigung ab (EBM)? Nicht Zahnmedizin (KZV), Therapie, Pflege usw. */

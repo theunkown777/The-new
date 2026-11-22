@@ -1,11 +1,12 @@
 import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 import type { Metadata } from "next";
+import { cache } from "react";
 import { headers } from "next/headers";
 import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } from "@/lib/proposals";
 import { proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { DEFAULT_INSTALLMENTS } from "@/lib/installments";
-import { UI, langDir, pickLang, type PatientLang } from "@/lib/patientI18n";
+import { UI, langDir, pickLang, uiFuer, type PatientLang } from "@/lib/patientI18n";
 import { uebersetzungsWoerterbuch } from "@/lib/eigeneLeistung";
 import { isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
 import { leseLinkVorschlag } from "@/lib/leseLink";
@@ -14,9 +15,14 @@ export const dynamic = "force-dynamic";
 // Lese-Ansicht für eine Vertrauensperson unter /p/<Lese-Token>/lesen (lib/leseLink.ts). Der Pfad beginnt wie der Patienten-Link,
 // damit dieselben Regeln greifen (kein Referrer, noindex, im Vorschau-Modus ohne Zugang erreichbar: lib/vorschau.ts PATIENTENLINK). Wie alle Patientenseiten: nicht für Suchmaschinen,
 // kein Referrer, neutrale Vorschau ohne Praxis- oder Patientendaten.
-export async function generateMetadata(props: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+// Je Aufruf einmal geladen: Seitentitel und Seite teilen sich das Ergebnis.
+const zugangZumLink = cache((token: string) => leseLinkVorschlag(token));
+export async function generateMetadata(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
   const searchParams = await props.searchParams;
-  return { title: UI[pickLang(searchParams.lang, (await headers()).get("accept-language"))].readOnlyTitle, robots: { index: false, follow: false }, referrer: "no-referrer" };
+  // Titel in den Wörtern des Fachs („Beratungsvorschlag zum Mitlesen“), lib/fachText.ts
+  const fach = ((await zugangZumLink((await props.params).token))?.proposal.input as { fach?: unknown } | null)?.fach;
+  const t = uiFuer(pickLang(searchParams.lang, (await headers()).get("accept-language")), false, typeof fach === "string" ? fach : null);
+  return { title: t.readOnlyTitle, robots: { index: false, follow: false }, referrer: "no-referrer" };
 }
 
 function Abgelaufen({ lang }: { lang: PatientLang }) {
@@ -36,7 +42,7 @@ export default async function LeseAnsicht(props: { params: Promise<{ token: stri
   const params = await props.params;
   const searchParams = await props.searchParams;
   const lang = pickLang(searchParams.lang, (await headers()).get("accept-language"));
-  const zugang = await leseLinkVorschlag(params.token);
+  const zugang = await zugangZumLink(params.token);
   const input = zugang ? proposalInputSchema.safeParse(zugang.proposal.input) : null;
   if (!zugang || !input?.success) return <Abgelaufen lang={lang} />;
   const { proposal } = zugang;
@@ -63,6 +69,7 @@ export default async function LeseAnsicht(props: { params: Promise<{ token: stri
         dental={istZahnVorschlag(input.data.fach)}
         zusatz={uebersetzungsWoerterbuch(input.data.med?.custom, lang)}
         therapie={isTherapie(specialty(input.data.fach))}
+        fach={input.data.fach}
         arztDativ={specialty(input.data.fach)?.arztDativ}
       />
       <PraxisFussLaden practiceId={proposal.practiceId} className="mx-auto max-w-xl px-4 pb-10 pt-2" />

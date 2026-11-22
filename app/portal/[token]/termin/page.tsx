@@ -6,6 +6,7 @@ import { PortalTermin } from "@/components/PortalTermin";
 import { PraxisFuss } from "@/components/PraxisFuss";
 import { PraxisBand } from "@/components/PraxisKennung";
 import { portalKennung, portalSymbole } from "@/lib/portalKopf";
+import { fachText } from "@/lib/fachText";
 
 export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
   const k = await portalKennung((await props.params).token);
@@ -18,13 +19,13 @@ export default async function PortalTerminPage(props: { params: Promise<{ token:
   const params = await props.params;
   const anlassVor = ((await props.searchParams).anlass ?? "").replace(/\s+/g, " ").trim().slice(0, 80);
   const gefunden = /^[A-Za-z0-9_-]{20,128}$/.test(params.token)
-    ? await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(params.token) }, select: { portalExpiresAt: true, practice: { select: { name: true, stammdaten: true } } } })
+    ? await prisma.patient.findUnique({ where: { portalTokenHash: hashToken(params.token) }, select: { portalExpiresAt: true, practice: { select: { name: true, stammdaten: true, specialty: true } } } })
     : null;
   if (!gefunden || !gefunden.portalExpiresAt || gefunden.portalExpiresAt < new Date()) {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center text-sm text-slate-600">
         <h1 className="text-base font-semibold text-slate-900">Link ungültig</h1>
-        <p className="mt-2">Dieser Link ist nicht mehr gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen.</p>
+        <p className="mt-2">{fachText("Dieser Link ist nicht mehr gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen.", gefunden?.practice.specialty)}</p>
       </main>
     );
   }
@@ -36,8 +37,8 @@ export default async function PortalTerminPage(props: { params: Promise<{ token:
         <p className="text-sm"><Link href={`/portal/${params.token}`} className="text-brand-700 hover:underline">← Zurück zur Übersicht</Link></p>
         <h1 className="mt-2 font-display text-2xl text-slate-900 sm:text-3xl">Termin buchen</h1>
         {!kennung && <p className="mt-1 text-sm text-slate-600">{gefunden.practice.name}</p>}
-        <div className="mt-5"><PortalTermin token={params.token} praxis={gefunden.practice.name} anlassVor={anlassVor} /></div>
-        <PraxisFuss name={gefunden.practice.name} stammdaten={gefunden.practice.stammdaten} className="mt-8 border-t border-slate-200 pt-4" />
+        <div className="mt-5"><PortalTermin token={params.token} praxis={gefunden.practice.name} anlassVor={anlassVor} fach={gefunden.practice.specialty} /></div>
+        <PraxisFuss name={gefunden.practice.name} stammdaten={gefunden.practice.stammdaten} fach={gefunden.practice.specialty} className="mt-8 border-t border-slate-200 pt-4" />
       </div>
     </main>
   );

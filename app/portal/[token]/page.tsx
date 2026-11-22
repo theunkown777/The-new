@@ -8,6 +8,7 @@ import { hashToken } from "@/lib/tokens";
 import { MODELLE, teilBezeichnung, type Modell } from "@/lib/modelle/markierung";
 import { hauptModell } from "@/lib/modelle/fach";
 import { epcPayload, formatIban, invoiceView, isOutstanding, paymentReference } from "@/lib/invoices";
+import { fachText, mitFachWoertern } from "@/lib/fachText";
 import { GERAET_UI, PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, PORTAL_UI, pickPortalLang, portalDir, portalStatus, reminderLabel } from "@/lib/portalI18n";
 import { PortalRueckmeldung } from "@/components/PortalRueckmeldung";
 import { kurzPaket, kurzUebersetzer } from "@/lib/kurzcheckTexte";
@@ -44,10 +45,10 @@ export async function generateMetadata(props: { params: Promise<{ token: string 
   const params = await props.params;
   const k = await portalKennung(params.token);
   return {
-    title: k ? `${k.name} · Ihr Behandlungsweg` : "Ihr Behandlungsweg",
+    title: k ? `${k.name} · ${fachText("Ihr Behandlungsweg", k.fach)}` : "Ihr Behandlungsweg",
     robots: { index: false, follow: false },
     referrer: "no-referrer",
-    openGraph: { title: "Ihr Behandlungsweg", description: "Ihr Behandlungsweg, Unterlagen und Zahlungen Ihrer Praxis." },
+    openGraph: { title: fachText("Ihr Behandlungsweg", k?.fach), description: fachText("Ihr Behandlungsweg, Unterlagen und Zahlungen Ihrer Praxis.", k?.fach) },
     manifest: k ? `/portal/${params.token}/manifest.webmanifest` : undefined,
     appleWebApp: { capable: true, title: k?.kurzName ?? "Mein Portal", statusBarStyle: "default" },
     icons: k ? portalSymbole(k) : undefined,
@@ -115,8 +116,9 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
   if (!patient.portalViewedAt) await prisma.patient.update({ where: { id: patient.id }, data: { portalViewedAt: now } });
 
   const lang = pickPortalLang(searchParams.lang, (await headers()).get("accept-language"));
-  const t = PORTAL_UI[lang];
-  const kt = kurzUebersetzer(kurzPaket(lang)).t;
+  // Deutsch in den Wörtern des Fachs („Ihre Apotheke“, „Ihr Beratungsvorschlag“); Übersetzungen bleiben, wie sie sind.
+  const t = lang === "de" ? mitFachWoertern(PORTAL_UI.de, patient.practice.specialty) : PORTAL_UI[lang];
+  const kt = kurzUebersetzer(kurzPaket(lang, { fach: patient.practice.specialty })).t;
   const locale = PORTAL_LOCALE[lang];
   const date = (d: Date) => d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
   const money = (c: number) => (c / 100).toLocaleString(locale, { style: "currency", currency: "EUR" });
@@ -228,7 +230,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
         <section className="mt-5 rounded-[2rem] bg-salbei-50 px-5 pb-5 pt-6 text-center" aria-labelledby="weg" data-testid="portal-weg">
           <h2 id="weg" className="text-xs font-semibold uppercase tracking-[0.18em] text-salbei-700">{t.wayTitle}</h2>
           <div className="mt-4">
-            <Behandlungsweg erreicht={weg.erreicht} aktuell={weg.aktuell} abgelehnt={weg.abgelehnt} size="gross" labels={t.stations.split("|")} animate />
+            <Behandlungsweg erreicht={weg.erreicht} aktuell={weg.aktuell} abgelehnt={weg.abgelehnt} size="gross" labels={t.stations.split("|")} animate name={fachText("Ihr Behandlungsweg", patient.practice.specialty).replace(/^Ihre? /, "")} />
           </div>
           <h1 className="font-display mt-3 text-4xl leading-tight text-slate-900">{t.hello(patient.firstName)}</h1>
           <a href={nextHref} className="mt-4 flex items-center gap-3 rounded-2xl bg-white p-4 text-start shadow-[0_10px_30px_-22px_rgba(52,72,50,.9)]" data-testid="portal-summary">
@@ -308,7 +310,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
         {/* Das Modell erscheint nur, wenn die Praxis dort etwas für diese Person markiert hat. */}
         {modellMarken.length > 0 && (
         <section className="mt-8" aria-labelledby="modell" data-testid="portal-modell-hinweis" lang="de" dir="ltr">
-          <h2 id="modell" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{modellMarken.length ? "Von Ihrer Praxis im Modell markiert" : modellArt === "gebiss" ? "Ihr Gebiss im Modell" : "Im Modell ansehen und verstehen"}</h2>
+          <h2 id="modell" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{modellMarken.length ? fachText("Von Ihrer Praxis im Modell markiert", patient.practice.specialty) : modellArt === "gebiss" ? "Ihr Gebiss im Modell" : "Im Modell ansehen und verstehen"}</h2>
           <div className="mt-3 rounded-2xl bg-white p-4">
             {modellMarken.length > 0 ? (
               <>
@@ -336,7 +338,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
             <ul className="mt-3 space-y-3">
               {openInvoices.map((i, idx) => (
                 <li key={i.id}>
-                  <PortalInvoice token={params.token} inv={i} bank={bank ? { name: bank.name, iban: formatIban(bank.iban) } : null} t={text} startOpen={idx === 0 && openInvoices.length === 1} mandat={i.mandat} pruefung={pruefung} />
+                  <PortalInvoice token={params.token} inv={i} bank={bank ? { name: bank.name, iban: formatIban(bank.iban) } : null} t={text} startOpen={idx === 0 && openInvoices.length === 1} mandat={i.mandat} pruefung={pruefung} fach={patient.practice.specialty} />
                 </li>
               ))}
             </ul>

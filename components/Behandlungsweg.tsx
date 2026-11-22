@@ -24,6 +24,7 @@ export function Behandlungsweg({
   labels = STATIONEN as readonly string[],
   className = "",
   animate = false,
+  name = "Behandlungsweg",
 }: {
   erreicht: number;
   aktuell: number | null;
@@ -33,11 +34,13 @@ export function Behandlungsweg({
   className?: string;
   /** Weg wird nachgezeichnet, Stationen erscheinen nacheinander, ein Punkt läuft den Bogen ab. */
   animate?: boolean;
+  /** Wie der Weg für Vorleseprogramme heißt; wo das Fach nicht behandelt (z. B. Apotheke), „Übersicht“. */
+  name?: string;
 }) {
   const frac = Math.max(0, Math.min(1, (erreicht - 1) / 4));
   const gross = size === "gross";
   const beschriftet = gross && labels.some(Boolean);
-  const title = `Behandlungsweg: ${erreicht} von 5 Stationen${abgelehnt ? " (abgelehnt)" : ""}`;
+  const title = `${name}: ${erreicht} von 5 Stationen${abgelehnt ? " (abgelehnt)" : ""}`;
   return (
     <div
       className={`${gross ? (beschriftet ? "mx-auto w-full max-w-[34rem] px-7 pb-3 pt-1" : "relative w-full") : "relative w-[7.5rem] shrink-0"} ${animate ? "weg-anim" : ""} ${className}`}

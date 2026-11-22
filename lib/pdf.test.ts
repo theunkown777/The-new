@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import PDFDocument from "pdfkit";
 import { PassThrough } from "stream";
-import { PDF_FARBEN, buildAgreementPdf, buildErstattungsbriefPdf, buildKosteninfoPdf, buildReportPdf, pdfFuss, pdfKopf } from "@/lib/pdf";
+import { PDF_FARBEN, buildAgreementPdf, buildErstattungsbriefPdf, buildKosteninfoPdf, buildReportPdf, einverstaendnisTexte, pdfFuss, pdfKopf } from "@/lib/pdf";
 import type { Brief } from "@/lib/erstattungsbrief";
 
 /** Unkomprimiertes Dokument für die Prüfung: Kopf und Fuß lassen sich dann als Text wiederfinden. */
@@ -79,7 +79,7 @@ describe("PDF: die vorhandenen Dokumente", () => {
   });
 
   it("Einverständnis und Kosteninformation", async () => {
-    const einv = await buildAgreementPdf({ practiceName: "Praxis am Markt", patientName: "Erika Muster", patientBirthDate: null, proposalDate: "10.11.2026", text: "Ich habe die Möglichkeiten gesehen.", kasse: 300, eigen: 200, signedAt: "12.11.2026", signedName: "Erika Muster", signaturePng: null, pruefung: null });
+    const einv = await buildAgreementPdf({ practiceName: "Praxis am Markt", patientName: "Erika Muster", patientBirthDate: null, proposalDate: "10.11.2026", text: "Ich habe die Möglichkeiten gesehen.", kasse: 300, eigen: 200, signedAt: "12.11.2026", signedName: "Erika Muster", signaturePng: null, pruefung: null, fach: "zahn" });
     istPdf(einv);
     expect(seiten(einv)).toBe(1);
     const info = await buildKosteninfoPdf({
@@ -89,6 +89,30 @@ describe("PDF: die vorhandenen Dokumente", () => {
     });
     istPdf(info);
     expect(seiten(info)).toBe(1);
+  });
+
+  it("Einverständnis nennt die Vereinbarung des Fachs", async () => {
+    expect(einverstaendnisTexte("zahn").hinweis).toBe("Das digitale Einverständnis dokumentiert die Aufklärung und die Wahl des Patienten. Es ersetzt nicht die schriftliche Mehrkosten- bzw. Privatvereinbarung, die vor der Behandlung unterschrieben wird.");
+    expect(einverstaendnisTexte("zahn").titel).toBe("Einverständnis zum Behandlungsvorschlag");
+    expect(einverstaendnisTexte("ortho").hinweis).toContain("schriftliche IGeL-Vereinbarung");
+    expect(einverstaendnisTexte("physio").hinweis).toContain("schriftliche Privatvereinbarung");
+    expect(einverstaendnisTexte("optik").hinweis).toContain("schriftliche Mehrkostenerklärung, die vor der Versorgung");
+    expect(einverstaendnisTexte("klinik").hinweis).toContain("schriftliche Wahlleistungsvereinbarung");
+    expect(einverstaendnisTexte("apotheke").titel).toBe("Einverständnis zum Beratungsvorschlag");
+    expect(einverstaendnisTexte("apotheke").person).toBe("Name");
+    expect(einverstaendnisTexte("apotheke").wo).toBe("digital im Portal");
+    expect(einverstaendnisTexte("apotheke").gegenzeichnung).toBe("Gegenzeichnung der Apotheke");
+    expect(einverstaendnisTexte("pflege").gegenzeichnung).toBe("Gegenzeichnung des Pflegedienstes");
+    expect(einverstaendnisTexte("optik").link).toBe("persönlicher Link des Fachgeschäfts");
+    for (const fach of ["zahn", "ortho", "physio"]) {
+      expect(einverstaendnisTexte(fach).wo, fach).toBe("digital auf dem Behandlungsweg");
+      expect(einverstaendnisTexte(fach).gegenzeichnung, fach).toBe("Gegenzeichnung der Praxis");
+      expect(einverstaendnisTexte(fach).link, fach).toBe("persönlicher Link der Praxis");
+    }
+    expect(einverstaendnisTexte("hebamme").hinweis).toContain("die Wahl der Frau");
+    for (const fach of ["physio", "optik", "klinik", "apotheke", "pflege", "hebamme"]) expect(einverstaendnisTexte(fach).hinweis, fach).not.toContain("IGeL");
+    for (const fach of ["ortho", "physio", "optik", "hausarzt", null]) expect(einverstaendnisTexte(fach).hinweis, String(fach)).not.toMatch(/Mehrkosten- bzw\.|Heil- und Kostenplan/);
+    istPdf(await buildAgreementPdf({ practiceName: "Optik am Markt", patientName: "Erika Muster", patientBirthDate: null, proposalDate: "10.11.2026", text: "Ich habe die Möglichkeiten gesehen.", kasse: 0, eigen: 200, signedAt: "12.11.2026", signedName: "Erika Muster", signaturePng: null, fach: "optik" }));
   });
 
   it("Begleitbrief: kein Praxiskopf, aber ein gültiges Dokument mit einer Seite", async () => {

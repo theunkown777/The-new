@@ -1,4 +1,6 @@
 import { isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
+import { fachText } from "@/lib/fachText";
+import { abschlussWort } from "@/lib/fachWoerter";
 import { buildMedicalProposal } from "@/lib/medicalProposals";
 import { tabelle2027 } from "@/lib/festzuschuss2027";
 import { quellenText, type NutzenQuellen } from "@/lib/nutzenQuelle";
@@ -864,14 +866,17 @@ export function buildLetter(args: {
   const jv = vergleicheJahre(items, choices, patient);
   // Den Vergleich nur zeigen, solange eine Bewilligung zu den alten Sätzen noch möglich ist.
   const vergleich = showsJahresvergleich(date) && jv.betroffen && (patient.zuschussJahr ?? defaultZuschussJahr(date)) === 2026;
+  // Feste Sätze in den Wörtern des Fachs („Beratungsvorschlag“, „von Ihrer Apotheke vorgemerkt“), lib/fachText.ts
+  const ft = (s: string) => fachText(s, args.fach);
+  const behandelt = abschlussWort(args.fach) === "Behandlung";
   const L: string[] = [];
-  L.push(`${practiceName} – Ihr persönlicher Behandlungsvorschlag`);
+  L.push(`${practiceName} – ${ft("Ihr persönlicher Behandlungsvorschlag")}`);
   L.push(`Datum: ${date.toLocaleDateString("de-DE")}`);
   L.push("");
   L.push(patientName.trim() ? `Guten Tag ${patientName},` : "Guten Tag,");
   L.push("");
   L.push(
-    `vielen Dank für Ihren Besuch. Hier finden Sie unsere Befunde und die Behandlungsmöglichkeiten, die wir mit Ihnen besprochen haben. ${dental ? "Bei jedem Punkt steht zuerst die Leistung, die Ihre" : "Wo es eine Kassenleistung gibt, steht zuerst die Leistung, die Ihre"} ${patient.insurance === "GKV" ? "Krankenkasse" : "Versicherung"} übernimmt${dental ? " oder bezuschusst" : ""}.`
+    `vielen Dank für Ihren Besuch. ${behandelt ? "Hier finden Sie unsere Befunde und die Behandlungsmöglichkeiten, die wir mit Ihnen besprochen haben." : "Hier finden Sie die Möglichkeiten, die wir mit Ihnen besprochen haben."} ${dental ? "Bei jedem Punkt steht zuerst die Leistung, die Ihre" : "Wo es eine Kassenleistung gibt, steht zuerst die Leistung, die Ihre"} ${patient.insurance === "GKV" ? "Krankenkasse" : "Versicherung"} übernimmt${dental ? " oder bezuschusst" : ""}.`
   );
   let i = 0;
   for (const item of items) {
@@ -898,7 +903,7 @@ export function buildLetter(args: {
           ? ` (bei Bewilligung ab 1.1.2027${wort2027("davor")}: ca. ${formatEuro(money(o, patient, 2027).netto)})`
           : "";
       L.push(
-        `   ${String.fromCharCode(97 + j)}) ${o.name} (${typeLabelOf(o, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${later}${praxisWahl && o.id === praxisWahl ? "  ← von Ihrer Praxis vorgemerkt" : ""}`
+        `   ${String.fromCharCode(97 + j)}) ${o.name} (${typeLabelOf(o, patient.insurance)}): Ihr Eigenanteil ca. ${formatEuro(m.netto)}${later}${praxisWahl && o.id === praxisWahl ? ft("  ← von Ihrer Praxis vorgemerkt") : ""}`
       );
     });
     for (const o of item.options) {
@@ -912,7 +917,7 @@ export function buildLetter(args: {
   }
   if (!i) {
     L.push("");
-    L.push("Für diesen Termin hat Ihre Praxis keine Leistungen in den Vorschlag aufgenommen.");
+    L.push(ft("Für diesen Termin hat Ihre Praxis keine Leistungen in den Vorschlag aufgenommen."));
   }
   const s = summarize(items, choices, patient);
   L.push("");
@@ -939,7 +944,10 @@ export function buildLetter(args: {
       L.push("");
     }
     L.push(
-      "Selbstzahlerleistungen sind freiwillig und werden privat nach unserer Preisliste berechnet. Nehmen Sie sich Zeit für Ihre Entscheidung; vor der Behandlung vereinbaren wir sie schriftlich mit Ihnen. Alle Beträge sind Schätzungen."
+      args.fach === "klinik"
+        ? // Klinik: Wahlleistungen nach schriftlicher Vereinbarung (§ 17 KHEntgG), wahlärztliche Leistungen nach GOÄ, keine Preisliste
+          "Wahlleistungen sind freiwillig. Nehmen Sie sich Zeit für Ihre Entscheidung; vor der Behandlung vereinbaren wir sie schriftlich mit Ihnen (§ 17 KHEntgG). Wahlärztliche Leistungen werden nach der Gebührenordnung für Ärzte (GOÄ) berechnet. Alle Beträge sind Schätzungen."
+        : ft("Selbstzahlerleistungen sind freiwillig und werden privat nach unserer Preisliste berechnet. Nehmen Sie sich Zeit für Ihre Entscheidung; vor der Behandlung vereinbaren wir sie schriftlich mit Ihnen. Alle Beträge sind Schätzungen.")
     );
     L.push("");
     L.push("Bei Fragen rufen Sie uns gern an.");

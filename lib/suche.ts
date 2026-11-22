@@ -141,8 +141,8 @@ export interface SeitenEintrag {
   stichworte: string[];
   /** Nur in Zahnarztpraxen vorhanden */
   nurZahn?: boolean;
-  /** Stichwörter, die nur in Zahnarztpraxen passen (z. B. „gebiss“) */
-  zahnStichworte?: string[];
+  /** Stichwörter, die nur passen, wo das Fach das Gebiss-Modell hat (Zahnmedizin, Kinder- und Jugendmedizin) */
+  gebissStichworte?: string[];
   /** Nur sichtbar, wenn das Konto dieses Recht hat */
   recht?: keyof MenueRechte;
 }
@@ -158,7 +158,7 @@ export const SEITEN: SeitenEintrag[] = [
   { href: "/patients", titel: "{P} und Wege", art: "Seite", stichworte: ["patienten", "kartei", "behandlungsweg", "personen", "liste"] },
   { href: "/patients/new", titel: "{P}: neu anlegen", art: "Seite", stichworte: ["patient anlegen", "neuer patient", "aufnahme"] },
   { href: "/patients/import", titel: "{P}: Liste einlesen", art: "Seite", stichworte: ["import", "csv", "praxissoftware", "umzug", "einlesen", "übernahme", "excel"], recht: "import" },
-  { href: "/modelle", titel: "Modelle", art: "Seite", stichworte: ["anatomie", "3d", "körper", "zeigen", "markieren"], zahnStichworte: ["gebiss", "zähne"] },
+  { href: "/modelle", titel: "Modelle", art: "Seite", stichworte: ["anatomie", "3d", "körper", "zeigen", "markieren"], gebissStichworte: ["gebiss", "zähne"] },
   { href: "/abschluss/new", titel: "{A} abschließen", art: "Seite", stichworte: ["abschluss", "sitzung", "fertig", "dokumentation"] },
   { href: "/proposals", titel: "Vorschläge", art: "Seite", stichworte: ["kostenvoranschlag", "angebot", "eigenanteil", "behandlungsvorschlag", "plan"] },
   { href: "/proposals/new", titel: "Neuer Vorschlag", art: "Seite", stichworte: ["vorschlag erstellen", "anlegen"] },
@@ -188,6 +188,8 @@ export const SEITEN: SeitenEintrag[] = [
 export interface SeitenKontext {
   rechte: MenueRechte;
   zahn: boolean;
+  /** Hat das Fach das Gebiss-Modell (lib/modelle/fach.ts)? Ohne Angabe: nur bei zahn. */
+  gebiss?: boolean;
   /** Wort für „Patienten“ im Fach (z. B. „Kunden“) */
   personPl: string;
   /** „Behandlung“ oder das Wort des Fachs */
@@ -201,7 +203,7 @@ export function sichtbareSeiten(k: SeitenKontext): SeitenEintrag[] {
   return SEITEN.filter((s) => (!s.nurZahn || k.zahn) && (!s.recht || k.rechte[s.recht])).map((s) => ({
     ...s,
     titel: titelFuer(s, k),
-    stichworte: k.zahn && s.zahnStichworte ? [...s.stichworte, ...s.zahnStichworte] : s.stichworte,
+    stichworte: (k.gebiss ?? k.zahn) && s.gebissStichworte ? [...s.stichworte, ...s.gebissStichworte] : s.stichworte,
   }));
 }
 

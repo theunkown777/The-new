@@ -390,62 +390,9 @@ export function fachprofil(fach: string | null | undefined): FachProfil {
   return FACHPROFILE[fach ?? ""] ?? STANDARD;
 }
 
-/** Wie der Abschluss eines Kontakts heißt: Behandlung, Beratung, Versorgung, Einsatz, Besuch. */
-export function abschlussWort(fach: string | null | undefined): string {
-  const f = fach ?? "";
-  if (f === "apotheke") return "Beratung";
-  if (["optik", "hoerakustik", "sanitaetshaus"].includes(f)) return "Versorgung";
-  if (f === "pflege") return "Einsatz";
-  if (f === "hebamme") return "Besuch";
-  return "Behandlung";
-}
-
-/**
- * Wörter des Fachs für Sätze mit Artikel. Patient, Kunde und Klient haben im Akkusativ und Dativ die Form der
- * Mehrzahl („einen Patienten“, „zum Kunden“), Patientin und Frau die der Einzahl („eine Frau“, „zur Patientin“).
- * Einsatz und Besuch sind männlich („Ersten Einsatz abschließen“), Behandlung, Beratung und Versorgung weiblich.
- */
-export function fachWoerter(fach: string | null | undefined) {
-  const { sg, pl } = fachprofil(fach).person;
-  const weiblich = sg === "Frau" || sg.endsWith("in");
-  const abschluss = abschlussWort(fach);
-  const abschlussMaennlich = abschluss === "Einsatz" || abschluss === "Besuch";
-  return {
-    person: sg,
-    personen: pl,
-    /** „einen Patienten“, „eine Patientin“, „einen Kunden“, „eine Frau“ */
-    einePerson: weiblich ? `eine ${sg}` : `einen ${pl}`,
-    /** „Ersten Patienten“, „Erste Frau“ (Akkusativ, Satzanfang) */
-    erstePerson: weiblich ? `Erste ${sg}` : `Ersten ${pl}`,
-    /** „zum Patienten“, „zur Frau“ */
-    zurPerson: weiblich ? `zur ${sg}` : `zum ${pl}`,
-    /** „für den Patienten“, „für die Frau“ */
-    fuerPerson: weiblich ? `für die ${sg}` : `für den ${pl}`,
-    /** „vom Patienten“, „von der Frau“ */
-    vonPerson: weiblich ? `von der ${sg}` : `vom ${pl}`,
-    /** „mit dem Patienten“, „mit der Frau“ */
-    mitPerson: weiblich ? `mit der ${sg}` : `mit dem ${pl}`,
-    /** „Patientenschreiben“; wo das Fach nicht von Patienten spricht, schlicht „Schreiben“ */
-    schreiben: sg.startsWith("Patient") ? "Patientenschreiben" : "Schreiben",
-    /** „Der Patient“, „Die Frau“ (Satzanfang) */
-    derPerson: weiblich ? `Die ${sg}` : `Der ${sg}`,
-    /** „des Patienten“, „der Patientin“ (Genitiv) */
-    desPerson: weiblich ? `der ${sg}` : `des ${pl}`,
-    abschluss,
-    /** „vor der Behandlung“, „vor dem Einsatz“ */
-    vorAbschluss: `vor ${abschlussMaennlich ? "dem" : "der"} ${abschluss}`,
-    /** „Erste Behandlung“, „Ersten Einsatz“ (Akkusativ, Satzanfang) */
-    ersterAbschluss: `${abschlussMaennlich ? "Ersten" : "Erste"} ${abschluss}`,
-    /** „Nächste Behandlung“, „Nächsten Besuch“ (Akkusativ, Satzanfang) */
-    naechsterAbschluss: `${abschlussMaennlich ? "Nächsten" : "Nächste"} ${abschluss}`,
-    /** „Behandlungsdatum“, „Einsatzdatum“, „Besuchsdatum“ */
-    datum: abschluss === "Einsatz" ? "Einsatzdatum" : `${abschluss}sdatum`,
-    /** „Behandlungsvorschlag“, „Beratungsvorschlag“, „Einsatzvorschlag“ */
-    vorschlag: abschluss === "Einsatz" ? "Einsatzvorschlag" : `${abschluss}svorschlag`,
-    /** „Behandlungsvorschläge“, „Beratungsvorschläge“, „Einsatzvorschläge“ */
-    vorschlaege: abschluss === "Einsatz" ? "Einsatzvorschläge" : `${abschluss}svorschläge`,
-  };
-}
+// Wörter des Fachs für Sätze (Person, Einrichtung, Abschluss) stehen in lib/fachWoerter.ts: klein und ohne diese
+// Profile, damit die Patientenseiten sie nicht mitladen. Hier weitergereicht, damit bestehende Importe bleiben.
+export { abschlussWort, einrichtungWoerter, fachWoerter, fuerNeue } from "@/lib/fachWoerter";
 
 /** Passt ein Angebot/Befund mit Geschlechts- oder Altersbezug zu diesem Patienten? Unbekanntes Geschlecht schließt nichts aus. */
 export function passtZuPerson(
@@ -470,6 +417,21 @@ export function systemGruppe(fach: string | null | undefined): string {
   if (f === "hebamme") return "hebamme";
   if (f === "heilpraktiker") return "selbst";
   return "arzt";
+}
+
+/**
+ * Die schriftliche Vereinbarung vor einer Wahl- oder Selbstzahlerleistung, für Sätze wie „Es ersetzt nicht die schriftliche …“:
+ * Zahnmedizin Mehrkosten- bzw. Privatvereinbarung, Ärzte IGeL-Vereinbarung, Heilmittel und Hebamme Privatvereinbarung,
+ * Hilfsmittel Mehrkostenerklärung (§ 33 Abs. 1 SGB V), Klinik Wahlleistungsvereinbarung (§ 17 KHEntgG), sonst neutral.
+ */
+export function vereinbarungFuer(fach: string | null | undefined): string {
+  if (fach === "klinik") return "Wahlleistungsvereinbarung";
+  const g = systemGruppe(fach);
+  if (g === "zahn") return "Mehrkosten- bzw. Privatvereinbarung";
+  if (g === "arzt") return "IGeL-Vereinbarung";
+  if (g === "therapie" || g === "hebamme") return "Privatvereinbarung";
+  if (g === "versorgung") return "Mehrkostenerklärung";
+  return "Vereinbarung";
 }
 
 /** Woran sich die Beispielpreise orientieren: GOÄ nur bei Ärzten, GebüH bei Heilpraktikern, sonst übliche Privatpreise. */

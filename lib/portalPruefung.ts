@@ -144,7 +144,7 @@ const DE: PruefText = {
   ohneGeburtsdatum: "Lastschrift ist hier erst möglich, wenn Ihre Praxis Ihr Geburtsdatum hinterlegt hat. Bitte überweisen Sie den Betrag oder sprechen Sie Ihre Praxis an.",
   zuViele: "Zu viele Anfragen. Bitte später erneut versuchen.",
   fehler: "Das hat nicht geklappt. Bitte versuchen Sie es erneut.",
-  demo: (datum) => `Demo: Das Geburtsdatum dieses Beispielpatienten ist ${datum}.`,
+  demo: (datum) => `Demo: Das Geburtsdatum in diesem Beispiel ist ${datum}.`,
 };
 
 const EN: PruefText = {

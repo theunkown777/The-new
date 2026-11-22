@@ -1,5 +1,6 @@
 import { PraxisFussLaden } from "@/components/PraxisFussLaden";
 import type { Metadata } from "next";
+import { cache } from "react";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
@@ -7,8 +8,9 @@ import { buildProposal, resolvePrices, showsJahresvergleich, tageBisStichtag } f
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { PatientProposalView } from "@/components/PatientProposalView";
 import { resolveInstallments } from "@/lib/installments";
-import { UI, empfehlungJe, langDir, pickLang, type PatientLang } from "@/lib/patientI18n";
+import { UI, empfehlungJe, langDir, pickLang, uiFuer, type PatientLang } from "@/lib/patientI18n";
 import { uebersetzungsWoerterbuch } from "@/lib/eigeneLeistung";
+import { fachText } from "@/lib/fachText";
 import { alsEintrag, vergleichsFragen, zweitmeinungHinweis, anspruchAufZweitmeinung } from "@/lib/zweitmeinung";
 import { isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
 import { LESE_LINK_MAX, leseLinksAktiv } from "@/lib/leseLink";
@@ -22,10 +24,25 @@ const BASIS_META: Metadata = {
   // Vorschau beim Teilen per SMS/Messenger: neutral, ohne Patienten- oder Praxisdaten.
   openGraph: { title: "Ihr Behandlungsvorschlag", description: "Ihre Möglichkeiten und Ihr Eigenanteil, von Ihrer Praxis.", images: [{ url: "/og/vorschlag.png", width: 1200, height: 630 }] },
 };
-// Titel im Browser in der Sprache der Ansicht; die Vorschau beim Teilen bleibt deutsch und neutral.
-export async function generateMetadata(props: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+/** Fach des Vorschlags zu einem gültigen Link (input.fach), für den Seitentitel. Je Aufruf eine kleine Abfrage. */
+const fachZumLink = cache(async (token: string): Promise<string | null> => {
+  if (!/^[A-Za-z0-9_-]{20,128}$/.test(token)) return null;
+  const p = await prisma.treatmentProposal.findUnique({ where: { shareTokenHash: hashToken(token) }, select: { input: true, shareExpiresAt: true } });
+  if (!p || !p.shareExpiresAt || p.shareExpiresAt < new Date()) return null;
+  const fach = (p.input as { fach?: unknown } | null)?.fach;
+  return typeof fach === "string" ? fach : null;
+});
+// Titel im Browser in der Sprache der Ansicht; die Vorschau beim Teilen bleibt deutsch und ohne Patienten- oder
+// Praxisdaten. Beides in den Wörtern des Fachs („Ihr Beratungsvorschlag“, „von Ihrer Apotheke“), lib/fachText.ts.
+export async function generateMetadata(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
   const searchParams = await props.searchParams;
-  return { ...BASIS_META, title: UI[pickLang(searchParams.lang, (await headers()).get("accept-language"))].pageTitle };
+  const lang = pickLang(searchParams.lang, (await headers()).get("accept-language"));
+  const fach = await fachZumLink((await props.params).token);
+  return {
+    ...BASIS_META,
+    title: uiFuer(lang, false, fach).pageTitle,
+    openGraph: { ...BASIS_META.openGraph, title: fachText("Ihr Behandlungsvorschlag", fach), description: fachText("Ihre Möglichkeiten und Ihr Eigenanteil, von Ihrer Praxis.", fach) },
+  };
 }
 
 function Expired({ lang }: { lang: PatientLang }) {
@@ -95,13 +112,14 @@ export default async function PatientLinkPage(props: {
       dental={dental}
       zusatz={uebersetzungsWoerterbuch(input.data.med?.custom, lang)}
       therapie={isTherapie(specialty(input.data.fach))}
+      fach={input.data.fach}
       arztDativ={specialty(input.data.fach)?.arztDativ}
       zweitmeinung={{
         apiUrl: `/api/p/${params.token}/zweitmeinung`,
         eintraege: zweitmeinungen.map(alsEintrag),
-        hinweis: zweitmeinungHinweis(texte, dental),
+        hinweis: zweitmeinungHinweis(texte, dental, input.data.fach),
         anspruch: !!anspruchAufZweitmeinung(texte),
-        fragen: vergleichsFragen(dental),
+        fragen: vergleichsFragen(dental, input.data.fach),
       }}
       pdfUrl={`/api/p/${params.token}/pdf`}
       share={{ apiUrl: `/api/p/${params.token}/lesen`, links: leseLinks, max: LESE_LINK_MAX }}

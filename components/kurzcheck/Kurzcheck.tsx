@@ -87,7 +87,7 @@ const knopf = (an: boolean) => `rounded-full px-3 py-2 text-sm ring-1 ${an ? "bg
 const OBEN = ZAEHNE.filter((z) => z.fdi < 30).map((z) => z.fdi).sort((a, b) => (a < 20 ? -a : a) - (b < 20 ? -b : b));
 const UNTEN = ZAEHNE.filter((z) => z.fdi > 30).map((z) => z.fdi).sort((a, b) => (a > 40 ? -a : a) - (b > 40 ? -b : b));
 
-export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt = false }: { token: string; art: KurzArt; praxis: string; vorname: string; paket: KurzPaket; gelenkeErlaubt?: boolean }) {
+export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt = false, ohneAngst = false }: { token: string; art: KurzArt; praxis: string; vorname: string; paket: KurzPaket; gelenkeErlaubt?: boolean; /** Fach ohne Behandlung (Apotheke, Hilfsmittel, Pflege, Hebamme): keine Kachel „nervös vor der Behandlung“ */ ohneAngst?: boolean }) {
   const tt = useMemo(() => kurzUebersetzer(paket), [paket]);
   const { t } = tt;
   const [schritt, setSchritt] = useState(0);
@@ -342,7 +342,7 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
         {schritt === 4 && (
           <div className="kurz-ein">
             <div className="grid gap-2 sm:grid-cols-2">
-              {(Object.keys(WICHTIG) as Wichtig[]).filter((k) => !keine || k !== "schnell").map((k) => <button key={k} type="button" className={kachel(wichtig === k)} aria-pressed={wichtig === k} onClick={() => setWichtig(k)} data-testid={`kurz-wichtig-${k}`}><Bild id={k} />{tt.w(WICHTIG[k])}</button>)}
+              {(Object.keys(WICHTIG) as Wichtig[]).filter((k) => (!keine || k !== "schnell") && !(ohneAngst && k === "angst")).map((k) => <button key={k} type="button" className={kachel(wichtig === k)} aria-pressed={wichtig === k} onClick={() => setWichtig(k)} data-testid={`kurz-wichtig-${k}`}><Bild id={k} />{tt.w(WICHTIG[k])}</button>)}
             </div>
             <label className="mt-4 block text-sm text-slate-700" htmlFor="kurz-notiz">{t("notiz")}</label>
             <textarea id="kurz-notiz" className="input mt-1.5" rows={2} maxLength={200} value={notiz} onChange={(e) => setNotiz(e.target.value)} placeholder={t("notizPlatz")} data-testid="kurz-notiz" />

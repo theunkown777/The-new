@@ -6,6 +6,7 @@ import type { PortalUi } from "@/lib/portalI18n";
 import { PRUEFUNG_NOETIG, pruefFehlerText, pruefText, type PruefStatus } from "@/lib/portalPruefung";
 import { GeburtsdatumBestaetigt, GeburtsdatumPruefung } from "@/components/PortalPruefung";
 import { RATEN_ANGEHALTEN } from "@/lib/installments";
+import { fachText } from "@/lib/fachText";
 
 /** Geburtsdatum-Prüfung vor dem Lastschriftmandat (S5): Stand beim Laden der Seite. */
 export type PortalPruefungStand = { status: PruefStatus; lang: string; demoDatum?: string | null };
@@ -95,7 +96,7 @@ function CopyRow({ label, value, raw, t }: { label: string; value: string; raw?:
 
 // Eine offene Rechnung im Patientenportal: Status, Bezahldaten mit GiroCode,
 // "Ich habe überwiesen" und Ratenanfrage.
-export function PortalInvoice({ token, inv, bank, t, startOpen, mandat, pruefung }: { token: string; inv: PortalInvoiceData; bank: { name: string; iban: string } | null; t: Text; startOpen: boolean; mandat?: string | null; pruefung?: PortalPruefungStand }) {
+export function PortalInvoice({ token, inv, bank, t, startOpen, mandat, pruefung, fach }: { token: string; inv: PortalInvoiceData; bank: { name: string; iban: string } | null; t: Text; startOpen: boolean; mandat?: string | null; pruefung?: PortalPruefungStand; /** Fach der Praxis: „Die Apotheke zieht den Betrag ein“ (lib/fachText.ts) */ fach?: string | null }) {
   const [open, setOpen] = useState(startOpen);
   const [reported, setReported] = useState(inv.reported);
   const [raten, setRaten] = useState(inv.wantsInstallments);
@@ -215,7 +216,7 @@ export function PortalInvoice({ token, inv, bank, t, startOpen, mandat, pruefung
               )}
             </div>
           )}
-          {sepa && <p className="mt-4 rounded-xl bg-salbei-50 p-3 text-sm text-salbei-900" data-testid="ls-erteilt">Lastschrift erteilt. Die Praxis zieht den Betrag ein, Sie müssen nichts weiter tun.</p>}
+          {sepa && <p className="mt-4 rounded-xl bg-salbei-50 p-3 text-sm text-salbei-900" data-testid="ls-erteilt">{fachText("Lastschrift erteilt. Die Praxis zieht den Betrag ein, Sie müssen nichts weiter tun.", fach)}</p>}
           {/* Ratenanfrage: nur, solange Raten nicht angehalten sind (lib/installments.ts RATEN_ANGEHALTEN). */}
           <div className={`mt-4 grid gap-2 ${RATEN_ANGEHALTEN ? "" : "sm:grid-cols-2"}`}>
             <button type="button" disabled={busy} onClick={() => send("gezahlt")} className="rounded-xl bg-salbei-600 px-4 py-3 text-sm font-semibold text-white hover:bg-salbei-700 disabled:opacity-60" data-testid="portal-gezahlt">

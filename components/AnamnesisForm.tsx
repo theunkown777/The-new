@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { hinweisTeile, type AnamneseProfil } from "@/lib/anamneseProfile";
+import { fachText } from "@/lib/fachText";
 
 type Ans = { yes?: boolean; detail?: string };
 
@@ -39,6 +40,8 @@ const gleich = (a: Ans | undefined, b: Ans) => a?.yes === b.yes && (a?.detail ??
  */
 export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl, backHref, geraet }: { token: string; practiceName: string; firstName: string; profil: AnamneseProfil; postUrl?: string; backHref?: string; geraet?: GeraetFelder }) {
   const QUESTIONS = profil.fragen;
+  // Feste Sätze in den Wörtern des Fachs („in der Apotheke“, „Ihre Übersicht“), lib/fachText.ts
+  const ft = (s: string) => fachText(s, profil.fach);
   const eltern = profil.ansprache === "eltern";
   const [answers, setAnswers] = useState<Record<string, Ans>>({});
   const [wishes, setWishes] = useState<string[]>([]);
@@ -141,12 +144,12 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
         <div className="text-center" role="status">
           <h1 className="text-xl font-semibold text-slate-900">{eltern ? "Vielen Dank" : `Vielen Dank, ${firstName}`}</h1>
           <p className="mt-3 text-slate-600">
-            {eltern ? `Der Anamnesebogen für ${firstName}` : "Ihr Anamnesebogen"} ist bei {practiceName} angekommen. Sie müssen in der Praxis nichts mehr ausfüllen.
+            {eltern ? `Der Anamnesebogen für ${firstName}` : "Ihr Anamnesebogen"} ist bei {practiceName} angekommen. {ft("Sie müssen in der Praxis nichts mehr ausfüllen.")}
           </p>
         </div>
         {backHref && (
           <p className="text-center">
-            <a href={backHref} className="btn-primary mt-6 inline-block">Zurück zu Ihrem Behandlungsweg</a>
+            <a href={backHref} className="btn-primary mt-6 inline-block">{ft("Zurück zu Ihrem Behandlungsweg")}</a>
           </p>
         )}
         {geraet?.nachSenden(answers)}
@@ -156,7 +159,7 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
 
   return (
     <main className="mx-auto max-w-2xl px-4 pb-16 pt-8">
-      {backHref && <a href={backHref} className="mb-4 inline-block text-sm text-brand-700 underline">← Zurück zu Ihrem Behandlungsweg</a>}
+      {backHref && <a href={backHref} className="mb-4 inline-block text-sm text-brand-700 underline">{ft("← Zurück zu Ihrem Behandlungsweg")}</a>}
       <p className="text-sm font-medium text-brand-700">{practiceName}</p>
       <h1 className="mt-1 text-2xl font-semibold text-slate-900">Anamnesebogen für {firstName}</h1>
       <p className="mt-2 text-slate-600" data-testid="anamnese-einleitung">
@@ -316,7 +319,7 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
         <button className="btn btn-primary w-full py-3" disabled={state === "sending"}>
           {state === "sending" ? "Wird gesendet …" : "Anamnesebogen absenden"}
         </button>
-        <p className="text-xs text-slate-500">Nach dem Absenden ist der Link verbraucht. Änderungen besprechen Sie bitte in der Praxis.</p>
+        <p className="text-xs text-slate-500">{ft("Nach dem Absenden ist der Link verbraucht. Änderungen besprechen Sie bitte in der Praxis.")}</p>
       </form>
     </main>
   );

@@ -42,6 +42,16 @@ describe("Immer nur das Nötigste: Organ je Fach", () => {
     expect(erklaerpunkteFuerFach("pneumo").map((p) => p.thema)).toEqual(["lunge"]);
     expect(erklaerpunkteFuerFach("zahn").map((p) => p.thema)).toEqual(["mund"]);
     expect(erklaerpunkteFuerFach(null).length).toBe(ERKLAERPUNKTE.length);
+    // Fach ohne eigenen Eintrag: alles außer „Mund und Zähne“
+    for (const fach of ["hausarzt", "apotheke", "andere"]) {
+      expect(erklaerpunkteFuerFach(fach).map((p) => p.thema), fach).not.toContain("mund");
+      expect(erklaerpunkteFuerFach(fach).length, fach).toBe(ERKLAERPUNKTE.length - 1);
+    }
+    expect(erklaerpunkteFuerFach("ortho").map((p) => p.thema)).toEqual(["muskeln", "skelett"]);
+    expect(erklaerpunkteFuerFach("physio").map((p) => p.thema)).toEqual(["muskeln", "skelett"]);
+    // Kinder- und Jugendmedizin hat das Gebiss-Modell und behält den Punkt (wie bisher alle Punkte)
+    expect(erklaerpunkteFuerFach("kinder").map((p) => p.thema)).toContain("mund");
+    expect(erklaerpunkteFuerFach("kinder").length).toBe(ERKLAERPUNKTE.length);
     expect(new Set(ERKLAERPUNKTE.map((p) => p.thema)).size).toBe(11);
     for (const p of ERKLAERPUNKTE) expect(!!p.fokus !== !!p.stufe, p.thema).toBe(true);
   });

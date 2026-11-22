@@ -11,6 +11,8 @@ import type { HinweisArt } from "@/lib/hilfeWissen/typ";
 export interface PraxisKennzeichen {
   /** voller Name der Praxis, wie sie ihn eingetragen hat */
   name: string;
+  /** Fach der Praxis (Practice.specialty), für die Wörter des Fachs im Seitentitel */
+  fach: string | null;
   /** kurzer Name für den Startbildschirm (short_name, Titel der Web-App auf dem iPhone), höchstens 12 Zeichen */
   kurzName: string;
   /** „Zahnarztpraxis“, „Hausarztpraxis“, „Physiotherapie-Praxis“ … */
@@ -141,6 +143,7 @@ export function praxisKennzeichen(praxis: { name: string; specialty?: string | n
   const kurzName = kurzerPraxisname(praxis.name, praxis.specialty);
   return {
     name: praxis.name.replace(/\s+/g, " ").trim(),
+    fach: praxis.specialty ?? null,
     kurzName,
     fachKurz: fachKurz(praxis.specialty),
     ort: ortAus(praxis.stammdaten),

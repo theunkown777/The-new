@@ -8,13 +8,13 @@ import { NUTZEN_FRAGEN } from "@/lib/nutzenQuelle";
 export const metadata: Metadata = {
   title: "Sorrida für jedes Fach – mit eigenen Leistungen",
   description:
-    "Neurologie, Psychiatrie, Gastroenterologie, Chirurgie oder Physikalische Medizin: Legen Sie Ihre Leistungen selbst an. Kassenleistung zuerst, Preis, Hinweis zum Nutzen, Patienten-Link und IGeL-Vereinbarung funktionieren wie in jedem Fach.",
+    "Rheumatologie, Nephrologie, Nuklearmedizin, Schmerzmedizin oder Physikalische Medizin: Legen Sie Ihre Leistungen selbst an. Kassenleistung zuerst, Preis, Hinweis zum Nutzen, Patienten-Link und schriftliche Vereinbarung funktionieren wie in jedem Fach.",
 };
 
 const BEISPIEL = [
-  { anlass: "Darmkrebs-Vorsorge", name: "Darmspiegelung", preis: "Kasse", kasse: "Kassenleistung ab 50 Jahren", nutzen: "" },
-  { anlass: "Darmkrebs-Vorsorge", name: "Zusätzlicher Stuhltest auf Wunsch", preis: "35 €", kasse: "Ab 50 im Rahmen der Vorsorge Kassenleistung", nutzen: NUTZEN_FRAGEN },
-  { anlass: "Unverträglichkeit", name: "Atemtest ohne Beschwerden", preis: "45 €", kasse: "Bei Beschwerden Kassenleistung", nutzen: "" },
+  { anlass: "Gelenkschmerzen", name: "Abklärung auf entzündliches Rheuma", preis: "Kasse", kasse: "Bei Beschwerden Kassenleistung", nutzen: "" },
+  { anlass: "Osteoporose", name: "Knochendichtemessung ohne Verdacht", preis: "50 €", kasse: "Bei begründetem Verdacht und geplanter Behandlung Kassenleistung", nutzen: NUTZEN_FRAGEN },
+  { anlass: "Osteoporose", name: "Vitamin D bestimmen ohne Verdacht auf Mangel", preis: "25 €", kasse: "Bei Osteoporose oder Verdacht auf Mangel Kassenleistung", nutzen: "" },
 ];
 
 export default function AnderesFach() {
@@ -46,7 +46,7 @@ export default function AnderesFach() {
           </ol>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-5">
-          <h2 className="font-display text-2xl text-slate-900">Beispiel Gastroenterologie: eigene Leistungen</h2>
+          <h2 className="font-display text-2xl text-slate-900">Beispiel Rheumatologie: eigene Leistungen</h2>
           <ul className="mt-3 space-y-3 text-sm">
             {BEISPIEL.map((b) => (
               <li key={b.name} className="rounded-xl border border-slate-200 p-3">

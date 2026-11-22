@@ -21,6 +21,24 @@ describe("Abrechnungsarten", () => {
     expect(artenFuer("heilpraktiker")[0].id).toBe("heilpraktiker");
     expect(artenFuer("aesthetik").map((a) => a.id)).not.toContain("gkv_ebm");
   });
+  it("EBM spricht die Sprache des Fachs: Vorsorge-Beispiele und Pauschalen nur, wo das Fach sie erbringt", () => {
+    const ebm = (f: string) => artenFuer(f).find((a) => a.id === "gkv_ebm");
+    const texte = (f: string) => JSON.stringify(ebm(f));
+    expect(ebm("zahn")).toBeUndefined();
+    expect(ebm("physio")).toBeUndefined();
+    expect(texte("hausarzt")).toContain("Check-up, Hautkrebs-Screening, Impfungen");
+    expect(texte("hausarzt")).toContain("Chronikerpauschale");
+    expect(ebm("hausarzt")!.geldhebel[0].inSorrida).toBe("Vorsorge fällig");
+    expect(texte("haut")).toContain("Fällige Vorsorge (Hautkrebs-Screening)");
+    expect(texte("gastro")).toContain("Darmkrebs-Früherkennung");
+    expect(ebm("gastro")!.geldhebel[0].inSorrida).toBeUndefined();
+    for (const f of ["kardio", "radiologie", "ortho", "augen"]) {
+      expect(texte(f), f).not.toMatch(/Check-up|Impfungen|Hautkrebs|Versichertenpauschale|Chronikerpauschale|Fällige Vorsorge/);
+      expect(texte(f), f).toContain('["extrabudgetär","außerhalb des Budgets voll vergütet"]');
+      expect(texte(f), f).toContain("Grundpauschale");
+    }
+    expect(ARTEN.gkv_ebm.geldhebel[0].problem).toContain("Check-up");
+  });
   it("alle Arten sind vollständig beschrieben", () => {
     for (const a of Object.values(ARTEN)) { expect(a.rechenweg.length).toBeGreaterThan(20); expect(a.regeln.length).toBeGreaterThan(0); }
   });

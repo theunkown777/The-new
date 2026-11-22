@@ -1,3 +1,4 @@
+import { abschlussWort } from "@/lib/fachWoerter";
 import { z } from "zod";
 
 // Zweitmeinung im Patientenportal: Patientinnen und Patienten tragen das
@@ -60,8 +61,11 @@ export function anspruchAufZweitmeinung(texte: string[]): string | null {
   return ANSPRUCH.find(([re]) => eingriffe.some((t) => re.test(t)))?.[1] ?? null;
 }
 
-/** Hinweistext für die Patientenansicht, je nach Anspruch und Fach. */
-export function zweitmeinungHinweis(texte: string[], dental: boolean): { titel: string; text: string } {
+/**
+ * Hinweistext für die Patientenansicht, je nach Anspruch und Fach. Wo das Fach nicht behandelt (Apotheke, Hilfsmittel,
+ * Pflege, Hebamme), geht es um ein zweites Angebot, nicht um eine zweite ärztliche Meinung.
+ */
+export function zweitmeinungHinweis(texte: string[], dental: boolean, fach?: string | null): { titel: string; text: string } {
   const eingriff = anspruchAufZweitmeinung(texte);
   if (eingriff)
     return {
@@ -73,6 +77,11 @@ export function zweitmeinungHinweis(texte: string[], dental: boolean): { titel: 
       titel: "Zweitmeinung zum Heil- und Kostenplan",
       text: "Bei Zahnersatz und größeren Behandlungen können Sie eine zweite Meinung einholen. Manche Krankenkassen und die Patientenberatung der Zahnärztekammern bieten das an. Tragen Sie das andere Angebot hier ein und vergleichen Sie in Ruhe.",
     };
+  if (abschlussWort(fach) !== "Behandlung")
+    return {
+      titel: "Ein zweites Angebot einholen",
+      text: "Sie können ein zweites Angebot einholen. Tragen Sie es hier ein und vergleichen Sie in Ruhe.",
+    };
   return {
     titel: "Eine zweite Meinung einholen",
     text: "Bei größeren Behandlungen ist eine zweite Meinung üblich und Ihr gutes Recht. Tragen Sie das andere Angebot hier ein und vergleichen Sie in Ruhe.",
@@ -80,7 +89,14 @@ export function zweitmeinungHinweis(texte: string[], dental: boolean): { titel: 
 }
 
 /** Fragen, die beim Vergleich helfen; nicht nur der Preis zählt. */
-export function vergleichsFragen(dental: boolean): string[] {
+export function vergleichsFragen(dental: boolean, fach?: string | null): string[] {
+  if (!dental && abschlussWort(fach) !== "Behandlung")
+    return [
+      "Ist wirklich dieselbe Leistung gemeint (Umfang, Ausführung, Anzahl der Termine)?",
+      "Ist der Anteil der Krankenkasse bei beiden schon abgezogen?",
+      "Was ist enthalten: Beratung, Anpassung, Nachsorge?",
+      "Welche Gewährleistung gibt es, und wie schnell hilft man Ihnen, wenn etwas nicht passt?",
+    ];
   return [
     "Ist wirklich dieselbe Leistung gemeint (Umfang, Material, Anzahl der Termine)?",
     "Ist der Anteil der Krankenkasse bei beiden schon abgezogen?",

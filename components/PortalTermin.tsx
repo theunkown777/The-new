@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { fachText } from "@/lib/fachText";
 
 type Tag = { tag: string; zeiten: string[] };
 type Meiner = { id: string; start: string; minutes: number; reason: string; quelle: string; status: string };
@@ -10,7 +11,8 @@ const uhr = (iso: string) => new Date(iso).toLocaleTimeString("de-DE", { hour: "
 const termin = (iso: string) => `${new Date(iso).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Berlin" })}, ${uhr(iso)} Uhr`;
 
 /** Patientenportal: freien Termin wählen und buchen. Angeboten wird nur, was wirklich frei ist. */
-export function PortalTermin({ token, praxis, anlassVor = "" }: { token: string; praxis: string; /** Aus der Erinnerung der Praxis: Anlass ist schon eingetragen */ anlassVor?: string }) {
+export function PortalTermin({ token, praxis, anlassVor = "", fach }: { token: string; praxis: string; /** Aus der Erinnerung der Praxis: Anlass ist schon eingetragen */ anlassVor?: string; /** Fach der Praxis: „in der Apotheke“, „vom Pflegedienst bestätigt“ (lib/fachText.ts) */ fach?: string | null }) {
+  const ft = (s: string) => fachText(s, fach);
   const [tage, setTage] = useState<Tag[] | null>(null);
   const [meine, setMeine] = useState<Meiner[]>([]);
   const [aktiv, setAktiv] = useState(true);
@@ -66,7 +68,7 @@ export function PortalTermin({ token, praxis, anlassVor = "" }: { token: string;
           <ul className="mt-2 divide-y divide-slate-100">
             {meine.map((m) => (
               <li key={m.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm" data-testid="mein-termin">
-                <span className="min-w-0"><span className="font-medium text-slate-900">{termin(m.start)}</span><span className="block text-xs text-slate-500">{m.minutes} Minuten{m.status === "BESTAETIGT" ? " · von der Praxis bestätigt" : ""}</span></span>
+                <span className="min-w-0"><span className="font-medium text-slate-900">{termin(m.start)}</span><span className="block text-xs text-slate-500">{m.minutes} Minuten{m.status === "BESTAETIGT" ? ft(" · von der Praxis bestätigt") : ""}</span></span>
                 {m.quelle === "PATIENT" && new Date(m.start).getTime() - Date.now() > 24 * 3600e3 && <button type="button" className="btn-secondary text-sm" disabled={busy} onClick={() => absagen(m.id)}>Absagen</button>}
               </li>
             ))}
@@ -77,8 +79,8 @@ export function PortalTermin({ token, praxis, anlassVor = "" }: { token: string;
       <section className="rounded-2xl bg-white p-4" aria-labelledby="freie-termine">
         <h2 id="freie-termine" className="text-sm font-semibold text-slate-900">Freien Termin wählen</h2>
         {tage === null ? <p className="mt-2 text-sm text-slate-500">Freie Termine werden geladen …</p>
-          : !aktiv ? <p className="mt-2 text-sm text-slate-600">{praxis} bietet zurzeit keine Online-Termine an. Bitte rufen Sie in der Praxis an.</p>
-          : tage.length === 0 ? <p className="mt-2 text-sm text-slate-600" data-testid="termin-keine">In den nächsten Wochen ist online kein Termin frei. Bitte rufen Sie in der Praxis an.</p>
+          : !aktiv ? <p className="mt-2 text-sm text-slate-600">{praxis} bietet zurzeit keine Online-Termine an. {ft("Bitte rufen Sie in der Praxis an.")}</p>
+          : tage.length === 0 ? <p className="mt-2 text-sm text-slate-600" data-testid="termin-keine">{ft("In den nächsten Wochen ist online kein Termin frei. Bitte rufen Sie in der Praxis an.")}</p>
           : (
             <>
               <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-2" role="tablist" aria-label="Tag">
@@ -105,7 +107,7 @@ export function PortalTermin({ token, praxis, anlassVor = "" }: { token: string;
                   <p className="text-sm text-slate-900"><b>{termin(zeit)}</b>, {minuten} Minuten</p>
                   <label className="mt-2 block text-sm"><span className="text-slate-700">Worum geht es? (freiwillig)</span>
                     <input className="input mt-1" maxLength={80} value={anlass} onChange={(e) => setAnlass(e.target.value)} placeholder="z. B. Kontrolle, Beratung" /></label>
-                  <p className="mt-1 text-xs text-slate-500">Bitte keine ausführlichen Krankheitsangaben; die besprechen Sie in der Praxis.</p>
+                  <p className="mt-1 text-xs text-slate-500">{ft("Bitte keine ausführlichen Krankheitsangaben; die besprechen Sie in der Praxis.")}</p>
                   <button type="button" className="btn-primary mt-3 w-full" disabled={busy} onClick={buchen} data-testid="termin-buchen">{busy ? "Bucht …" : "Termin verbindlich buchen"}</button>
                 </div>
               )}

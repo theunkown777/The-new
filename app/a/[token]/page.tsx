@@ -10,6 +10,7 @@ import { pickPortalLang } from "@/lib/portalI18n";
 import { anamneseProfilFuer } from "@/lib/anamnesis";
 import { bogenGruppe, praxisKennzeichen } from "@/lib/praxisKennung";
 import { PraxisBand } from "@/components/PraxisKennung";
+import { fachText } from "@/lib/fachText";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default async function AnamnesisPage(props: { params: Promise<{ token: st
     return (
       <main className="mx-auto max-w-xl px-4 py-16 text-center">
         <h1 className="text-xl font-semibold text-slate-900">Dieser Link ist nicht mehr gültig</h1>
-        <p className="mt-3 text-slate-600">Der Bogen wurde schon abgeschickt oder der Link ist abgelaufen. Bitte fragen Sie in Ihrer Praxis nach.</p>
+        <p className="mt-3 text-slate-600">{fachText("Der Bogen wurde schon abgeschickt oder der Link ist abgelaufen. Bitte fragen Sie in Ihrer Praxis nach.", form?.practice.specialty)}</p>
       </main>
     );
   }

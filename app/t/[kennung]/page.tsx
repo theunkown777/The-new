@@ -6,6 +6,8 @@ import { PraxisFuss } from "@/components/PraxisFuss";
 import { leseStammdaten } from "@/lib/praxisStammdaten";
 import { praxisKennzeichen } from "@/lib/praxisKennung";
 import { PraxisKennzeile, PraxisStreifen } from "@/components/PraxisKennung";
+import { einrichtungWoerter, fuerNeue } from "@/lib/fachWoerter";
+import { fachText } from "@/lib/fachText";
 
 export const dynamic = "force-dynamic";
 // Nicht in Suchmaschinen: Die Seite gehört auf die Website der Praxis, nicht in Trefferlisten.
@@ -21,11 +23,13 @@ export default async function NeupatientSeite(props: { params: Promise<{ kennung
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center text-sm text-slate-600" data-testid="neutermin-aus">
         <h1 className="text-base font-semibold text-slate-900">Online-Termine sind hier nicht verfügbar</h1>
-        <p className="mt-2">Diese Buchungsseite gibt es nicht oder sie ist ausgeschaltet. Bitte rufen Sie in der Praxis an.</p>
+        <p className="mt-2">{fachText("Diese Buchungsseite gibt es nicht oder sie ist ausgeschaltet. Bitte rufen Sie in der Praxis an.", praxis?.specialty)}</p>
       </main>
     );
   }
   const kennung = praxisKennzeichen(praxis);
+  // Wörter des Fachs: „neue Kundinnen und Kunden“, „das Fachgeschäft bestätigt“ (lib/fachprofile.ts)
+  const fuerWen = fuerNeue(praxis.specialty);
   return (
     <main className="min-h-screen bg-[#F5F2EE]">
       <PraxisStreifen k={kennung} />
@@ -33,17 +37,17 @@ export default async function NeupatientSeite(props: { params: Promise<{ kennung
         <p className="text-sm font-medium text-brand-700">{praxis.name}</p>
         <PraxisKennzeile k={kennung} className="mt-0.5" />
         <h1 className="mt-1 font-display text-2xl text-slate-900 sm:text-3xl">Termin online anfragen</h1>
-        <p className="mt-1 text-sm text-slate-600">Für neue Patientinnen und Patienten. Wählen Sie eine freie Zeit; die Praxis bestätigt Ihre Anfrage.</p>
+        <p className="mt-1 text-sm text-slate-600">{fuerWen}. Wählen Sie eine freie Zeit; {einrichtungWoerter(praxis.specialty).dieNom} bestätigt Ihre Anfrage.</p>
         {praxis.isDemo && (
           <p className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="neutermin-beispiel">
-            <b>Beispiel:</b> Dies ist eine Beispiel-Praxis zum Ausprobieren. Ihre Anfrage wird als Beispiel gespeichert und mit der Beispiel-Praxis gelöscht. Bitte keine echten Daten eintragen.
+            <b>Beispiel:</b> Dies ist ein Beispiel zum Ausprobieren. Ihre Anfrage wird als Beispiel gespeichert und mit den Beispieldaten gelöscht. Bitte keine echten Daten eintragen.
           </p>
         )}
         <div className="mt-5">
-          <NeupatientTermin kennung={params.kennung} praxis={praxis.name} aktiv={l.aktiv} minuten={l.minuten} tage={l.aktiv ? l.tage : []} anlaesse={praxis.anlaesse} stempel={stempel(params.kennung)} beispiel={praxis.isDemo} datenschutzUrl={leseStammdaten(praxis.stammdaten).datenschutzUrl || null} />
+          <NeupatientTermin kennung={params.kennung} praxis={praxis.name} aktiv={l.aktiv} minuten={l.minuten} tage={l.aktiv ? l.tage : []} anlaesse={praxis.anlaesse} stempel={stempel(params.kennung)} beispiel={praxis.isDemo} datenschutzUrl={leseStammdaten(praxis.stammdaten).datenschutzUrl || null} fach={praxis.specialty} />
         </div>
         {/* Wer die Praxis ist (Anschrift, Kontakt, Impressum, Datenschutzhinweise) und wer die Seite technisch bereitstellt. */}
-        <PraxisFuss name={praxis.name} stammdaten={praxis.stammdaten} className="mt-8 border-t border-slate-200 pt-4" />
+        <PraxisFuss name={praxis.name} stammdaten={praxis.stammdaten} fach={praxis.specialty} className="mt-8 border-t border-slate-200 pt-4" />
       </div>
     </main>
   );

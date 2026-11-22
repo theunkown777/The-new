@@ -21,6 +21,7 @@ import {
   type ProposalItem,
 } from "@/lib/proposals";
 import { isTherapie, specialty } from "@/lib/specialties";
+import { fachWoerter, systemGruppe } from "@/lib/fachprofile";
 
 export type StepOwner = "Rezeption" | "Behandler";
 
@@ -41,11 +42,14 @@ export function buildNextSteps(args: {
   reportFinal: boolean;
   hasProposal: boolean;
   today?: Date;
-  /** Fachgebiet: Therapiepraxen vereinbaren Selbstzahlerleistungen privat, nicht als IGeL. */
+  /** Fachgebiet: bestimmt Dokument und Wörter (Therapie Privatvereinbarung, Hilfsmittel Mehrkostenerklärung, Klinik Wahlleistungsvereinbarung, Ärzte IGeL). */
   fach?: string;
 }): NextStep[] {
   const { items, choices, patient, reportFinal, hasProposal } = args;
   const today = args.today ?? new Date();
+  const w = fachWoerter(args.fach);
+  /** „der Patient“, „die Frau“, „der Kunde“: wer im Fach wählt */
+  const wer = w.derPerson.replace(/^D/, "d");
   const steps: NextStep[] = [];
   const gkv = patient.insurance === "GKV";
 
@@ -144,30 +148,31 @@ export function buildNextSteps(args: {
     steps.push({
       id: "mkv",
       owner: "Rezeption",
-      text: gkv ? "Mehrkostenvereinbarung (§ 28 Abs. 2 SGB V) vor der Behandlung unterschreiben lassen" : "Kostenvoranschlag für die Wahlleistung mitgeben und vor der Behandlung bestätigen lassen",
-      detail: mehrkosten.join(" · ") + " – falls der Patient diese Option wählt",
+      text: gkv ? `Mehrkostenvereinbarung (§ 28 Abs. 2 SGB V) ${w.vorAbschluss} unterschreiben lassen` : `Kostenvoranschlag für die Wahlleistung mitgeben und ${w.vorAbschluss} bestätigen lassen`,
+      detail: mehrkosten.join(" · ") + ` – falls ${wer} diese Option wählt`,
     });
   }
   if (privat.length) {
     steps.push({
       id: "privat",
       owner: "Rezeption",
-      text: "Private Vereinbarung bzw. Kostenvoranschlag vor der Behandlung unterschreiben lassen",
-      detail: privat.join(" · ") + " – falls der Patient diese Option wählt",
+      text: `Private Vereinbarung bzw. Kostenvoranschlag ${w.vorAbschluss} unterschreiben lassen`,
+      detail: privat.join(" · ") + ` – falls ${wer} diese Option wählt`,
     });
   }
   if (igel.length) {
     const therapie = isTherapie(specialty(args.fach));
-    steps.push({
-      id: "igel",
-      owner: "Rezeption",
-      text: therapie
-        ? "Privatvereinbarung über Selbstzahlerleistungen vor der Behandlung unterschreiben lassen"
-        : "Schriftliche Vereinbarung über Selbstzahlerleistungen (IGeL) vor der Leistung unterschreiben lassen",
-      detail: therapie
-        ? igel.join(" · ") + " – falls der Patient diese Leistung wählt; Preis nach Praxispreisliste, Bedenkzeit lassen"
-        : igel.join(" · ") + " – falls der Patient diese Leistung wählt; Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä)",
-    });
+    const liste = igel.join(" · ");
+    // Das Dokument hängt am Fach: Klinik Wahlleistungsvereinbarung, Hilfsmittel Mehrkostenerklärung, Therapie Privatvereinbarung, Ärzte IGeL.
+    const [text, detail] =
+      args.fach === "klinik"
+        ? ["Wahlleistungsvereinbarung vor der Behandlung unterschreiben lassen (§ 17 KHEntgG)", `${liste} – falls ${wer} diese Leistung wählt; vorher über die Entgelte unterrichten, wahlärztliche Leistungen nach GOÄ`]
+        : systemGruppe(args.fach) === "versorgung"
+          ? ["Mehrkostenerklärung vor der Versorgung unterschreiben lassen, wenn die Kasse einen Teil zahlt (§ 33 Abs. 1 SGB V)", `${liste} – falls ${wer} diese Ausführung wählt; aufzahlungsfreie Versorgung anbieten`]
+          : therapie
+            ? [`Privatvereinbarung über Selbstzahlerleistungen ${w.vorAbschluss} unterschreiben lassen`, `${liste} – falls ${wer} diese Leistung wählt; Preis nach Preisliste, Bedenkzeit lassen`]
+            : ["Schriftliche Vereinbarung über Selbstzahlerleistungen (IGeL) vor der Leistung unterschreiben lassen", `${liste} – falls ${wer} diese Leistung wählt; Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä)`];
+    steps.push({ id: "igel", owner: "Rezeption", text, detail });
   }
   const zz = items.map((i) => chosenOption(i, choices)?.zuzahlung).find(Boolean);
   if (zz && gkv && (patient.age == null || patient.age >= 18)) {

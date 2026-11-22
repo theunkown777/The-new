@@ -1,5 +1,6 @@
 import { ABGEWAEHLT, formatEuro, istFreiwillig, money, typeLabelOf, type PatientFactors, type ProposalItem, type ProposalOption } from "@/lib/proposals";
-import { UI, empfehlungJe } from "@/lib/patientI18n";
+import { empfehlungJe, kostenHinweis, uiFuer } from "@/lib/patientI18n";
+import { fachText } from "@/lib/fachText";
 import type { Stammdaten } from "@/lib/praxisStammdaten";
 
 // Kostenübersicht als PDF für die Patientin oder den Patienten (Knopf „Als PDF speichern“ in der Patientenansicht).
@@ -37,6 +38,8 @@ export interface KostenPosition {
   abgewaehlt: boolean;
 }
 export interface Kostenuebersicht {
+  /** „Kostenübersicht zum Behandlungsvorschlag“, in den Wörtern des Fachs („… zum Beratungsvorschlag“). */
+  titel: string;
   praxis: string;
   /** Anschrift und Telefon der Praxis, soweit hinterlegt. */
   praxisZeilen: string[];
@@ -59,9 +62,8 @@ export interface Kostenuebersicht {
 const TZ = "Europe/Berlin";
 
 /** Der Hinweistext der Ansicht ohne den Satz zur Laufzeit des Links (im gespeicherten PDF ohne Bedeutung). */
-export function hinweisText(o: { gkv: boolean; dental: boolean; therapie: boolean }): string {
-  const t = UI.de;
-  const roh = !o.dental ? (o.therapie ? t.fineTherapie("x") : t.fineMed("x")) : t.fine(o.gkv, "x");
+export function hinweisText(o: { gkv: boolean; dental: boolean; therapie: boolean; fach?: string | null }): string {
+  const roh = kostenHinweis(uiFuer("de", false, o.fach), { ...o, until: "x" });
   return roh.replace(/\s*Dieser Link ist gültig bis x\./, "").trim();
 }
 
@@ -76,8 +78,11 @@ export function kostenuebersicht(a: {
   patientWahl: Record<string, string> | null;
   dental: boolean;
   therapie: boolean;
+  /** Fach des Vorschlags: Wörter des Fachs („Ihre Apotheke“, „Beratungsvorschlag“), lib/fachText.ts. */
+  fach?: string | null;
   now?: Date;
 }): Kostenuebersicht {
+  const ft = (s: string) => fachText(s, a.fach);
   const items = a.items.filter((i) => i.options.length > 0);
   const gkv = a.patient.insurance === "GKV";
   const vorgemerkt = empfehlungJe(items, a.praxisWahl);
@@ -116,7 +121,7 @@ export function kostenuebersicht(a: {
           kasse: !ohnePreis && m.kasse > 0 ? `${gkv ? "Kasse" : "Versicherung"} ca. ${formatEuro(m.kasse)}` : "",
           zusatz: !ohnePreis && m.erstattet > 0 ? `Zusatzversicherung ca. ${formatEuro(m.erstattet)}` : "",
           eigen: ohnePreis ? "gesetzliche Zuzahlung" : `ca. ${formatEuro(m.netto)}`,
-          markierung: gesendet ? (gesendet[i.key] === o.id ? "Ihre Wahl" : "") : vorgemerkt[i.key] === o.id ? "von Ihrer Praxis vorgemerkt" : "",
+          markierung: gesendet ? (gesendet[i.key] === o.id ? "Ihre Wahl" : "") : vorgemerkt[i.key] === o.id ? ft("von Ihrer Praxis vorgemerkt") : "",
         };
       }),
     };
@@ -132,14 +137,15 @@ export function kostenuebersicht(a: {
       grundlage === "patient"
         ? "Ihr Eigenanteil für Ihre gesendete Wahl"
         : grundlage === "praxis"
-          ? "Ihr Eigenanteil nach Vormerkung Ihrer Praxis; wo nichts vorgemerkt ist, mit der Kassen- bzw. Regelleistung gerechnet"
+          ? ft("Ihr Eigenanteil nach Vormerkung Ihrer Praxis; wo nichts vorgemerkt ist, mit der Kassen- bzw. Regelleistung gerechnet")
           : `Ihr Eigenanteil mit der ${gkv ? "Kassen- bzw. Regelleistung" : "jeweils ersten Möglichkeit"} gerechnet (noch keine Wahl gesendet)`,
+    titel: ft("Kostenübersicht zum Behandlungsvorschlag"),
     summe: `ca. ${formatEuro(summe)}`,
     kasseText: gkv ? "Das übernimmt Ihre Kasse voraussichtlich" : "Das erstattet Ihre Versicherung voraussichtlich",
     kasseSumme: `ca. ${formatEuro(kasseSumme)}`,
     zusatzSumme: zusatzSumme > 0 ? `ca. ${formatEuro(zusatzSumme)}` : "",
-    hinweis: hinweisText({ gkv, dental: a.dental, therapie: a.therapie }),
-    einreichen: einreichenText(a.dental),
-    fuss: fussText(a.dental),
+    hinweis: hinweisText({ gkv, dental: a.dental, therapie: a.therapie, fach: a.fach }),
+    einreichen: ft(einreichenText(a.dental)),
+    fuss: ft(fussText(a.dental)),
   };
 }

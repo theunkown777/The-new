@@ -11,6 +11,7 @@ import { PatientLinkPanel } from "@/components/PatientLinkPanel";
 import { leseLinkVermerk } from "@/lib/leseLink";
 import { patientLinkState } from "@/lib/patientLink";
 import { pruefVermerk } from "@/lib/portalPruefung";
+import { fachWoerter } from "@/lib/fachprofile";
 
 export default async function ProposalDetailPage(props: { params: Promise<{ id: string }>; searchParams: Promise<{ qr?: string }> }) {
   const params = await props.params;
@@ -22,7 +23,7 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
     include: {
       patient: { select: { id: true, firstName: true, lastName: true, insuranceType: true, birthDate: true, externalId: true, geschlecht: true, ohneAkte: true } },
       author: { select: { name: true } },
-      practice: { select: { name: true, proposalPrices: true } },
+      practice: { select: { name: true, proposalPrices: true, specialty: true } },
       // Nur, was die Patientin bzw. der Patient ausdrücklich geteilt hat.
       zweitmeinungen: { where: { geteiltAt: { not: null } }, orderBy: { createdAt: "asc" } },
       // Lese-Links für Vertrauenspersonen: nur, dass es sie gibt (nie für wen).
@@ -103,7 +104,7 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
 
       {proposal.zweitmeinungen.length > 0 && (
         <section className="card mt-6" data-testid="zweitmeinung-praxis">
-          <h2 className="font-display text-2xl text-slate-900">Zweitmeinung, vom Patienten geteilt</h2>
+          <h2 className="font-display text-2xl text-slate-900">Zweitmeinung, {fachWoerter(proposal.practice.specialty).vonPerson} geteilt</h2>
           <p className="mt-1 text-sm text-slate-600">
             {p.firstName} hat ein anderes Angebot neben diesen Vorschlag gelegt und mit Ihnen geteilt. Ein guter Anlass für ein kurzes Gespräch über Umfang, Material und
             Nachsorge, nicht nur über den Preis.

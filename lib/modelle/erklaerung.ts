@@ -268,7 +268,7 @@ export const THEMA_KURZ: Record<ErklaerThema, string> = {
 };
 
 /** Immer nur das Nötigste: welche Themen eine Fachrichtung am Menschen sieht (erstes = wichtigstes).
- *  Fächer ohne Eintrag sehen alle Themen. */
+ *  Fächer ohne Eintrag sehen alle Themen außer Mund und Zahn (themenFuerFach). */
 export const FACH_THEMEN: Record<string, ErklaerThema[]> = {
   zahn: ["mund", "zahn"],
   augen: ["auge"],
@@ -289,7 +289,16 @@ export const FACH_THEMEN: Record<string, ErklaerThema[]> = {
   chirurgie: ["haut", "verdauung", "skelett"],
   kinder: ["ohr", "lunge", "haut", "mund"],
   radiologie: ["skelett", "lunge", "gehirn"],
+  gyn: ["niere", "verdauung", "haut"],
+  hebamme: ["verdauung", "niere"],
+  endo: ["verdauung", "niere", "herz"],
+  optik: ["auge"],
+  hoerakustik: ["ohr"],
+  sanitaetshaus: ["skelett", "muskeln"],
 };
 
 export const ALLE_THEMEN: ErklaerThema[] = ["gehirn", "auge", "ohr", "mund", "zahn", "herz", "lunge", "verdauung", "niere", "haut", "muskeln", "skelett"];
-export const themenFuerFach = (fach?: string | null): ErklaerThema[] => (fach && FACH_THEMEN[fach]) || ALLE_THEMEN;
+/** Für Fächer ohne eigenen Eintrag (z. B. Allgemeinmedizin, Apotheke, Klinik, „andere“): alles außer den Zahn-Themen. */
+export const NEUTRALE_THEMEN: ErklaerThema[] = ALLE_THEMEN.filter((t) => t !== "mund" && t !== "zahn");
+/** Ohne Fach (Website) alle Themen; mit Fach nur seine, sonst neutral ohne Mund und Zahn. */
+export const themenFuerFach = (fach?: string | null): ErklaerThema[] => (fach ? FACH_THEMEN[fach] ?? NEUTRALE_THEMEN : ALLE_THEMEN);

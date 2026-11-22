@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ALLE_THEMEN, ERKLAERUNG, FACH_THEMEN, themenFuerFach } from "./erklaerung";
 import { ERKLAER_BILDER, MENSCH_BILD } from "./erklaerBilder";
-import { SPECIALTIES } from "../specialties";
+import { SPECIALTIES, SPECIALTY_IDS } from "../specialties";
 
 describe("Erklärungsansicht", () => {
   it("jeder Punkt im Bild hat eine Erklärung", () => {
@@ -31,5 +31,18 @@ describe("Erklärungsansicht", () => {
     expect(themenFuerFach("kardio")).toEqual(["herz"]);
     for (const s of SPECIALTIES) expect(themenFuerFach(s.id).length, s.id).toBeGreaterThan(0);
     for (const liste of Object.values(FACH_THEMEN)) for (const t of liste) expect(ALLE_THEMEN).toContain(t);
+  });
+  it("Mund und Zahn nur für Fächer, die sie brauchen; Fach ohne Eintrag neutral, Website alles", () => {
+    expect(themenFuerFach("zahn")).toEqual(["mund", "zahn"]);
+    expect(themenFuerFach("ortho")).toEqual(["skelett", "muskeln"]);
+    expect(themenFuerFach("physio")).toEqual(["muskeln", "skelett"]);
+    expect(themenFuerFach("optik")).toEqual(["auge"]);
+    for (const fach of ["gyn", "hausarzt", "apotheke", "klinik", "andere", "ortho", "physio"]) {
+      expect(themenFuerFach(fach), fach).not.toContain("zahn");
+      expect(themenFuerFach(fach), fach).not.toContain("mund");
+    }
+    expect(themenFuerFach(null)).toEqual(ALLE_THEMEN);
+    const mitZahn = SPECIALTY_IDS.filter((id) => themenFuerFach(id).includes("zahn"));
+    expect(mitZahn).toEqual(["zahn"]);
   });
 });

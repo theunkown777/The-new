@@ -1,4 +1,5 @@
 import { normWort, wortstamm } from "@/lib/anlassErkennung";
+import { abschlussText, personText } from "@/lib/fachText";
 import type { HilfeEintrag, HilfeMerkmal } from "@/lib/hilfeWissen/typ";
 import type { MenueRechte } from "@/lib/rollen";
 
@@ -254,11 +255,18 @@ export function meldungenErkennen(texte: { alarme: string[]; seite?: string }, e
   return gefunden.slice(0, opt.anzahl ?? 3);
 }
 
-/** Wörter des Fachs für die Anzeige: {P} = „Patienten“ oder das Wort des Fachs, {A} = „Behandlung“ oder das Wort des Fachs. */
-export interface FachWoerter { personPl?: string; abschluss?: string }
+/**
+ * Wörter des Fachs für die Anzeige: {P} = „Patienten“ oder das Wort des Fachs, {A} = „Behandlung“ oder das Wort des Fachs.
+ * person (Einzahl, „Kunde“, „Klient“, „Frau“) ersetzt außerdem „Patient“ im Fließtext (lib/fachText.ts, personText),
+ * abschluss auch „eine Behandlung“ und „Behandlungsvorschlag“ (abschlussText).
+ */
+export interface FachWoerter { personPl?: string; abschluss?: string; person?: string }
 
 /** Eintrag mit den Wörtern des Fachs (Platzhalter aufgelöst), wie lib/suche.ts die Seitentitel auflöst. */
 export function hilfeText<T extends Pick<HilfeEintrag, "frage" | "antwort" | "pfad">>(e: T, w: FachWoerter = {}): T {
-  const ersetzen = (t: string) => t.replace(/\{P\}/g, w.personPl ?? "Patienten").replace(/\{A\}/g, w.abschluss ?? "Behandlung");
+  const ersetzen = (t: string) => {
+    const x = abschlussText(t.replace(/\{P\}/g, w.personPl ?? "Patienten").replace(/\{A\}/g, w.abschluss ?? "Behandlung"), w.abschluss ?? "Behandlung");
+    return w.person ? personText(x, w.person, w.personPl) : x;
+  };
   return { ...e, frage: ersetzen(e.frage), antwort: ersetzen(e.antwort), pfad: ersetzen(e.pfad) };
 }

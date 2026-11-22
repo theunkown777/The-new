@@ -3,6 +3,7 @@
 // aus lib/kurzcheck.ts. Fehlt etwas, bleibt der deutsche Text stehen. Die Akte der Praxis bleibt deutsch.
 import type { PortalLang } from "@/lib/portalI18n";
 import { ORT_NACH, ORTE, SEIT_KURZ, WICHTIG, ZEICHEN, type KurzArt } from "@/lib/kurzcheck";
+import { mitFachWoertern } from "@/lib/fachText";
 
 export const KURZ_UI = {
   wo: "Wo haben Sie Beschwerden?",
@@ -406,12 +407,20 @@ export const KURZ_ELTERN: Record<PortalLang, KurzEltern> = {
   },
 };
 
-/** Sprachpaket für die Seite. `eltern`: Fassung für Eltern (siehe KURZ_UI_ELTERN) über das Paket der Sprache legen. */
-export const kurzPaket = (lang: string, opts: { eltern?: boolean } = {}): KurzPaket => {
+/**
+ * Sprachpaket für die Seite. `eltern`: Fassung für Eltern (siehe KURZ_UI_ELTERN) über das Paket der Sprache legen.
+ * `fach`: Das deutsche Paket spricht in den Wörtern des Fachs („rufen Sie in der Apotheke an“, lib/fachText.ts);
+ * für Praxis, Behandlung und Patient und in jeder anderen Sprache bleibt es unverändert.
+ */
+export const kurzPaket = (lang: string, opts: { eltern?: boolean; fach?: string | null } = {}): KurzPaket => {
   const p = KURZ_PAKETE[lang as PortalLang] ?? DE;
-  if (!opts.eltern) return p;
-  const e = KURZ_ELTERN[p.lang];
-  return { ...p, ui: { ...p.ui, ...e.ui }, w: { ...p.w, ...e.w } };
+  const e = opts.eltern ? KURZ_ELTERN[p.lang] : null;
+  const paket = e ? { ...p, ui: { ...p.ui, ...e.ui }, w: { ...p.w, ...e.w } } : p;
+  if (p.lang !== "de") return paket;
+  // Das deutsche Paket ist leer (die Texte stehen in KURZ_UI): erst zusammenlegen, dann in die Wörter des Fachs.
+  const basis: KurzPaket["ui"] = { ...KURZ_UI, ...paket.ui };
+  const ui = mitFachWoertern(basis, opts.fach);
+  return ui === basis ? paket : { ...paket, ui };
 };
 
 /** Übersetzer für ein Paket: Oberfläche (t), Wörter (w) und Stellen mit Seite (ort). */

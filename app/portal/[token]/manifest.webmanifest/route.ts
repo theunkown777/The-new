@@ -18,7 +18,7 @@ export async function GET(_req: Request, props: { params: Promise<{ token: strin
   const patient = await portalPatient(params.token);
   if (!patient) return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 });
   const practice = await prisma.practice.findUnique({ where: { id: patient.practiceId }, select: { name: true, specialty: true, stammdaten: true } });
-  const k = praxisKennzeichen({ name: practice?.name ?? "Behandlungsweg", specialty: practice?.specialty, stammdaten: practice?.stammdaten });
+  const k = praxisKennzeichen({ name: practice?.name ?? "Mein Portal", specialty: practice?.specialty, stammdaten: practice?.stammdaten });
   return NextResponse.json(
     {
       // Eigene Kennung je Link: Zwei Praxen ergeben zwei getrennte Web-Apps.

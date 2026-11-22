@@ -10,6 +10,7 @@ import { pickPortalLang } from "@/lib/portalI18n";
 import { pruefLage } from "@/lib/portalPruefungServer";
 import { PraxisBand } from "@/components/PraxisKennung";
 import { portalKennung, portalSymbole } from "@/lib/portalKopf";
+import { fachText } from "@/lib/fachText";
 
 export const dynamic = "force-dynamic";
 export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
@@ -22,6 +23,9 @@ export default async function Vereinbarung(props: { params: Promise<{ token: str
   const searchParams = await props.searchParams;
   const patient = await portalPatient(params.token);
   const back = `/portal/${params.token}`;
+  const kennung = await portalKennung(params.token);
+  // Deutsche Texte in den Wörtern des Fachs („Ihre Apotheke“, „vor der Beratung“), lib/fachText.ts
+  const ft = (s: string) => fachText(s, kennung?.fach);
   const proposal = patient
     ? await prisma.treatmentProposal.findFirst({
         where: { id: params.id, ...portalProposalWhere(patient.id), status: { in: ["ENTWURF", "BESPROCHEN", "ANGENOMMEN"] } },
@@ -32,7 +36,7 @@ export default async function Vereinbarung(props: { params: Promise<{ token: str
     return (
       <main className="mx-auto max-w-xl px-4 py-16 text-center">
         <h1 className="font-display text-3xl text-slate-900">Nicht verfügbar</h1>
-        <p className="mt-3 text-slate-600">Bitte fragen Sie in Ihrer Praxis nach.</p>
+        <p className="mt-3 text-slate-600">{ft("Bitte fragen Sie in Ihrer Praxis nach.")}</p>
       </main>
     );
   }
@@ -50,14 +54,13 @@ export default async function Vereinbarung(props: { params: Promise<{ token: str
     demoDatum: stamm?.practice.isDemo && stamm.birthDate ? stamm.birthDate.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" }) : null,
   };
 
-  const kennung = await portalKennung(params.token);
   return (
     <main className="min-h-screen bg-[#F5F2EE]" data-testid="vereinbarung">
       {kennung && <PraxisBand k={kennung} />}
       <div className="mx-auto max-w-xl px-4 pb-16 pt-6 sm:pt-10">
-        <a href={back} className="text-sm text-salbei-700 underline">← Zurück zu Ihrem Behandlungsweg</a>
+        <a href={back} className="text-sm text-salbei-700 underline">{ft("← Zurück zu Ihrem Behandlungsweg")}</a>
         <h1 className="font-display mt-6 text-4xl leading-tight text-slate-900">Ihr Einverständnis</h1>
-        <p className="mt-2 text-slate-600">Bestätigen Sie Ihre Wahl schon jetzt. Die Praxis sieht es sofort und bereitet alles vor.</p>
+        <p className="mt-2 text-slate-600">{ft("Bestätigen Sie Ihre Wahl schon jetzt. Die Praxis sieht es sofort und bereitet alles vor.")}</p>
         <KassenSockel className="mt-5" kasse={kasse} eigen={eigen} labels={{ kasse: privat ? "Versicherung erstattet" : "Kasse zahlt", eigen: "Ihr Anteil" }} />
         <div className="mt-6">
           {proposal.agreedAt ? (
@@ -68,7 +71,7 @@ export default async function Vereinbarung(props: { params: Promise<{ token: str
               </p>
             </div>
           ) : (
-            <SignAgreement postUrl={`/api/portal/${params.token}/vereinbarung/${proposal.id}`} backHref={back} text={text} defaultName={`${patient.firstName} ${patient.lastName}`} pruefung={pruefung} />
+            <SignAgreement postUrl={`/api/portal/${params.token}/vereinbarung/${proposal.id}`} backHref={back} text={text} defaultName={`${patient.firstName} ${patient.lastName}`} pruefung={pruefung} fach={kennung?.fach} />
           )}
         </div>
         <PraxisFussLaden patientId={patient.id} className="mt-8" />

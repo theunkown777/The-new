@@ -30,6 +30,7 @@ export function agreementContext(p: {
     kasse,
     eigen,
     privat: input.data.patient.insurance === "PKV",
+    fach: input.data.fach,
   });
   return { text, kasse, eigen, choices, privat: input.data.patient.insurance === "PKV" };
 }

@@ -7,10 +7,10 @@ import { PraxisFuss } from "@/components/PraxisFuss";
  */
 export async function PraxisFussLaden({ practiceId, patientId, className, ohneLinks }: { practiceId?: string; patientId?: string; className?: string; ohneLinks?: boolean }) {
   const praxis = practiceId
-    ? await prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, stammdaten: true } }).catch(() => null)
+    ? await prisma.practice.findUnique({ where: { id: practiceId }, select: { name: true, stammdaten: true, specialty: true } }).catch(() => null)
     : patientId
-      ? (await prisma.patient.findUnique({ where: { id: patientId }, select: { practice: { select: { name: true, stammdaten: true } } } }).catch(() => null))?.practice ?? null
+      ? (await prisma.patient.findUnique({ where: { id: patientId }, select: { practice: { select: { name: true, stammdaten: true, specialty: true } } } }).catch(() => null))?.practice ?? null
       : null;
   if (!praxis) return null;
-  return <PraxisFuss name={praxis.name} stammdaten={praxis.stammdaten} className={className} ohneLinks={ohneLinks} />;
+  return <PraxisFuss name={praxis.name} stammdaten={praxis.stammdaten} fach={praxis.specialty} className={className} ohneLinks={ohneLinks} />;
 }

@@ -21,13 +21,13 @@ const GRUPPEN: [HilfeArt, string][] = [
  * „Frag Sorrida“ als Seite: dieselbe Suche wie im Chat (lib/hilfeSuche.ts), gefiltert nach Fach und Rechten,
  * mit „Zeig mir wo“. Mit eingeschalteten KI-Hilfen zusätzlich eine Antwort als Entwurf.
  */
-export function HilfePraxis({ fach, hinweisArt, ki, rechte, personPl = "Patienten", abschluss = "Behandlung", gebuehrenrechner }: { fach: "zahn" | "andere"; hinweisArt?: HinweisArt; ki: boolean; rechte?: MenueRechte; personPl?: string; abschluss?: string; gebuehrenrechner?: boolean }) {
+export function HilfePraxis({ fach, hinweisArt, ki, rechte, personPl = "Patienten", person, abschluss = "Behandlung", gebuehrenrechner }: { fach: "zahn" | "andere"; hinweisArt?: HinweisArt; ki: boolean; rechte?: MenueRechte; personPl?: string; /** Personenwort im Singular („Kunde“, „Frau“) für den Fließtext */ person?: string; abschluss?: string; gebuehrenrechner?: boolean }) {
   const pfad = usePathname() ?? "/hilfe-praxis";
   const [frage, setFrage] = useState("");
   const [kiAntwort, setKiAntwort] = useState<KiAntwort | null>(null);
   const [kiLaeuft, setKiLaeuft] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
-  const woerter = { personPl, abschluss };
+  const woerter = { personPl, person, abschluss };
 
   const merkmale = useMemo(() => (gebuehrenrechner === undefined ? undefined : { gebuehrenrechner }), [gebuehrenrechner]);
   const treffer = useMemo(() => sucheHilfe(frage, HILFE_WISSEN, { anzahl: 3, fach, rechte, merkmale }), [frage, fach, rechte, merkmale]);

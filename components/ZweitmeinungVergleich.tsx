@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { ZweitmeinungEintrag } from "@/lib/zweitmeinung";
+import { fachText } from "@/lib/fachText";
 
 const eur = (cent: number) => `${Math.round(cent / 100).toLocaleString("de-DE")} €`;
 
@@ -11,6 +12,8 @@ export type ZweitmeinungProps = {
   hinweis: { titel: string; text: string };
   anspruch: boolean;
   fragen: string[];
+  /** Fach der Praxis: „Anderes Fachgeschäft“, „mit meiner Apotheke teilen“ (lib/fachText.ts). */
+  fach?: string | null;
 };
 
 /**
@@ -25,7 +28,9 @@ export function ZweitmeinungVergleich({
   anspruch,
   fragen,
   hier,
+  fach,
 }: ZweitmeinungProps & { hier: { label: string; cent: number | null }[] }) {
+  const ft = (s: string) => fachText(s, fach);
   const [eintraege, setEintraege] = useState(start);
   const [offen, setOffen] = useState(false);
   const [f, setF] = useState({ praxis: "", leistung: "", eigenanteil: "", gesamt: "", notiz: "" });
@@ -90,7 +95,7 @@ export function ZweitmeinungVergleich({
               <div key={z.id} className="rounded-xl border border-slate-200 px-3 py-2 text-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-slate-900">{z.praxis || "Andere Praxis"}</p>
+                    <p className="text-slate-900">{z.praxis || ft("Andere Praxis")}</p>
                     <p className="text-xs text-slate-600">{z.leistung}</p>
                     {z.gesamtCent != null && <p className="text-xs text-slate-500">Gesamt {eur(z.gesamtCent)}</p>}
                     {z.notiz && <p className="text-xs italic text-slate-500">„{z.notiz}“</p>}
@@ -105,7 +110,7 @@ export function ZweitmeinungVergleich({
                 <div className="mt-1 flex flex-wrap items-center gap-3 text-xs">
                   <label className="flex items-center gap-1 text-slate-600">
                     <input type="checkbox" checked={z.geteilt} onChange={(e) => teilen(z.id, e.target.checked)} />
-                    mit meiner Praxis teilen
+                    {ft("mit meiner Praxis teilen")}
                   </label>
                   <button type="button" className="text-slate-500 underline" onClick={() => loeschen(z.id)}>
                     löschen
@@ -119,8 +124,8 @@ export function ZweitmeinungVergleich({
 
       {offen ? (
         <form onSubmit={speichern} className="mt-4 grid gap-2 sm:grid-cols-2" data-testid="zweitmeinung-form">
-          <input className="input" placeholder="Name der anderen Praxis (freiwillig)" value={f.praxis} onChange={(e) => setF({ ...f, praxis: e.target.value })} maxLength={80} aria-label="Name der anderen Praxis" />
-          <input className="input" placeholder="Was schlägt sie vor?" value={f.leistung} onChange={(e) => setF({ ...f, leistung: e.target.value })} required maxLength={160} aria-label="Vorgeschlagene Behandlung" />
+          <input className="input" placeholder={ft("Name der anderen Praxis (freiwillig)")} value={f.praxis} onChange={(e) => setF({ ...f, praxis: e.target.value })} maxLength={80} aria-label={ft("Name der anderen Praxis")} />
+          <input className="input" placeholder={ft("Was schlägt sie vor?")} value={f.leistung} onChange={(e) => setF({ ...f, leistung: e.target.value })} required maxLength={160} aria-label={ft("Vorgeschlagene Behandlung")} />
           <input className="input" inputMode="decimal" placeholder="Ihr Eigenanteil dort in €" value={f.eigenanteil} onChange={(e) => setF({ ...f, eigenanteil: e.target.value })} required aria-label="Eigenanteil in Euro" />
           <input className="input" inputMode="decimal" placeholder="Gesamtbetrag in € (freiwillig)" value={f.gesamt} onChange={(e) => setF({ ...f, gesamt: e.target.value })} aria-label="Gesamtbetrag in Euro" />
           <textarea className="input sm:col-span-2" rows={2} placeholder="Notiz, z. B. Material, Garantie, Eindruck (freiwillig)" value={f.notiz} onChange={(e) => setF({ ...f, notiz: e.target.value })} maxLength={500} aria-label="Notiz" />
@@ -133,7 +138,7 @@ export function ZweitmeinungVergleich({
       ) : (
         eintraege.length < 3 && (
           <button type="button" className="mt-4 rounded-full border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50" onClick={() => setOffen(true)} data-testid="zweitmeinung-neu">
-            + Angebot einer anderen Praxis eintragen
+            {ft("+ Angebot einer anderen Praxis eintragen")}
           </button>
         )
       )}
@@ -147,7 +152,7 @@ export function ZweitmeinungVergleich({
         </ul>
       </details>
       <p className="mt-3 text-xs text-slate-500">
-        Ihre Einträge sind nur über diesen Link sichtbar. Ihre Praxis sieht einen Eintrag erst, wenn Sie „mit meiner Praxis teilen“ anhaken.
+        {ft("Ihre Einträge sind nur über diesen Link sichtbar. Ihre Praxis sieht einen Eintrag erst, wenn Sie „mit meiner Praxis teilen“ anhaken.")}
       </p>
     </section>
   );

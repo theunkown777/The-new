@@ -34,6 +34,7 @@ export default async function HilfePraxisPage() {
         ki={kiHilfenStand(praxis?.kiHilfen).aktiv}
         rechte={rechte}
         personPl={fachprofil(praxis?.specialty).person.pl}
+        person={fachprofil(praxis?.specialty).person.sg}
         abschluss={abschlussWort(praxis?.specialty)}
         gebuehrenrechner={gebuehrenwerkeFuer(praxis?.specialty).length > 0}
       />

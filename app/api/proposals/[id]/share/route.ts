@@ -15,7 +15,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
   const proposal = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, practiceId: session.user.practiceId },
-    select: { id: true, shareCreatedAt: true },
+    select: { id: true, shareCreatedAt: true, input: true },
   });
   if (!proposal) return NextResponse.json({ error: "Vorschlag nicht gefunden" }, { status: 404 });
 
@@ -29,7 +29,9 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
   const base = process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
   const url = `${base}/p/${raw}`;
   const qr = await QRCode.toDataURL(url, { margin: 1, width: 240, color: { dark: "#24201f", light: "#ffffff" } });
-  return NextResponse.json({ url, qr, expiresAt }, { status: 201, headers: { "Cache-Control": "no-store" } });
+  // Fach des Vorschlags (input.fach) für den Text zum Weitergeben: „Ihr Beratungsvorschlag“ (lib/fachText.ts)
+  const fach = (proposal.input as { fach?: unknown } | null)?.fach;
+  return NextResponse.json({ url, qr, expiresAt, fach: typeof fach === "string" ? fach : null }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }
 
 export async function DELETE(_req: Request, props: { params: Promise<{ id: string }> }) {

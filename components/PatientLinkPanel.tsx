@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PATIENT_RESPONSE_LABELS, type PatientLinkState } from "@/lib/patientLink";
 import { anrede } from "@/lib/ohneAkte";
+import { fachText } from "@/lib/fachText";
 
 const fmt = (iso: string) =>
   new Date(iso).toLocaleString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -11,7 +12,7 @@ const fmt = (iso: string) =>
 // Patienten-Link erzeugen, als QR zeigen und Rückmeldung des Patienten anzeigen.
 export function PatientLinkPanel({ proposalId, state, firstName, sofort = false }: { proposalId: string; state: PatientLinkState; firstName: string; /** Schnellvorschlag: Link und QR-Code gleich nach dem Speichern erzeugen */ sofort?: boolean }) {
   const router = useRouter();
-  const [link, setLink] = useState<{ url: string; qr: string } | null>(null);
+  const [link, setLink] = useState<{ url: string; qr: string; fach?: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
@@ -26,7 +27,7 @@ export function PatientLinkPanel({ proposalId, state, firstName, sofort = false 
       return;
     }
     const data = await res.json();
-    setLink({ url: data.url, qr: data.qr });
+    setLink({ url: data.url, qr: data.qr, fach: data.fach });
     router.refresh();
   }
 
@@ -54,7 +55,7 @@ export function PatientLinkPanel({ proposalId, state, firstName, sofort = false 
   }
 
   const smsText = link
-    ? `${anrede("Guten Tag", firstName)}, hier ist Ihr Behandlungsvorschlag mit allen Optionen und Kosten: ${link.url}`
+    ? `${anrede("Guten Tag", firstName)}, ${fachText("hier ist Ihr Behandlungsvorschlag mit allen Optionen und Kosten", link.fach)}: ${link.url}`
     : "";
 
   return (
@@ -106,7 +107,7 @@ export function PatientLinkPanel({ proposalId, state, firstName, sofort = false 
               <button type="button" className="btn btn-secondary" onClick={copy}>
                 {copied ? "Kopiert" : "Link kopieren"}
               </button>
-              <a className="btn btn-secondary" href={`mailto:?subject=${encodeURIComponent("Ihr Behandlungsvorschlag")}&body=${encodeURIComponent(smsText)}`}>
+              <a className="btn btn-secondary" href={`mailto:?subject=${encodeURIComponent(fachText("Ihr Behandlungsvorschlag", link.fach))}&body=${encodeURIComponent(smsText)}`}>
                 Per E-Mail
               </a>
               <a className="btn btn-secondary" href={`sms:?&body=${encodeURIComponent(smsText)}`}>

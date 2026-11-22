@@ -1,6 +1,7 @@
 // „Immer nur das Nötigste“: Jede Fachrichtung sieht im Körpermodell zuerst nur ihr Organ
 // (Lungenarzt die Lunge, Kardiologie das Herz …). Der ganze Körper bleibt über einen Schalter erreichbar.
 import type { DateiId, Stufe } from "./drei/anatomie";
+import { FACH_MODELLE } from "./fach";
 
 export type FokusId = "lunge" | "herz" | "verdauung" | "harnwege" | "becken" | "gehirn" | "auge" | "hno" | "mund" | "kopf" | "fuss";
 
@@ -80,7 +81,10 @@ export const ERKLAERPUNKTE: Erklaerpunkt[] = [
   { thema: "haut", name: "Haut", pos: [-240, 150, 24], normal: [-0.4, 0, 0.9], radius: 170, stufe: "haut" },
 ];
 
-/** Welche Erklärpunkte ein Fach sieht: nur seine eigenen; ohne Fach (Website, Allgemeinmedizin) alle. */
+/**
+ * Welche Erklärpunkte ein Fach sieht: nur seine eigenen; ohne Fach (Website) alle. Ein Fach ohne Eintrag sieht alle
+ * außer „Mund und Zähne“; den Punkt behält nur, wer auch das Gebiss-Modell hat (Kinder- und Jugendmedizin, lib/modelle/fach.ts).
+ */
 const FACH_THEMEN: Record<string, Thema[]> = {
   pneumo: ["lunge"], kardio: ["herz"], gastro: ["verdauung"], uro: ["niere"], neuro: ["gehirn"], psych: ["gehirn"],
   augen: ["auge"], hno: ["ohr"], logo: ["ohr", "mund"], zahn: ["mund"], haut: ["haut"], aesthetik: ["haut", "muskeln"],
@@ -88,6 +92,8 @@ const FACH_THEMEN: Record<string, Thema[]> = {
   gyn: ["niere"], hebamme: ["niere"],
 };
 export const erklaerpunkteFuerFach = (fach?: string | null): Erklaerpunkt[] => {
-  const t = fach ? FACH_THEMEN[fach] : undefined;
-  return t ? ERKLAERPUNKTE.filter((p) => t.includes(p.thema)) : ERKLAERPUNKTE;
+  if (!fach) return ERKLAERPUNKTE;
+  const t = FACH_THEMEN[fach];
+  if (t) return ERKLAERPUNKTE.filter((p) => t.includes(p.thema));
+  return FACH_MODELLE[fach]?.modelle.includes("gebiss") ? ERKLAERPUNKTE : ERKLAERPUNKTE.filter((p) => p.thema !== "mund");
 };

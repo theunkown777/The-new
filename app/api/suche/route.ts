@@ -7,6 +7,7 @@ import { consumeAttempt } from "@/lib/rateLimit";
 import { menueRechteVon } from "@/lib/permissions";
 import { fachprofil, abschlussWort } from "@/lib/fachprofile";
 import { isDental } from "@/lib/specialties";
+import { modelleFuerFach } from "@/lib/modelle/fach";
 import { PROPOSAL_STATUS_LABELS } from "@/lib/proposals";
 import { formatCent, invoiceView } from "@/lib/invoices";
 import { MAX_JE_GRUPPE, aktionenSuchen, nachRang, patientBedingung, patientRang, seitenSuchen, suchbegriffe, sucheLangGenug, type Treffer } from "@/lib/suche";
@@ -103,7 +104,13 @@ export async function GET(req: Request) {
       unter: `${r.patient.lastName}, ${r.patient.firstName} · ${formatCent(r.amountCent)} · ${invoiceView(r).label}`,
       href: `/patients?sel=${r.patientId}`,
     })),
-    ...seitenSuchen(b.text, { rechte, zahn: isDental(practice?.specialty), personPl: P.pl, abschluss: abschlussWort(practice?.specialty) }),
+    ...seitenSuchen(b.text, {
+      rechte,
+      zahn: isDental(practice?.specialty),
+      gebiss: modelleFuerFach(practice?.specialty).modelle.includes("gebiss"),
+      personPl: P.pl,
+      abschluss: abschlussWort(practice?.specialty),
+    }),
   ];
 
   return NextResponse.json({ treffer }, { headers: { "Cache-Control": "no-store" } });

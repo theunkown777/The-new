@@ -80,7 +80,8 @@ describe("Fassung für Eltern (Kind, wie im Anamnesebogen)", () => {
     expect(anspracheFuer("gyn", 13)).toBe("patient");
     const seite = readFileSync("app/portal/[token]/fragen/page.tsx", "utf8");
     expect(seite).toContain('anspracheFuer(gefunden.practice.specialty, ageFromBirthDate(gefunden.birthDate)) === "eltern"');
-    expect(seite).toContain("kurzPaket(lang, { eltern })");
+    // Paket mit der Fassung für Eltern und in den Wörtern des Fachs (lib/fachText.ts)
+    expect(seite).toContain("kurzPaket(lang, { eltern, fach: gefunden?.practice.specialty })");
     // Das Geburtsdatum geht nicht an den Browser: Kurzcheck bekommt nur das Paket.
     expect(seite).not.toMatch(/<Kurzcheck[^>]*birthDate/);
   });

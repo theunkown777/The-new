@@ -7,6 +7,7 @@ import { fragenZurSeite, hilfeText, meldungenErkennen, seitePasst, sichtbareHilf
 import { ankerInfo, PM_THEMEN } from "@/lib/hilfeAnker";
 import { menueRechte } from "@/lib/rollen";
 import { gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
+import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 
 const erster = (frage: string, fach?: "zahn" | "andere") => sucheHilfe(frage, HILFE_WISSEN, { fach })[0]?.eintrag.id;
 const ids = (frage: string, anzahl = 3) => sucheHilfe(frage, HILFE_WISSEN, { anzahl }).map((t) => t.eintrag.id);
@@ -270,6 +271,55 @@ describe("Seite, Platzhalter und Meldungen", () => {
     expect(t.antwort).toContain("„Sitzung abschließen“");
     expect(hilfeText(e).pfad).toBe("Patienten → Behandlung abschließen");
     for (const x of ALLES) expect(`${hilfeText(x).frage} ${hilfeText(x).antwort} ${hilfeText(x).pfad}`, x.id).not.toMatch(/\{[A-Z]\}/);
+  });
+  describe("Personenwort des Fachs im Fließtext", () => {
+    // Wie app/(app)/layout.tsx, /hilfe-praxis und /api/ki/hilfe: Wörter aus dem Fach der Praxis.
+    const woerterVon = (fach: string) => ({ personPl: fachprofil(fach).person.pl, person: fachprofil(fach).person.sg, abschluss: abschlussWort(fach) });
+    const sichtbar = (fach: string) => sichtbareHilfe(HILFE_WISSEN, { fach: fach === "zahn" ? "zahn" : "andere" });
+    const text = (fach: string, id: string) => {
+      const e = hilfeText(HILFE_WISSEN.find((x) => x.id === id) as HilfeEintrag, woerterVon(fach));
+      return `${e.frage} ${e.antwort} ${e.pfad}`;
+    };
+    const PATIENT_ALLEIN = /(?<![\p{L}-])Patient(in|innen|en)?(?![\p{L}-])/u;
+
+    it("Zahn, Ärzte und Therapie mit Patienten: Text bleibt Zeichen für Zeichen gleich", () => {
+      for (const fach of ["zahn", "hausarzt", "ortho", "physio", "gyn"]) {
+        const w = woerterVon(fach);
+        for (const e of sichtbar(fach)) expect(hilfeText(e, w), `${fach} ${e.id}`).toEqual(hilfeText(e, { personPl: w.personPl, abschluss: w.abschluss }));
+      }
+      expect(text("zahn", "patient-anlegen")).toContain("Wie lege ich einen Patienten an?");
+      expect(text("ortho", "patient-liste")).toContain("Wo sehe ich, wo jeder Patient gerade steht?");
+    });
+
+    it("Kunde, Klient und Frau: kein alleinstehendes „Patient“ in Frage, Antwort und Pfad", () => {
+      for (const fach of ["apotheke", "optik", "hoerakustik", "sanitaetshaus", "pflege", "hebamme"]) {
+        const w = woerterVon(fach);
+        for (const e of sichtbar(fach)) {
+          const t = hilfeText(e, w);
+          expect(`${t.frage} ${t.antwort} ${t.pfad}`, `${fach} ${e.id}`).not.toMatch(PATIENT_ALLEIN);
+        }
+      }
+    });
+
+    it("beugt Kunde und Klient wie Patient, Frau mit eigenen Artikeln", () => {
+      expect(text("apotheke", "patient-anlegen")).toContain("Wie lege ich einen Kunden an?");
+      expect(text("apotheke", "vorschlag-schnell")).toContain("den die Kundin oder der Kunde mit dem Handy scannt");
+      expect(text("pflege", "patient-liste")).toContain("Wo sehe ich, wo jeder Klient gerade steht?");
+      expect(text("pflege", "terminanfragen")).toContain("Online-Anfragen neuer Klienten");
+      expect(text("hebamme", "patient-anlegen")).toContain("Wie lege ich eine Frau an?");
+      expect(text("hebamme", "patient-liste")).toContain("Wo sehe ich, wo jede Frau gerade steht?");
+      expect(text("hebamme", "einrichtung")).toContain("die erste Frau anlegen");
+      expect(text("hebamme", "vorschlag-zweitmeinung")).toContain("„Zweitmeinung, von der Frau geteilt“");
+      expect(text("hebamme", "vorschlag-zweitmeinung")).toContain("Die Frau hat ein Angebot");
+      expect(text("hebamme", "praxissoftware")).toContain("mit der gerade gewählten Frau");
+      expect(text("hebamme", "mein-bereich")).toContain("nur die eigenen Frauen");
+      expect(text("hebamme", "praxis-angaben")).toContain("Die Frauen sehen diese Angaben");
+      expect(text("hebamme", "vorschlag-antwort")).toContain("„Wahl der Frau übernehmen“");
+      expect(text("hebamme", "tastenkuerzel")).toContain("zu den Frauen");
+      expect(text("hebamme", "vorschlag-schnell")).toContain("den die Frau mit dem Handy scannt");
+      // Namen aus der App bleiben, wie sie dort stehen
+      expect(text("hebamme", "vorschlag-link")).toContain("„Patienten-Link“");
+    });
   });
   it("erkennt Meldungen in Meldungsfeldern und im Text der Seite, gibt nur Texte der Sammlung zurück", () => {
     const r = meldungenErkennen({ alarme: ["Fehler: Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben. Frau Müller"], seite: "" }, HILFE_WISSEN);

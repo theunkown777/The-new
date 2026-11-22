@@ -39,6 +39,7 @@ export async function kostenuebersichtAntwort(p: {
       patientWahl: gesendet,
       dental: istZahnVorschlag(input.data.fach),
       therapie: isTherapie(specialty(input.data.fach)),
+      fach: input.data.fach,
     }),
   );
   return new NextResponse(new Uint8Array(pdf), {

@@ -20,6 +20,7 @@ import { PATTERNS, PATTERN_IDS } from "@/lib/i18n/patterns";
 import type { PatientLocale, Ui } from "@/lib/i18n/types";
 import { de } from "@/lib/i18n/de";
 import { uiEinfach } from "@/lib/i18n/de-einfach";
+import { mitFachWoertern } from "@/lib/fachText";
 import { en } from "@/lib/i18n/en";
 import { tr as tuerkisch } from "@/lib/i18n/tr";
 import { uk } from "@/lib/i18n/uk";
@@ -41,8 +42,31 @@ export const UI = Object.fromEntries(PATIENT_LANGS.map((l) => [l, LOCALES[l].ui]
 /**
  * Oberfläche der Ansicht. „Einfache Sprache“ gibt es nur auf Deutsch: Dann ersetzen kurze Sätze die Rahmentexte
  * (lib/i18n/de-einfach.ts), alles Übrige kommt aus der deutschen Fassung. In jeder anderen Sprache ohne Wirkung.
+ * Mit `fach` spricht die deutsche Fassung in den Wörtern des Fachs („Ihre Apotheke“, „Ihr Beratungsvorschlag“,
+ * lib/fachText.ts); für Praxis, Behandlung und Patient bleibt sie unverändert.
  */
-export const uiFuer = (lang: PatientLang, einfach = false): Ui => (einfach && lang === "de" ? { ...UI.de, ...uiEinfach } : UI[lang]);
+export const uiFuer = (lang: PatientLang, einfach = false, fach?: string | null): Ui =>
+  lang === "de" ? mitFachWoertern(einfach ? { ...UI.de, ...uiEinfach } : UI.de, fach) : UI[lang];
+
+const KLINIK_HINWEIS = {
+  normal: (until: string) =>
+    `Unverbindliche Kostenschätzung. Wahlleistungen vereinbaren wir vor der Behandlung schriftlich mit Ihnen (§ 17 KHEntgG). Wahlärztliche Leistungen werden nach der Gebührenordnung für Ärzte (GOÄ) berechnet. Dieser Link ist gültig bis ${until}.`,
+  einfach: (until: string) =>
+    `Die Kosten sind geschätzt. Sie sind nicht verbindlich. Wahlleistungen vereinbaren wir vorher schriftlich mit Ihnen. Ärztliche Wahlleistungen werden nach der Gebührenordnung für Ärzte (GOÄ) berechnet. Dieser Link gilt bis ${until}.`,
+};
+
+/**
+ * Kleingedrucktes zur Kostenschätzung je Fach: Zahnmedizin (Heil- und Kostenplan), Ärzte (GOÄ, IGeL), Klinik
+ * (Wahlleistungsvereinbarung, nur auf Deutsch), sonst Preisliste mit Zuzahlung auf Verordnung. Hebamme und
+ * Heilpraktik arbeiten ohne Verordnung: Dort entfällt der Satz zur Zuzahlung.
+ */
+export function kostenHinweis(t: Ui, o: { dental: boolean; therapie: boolean; fach?: string | null; gkv: boolean; until: string; einfach?: boolean }): string {
+  if (o.dental) return t.fine(o.gkv, o.until);
+  if (o.fach === "klinik") return KLINIK_HINWEIS[o.einfach ? "einfach" : "normal"](o.until);
+  if (!o.therapie) return t.fineMed(o.until);
+  const text = t.fineTherapie(o.until);
+  return o.fach === "hebamme" || o.fach === "heilpraktiker" ? text.replace(/ (Für|Bei) Leistungen auf (Verordnung|Rezept) gilt die gesetzliche Zuzahlung\./, "") : text;
+}
 
 /** Englisches Wörterbuch der Regeltexte (bleibt als eigener Export für bestehende Aufrufer). */
 export const CONTENT_EN: Record<string, string> = en.content;

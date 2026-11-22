@@ -2,6 +2,8 @@ import PDFDocument from "pdfkit";
 import { PassThrough } from "stream";
 import { REPORT_TYPE_LABELS } from "@/lib/reportLabels";
 import type { Brief } from "@/lib/erstattungsbrief";
+import { fachWoerter, vereinbarungFuer } from "@/lib/fachprofile";
+import { fachText } from "@/lib/fachText";
 
 // ---------------------------------------------------------------- aus einem Guss --
 // Alle PDFs teilen Kopf und Fuß: Praxisname in Bordeaux, darunter ggf. Stammdaten, Titel und Datum, eine Haarlinie;
@@ -117,17 +119,36 @@ interface AgreementPdfInput {
   signaturePng: Buffer | null;
   /** Vermerk zur Geburtsdatum-Prüfung im Portal (lib/portalPruefung.ts, pruefVermerk) */
   pruefung?: string | null;
+  /** Fach der Praxis: bestimmt Titel, Personenwort und welche schriftliche Vereinbarung gemeint ist */
+  fach?: string | null;
+}
+
+/** Feste Texte des Einverständnis-PDFs mit den Wörtern des Fachs (lib/fachprofile.ts). */
+export function einverstaendnisTexte(fach: string | null | undefined) {
+  const w = fachWoerter(fach);
+  const person = w.person.startsWith("Patient") ? "Patient/in" : null;
+  return {
+    titel: `Einverständnis zum ${w.vorschlag}`,
+    /** Wo unterschrieben wurde: „Behandlungsweg“ heißt das Portal nur, wo behandelt wird (sonst „Ihre Übersicht“). */
+    wo: w.abschluss === "Behandlung" ? "digital auf dem Behandlungsweg" : "digital im Portal",
+    gegenzeichnung: fachText("Gegenzeichnung der Praxis", fach),
+    link: fachText("persönlicher Link der Praxis", fach),
+    person: person ?? "Name",
+    unterschrift: person ? `Unterschrift ${person} (schriftliche Vereinbarung)` : "Unterschrift (schriftliche Vereinbarung)",
+    hinweis: `Das digitale Einverständnis dokumentiert die Aufklärung und die Wahl ${w.desPerson}. Es ersetzt nicht die schriftliche ${vereinbarungFuer(fach)}, die ${w.vorAbschluss} unterschrieben wird.`,
+  };
 }
 
 /** Einverständnis aus dem Patientenportal als PDF, mit Zeile für die Gegenzeichnung der Praxis. */
 export async function buildAgreementPdf(input: AgreementPdfInput): Promise<Buffer> {
   const { doc, fertig } = pdfStart({ margin: 56, info: { Title: `Einverständnis ${input.patientName}` } });
   const eur = (n: number) => `${Math.round(n).toLocaleString("de-DE")} €`;
+  const t = einverstaendnisTexte(input.fach);
 
-  pdfKopf(doc, { praxis: input.practiceName, titel: "Einverständnis zum Behandlungsvorschlag (digital auf dem Behandlungsweg)" });
+  pdfKopf(doc, { praxis: input.practiceName, titel: `${t.titel} (${t.wo})` });
   doc.moveDown(0.4);
   doc.fillColor("#000000").fontSize(10);
-  doc.text(`Patient/in: ${input.patientName}${input.patientBirthDate ? `, geb. ${input.patientBirthDate}` : ""}`);
+  doc.text(`${t.person}: ${input.patientName}${input.patientBirthDate ? `, geb. ${input.patientBirthDate}` : ""}`);
   doc.text(`Vorschlag vom: ${input.proposalDate}`);
   doc.moveDown(1);
   doc.fontSize(11).text(input.text, { lineGap: 4 });
@@ -140,7 +161,7 @@ export async function buildAgreementPdf(input: AgreementPdfInput): Promise<Buffe
   doc.fillColor("#000000").fontSize(10).text(`Kasse zahlt voraussichtlich ${eur(input.kasse)}  ·  Eigenanteil voraussichtlich ${eur(input.eigen)}`, x, y + 16);
   doc.moveDown(2);
   doc.text(`Digital unterschrieben am ${input.signedAt} von ${input.signedName}:`);
-  if (input.pruefung) doc.fontSize(9).fillColor("#555555").text(`Identität: persönlicher Link der Praxis. ${input.pruefung}.`).fillColor("#000000").fontSize(10);
+  if (input.pruefung) doc.fontSize(9).fillColor("#555555").text(`Identität: ${t.link}. ${input.pruefung}.`).fillColor("#000000").fontSize(10);
   if (input.signaturePng) {
     const sx = doc.page.margins.left, sy = doc.y + 6;
     doc.image(input.signaturePng, sx, sy, { fit: [220, 80] });
@@ -149,13 +170,13 @@ export async function buildAgreementPdf(input: AgreementPdfInput): Promise<Buffe
   }
   doc.moveDown(1.5);
   doc.text("______________________________          ______________________________");
-  doc.text("Ort, Datum                                                 Unterschrift Patient/in (schriftliche Vereinbarung)");
+  doc.text(`Ort, Datum                                                 ${t.unterschrift}`);
   doc.moveDown(1.5);
   doc.text("______________________________");
-  doc.text("Gegenzeichnung der Praxis");
+  doc.text(t.gegenzeichnung);
   doc.moveDown(2);
-  doc.fontSize(8).fillColor("#666666").text("Das digitale Einverständnis dokumentiert die Aufklärung und die Wahl des Patienten. Es ersetzt nicht die schriftliche Mehrkosten- bzw. IGeL-Vereinbarung, die vor der Behandlung unterschrieben wird.");
-  pdfFuss(doc, `${input.practiceName} · Einverständnis zum Behandlungsvorschlag`);
+  doc.fontSize(8).fillColor("#666666").text(t.hinweis);
+  pdfFuss(doc, `${input.practiceName} · ${t.titel}`);
   return await fertig();
 }
 
@@ -310,14 +331,14 @@ export async function buildErstattungsbriefPdf(b: Brief): Promise<Buffer> {
  * wie in der Patientenansicht, zum Speichern und Einreichen. Ohne Geburtsdatum, Versichertennummer und Praxiszahlen.
  */
 export async function buildKostenuebersichtPdf(k: import("@/lib/kostenuebersicht").Kostenuebersicht): Promise<Buffer> {
-  const { doc, fertig } = pdfStart({ size: "A4", margin: 56, info: { Title: "Kostenübersicht zum Behandlungsvorschlag", Author: k.praxis } });
+  const { doc, fertig } = pdfStart({ size: "A4", margin: 56, info: { Title: k.titel, Author: k.praxis } });
   const links = doc.page.margins.left;
   const breite = doc.page.width - 112;
   const platz = (hoehe: number) => {
     if (doc.y + hoehe > doc.page.height - doc.page.margins.bottom) doc.addPage();
   };
 
-  pdfKopf(doc, { praxis: k.praxis, zeilen: k.praxisZeilen, titel: "Kostenübersicht zum Behandlungsvorschlag (unverbindliche Schätzung)" });
+  pdfKopf(doc, { praxis: k.praxis, zeilen: k.praxisZeilen, titel: `${k.titel} (unverbindliche Schätzung)` });
   doc.fillColor("#000000").fontSize(10);
   doc.text(`Erstellt am: ${k.datum}`);
   doc.text("Name der versicherten Person: ______________________________");

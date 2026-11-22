@@ -2,8 +2,21 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { generateToken } from "@/lib/tokens";
 import { invoiceNumber } from "@/lib/invoices";
+import { gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
+import { abschlussWort } from "@/lib/fachprofile";
 
 const DAY = 24 * 60 * 60 * 1000;
+
+/**
+ * Titel der beiden Beispielrechnungen je Fach: Zahnmedizin mit Zahnleistungen, Fächer mit GOÄ mit GOÄ, alle anderen
+ * neutral (keine GOÄ bei Apotheke, Pflegedienst, Hebamme oder Heilmitteln). Die offene Rechnung trägt „(frühere …“,
+ * daran erkennt preparePatientDemo eine schon vorbereitete Demo.
+ */
+export function demoRechnungen(fach: string | null | undefined): { offen: string; bezahlt: string } {
+  if (fach === "zahn") return { offen: "Mehrkosten Füllung (frühere Behandlung)", bezahlt: "Professionelle Zahnreinigung" };
+  if (gebuehrenwerkeFuer(fach).includes("GOAE")) return { offen: "Privatleistung nach GOÄ (frühere Behandlung)", bezahlt: "Vorsorgeuntersuchung (Privatleistung)" };
+  return { offen: "Selbstzahlerleistung (früherer Termin)", bezahlt: `${abschlussWort(fach)} (Privatleistung)` };
+}
 
 // Patientenansicht der Demo: Wählt in einer frischen Demo-Praxis einen
 // Beispielpatienten, gibt ihm einen offenen Vorschlag, eine offene und eine
@@ -11,8 +24,8 @@ const DAY = 24 * 60 * 60 * 1000;
 // Portal-Link. Wer so einsteigt, bekommt keinen Zugang zur Praxis.
 export async function preparePatientDemo(practiceId: string, now = new Date()): Promise<string> {
   // Schon vorbereitet? Dann nur einen neuen Link ausgeben, nichts doppelt anlegen.
-  // Erkennbar an der vorbereiteten Beispielrechnung "(frühere Behandlung)".
-  const ready = await prisma.patient.findFirst({ where: { practiceId, invoices: { some: { title: { contains: "(frühere Behandlung)" } } } }, select: { id: true } });
+  // Erkennbar an der vorbereiteten Beispielrechnung "(frühere Behandlung)" bzw. "(früherer Termin)" (demoRechnungen).
+  const ready = await prisma.patient.findFirst({ where: { practiceId, invoices: { some: { title: { contains: "(frühere" } } } }, select: { id: true } });
   if (ready) {
     const { raw, hash } = generateToken();
     await prisma.patient.update({ where: { id: ready.id }, data: { portalTokenHash: hash, portalExpiresAt: new Date(now.getTime() + DAY) } });
@@ -34,13 +47,13 @@ export async function preparePatientDemo(practiceId: string, now = new Date()): 
   });
 
   const practice = await prisma.practice.findUniqueOrThrow({ where: { id: practiceId }, select: { specialty: true } });
-  const dental = practice.specialty === "zahn";
+  const titel = demoRechnungen(practice.specialty);
   const year = now.getFullYear();
   const used = await prisma.invoice.count({ where: { practiceId } });
   await prisma.invoice.createMany({
     data: [
-      { practiceId, patientId: patient.id, number: invoiceNumber(year, used + 1), title: dental ? "Mehrkosten Füllung (frühere Behandlung)" : "Privatleistung nach GOÄ (frühere Behandlung)", amountCent: 18640, dueDate: new Date(now.getTime() + 12 * DAY), createdAt: new Date(now.getTime() - 2 * DAY) },
-      { practiceId, patientId: patient.id, number: invoiceNumber(year, used + 2), title: dental ? "Professionelle Zahnreinigung" : "Vorsorgeuntersuchung (Privatleistung)", amountCent: 11000, dueDate: new Date(now.getTime() - 40 * DAY), status: "BEZAHLT", paidAt: new Date(now.getTime() - 45 * DAY), createdAt: new Date(now.getTime() - 54 * DAY) },
+      { practiceId, patientId: patient.id, number: invoiceNumber(year, used + 1), title: titel.offen, amountCent: 18640, dueDate: new Date(now.getTime() + 12 * DAY), createdAt: new Date(now.getTime() - 2 * DAY) },
+      { practiceId, patientId: patient.id, number: invoiceNumber(year, used + 2), title: titel.bezahlt, amountCent: 11000, dueDate: new Date(now.getTime() - 40 * DAY), status: "BEZAHLT", paidAt: new Date(now.getTime() - 45 * DAY), createdAt: new Date(now.getTime() - 54 * DAY) },
     ],
   });
   await prisma.anamnesisForm.create({

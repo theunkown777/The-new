@@ -37,7 +37,7 @@ export default async function PraxisAngabenPage() {
       )}
       <section className="card">
         <h2 className="font-semibold text-slate-900">So sehen es Ihre {fachprofil(practice?.specialty).person.pl}</h2>
-        <PraxisFuss name={name} stammdaten={practice?.stammdaten} className="mt-3 !text-left" />
+        <PraxisFuss name={name} stammdaten={practice?.stammdaten} fach={practice?.specialty} className="mt-3 !text-left" />
       </section>
     </div>
   );

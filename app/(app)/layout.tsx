@@ -159,6 +159,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             rechte={menue}
             ki={kiHilfenStand(currentUser?.practice.kiHilfen).aktiv}
             personPl={personen}
+            person={person}
             abschluss={abschlussWort(currentUser?.practice.specialty)}
             gebuehrenrechner={gebuehrenwerkeFuer(currentUser?.practice.specialty).length > 0}
           />

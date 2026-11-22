@@ -26,7 +26,7 @@ export default async function UebergabeUnterschrift(props: { params: Promise<{ i
       <p className="mt-2 text-slate-600">Bitte lesen Sie die Erklärung in Ruhe. Bei Fragen wenden Sie sich an den Empfang.</p>
       <KassenSockel className="mt-5" kasse={ctx.kasse} eigen={ctx.eigen} labels={{ kasse: ctx.privat ? "Versicherung erstattet" : "Kasse zahlt", eigen: "Ihr Anteil" }} />
       <div className="mt-6">
-        <SignAgreement postUrl={`/api/empfang/patient/vereinbarung/${proposal.id}`} backHref="/uebergabe" text={ctx.text} defaultName={`${a.patient.firstName} ${a.patient.lastName}`} />
+        <SignAgreement postUrl={`/api/empfang/patient/vereinbarung/${proposal.id}`} backHref="/uebergabe" text={ctx.text} defaultName={`${a.patient.firstName} ${a.patient.lastName}`} fach={a.patient.practice.specialty} />
       </div>
     </main>
   );

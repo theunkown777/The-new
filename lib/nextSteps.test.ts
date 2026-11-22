@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildNextSteps } from "./nextSteps";
-import { buildProposal, DEFAULT_PRICES, type PatientFactors, type ProposalInput } from "./proposals";
+import { buildProposal, DEFAULT_PRICES, type PatientFactors, type ProposalInput, type ProposalItem } from "./proposals";
 
 const GKV10: PatientFactors = { age: 46, insurance: "GKV", bonusYears: 10, haertefall: false, erstattungProzent: 0, zuschussJahr: 2026 };
 const OCT = new Date(2026, 9, 30);
@@ -15,9 +15,32 @@ function steps(input: Partial<ProposalInput>, opts: { reportFinal?: boolean; cho
     reportFinal: opts.reportFinal ?? false,
     hasProposal: items.length > 0,
     today: opts.today ?? OCT,
+    fach: "zahn",
   });
 }
 const ids = (s: ReturnType<typeof steps>) => s.map((x) => x.id);
+
+describe("Vereinbarung vor einer Selbstzahlerleistung je Fach", () => {
+  const item: ProposalItem = {
+    key: "a", where: "Allgemein", title: "Wunschleistung", recommended: null, notes: [], excluded: [],
+    options: [{ id: "wunsch", type: "igel", name: "Wunschleistung", total: 50, benefits: [] }],
+  };
+  const igel = (fach: string) =>
+    buildNextSteps({ items: [item], choices: { a: "wunsch" }, patient: GKV10, reportFinal: true, hasProposal: true, today: OCT, fach }).find((x) => x.id === "igel")!;
+  it("Ärzte: IGeL nach BMV-Ä; Therapie: Privatvereinbarung; Hilfsmittel: Mehrkostenerklärung; Klinik: Wahlleistungsvereinbarung", () => {
+    expect(igel("ortho").text).toBe("Schriftliche Vereinbarung über Selbstzahlerleistungen (IGeL) vor der Leistung unterschreiben lassen");
+    expect(igel("ortho").detail).toBe("Allgemein: Wunschleistung – falls der Patient diese Leistung wählt; Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä)");
+    expect(igel("physio").text).toBe("Privatvereinbarung über Selbstzahlerleistungen vor der Behandlung unterschreiben lassen");
+    expect(igel("physio").detail).not.toMatch(/GOÄ|BMV-Ä|IGeL/);
+    expect(igel("optik").text).toContain("Mehrkostenerklärung vor der Versorgung");
+    expect(igel("optik").detail).toContain("falls der Kunde diese Ausführung wählt");
+    expect(igel("klinik").text).toContain("Wahlleistungsvereinbarung");
+    expect(igel("klinik").text).toContain("§ 17 KHEntgG");
+    expect(igel("hebamme").text).toContain("vor dem Besuch");
+    expect(igel("hebamme").detail).toContain("falls die Frau diese Leistung wählt");
+    for (const fach of ["physio", "optik", "klinik", "hebamme", "pflege"]) expect(igel(fach).detail, fach).not.toContain("Praxispreisliste");
+  });
+});
 
 describe("buildNextSteps", () => {
   it("asks only to release the report when there are no findings", () => {

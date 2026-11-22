@@ -62,6 +62,7 @@ export function FragSorrida({
   rechte,
   ki = false,
   personPl = "Patienten",
+  person,
   abschluss = "Behandlung",
   gebuehrenrechner,
 }: {
@@ -75,6 +76,8 @@ export function FragSorrida({
   /** KI-Hilfen aktiv (Schalter der Praxis UND KI-Zugang). Auf der Website immer aus. */
   ki?: boolean;
   personPl?: string;
+  /** Personenwort im Singular („Kunde“, „Frau“); ersetzt „Patient“ im Fließtext der Hilfe. */
+  person?: string;
   abschluss?: string;
 }) {
   const uid = useId();
@@ -93,7 +96,7 @@ export function FragSorrida({
   const kiAktiv = modus === "app" && ki;
   // Auf der Website gibt es kein Menü im Sinn der App; die Pfade dort nennen Abschnitte und Seiten.
   const ortWort = modus === "website" ? "Ort" : "Menü";
-  const woerter = useMemo(() => ({ personPl, abschluss }), [personPl, abschluss]);
+  const woerter = useMemo(() => ({ personPl, person, abschluss }), [personPl, person, abschluss]);
   const kontext = useMemo(() => ({ fach, rechte, merkmale: gebuehrenrechner === undefined ? undefined : { gebuehrenrechner } }), [fach, rechte, gebuehrenrechner]);
 
   const erlaubt = modus === "website" ? websiteChatErlaubt(pfad) : appChatErlaubt(pfad);

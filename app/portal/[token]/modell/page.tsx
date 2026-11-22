@@ -10,6 +10,7 @@ import { MODELL_SPRACHEN_FERTIG, uebersetze } from "@/lib/modelle/i18n/schluesse
 import { PraxisFuss } from "@/components/PraxisFuss";
 import { PraxisBand } from "@/components/PraxisKennung";
 import { portalKennung, portalSymbole } from "@/lib/portalKopf";
+import { fachText } from "@/lib/fachText";
 
 export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
   const k = await portalKennung((await props.params).token);
@@ -31,11 +32,14 @@ export default async function PortalModellPage(props: { params: Promise<{ token:
     select: { firstName: true, geschlecht: true, portalExpiresAt: true, practice: { select: { name: true, specialty: true, stammdaten: true } }, modellMarkierungen: { select: { modell: true, teil: true, notiz: true }, orderBy: { createdAt: "asc" } } },
   }) : null;
   const patient = gefunden && gefunden.portalExpiresAt && gefunden.portalExpiresAt > new Date() ? gefunden : null;
+  // Deutsch in den Wörtern des Fachs („Ihr Fachgeschäft kann hier Stellen markieren“); Übersetzungen bleiben, wie sie sind.
+  // Der Aufruf von t mit dem deutschen Text bleibt wörtlich stehen: Daran sammelt lib/modelle/i18n die Texte ein.
+  const fd = (s: string) => (lang === "de" ? fachText(s, gefunden?.practice.specialty) : s);
   if (!patient) {
     return (
       <main className="mx-auto max-w-md px-4 py-16 text-center text-sm text-slate-600">
         <h1 className="text-base font-semibold text-slate-900">{t("Link ungültig")}</h1>
-        <p className="mt-2">{t("Dieser Link ist nicht mehr gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen.")}</p>
+        <p className="mt-2">{fd(t("Dieser Link ist nicht mehr gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen."))}</p>
       </main>
     );
   }
@@ -49,14 +53,14 @@ export default async function PortalModellPage(props: { params: Promise<{ token:
         <h1 className="mt-2 font-display text-2xl text-slate-900 sm:text-3xl">{t("Im Modell ansehen")}</h1>
         <p className="mt-1 text-sm text-slate-600">
           {marken.length === 0
-            ? t("Tippen Sie auf eine Stelle, um die Erklärung zu lesen. Ihre Praxis kann hier Stellen für Sie markieren.")
+            ? fd(t("Tippen Sie auf eine Stelle, um die Erklärung zu lesen. Ihre Praxis kann hier Stellen für Sie markieren."))
             : marken.length === 1
               ? t("{praxis} hat eine Stelle für Sie markiert (orange). Tippen Sie darauf, um den Hinweis und die Erklärung zu lesen.", { praxis: patient.practice.name })
               : t("{praxis} hat {n} Stellen für Sie markiert (orange). Tippen Sie darauf, um den Hinweis und die Erklärung zu lesen.", { praxis: patient.practice.name, n: marken.length })}
         </p>
         {texte && (
           <p className="mt-2 rounded-xl bg-white px-3 py-2 text-xs text-slate-600 ring-1 ring-slate-200" data-testid="modell-uebersetzt">
-            {t("Die Erklärungen wurden automatisch übersetzt. Maßgeblich ist der deutsche Text. Hinweise Ihrer Praxis stehen in der Sprache, in der die Praxis sie geschrieben hat.")}
+            {fd(t("Die Erklärungen wurden automatisch übersetzt. Maßgeblich ist der deutsche Text. Hinweise Ihrer Praxis stehen in der Sprache, in der die Praxis sie geschrieben hat."))}
           </p>
         )}
         <div className="mt-5"><ModellWahl fach={patient.practice.specialty} markierungen={marken} geschlecht={patient.geschlecht === "M" ? "M" : patient.geschlecht === "W" ? "W" : null} texte={texte} /></div>
@@ -65,7 +69,7 @@ export default async function PortalModellPage(props: { params: Promise<{ token:
             <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-brand-700 underline" : "text-slate-600 hover:text-brand-700"}>{PORTAL_LANG_NAMES[l]}</a>
           ))}
         </nav>
-        <PraxisFuss name={patient.practice.name} stammdaten={patient.practice.stammdaten} className="mt-8 border-t border-slate-200 pt-4" />
+        <PraxisFuss name={patient.practice.name} stammdaten={patient.practice.stammdaten} fach={patient.practice.specialty} className="mt-8 border-t border-slate-200 pt-4" />
       </div>
     </main>
   );

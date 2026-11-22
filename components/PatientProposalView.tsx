@@ -15,7 +15,8 @@ import {
   type ProposalItem,
 } from "@/lib/proposals";
 import { installmentOffer, type Installments } from "@/lib/installments";
-import { PATIENT_LANGS, datum, euro, langDir, langName, tr, uebersetzung, uiFuer, type PatientLang } from "@/lib/patientI18n";
+import { PATIENT_LANGS, datum, euro, kostenHinweis, langDir, langName, tr, uebersetzung, uiFuer, type PatientLang } from "@/lib/patientI18n";
+import { einrichtungWoerter } from "@/lib/fachWoerter";
 import { EINFACH_SCHALTER } from "@/lib/i18n/de-einfach";
 import { vorleseTeile } from "@/lib/vorlesen";
 import { ErinnernBlock, TeilenBlock, VorlesenKnopf, type LeseLinkZeile } from "@/components/PatientExtras";
@@ -46,6 +47,8 @@ type Props = {
   dental?: boolean;
   /** Therapiepraxis (Heilmittel): eigener Hinweistext statt GOÄ/IGeL. */
   therapie?: boolean;
+  /** Fach des Vorschlags (input.fach): deutsche Texte in den Wörtern des Fachs, Hinweis der Klinik. Fehlt bei alten Zahn-Vorschlägen. */
+  fach?: string | null;
   /** Sprachwahl ausblenden (false). Ohne Angabe wird sie gezeigt. */
   translatable?: boolean;
   /** Zweitmeinung zum Vergleich (Patienten-Link und Portal). */
@@ -85,7 +88,7 @@ export function PatientProposalView(props: Props) {
   const readOnly = !!props.readOnly;
   // „Einfache Sprache“ gibt es nur in der deutschen Ansicht; sie ersetzt die Rahmentexte, nicht die Namen der Leistungen.
   const [einfach, setEinfach] = useState(false);
-  const t = uiFuer(lang, einfach);
+  const t = useMemo(() => uiFuer(lang, einfach, props.fach), [lang, einfach, props.fach]);
   // Solange die Tabelle 2027 nicht eingelesen ist, heißen die Beträge für 2027 „voraussichtlich“ (wie im Editor und im Brief).
   const vorlaeufig2027 = !festzuschuss2027Amtlich();
   const dir = langDir(lang);
@@ -497,9 +500,10 @@ export function PatientProposalView(props: Props) {
           <div lang="de" dir="ltr" className={t.germanOnlyNote ? "-mt-5" : undefined}>
             <ZweitmeinungVergleich
               {...props.zweitmeinung}
+              fach={props.fach}
               hier={[
                 { label: "Ihre Auswahl", cent: offen.length ? null : Math.round(sum.netto * 100) },
-                ...(hatVormerkung ? [{ label: "wie von der Praxis vorgemerkt", cent: Math.round(recSum * 100) }] : []),
+                ...(hatVormerkung ? [{ label: `wie von ${einrichtungWoerter(props.fach).derDat} vorgemerkt`, cent: Math.round(recSum * 100) }] : []),
                 { label: "geringster Eigenanteil", cent: Math.round(lowSum * 100) },
               ]}
             />
@@ -508,7 +512,7 @@ export function PatientProposalView(props: Props) {
       )}
 
       <p className="mt-6 text-xs leading-relaxed text-slate-500">
-        {props.dental === false ? (props.therapie ? t.fineTherapie(until) : t.fineMed(until)) : t.fine(gkv, until)}
+        {kostenHinweis(t, { dental: props.dental !== false, therapie: !!props.therapie, fach: props.fach, gkv, until, einfach: einfach && lang === "de" })}
         {offer.kind === "rate" && t.installmentsFine(props.installments.provider)}
         {t.langNote && <> {t.langNote}</>}
       </p>

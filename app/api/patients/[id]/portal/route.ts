@@ -23,7 +23,9 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
   const base = process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? new URL(req.url).origin;
   const url = `${base}/portal/${raw}`;
   const qr = await QRCode.toDataURL(url, { margin: 1, width: 240, color: { dark: "#24201f", light: "#ffffff" } });
-  return NextResponse.json({ url, qr, expiresAt }, { status: 201, headers: { "Cache-Control": "no-store" } });
+  // Fach der Praxis für den Text zum Weitergeben: „Ihre Übersicht“ statt „Ihren Behandlungsweg“, wo nicht behandelt wird
+  const praxis = await prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { specialty: true } });
+  return NextResponse.json({ url, qr, expiresAt, fach: praxis?.specialty ?? null }, { status: 201, headers: { "Cache-Control": "no-store" } });
 }
 
 export async function DELETE(_req: Request, props: { params: Promise<{ id: string }> }) {

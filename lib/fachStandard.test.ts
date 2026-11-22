@@ -13,6 +13,7 @@ import {
 } from "@/lib/fachprofile";
 import { sichtbareSeiten, type SeitenKontext } from "@/lib/suche";
 import { menueRechte } from "@/lib/rollen";
+import { demoRechnungen } from "@/lib/demoPatient";
 import { appStationen } from "@/lib/rundgang";
 import { mitGespeichertemFach, mitPraxisFach } from "@/lib/proposalSchema";
 import type { ProposalInput } from "@/lib/proposals";
@@ -188,6 +189,16 @@ describe("Leistungslexikon und Suche nur in der Zahnmedizin", () => {
     }
   });
 
+  it("„Gebiss“ findet die Modelle nur in Fächern mit Gebiss-Modell", () => {
+    const gebiss = (fach: string) => modelleFuerFach(fach).modelle.includes("gebiss");
+    const stich = (fach: string) => sichtbareSeiten({ ...kontext(fach === "zahn"), gebiss: gebiss(fach) }).find((s) => s.href === "/modelle")?.stichworte;
+    expect(stich("zahn")).toContain("gebiss");
+    // Kinder- und Jugendmedizin zeigt das Gebiss (U-Untersuchungen), ohne Lexikon und Punktwerte
+    expect(stich("kinder")).toContain("gebiss");
+    expect(sichtbareSeiten({ ...kontext(false), gebiss: true }).some((s) => s.href === "/settings/lexikon")).toBe(false);
+    for (const fach of ["ortho", "physio", "hausarzt", "apotheke", "hebamme"]) expect(stich(fach), fach).not.toContain("gebiss");
+  });
+
   it("der Rundgang nennt das Lexikon nur bei zahn", () => {
     // Der Lexikon-Hinweis steht im Rundgang für Mitarbeitende ohne Einstellungsrecht.
     const rechte = { zahlungen: true, analyse: true, einstellungen: false };
@@ -251,5 +262,22 @@ describe("Website: Karten je Fachgruppe", () => {
     const faq = lies("components/PraxisFaq.tsx");
     const zahnTeil = faq.slice(faq.indexOf(": dental\n          ?"), faq.indexOf("IGeL-Monitors"));
     expect(zahnTeil).toContain("Regelversorgung");
+  });
+});
+
+describe("Beispielrechnungen der Patienten-Demo je Fach", () => {
+  it("Zahn mit Zahnleistungen, Ärzte mit GOÄ, sonst ohne GOÄ", () => {
+    expect(demoRechnungen("zahn")).toEqual({ offen: "Mehrkosten Füllung (frühere Behandlung)", bezahlt: "Professionelle Zahnreinigung" });
+    expect(demoRechnungen("ortho").offen).toBe("Privatleistung nach GOÄ (frühere Behandlung)");
+    expect(demoRechnungen("hausarzt").bezahlt).toBe("Vorsorgeuntersuchung (Privatleistung)");
+    expect(demoRechnungen("physio")).toEqual({ offen: "Selbstzahlerleistung (früherer Termin)", bezahlt: "Behandlung (Privatleistung)" });
+    expect(demoRechnungen("apotheke").bezahlt).toBe("Beratung (Privatleistung)");
+    expect(demoRechnungen("pflege").bezahlt).toBe("Einsatz (Privatleistung)");
+    for (const fach of ["physio", "apotheke", "pflege", "hebamme", "optik", "heilpraktiker"]) {
+      const t = demoRechnungen(fach);
+      expect(`${t.offen} ${t.bezahlt}`, fach).not.toMatch(/GOÄ|Zahn|Füllung/);
+      // preparePatientDemo erkennt die vorbereitete Demo an „(frühere“
+      expect(t.offen, fach).toContain("(frühere");
+    }
   });
 });
