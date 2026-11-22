@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const ziel = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "brand");
-const FARBE = { zahn: "#0F766E", arzt: "#1D4ED8", therapie: "#6D28D9" };
+const FARBE = { zahn: "#86433A", arzt: "#5A1D1D", therapie: "#24201F" };
 
 const rahmen = (farbe, inhalt) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" fill="${farbe}"/>${inhalt}</svg>`;

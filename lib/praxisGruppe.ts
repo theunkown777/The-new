@@ -7,7 +7,10 @@
 // steht in lib/praxisKennung.ts.
 //
 // Die Farben sind fest und für alle Praxen einer Gruppe gleich. Sie sagen nur „welche Art Praxis“, nie „welche
-// Praxis ist besser“. Weiße Schrift und weiße Symbole erreichen auf jeder Farbe mindestens 4,5 : 1.
+// Praxis ist besser“. Es sind nur Sorrida-Farben (docs/GESTALTUNG.md): Bordeaux aus dem Logo, ein helleres
+// Bordeaux und Tinte. Kein Blau, Türkis oder Lila. Unterscheiden lassen sich die Gruppen vor allem am Symbol
+// (Zahn, Kreuz, Blatt) und an Fach und Ort unter dem Namen. Weiße Schrift und weiße Symbole erreichen auf jeder
+// Farbe mindestens 4,5 : 1.
 
 export const PRAXIS_GRUPPEN = ["zahn", "arzt", "therapie"] as const;
 export type PraxisGruppe = (typeof PRAXIS_GRUPPEN)[number];
@@ -24,9 +27,12 @@ export interface GruppenFarbe {
 }
 
 export const GRUPPEN_FARBE: Record<PraxisGruppe, GruppenFarbe> = {
-  zahn: { farbe: "#0F766E", farbeDunkel: "#5EEAD4", flaeche: "#F0FDFA", flaecheDunkel: "#10302D" },
-  arzt: { farbe: "#1D4ED8", farbeDunkel: "#93C5FD", flaeche: "#EFF6FF", flaecheDunkel: "#152544" },
-  therapie: { farbe: "#6D28D9", farbeDunkel: "#C4B5FD", flaeche: "#F5F3FF", flaecheDunkel: "#291C46" },
+  // helleres Bordeaux (brand-500), Kontrast zu Weiß 7,3 : 1
+  zahn: { farbe: "#86433A", farbeDunkel: "#D9A096", flaeche: "#F0E2DF", flaecheDunkel: "#52302B" },
+  // Bordeaux aus dem Logo (brand-700), 13,6 : 1
+  arzt: { farbe: "#5A1D1D", farbeDunkel: "#E6B6AD", flaeche: "#F8F1F0", flaecheDunkel: "#3F2623" },
+  // Tinte der Website, 16 : 1
+  therapie: { farbe: "#24201F", farbeDunkel: "#ECE5DC", flaeche: "#ECE5DC", flaecheDunkel: "#33211F" },
 };
 
 /** Statische Symbole je Gruppe unter public/brand (erzeugt mit scripts/gruppenSymbole.mjs, selbst gezeichnet). */

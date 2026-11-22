@@ -351,12 +351,12 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
             <ul className="mt-3 space-y-3">
               {patient.anamnesisForms.map((f) => (
                 <li key={f.id}>
-                  <a href={`/portal/${params.token}/anamnese/${f.id}${sprachZusatz}`} className="flex items-center justify-between gap-3 rounded-2xl bg-sky-50 p-4 hover:bg-sky-100" data-testid="portal-anamnese">
+                  <a href={`/portal/${params.token}/anamnese/${f.id}${sprachZusatz}`} className="flex items-center justify-between gap-3 rounded-2xl bg-brand-50 p-4 hover:bg-brand-100" data-testid="portal-anamnese">
                     <span>
                       <span className="block font-medium text-slate-900">{t.anamnesisTitle}</span>
                       <span className="text-sm text-slate-600">{t.anamnesis}</span>
                     </span>
-                    <span className="shrink-0 rounded-full bg-sky-700 px-3 py-1 text-sm font-medium text-white">{t.fillIn}</span>
+                    <span className="shrink-0 rounded-full bg-brand-700 px-3 py-1 text-sm font-medium text-white">{t.fillIn}</span>
                   </a>
                 </li>
               ))}

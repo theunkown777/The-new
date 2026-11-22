@@ -153,7 +153,7 @@ export function PortalInvoice({ token, inv, bank, t, startOpen, mandat, pruefung
         <p className="shrink-0 text-lg font-semibold tabular-nums text-slate-900">{inv.amount}</p>
       </div>
       <div className="mt-3 flex items-center justify-between gap-3">
-        <span className={`text-sm ${reported ? "text-sky-800" : inv.tone === "red" ? "font-medium text-red-700" : "text-slate-600"}`} data-testid="invoice-status">{reported && !inv.reported ? t.reportedLabel : inv.status}</span>
+        <span className={`text-sm ${reported ? "text-brand-700" : inv.tone === "red" ? "font-medium text-red-700" : "text-slate-600"}`} data-testid="invoice-status">{reported && !inv.reported ? t.reportedLabel : inv.status}</span>
         {!reported && (
           <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="rounded-full bg-salbei-600 px-4 py-2 text-sm font-semibold text-white hover:bg-salbei-700">
             {open ? t.hide : t.pay}
@@ -231,7 +231,7 @@ export function PortalInvoice({ token, inv, bank, t, startOpen, mandat, pruefung
           {!RATEN_ANGEHALTEN && raten && <p className="mt-2 text-xs text-slate-600">{t.installmentsDone}</p>}
         </div>
       )}
-      {reported && <p className="mt-3 text-sm text-sky-800" role="status">{t.reportedDone}</p>}
+      {reported && <p className="mt-3 text-sm text-brand-700" role="status">{t.reportedDone}</p>}
       {/* Nach „Ich habe überwiesen“ bleiben die Zahlungsdaten erreichbar, falls doch noch überwiesen werden muss. */}
       {reported && bank && (
         <details className="mt-2 text-sm" data-testid="zahlungsdaten-nach-meldung">

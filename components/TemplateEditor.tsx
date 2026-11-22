@@ -128,7 +128,7 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
 
   return (
     <div className="space-y-6">
-      <Link href="/settings/templates" className="text-sm text-blue-700 hover:underline">
+      <Link href="/settings/templates" className="text-sm text-brand-700 hover:underline">
         ← Alle Vorlagen
       </Link>
 

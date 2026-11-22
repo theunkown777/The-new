@@ -164,7 +164,7 @@ export function ReportEditor({
       </div>
 
       {text.startsWith("[TESTMODUS") ? (
-        <p className="mb-4 rounded-lg bg-purple-50 px-3 py-2 text-sm text-purple-800">
+        <p className="mb-4 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
           Dieser Bericht wurde im <strong>Testmodus</strong> ohne KI-Verbindung erstellt (nur die
           erfassten Daten zusammengestellt, kein ausformulierter Text). Für echte KI-Formulierung ist
           serverseitig ein Anthropic-API-Key mit Guthaben hinterlegt und der Bericht neu zu generieren.
@@ -306,9 +306,9 @@ export function ReportEditor({
             const badge = kassenLabel(entry.catalogItem.system);
             const badgeClass =
               badge.tone === "gkv"
-                ? "bg-blue-50 text-blue-700"
+                ? "bg-salbei-50 text-salbei-700"
                 : badge.tone === "privat"
-                  ? "bg-purple-50 text-purple-700"
+                  ? "bg-brand-50 text-brand-700"
                   : badge.tone === "labor"
                     ? "bg-amber-50 text-amber-700"
                     : "bg-slate-100 text-slate-500";

@@ -43,8 +43,8 @@ export function TerminUeberblick({ patientId, briefing, ki }: { patientId: strin
       </dl>
       <div className="mt-4 border-t border-slate-100 pt-3">
         {text ? (
-          <div className="rounded-xl bg-purple-50 p-3 text-sm text-purple-950" data-testid="ueberblick-ki">
-            <p className="text-xs font-semibold uppercase tracking-wide text-purple-700">KI-Entwurf, bitte gegen die Akte prüfen</p>
+          <div className="rounded-xl bg-brand-50 p-3 text-sm text-tinte" data-testid="ueberblick-ki">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">KI-Entwurf, bitte gegen die Akte prüfen</p>
             <p className="mt-1">{text}</p>
           </div>
         ) : ki ? (

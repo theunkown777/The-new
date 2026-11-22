@@ -146,13 +146,13 @@ export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { re
       <div data-hilfe="katalog-eigene">
         <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" beispiel={leistungsBeispiel(systeme)} onCreated={() => load(true)} />
       </div>
-      <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
+      <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
         Punktzahl und Festbetrag sind objektive Werte aus dem offiziellen Gebührenverzeichnis
         {verzeichnisse ? ` (${verzeichnisse}) ` : " "}und daher für alle Praxen geteilt, die diesen Referenzkatalog nutzen,
         nicht praxisspezifisch wie der Punktwert unter „Abrechnung“. Bitte gegen das aktuell
         gültige Verzeichnis prüfen, bevor Sie Werte eintragen. Ausschluss-Regeln,
         Gültigkeitszeiträume und Frequenzlimits lassen sich weiterhin nur über
-        <code className="mx-1 rounded bg-blue-100 px-1 text-xs">prisma/seed.ts</code>
+        <code className="mx-1 rounded bg-brand-100 px-1 text-xs">prisma/seed.ts</code>
         pflegen.
       </p>
 

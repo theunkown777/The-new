@@ -73,7 +73,7 @@ function aufraeumen() {
     pruef('Hausarzt: Titel der Web-App auf dem iPhone ist der kurze Praxisname', appleTitel === 'Weber', appleTitel);
     pruef('Hausarzt: Symbol im Tab und auf dem Startbildschirm aus der Gruppe', /gruppe-arzt\.svg/.test(await hp.locator('link[rel="icon"]').first().getAttribute('href')) && /gruppe-arzt-180\.png/.test(await hp.locator('link[rel="apple-touch-icon"]').getAttribute('href')));
     const manifestA = await (await hc.request.get(`${L}/portal/${tA}/manifest.webmanifest`)).json();
-    pruef('Hausarzt: Manifest mit kurzem Namen, Farbe und Symbol der Gruppe', manifestA.short_name === 'Weber' && manifestA.theme_color === '#1D4ED8' && manifestA.icons.every((i) => i.src.includes('gruppe-arzt')), JSON.stringify(manifestA).slice(0, 200));
+    pruef('Hausarzt: Manifest mit kurzem Namen, Farbe und Symbol der Gruppe', manifestA.short_name === 'Weber' && manifestA.theme_color === '#5A1D1D' && manifestA.icons.every((i) => i.src.includes('gruppe-arzt')), JSON.stringify(manifestA).slice(0, 200));
     await fotos(hp, '01-portal-hausarzt-390');
     await hp.getByTestId('praxis-merken-knopf').scrollIntoViewIfNeeded();
     await fotos(hp, '02-portal-hausarzt-fuss-390');
@@ -100,7 +100,7 @@ function aufraeumen() {
     pruef('Zahnarzt: Farbstreifen der Gruppe „zahn“', (await hp.getByTestId('praxis-streifen').getAttribute('data-gruppe')) === 'zahn');
     pruef('Zahnarzt: Fach und Ort', (await hp.getByTestId('praxis-kennzeile').innerText()) === 'Zahnarztpraxis · Münster');
     const manifestB = await (await hc.request.get(`${L}/portal/${tB}/manifest.webmanifest`)).json();
-    pruef('Zahnarzt: eigener kurzer Name und eigene Farbe', manifestB.short_name === 'Sonnenberg' && manifestB.theme_color === '#0F766E' && manifestB.short_name !== manifestA.short_name, JSON.stringify(manifestB).slice(0, 160));
+    pruef('Zahnarzt: eigener kurzer Name und eigene Farbe', manifestB.short_name === 'Sonnenberg' && manifestB.theme_color === '#86433A' && manifestB.short_name !== manifestA.short_name, JSON.stringify(manifestB).slice(0, 160));
     await fotos(hp, '05-portal-zahnarzt-390');
     await hp.getByTestId('praxis-merken-knopf').click();
     pruef('Zahnarzt: „Gemerkt“ nach dem Klick', await hp.getByTestId('praxis-gemerkt').isVisible());
