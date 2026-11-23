@@ -95,6 +95,8 @@ export class Buehne {
   private zeigen: ((t: Treffer) => void) | null = null;
   private lichter: { hemi: DREI.HemisphereLight; haupt: DREI.DirectionalLight; auf: DREI.DirectionalLight; kante: DREI.DirectionalLight } | null = null;
   private umgebungAn = false;
+  /** Pixeldichte beim Start: Nach dem Senken (langsame Bilder) geht es wieder bis hierhin hoch. */
+  private dichte = 1;
   private umgebungZiel: DREI.WebGLRenderTarget | null = null;
   private fleckGruppe: DREI.Group;
 
@@ -104,18 +106,20 @@ export class Buehne {
     this.zeigen = o.zeigen ?? null;
     if (o.mindestDeck !== undefined) this.mindestDeck = o.mindestDeck;
     this.m = { a: new T.Matrix4(), b: new T.Matrix4(), c: new T.Matrix4() };
-    // Kantenglättung (MSAA) kostet auf Handys Grafikleistung. Bei hoher Pixeldichte (ab 2) ist sie kaum zu sehen und bleibt aus;
-    // darunter sind Treppenstufen an den Rändern deutlich, also auch auf leichten Geräten an.
-    this.renderer = new T.WebGLRenderer({ antialias: !leichtesGeraet() || (window.devicePixelRatio || 1) < 2, alpha: true, powerPreference: "high-performance" });
     // Handys: höchstens 1,5-fache Auflösung (flüssig), sonst höchstens doppelt
     const handy = window.matchMedia?.("(pointer: coarse)").matches && Math.min(window.innerWidth, window.innerHeight) < 900;
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, handy ? 1.5 : 2));
+    const dichte = Math.min(window.devicePixelRatio || 1, handy ? 1.5 : 2);
+    // Kantenglättung (MSAA) kostet auf Handys Grafikleistung. Erst ab einer wirksamen Pixeldichte von 2 ist sie kaum
+    // zu sehen und bleibt auf leichten Geräten aus. Handys zeichnen mit höchstens 1,5: dort sind Treppen deutlich, also an.
+    this.renderer = new T.WebGLRenderer({ antialias: !leichtesGeraet() || dichte < 2, alpha: true, powerPreference: "high-performance" });
+    this.renderer.setPixelRatio(dichte);
+    this.dichte = dichte;
     // Grafik ohne Grafikkarte (Software): kleinere Auflösung, sonst stockt alles
     // (Für Bildschirmfotos in Testumgebungen ohne Grafikkarte lässt sich das mit localStorage „modell-scharf“ abschalten.
     // Nur außerhalb des Betriebs: Im ausgelieferten Code liest das Modell nichts aus dem Speicher des Browsers,
     // so wie es die Datenschutzerklärung für die öffentliche Website sagt.)
     this.scharf = process.env.NODE_ENV !== "production" && (() => { try { return localStorage.getItem("modell-scharf") === "1"; } catch { return false; } })();
-    if (!this.scharf) try { const gl = this.renderer.getContext(), info = gl.getExtension("WEBGL_debug_renderer_info"); if (info && /swiftshader|llvmpipe|software/i.test(String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) this.renderer.setPixelRatio(0.6); } catch { /* unbekannt */ }
+    if (!this.scharf) try { const gl = this.renderer.getContext(), info = gl.getExtension("WEBGL_debug_renderer_info"); if (info && /swiftshader|llvmpipe|software/i.test(String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) { this.renderer.setPixelRatio(0.6); this.dichte = 0.6; } } catch { /* unbekannt */ }
     this.renderer.outputColorSpace = T.SRGBColorSpace;
     this.renderer.toneMapping = T.NeutralToneMapping;
     this.renderer.toneMappingExposure = 1.0;
@@ -586,7 +590,12 @@ export class Buehne {
       else if (!this.scharf && this.bildzeiten.length === 6 && mittel > 70 && this.renderer.getPixelRatio() > 0.55) {
         this.renderer.setPixelRatio(Math.max(0.5, this.renderer.getPixelRatio() * 0.7));
         this.groesse();
-        this.bildzeiten = [];
+        this.bildzeiten = []; this.bildzeitPause = 4;
+      } else if (!this.scharf && this.bildzeiten.length === 6 && mittel < 24 && this.renderer.getPixelRatio() < this.dichte - 0.01) {
+        // Wieder schnell genug (die langsamen Bilder kamen z. B. vom Laden): Auflösung stufenweise zurück, Treppen verschwinden
+        this.renderer.setPixelRatio(Math.min(this.dichte, this.renderer.getPixelRatio() / 0.7));
+        this.groesse();
+        this.bildzeiten = []; this.bildzeitPause = 4;
       }
     } else this.bildzeiten = [];
     this.uhr = jetzt;
@@ -631,7 +640,8 @@ export class Buehne {
       t.deck += (ziel - t.deck) * (t.u ? kAuf : k);
       if (Math.abs(t.deck - ziel) < 0.004) t.deck = ziel;
       t.mesh.visible = t.deck > 0.004;
-      if (!t.mesh.visible) continue;
+      // Unsichtbare Teile wachsen nicht: ihr Erscheinen ist vorbei, sonst hielte es die Schleife für immer wach
+      if (!t.mesh.visible) { if (t.start >= 0 && ziel <= 0.004) t.start = -1; continue; }
       if (t.u) {
         // Echte Teile: deckende zerfließen beim Ein- und Ausblenden, durchscheinende blenden über
         const durch = t.grundDeck < 0.99 || !!t.durch;

@@ -47,12 +47,22 @@ self.onmessage = (e) => {
     P[i * 3 + 1] = m[1] * x + m[5] * y + m[9] * z + m[13];
     P[i * 3 + 2] = m[2] * x + m[6] * y + m[10] * z + m[14];
   }
+  // Normalen nach Winkel gewichtet: lange, schmale Dreiecke kippen die Schattierung nicht (ruhigere Flächen)
   const N = new Float32Array(n * 3);
+  const winkel = (p, q, r) => {
+    const ax = P[q] - P[p], ay = P[q + 1] - P[p + 1], az = P[q + 2] - P[p + 2], bx = P[r] - P[p], by = P[r + 1] - P[p + 1], bz = P[r + 2] - P[p + 2];
+    const l = Math.hypot(ax, ay, az) * Math.hypot(bx, by, bz);
+    return l > 0 ? Math.acos(Math.min(1, Math.max(-1, (ax * bx + ay * by + az * bz) / l))) : 0;
+  };
   for (let i = 0; i < idx.length; i += 3) {
     const a = idx[i] * 3, b = idx[i + 1] * 3, c = idx[i + 2] * 3;
     const ux = P[b] - P[a], uy = P[b + 1] - P[a + 1], uz = P[b + 2] - P[a + 2], vx = P[c] - P[a], vy = P[c + 1] - P[a + 1], vz = P[c + 2] - P[a + 2];
-    const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
-    N[a] += nx; N[a + 1] += ny; N[a + 2] += nz; N[b] += nx; N[b + 1] += ny; N[b + 2] += nz; N[c] += nx; N[c + 1] += ny; N[c + 2] += nz;
+    let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+    const l = Math.hypot(nx, ny, nz);
+    if (!(l > 0)) continue;
+    nx /= l; ny /= l; nz /= l;
+    const wa = winkel(a, b, c), wb = winkel(b, c, a), wc = winkel(c, a, b);
+    N[a] += nx * wa; N[a + 1] += ny * wa; N[a + 2] += nz * wa; N[b] += nx * wb; N[b + 1] += ny * wb; N[b + 2] += nz * wb; N[c] += nx * wc; N[c + 1] += ny * wc; N[c + 2] += nz * wc;
   }
   const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
   for (let i = 0; i < n; i++) {
@@ -169,7 +179,8 @@ export async function ladeDatei(T: Drei, datei: DateiId): Promise<DREI.Mesh[]> {
   return roh.map((r) => {
     const e = r.e;
     // Eingebackene Umgebungsverdeckung: Eckenfarbe (als „kiefer“ geladen), Grünkanal; beim Kopf-Scan steht dort nichts
-    const mesh = new T.Mesh(r.geo, stoffEcht(T, { ...e, _ao: !!r.geo.getAttribute("kiefer") && e.s !== "gesicht" }));
+    // Beim Gebiss (Datei „mund“) tragen Rot und Blau der Eckenfarbe mehr: Wurzel, Schneidekante, Zahnfleischsaum
+    const mesh = new T.Mesh(r.geo, stoffEcht(T, { ...e, _ao: !!r.geo.getAttribute("kiefer") && e.s !== "gesicht", _mund: datei === "mund" }));
     const kennung = (e.k as string | undefined) ?? (e.n ? `deko:${e.n}` : undefined);
     mesh.userData = {
       kennung, name: e.n ?? null, gruppe: e.g, geschlecht: e.geschlecht ?? null, datei, mitteY: r.mitte[1], mitte: r.mitte,
@@ -218,6 +229,10 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
     case "gesicht": Object.assign(p, { color: new T.Color(0xffffff), map: e._map as DREI.Texture, normalMap: e._normalMap as DREI.Texture, normalScale: new T.Vector2(0.6, 0.6), roughness: 0.52, sheen: 0.45, sheenColor: new T.Color(0xffc9b5), sheenRoughness: 0.5, side: T.DoubleSide }); break;
     default: Object.assign(p, { roughness: 0.36, clearcoat: 0.55, clearcoatRoughness: 0.3 });
   }
+  // Gebiss: Zahnschmelz elfenbeinfarben mit leichtem, feuchtem Glanz (kein Lack), Zahnfleisch ruhig und matt feucht
+  const mund = !!e._mund && (s === "zahn" || s === "zahnfleisch" || s === "gaumen");
+  if (mund && s === "zahn") Object.assign(p, { color: new T.Color(0xf2ebdc), roughness: 0.28, clearcoat: 0.65, clearcoatRoughness: 0.12, ior: 1.62, specularIntensity: 0.75, sheen: 0.12, sheenColor: new T.Color(0xffffff) });
+  if (mund && s !== "zahn") Object.assign(p, { roughness: 0.46, clearcoat: 0.32, clearcoatRoughness: 0.3, sheen: 0.3, sheenColor: new T.Color(0xffc4bf), sheenRoughness: 0.5 });
   // Handys und schwächere Geräte: das schlankere Standard-Material (gleiche Farben, Rauheit und Auflösen;
   // ohne Klarlack). Sein Shader ist deutlich kleiner und wird viel schneller übersetzt. Nur die Haut behält
   // ihren Schimmer (samtiger Glanz am Rand), weil er sie erst wie Haut aussehen lässt.
@@ -241,7 +256,8 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
   if (p.opacity !== undefined && p.opacity < 1 && !raster) { mat.transparent = true; mat.depthWrite = false; }
   const u: EchtUniforms = { auf: { value: 1 }, kiefer: { value: 0 }, achse: { value: new T.Vector3() }, deck: { value: 1 }, haut: { value: 0 } };
   // Unregelmäßigkeit je Stoff: 1 Haut, 2 Muskel, 3 Knochen (der Kopf-Scan hat eine echte Farbtextur und bleibt, wie er ist)
-  const stoffNr = { value: s === "haut" ? 1 : s === "muskel" ? 2 : s === "knochen" ? 3 : 0 };
+  // 4 Zahn und 5 Zahnfleisch im Gebiss: dort Rot = Wurzel (verdeckt), Blau = Schneidekante bzw. Saum am Zahn
+  const stoffNr = { value: s === "haut" ? 1 : s === "muskel" ? 2 : s === "knochen" ? 3 : mund ? (s === "zahn" ? 4 : 5) : 0 };
   const aoAn = { value: e._ao ? 1 : 0 };
   // Handy: Durchscheinen als Punktraster statt echter Transparenz (ein Shader-Programm für alles, nichts zu sortieren)
   mat.userData.raster = raster;
@@ -254,7 +270,7 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
     sh.uniforms.uStoff = stoffNr; sh.uniforms.uAo = aoAn;
     let v = sh.vertexShader, f = sh.fragmentShader;
     // „kiefer“ = Eckenfarbe der Datei: Rot = Gewicht des Unterkiefers (Kopf-Scan), Grün = Umgebungsverdeckung (übrige Dateien)
-    v = `varying vec3 vAufPos;\nvarying float vAo;\nattribute vec4 kiefer;\nuniform float uAo;\n${kiefer ? "uniform float uKiefer; uniform vec3 uAchse;\n" : ""}` + v;
+    v = `varying vec3 vAufPos;\nvarying float vAo;\nvarying vec2 vMund;\nattribute vec4 kiefer;\nuniform float uAo;\n${kiefer ? "uniform float uKiefer; uniform vec3 uAchse;\n" : ""}` + v;
     if (kiefer) {
       v = v.replace("#include <beginnormal_vertex>", `#include <beginnormal_vertex>
         float kW = uKiefer * kiefer.r, kC = cos(kW), kS = sin(kW);
@@ -262,17 +278,31 @@ export function stoffEcht(T: Drei, e: Record<string, unknown>): DREI.MeshPhysica
       v = v.replace("#include <begin_vertex>", `#include <begin_vertex>
         { vec3 kp = transformed - uAchse; transformed = uAchse + vec3(kp.x, kp.y * kC - kp.z * kS, kp.y * kS + kp.z * kC); }`);
     }
-    v = v.replace("#include <project_vertex>", "#include <project_vertex>\n vAufPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\n vAo = mix(1.0, kiefer.g, uAo * 0.82);");
-    f = `varying vec3 vAufPos;\nvarying float vAo;\nuniform float uAuf;\nuniform float uDeck;\nuniform float uHaut;\nuniform float uStoff;\n${RAUSCHEN}\n` + f;
+    v = v.replace("#include <project_vertex>", "#include <project_vertex>\n vAufPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\n vAo = mix(1.0, kiefer.g, uAo * 0.82);\n vMund = kiefer.rb;");
+    f = `varying vec3 vAufPos;\nvarying float vAo;\nvarying vec2 vMund;\nuniform float uAuf;\nuniform float uDeck;\nuniform float uHaut;\nuniform float uStoff;\n${RAUSCHEN}\n` + f;
     // Farbe: ruhige Flecken (3 cm und 9 mm) bei Haut und Knochen, feine Längsstreifen bei Muskeln; dann die Verdeckung
     f = f.replace("#include <color_fragment>", `#include <color_fragment>
       float stoffR = aufN(vAufPos * 0.032) * 0.65 + aufN(vAufPos * 0.11) * 0.35;
       if (uStoff > 0.5 && uStoff < 1.5) diffuseColor.rgb *= mix(vec3(0.94, 0.955, 0.975), vec3(1.045, 1.0, 0.975), stoffR);
       else if (uStoff > 1.5 && uStoff < 2.5) diffuseColor.rgb *= 0.9 + 0.13 * aufN(vec3(vAufPos.x * 0.8, vAufPos.y * 0.05, vAufPos.z * 0.8)) + 0.07 * stoffR;
-      else if (uStoff > 2.5) diffuseColor.rgb *= mix(vec3(0.95, 0.93, 0.89), vec3(1.03, 1.02, 1.0), stoffR);
+      else if (uStoff > 2.5 && uStoff < 3.5) diffuseColor.rgb *= mix(vec3(0.95, 0.93, 0.89), vec3(1.03, 1.02, 1.0), stoffR);
+      else if (uStoff > 3.5 && uStoff < 4.5) {
+        // Zahn: Wurzel wärmer (Zement), am Hals ein Hauch Gelb, Schneidekante leicht durchscheinend bläulich grau
+        float wurzel = smoothstep(0.15, 0.85, vMund.x);
+        diffuseColor.rgb *= mix(vec3(1.0), vec3(0.95, 0.87, 0.72), wurzel);
+        diffuseColor.rgb *= mix(vec3(1.0), vec3(0.99, 0.95, 0.86), smoothstep(0.0, 0.25, vMund.x) * (1.0 - wurzel));
+        diffuseColor.rgb *= mix(vec3(1.0), vec3(0.86, 0.9, 0.96), vMund.y * 0.7);
+        diffuseColor.rgb *= 0.985 + 0.03 * aufN(vAufPos * 0.9);
+      }
+      else if (uStoff > 4.5) {
+        // Zahnfleisch: am Zahn hell korallrosa, weiter weg kräftiger und etwas dunkler; kaum Flecken
+        diffuseColor.rgb *= mix(vec3(0.9, 0.86, 0.88), vec3(1.1, 1.1, 1.06), vMund.y);
+        diffuseColor.rgb *= 0.98 + 0.04 * stoffR;
+      }
       diffuseColor.rgb *= vAo;`);
     f = f.replace("#include <roughnessmap_fragment>", `#include <roughnessmap_fragment>
-      if (uStoff > 0.5) roughnessFactor = clamp(roughnessFactor * (0.86 + 0.28 * stoffR), 0.05, 1.0);`);
+      if (uStoff > 0.5 && uStoff < 3.5) roughnessFactor = clamp(roughnessFactor * (0.86 + 0.28 * stoffR), 0.05, 1.0);
+      else if (uStoff > 3.5 && uStoff < 4.5) roughnessFactor = clamp(roughnessFactor + 0.3 * smoothstep(0.2, 0.9, vMund.x), 0.05, 1.0);`);
     f = f.replace("#include <clipping_planes_fragment>", `#include <clipping_planes_fragment>
       float aufWert = aufN(vAufPos * 0.06) * 0.72 + aufN(vAufPos * 0.23) * 0.28;
       if (aufWert > uAuf * 1.06 - 0.03) discard;

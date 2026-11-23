@@ -1992,18 +1992,18 @@
  },
  "mund": {
   "name": "Mund und Kiefer",
-  "bytes": 260456,
-  "dreiecke": 63244,
+  "bytes": 573844,
+  "dreiecke": 141062,
   "rahmen": {
    "min": [
-    -74,
-    608,
-    -65
+    -54,
+    642,
+    -10
    ],
    "max": [
-    73,
-    771,
-    84
+    53,
+    726,
+    83
    ]
   },
   "teile": [
@@ -2012,8 +2012,8 @@
     "g": "knochen",
     "mitte": [
      -1,
-     719,
-     44
+     696,
+     53
     ]
    },
    {
@@ -2048,7 +2048,7 @@
     "g": "muskeln",
     "mitte": [
      -1,
-     666,
+     676,
      4
     ]
    },
@@ -2066,8 +2066,8 @@
     "g": "muskeln",
     "mitte": [
      -1,
-     679,
-     15
+     660,
+     41
     ]
    },
    {
@@ -2086,24 +2086,6 @@
      -1,
      652,
      12
-    ]
-   },
-   {
-    "name": "deko:Schläfenbein mit Gelenkpfanne des Kiefergelenks",
-    "g": "knochen",
-    "mitte": [
-     -43,
-     734,
-     -15
-    ]
-   },
-   {
-    "name": "deko:Jochbein",
-    "g": "knochen",
-    "mitte": [
-     -1,
-     729,
-     42
     ]
    },
    {
