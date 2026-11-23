@@ -18,6 +18,7 @@ import { passende, wunschText } from "@/lib/warteliste";
 import { offeneAnfragen } from "@/lib/terminanfrageLoad";
 import { gewaehlterStandort, sichtbareStandorte, standortRechtVon, terminFilter } from "@/lib/standortRechte";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Termine" };
 
@@ -28,6 +29,7 @@ const verschiebe = (tag: string, n: number) => {
 };
 
 export default async function TerminePage(props: { searchParams: Promise<{ tag?: string; ort?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
@@ -124,7 +126,7 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="card divide-y divide-slate-100 p-0">
-          {termine.length === 0 && <Leer symbol="kalender" eng>Für diesen Tag ist nichts eingetragen. Termine tragen Sie rechts ein{standorte.length === 0 ? "; für eine genaue Auslastung legen Sie unter Einstellungen → Standorte Ihre Behandlungsplätze an" : ""}.</Leer>}
+          {termine.length === 0 && <Leer symbol="kalender" eng>Für diesen Tag ist nichts eingetragen. Termine tragen Sie rechts ein{standorte.length === 0 ? ft("; für eine genaue Auslastung legen Sie unter Einstellungen → Standorte Ihre Behandlungsplätze an") : ""}.</Leer>}
           {termine.map((t) => (
             <div key={t.id} className="flex flex-col gap-2 p-4" data-testid="termin">
               <div className="flex min-w-0 gap-4">
@@ -145,8 +147,8 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
                 whatsappDirekt={whatsappApiAktiv()}
                 confirmedAt={t.confirmedAt ? kurz(t.confirmedAt) : null}
                 remindedAt={t.remindedAt ? kurz(t.remindedAt) : null}
-                bestaetigung={bestaetigungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null })}
-                erinnerung={erinnerungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? "Ihrer Praxis", start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, fach: practice?.specialty })}
+                bestaetigung={bestaetigungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? ft("Ihrer Praxis"), start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null })}
+                erinnerung={erinnerungText({ firstName: t.patient.firstName, practiceName: practice?.name ?? ft("Ihrer Praxis"), start: t.start, ort: standorte.length > 1 ? t.location?.name ?? null : null, fach: practice?.specialty })}
               />
                 <WartelisteAngebot terminId={t.id} kandidaten={vorschlaege(t)} />
               </div>
@@ -164,8 +166,7 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
             eintraege={warteliste.map((w) => ({ id: w.id, patientId: w.patientId, name: `${w.patient.lastName}, ${w.patient.firstName}`, anlass: w.anlass, wunsch: wunschText(w), notiz: w.notiz, seit: tagKurz(w.createdAt), angeboten: w.angebotenAt ? tagKurz(w.angebotenAt) : null }))}
           />
           <p className="text-xs leading-relaxed text-slate-500">
-            Termine werden hier eingetragen und noch nicht aus Ihrer Praxissoftware übernommen. Bestätigungen und Erinnerungen kopieren Sie als Text in SMS,
-            Messenger oder Mail; Sorrida verschickt sie noch nicht selbst.
+            {ft("Termine werden hier eingetragen und noch nicht aus Ihrer Praxissoftware übernommen. Bestätigungen und Erinnerungen kopieren Sie als Text in SMS, Messenger oder Mail; Sorrida verschickt sie noch nicht selbst.")}
           </p>
         </div>
       </div>

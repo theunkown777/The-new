@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 
+import { useAppText } from "@/components/FachKontext";
 /** Schalter „KI-Hilfen“ der Praxis (nur Praxisleitung). Standard: aus. */
 export function KiHilfenSettings({ ein: start, verfuegbar, darfAendern }: { ein: boolean; verfuegbar: boolean; darfAendern: boolean }) {
+  const ft = useAppText();
   const [ein, setEin] = useState(start);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -37,20 +39,18 @@ export function KiHilfenSettings({ ein: start, verfuegbar, darfAendern }: { ein:
 
       <h3 className="mt-3 font-medium text-slate-900">Das schicken die KI-Hilfen von sich aus nicht mit</h3>
       <ul className="mt-1 list-disc space-y-1 pl-5 text-slate-600">
-        <li>Namen, Geburtsdaten, Versichertennummern und Kontaktdaten aus den Patientendaten in Sorrida.</li>
+        <li>{ft("Namen, Geburtsdaten, Versichertennummern und Kontaktdaten aus den Patientendaten in Sorrida.")}</li>
         <li>Akten, Befunde, Vorschläge, Rechnungen und Nachrichten.</li>
       </ul>
       <p className="mt-2 text-slate-600" data-testid="ki-hilfen-preisliste-hinweis">
-        Eine hochgeladene Preisliste (Foto oder PDF) geht unverändert an den KI-Dienst, mit allem, was darauf steht. Laden Sie nur die Preisliste
-        hoch, ohne Briefkopf mit Personennamen und ohne Patientendaten.
+        {ft("Eine hochgeladene Preisliste (Foto oder PDF) geht unverändert an den KI-Dienst, mit allem, was darauf steht. Laden Sie nur die Preisliste hoch, ohne Briefkopf mit Personennamen und ohne Patientendaten.")}
       </p>
       <p className="mt-2 text-slate-600">
         Vor dem Senden entfernt Sorrida aus Ihren Texten bekannte Namen, Telefonnummern, E-Mail-Adressen, Datumsangaben und Versichertennummern.
         Das erkennt nicht jede Schreibweise. Bitte tragen Sie in diese Felder deshalb selbst keine Namen und keine Geburtsdaten ein.
       </p>
       <p className="mt-2 text-slate-600">
-        Jedes Ergebnis ist ein Entwurf. Übernommen wird nur, was jemand aus Ihrem Team prüft und bestätigt. Die KI-Hilfen schreiben keine Nachrichten
-        an Patienten und wählen keine Leistung aus.
+        {ft("Jedes Ergebnis ist ein Entwurf. Übernommen wird nur, was jemand aus Ihrem Team prüft und bestätigt. Die KI-Hilfen schreiben keine Nachrichten an Patienten und wählen keine Leistung aus.")}
       </p>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -62,7 +62,7 @@ export function KiHilfenSettings({ ein: start, verfuegbar, darfAendern }: { ein:
             {ein ? "Ausschalten" : "Einschalten"}
           </button>
         ) : (
-          <span className="text-xs text-slate-500">Nur die Praxisleitung kann das ändern.</span>
+          <span className="text-xs text-slate-500">{ft("Nur die Praxisleitung kann das ändern.")}</span>
         )}
       </div>
       {!verfuegbar && (

@@ -7,12 +7,14 @@ import { prisma } from "@/lib/prisma";
 import { ART_TITEL, type BefundArt } from "@/lib/billingCheck";
 import { formatCent } from "@/lib/invoices";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Abrechnungsprüfung" };
 
 const REIHENFOLGE: BefundArt[] = ["ohne_rechnung", "ohne_doku", "faktor", "ausschluss", "frequenz"];
 
 export default async function AbrechnungsPruefungPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const [befunde, practice] = await Promise.all([
     loadBillingCheck(session!.user.practiceId),
@@ -27,8 +29,7 @@ export default async function AbrechnungsPruefungPage() {
       <div>
         <h1 className="font-display text-3xl text-slate-900">Abrechnungsprüfung</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Was in den letzten zwölf Monaten nicht abgerechnet oder fehlerhaft erfasst wurde. Grundlage sind Termine, Berichte, Vorschläge und Rechnungen in Sorrida
-          sowie die Regeln Ihres Leistungskatalogs. Die Prüfung ersetzt nicht die Prüfung durch Ihre Praxissoftware{stelle ? ` oder ${stelle.ueber}` : ""}, fängt aber typische Lücken vorher ab.
+          {ft("Was in den letzten zwölf Monaten nicht abgerechnet oder fehlerhaft erfasst wurde. Grundlage sind Termine, Berichte, Vorschläge und Rechnungen in Sorrida sowie die Regeln Ihres Leistungskatalogs. Die Prüfung ersetzt nicht die Prüfung durch Ihre Praxissoftware")}{stelle ? ` oder ${stelle.ueber}` : ""}, fängt aber typische Lücken vorher ab.
         </p>
       </div>
       <div className={`grid gap-4 ${terminDoku ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { kennungenLesen } from "@/lib/kennungen";
 
+import { useAppText } from "@/components/FachKontext";
+import type { AnbindungGruppe } from "@/lib/pvsGuides";
 type Key = {
   id: string;
   name: string;
@@ -32,14 +34,16 @@ export function ConnectorSettings({
   initialKeys,
   server,
   readOnly = false,
-  zahn = true,
+  gruppe = "andere",
 }: {
   initialKeys: Key[];
   server: string;
   readOnly?: boolean;
-  /** Zahnarztpraxis: VDDS-media ist voreingestellt; sonst GDT, und die Zahn-Variante wird nicht angeboten. */
-  zahn?: boolean;
+  /** Zahnarztpraxis: VDDS-media ist voreingestellt; sonst GDT, und die Zahn-Variante wird nicht angeboten. Ohne Angabe neutral. */
+  gruppe?: AnbindungGruppe;
 }) {
+  const zahn = gruppe === "zahn";
+  const ft = useAppText();
   const [keys, setKeys] = useState(initialKeys);
   const [name, setName] = useState("");
   const [secret, setSecret] = useState<string | null>(null);
@@ -122,8 +126,8 @@ export function ConnectorSettings({
           <p className="text-sm font-medium text-green-800">
             Schlüssel erzeugt. Er wird nur jetzt angezeigt. Installationsbefehl für diesen PC:
           </p>
-          <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Art der Praxissoftware">
-            {([["vdds", "Zahnarztpraxis (VDDS-media)"], ["gdt", "Arztpraxis (GDT)"]] as const).filter(([wert]) => zahn || wert === "gdt").map(([wert, label]) => (
+          <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={ft("Art der Praxissoftware")}>
+            {([["vdds", "Zahnarztpraxis (VDDS-media)"], ["gdt", gruppe === "andere" ? "Software mit GDT" : "Arztpraxis (GDT)"]] as const).filter(([wert]) => zahn || wert === "gdt").map(([wert, label]) => (
               <button key={wert} type="button" role="radio" aria-checked={art === wert} onClick={() => setArt(wert)}
                 className={`rounded-full px-3 py-1 text-xs ${art === wert ? "bg-brand-600 text-white" : "bg-white text-slate-700 ring-1 ring-slate-200"}`}>
                 {label}
@@ -149,7 +153,7 @@ export function ConnectorSettings({
                   erstellt {fmt(k.createdAt)} · zuletzt verbunden {fmt(k.lastUsedAt)}
                 </p>
                 {status(k) && (
-                  <p className={`text-xs ${status(k)!.warnung ? "text-amber-700" : "text-salbei-700"}`} data-testid="connector-status">{status(k)!.text}</p>
+                  <p className={`text-xs ${status(k)!.warnung ? "text-amber-700" : "text-salbei-700"}`} data-testid="connector-status">{ft(status(k)!.text)}</p>
                 )}
               </div>
               {k.revokedAt ? (

@@ -13,7 +13,9 @@ import { patientLinkState } from "@/lib/patientLink";
 import { pruefVermerk } from "@/lib/portalPruefung";
 import { fachWoerter } from "@/lib/fachprofile";
 
+import { praxisText } from "@/lib/praxisFach";
 export default async function ProposalDetailPage(props: { params: Promise<{ id: string }>; searchParams: Promise<{ qr?: string }> }) {
+  const ft = await praxisText();
   const params = await props.params;
   const qrSofort = (await props.searchParams).qr === "1";
   const session = await getServerSession(authOptions);
@@ -92,8 +94,7 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
           <div className="max-w-2xl">
             <h2 className="font-medium text-slate-900">Nachweis für die Karteikarte</h2>
             <p className="mt-1 text-sm text-slate-600">
-              Ein Blatt mit allen gezeigten Möglichkeiten und Eigenanteilen, wann der Patient sie gesehen und was er gewählt hat. Als PDF in Ihre
-              Praxissoftware ablegen, auch ohne Anbindung.
+              {ft("Ein Blatt mit allen gezeigten Möglichkeiten und Eigenanteilen, wann der Patient sie gesehen und was er gewählt hat. Als PDF in Ihre Praxissoftware ablegen, auch ohne Anbindung.")}
             </p>
           </div>
           <a href={`/api/proposals/${proposal.id}/nachweis`} className="btn-secondary" data-testid="nachweis-pdf">
@@ -113,7 +114,7 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
             {proposal.zweitmeinungen.map((z) => (
               <li key={z.id} className="flex flex-wrap items-start justify-between gap-3 py-2">
                 <span>
-                  <span className="block text-slate-900">{z.praxis || "Andere Praxis"}: {z.leistung}</span>
+                  <span className="block text-slate-900">{z.praxis || ft("Andere Praxis")}: {z.leistung}</span>
                   {z.notiz && <span className="block text-xs italic text-slate-500">„{z.notiz}“</span>}
                   <span className="block text-xs text-slate-500">geteilt am {z.geteiltAt!.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</span>
                 </span>
@@ -131,7 +132,7 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
         <section className="card mt-6 border-salbei-200 bg-salbei-50" data-testid="einverstaendnis">
           <h2 className="font-display text-2xl text-slate-900">Digitales Einverständnis</h2>
           <p className="mt-1 text-sm text-slate-700">
-            Unterschrieben am {proposal.agreedAt.toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "short", timeStyle: "short" })} von <b>{proposal.agreedName}</b> auf dem Behandlungsweg (Patientenseite).
+            Unterschrieben am {proposal.agreedAt.toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "short", timeStyle: "short" })} von <b>{proposal.agreedName}</b> {ft("auf dem Behandlungsweg (Patientenseite).")}
           </p>
           {/* Geburtsdatum-Prüfung im Portal (S5): Die Praxis sieht, ob vor der Unterschrift geprüft wurde. */}
           {proposal.agreedGeprueftAt ? (
@@ -140,7 +141,7 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
             <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="einverstaendnis-pruefung">
               <b>Ohne Geburtsdatum-Prüfung unterschrieben.</b> Wer den persönlichen Link hatte, konnte unterschreiben.{" "}
               {proposal.patient.birthDate ? (
-                "Bitte lassen Sie die Vereinbarung in der Praxis bestätigen."
+                ft("Bitte lassen Sie die Vereinbarung in der Praxis bestätigen.")
               ) : (
                 <>
                   Bitte das <Link href={`/patients/${proposal.patient.id}#kontakt`} className="underline">Geburtsdatum in der Akte nachtragen</Link>, dann wird es künftig vor jeder Unterschrift abgefragt.
@@ -153,14 +154,14 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
             <img src={proposal.agreedSignature} alt={`Unterschrift von ${proposal.agreedName}`} className="mt-3 h-24 rounded-xl border border-salbei-200 bg-white p-2" />
           )}
           <p className="mt-3 text-xs text-slate-600">
-            Ersetzt nicht die schriftliche Mehrkosten- bzw. IGeL-Vereinbarung: Diese vor der Behandlung in der Praxis unterschreiben lassen.
+            {ft("Ersetzt nicht die schriftliche Mehrkosten- bzw. IGeL-Vereinbarung: Diese vor der Behandlung in der Praxis unterschreiben lassen.")}
           </p>
           <a href={`/api/proposals/${proposal.id}/einverstaendnis`} className="btn-secondary mt-3 inline-block" data-testid="einverstaendnis-pdf">
             Als PDF für die Akte (mit Gegenzeichnung)
           </a>
           {proposal.status === "ANGENOMMEN" && proposal.patient.externalId && (
             <a href={`/api/gdt?art=vorschlag&id=${proposal.id}`} className="btn-secondary ml-2 mt-3 inline-block" data-testid="gdt-export">
-              Als GDT-Datei für die Praxissoftware
+              {ft("Als GDT-Datei für die Praxissoftware")}
             </a>
           )}
         </section>
@@ -168,7 +169,7 @@ export default async function ProposalDetailPage(props: { params: Promise<{ id: 
 
       {(proposal.status === "ANGENOMMEN" || proposal.status === "ABGELEHNT") && (
         <div className="card mt-6 space-y-2">
-          <h2 className="font-medium text-slate-900">Gespeichertes Patientenschreiben</h2>
+          <h2 className="font-medium text-slate-900">{ft("Gespeichertes Patientenschreiben")}</h2>
           <p className="text-xs text-slate-500">Stand beim letzten Speichern, als Nachweis der wirtschaftlichen Aufklärung.</p>
           <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-slate-800">
             {proposal.letterText}

@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 
+import { useAppText } from "@/components/FachKontext";
 /** Schalter „Diktat über den Sprachdienst des Browsers“ (nur Praxisleitung). */
 export function DiktatSettings({ erlaubt, darfAendern }: { erlaubt: boolean; darfAendern: boolean }) {
+  const ft = useAppText();
   const [ein, setEin] = useState(erlaubt);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export function DiktatSettings({ erlaubt, darfAendern }: { erlaubt: boolean; dar
             {ein ? "Ausschalten" : "Erlauben"}
           </button>
         ) : (
-          <span className="text-xs text-slate-500">Nur die Praxisleitung kann das ändern.</span>
+          <span className="text-xs text-slate-500">{ft("Nur die Praxisleitung kann das ändern.")}</span>
         )}
       </div>
       {ein && <p className="mt-2 text-xs text-slate-600">Bitte im Team vereinbaren: keine Namen und keine Geburtsdaten diktieren, nur Befunde und Leistungen.</p>}

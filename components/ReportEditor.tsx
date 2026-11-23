@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { REPORT_TYPE_LABELS } from "@/lib/reportLabels";
 import { estimateAmountCent, kassenLabel } from "@/lib/billing";
 
+import { useAppText } from "@/components/FachKontext";
 function formatEuro(cents: number): string {
   return (cents / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 }
@@ -55,6 +56,7 @@ export function ReportEditor({
   report: ReportData;
   practicePunktwerte: { gozPunktwertCent: number | null; bemaPunktwertCent: number | null };
 }) {
+  const ft = useAppText();
   const router = useRouter();
   const [text, setText] = useState(report.editedText ?? report.generatedText ?? "");
   const [status, setStatus] = useState(report.status);
@@ -184,7 +186,7 @@ export function ReportEditor({
           wieder zum Entwurf und verlangt eine neue Freigabe.
           {report.pvs && (
             <a href={`/api/gdt?art=bericht&id=${report.id}`} className="ziel ml-1 font-medium underline" data-testid="gdt-export">
-              Als GDT-Datei für die Praxissoftware
+              {ft("Als GDT-Datei für die Praxissoftware")}
             </a>
           )}
         </p>

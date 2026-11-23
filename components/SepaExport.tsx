@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAppText } from "@/components/FachKontext";
 // Lastschriften als pain.008-Datei erzeugen. Die Datei lädt die Praxis im
 // Online-Banking hoch; danach sind die Posten als exportiert markiert.
 export function SepaExport({ anzahl, summe, bereit }: { anzahl: number; summe: string; bereit: boolean }) {
+  const ft = useAppText();
   const router = useRouter();
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -28,7 +30,7 @@ export function SepaExport({ anzahl, summe, bereit }: { anzahl: number; summe: s
       <h2 className="font-semibold text-slate-900">SEPA-Lastschrift</h2>
       {!bereit ? (
         <p className="mt-1 text-sm text-slate-600">
-          Patienten können im Portal eine Lastschrift erteilen, sobald IBAN und Gläubiger-ID der Praxis hinterlegt sind (Bankverbindung unten). Das Geld kommt ohne Zahlungsdienstleister direkt aufs Praxiskonto.
+          {ft("Patienten können im Portal eine Lastschrift erteilen, sobald IBAN und Gläubiger-ID der Praxis hinterlegt sind (Bankverbindung unten). Das Geld kommt ohne Zahlungsdienstleister direkt aufs Praxiskonto.")}
         </p>
       ) : (
         <div className="mt-1 flex flex-wrap items-center justify-between gap-3">

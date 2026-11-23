@@ -13,12 +13,14 @@ import { BEREICH_COOKIE, bereichTokenGueltig } from "@/lib/bereichSchutz";
 import { BereichAktionen, BereichSchloss } from "@/components/BereichSchloss";
 import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Mein Bereich" };
 
 const eur = (c: number) => `${Math.round(c / 100).toLocaleString("de-DE")} €`;
 
 export default async function MeinBereichPage(props: { searchParams: Promise<{ q?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const { practiceId, id: userId } = session!.user;
@@ -161,7 +163,7 @@ export default async function MeinBereichPage(props: { searchParams: Promise<{ q
             <p className="px-5 py-6 text-sm text-slate-500">
               {q
                 ? "Niemand in Ihrem Stamm passt zu dieser Suche."
-                : `Noch niemand zugeordnet. Auf der Seite eines Patienten wählen Sie unter „Behandelt von“ sich selbst aus. Wer Vorschläge oder Berichte von Ihnen hat, erscheint hier automatisch.`}
+                : ft(`Noch niemand zugeordnet. Auf der Seite eines Patienten wählen Sie unter „Behandelt von“ sich selbst aus. Wer Vorschläge oder Berichte von Ihnen hat, erscheint hier automatisch.`)}
             </p>
           ) : (
             <ul className="divide-y divide-slate-100" data-testid="stamm-liste">

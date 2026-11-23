@@ -5,11 +5,13 @@ import Link from "next/link";
 import { uebergabeMelden } from "@/components/EmpfangWache";
 import { fachWoerter } from "@/lib/fachprofile";
 
+import { useAppText } from "@/components/FachKontext";
 type P = { id: string; firstName: string; lastName: string; birthDate: string | null };
 type Lage = { anamneseOffen: boolean; anamneseZuletzt: string | null; einverstaendnisse: number };
 
 // Empfang: Patient suchen, Schritte wählen, Tablet übergeben oder QR-Code für das eigene Handy zeigen.
 export function Empfang({ pinGesetzt, admin, minuten, leerlauf, fach }: { pinGesetzt: boolean; admin: boolean; minuten: number; leerlauf: number; fach?: string | null }) {
+  const ft = useAppText();
   const w = fachWoerter(fach);
   const derPerson = w.derPerson.charAt(0).toLowerCase() + w.derPerson.slice(1);
   const [q, setQ] = useState("");
@@ -83,7 +85,7 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf, fach }: { pinGes
     <div className="space-y-4">
       {!pinGesetzt && (
         <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="empfang-keine-pin">
-          Für die Übergabe am Tablet braucht die Praxis eine Empfangs-PIN. {admin ? <><Link href="/settings/empfang" className="font-medium underline">Jetzt festlegen</Link>.</> : "Bitte die Geschäftsführung, sie unter Einstellungen → Empfang festzulegen."} Der QR-Code für das eigene Handy geht auch ohne PIN.
+          {ft("Für die Übergabe am Tablet braucht die Praxis eine Empfangs-PIN. ")}{admin ? <><Link href="/settings/empfang" className="font-medium underline">Jetzt festlegen</Link>.</> : "Bitte die Geschäftsführung, sie unter Einstellungen → Empfang festzulegen."} Der QR-Code für das eigene Handy geht auch ohne PIN.
         </p>
       )}
 
@@ -128,7 +130,7 @@ export function Empfang({ pinGesetzt, admin, minuten, leerlauf, fach }: { pinGes
           <p className="text-xs leading-relaxed text-slate-500">
             <b className="text-slate-700">Tablet übergeben:</b> Das Tablet zeigt danach nur noch die Schritte für diese Person, ohne Menü und ohne andere {w.personen}. Auf dem Gerät ist so lange niemand angemeldet.
             Nach „Fertig“, nach {leerlauf} Minuten ohne Eingabe oder spätestens nach {minuten} Minuten sperrt es sich. Zurück kommen Sie mit der Empfangs-PIN.
-            {" "}<span data-testid="empfang-hinweis-tabs">Andere offene Tabs von Sorrida in diesem Browser wechseln bei der Übergabe ebenfalls in die Patientenansicht. Bitte schließen Sie vorher andere Fenster mit Patientendaten, auch die anderer Programme.</span>
+            {" "}<span data-testid="empfang-hinweis-tabs">{ft("Andere offene Tabs von Sorrida in diesem Browser wechseln bei der Übergabe ebenfalls in die Patientenansicht. Bitte schließen Sie vorher andere Fenster mit Patientendaten, auch die anderer Programme.")}</span>
             {" "}<b className="text-slate-700">QR-Code zeigen:</b> {w.derPerson} scannt den Code und füllt alles am eigenen Handy aus.
           </p>
         </section>

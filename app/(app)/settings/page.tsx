@@ -2,9 +2,13 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { isDental, isTherapie, specialty } from "@/lib/specialties";
+import { isDental } from "@/lib/specialties";
 import { kontoDarf } from "@/lib/permissions";
+import { systemGruppe } from "@/lib/fachprofile";
+import { gruppeHatPunkte } from "@/lib/katalogBeispiele";
+import { anbindungGruppe } from "@/lib/pvsGuides";
 
+import { praxisText } from "@/lib/praxisFach";
 // Was jedes Konto sieht, auch ohne Zugang zu den Einstellungen der Praxis (Rolle Behandler/in).
 const FUER_ALLE = ["/settings/security", "/settings/lexikon"];
 
@@ -39,7 +43,8 @@ const CARDS: { href: string; title: string; description: string; nur?: "zahn" }[
   {
     href: "/settings/catalog",
     title: "Katalog",
-    description: "Leistungspositionen anlegen, bearbeiten, Punktzahlen/Festbeträge pflegen.",
+    // Punktzahlen nur, wo das Fach ein Verzeichnis mit Punkten hat (siehe unten: katalogText).
+    description: "",
   },
   {
     href: "/settings/templates",
@@ -97,25 +102,31 @@ const CARDS: { href: string; title: string; description: string; nur?: "zahn" }[
 ];
 
 export default async function SettingsPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const practice = session ? await prisma.practice.findUnique({ where: { id: session.user.practiceId }, select: { specialty: true } }) : null;
   const zahn = isDental(practice?.specialty);
-  const therapie = isTherapie(specialty(practice?.specialty));
   // Anbindung je Fach: Zahnarztpraxen über VDDS-media, Arztpraxen über GDT, sonst im Browser neben der eigenen Software.
   // Keine Namen einzelner Praxisprogramme, solange es je Programm kein Testprotokoll aus einer Praxis gibt (wie auf der Website).
-  const anbindung = zahn
-    ? "Sorrida nutzt die Standardschnittstelle VDDS-media. Programme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen."
-    : therapie
-      ? "Sorrida läuft im Browser neben Ihrer Praxissoftware. Hier richten Sie eine Anbindung ein, falls Ihre Software GDT unterstützt."
-      : "Sorrida nutzt die Standardschnittstelle GDT. Programme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen. Freigegebene Berichte gibt Sorrida über GDT zurück.";
+  const gruppe = anbindungGruppe(practice?.specialty, systemGruppe);
+  const anbindung =
+    gruppe === "zahn"
+      ? ft("Sorrida nutzt die Standardschnittstelle VDDS-media. Programme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen.")
+      : gruppe === "arzt"
+        ? ft("Sorrida nutzt die Standardschnittstelle GDT. Programme, die sie anbieten, können Sorrida mit dem aktuellen Patienten öffnen. Freigegebene Berichte gibt Sorrida über GDT zurück.")
+        : ft("Sorrida läuft im Browser neben Ihrer Praxissoftware. Hier richten Sie eine Anbindung ein, falls Ihre Software GDT unterstützt.");
+  // Punktzahlen kennt nur, wer ein Verzeichnis mit Punkten hat (EBM, BEMA, GOZ, GOÄ); sonst gibt es nur Beträge.
+  const katalogText = gruppeHatPunkte(systemGruppe(practice?.specialty))
+    ? "Leistungspositionen anlegen, bearbeiten, Punktzahlen/Festbeträge pflegen."
+    : "Leistungspositionen anlegen, bearbeiten, Festbeträge pflegen.";
   const praxisEinstellungen = !!session && (await kontoDarf(session.user.id, "einstellungen.ansehen", session.user.practiceId));
-  const karten = CARDS.filter((c) => (!c.nur || zahn) && (praxisEinstellungen || FUER_ALLE.includes(c.href))).map((c) => (c.href === "/settings/connector" ? { ...c, description: anbindung } : c));
+  const karten = CARDS.filter((c) => (!c.nur || zahn) && (praxisEinstellungen || FUER_ALLE.includes(c.href))).map((c) => (c.href === "/settings/connector" ? { ...c, description: anbindung } : c.href === "/settings/catalog" ? { ...c, description: katalogText } : c));
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-6 font-display text-3xl text-slate-900">Einstellungen</h1>
       {!praxisEinstellungen && (
         <p className="mb-4 rounded-lg bg-[#F5F2EE] px-3 py-2 text-sm text-slate-600" data-testid="einstellungen-eingeschraenkt">
-          Mit Ihrer Rolle sehen Sie hier Ihr eigenes Konto. Die Einstellungen der Praxis verwaltet die Praxisleitung.
+          {ft("Mit Ihrer Rolle sehen Sie hier Ihr eigenes Konto. Die Einstellungen der Praxis verwaltet die Praxisleitung.")}
         </p>
       )}
       <p className="mb-4 text-sm text-slate-600" data-testid="frag-sorrida-link">
@@ -125,8 +136,8 @@ export default async function SettingsPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {karten.map((card) => (
           <Link key={card.href} href={card.href} className="card hover:bg-slate-50">
-            <h2 className="font-medium text-slate-900">{card.title}</h2>
-            <p className="mt-1 text-sm text-slate-500">{card.description}</p>
+            <h2 className="font-medium text-slate-900">{ft(card.title)}</h2>
+            <p className="mt-1 text-sm text-slate-500">{ft(card.description)}</p>
           </Link>
         ))}
       </div>

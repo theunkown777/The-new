@@ -18,6 +18,7 @@ import { KOERPER_KUGEL, NUR_FOKUS, fokusKugel } from "./drei/koerperEcht";
 import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
+import { useAppText } from "@/components/FachKontext";
 // Große Erklärungsansicht: erst laden, wenn jemand einen Erklärpunkt antippt
 const ErklaerAnsicht = dynamic(() => import("./erklaerung/ErklaerAnsicht"), { ssr: false });
 
@@ -45,6 +46,7 @@ const ebeneVon = (g: string): Ebene | null => (g === "knochen" || g === "organe"
  * Wunsch erscheint das flache Schema; mit patientId markiert die Praxis Stellen für den Patienten.
  */
 export function KoerperModell({ markierungen = [], patientId, einspaltig = false, geschlecht: startGeschlecht, fokus = null, fach = null, kompakt = false }: { markierungen?: Markierung[]; patientId?: string; startEbenen?: Ebene[]; einspaltig?: boolean; geschlecht?: "W" | "M" | null; fokus?: FokusId | null; fach?: string | null; kompakt?: boolean }) {
+  const ft = useAppText();
   const marken = useMarkierungen("koerper", markierungen, patientId);
   const t = useT();
   const seite_ = (x: Seite) => (x === "M" ? "" : t(seitenName(x)));
@@ -384,7 +386,7 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
       <div className="min-w-0">
         {marken.liste.length > 0 && (
           <div className="mb-3 rounded-xl border border-orange-200 bg-orange-50 p-3" data-testid="modell-markierte">
-            <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? "Für diesen Patienten markiert" : t("Von Ihrer Praxis markiert")}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? ft("Für diesen Patienten markiert") : t("Von Ihrer Praxis markiert")}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {marken.liste.map((m) => {
                 const x = teilLesen(m.teil);

@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { BAUSTEINE, GEBUEHRENORDNUNGEN, HINWEIS_ENTWURF, HINWEIS_KRANKHEITSFALL_GOAE, MAX_POSTEN, briefDateiname, type BausteinKey, type Gebuehrenordnung } from "@/lib/erstattungsbrief";
 
+import { useAppText } from "@/components/FachKontext";
 // Begleitbrief für die Versicherung: Die Praxis trägt die beanstandeten Posten
 // ein, wählt je Posten feste Begründungen und lädt ein PDF herunter. Sorrida
 // verschickt nichts. Rechnungen in Sorrida enthalten keine einzelnen Posten –
@@ -22,6 +23,7 @@ type Posten = { id: number; nummer: string; bezeichnung: string; faktor: string;
 const neuerPosten = (id: number): Posten => ({ id, nummer: "", bezeichnung: "", faktor: "", gruende: [], ergaenzung: "", dabei: true });
 
 export function Erstattungsbrief({ invoiceId, vorgaben, className }: { invoiceId: string; vorgaben: BriefVorgaben; className?: string }) {
+  const ft = useAppText();
   const uid = useId();
   const [offen, setOffen] = useState(false);
   const [go, setGo] = useState<Gebuehrenordnung>(vorgaben.gebuehrenordnung);
@@ -162,8 +164,7 @@ export function Erstattungsbrief({ invoiceId, vorgaben, className }: { invoiceId
               <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-4 sm:px-6">
                 <p id={`${uid}-hinweis`} className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900" role="note" data-testid="erstattungsbrief-hinweis">{HINWEIS_ENTWURF}</p>
                 <p className="text-sm text-slate-600">
-                  Für den Fall, dass die Versicherung die Rechnung nur gekürzt erstattet hat. Sie erhalten ein PDF, das die Patientin oder der Patient unterschreibt und selbst an die Versicherung schickt. Sorrida verschickt nichts.
-                  Der Brief enthält keine Diagnosen – außer Sie tragen selbst welche in eine Ergänzung ein.
+                  {ft("Für den Fall, dass die Versicherung die Rechnung nur gekürzt erstattet hat. Sie erhalten ein PDF, das die Patientin oder der Patient unterschreibt und selbst an die Versicherung schickt. Sorrida verschickt nichts. Der Brief enthält keine Diagnosen – außer Sie tragen selbst welche in eine Ergänzung ein.")}
                 </p>
 
                 <fieldset className="grid gap-3 sm:grid-cols-2">
@@ -185,7 +186,7 @@ export function Erstattungsbrief({ invoiceId, vorgaben, className }: { invoiceId
                     <textarea id={`${uid}-versadr`} className="input h-20" maxLength={300} value={versAnschrift} onChange={(e) => setVersAnschrift(e.target.value)} placeholder={"Straße oder Postfach\nPLZ Ort"} />
                   </div>
                   <div>
-                    <label className="label" htmlFor={`${uid}-abs`}>Anschrift der Patientin / des Patienten <span className="font-normal text-slate-500">(optional)</span></label>
+                    <label className="label" htmlFor={`${uid}-abs`}>{ft("Anschrift der Patientin / des Patienten ")}<span className="font-normal text-slate-500">(optional)</span></label>
                     <textarea id={`${uid}-abs`} className="input h-20" maxLength={300} value={absender} onChange={(e) => setAbsender(e.target.value)} placeholder={"Straße Hausnummer\nPLZ Ort"} />
                   </div>
                   <div>

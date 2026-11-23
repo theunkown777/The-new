@@ -225,6 +225,17 @@ export function gebuehrenwerkeFuer(fach: string | null | undefined): Gebuehrenwe
   return werke.includes("BEMA") || werke.includes("GOZ") ? [...new Set<Gebuehrenwerk>([...werke, "GOZ", "BEMA"])] : werke;
 }
 
+/**
+ * Nach welcher Gebührenordnung die Praxis Privatrechnungen schreibt, für den Begleitbrief an die Versicherung
+ * (lib/erstattungsbrief.ts): Zahnmedizin GOZ, Ärzte und Klinik GOÄ. null bei Fächern ohne GOÄ und GOZ (Heilmittel,
+ * Hebamme, Pflege, Apotheke, Hilfsmittel, Heilpraktik): Dort gibt es keinen Steigerungssatz zu begründen und keinen Brief.
+ */
+export function briefOrdnungFuer(fach: string | null | undefined): "GOZ" | "GOAE" | null {
+  const werke = gebuehrenwerkeFuer(fach);
+  if (werke.includes("GOZ")) return "GOZ";
+  return werke.includes("GOAE") ? "GOAE" : null;
+}
+
 /** Extrabudgetäre Vorsorge, die das Fach selbst erbringt. Fächer ohne Eintrag (z. B. Radiologie, Kardiologie) sehen den Hinweis nicht. */
 const EBM_VORSORGE: Record<string, string> = {
   hausarzt: "Check-up, Hautkrebs-Screening, Impfungen",

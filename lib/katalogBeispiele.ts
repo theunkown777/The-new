@@ -36,6 +36,12 @@ export function faktorVerzeichnisse(gruppe: string): string {
     .join("/");
 }
 
+/** Verzeichnisse, die Leistungen in Punkten bewerten (Punktzahl × Punktwert). Alle anderen kennen nur Beträge. */
+const MIT_PUNKTEN = ["EBM", "BEMA", "GOZ", "GOAE"];
+export const hatPunkte = (system: string): boolean => MIT_PUNKTEN.includes(system);
+/** Hat die Gruppe ein Verzeichnis mit Punkten? Heilmittel, Hebammenhilfe, Pflege, Hilfsmittel, Apotheke und Heilpraktik nicht. */
+export const gruppeHatPunkte = (gruppe: string): boolean => systemeFuer(gruppe).some(hatPunkte);
+
 /** Beispiele im Suchfeld des Leistungsverzeichnisses. Ohne Fach kein Beispiel. */
 const SUCH_BEISPIEL: Record<string, string> = { zahn: "Füllung oder Krone", arzt: "Sonographie oder 03000", therapie: "Hausbesuch" };
 export function suchBeispiel(fach: string | null | undefined): string {

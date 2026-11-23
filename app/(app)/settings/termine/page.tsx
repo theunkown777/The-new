@@ -13,9 +13,11 @@ import { anlaesseLesen } from "@/lib/terminanfrage";
 import { fachprofil } from "@/lib/fachprofile";
 import { buchungsseiteFehlt, leseStammdaten } from "@/lib/praxisStammdaten";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 
 export default async function TermineOnlinePage() {
+  const ft = await praxisText();
   await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
@@ -61,9 +63,9 @@ export default async function TermineOnlinePage() {
         {whatsappApiAktiv() ? (
           <p>WhatsApp Business ist verbunden: Sorrida verschickt Terminnachrichten, den persönlichen Link und Zahlungserinnerungen direkt, sobald Sie auf „Per WhatsApp“ klicken.</p>
         ) : (
-          <p>Ein Klick auf „Per WhatsApp“ öffnet WhatsApp auf diesem Gerät (App oder WhatsApp Web) mit dem Patienten als Empfänger und fertigem Text. Sie tippen dort nur noch auf „Senden“; Absender ist das WhatsApp Ihrer Praxis.</p>
+          <p>{ft("Ein Klick auf „Per WhatsApp“ öffnet WhatsApp auf diesem Gerät (App oder WhatsApp Web) mit dem Patienten als Empfänger und fertigem Text. Sie tippen dort nur noch auf „Senden“; Absender ist das WhatsApp Ihrer Praxis.")}</p>
         )}
-        <p className="text-slate-600">Der Knopf erscheint bei Terminen, Zahlungserinnerungen und in der Patientenakte, sobald beim Patienten eine Mobilnummer und die Einwilligung für WhatsApp eingetragen sind (Akte → Kontakt und Stammdaten). In den Nachrichten stehen keine Befunde und keine Beträge.</p>
+        <p className="text-slate-600">{ft("Der Knopf erscheint bei Terminen, Zahlungserinnerungen und in der Patientenakte, sobald beim Patienten eine Mobilnummer und die Einwilligung für WhatsApp eingetragen sind (Akte → Kontakt und Stammdaten). In den Nachrichten stehen keine Befunde und keine Beträge.")}</p>
       </section>
     </div>
   );

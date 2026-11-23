@@ -9,10 +9,12 @@ import { canSeeAnalytics } from "@/lib/permissions";
 import { loadBillingCheck, terminDokuGeprueft } from "@/lib/billingCheckLoad";
 import { formatCent, invoiceView } from "@/lib/invoices";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Abrechnung" };
 
 export default async function AbrechnungPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true, gozPunktwertCent: true, bemaPunktwertCent: true } });
   const fach = practice?.specialty ?? "hausarzt";
@@ -46,8 +48,7 @@ export default async function AbrechnungPage() {
       <div>
         <h1 className="font-display text-3xl text-slate-900">Abrechnung</h1>
         <p className="mt-1 max-w-3xl text-sm text-slate-600">
-          Alle Abrechnungsarten für {SPECIALTY_LABELS[fach] ?? "Ihr Fach"}: wer zahlt, wie gerechnet wird, die Fachbegriffe und worauf zu achten ist.
-          Abgerechnet wird weiter über Ihre Praxissoftware{stelle ? ` bzw. ${stelle.ueber}` : ""}.
+          Alle Abrechnungsarten für {SPECIALTY_LABELS[fach] ?? "Ihr Fach"}{ft(": wer zahlt, wie gerechnet wird, die Fachbegriffe und worauf zu achten ist. Abgerechnet wird weiter über Ihre Praxissoftware")}{stelle ? ` bzw. ${stelle.ueber}` : ""}.
         </p>
       </div>
 

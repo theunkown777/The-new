@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { DIKTAT_SPRACHE, diktatModus, lokalLaden, lokalStatus, type DiktatModus, type LokalStatus } from "@/lib/diktat";
 
+import { useAppText } from "@/components/FachKontext";
 interface MicButtonProps {
   onTranscript: (text: string) => void;
 }
@@ -26,6 +27,7 @@ const erkennung = () => (typeof window === "undefined" ? null : ((window as any)
  * Praxisleitung ihn unter Einstellungen → Sicherheit erlaubt hat.
  */
 export function MicButton({ onTranscript }: MicButtonProps) {
+  const ft = useAppText();
   const [modus, setModus] = useState<DiktatModus | "pruefe">("pruefe");
   const [listening, setListening] = useState(false);
   const [interim, setInterim] = useState("");
@@ -108,7 +110,7 @@ export function MicButton({ onTranscript }: MicButtonProps) {
   if (modus === "aus")
     return (
       <span className="max-w-md text-xs text-slate-500" data-testid="diktat-aus">
-        Diktat ist ausgeschaltet: Dieses Gerät erkennt Sprache nur über den Dienst des Browser-Herstellers. Die Praxisleitung kann das unter{" "}
+        {ft("Diktat ist ausgeschaltet: Dieses Gerät erkennt Sprache nur über den Dienst des Browser-Herstellers. Die Praxisleitung kann das unter")}{" "}
         <Link href="/settings/security#diktat" className="underline">
           Einstellungen → Sicherheit
         </Link>{" "}

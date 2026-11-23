@@ -3,10 +3,12 @@
 import { useState } from "react";
 import type { ImportVorgaben } from "@/lib/importVerzeichnisse";
 
+import { useAppText } from "@/components/FachKontext";
 type Antwort = { gelesen: number; uebernommen: number; neu: number; schonVorhanden: number; fehler: { zeile: number; grund: string }[]; fehlerGesamt: number; error?: string };
 
 /** Leistungslisten der eigenen KV oder aus Verträgen als CSV in den Praxiskatalog übernehmen. Verzeichnisse je Fach (lib/importVerzeichnisse.ts). */
 export function LeistungenImport({ vorgaben }: { vorgaben: ImportVorgaben }) {
+  const ft = useAppText();
   const { verzeichnisse, kv } = vorgaben;
   const [csv, setCsv] = useState("");
   const [system, setSystem] = useState(verzeichnisse[0]?.[0] ?? "SELBST");
@@ -27,8 +29,8 @@ export function LeistungenImport({ vorgaben }: { vorgaben: ImportVorgaben }) {
       <div className="mt-3 space-y-3 text-sm">
         <p className="text-slate-600">
           {kv
-            ? "Regionale Gebührenordnungspositionen und Vertragsziffern veröffentlicht jede KV bzw. jeder Vertrag selbst (Rundschreiben, Abrechnungsseite der KV, Praxissoftware)."
-            : "Vertragsziffern und Preislisten stehen im jeweiligen Vertrag oder in Ihrer Praxissoftware."}{" "}
+            ? ft("Regionale Gebührenordnungspositionen und Vertragsziffern veröffentlicht jede KV bzw. jeder Vertrag selbst (Rundschreiben, Abrechnungsseite der KV, Praxissoftware).")
+            : ft("Vertragsziffern und Preislisten stehen im jeweiligen Vertrag oder in Ihrer Praxissoftware.")}{" "}
           Fügen Sie die Liste hier ein oder laden Sie eine CSV-Datei:
           eine Zeile je Leistung, <span className="font-mono text-xs">Ziffer;Bezeichnung;Betrag in Euro</span> (Betrag, Punkte und Hinweis optional, Kopfzeile erlaubt).
         </p>

@@ -3,7 +3,9 @@ import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { TeamSettings } from "@/components/TeamSettings";
 
+import { praxisText } from "@/lib/praxisFach";
 export default async function TeamSettingsPage() {
+  const ft = await praxisText();
   await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const isAdmin = session!.user.role === "admin";
@@ -15,7 +17,7 @@ export default async function TeamSettingsPage() {
         <TeamSettings currentUserId={session!.user.id} />
       ) : (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          Die Teamverwaltung ist nur für die Geschäftsführung (Admin) der Praxis verfügbar.
+          {ft("Die Teamverwaltung ist nur für die Geschäftsführung (Admin) der Praxis verfügbar.")}
         </p>
       )}
     </div>

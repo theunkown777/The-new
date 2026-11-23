@@ -43,6 +43,6 @@ describe("Ratenanzeige angehalten (Verbraucherkreditrecht ab 20.11.2026)", () =>
     const path = await import("path");
     const text = fs.readFileSync(path.join(__dirname, "..", "components/InstallmentSettings.tsx"), "utf8");
     expect(text).toContain("Die Anzeige im Patienten-Link bleibt angehalten.");
-    expect(text).toMatch(/RATEN_ANGEHALTEN \? "Gespeichert\. Die Anzeige/);
+    expect(text).toMatch(/RATEN_ANGEHALTEN \? (ft\()?"Gespeichert\. Die Anzeige/);
   });
 });

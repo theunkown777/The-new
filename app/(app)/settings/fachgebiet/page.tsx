@@ -7,7 +7,9 @@ import { resolveMed } from "@/lib/practiceMed";
 import { SpecialtySettings } from "@/components/SpecialtySettings";
 import { FRUEHERE_KATEGORIEN, katalogVorschlag, leistungenFuerFach } from "@/lib/leistungskatalog";
 
+import { praxisText } from "@/lib/praxisFach";
 export default async function SpecialtySettingsPage() {
+  const ft = await praxisText();
   await nurMitEinstellungen();
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({
@@ -19,8 +21,7 @@ export default async function SpecialtySettingsPage() {
     <div className="mx-auto max-w-3xl">
       <h1 className="mb-2 font-display text-3xl text-slate-900">Fachgebiet und Leistungen</h1>
       <p className="mb-6 text-sm text-slate-500">
-        Sorrida passt Behandlungsvorschläge, Patientenschreiben und Patienten-Link an Ihr Fachgebiet an. Eigene Leistungen ergänzen oder
-        ersetzen die mitgelieferten Beispiele.
+        {ft("Sorrida passt Behandlungsvorschläge, Patientenschreiben und Patienten-Link an Ihr Fachgebiet an. Eigene Leistungen ergänzen oder ersetzen die mitgelieferten Beispiele.")}
       </p>
       <p className="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700" data-testid="preisliste-link">
         Sie haben schon eine Preisliste?{" "}

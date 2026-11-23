@@ -6,6 +6,7 @@ import {
   FELDER, FELD_LABEL, TRENNZEICHEN_NAME, bestandAus, dateiLesen, einordnen, inBloecke, zeilePruefen, zuordnungFehler, type DateiGelesen, type Feld, type ImportPatient, type Zuordnung,
 } from "@/lib/patientenImport";
 
+import { useAppText } from "@/components/FachKontext";
 // Patientenliste einlesen: Die Datei wird im Browser gelesen und geprüft und
 // verlässt ihn nicht. An den Server gehen erst für die Vorschau die geprüften
 // Zeilen (in Blöcken), gespeichert wird erst nach dem Klick auf „Jetzt speichern“.
@@ -26,6 +27,7 @@ async function block(patienten: ImportPatient[], nurPruefen: boolean, teil: numb
 }
 
 export function PatientenImport({ personPl = "Patienten", personSg = "Patient", demo = false }: { personPl?: string; personSg?: string; demo?: boolean }) {
+  const ft = useAppText();
   const [datei, setDatei] = useState<{ name: string; gelesen: DateiGelesen } | null>(null);
   const [zu, setZu] = useState<Zuordnung | null>(null);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -221,7 +223,7 @@ export function PatientenImport({ personPl = "Patienten", personSg = "Patient", 
             </div>
           </div>
           <p className="text-xs text-slate-500">
-            „Schon vorhanden“ heißt: gleicher Nachname, Vorname und gleiches Geburtsdatum – oder gleiche Patientennummer. Das gilt auch für doppelte Zeilen in der Datei.
+            {ft("„Schon vorhanden“ heißt: gleicher Nachname, Vorname und gleiches Geburtsdatum – oder gleiche Patientennummer. Das gilt auch für doppelte Zeilen in der Datei.")}
             {vorschau.hinweise > 0 ? ` Bei ${n(vorschau.hinweise)} ${vorschau.hinweise === 1 ? "Zeile wird ein nicht lesbarer Wert" : "Zeilen werden nicht lesbare Werte"} (E-Mail, Mobilnummer oder Versicherungsart) weggelassen.` : ""}
           </p>
 

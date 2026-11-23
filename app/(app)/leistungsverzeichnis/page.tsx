@@ -17,6 +17,7 @@ import { seiteAus } from "@/lib/adresse";
 import { rechnetUeberKv } from "@/lib/abrechnungsarten";
 import { importVorgaben } from "@/lib/importVerzeichnisse";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Leistungsverzeichnis" };
 
@@ -27,6 +28,7 @@ const EBM_ORIENTIERUNGSWERT = 12.7404;
 const euro = (c: number) => (c / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 
 export default async function LeistungsverzeichnisPage(props: { searchParams: Promise<{ q?: string; system?: string; kapitel?: string; seite?: string; alle?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
@@ -78,8 +80,7 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
         <h1 className="font-display text-3xl text-slate-900">Leistungsverzeichnis</h1>
         <p className="mt-1 text-sm text-slate-600">
           Alle amtlichen Leistungen, die {alle ? "irgendein Fach" : SPECIALTY_LABELS[fach] ?? "Ihr Fach"} erbringen und abrechnen kann:{" "}
-          <b className="tabular-nums">{summe.toLocaleString("de-DE")}</b> Positionen aus {proSystem.length} Verzeichnissen. Übernehmen Sie, was Ihre Praxis anbietet, in
-          Ihren Abrechnungskatalog.
+          <b className="tabular-nums">{summe.toLocaleString("de-DE")}</b> Positionen aus {proSystem.length} {ft("Verzeichnissen. Übernehmen Sie, was Ihre Praxis anbietet, in Ihren Abrechnungskatalog.")}
         </p>
         <p className="mt-1 text-xs">
           <Link href={link({ alle: alle ? null : "1", system: null, kapitel: null, seite: null })} className="text-brand-700 underline">

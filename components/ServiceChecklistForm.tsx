@@ -10,6 +10,7 @@ import { FREIE_ZUSAMMENSTELLUNG } from "@/lib/amtlich/gliederung";
 import { PatientAuswahl } from "@/components/PatientAuswahl";
 import { aufVerordnung as fachAufVerordnung, fachWoerter } from "@/lib/fachprofile";
 
+import { useAppText } from "@/components/FachKontext";
 function formatEuro(cents: number): string {
   return (cents / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 }
@@ -130,6 +131,7 @@ export function ServiceChecklistForm({
    */
   onCreated?: (reportId: string) => Promise<string>;
 }) {
+  const ft = useAppText();
   const router = useRouter();
   const w = fachWoerter(fach);
   // Heilmittel, Pflege, Hilfsmittel und Apotheke arbeiten auf ärztliche Verordnung, nicht auf Überweisung.
@@ -700,10 +702,7 @@ export function ServiceChecklistForm({
           onChange={(e) => setAdditionalContext(e.target.value)}
         />
         <p className="mt-1 text-xs text-slate-500">
-          Kurz reinsprechen genügt – die KI formuliert daraus einen ausführlicheren Abschnitt im
-          Bericht, ohne die übliche Struktur zu ändern. Die Spracherkennung läuft über den Browser
-          (Chrome empfohlen) und verarbeitet Audio ggf. über dessen Anbieter – bei Patientendaten
-          entsprechend vorsichtig verwenden.
+          {ft("Kurz reinsprechen genügt – die KI formuliert daraus einen ausführlicheren Abschnitt im Bericht, ohne die übliche Struktur zu ändern. Die Spracherkennung läuft über den Browser (Chrome empfohlen) und verarbeitet Audio ggf. über dessen Anbieter – bei Patientendaten entsprechend vorsichtig verwenden.")}
         </p>
       </div>
 

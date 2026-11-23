@@ -7,6 +7,7 @@ import { AUDIT_ACTIONS, type AuditAction } from "@/lib/audit";
 import { LOESCHFRISTEN, NICHT_AUTOMATISCH } from "@/lib/loeschfristen";
 import { ZweiFaktorAlle } from "@/components/ZweiFaktorAlle";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Protokoll" };
 
@@ -20,6 +21,7 @@ const GRUPPEN: Record<string, { label: string; actions: AuditAction[] }> = {
 };
 
 export default async function ProtokollPage(props: { searchParams: Promise<{ gruppe?: string }> }) {
+  const ft = await praxisText();
   await nurMitEinstellungen();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
@@ -27,7 +29,7 @@ export default async function ProtokollPage(props: { searchParams: Promise<{ gru
     return (
       <div className="mx-auto max-w-xl py-10 text-center">
         <h1 className="font-display text-3xl text-slate-900">Protokoll nur für Admins</h1>
-        <p className="mt-3 text-slate-600">Das Protokoll enthält Anmeldungen und Änderungen aller Mitarbeitenden und ist deshalb der Praxisleitung vorbehalten.</p>
+        <p className="mt-3 text-slate-600">{ft("Das Protokoll enthält Anmeldungen und Änderungen aller Mitarbeitenden und ist deshalb der Praxisleitung vorbehalten.")}</p>
       </div>
     );
   }
@@ -52,7 +54,7 @@ export default async function ProtokollPage(props: { searchParams: Promise<{ gru
         <Link href="/settings" className="ziel text-sm text-slate-500 hover:text-brand-700">← Einstellungen</Link>
         <h1 className="mt-2 font-display text-3xl text-slate-900">Protokoll und Datenschutz</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Sicherheitsrelevante Vorgänge der letzten Zeit. Das Protokoll enthält keine Gesundheitsdaten und keine Patientennamen, nur Art, Person und Zeitpunkt.
+          {ft("Sicherheitsrelevante Vorgänge der letzten Zeit. Das Protokoll enthält keine Gesundheitsdaten und keine Patientennamen, nur Art, Person und Zeitpunkt.")}
         </p>
       </div>
 
@@ -72,7 +74,7 @@ export default async function ProtokollPage(props: { searchParams: Promise<{ gru
         </div>
         <div className="card">
           <p className="text-sm text-slate-500">KI-Berichte</p>
-          <p className="mt-1 text-sm text-slate-800">Den Namen des Patienten, Geburtsdatum und Versichertennummer ersetzt Sorrida vor dem Versand durch Platzhalter. Freitext und eine hochgeladene Preisliste können weitere Angaben enthalten. Jeder Bericht bleibt Entwurf bis zur Freigabe.</p>
+          <p className="mt-1 text-sm text-slate-800">{ft("Den Namen des Patienten, Geburtsdatum und Versichertennummer ersetzt Sorrida vor dem Versand durch Platzhalter. Freitext und eine hochgeladene Preisliste können weitere Angaben enthalten. Jeder Bericht bleibt Entwurf bis zur Freigabe.")}</p>
         </div>
       </div>
 
@@ -80,7 +82,7 @@ export default async function ProtokollPage(props: { searchParams: Promise<{ gru
         {Object.entries(GRUPPEN).map(([k, g]) => (
           <Link key={k} href={`/settings/protokoll?gruppe=${k}`} aria-current={k === gruppe ? "page" : undefined}
             className={`rounded-full px-3 py-1.5 ring-1 ${k === gruppe ? "bg-brand-600 text-white ring-brand-600" : "bg-white text-slate-600 ring-slate-200 hover:text-brand-700"}`}>
-            {g.label}
+            {ft(g.label)}
           </Link>
         ))}
       </nav>

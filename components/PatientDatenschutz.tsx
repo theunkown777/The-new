@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAppText } from "@/components/FachKontext";
 // Auskunft (Export) und Löschung für Admins. Das Löschen verlangt den
 // Nachnamen als Bestätigung; ob es erlaubt ist, entscheidet der Server
 // anhand der Aufbewahrungsfrist.
 export function PatientDatenschutz({ patientId, lastName }: { patientId: string; lastName: string }) {
+  const ft = useAppText();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [confirm, setConfirm] = useState("");
@@ -43,7 +45,7 @@ export function PatientDatenschutz({ patientId, lastName }: { patientId: string;
         <a href={`/api/patients/${patientId}/fhir`} className="btn-secondary" data-testid="export-fhir" title="Akte als FHIR-Datei für andere Programme">Akte als FHIR-Datei</a>
         {!open && (
           <button type="button" className="text-sm text-red-700 underline" onClick={() => setOpen(true)}>
-            Patient löschen …
+            {ft("Patient löschen …")}
           </button>
         )}
       </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAppText } from "@/components/FachKontext";
 type Modus = "setzen" | "entsperren" | "zuruecksetzen" | "aendern";
 
 async function senden(body: Record<string, string>) {
@@ -14,6 +15,7 @@ async function senden(body: Record<string, string>) {
 
 /** Schloss vor "Mein Bereich": Passwort vergeben, entsperren oder zurücksetzen. */
 export function BereichSchloss({ start, demo, name }: { start: "setzen" | "entsperren"; demo: boolean; name: string }) {
+  const ft = useAppText();
   const router = useRouter();
   const [modus, setModus] = useState<Modus>(start);
   const [pw, setPw] = useState("");
@@ -50,8 +52,8 @@ export function BereichSchloss({ start, demo, name }: { start: "setzen" | "entsp
         </div>
         <h1 className="font-display text-3xl text-slate-900">Mein Bereich</h1>
         <p className="mt-1 text-sm text-slate-600">
-          {modus === "setzen" && `${name}, legen Sie ein eigenes Passwort fest. Ohne dieses Passwort sieht niemand Ihren Patientenstamm und Ihren Umsatz, auch nicht am selben Rechner.`}
-          {modus === "entsperren" && `Ihr Patientenstamm und Ihr Umsatz sind geschützt. Bitte geben Sie Ihr Bereichs-Passwort ein.`}
+          {modus === "setzen" && ft(`${name}, legen Sie ein eigenes Passwort fest. Ohne dieses Passwort sieht niemand Ihren Patientenstamm und Ihren Umsatz, auch nicht am selben Rechner.`)}
+          {modus === "entsperren" && ft(`Ihr Patientenstamm und Ihr Umsatz sind geschützt. Bitte geben Sie Ihr Bereichs-Passwort ein.`)}
           {modus === "zuruecksetzen" && "Neues Passwort für Mein Bereich festlegen."}
         </p>
         <form onSubmit={absenden} className="mt-4 space-y-3">

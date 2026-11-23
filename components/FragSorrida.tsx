@@ -12,6 +12,7 @@ import { MENUE_ZUSTAND } from "@/lib/menueEreignisse";
 import { FRAGEN } from "@/lib/praxisManagerFragen";
 import { hilfeZeigen } from "@/components/HilfeZeiger";
 
+import { useAppText } from "@/components/FachKontext";
 // „Frag Sorrida“ als Chat: schwebender Knopf unten rechts, Fenster mit Fokusfalle, Escape schließt.
 // Antworten kommen aus der festen Wissenssammlung (lib/hilfeWissen), gesucht wird im Browser (lib/hilfeSuche).
 // Die Sammlung wird erst beim ersten Öffnen geladen. Der Verlauf lebt nur im Zustand von React, nichts wird
@@ -80,6 +81,7 @@ export function FragSorrida({
   person?: string;
   abschluss?: string;
 }) {
+  const ft = useAppText();
   const uid = useId();
   const pfad = usePathname() ?? "/";
   const [offen, setOffen] = useState(false);
@@ -507,7 +509,7 @@ export function FragSorrida({
                   Fragen
                 </button>
               </div>
-              <p id={`${uid}-hinweis`} className="mt-1.5 text-xs text-slate-500">Bitte keine Patientendaten eingeben: keine Namen, keine Geburtsdaten, keine Befunde.</p>
+              <p id={`${uid}-hinweis`} className="mt-1.5 text-xs text-slate-500">{ft("Bitte keine Patientendaten eingeben: keine Namen, keine Geburtsdaten, keine Befunde.")}</p>
               {!leer && (
                 <button type="button" className="ziel mt-1 text-xs text-slate-500 underline hover:text-brand-700" onClick={() => senden({ typ: "leeren" })} data-testid="frag-sorrida-leeren">
                   Verlauf leeren

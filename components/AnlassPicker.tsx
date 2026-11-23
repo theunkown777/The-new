@@ -5,6 +5,7 @@ import type { CustomOffer } from "@/lib/proposals";
 import { CUSTOM_PREFIX } from "@/lib/medicalProposals";
 import { passtZuPerson } from "@/lib/fachprofile";
 
+import { useAppText } from "@/components/FachKontext";
 // Anlässe für Arztpraxen ankreuzen (Gegenstück zum Zahnschema).
 export function AnlassPicker({
   spec,
@@ -20,6 +21,7 @@ export function AnlassPicker({
   value: string[];
   onChange: (v: string[]) => void;
 }) {
+  const ft = useAppText();
   const toggle = (id: string, on: boolean) => onChange(on ? [...value, id] : value.filter((x) => x !== id));
   return (
     <div className="card space-y-2" data-testid="anlass-picker">
@@ -29,7 +31,7 @@ export function AnlassPicker({
           <input type="checkbox" className="mt-1" checked={value.includes(a.id)} onChange={(e) => toggle(a.id, e.target.checked)} />
           <span>
             {a.label}
-            {a.nurAufWunsch && <span className="block text-xs text-slate-500">nur auf ausdrücklichen Wunsch des Patienten</span>}
+            {a.nurAufWunsch && <span className="block text-xs text-slate-500">{ft("nur auf ausdrücklichen Wunsch des Patienten")}</span>}
           </span>
         </label>
       ))}

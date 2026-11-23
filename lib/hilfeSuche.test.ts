@@ -283,7 +283,7 @@ describe("Seite, Platzhalter und Meldungen", () => {
     const PATIENT_ALLEIN = /(?<![\p{L}-])Patient(in|innen|en)?(?![\p{L}-])/u;
 
     it("Zahn, Ärzte und Therapie mit Patienten: Text bleibt Zeichen für Zeichen gleich", () => {
-      for (const fach of ["zahn", "hausarzt", "ortho", "physio", "gyn"]) {
+      for (const fach of ["zahn", "hausarzt", "ortho", "physio"]) {
         const w = woerterVon(fach);
         for (const e of sichtbar(fach)) expect(hilfeText(e, w), `${fach} ${e.id}`).toEqual(hilfeText(e, { personPl: w.personPl, abschluss: w.abschluss }));
       }
@@ -317,8 +317,19 @@ describe("Seite, Platzhalter und Meldungen", () => {
       expect(text("hebamme", "vorschlag-antwort")).toContain("„Wahl der Frau übernehmen“");
       expect(text("hebamme", "tastenkuerzel")).toContain("zu den Frauen");
       expect(text("hebamme", "vorschlag-schnell")).toContain("den die Frau mit dem Handy scannt");
-      // Namen aus der App bleiben, wie sie dort stehen
-      expect(text("hebamme", "vorschlag-link")).toContain("„Patienten-Link“");
+      // Namen aus der App folgen dem Fach: bei der Hebamme schlicht „Link“, in der Apotheke „Kunden-Link“
+      expect(text("hebamme", "vorschlag-link")).toContain("unter „Link“");
+      expect(text("apotheke", "vorschlag-link")).toContain("„Kunden-Link“");
+    });
+
+    it("Frauenheilkunde: Patientin und Patientinnen statt Patient", () => {
+      expect(text("gyn", "patient-anlegen")).toContain("Wie lege ich eine Patientin an?");
+      expect(text("gyn", "patient-liste")).toContain("wo jede Patientin gerade steht?");
+      expect(text("gyn", "vorschlag-link")).toContain("„Patientinnen-Link“");
+      for (const e of sichtbar("gyn")) {
+        const t = hilfeText(e, woerterVon("gyn"));
+        expect(`${t.frage} ${t.antwort} ${t.pfad}`, e.id).not.toMatch(/(?<![\p{L}-])Patient(en)?(?![\p{L}-])/u);
+      }
     });
   });
   it("erkennt Meldungen in Meldungsfeldern und im Text der Seite, gibt nur Texte der Sammlung zurück", () => {

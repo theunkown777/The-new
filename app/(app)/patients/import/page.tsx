@@ -7,10 +7,12 @@ import { fachprofil } from "@/lib/fachprofile";
 import { PatientenImport } from "@/components/PatientenImport";
 import { MAX_ZEILEN } from "@/lib/patientenImport";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Liste einlesen" };
 
 export default async function PatientenImportPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const [darf, practice] = await Promise.all([
@@ -30,7 +32,7 @@ export default async function PatientenImportPage() {
         </p>
       </div>
       {!darf ? (
-        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800" data-testid="import-kein-recht">Listen einlesen kann nur die Praxisleitung (Geschäftsführung).</p>
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800" data-testid="import-kein-recht">{ft("Listen einlesen kann nur die Praxisleitung (Geschäftsführung).")}</p>
       ) : (
         <>
           {practice?.isDemo && (

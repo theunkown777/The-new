@@ -10,6 +10,7 @@ import { useKiHilfen } from "@/components/useKiHilfen";
 import { neueKatalogBezeichnung, passtZuSuche, schonUebernommen, type KatalogVorschlag } from "@/lib/katalogUebernahme";
 import { fachWoerter, preisRahmen, systemGruppe } from "@/lib/fachprofile";
 
+import { useAppText } from "@/components/FachKontext";
 /** Eigene Leistung mit den Übersetzungen für die Patientenansicht (lib/eigeneLeistung.ts). */
 type Angebot = CustomOffer & { uebersetzungen?: LeistungUebersetzungen };
 type Value = { specialty: string; medPrices: Record<string, number>; customOffers: Angebot[] };
@@ -39,6 +40,7 @@ export function SpecialtySettings({
   /** Frühere Katalog-Kategorie → heutige (für Anlässe, die eine Praxis früher übernommen hat) */
   kategorienFrueher?: Record<string, string>;
 }) {
+  const ft = useAppText();
   const [kq, setKq] = useState("");
   const ki = useKiHilfen();
   const router = useRouter();
@@ -89,7 +91,7 @@ export function SpecialtySettings({
       {message && <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{message}</p>}
       <fieldset disabled={readOnly} className="space-y-6">
         <div className="card space-y-2">
-          <label className="label" htmlFor="fach">Fachgebiet der Praxis</label>
+          <label className="label" htmlFor="fach">{ft("Fachgebiet der Praxis")}</label>
           <select id="fach" data-hilfe="fachgebiet-wahl" className="input" value={v.specialty} onChange={(e) => setV({ ...v, specialty: e.target.value })}>
             {Object.entries(SPECIALTY_LABELS).map(([id, label]) => (
               <option key={id} value={id}>{label}</option>
@@ -204,11 +206,10 @@ export function SpecialtySettings({
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <input className="input" placeholder="Kasse zahlt, wenn … (optional)" aria-label="Kasse zahlt wenn" value={c.kasseWenn ?? ""} onChange={(e) => setOffer(i, { kasseWenn: e.target.value })} />
-                  <input className="input" placeholder="Hinweis der Praxis (optional)" aria-label="Hinweis der Praxis" value={c.nutzen ?? ""} onChange={(e) => setOffer(i, { nutzen: e.target.value })} />
+                  <input className="input" placeholder={ft("Hinweis der Praxis (optional)")} aria-label={ft("Hinweis der Praxis")} value={c.nutzen ?? ""} onChange={(e) => setOffer(i, { nutzen: e.target.value })} />
                 </div>
                 <p className="text-xs text-slate-500">
-                  Der Hinweis erscheint beim Patienten als „Hinweis der Praxis“, nicht im Kasten „Zum Nutzen“. Angaben zu Nutzen oder
-                  Wirkung bitte nur mit Quelle im Text.
+                  {ft("Der Hinweis erscheint beim Patienten als „Hinweis der Praxis“, nicht im Kasten „Zum Nutzen“. Angaben zu Nutzen oder Wirkung bitte nur mit Quelle im Text.")}
                 </p>
                 <LeistungUebersetzungenFeld name={c.name} nutzen={c.nutzen} value={c.uebersetzungen} onChange={(u) => setOffer(i, { uebersetzungen: u })} ki={ki.aktiv} readOnly={readOnly} />
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm">

@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { waLink } from "@/lib/whatsapp";
 
+import { useAppText } from "@/components/FachKontext";
 type Weg = { ok: true; nummer?: string | null; adresse?: string | null } | { ok: false; grund: string };
 interface Entwurf { text: string; betreff: string; whatsapp: Weg; email: Weg }
 
@@ -11,6 +12,7 @@ interface Entwurf { text: string; betreff: string; whatsapp: Weg; email: Weg }
  * Die Praxis ändert den Text und schickt ihn selbst ab. Sorrida verschickt nichts.
  */
 export function EingangAntwort({ id }: { id: string }) {
+  const ft = useAppText();
   const feldId = useId();
   const [entwurf, setEntwurf] = useState<Entwurf | null>(null);
   const [text, setText] = useState("");
@@ -56,7 +58,7 @@ export function EingangAntwort({ id }: { id: string }) {
   const leer = text.trim().length === 0;
   return (
     <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-3" data-testid="eingang-antwort">
-      <label htmlFor={feldId} className="text-xs font-semibold text-slate-800">Antwort an die Patientin oder den Patienten</label>
+      <label htmlFor={feldId} className="text-xs font-semibold text-slate-800">{ft("Antwort an die Patientin oder den Patienten")}</label>
       <textarea id={feldId} className="input mt-1 min-h-[180px] w-full text-sm" value={text} maxLength={2000} onChange={(e) => { setText(e.target.value); setMeldung(null); }} data-testid="eingang-antwort-text" />
       <p className="mt-1 text-xs text-slate-500">
         Der Text kommt aus festen Bausteinen und enthält keinen Befund und keine Beträge. Bitte ergänzen Sie auch keine. Sorrida verschickt nichts: Sie senden die Nachricht selbst.

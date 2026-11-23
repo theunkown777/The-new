@@ -5,6 +5,7 @@ import { Haken } from "@/components/Haken";
 import { useRouter } from "next/navigation";
 import type { Stammdaten } from "@/lib/praxisStammdaten";
 
+import { useAppText } from "@/components/FachKontext";
 const FELDER: { key: keyof Stammdaten; label: string; hilfe?: string; type?: string; placeholder?: string }[] = [
   { key: "inhaber", label: "Inhaberin, Inhaber oder Rechtsform", placeholder: "z. B. Dr. Anna Beispiel oder MVZ Beispiel GmbH" },
   { key: "strasse", label: "Straße und Hausnummer" },
@@ -22,6 +23,7 @@ const FELDER: { key: keyof Stammdaten; label: string; hilfe?: string; type?: str
 
 /** Einstellungen: Angaben der Praxis, die Patienten im Portal, im Patienten-Link, im Anamnesebogen und in E-Mails sehen. */
 export function PraxisStammdaten({ start, fehlt, beispiele }: { start: Stammdaten; fehlt: string[]; beispiele: { berufsbezeichnung: string; aufsicht: string } }) {
+  const ft = useAppText();
   const router = useRouter();
   const [f, setF] = useState<Stammdaten>(start);
   const [busy, setBusy] = useState(false);
@@ -42,14 +44,13 @@ export function PraxisStammdaten({ start, fehlt, beispiele }: { start: Stammdate
     <form onSubmit={save} className="card space-y-4" data-testid="praxis-stammdaten" data-hilfe="praxis-angaben">
       {fehlt.length > 0 && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="stammdaten-fehlt">
-          <b>Es fehlt noch:</b> {fehlt.join(", ")}. Gegenüber Ihren Patienten sind Sie der Anbieter des Portals. Diese Angaben gehören deshalb auf
-          jede Seite, die Ihre Patienten sehen.
+          <b>Es fehlt noch:</b> {ft(fehlt.join(", "))}{ft(". Gegenüber Ihren Patienten sind Sie der Anbieter des Portals. Diese Angaben gehören deshalb auf jede Seite, die Ihre Patienten sehen.")}
         </p>
       )}
       <div className="grid gap-4 sm:grid-cols-2">
         {FELDER.map((f0) => ({ ...f0, ...(f0.key === "berufsbezeichnung" ? { placeholder: beispiele.berufsbezeichnung } : f0.key === "aufsicht" ? { hilfe: beispiele.aufsicht } : {}) })).map((x) => (
           <label key={x.key} className="block text-sm text-slate-700">
-            {x.label}
+            {ft(x.label)}
             <input
               className="input mt-1 w-full"
               type={x.type ?? "text"}
@@ -58,7 +59,7 @@ export function PraxisStammdaten({ start, fehlt, beispiele }: { start: Stammdate
               onChange={(e) => setF({ ...f, [x.key]: e.target.value })}
               data-testid={`stammdaten-${x.key}`}
             />
-            {x.hilfe && <span className="mt-1 block text-xs text-slate-500">{x.hilfe}</span>}
+            {x.hilfe && <span className="mt-1 block text-xs text-slate-500">{ft(x.hilfe)}</span>}
           </label>
         ))}
       </div>

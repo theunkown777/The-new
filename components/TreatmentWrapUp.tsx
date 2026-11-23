@@ -9,6 +9,7 @@ import { abschlussWort, fachprofil } from "@/lib/fachprofile";
 import type { AnamnesisSummary } from "@/lib/anamnesisView";
 import type { MedInput, Prices, ProposalInput } from "@/lib/proposals";
 
+import { useAppText } from "@/components/FachKontext";
 type PatientOption = {
   id: string;
   firstName: string;
@@ -42,6 +43,7 @@ export function TreatmentWrapUp({
   fach?: string;
   med?: MedInput;
 }) {
+  const ft = useAppText();
   const proposal = useRef<{ input: ProposalInput; choices: Record<string, string> } | null>(null);
 
   async function afterReport(reportId: string): Promise<string> {
@@ -81,10 +83,10 @@ export function TreatmentWrapUp({
         <details className="card group p-0">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-4">
             <span>
-              <span className="font-medium text-slate-900">{isDental(fach) ? "Befunde für Behandlungsvorschlag" : "Anlässe für Vorschlag und Patienteninformation"}</span>
+              <span className="font-medium text-slate-900">{isDental(fach) ? ft("Befunde für Behandlungsvorschlag") : ft("Anlässe für Vorschlag und Patienteninformation")}</span>
               <span className="ml-2 text-sm text-slate-500">optional</span>
               <span className="mt-0.5 block text-sm text-slate-500">
-                {isDental(fach) ? "Zähne mit Befund anklicken. Sorrida erstellt daraus Vorschlag, Patientenschreiben und die nötigen Anträge auf der To-do-Liste." : "Anlässe ankreuzen. Sorrida zeigt Kassenleistung und Selbstzahlerleistungen mit Preis und erstellt die Patienteninformation."}
+                {isDental(fach) ? ft("Zähne mit Befund anklicken. Sorrida erstellt daraus Vorschlag, Patientenschreiben und die nötigen Anträge auf der To-do-Liste.") : ft("Anlässe ankreuzen. Sorrida zeigt Kassenleistung und Selbstzahlerleistungen mit Preis und erstellt die Patienteninformation.")}
               </span>
             </span>
             <span className="text-sm font-medium text-brand-600 group-open:hidden">Befunde eintragen</span>

@@ -10,8 +10,10 @@ import { scheibeBauplan } from "./drei/scheibeBau";
 import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
+import { useAppText } from "@/components/FachKontext";
 /** Auge, Ohr oder Haut im Querschnitt: Teil antippen, Erklärung lesen, als Praxis für den Patienten markieren. */
 export function SchnittModellAnsicht({ modell, markierungen = [], patientId, einspaltig = false }: { modell: SchnittId; markierungen?: Markierung[]; patientId?: string; einspaltig?: boolean }) {
+  const ft = useAppText();
   const t = useT();
   const m = SCHNITTMODELLE[modell];
   const marken = useMarkierungen(modell, markierungen, patientId);
@@ -61,7 +63,7 @@ export function SchnittModellAnsicht({ modell, markierungen = [], patientId, ein
       <div className="min-w-0">
         {marken.liste.length > 0 && (
           <div className="mb-3 rounded-xl border border-orange-200 bg-orange-50 p-3" data-testid="modell-markierte">
-            <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? "Für diesen Patienten markiert" : t("Von Ihrer Praxis markiert")}</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? ft("Für diesen Patienten markiert") : t("Von Ihrer Praxis markiert")}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {marken.liste.map((x) => <button key={x.teil} type="button" onClick={() => waehlen(x.teil, true)} className="rounded-full bg-white px-3 py-1.5 text-sm text-orange-950 ring-1 ring-orange-300 hover:bg-orange-100" data-testid="modell-marke">{t(m.teile.find((y) => y.id === x.teil)?.name ?? x.teil)}</button>)}
             </div>

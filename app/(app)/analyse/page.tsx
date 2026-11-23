@@ -11,6 +11,7 @@ import { AnalyseExplorer } from "@/components/AnalyseExplorer";
 import { canSeeAnalytics } from "@/lib/permissions";
 import { AUSWERTUNG_TAGE, auswertung } from "@/lib/rueckmeldung";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Analyse" };
 
@@ -33,6 +34,7 @@ const STUFE: Record<Risk["stufe"], { label: string; cls: string; dot: string }> 
 
 
 export default async function AnalysePage(props: { searchParams: Promise<{ tage?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   // Umsätze und Risiken sind Sache der Geschäftsführung: Mitarbeitende sehen
@@ -43,8 +45,7 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
       <div className="mx-auto max-w-xl py-10 text-center" data-testid="analyse-gesperrt">
         <h1 className="font-display text-3xl text-slate-900">Analyse nur für die Geschäftsführung</h1>
         <p className="mt-3 text-slate-600">
-          Umsätze, Annahmequoten und Risiken der Praxis sieht die Geschäftsführung. Wenn Sie die Analyse brauchen, bitten Sie sie, Ihnen die
-          Freigabe unter Einstellungen → Team zu erteilen.
+          {ft("Umsätze, Annahmequoten und Risiken der Praxis sieht die Geschäftsführung. Wenn Sie die Analyse brauchen, bitten Sie sie, Ihnen die Freigabe unter Einstellungen → Team zu erteilen.")}
         </p>
         <Link href="/dashboard" className="btn-primary mt-6 inline-block">Zur Übersicht</Link>
       </div>
@@ -200,7 +201,7 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
       <section className="card" id="rueckmeldungen" data-testid="rueckmeldungen">
         <h2 className="font-semibold text-slate-900">Rückmeldungen nach dem Termin</h2>
         <p className="mt-1 text-sm text-slate-600">
-          „Wie zufrieden waren Sie mit Ihrem Besuch?“ aus dem Patientenportal, letzte {rueck.tage} Tage. Ohne Namen; gezeigt wird erst ab {rueck.mindestens} Antworten.{" "}
+          {ft("„Wie zufrieden waren Sie mit Ihrem Besuch?“ aus dem Patientenportal, letzte ")}{rueck.tage} Tage. Ohne Namen; gezeigt wird erst ab {rueck.mindestens} Antworten.{" "}
           <Link href="/settings/rueckmeldung" className="text-brand-700 underline">Einstellungen</Link>
         </p>
         {rueck.genug ? (
@@ -223,7 +224,7 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
               </ul>
             </div>
             <div>
-              <p className="text-sm text-slate-500">Was Patienten dazu geschrieben haben</p>
+              <p className="text-sm text-slate-500">{ft("Was Patienten dazu geschrieben haben")}</p>
               {rueck.texte.length ? (
                 <ul className="mt-2 max-h-80 space-y-2 overflow-y-auto" data-testid="rueckmeldungen-texte">
                   {rueck.texte.map((x, i) => (
@@ -246,8 +247,7 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
       </section>
 
       <p className="text-xs text-slate-500">
-        Umsatz = Preise der gewählten Optionen in angenommenen Vorschlägen, nach Ihren hinterlegten Preisen. Abgerechnet wird weiter über Ihre Praxissoftware;
-        die Zahlen zeigen Muster, keine Buchhaltung.
+        {ft("Umsatz = Preise der gewählten Optionen in angenommenen Vorschlägen, nach Ihren hinterlegten Preisen. Abgerechnet wird weiter über Ihre Praxissoftware; die Zahlen zeigen Muster, keine Buchhaltung.")}
       </p>
     </div>
   );

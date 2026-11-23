@@ -593,7 +593,8 @@ describe("Eigene Angaben mitnehmen: keine Verbindung auf dem Server", () => {
     expect(sicht).toMatch(/vorbefuelltStand: done\?\.vorbefuelltStand \? done\.vorbefuelltStand\.toISOString\(\)\.slice\(0, 10\) : null/);
     // Der Hinweis steht bei den Hinweisen aus der Anamnese: in der Akte, beim Abschluss und in der Einbettung.
     const hinweis = ohneKommentare(lies("components/AnamnesisFlags.tsx")).replace(/\s+/g, " ");
-    expect(hinweis).toContain("Teilweise mit gespeicherten Angaben des Patienten vorausgefüllt (Stand {tagFmt(vorbefuelltStand)}), vom Patienten geprüft.");
+    expect(hinweis).toContain("Teilweise mit gespeicherten Angaben des Patienten vorausgefüllt (Stand ");
+    expect(hinweis).toContain("), vom Patienten geprüft.");
     expect(hinweis.replace('data-testid="anamnese-vorbefuellt"', "").match(/vorbefuellt\w*/g)?.every((w) => w === "vorbefuelltStand")).toBe(true);
     expect(ohneKommentare(lies("components/AnamnesisPanel.tsx"))).toContain("vorbefuelltStand={summary.vorbefuelltStand}");
     expect(ohneKommentare(lies("components/TreatmentWrapUp.tsx"))).toContain("vorbefuelltStand={anamnesis.vorbefuelltStand}");

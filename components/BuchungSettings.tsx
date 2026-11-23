@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WOCHENTAGE, type Sprechzeiten } from "@/lib/buchung";
 
+import { useAppText } from "@/components/FachKontext";
 type Vorschau = { tag: string; name: string; zeiten: string[] }[];
 type Props = {
   admin: boolean;
@@ -19,6 +20,7 @@ const TAGE = ["1", "2", "3", "4", "5", "6", "7"] as const;
 
 /** Online-Termine: Sprechzeiten, Regeln, Kalender der Praxis übertragen, Sorrida-Termine im eigenen Kalender. */
 export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, demo, personPl = "Patienten" }: Props) {
+  const ft = useAppText();
   const router = useRouter();
   const [aktiv, setAktiv] = useState(start.buchungAktiv);
   const [zeiten, setZeiten] = useState<Sprechzeiten>(start.sprechzeiten);
@@ -92,14 +94,13 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
             <select className="input" value={voraus} disabled={!admin} onChange={(e) => setVoraus(Number(e.target.value))}>{[[7, "1 Woche"], [14, "2 Wochen"], [28, "4 Wochen"], [56, "8 Wochen"], [90, "3 Monate"]].map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></label>
         </div>
         <p className="text-xs text-slate-500">
-          Gleichzeitig buchbar: {plaetze} {plaetze === 1 ? "Termin" : "Termine"} (Behandlungsplätze Ihrer Standorte, änderbar unter Einstellungen → Standorte). Bundesweite Feiertage sind automatisch gesperrt;
-          regionale Feiertage, Urlaub und Fortbildungen tragen Sie als ganztägigen Eintrag in Ihren Kalender ein.
+          Gleichzeitig buchbar: {plaetze} {plaetze === 1 ? "Termin" : "Termine"} {ft("(Behandlungsplätze Ihrer Standorte, änderbar unter Einstellungen → Standorte). Bundesweite Feiertage sind automatisch gesperrt; regionale Feiertage, Urlaub und Fortbildungen tragen Sie als ganztägigen Eintrag in Ihren Kalender ein.")}
         </p>
         {admin && <button type="button" className="btn-primary" disabled={busy === "speichern"} onClick={speichern} data-testid="buchung-speichern">{busy === "speichern" ? "Speichert …" : "Speichern"}</button>}
       </section>
 
       <section className="card space-y-3" aria-labelledby="b-kalender" data-hilfe="kalender-uebertragen">
-        <h2 id="b-kalender" className="font-semibold text-slate-900">2. Kalender der Praxis übertragen</h2>
+        <h2 id="b-kalender" className="font-semibold text-slate-900">{ft("2. Kalender der Praxis übertragen")}</h2>
         <p className="text-sm text-slate-600">
           Damit niemand eine Zeit bucht, die in Ihrem Kalender schon belegt ist, liest Sorrida Ihren Kalender mit. Übernommen werden <b>nur Beginn und Ende</b> der Einträge,
           keine Namen, Titel oder Notizen. Dafür braucht Ihr Kalender eine Adresse im Format iCalendar (ICS). Dieses Format geben zum Beispiel Google, Outlook und Apple aus.
@@ -136,7 +137,7 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
             <li><b>Google Kalender:</b> Einstellungen → Kalender auswählen → „Privatadresse im iCal-Format“.</li>
             <li><b>Outlook / Microsoft 365:</b> Einstellungen → Kalender → Freigegebene Kalender → „Kalender veröffentlichen“ → ICS-Link.</li>
             <li><b>Apple iCloud:</b> Kalender → Freigabe → „Öffentlicher Kalender“ → Link kopieren.</li>
-            <li><b>Praxisprogramm:</b> Bietet es einen Kalender-Export oder ein Kalender-Abo (iCal, ICS) an, nehmen Sie diese Adresse oder laden die exportierte Datei hoch. Fragen Sie sonst den Support nach „iCal-Export“.</li>
+            <li><b>{ft("Praxisprogramm:")}</b> Bietet es einen Kalender-Export oder ein Kalender-Abo (iCal, ICS) an, nehmen Sie diese Adresse oder laden die exportierte Datei hoch. Fragen Sie sonst den Support nach „iCal-Export“.</li>
           </ul>
         </details>
       </section>

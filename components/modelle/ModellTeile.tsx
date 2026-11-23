@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Form } from "@/lib/modelle/formen";
 import { useT } from "./Sprache";
 
+import { useAppText } from "@/components/FachKontext";
 export type Markierung = { teil: string; notiz: string; befund?: string | null };
 
 /** Farben für gewählte und von der Praxis markierte Teile (in beiden Modellen gleich). */
@@ -83,17 +84,18 @@ export function ZoomTasten({ zoom }: { zoom: { vergroessern: () => void; verklei
 
 /** Praxisansicht: Teil für den Patienten markieren, mit kurzem Hinweis. Mit `befunde` (Gebiss) lässt sich der Befund für den Behandlungsvorschlag wählen. */
 export function MarkierFeld({ teil, marken, platzhalter, befunde }: { teil: string; marken: ReturnType<typeof useMarkierungen>; platzhalter: string; befunde?: Record<string, string> }) {
+  const ft = useAppText();
   const vorhanden = marken.notizVon(teil);
   const [notiz, setNotiz] = useState(vorhanden ?? "");
   const [befund, setBefund] = useState(marken.befundVon(teil) ?? "");
   if (!marken.bearbeitbar) return null;
   return (
     <div className="mt-3 rounded-xl bg-brand-50 p-3" data-testid="modell-markieren">
-      <label className="block text-xs font-medium text-brand-800" htmlFor={`notiz-${teil}`}>Für die Patientin oder den Patienten markieren</label>
+      <label className="block text-xs font-medium text-brand-800" htmlFor={`notiz-${teil}`}>{ft("Für die Patientin oder den Patienten markieren")}</label>
       <textarea id={`notiz-${teil}`} className="input mt-1.5 text-sm" rows={2} maxLength={300} value={notiz} onChange={(e) => setNotiz(e.target.value)} placeholder={platzhalter} />
       {befunde && (
         <label className="mt-2 block text-xs font-medium text-brand-800">
-          Befund für den Behandlungsvorschlag (sieht nur die Praxis)
+          {ft("Befund für den Behandlungsvorschlag (sieht nur die Praxis)")}
           <select className="input mt-1.5 text-sm" value={befund} onChange={(e) => setBefund(e.target.value)} data-testid="modell-befund">
             <option value="">kein Befund</option>
             {Object.entries(befunde).map(([k, name]) => <option key={k} value={k}>{name}</option>)}
@@ -108,7 +110,7 @@ export function MarkierFeld({ teil, marken, platzhalter, befunde }: { teil: stri
           <button type="button" className="btn-secondary text-sm" disabled={marken.laeuft} onClick={() => { marken.entfernen(teil); setNotiz(""); setBefund(""); }} data-testid="modell-markierung-entfernen">Markierung entfernen</button>
         )}
       </div>
-      <p className="mt-2 text-xs text-slate-500">Markierung und Hinweis erscheinen im Patientenlink (Patientenportal).</p>
+      <p className="mt-2 text-xs text-slate-500">{ft("Markierung und Hinweis erscheinen im Patientenlink (Patientenportal).")}</p>
       {marken.fehler && <p className="mt-1 text-xs text-red-700" role="alert">{marken.fehler}</p>}
     </div>
   );
@@ -120,6 +122,7 @@ export function MehrfachFeld({ gewaehlt, marken, onFertig, onEntfernen, platzhal
   /** Befund-Auswahl, wenn sie für alle gewählten Stellen möglich ist (bleibende Zähne) */
   befunde?: Record<string, string>; wort?: string;
 }) {
+  const ft = useAppText();
   const [notiz, setNotiz] = useState("");
   const [befund, setBefund] = useState("");
   return (
@@ -136,7 +139,7 @@ export function MehrfachFeld({ gewaehlt, marken, onFertig, onEntfernen, platzhal
       <textarea id="notiz-mehrfach" className="input mt-1.5 text-sm" rows={2} maxLength={300} value={notiz} onChange={(e) => setNotiz(e.target.value)} placeholder={platzhalter} />
       {befunde && (
         <label className="mt-2 block text-xs font-medium text-brand-800">
-          Befund für den Behandlungsvorschlag (sieht nur die Praxis)
+          {ft("Befund für den Behandlungsvorschlag (sieht nur die Praxis)")}
           <select className="input mt-1.5 text-sm" value={befund} onChange={(e) => setBefund(e.target.value)} data-testid="modell-mehrfach-befund">
             <option value="">kein Befund</option>
             {Object.entries(befunde).map(([k, name]) => <option key={k} value={k}>{name}</option>)}

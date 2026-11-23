@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { useAppText } from "@/components/FachKontext";
 type E = { beraternummer?: number; mandantennummer?: number; sachkontenlaenge?: number; erloeskonto?: number; bankkonto?: number; geldtransit?: number; debitor?: number; kontenrahmen?: "03" | "04" };
 
 const monat = (d: Date, letzter = false) => {
@@ -11,6 +12,7 @@ const monat = (d: Date, letzter = false) => {
 
 /** DATEV-Export auf der Zahlungsseite: Einstellungen und Download des Buchungsstapels. */
 export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | null; istAdmin: boolean }) {
+  const ft = useAppText();
   const vormonat = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
   const [von, setVon] = useState(monat(vormonat));
   const [bis, setBis] = useState(monat(vormonat, true));
@@ -19,7 +21,7 @@ export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | nu
   const [msg, setMsg] = useState("");
 
   if (!istAdmin)
-    return <p className="text-sm text-slate-500">Den DATEV-Export für die Steuerberatung erstellt ein Admin der Praxis.</p>;
+    return <p className="text-sm text-slate-500">{ft("Den DATEV-Export für die Steuerberatung erstellt ein Admin der Praxis.")}</p>;
 
   async function speichern(ev: React.FormEvent) {
     ev.preventDefault();

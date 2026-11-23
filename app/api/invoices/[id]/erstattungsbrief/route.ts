@@ -4,6 +4,7 @@ import { requireRecht } from "@/lib/permissions";
 import { auditFromSession } from "@/lib/audit";
 import { consumeAttempt } from "@/lib/rateLimit";
 import { buildErstattungsbriefPdf } from "@/lib/pdf";
+import { briefOrdnungFuer } from "@/lib/abrechnungsarten";
 import { briefDateiname, briefMoeglich, briefSchema, briefText } from "@/lib/erstattungsbrief";
 
 export const dynamic = "force-dynamic";
@@ -29,13 +30,18 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
   const invoice = await prisma.invoice.findFirst({
     where: { id: params.id, practiceId },
-    select: { id: true, number: true, createdAt: true, status: true, practice: { select: { name: true } }, patient: { select: { firstName: true, lastName: true, insuranceType: true } } },
+    select: { id: true, number: true, createdAt: true, status: true, practice: { select: { name: true, specialty: true } }, patient: { select: { firstName: true, lastName: true, insuranceType: true } } },
   });
   if (!invoice) return NextResponse.json({ error: "Rechnung nicht gefunden" }, { status: 404 });
   if (invoice.status === "STORNIERT") return NextResponse.json({ error: "Die Rechnung ist storniert." }, { status: 409 });
   if (!briefMoeglich(invoice.patient.insuranceType)) {
     return NextResponse.json({ error: "Den Begleitbrief gibt es für Rechnungen an privat Versicherte. Bitte prüfen Sie die Versicherungsart in den Stammdaten." }, { status: 409 });
   }
+
+  // Den Brief gibt es nur, wo das Fach nach GOÄ oder GOZ abrechnet; die GOZ nur in der Zahnmedizin.
+  const ordnung = briefOrdnungFuer(invoice.practice.specialty);
+  if (!ordnung) return NextResponse.json({ error: "Den Begleitbrief gibt es nur für Rechnungen nach GOÄ oder GOZ." }, { status: 409 });
+  if (parsed.data.gebuehrenordnung === "GOZ" && ordnung !== "GOZ") return NextResponse.json({ error: "Die GOZ gilt nur für zahnärztliche Rechnungen." }, { status: 400 });
 
   const brief = briefText(parsed.data, {
     patientName: `${invoice.patient.firstName} ${invoice.patient.lastName}`,

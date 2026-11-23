@@ -17,9 +17,10 @@ import { OnlineZahlungEinrichten } from "@/components/OnlineZahlungEinrichten";
 import { onlineZahlungStatus } from "@/lib/onlineZahlung";
 import { darfZahlungen } from "@/lib/permissions";
 import { briefMoeglich } from "@/lib/erstattungsbrief";
-import { DENTAL_ID } from "@/lib/specialties";
+import { briefOrdnungFuer } from "@/lib/abrechnungsarten";
 import { fachWoerter } from "@/lib/fachprofile";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Zahlungen" };
 
@@ -46,6 +47,7 @@ function Status({ tone, label }: { tone: string; label: string }) {
 }
 
 export default async function ZahlungenPage(props: { searchParams: Promise<{ f?: string; stripe?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
@@ -54,7 +56,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
     return (
       <div className="mx-auto max-w-xl space-y-3" data-testid="zahlungen-kein-recht">
         <h1 className="font-display text-3xl text-slate-900">Zahlungen</h1>
-        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben. Die Praxisleitung kann das unter Einstellungen → Team ändern.</p>
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{ft("Zahlungen und Rechnungen sind für Ihr Konto nicht freigegeben. Die Praxisleitung kann das unter Einstellungen → Team ändern.")}</p>
       </div>
     );
   }
@@ -94,9 +96,11 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
   const isAdmin = session!.user.role === "admin";
   const fmtDate = (d: Date) => d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric" });
   // Begleitbrief an die Versicherung: nur bei privat Versicherten (lib/erstattungsbrief.ts).
+  // Und nur, wo das Fach nach GOÄ oder GOZ abrechnet: Sonst gibt es keinen Steigerungssatz zu begründen.
+  const briefOrdnung = briefOrdnungFuer(practice?.specialty);
   const briefFuer = (i: (typeof list)[number]) =>
-    briefMoeglich(i.patient.insuranceType)
-      ? { patientName: `${i.patient.firstName} ${i.patient.lastName}`, rechnungNummer: i.number, rechnungDatum: fmtDate(i.createdAt), versicherung: i.patient.insuranceName ?? "", versicherungsnummer: i.patient.insuranceNumber ?? "", gebuehrenordnung: practice?.specialty === DENTAL_ID ? ("GOZ" as const) : ("GOAE" as const) }
+    briefOrdnung && briefMoeglich(i.patient.insuranceType)
+      ? { patientName: `${i.patient.firstName} ${i.patient.lastName}`, rechnungNummer: i.number, rechnungDatum: fmtDate(i.createdAt), versicherung: i.patient.insuranceName ?? "", versicherungsnummer: i.patient.insuranceNumber ?? "", gebuehrenordnung: briefOrdnung }
       : undefined;
 
   return (
@@ -105,7 +109,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
         <div>
           <h1 className="font-display text-3xl text-slate-900">Zahlungen</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-600">
-            Rechnungen für Eigenanteile und Selbstzahlerleistungen. Patienten sehen sie auf ihrem Behandlungsweg am Handy und überweisen per GiroCode direkt auf Ihr Konto.
+            {ft("Rechnungen für Eigenanteile und Selbstzahlerleistungen. Patienten sehen sie auf ihrem Behandlungsweg am Handy und überweisen per GiroCode direkt auf Ihr Konto.")}
           </p>
         </div>
       </div>
@@ -129,14 +133,14 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
         <div className="card">
           <p className="text-sm text-slate-500">Bezahlt diesen Monat</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-emerald-800">{formatCent(t.bezahltMonatCent)}</p>
-          <p className="mt-1 text-xs text-slate-500">nach Bestätigung durch die Praxis</p>
+          <p className="mt-1 text-xs text-slate-500">{ft("nach Bestätigung durch die Praxis")}</p>
         </div>
       </div>
 
       {!practice?.iban && (
         <section className="card border-amber-200 bg-amber-50">
           <h2 className="font-semibold text-slate-900">Bankverbindung hinterlegen</h2>
-          <p className="mb-4 mt-1 text-sm text-slate-600">Damit {w.personen} im Portal per GiroCode zahlen können. Das Geld geht direkt auf Ihr Praxiskonto, Sorrida berührt es nicht.</p>
+          <p className="mb-4 mt-1 text-sm text-slate-600">Damit {w.personen} {ft("im Portal per GiroCode zahlen können. Das Geld geht direkt auf Ihr Praxiskonto, Sorrida berührt es nicht.")}</p>
           <BankSettings initial={{ accountHolder: practice?.name ?? "", iban: "", bic: "" }} readOnly={!isAdmin} />
         </section>
       )}

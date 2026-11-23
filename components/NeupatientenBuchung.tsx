@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { einbettung } from "@/lib/terminEinbettung";
 
+import { useAppText } from "@/components/FachKontext";
 // Einstellungen: Terminbuchung für neue Patienten. Schalter, Anlässe, Link und Einbettungs-Code
 // für die Website der Praxis (Knopf oder Rahmen).
 export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschlaege, stammdatenFehlt = [], personPl = "Patienten" }: {
@@ -16,6 +17,7 @@ export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschla
   /** Übliche Terminanlässe des Fachs, zum schnellen Übernehmen */
   vorschlaege: string[];
 }) {
+  const ft = useAppText();
   const router = useRouter();
   const [aktiv, setAktiv] = useState(start.aktiv);
   const [anlaesse, setAnlaesse] = useState(start.anlaesse.join("\n"));
@@ -60,9 +62,9 @@ export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschla
       {!buchungAktiv && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Dafür müssen oben „Online-Termine anbieten“ eingeschaltet und Sprechzeiten gespeichert sein.</p>}
       {stammdatenFehlt.length > 0 && (
         <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900" data-testid="neupatienten-stammdaten-fehlen">
-          Die Buchungsseite zeigt neuen {personPl}, wer Ihre Praxis ist und wo Ihre Datenschutzhinweise stehen. Es fehlt noch: {stammdatenFehlt.join(" und ")}.{" "}
+          Die Buchungsseite zeigt neuen {personPl}{ft(", wer Ihre Praxis ist und wo Ihre Datenschutzhinweise stehen. Es fehlt noch: ")}{stammdatenFehlt.join(" und ")}.{" "}
           {demo ? "Im Gastzugang lässt sich die Seite trotzdem ausprobieren." : "Vorher lässt sich die Seite nicht einschalten."}{" "}
-          <a href="/settings/praxis" className="font-medium underline">Angaben der Praxis eintragen</a>
+          <a href="/settings/praxis" className="font-medium underline">{ft("Angaben der Praxis eintragen")}</a>
         </p>
       )}
 
@@ -100,8 +102,7 @@ export function NeupatientenBuchung({ admin, demo, buchungAktiv, start, vorschla
             <button type="button" className="btn btn-secondary mt-2 text-sm" onClick={() => kopieren("rahmen", code.rahmen)} data-testid="neupatienten-rahmen-kopieren">{kopiert === "rahmen" ? "Kopiert" : "Rahmen-Code kopieren"}</button>
           </div>
           <p className="text-xs text-slate-500">
-            Den Code fügt ein, wer Ihre Website betreut. Die Seite steht nicht in Suchmaschinen und lädt nichts von fremden Diensten.
-            Schutz vor Missbrauch: höchstens 5 Anfragen je Stunde von einem Anschluss und 40 am Tag für Ihre Praxis.
+            {ft("Den Code fügt ein, wer Ihre Website betreut. Die Seite steht nicht in Suchmaschinen und lädt nichts von fremden Diensten. Schutz vor Missbrauch: höchstens 5 Anfragen je Stunde von einem Anschluss und 40 am Tag für Ihre Praxis.")}
           </p>
           {admin && <button type="button" className="ziel text-xs text-slate-500 underline" disabled={busy} onClick={() => { if (confirm("Neuen Link erzeugen? Der bisherige Link und eingebauter Code funktionieren dann nicht mehr.")) sende({ aktion: "neue-kennung" }, "Neuer Link erzeugt. Bitte den Code auf Ihrer Website ersetzen."); }} data-testid="neupatienten-neuer-link">Neuen Link erzeugen (alter wird ungültig)</button>}
         </div>

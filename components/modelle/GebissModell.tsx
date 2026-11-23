@@ -14,6 +14,7 @@ import { MUND_HINWEIS, mundTeil } from "@/lib/modelle/mund";
 import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
 import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
+import { useAppText } from "@/components/FachKontext";
 const BASIS_BOGEN = { x: 0, y: 0, w: GEBISS_BREITE, h: GEBISS_HOEHE };
 const BASIS_SCHNITT = { x: SCHNITT.x, y: SCHNITT.y, w: SCHNITT.b, h: SCHNITT.h };
 const MATERIAL: Record<Material, { flaeche: string; rand: string }> = {
@@ -32,6 +33,7 @@ type Reiter = "zaehne" | "aufbau" | "instrumente";
  * Mit patientId kann die Praxis Zähne für den Patienten markieren.
  */
 export function GebissModell({ markierungen = [], patientId, start = "zaehne", einspaltig = false, befunde }: { markierungen?: Markierung[]; patientId?: string; start?: Reiter; einspaltig?: boolean; befunde?: Record<string, string> }) {
+  const ft = useAppText();
   const marken = useMarkierungen("gebiss", markierungen, patientId);
   const t = useT();
   const [reiter, setReiter] = useState<Reiter>(start);
@@ -177,7 +179,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
           <div className="min-w-0">
             {marken.liste.length > 0 && (
               <div className="mb-3 rounded-xl border border-orange-200 bg-orange-50 p-3" data-testid="modell-markierte">
-                <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? "Für diesen Patienten markiert" : t("Von Ihrer Praxis markiert")}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? ft("Für diesen Patienten markiert") : t("Von Ihrer Praxis markiert")}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {[...marken.liste].sort((a, b) => Number(a.teil) - Number(b.teil)).map((m) => (
                     <button key={m.teil} type="button" onClick={() => zahnWaehlen(Number(m.teil), true)} className="rounded-full bg-white px-3 py-1.5 text-sm text-orange-950 ring-1 ring-orange-300 hover:bg-orange-100" data-testid="modell-marke">{t("Zahn {nr}", { nr: m.teil })}</button>
@@ -191,7 +193,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                 {/* Nur in der Zahnarztpraxis (dort kommen die Befunde mit): Der Zahn-Vorschlag übernimmt die markierten Zähne. */}
                 {befunde && zumVorschlag.length > 0 && (
                   <a href={`/proposals/new?patientId=${patientId}&modell=1`} className="font-medium text-brand-700 hover:underline" data-testid="modell-zum-vorschlag">
-                    Behandlungsvorschlag aus {zumVorschlag.length === 1 ? "dem markierten Zahn" : `den ${zumVorschlag.length} markierten Zähnen`} →
+                    {ft("Behandlungsvorschlag aus ")}{zumVorschlag.length === 1 ? "dem markierten Zahn" : `den ${zumVorschlag.length} markierten Zähnen`} →
                   </a>
                 )}
               </div>

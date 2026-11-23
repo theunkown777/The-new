@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ANSICHT_SCHLUESSEL, ansichtAus, ansichtSpeicherwert, type Ansicht } from "@/lib/ansicht";
 
+import { useAppText } from "@/components/FachKontext";
 const lesen = (): Ansicht => {
   try {
     return ansichtAus(window.localStorage.getItem(ANSICHT_SCHLUESSEL));
@@ -22,6 +23,7 @@ export function AnsichtWaechter() {
 
 /** Schalter „Dunkle Ansicht (Beta)“: gilt für diesen Browser, gespeichert nur auf ausdrückliche Wahl. */
 export function AnsichtSchalter() {
+  const ft = useAppText();
   const [ansicht, setAnsicht] = useState<Ansicht>("hell");
   useEffect(() => {
     setAnsicht(lesen());
@@ -45,7 +47,7 @@ export function AnsichtSchalter() {
         <p id="ansicht-titel" className="font-medium text-slate-900">
           Dunkle Ansicht <span className="ml-1 rounded-full border border-slate-300 px-2 py-0.5 text-xs font-normal text-slate-600">Beta</span>
         </p>
-        <p className="mt-0.5 text-sm text-slate-600">Dunkler Hintergrund für die App, zum Beispiel am Abend. Gilt nur in diesem Browser. Website und Patientenseiten bleiben hell.</p>
+        <p className="mt-0.5 text-sm text-slate-600">{ft("Dunkler Hintergrund für die App, zum Beispiel am Abend. Gilt nur in diesem Browser. Website und Patientenseiten bleiben hell.")}</p>
       </div>
       <button
         type="button"

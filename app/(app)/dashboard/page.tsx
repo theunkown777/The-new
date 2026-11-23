@@ -23,7 +23,9 @@ import { eingangOffen } from "@/lib/eingang";
 import { ungeoeffnetTun } from "@/lib/nachfassen";
 import { RundgangHinweis } from "@/components/RundgangHinweis";
 
+import { praxisText } from "@/lib/praxisFach";
 export default async function DashboardPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
 
@@ -131,7 +133,7 @@ export default async function DashboardPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-3xl text-slate-900">Heute in Ihrer Praxis</h1>
+          <h1 className="font-display text-3xl text-slate-900">{ft("Heute in Ihrer Praxis")}</h1>
           <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500">
             <Laechelbogen className="h-2 w-8 text-brand-600" />
             {heute ? `${heute} ${heute === 1 ? `${P.sg} braucht` : `${P.pl} brauchen`} heute Ihre Aufmerksamkeit` : "Heute ist nichts liegen geblieben"}
