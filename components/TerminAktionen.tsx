@@ -6,11 +6,13 @@ import type { TerminStatus } from "@/lib/termine";
 import { MailSenden } from "@/components/MailSenden";
 import { WhatsappSenden } from "@/components/WhatsappSenden";
 
+import { useAppText } from "@/components/FachKontext";
 // Status setzen und Bestätigung/Erinnerung als Text kopieren. Sorrida
 // verschickt nichts selbst; „kopiert“ wird als „verschickt am“ gemerkt.
 export function TerminAktionen({ id, status, bestaetigung, erinnerung, confirmedAt, remindedAt, mail = false, whatsapp = false, whatsappDirekt = false }: {
   id: string; status: TerminStatus; bestaetigung: string; erinnerung: string; confirmedAt: string | null; remindedAt: string | null; mail?: boolean; whatsapp?: boolean; whatsappDirekt?: boolean;
 }) {
+  const ft = useAppText();
   const router = useRouter();
   const [hinweis, setHinweis] = useState<string | null>(null);
 
@@ -50,7 +52,7 @@ export function TerminAktionen({ id, status, bestaetigung, erinnerung, confirmed
               <summary className={`${chip} inline-flex cursor-pointer list-none text-slate-600`} data-testid="termin-mehr">Mehr</summary>
               <div className="z-10 mt-1 flex w-full flex-col sm:absolute sm:left-0 sm:w-52 flex-col rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
                 {confirmedAt && <button type="button" className="rounded-lg px-3 py-1.5 text-left hover:bg-slate-50" onClick={() => kopieren(bestaetigung, "bestaetigung")} data-testid="termin-bestaetigung">Bestätigung erneut kopieren</button>}
-                {status === "GEPLANT" && <button type="button" className="rounded-lg px-3 py-1.5 text-left hover:bg-slate-50" onClick={() => patch({ status: "BESTAETIGT" })}>Patient hat zugesagt</button>}
+                {status === "GEPLANT" && <button type="button" className="rounded-lg px-3 py-1.5 text-left hover:bg-slate-50" onClick={() => patch({ status: "BESTAETIGT" })}>{ft("Patient hat zugesagt")}</button>}
                 <button type="button" className="rounded-lg px-3 py-1.5 text-left text-red-700 hover:bg-red-50" onClick={() => patch({ status: "NICHT_ERSCHIENEN" })}>Nicht erschienen</button>
                 <button type="button" className="rounded-lg px-3 py-1.5 text-left text-slate-600 hover:bg-slate-50" onClick={() => patch({ status: "ABGESAGT" })}>Abgesagt</button>
               </div>

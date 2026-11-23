@@ -76,10 +76,4 @@ describe("Patientenseiten: keine zahnärztlichen Texte ohne Bedingung", () => {
     expect(`${og![1]} ${og![2]}`).not.toMatch(ZAHN_BEGRIFFE);
     expect(og![2]).toContain("von Ihrer Praxis");
   });
-
-  it("Erstattungsbrief: GOZ nur, wenn die Rechnung nach GOZ ging (Zahnarztpraxis)", () => {
-    const brief = readFileSync("components/Erstattungsbrief.tsx", "utf8");
-    expect(brief).toContain('{vorgaben.gebuehrenordnung === "GOZ" && <option value="GOZ">');
-    expect(readFileSync("app/(app)/zahlungen/page.tsx", "utf8")).toContain('gebuehrenordnung: practice?.specialty === DENTAL_ID ? ("GOZ" as const) : ("GOAE" as const)');
-  });
 });

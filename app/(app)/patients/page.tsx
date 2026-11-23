@@ -19,6 +19,7 @@ import { journey, TONE_STYLE } from "@/lib/journey";
 import { meinePatientenWhere } from "@/lib/meinBereich";
 import { seiteAus } from "@/lib/adresse";
 
+import { praxisText } from "@/lib/praxisFach";
 const PAGE_SIZE = 50;
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -40,6 +41,7 @@ const fmtDate = (d: Date | null | undefined) => (d ? d.toLocaleDateString("de-DE
 const fmtStamp = (d: Date) => `${fmtDate(d)} ${d.toLocaleTimeString("de-DE", { timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit" })}`;
 
 export default async function PatientsPage(props: { searchParams: Promise<{ q?: string; page?: string; filter?: string; sel?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
@@ -140,7 +142,7 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
             <h1 className="font-display text-3xl text-slate-900">
               {P.pl} <span className="font-sans text-base font-normal text-slate-500">({all.toLocaleString("de-DE")})</span>
             </h1>
-            <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500"><Laechelbogen className="h-2 w-8 text-brand-600" />Jeder auf seinem Behandlungsweg, mit dem nächsten Schritt</p>
+            <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500"><Laechelbogen className="h-2 w-8 text-brand-600" />{ft("Jeder auf seinem Behandlungsweg, mit dem nächsten Schritt")}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             {darfEinlesen && <Link href="/patients/import" className="ziel text-sm text-brand-700 underline" data-testid="liste-einlesen" data-hilfe="patient-liste-einlesen">Liste einlesen</Link>}
@@ -210,7 +212,7 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
                     <Behandlungsweg erreicht={w.erreicht} aktuell={w.aktuell} abgelehnt={w.abgelehnt} className="hidden sm:block" />
                     <span className={`text-sm ${TONE_STYLE[w.praxis.tone]}`}>
                       {w.praxis.tone === "achtung" && <span aria-hidden="true">● </span>}
-                      {w.praxis.text}
+                      {ft(w.praxis.text)}
                     </span>
                   </Link>
                 </li>
@@ -264,7 +266,7 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
 
           <div className={`mt-2 rounded-2xl p-4 ${selWeg.praxis.tone === "achtung" ? "bg-red-50" : selWeg.praxis.tone === "erledigt" ? "bg-salbei-50" : "bg-brand-50"}`} data-testid="naechster-schritt">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Nächster Schritt</p>
-            <p className={`mt-1 font-medium ${TONE_STYLE[selWeg.praxis.tone]}`}>{selWeg.praxis.text}</p>
+            <p className={`mt-1 font-medium ${TONE_STYLE[selWeg.praxis.tone]}`}>{ft(selWeg.praxis.text)}</p>
           </div>
 
           {anamnesis?.submittedAt && anamnesis.flags.length > 0 && (
@@ -284,7 +286,7 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
             <li><Link href={`/patients/${selected.id}`} className="flex justify-between py-2 text-slate-700 hover:text-brand-700">Akte öffnen <span aria-hidden="true">→</span></Link></li>
           </ul>
           <div className="mt-3 flex flex-wrap gap-2">
-            <PortalLinkButton patientId={selected.id} firstName={selected.firstName} practiceName={session!.user.practiceName ?? ""} label="Behandlungsweg senden" />
+            <PortalLinkButton patientId={selected.id} firstName={selected.firstName} practiceName={session!.user.practiceName ?? ""} label={ft("Behandlungsweg senden")} />
             {selected.phone && selected.whatsappConsentAt && <WhatsappSenden art="portal-link" id={selected.id} label="Link per WhatsApp" className="btn-secondary" direkt={whatsappApiAktiv()} />}
             <CreateInvoiceButton patientId={selected.id} title="Selbstzahlerleistung" label="Rechnung" free />
           </div>

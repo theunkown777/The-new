@@ -3,9 +3,11 @@
 import { useState } from "react";
 import type { Briefing } from "@/lib/akte";
 
+import { useAppText } from "@/components/FachKontext";
 // Überblick vor dem Termin: regelbasiert aus der Akte. Auf Wunsch formuliert
 // die KI daraus eine Kurzfassung, deutlich als KI-Entwurf gekennzeichnet.
 export function TerminUeberblick({ patientId, briefing, ki }: { patientId: string; briefing: Briefing; ki: boolean }) {
+  const ft = useAppText();
   const [text, setText] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +38,7 @@ export function TerminUeberblick({ patientId, briefing, ki }: { patientId: strin
       <dl className="mt-3 grid gap-x-4 gap-y-1.5 text-sm sm:grid-cols-[9rem_1fr]">
         {briefing.zeilen.map((z) => (
           <div key={z.label} className="contents">
-            <dt className="text-slate-500">{z.label}</dt>
+            <dt className="text-slate-500">{ft(z.label)}</dt>
             <dd className="text-slate-800">{z.text}</dd>
           </div>
         ))}
@@ -55,7 +57,7 @@ export function TerminUeberblick({ patientId, briefing, ki }: { patientId: strin
           <p className="text-xs text-slate-500">KI-Kurzfassung nicht aktiv (kein KI-Zugang hinterlegt). Der Überblick oben ist vollständig.</p>
         )}
         {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
-        <p className="mt-2 text-xs text-slate-500">Den Namen der Patientin oder des Patienten und Kontaktdaten ersetzt Sorrida vorher durch Platzhalter. Die Felder Geburtsdatum und Versichertennummer gehen nicht mit. Freitext aus der Akte kann weitere Angaben enthalten.</p>
+        <p className="mt-2 text-xs text-slate-500">{ft("Den Namen der Patientin oder des Patienten und Kontaktdaten ersetzt Sorrida vorher durch Platzhalter. Die Felder Geburtsdatum und Versichertennummer gehen nicht mit. Freitext aus der Akte kann weitere Angaben enthalten.")}</p>
       </div>
     </section>
   );

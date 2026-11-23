@@ -7,6 +7,7 @@ import { Haken } from "@/components/Haken";
 import { patientenansichtOeffnen } from "@/components/DemoPatientButton";
 import { FUEHRUNG_LEER, FUEHRUNG_SCHLUESSEL, FUEHRUNG_SCHRITTE, fuehrungAktuell, fuehrungErledigt, fuehrungFertig, fuehrungLesen, fuehrungNachSeite, type FuehrungZustand } from "@/lib/demoFuehrung";
 import { APP_RUNDGANG_START, FUEHRUNG_SCHRITT_EREIGNIS, FUEHRUNG_WIEDER_EREIGNIS } from "@/lib/rundgang";
+import { useAppText } from "@/components/FachKontext";
 
 // Nur im Gastzugang: schmale Leiste über dem Inhalt mit drei Schritten zum Mitklicken und dem Link zum Rundgang
 // (durch alle Hauptseiten, components/AppRundgang.tsx). Der Stand liegt im sessionStorage dieses Tabs.
@@ -28,6 +29,7 @@ const zuMerkmal = (zu: boolean) => document.documentElement.toggleAttribute(ZU_M
 const nieAendern = () => () => {};
 
 export function DemoFuehrung({ ueberblick }: { ueberblick?: number }) {
+  const ft = useAppText();
   const pfad = usePathname();
   const [z, setZ] = useState<FuehrungZustand>(FUEHRUNG_LEER);
   const [bereit, setBereit] = useState(false);
@@ -135,7 +137,7 @@ export function DemoFuehrung({ ueberblick }: { ueberblick?: number }) {
                     {erledigt ? <Haken className="!mr-0 !h-3.5 !w-3.5" /> : <span aria-hidden="true">{s.nr}</span>}
                   </span>
                   <span className="sr-only">{erledigt ? `Schritt ${s.nr}, erledigt: ` : `Schritt ${s.nr}: `}</span>
-                  {s.text}
+                  {ft(s.text)}
                 </>
               );
               return (

@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import type { Region } from "@/lib/befundmodelle";
 import { diagnoseHinweis } from "@/lib/fachprofile";
 
+import { useAppText } from "@/components/FachKontext";
 // Befund nach Körperregion wählen und als Diagnose mit ICD-10 in die Akte
 // übernehmen. Die Auswahl trifft die Ärztin oder der Arzt; Sorrida zeigt nur
 // häufige Befunde des Fachs und was bei der Abrechnung oft vergessen wird.
 export function BefundAuswahl({ patientId, regionen, fachName, vorhanden, fach }: { patientId: string; regionen: Region[]; fachName: string; vorhanden: string[]; fach?: string | null }) {
+  const ft = useAppText();
   const wer = diagnoseHinweis(fach);
   const router = useRouter();
   const [region, setRegion] = useState(regionen[0]?.id ?? "");
@@ -62,7 +64,7 @@ export function BefundAuswahl({ patientId, regionen, fachName, vorhanden, fach }
       </ul>
       {msg && <p className="mt-2 text-sm text-emerald-700" data-testid="befund-meldung">{msg}</p>}
       <p className="mt-3 text-xs text-slate-500">
-        Dokumentationshilfe:{wer ? ` ${wer}` : ""} Codes sind Einstiege, endständig kodiert wird nach aktuellem ICD-10-GM in der Praxissoftware.
+        Dokumentationshilfe:{wer ? ` ${wer}` : ""} {ft("Codes sind Einstiege, endständig kodiert wird nach aktuellem ICD-10-GM in der Praxissoftware.")}
       </p>
     </section>
   );

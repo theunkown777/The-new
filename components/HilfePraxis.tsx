@@ -9,6 +9,7 @@ import { seiteErlaubt, zeigZiel } from "@/lib/hilfeZeiger";
 import type { MenueRechte } from "@/lib/rollen";
 import { hilfeZeigen } from "@/components/HilfeZeiger";
 
+import { useAppText } from "@/components/FachKontext";
 interface KiAntwort { passt: boolean; antwort: string; quellen: { id: string; frage: string; pfad: string; href: string }[] }
 
 const GRUPPEN: [HilfeArt, string][] = [
@@ -22,6 +23,7 @@ const GRUPPEN: [HilfeArt, string][] = [
  * mit „Zeig mir wo“. Mit eingeschalteten KI-Hilfen zusätzlich eine Antwort als Entwurf.
  */
 export function HilfePraxis({ fach, hinweisArt, ki, rechte, personPl = "Patienten", person, abschluss = "Behandlung", gebuehrenrechner }: { fach: "zahn" | "andere"; hinweisArt?: HinweisArt; ki: boolean; rechte?: MenueRechte; personPl?: string; /** Personenwort im Singular („Kunde“, „Frau“) für den Fließtext */ person?: string; abschluss?: string; gebuehrenrechner?: boolean }) {
+  const ft = useAppText();
   const pfad = usePathname() ?? "/hilfe-praxis";
   const [frage, setFrage] = useState("");
   const [kiAntwort, setKiAntwort] = useState<KiAntwort | null>(null);
@@ -81,7 +83,7 @@ export function HilfePraxis({ fach, hinweisArt, ki, rechte, personPl = "Patiente
           data-testid="hilfe-frage"
           data-hilfe="hilfe-frage"
         />
-        <p id="hilfe-frage-hinweis" className="text-xs text-slate-500">Bitte keine Patientendaten eingeben: keine Namen, keine Geburtsdaten, keine Befunde. Fehlermeldungen können Sie wörtlich einfügen.</p>
+        <p id="hilfe-frage-hinweis" className="text-xs text-slate-500">{ft("Bitte keine Patientendaten eingeben: keine Namen, keine Geburtsdaten, keine Befunde. Fehlermeldungen können Sie wörtlich einfügen.")}</p>
         {ki && (
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" className="btn btn-secondary" disabled={!gefragt || kiLaeuft} onClick={mitKi} data-testid="hilfe-ki">

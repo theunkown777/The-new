@@ -149,7 +149,7 @@ export function buildNextSteps(args: {
       id: "mkv",
       owner: "Rezeption",
       text: gkv ? `Mehrkostenvereinbarung (§ 28 Abs. 2 SGB V) ${w.vorAbschluss} unterschreiben lassen` : `Kostenvoranschlag für die Wahlleistung mitgeben und ${w.vorAbschluss} bestätigen lassen`,
-      detail: mehrkosten.join(" · ") + ` – falls ${wer} diese Option wählt`,
+      detail: `${mehrkosten.join(" · ")}. Gilt, falls ${wer} diese Option wählt.`,
     });
   }
   if (privat.length) {
@@ -157,7 +157,7 @@ export function buildNextSteps(args: {
       id: "privat",
       owner: "Rezeption",
       text: `Private Vereinbarung bzw. Kostenvoranschlag ${w.vorAbschluss} unterschreiben lassen`,
-      detail: privat.join(" · ") + ` – falls ${wer} diese Option wählt`,
+      detail: `${privat.join(" · ")}. Gilt, falls ${wer} diese Option wählt.`,
     });
   }
   if (igel.length) {
@@ -166,12 +166,12 @@ export function buildNextSteps(args: {
     // Das Dokument hängt am Fach: Klinik Wahlleistungsvereinbarung, Hilfsmittel Mehrkostenerklärung, Therapie Privatvereinbarung, Ärzte IGeL.
     const [text, detail] =
       args.fach === "klinik"
-        ? ["Wahlleistungsvereinbarung vor der Behandlung unterschreiben lassen (§ 17 KHEntgG)", `${liste} – falls ${wer} diese Leistung wählt; vorher über die Entgelte unterrichten, wahlärztliche Leistungen nach GOÄ`]
+        ? ["Wahlleistungsvereinbarung vor der Behandlung unterschreiben lassen (§ 17 KHEntgG)", `${liste}. Gilt, falls ${wer} diese Leistung wählt. Vorher über die Entgelte unterrichten; wahlärztliche Leistungen nach GOÄ.`]
         : systemGruppe(args.fach) === "versorgung"
-          ? ["Mehrkostenerklärung vor der Versorgung unterschreiben lassen, wenn die Kasse einen Teil zahlt (§ 33 Abs. 1 SGB V)", `${liste} – falls ${wer} diese Ausführung wählt; aufzahlungsfreie Versorgung anbieten`]
+          ? ["Mehrkostenerklärung vor der Versorgung unterschreiben lassen, wenn die Kasse einen Teil zahlt (§ 33 Abs. 1 SGB V)", `${liste}. Gilt, falls ${wer} diese Ausführung wählt. Aufzahlungsfreie Versorgung anbieten.`]
           : therapie
-            ? [`Privatvereinbarung über Selbstzahlerleistungen ${w.vorAbschluss} unterschreiben lassen`, `${liste} – falls ${wer} diese Leistung wählt; Preis nach Preisliste, Bedenkzeit lassen`]
-            : ["Schriftliche Vereinbarung über Selbstzahlerleistungen (IGeL) vor der Leistung unterschreiben lassen", `${liste} – falls ${wer} diese Leistung wählt; Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä)`];
+            ? [`Privatvereinbarung über Selbstzahlerleistungen ${w.vorAbschluss} unterschreiben lassen`, `${liste}. Gilt, falls ${wer} diese Leistung wählt. Preis nach Preisliste, Bedenkzeit lassen.`]
+            : ["Schriftliche Vereinbarung über Selbstzahlerleistungen (IGeL) vor der Leistung unterschreiben lassen", `${liste}. Gilt, falls ${wer} diese Leistung wählt. Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä).`];
     steps.push({ id: "igel", owner: "Rezeption", text, detail });
   }
   const zz = items.map((i) => chosenOption(i, choices)?.zuzahlung).find(Boolean);

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ERKLAERUNG, type ErklaerThema } from "@/lib/modelle/erklaerung";
 import { ERKLAER_BILDER, type BildPunkt } from "@/lib/modelle/erklaerBilder";
 
+import { useAppText } from "@/components/FachKontext";
 // Erklärungsansicht zum Zeigen am Bildschirm: Bild wie im Anatomie-Atlas, nummerierte Punkte mit
 // Linien zu den Namen links und rechts. Ein Klick auf einen Namen oder Punkt fährt weich an die Stelle
 // heran und zeigt die Erklärung. Pfeiltasten blättern, Esc geht zurück.
@@ -24,6 +25,7 @@ function verteilen(punkte: BildPunkt[], hoehe: number, top: number): Platz[] {
 }
 
 export default function ErklaerAnsicht({ thema, onSchliessen, start }: { thema: ErklaerThema; onSchliessen: () => void; fach?: string; start?: string }) {
+  const ft = useAppText();
   const inhalt = ERKLAERUNG[thema];
   const bild = ERKLAER_BILDER[thema];
   const H = bild ? Math.round((BILD_B * bild.hoehe) / bild.breite) : 0;
@@ -100,7 +102,7 @@ export default function ErklaerAnsicht({ thema, onSchliessen, start }: { thema: 
       <div className="erklaer-ein mx-auto flex w-full max-w-[86rem] flex-1 flex-col px-4 pb-8 pt-5 sm:px-8">
         <div className="flex items-start justify-between gap-6 border-b border-linie pb-5">
           <div className="max-w-3xl">
-            <p className="j-marke text-brand-700">Erklärung für Patienten</p>
+            <p className="j-marke text-brand-700">{ft("Erklärung für Patienten")}</p>
             <h2 id="erklaer-titel" className="j-schau mt-2 text-[clamp(2.2rem,4vw,3.4rem)]">
               {inhalt.titel}
             </h2>

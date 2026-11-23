@@ -1,5 +1,6 @@
 import type { AnamnesisFlag } from "@/lib/anamnesis";
 
+import { useAppText } from "@/components/FachKontext";
 const tagFmt = (tag: string) => new Date(`${tag}T00:00:00Z`).toLocaleDateString("de-DE", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "numeric" });
 
 /**
@@ -8,6 +9,7 @@ const tagFmt = (tag: string) => new Date(`${tag}T00:00:00Z`).toLocaleDateString(
  * erfährt die Praxis nicht (lib/meineAngaben.ts).
  */
 export function AnamnesisFlags({ flags, submittedAt, vorbefuelltStand }: { flags: AnamnesisFlag[]; submittedAt: string | null; vorbefuelltStand?: string | null }) {
+  const ft = useAppText();
   if (!submittedAt) return null;
   return (
     <div
@@ -28,7 +30,7 @@ export function AnamnesisFlags({ flags, submittedAt, vorbefuelltStand }: { flags
       </p>
       {vorbefuelltStand && (
         <p className="mt-1 text-xs" data-testid="anamnese-vorbefuellt">
-          Teilweise mit gespeicherten Angaben des Patienten vorausgefüllt (Stand {tagFmt(vorbefuelltStand)}), vom Patienten geprüft.
+          {ft("Teilweise mit gespeicherten Angaben des Patienten vorausgefüllt (Stand ")}{tagFmt(vorbefuelltStand)}{ft("), vom Patienten geprüft.")}
         </p>
       )}
     </div>

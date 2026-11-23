@@ -2,13 +2,15 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { isDental } from "@/lib/specialties";
+import { darfSeite } from "@/lib/einstellungsSeiten";
 
+import { praxisText } from "@/lib/praxisFach";
 export default async function LexikonPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const praxis = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true } });
   // Die Einträge (PZR, Füllungen, Prothetik …) sind zahnärztlich.
-  if (!isDental(praxis?.specialty)) redirect("/settings");
+  if (!darfSeite(praxis?.specialty, "lexikon")) redirect("/settings");
   const entries = await prisma.lexikonEntry.findMany({
     orderBy: [{ category: "asc" }, { position: "asc" }],
   });
@@ -29,11 +31,7 @@ export default async function LexikonPage() {
       </p>
 
       <p className="mb-6 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
-        Dies ist ein reines Nachschlagewerk, keine Empfehlung für einen bestimmten Patienten. Ob eine
-        Selbstzahlerleistung im Einzelfall sinnvoll ist, bleibt allein die fachliche Einschätzung der
-        behandelnden Person im persönlichen Gespräch (§1 GOZ / Musterberufsordnung). Die Angaben zur
-        GKV-Abgrenzung sind allgemeine Richtwerte – die genaue Ausgestaltung variiert je Krankenkasse
-        und Bundesland und ist gegen den aktuell gültigen Leistungskatalog zu prüfen.
+        {ft("Dies ist ein reines Nachschlagewerk, keine Empfehlung für einen bestimmten Patienten. Ob eine Selbstzahlerleistung im Einzelfall sinnvoll ist, bleibt allein die fachliche Einschätzung der behandelnden Person im persönlichen Gespräch (§1 GOZ / Musterberufsordnung). Die Angaben zur GKV-Abgrenzung sind allgemeine Richtwerte – die genaue Ausgestaltung variiert je Krankenkasse und Bundesland und ist gegen den aktuell gültigen Leistungskatalog zu prüfen.")}
       </p>
 
       <div className="space-y-6">

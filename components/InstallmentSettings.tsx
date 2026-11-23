@@ -4,7 +4,9 @@ import { useState } from "react";
 import { formatEuro } from "@/lib/proposals";
 import { RATEN_ANGEHALTEN, installmentOffer, type Installments } from "@/lib/installments";
 
+import { useAppText } from "@/components/FachKontext";
 export function InstallmentSettings({ initial, readOnly = false }: { initial: Installments; readOnly?: boolean }) {
+  const ft = useAppText();
   const [cfg, setCfg] = useState<Installments>(initial);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -24,21 +26,18 @@ export function InstallmentSettings({ initial, readOnly = false }: { initial: In
     const data = await res.json().catch(() => ({}));
     setSaving(false);
     if (!res.ok) setError(data.error ?? "Speichern fehlgeschlagen.");
-    else setMessage(RATEN_ANGEHALTEN ? "Gespeichert. Die Anzeige im Patienten-Link bleibt angehalten." : "Gespeichert. Patienten-Links zeigen die Ratenzahlung ab sofort an.");
+    else setMessage(RATEN_ANGEHALTEN ? ft("Gespeichert. Die Anzeige im Patienten-Link bleibt angehalten.") : ft("Gespeichert. Patienten-Links zeigen die Ratenzahlung ab sofort an."));
   }
 
   return (
     <form onSubmit={save} className="card space-y-4" data-testid="installment-settings">
       <div>
-        <h2 className="font-medium text-slate-900">Ratenzahlung im Patienten-Link</h2>
+        <h2 className="font-medium text-slate-900">{ft("Ratenzahlung im Patienten-Link")}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Wenn Ihre Praxis Teilzahlung anbietet, etwa über Ihren Abrechnungsdienstleister, erfahren Patienten es direkt beim Eigenanteil.
-          Sie können ihr Interesse mit der Rückmeldung ankreuzen.
+          {ft("Wenn Ihre Praxis Teilzahlung anbietet, etwa über Ihren Abrechnungsdienstleister, erfahren Patienten es direkt beim Eigenanteil. Sie können ihr Interesse mit der Rückmeldung ankreuzen.")}
         </p>
         <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="raten-angehalten">
-          <b>Zurzeit angehalten.</b> Ab dem 20.11.2026 gelten für Ratenangebote an Patienten die Regeln für Verbraucherkredite, auch wenn die Raten zinsfrei sind
-          (Pflichtangaben, Widerrufsrecht, Prüfung der Kreditwürdigkeit, Warnhinweis in der Werbung). Sorrida zeigt deshalb im Patienten-Link vorerst keine Raten
-          und keinen Hinweis auf Teilzahlung. Besprechen Sie Teilzahlungen bitte persönlich. Ihre Einstellungen unten bleiben gespeichert.
+          <b>Zurzeit angehalten.</b> {ft("Ab dem 20.11.2026 gelten für Ratenangebote an Patienten die Regeln für Verbraucherkredite, auch wenn die Raten zinsfrei sind (Pflichtangaben, Widerrufsrecht, Prüfung der Kreditwürdigkeit, Warnhinweis in der Werbung). Sorrida zeigt deshalb im Patienten-Link vorerst keine Raten und keinen Hinweis auf Teilzahlung. Besprechen Sie Teilzahlungen bitte persönlich. Ihre Einstellungen unten bleiben gespeichert.")}
         </p>
       </div>
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
@@ -65,8 +64,7 @@ export function InstallmentSettings({ initial, readOnly = false }: { initial: In
         <label className="flex items-start gap-2 text-sm text-slate-700">
           <input type="checkbox" className="mt-1" checked={cfg.zinsfrei} onChange={(e) => setCfg({ ...cfg, zinsfrei: e.target.checked })} />
           <span>
-            Für Patienten zinsfrei (die Kosten trägt die Praxis). Nur dann zeigt Sorrida eine Monatsrate. Bei Teilzahlung mit Zinsen steht
-            nur „Ratenzahlung möglich, sprechen Sie uns an“, weil sonst Effektivzins und weitere Pflichtangaben nötig wären.
+            {ft("Für Patienten zinsfrei (die Kosten trägt die Praxis). Nur dann zeigt Sorrida eine Monatsrate. Bei Teilzahlung mit Zinsen steht nur „Ratenzahlung möglich, sprechen Sie uns an“, weil sonst Effektivzins und weitere Pflichtangaben nötig wären.")}
           </span>
         </label>
         <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">

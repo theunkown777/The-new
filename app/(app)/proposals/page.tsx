@@ -9,10 +9,12 @@ import { MIN_DECIDED_FOR_COMPARISON, proposalStats } from "@/lib/proposalStats";
 import { praxisFach } from "@/lib/katalogScope";
 import { fachWoerter } from "@/lib/fachprofile";
 
+import { praxisText } from "@/lib/praxisFach";
 /** So viele Vorschläge zeigt die Liste höchstens; ältere stehen beim Patienten und in der Suche. */
 const LISTE_MAX = 200;
 
 export default async function ProposalsPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
 
@@ -71,13 +73,13 @@ export default async function ProposalsPage() {
       {f.sent > 0 && (
         <section className="card mb-8 space-y-4" data-testid="link-funnel">
           <div>
-            <h2 className="font-medium text-slate-900">Wirkung des Patienten-Links</h2>
-            <p className="text-sm text-slate-500">Gemessen in Ihrer Praxis, keine Schätzung.</p>
+            <h2 className="font-medium text-slate-900">{ft("Wirkung des Patienten-Links")}</h2>
+            <p className="text-sm text-slate-500">{ft("Gemessen in Ihrer Praxis, keine Schätzung.")}</p>
           </div>
           <div className="space-y-2">
             {[
               ["Link versendet", f.sent],
-              ["vom Patienten geöffnet", f.viewed],
+              [ft("vom Patienten geöffnet"), f.viewed],
               ["Rückmeldung gegeben", f.responded],
               ["angenommen", f.accepted],
             ].map(([label, n]) => (
@@ -127,7 +129,7 @@ export default async function ProposalsPage() {
         <div className="card divide-y divide-slate-100 p-0">
           {gesamt > proposals.length && (
             <p className="px-6 py-3 text-sm text-slate-500" data-testid="vorschlaege-begrenzt">
-              Die Liste zeigt die neuesten {proposals.length} von {gesamt} Vorschlägen. Ältere finden Sie beim Patienten oder über die Suche (Strg+K).
+              Die Liste zeigt die neuesten {proposals.length} von {gesamt} {ft("Vorschlägen. Ältere finden Sie beim Patienten oder über die Suche (Strg+K).")}
             </p>
           )}
           {proposals.map((p) => (

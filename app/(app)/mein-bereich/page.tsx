@@ -13,12 +13,14 @@ import { BEREICH_COOKIE, bereichTokenGueltig } from "@/lib/bereichSchutz";
 import { BereichAktionen, BereichSchloss } from "@/components/BereichSchloss";
 import { standortRechtVon, terminFilter } from "@/lib/standortRechte";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Mein Bereich" };
 
 const eur = (c: number) => `${Math.round(c / 100).toLocaleString("de-DE")} €`;
 
 export default async function MeinBereichPage(props: { searchParams: Promise<{ q?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const { practiceId, id: userId } = session!.user;
@@ -91,7 +93,7 @@ export default async function MeinBereichPage(props: { searchParams: Promise<{ q
         <div>
         <h1 className="font-display text-3xl text-slate-900">Mein Bereich</h1>
         <p className="mt-1 text-sm text-slate-500">
-          {me?.name}: nur Ihre {P.pl} und Ihre Zahlen. Kolleginnen und Kollegen sehen hier ihre eigenen. Geschützt mit Ihrem Bereichs-Passwort.
+          {me?.name}: {ft("nur Ihre Patienten und Ihre Zahlen.")} Kolleginnen und Kollegen sehen hier ihre eigenen. Geschützt mit Ihrem Bereichs-Passwort.
         </p>
         </div>
         <BereichAktionen />
@@ -131,7 +133,7 @@ export default async function MeinBereichPage(props: { searchParams: Promise<{ q
           <section className="card" aria-labelledby="heute">
             <h2 id="heute" className="font-display text-xl text-slate-900">Heute bei mir</h2>
             {termine.length === 0 ? (
-              <p className="mt-2 text-sm text-slate-500">Heute keine Termine mit Ihren {P.pl}.</p>
+              <p className="mt-2 text-sm text-slate-500">{ft("Heute keine Termine mit Ihren Patienten.")}</p>
             ) : (
               <ul className="mt-2 divide-y divide-slate-100">
                 {termine.map((t) => (
@@ -161,7 +163,7 @@ export default async function MeinBereichPage(props: { searchParams: Promise<{ q
             <p className="px-5 py-6 text-sm text-slate-500">
               {q
                 ? "Niemand in Ihrem Stamm passt zu dieser Suche."
-                : `Noch niemand zugeordnet. Auf der Seite eines Patienten wählen Sie unter „Behandelt von“ sich selbst aus. Wer Vorschläge oder Berichte von Ihnen hat, erscheint hier automatisch.`}
+                : ft(`Noch niemand zugeordnet. Auf der Seite eines Patienten wählen Sie unter „Behandelt von“ sich selbst aus. Wer Vorschläge oder Berichte von Ihnen hat, erscheint hier automatisch.`)}
             </p>
           ) : (
             <ul className="divide-y divide-slate-100" data-testid="stamm-liste">

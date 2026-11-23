@@ -48,6 +48,16 @@ export const WERKE: Record<Gebuehrenwerk, WerkInfo> = {
   UVGOAE: { name: "Gebührenordnung der gesetzlichen Unfallversicherung", kurz: "UV-GOÄ", zahler: "Berufsgenossenschaft / Unfallkasse (Arbeits- und Wegeunfall)", faktor: false },
 };
 
+/**
+ * Wer nach dem Verzeichnis zahlt, in den Wörtern des Fachs: IGeL gibt es nur in der ärztlichen Praxis.
+ * Die Klinik rechnet GOÄ als Wahlleistung ab, die Zahnarztpraxis einzelne GOÄ-Positionen privat.
+ */
+export function zahlerFuer(werk: Gebuehrenwerk, fach: string | null | undefined): string {
+  if (werk === "GOAE" && fach === "klinik") return "Privatversicherte, Beihilfe, Wahlleistungen (wahlärztliche Leistungen)";
+  if (werk === "GOAE" && fach === "zahn") return "Privatversicherte, Beihilfe, Selbstzahler";
+  return WERKE[werk].zahler;
+}
+
 /** GOÄ-Leistungsgruppen mit eigenen Spannen (§ 5 Abs. 2–4 GOÄ). */
 export type GoaeGruppe = "persoenlich" | "technisch" | "labor";
 

@@ -10,13 +10,13 @@ import { katalogEintrag, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 import { LeistungenImport } from "@/components/LeistungenImport";
 import { LeistungSchnell } from "@/components/LeistungSchnell";
-import { leistungsBeispiel, systemGruppe } from "@/lib/fachprofile";
+import { leistungsBeispielFuer } from "@/lib/fachprofile";
 import { KvBezirkWahl } from "@/components/KvBezirkWahl";
-import { alleFilter, fachFilter, GAST_HINWEIS, quellenFuer, sortiereSysteme } from "@/lib/amtlich/gliederung";
+import { alleFilter, fachFilter, GAST_HINWEIS, hatEbm, hatKvZiffern, quellenFuer, sortiereSysteme } from "@/lib/amtlich/gliederung";
 import { seiteAus } from "@/lib/adresse";
-import { rechnetUeberKv } from "@/lib/abrechnungsarten";
 import { importVorgaben } from "@/lib/importVerzeichnisse";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Leistungsverzeichnis" };
 
@@ -27,6 +27,7 @@ const EBM_ORIENTIERUNGSWERT = 12.7404;
 const euro = (c: number) => (c / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 
 export default async function LeistungsverzeichnisPage(props: { searchParams: Promise<{ q?: string; system?: string; kapitel?: string; seite?: string; alle?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
@@ -78,24 +79,23 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
         <h1 className="font-display text-3xl text-slate-900">Leistungsverzeichnis</h1>
         <p className="mt-1 text-sm text-slate-600">
           Alle amtlichen Leistungen, die {alle ? "irgendein Fach" : SPECIALTY_LABELS[fach] ?? "Ihr Fach"} erbringen und abrechnen kann:{" "}
-          <b className="tabular-nums">{summe.toLocaleString("de-DE")}</b> Positionen aus {proSystem.length} Verzeichnissen. Übernehmen Sie, was Ihre Praxis anbietet, in
-          Ihren Abrechnungskatalog.
+          <b className="tabular-nums">{summe.toLocaleString("de-DE")}</b> Positionen aus {proSystem.length} {ft("Verzeichnissen. Übernehmen Sie, was Ihre Praxis anbietet, in Ihren Abrechnungskatalog.")}
         </p>
         <p className="mt-1 text-xs">
           <Link href={link({ alle: alle ? null : "1", system: null, kapitel: null, seite: null })} className="text-brand-700 underline">
             {alle ? "Nur mein Fach anzeigen" : "Alle Fächer anzeigen"}
           </Link>
         </p>
-        {gast && (alle || rechnetUeberKv(fach)) && (
+        {gast && (alle || hatEbm(fach)) && (
           <p className="mt-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-900" data-testid="ebm-gast-hinweis">
             {GAST_HINWEIS}
           </p>
         )}
-        {rechnetUeberKv(fach) && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
+        {hatKvZiffern(fach) && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
       </div>
 
       <div data-testid="eigene-leistung" data-hilfe="leistungsverzeichnis-eigene">
-        <LeistungSchnell titel="Leistung nicht dabei? Eigene Leistung anlegen (nur Name und Preis)" beispiel={leistungsBeispiel(systemGruppe(fach))} />
+        <LeistungSchnell titel="Leistung nicht dabei? Eigene Leistung anlegen (nur Name und Preis)" beispiel={leistungsBeispielFuer(fach)} />
       </div>
 
       <div className="flex flex-wrap gap-2" data-testid="systeme">

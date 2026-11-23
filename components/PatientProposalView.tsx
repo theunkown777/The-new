@@ -512,7 +512,7 @@ export function PatientProposalView(props: Props) {
       )}
 
       <p className="mt-6 text-xs leading-relaxed text-slate-500">
-        {kostenHinweis(t, { dental: props.dental !== false, therapie: !!props.therapie, fach: props.fach, gkv, until, einfach: einfach && lang === "de" })}
+        {kostenHinweis(t, { dental: props.dental === true, therapie: !!props.therapie, fach: props.fach, gkv, until, einfach: einfach && lang === "de" })}
         {offer.kind === "rate" && t.installmentsFine(props.installments.provider)}
         {t.langNote && <> {t.langNote}</>}
       </p>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { anrede } from "@/lib/ohneAkte";
 import { fachText } from "@/lib/fachText";
 
+import { useAppText } from "@/components/FachKontext";
 // Portal-Link für einen Patienten erzeugen: Link, QR-Code und SMS-Text zum Kopieren.
 export function PortalLinkButton({ patientId, firstName, practiceName, label = "Behandlungsweg senden", className = "btn-secondary", onCreated, message, copyLabel = "SMS-Text kopieren" }: {
   patientId: string;
@@ -16,6 +17,7 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
   message?: (url: string) => string;
   copyLabel?: string;
 }) {
+  const ft = useAppText();
   const [state, setState] = useState<{ url: string; qr: string; fach?: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -37,7 +39,7 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
     return (
       <span>
         <button type="button" className={className} onClick={create} disabled={busy} data-testid="portal-link-button">
-          {busy ? "Wird erstellt …" : label}
+          {busy ? "Wird erstellt …" : ft(label)}
         </button>
         {error && <span className="ml-2 text-sm text-red-700">{error}</span>}
       </span>
@@ -47,9 +49,9 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
     <div className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm" data-testid="portal-link">
       <div className="flex flex-wrap gap-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={state.qr} alt="QR-Code zum Behandlungsweg" className="h-32 w-32 shrink-0 rounded-lg bg-white p-1" />
+        <img src={state.qr} alt={ft("QR-Code zum Behandlungsweg")} className="h-32 w-32 shrink-0 rounded-lg bg-white p-1" />
         <div className="min-w-[15rem] flex-1 space-y-2">
-          <p className="font-medium text-slate-900">Link zum Behandlungsweg für {firstName} (60 Tage gültig)</p>
+          <p className="font-medium text-slate-900">{ft("Link zum Behandlungsweg für ")}{firstName} (60 Tage gültig)</p>
           <p className="text-xs text-slate-600 [overflow-wrap:anywhere]">{state.url}</p>
           <div className="flex flex-wrap gap-2">
             <button
@@ -70,7 +72,7 @@ export function PortalLinkButton({ patientId, firstName, practiceName, label = "
             <a className="btn-secondary" href={state.url} target="_blank" rel="noreferrer">Ansehen</a>
           </div>
           <p className="whitespace-pre-wrap rounded-lg bg-white p-2 text-xs text-slate-600 [overflow-wrap:anywhere]" data-testid="nachricht-text">{text}</p>
-          <p className="text-xs text-slate-500">Der Link ersetzt einen früheren Link dieses Patienten.</p>
+          <p className="text-xs text-slate-500">{ft("Der Link ersetzt einen früheren Link dieses Patienten.")}</p>
         </div>
       </div>
     </div>

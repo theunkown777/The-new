@@ -35,6 +35,18 @@ export function abschlussWort(fach: string | null | undefined): string {
 }
 
 /**
+ * Wo das Empfangs-Tablet liegt. Eine Apotheke hat kein Wartezimmer, ein Pflegedienst arbeitet bei den Klienten zu Hause,
+ * Optik, Hörakustik und Sanitätshaus empfangen im Geschäft.
+ */
+export function tabletOrt(fach: string | null | undefined): string {
+  const f = fach ?? "";
+  if (f === "apotheke") return "am Beratungsplatz";
+  if (f === "pflege") return "beim Hausbesuch";
+  if (["optik", "hoerakustik", "sanitaetshaus"].includes(f)) return "im Geschäft";
+  return "im Wartezimmer";
+}
+
+/**
  * Wörter des Fachs für Sätze mit Artikel. Patient, Kunde und Klient haben im Akkusativ und Dativ die Form der
  * Mehrzahl („einen Patienten“, „zum Kunden“), Patientin und Frau die der Einzahl („eine Frau“, „zur Patientin“).
  * Einsatz und Besuch sind männlich („Ersten Einsatz abschließen“), Behandlung, Beratung und Versorgung weiblich.

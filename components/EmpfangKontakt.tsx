@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { fachText } from "@/lib/fachText";
 
+import { useAppText } from "@/components/FachKontext";
 // Empfangs-Tablet: eigene Kontaktdaten prüfen und berichtigen, Einwilligung in Nachrichten geben oder zurücknehmen.
 export function EmpfangKontakt({ email: e0, phone: p0, mail: m0, whatsapp: w0, praxis, fach }: { email: string; phone: string; mail: boolean; whatsapp: boolean; praxis: string; /** Fach der Praxis: „in der Apotheke widerrufen“ (lib/fachText.ts) */ fach?: string | null }) {
+  const ft = useAppText();
   const [email, setEmail] = useState(e0);
   const [phone, setPhone] = useState(p0);
   const [mail, setMail] = useState(m0);
@@ -34,7 +36,7 @@ export function EmpfangKontakt({ email: e0, phone: p0, mail: m0, whatsapp: w0, p
       </div>
       <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={mail} disabled={!email.trim()} onChange={(e) => { setMail(e.target.checked); geaendert(); }} data-testid="kontakt-mail-ok" /><span>{praxis} darf mir Nachrichten zu Terminen und Rechnungen per E-Mail schicken.</span></label>
       <label className="flex items-start gap-2 text-sm text-slate-800"><input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0" checked={whatsapp} disabled={!phone.trim()} onChange={(e) => { setWhatsapp(e.target.checked); geaendert(); }} data-testid="kontakt-whatsapp-ok" /><span>{praxis} darf mir solche Nachrichten per WhatsApp schicken. <span className="text-slate-500">WhatsApp ist ein Dienst von Meta.</span></span></label>
-      <p className="text-xs text-slate-500">{fachText("Beides ist freiwillig. Sie können es jederzeit in der Praxis widerrufen.", fach)}</p>
+      <p className="text-xs text-slate-500">{fachText(ft("Beides ist freiwillig. Sie können es jederzeit in der Praxis widerrufen."), fach)}</p>
       {fehler && <p className="text-sm text-red-700" role="alert" data-testid="kontakt-fehler">{fehler}</p>}
       <div className="flex flex-wrap items-center gap-3">
         <button className="btn btn-primary" disabled={state === "busy"} data-testid="kontakt-speichern">{state === "busy" ? "Speichert …" : "Stimmt so – speichern"}</button>

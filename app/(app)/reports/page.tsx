@@ -4,12 +4,14 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { REPORT_TYPE_LABELS, REPORT_STATUS_LABELS } from "@/lib/reportLabels";
 
+import { praxisText } from "@/lib/praxisFach";
 /** So viele Berichte zeigt die Liste höchstens. */
 const LISTE_MAX = 200;
 
 export default async function ReportsPage(props: {
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const q = searchParams.q?.trim();
@@ -46,7 +48,7 @@ export default async function ReportsPage(props: {
 
       <form method="get" className="card mb-6 flex flex-wrap items-end gap-3">
         <div className="min-w-[200px] flex-1">
-          <label className="label" htmlFor="q">Suche (Patient, Sitzungstyp)</label>
+          <label className="label" htmlFor="q">{ft("Suche (Patient, Sitzungstyp)")}</label>
           <input
             id="q"
             name="q"
@@ -88,7 +90,7 @@ export default async function ReportsPage(props: {
         <div className="card divide-y divide-slate-100 p-0">
           {mehr && (
             <p className="px-4 py-3 text-sm text-slate-500 sm:px-6" data-testid="berichte-begrenzt">
-              Die Liste zeigt die neuesten {LISTE_MAX} Berichte. Ältere finden Sie über die Suche oben oder beim Patienten.
+              Die Liste zeigt die neuesten {LISTE_MAX} {ft("Berichte. Ältere finden Sie über die Suche oben oder beim Patienten.")}
             </p>
           )}
           {reports.map((r) => (

@@ -9,13 +9,15 @@ import { canSeeAnalytics } from "@/lib/permissions";
 import { loadBillingCheck, terminDokuGeprueft } from "@/lib/billingCheckLoad";
 import { formatCent, invoiceView } from "@/lib/invoices";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Abrechnung" };
 
 export default async function AbrechnungPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true, gozPunktwertCent: true, bemaPunktwertCent: true } });
-  const fach = practice?.specialty ?? "hausarzt";
+  const fach = practice?.specialty ?? "andere";
   const practiceId = session!.user.practiceId;
   const darf = await canSeeAnalytics(session!.user.id);
   const potenzial = darf
@@ -46,8 +48,7 @@ export default async function AbrechnungPage() {
       <div>
         <h1 className="font-display text-3xl text-slate-900">Abrechnung</h1>
         <p className="mt-1 max-w-3xl text-sm text-slate-600">
-          Alle Abrechnungsarten für {SPECIALTY_LABELS[fach] ?? "Ihr Fach"}: wer zahlt, wie gerechnet wird, die Fachbegriffe und worauf zu achten ist.
-          Abgerechnet wird weiter über Ihre Praxissoftware{stelle ? ` bzw. ${stelle.ueber}` : ""}.
+          Alle Abrechnungsarten für {SPECIALTY_LABELS[fach] ?? "Ihr Fach"}{ft(": wer zahlt, wie gerechnet wird, die Fachbegriffe und worauf zu achten ist. Abgerechnet wird weiter über Ihre Praxissoftware")}{stelle ? ` bzw. ${stelle.ueber}` : ""}.
         </p>
       </div>
 
@@ -67,7 +68,7 @@ export default async function AbrechnungPage() {
         </section>
       )}
 
-      {alleWerke.length > 0 && <Gebuehrenrechner werke={alleWerke} punktwerte={{ ...(practice?.bemaPunktwertCent ? { BEMA: practice.bemaPunktwertCent } : {}) }} />}
+      {alleWerke.length > 0 && <Gebuehrenrechner werke={alleWerke} fach={practice?.specialty} punktwerte={{ ...(practice?.bemaPunktwertCent ? { BEMA: practice.bemaPunktwertCent } : {}) }} />}
 
       <div className="space-y-4">
         {arten.map((a) => (
@@ -75,16 +76,16 @@ export default async function AbrechnungPage() {
             <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
               <span>
                 <span className="block font-semibold text-slate-900">{a.name}</span>
-                <span className="block text-sm text-slate-600">{a.zahler}</span>
+                <span className="block text-sm text-slate-600">{ft(a.zahler)}</span>
               </span>
               <span className="text-slate-400 transition group-open:rotate-90" aria-hidden="true">›</span>
             </summary>
             <div className="mt-4 grid gap-5 lg:grid-cols-2">
               <div className="space-y-3 text-sm">
-                <p><b className="text-slate-800">Rechenweg:</b> <span className="text-slate-600">{a.rechenweg}</span></p>
+                <p><b className="text-slate-800">Rechenweg:</b> <span className="text-slate-600">{ft(a.rechenweg)}</span></p>
                 <div>
                   <p className="font-semibold text-slate-800">Regeln und Fristen</p>
-                  <ul className="mt-1 list-disc space-y-1 pl-5 text-slate-600">{a.regeln.map((r) => <li key={r}>{r}</li>)}</ul>
+                  <ul className="mt-1 list-disc space-y-1 pl-5 text-slate-600">{a.regeln.map((r) => <li key={r}>{ft(r)}</li>)}</ul>
                 </div>
                 <div>
                   <p className="font-semibold text-slate-800">Fachbegriffe</p>
@@ -96,8 +97,8 @@ export default async function AbrechnungPage() {
                 <ul className="mt-2 space-y-2">
                   {a.geldhebel.map((g) => (
                     <li key={g.problem} className="rounded-xl bg-[#FBFAF8] p-3 text-sm">
-                      <p className="text-slate-800">{g.problem}</p>
-                      <p className="mt-1 text-slate-600"><b>Was hilft:</b> {g.massnahme}</p>
+                      <p className="text-slate-800">{ft(g.problem)}</p>
+                      <p className="mt-1 text-slate-600"><b>Was hilft:</b> {ft(g.massnahme)}</p>
                       {g.inSorrida && <p className="mt-1 text-xs text-brand-700">In Sorrida: {g.inSorrida}</p>}
                     </li>
                   ))}
@@ -108,7 +109,7 @@ export default async function AbrechnungPage() {
         ))}
       </div>
       <p className="text-xs text-slate-500">
-        Nachschlagewerk ohne Gewähr; verbindlich sind die jeweiligen Gebührenordnungen, Verträge und Richtlinien. {stelle ? `Fragen zur Abrechnung beantwortet ${stelle.wer}.` : ""}
+        Nachschlagewerk ohne Gewähr; verbindlich sind die jeweiligen Gebührenordnungen, Verträge und Richtlinien. {stelle ? `Fragen zur Abrechnung beantwortet ${stelle.wer}. ` : ""}
         Weiter zur <Link href="/abrechnungspruefung" className="underline">Abrechnungsprüfung</Link>.
       </p>
     </div>

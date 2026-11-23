@@ -43,6 +43,7 @@ import {
 import { PatientAuswahl } from "@/components/PatientAuswahl";
 import { NutzenQuelleLink } from "@/components/NutzenQuelleLink";
 
+import { useAppText } from "@/components/FachKontext";
 type EntwurfDaten = { patientId: string; kuerzel: string; factors: PatientFactors; teeth: Partial<Record<string, FindingCode>>; globals: Partial<Record<GlobalCode, boolean>>; anlaesse: string[]; choices: Record<string, string> };
 
 type PatientOption = {
@@ -117,6 +118,7 @@ export function ProposalEditor({
   /** Preise und eigene Leistungen einer Arztpraxis. */
   med?: MedInput;
 }) {
+  const ft = useAppText();
   const router = useRouter();
   const [patientId, setPatientId] = useState(existing?.patientId ?? initialPatientId ?? "");
   const patient = patients.find((p) => p.id === patientId);
@@ -369,7 +371,7 @@ export function ProposalEditor({
       {!compact && (
         <div className={`flex flex-wrap items-center justify-between gap-3 ${gespraech ? "rounded-xl bg-[#F5F2EE] px-4 py-3" : ""}`}>
           <p className="text-sm text-slate-600">
-            {gespraech ? "Ansicht für das Gespräch: Praxiszahlen und Eingabefelder sind ausgeblendet." : `Drehen Sie den Bildschirm ${w.zurPerson}? Dann blendet diese Ansicht alles aus, was nur die Praxis betrifft.`}
+            {gespraech ? "Ansicht für das Gespräch: Praxiszahlen und Eingabefelder sind ausgeblendet." : ft(`Drehen Sie den Bildschirm ${w.zurPerson}? Dann blendet diese Ansicht alles aus, was nur die Praxis betrifft.`)}
           </p>
           <button type="button" className={gespraech ? "btn-primary" : "btn-secondary"} aria-pressed={gespraech} onClick={() => setGespraech((g) => !g)} data-testid="gespraech-schalter" data-hilfe="vorschlag-gespraech">
             {gespraech ? "Zurück zur Praxisansicht" : `${w.person} schaut mit`}
@@ -501,7 +503,7 @@ export function ProposalEditor({
               <p className="mt-2 text-xs text-orange-900/80">
                 {dental
                   ? "Zähne mit Befund sind schon im Zahnschema eingetragen. Zähne ohne Befund sind orange umrandet: antippen und den Befund wählen."
-                  : `Diese Stellen hat die Praxis im Modell ${w.fuerPerson} markiert. Wählen Sie unten den passenden Anlass.`}
+                  : ft(`Diese Stellen hat die Praxis im Modell ${w.fuerPerson} markiert. Wählen Sie unten den passenden Anlass.`)}
               </p>
             </div>
           )}
@@ -726,7 +728,7 @@ export function ProposalEditor({
                               {o.hinweis && <span className="text-xs text-green-800">Kasse: {o.hinweis}</span>}
                               {o.nutzen && !gespraech && (
                                 <span className="text-xs text-amber-800">
-                                  {o.nutzenVonPraxis ? "Hinweis der Praxis" : "Nutzen"}: {o.nutzen}
+                                  {o.nutzenVonPraxis ? ft("Hinweis der Praxis") : "Nutzen"}: {o.nutzen}
                                   <NutzenQuelleLink quelle={o.nutzenQuelle} link={false} />
                                 </span>
                               )}
@@ -776,17 +778,17 @@ export function ProposalEditor({
                   {copied ? "Kopiert" : "Text kopieren"}
                 </button>
                 <span className="text-xs text-slate-500">
-                  Für E-Mail, Patienten-Link oder Ausdruck. Gespeichert wird der Text beim Sichern des Vorschlags.
+                  {ft("Für E-Mail, Patienten-Link oder Ausdruck. Gespeichert wird der Text beim Sichern des Vorschlags.")}
                 </span>
               </div>
               <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-slate-800">{letter}</pre>
             </div>
           )}
 
-          {gespraech && <p className="text-sm text-slate-600">Die Beträge sind Schätzungen. Verbindlich sind der Kostenplan und die Vereinbarung Ihrer Praxis.</p>}
+          {gespraech && <p className="text-sm text-slate-600">{ft("Die Beträge sind Schätzungen. Verbindlich sind der Kostenplan und die Vereinbarung Ihrer Praxis.")}</p>}
           <p className={gespraech ? "hidden" : "text-xs text-slate-500"}>
             {dental
-              ? "Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Vorausgewählt ist immer die Kassen- bzw. Regelleistung. Was Sie mit Ihrer Patientin oder Ihrem Patienten vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware."
+              ? ft("Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Vorausgewählt ist immer die Kassen- bzw. Regelleistung. Was Sie mit Ihrer Patientin oder Ihrem Patienten vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware.")
               : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Vorausgewählt ist immer die Kassenleistung. Was Sie im Gespräch vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. ${isTherapie(spec) ? `Selbstzahlerleistungen vereinbaren Sie ${w.vorAbschluss} schriftlich.` : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
           </p>
 

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { berichtFachFuerApi, generateReportSchema } from "@/lib/berichtApi";
+import { berichtFachFuerApi, generateReportSchema, katalogFachFuerApi } from "@/lib/berichtApi";
 import { fachprofil } from "@/lib/fachprofile";
 import { SPECIALTY_IDS } from "@/lib/specialties";
 
@@ -37,6 +37,24 @@ describe("Partner-Schnittstelle: Fach im Bericht", () => {
     expect(fachprofil(berichtFachFuerApi(null, null, ebm)).berichtStil).not.toMatch(/zahn/i);
   });
 
+  it("Zahnmedizin auch bei BEL II, Zahnangaben und anderer Schreibweise; Heilmittel bleibt neutral", () => {
+    expect(berichtFachFuerApi(null, null, [{ system: "GOAE", toothNumbers: "36" }])).toBe("zahn");
+    expect(berichtFachFuerApi(null, null, [{ system: "GOAE", toothNumbers: "  " }])).toBe("andere");
+    expect(berichtFachFuerApi(null, null, [{ system: "BEL_II" }])).toBe("zahn");
+    expect(berichtFachFuerApi(null, null, [{ system: "bel ii" }])).toBe("zahn");
+    expect(berichtFachFuerApi(null, null, [{ system: "goz" }])).toBe("zahn");
+    expect(berichtFachFuerApi(null, null, [{ system: " Bema " }])).toBe("zahn");
+    expect(berichtFachFuerApi(null, null, heilmittel)).toBe("andere");
+    // Das Fach des Schlüssels geht den Einträgen vor.
+    expect(berichtFachFuerApi(null, "physio", [{ system: "goz" }])).toBe("physio");
+  });
+
+  it("„andere“ schreibt neutral, nicht im allgemeinmedizinischen Stil und ohne Körperregion", () => {
+    const p = fachprofil(berichtFachFuerApi(null, null, heilmittel));
+    expect(p.berichtStil).not.toMatch(/allgemeinmedizin|Arztbrief|ICD|zahn/i);
+    expect(p.region).toBe("Region");
+  });
+
   it("mit fach im Stil des Fachs, auch gegen das Fach des Schlüssels; unbekanntes Fach wird abgelehnt", () => {
     for (const fach of SPECIALTY_IDS) {
       const p = generateReportSchema.safeParse({ ...anfrage, fach });
@@ -55,5 +73,24 @@ describe("Partner-Schnittstelle: Fach im Bericht", () => {
     const liste = api.match(/GenerateReportRequest:[\s\S]*?fach:[\s\S]*?enum: \[([^\]]+)\]/)?.[1].split(",").map((x) => x.trim());
     expect(liste).toEqual([...SPECIALTY_IDS]);
     expect(api).not.toMatch(/bleibt es wie bisher bei der Zahnmedizin/);
+    expect(api).toMatch(/BEL II oder Zahnangaben/);
+    expect(api).toMatch(/set-api-client-fach/);
+  });
+});
+
+describe("Partner-Schnittstelle: Katalog je Fach", () => {
+  it("?fach= vor dem Fach des Schlüssels, ohne beides alle Fächer", () => {
+    expect(katalogFachFuerApi("physio", "zahn")).toEqual({ ok: true, fach: "physio" });
+    expect(katalogFachFuerApi(null, "zahn")).toEqual({ ok: true, fach: "zahn" });
+    expect(katalogFachFuerApi(undefined, "ortho")).toEqual({ ok: true, fach: "ortho" });
+    expect(katalogFachFuerApi(null, null)).toEqual({ ok: true, fach: null });
+    expect(katalogFachFuerApi(null, "Zahnarzt")).toEqual({ ok: true, fach: null });
+    expect(katalogFachFuerApi("Zahnarzt", "zahn")).toEqual({ ok: false });
+  });
+  it("die Route filtert nach diesem Fach, openapi.yaml nennt alle Verzeichnisse", () => {
+    const route = readFileSync("app/api/v1/catalog/route.ts", "utf8");
+    expect(route).toContain("katalogFachFuerApi(new URL(req.url).searchParams.get(\"fach\"), auth.client.fach)");
+    const api = readFileSync("openapi.yaml", "utf8");
+    expect(api).toMatch(/system: \{ type: string, enum: \[GOZ, BEMA, BEL_II, EBM, GOAE, UVGOAE, HEILMITTEL, HEBAMME, PFLEGE, APO, HILFSMITTEL, SELBST, SONSTIGES\] \}/);
   });
 });

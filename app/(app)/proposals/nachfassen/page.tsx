@@ -10,11 +10,13 @@ import { darfWhatsapp } from "@/lib/whatsapp";
 import { Nacheinander } from "@/components/Nacheinander";
 import { NachfassAktionen } from "@/components/NachfassAktionen";
 
+import { praxisText } from "@/lib/praxisFach";
 const datum = (d: Date) => d.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit" });
 
 // Nachfass-Liste: alle offenen Vorschläge mit dem nächsten Schritt. Vor dem 1.1.2027 stehen
 // Zahnersatz-Vorschläge oben, weil eine spätere Bewilligung den Patienten mehr kostet.
 export default async function NachfassenPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
   const now = new Date();
@@ -56,7 +58,7 @@ export default async function NachfassenPage() {
             {summe.stichtagOffen} {summe.stichtagOffen === 1 ? "Zahnersatz-Vorschlag" : "Zahnersatz-Vorschläge"} ohne eingereichten Heil- und Kostenplan
           </p>
           <p className="mt-1">
-            Ab 1.1.2027 zahlen die Kassen zehn Prozentpunkte weniger Festzuschuss. Für diese Patienten sind das zusammen {wort2027("dahinter")}
+            {ft("Ab 1.1.2027 zahlen die Kassen zehn Prozentpunkte weniger Festzuschuss. Für diese Patienten sind das zusammen ")}{wort2027("dahinter")}
             <b>{formatEuro(summe.stichtagMehr)}</b> mehr Eigenanteil, wenn der Plan erst danach bewilligt wird. Bis zum 31.12.2026 sind es noch{" "}
             {summe.tage} Tage; die Kasse braucht für die Bewilligung meist ein bis drei Wochen.
           </p>

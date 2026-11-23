@@ -6,11 +6,13 @@ import { PATIENT_RESPONSE_LABELS, type PatientLinkState } from "@/lib/patientLin
 import { anrede } from "@/lib/ohneAkte";
 import { fachText } from "@/lib/fachText";
 
+import { useAppText } from "@/components/FachKontext";
 const fmt = (iso: string) =>
   new Date(iso).toLocaleString("de-DE", { timeZone: "Europe/Berlin", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
 // Patienten-Link erzeugen, als QR zeigen und Rückmeldung des Patienten anzeigen.
 export function PatientLinkPanel({ proposalId, state, firstName, sofort = false }: { proposalId: string; state: PatientLinkState; firstName: string; /** Schnellvorschlag: Link und QR-Code gleich nach dem Speichern erzeugen */ sofort?: boolean }) {
+  const ft = useAppText();
   const router = useRouter();
   const [link, setLink] = useState<{ url: string; qr: string; fach?: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -55,20 +57,19 @@ export function PatientLinkPanel({ proposalId, state, firstName, sofort = false 
   }
 
   const smsText = link
-    ? `${anrede("Guten Tag", firstName)}, ${fachText("hier ist Ihr Behandlungsvorschlag mit allen Optionen und Kosten", link.fach)}: ${link.url}`
+    ? `${anrede("Guten Tag", firstName)}, ${fachText(ft("hier ist Ihr Behandlungsvorschlag mit allen Optionen und Kosten"), link.fach)}: ${link.url}`
     : "";
 
   return (
     <div className="card space-y-3" data-testid="patient-link-panel" data-hilfe="vorschlag-patientenlink">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-medium text-slate-900">Patienten-Link</h2>
+        <h2 className="font-medium text-slate-900">{ft("Patienten-Link")}</h2>
         {state.active && state.expiresAt && (
           <span className="text-xs text-slate-500">aktiv bis {new Date(state.expiresAt).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}</span>
         )}
       </div>
       <p className="text-sm text-slate-600">
-        Der Patient sieht seine Optionen mit Eigenanteil auf dem Handy, kann selbst vergleichen und meldet sich mit einem Tipp zurück.
-        Der Link enthält keine Patientendaten und läuft nach 30 Tagen ab.
+        {ft("Der Patient sieht seine Optionen mit Eigenanteil auf dem Handy, kann selbst vergleichen und meldet sich mit einem Tipp zurück. Der Link enthält keine Patientendaten und läuft nach 30 Tagen ab.")}
       </p>
 
       {state.response && (
@@ -90,14 +91,14 @@ export function PatientLinkPanel({ proposalId, state, firstName, sofort = false 
       )}
       {state.active && !state.response && (
         <p className="text-sm text-slate-600">
-          {state.viewedAt ? `Vom Patienten geöffnet am ${fmt(state.viewedAt)}, noch keine Rückmeldung.` : "Noch nicht geöffnet."}
+          {state.viewedAt ? ft(`Vom Patienten geöffnet am ${fmt(state.viewedAt)}, noch keine Rückmeldung.`) : "Noch nicht geöffnet."}
         </p>
       )}
 
       {link && (
         <div className="flex flex-col gap-4 rounded-lg border border-slate-200 p-3 sm:flex-row sm:items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={link.qr} alt="QR-Code zum Patienten-Link" width={160} height={160} className="h-40 w-40 shrink-0" />
+          <img src={link.qr} alt={ft("QR-Code zum Patienten-Link")} width={160} height={160} className="h-40 w-40 shrink-0" />
           <div className="min-w-0 space-y-2 text-sm">
             <p className="text-slate-600">Am Empfang zeigen oder abfotografieren lassen. Der Link wird nur jetzt angezeigt.</p>
             <code className="block break-all rounded bg-slate-100 p-2 text-xs" data-testid="patient-link-url">
@@ -107,7 +108,7 @@ export function PatientLinkPanel({ proposalId, state, firstName, sofort = false 
               <button type="button" className="btn btn-secondary" onClick={copy}>
                 {copied ? "Kopiert" : "Link kopieren"}
               </button>
-              <a className="btn btn-secondary" href={`mailto:?subject=${encodeURIComponent(fachText("Ihr Behandlungsvorschlag", link.fach))}&body=${encodeURIComponent(smsText)}`}>
+              <a className="btn btn-secondary" href={`mailto:?subject=${encodeURIComponent(fachText(ft("Ihr Behandlungsvorschlag"), link.fach))}&body=${encodeURIComponent(smsText)}`}>
                 Per E-Mail
               </a>
               <a className="btn btn-secondary" href={`sms:?&body=${encodeURIComponent(smsText)}`}>

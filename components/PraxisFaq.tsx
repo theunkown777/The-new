@@ -5,30 +5,49 @@ import Link from "next/link";
 const SCHNITTSTELLE_SATZ =
   "Programme, die diese Schnittstellen anbieten, können Sorrida mit dem aktuellen Patienten öffnen. Welche Programme wir schon in einer Praxis getestet haben, sagen wir Ihnen auf Anfrage.";
 
+type FaqGruppe = { therapie?: boolean; dental?: boolean; alle?: boolean };
+
+/** Antwort auf „Ist das nicht Verkaufen am Patienten?“ je Fachgruppe; als Daten exportiert, damit Tests die Regel prüfen. */
+export function faqVerkaufen({
+  therapie = false,
+  dental = false,
+}: FaqGruppe): string {
+  return therapie
+    ? "Nein. Sorrida zeigt zuerst, was auf Verordnung möglich ist, und rechnet die gesetzliche Zuzahlung nach § 32 und § 61 SGB V. Selbstzahler-Einheiten stehen daneben, mit Preis und Hinweis auf Kassenzuschüsse. Empfohlen wird nichts von sich aus."
+    : dental
+      ? "Nein. Die Kassenleistung (Regelversorgung) steht immer zuerst und ist vorausgewählt. Gleich- und andersartige Versorgungen stehen mit Eigenanteil daneben. Was hervorgehoben wird, klickt die Praxis an; Sorrida empfiehlt nichts von sich aus."
+      : "Nein. Die Kassenleistung steht immer zuerst und ist immer vorausgewählt. Bei den Angeboten im Katalog, zu denen eine Bewertung des IGeL-Monitors des Medizinischen Dienstes hinterlegt ist, steht sie wörtlich mit Quelle beim Angebot. Was hervorgehoben wird, klickt die Praxis an; Sorrida empfiehlt nichts von sich aus. Das entspricht dem, was Patientenvertreter fordern: Information, Bedenkzeit und Kosten vorab.";
+}
+
+/** Antwort auf „Wobei hilft Sorrida rechtlich?“ je Fachgruppe. */
+export function faqRechtlich({
+  therapie = false,
+  dental = false,
+  alle = false,
+}: FaqGruppe): string {
+  return `Sorrida erstellt die Kosteninformation mit den voraussichtlichen Kosten je Option als Text zum Ausdrucken oder Mitgeben und ${
+    therapie
+      ? "erinnert an die schriftliche Vereinbarung vor Selbstzahlerleistungen; die Zuzahlung rechnet Sorrida nach § 32 und § 61 SGB V in der jeweils geltenden Fassung"
+      : dental
+        ? "erinnert an Mehrkostenvereinbarung und Heil- und Kostenplan, die Sie weiter in Ihrer Praxissoftware erstellen"
+        : alle
+          ? "erinnert an die schriftliche Vereinbarung vor einer Selbstzahlerleistung und an die Bedenkzeit"
+          : "erinnert an die schriftliche Vereinbarung vor einer Selbstzahlerleistung (§ 18 Abs. 8 BMV-Ä) und an die Bedenkzeit"
+  }. Das unterstützt Sie bei der Information nach § 630c Abs. 3 BGB. Die Verantwortung für Inhalt, Zeitpunkt und Form bleibt bei Ihrer Praxis; Sorrida ersetzt keine Rechtsberatung.`;
+}
+
 // Häufige Fragen von Praxen vor dem Start (aus Recherche und Pilotgesprächen abgeleitet).
 // `alle`: Fassung für die Startseite, die kein Fach voraussetzt.
 export function PraxisFaq({ therapie = false, dental = false, journal = false, alle = false }: { therapie?: boolean; dental?: boolean; journal?: boolean; alle?: boolean }) {
   const fragen: [string, React.ReactNode][] = [
     [
       "Ist das nicht Verkaufen am Patienten?",
-      therapie
-        ? "Nein. Sorrida zeigt zuerst, was auf Verordnung möglich ist, und rechnet die gesetzliche Zuzahlung nach § 32 und § 61 SGB V. Selbstzahler-Einheiten stehen daneben, mit Preis und Hinweis auf Kassenzuschüsse. Empfohlen wird nichts von sich aus."
-        : dental
-          ? "Nein. Die Kassenleistung (Regelversorgung) steht immer zuerst und ist vorausgewählt. Gleich- und andersartige Versorgungen stehen mit Eigenanteil daneben. Was hervorgehoben wird, klickt die Praxis an; Sorrida empfiehlt nichts von sich aus."
-          : "Nein. Die Kassenleistung steht immer zuerst und ist immer vorausgewählt. Bei den Angeboten im Katalog, zu denen eine Bewertung des IGeL-Monitors des Medizinischen Dienstes hinterlegt ist, steht sie wörtlich mit Quelle beim Angebot. Was hervorgehoben wird, klickt die Praxis an; Sorrida empfiehlt nichts von sich aus. Das entspricht dem, was Patientenvertreter fordern: Information, Bedenkzeit und Kosten vorab.",
+      faqVerkaufen({ therapie, dental }),
     ],
     [
       // Keine Aussage „erfüllt § 630c“: Ob die Information im Einzelfall genügt, entscheidet die Praxis (Prüfbericht A16, T10).
       "Wobei hilft Sorrida rechtlich, und was bleibt bei uns?",
-      `Sorrida erstellt die Kosteninformation mit den voraussichtlichen Kosten je Option als Text zum Ausdrucken oder Mitgeben und ${
-        therapie
-          ? "erinnert an die schriftliche Vereinbarung vor Selbstzahlerleistungen; die Zuzahlung rechnet Sorrida nach § 32 und § 61 SGB V in der jeweils geltenden Fassung"
-          : dental
-            ? "erinnert an Mehrkostenvereinbarung und Heil- und Kostenplan, die Sie weiter in Ihrer Praxissoftware erstellen"
-            : alle
-              ? "erinnert an die schriftliche Vereinbarung vor einer Selbstzahlerleistung und an die Bedenkzeit"
-              : "erinnert an die schriftliche Vereinbarung vor einer Selbstzahlerleistung (§ 18 Abs. 8 BMV-Ä) und an die Bedenkzeit"
-      }. Das unterstützt Sie bei der Information nach § 630c Abs. 3 BGB. Die Verantwortung für Inhalt, Zeitpunkt und Form bleibt bei Ihrer Praxis; Sorrida ersetzt keine Rechtsberatung.`,
+      faqRechtlich({ therapie, dental, alle }),
     ],
     [
       "Wo liegen die Daten?",

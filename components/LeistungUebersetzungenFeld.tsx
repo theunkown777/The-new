@@ -11,6 +11,7 @@ import {
   type LeistungUebersetzungen,
 } from "@/lib/eigeneLeistung";
 
+import { useAppText } from "@/components/FachKontext";
 const STAND_TEXT = {
   fehlt: null,
   veraltet: "deutscher Text geändert, bitte prüfen",
@@ -39,6 +40,7 @@ export function LeistungUebersetzungenFeld({
   ki: boolean;
   readOnly?: boolean;
 }) {
+  const ft = useAppText();
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
   const leistung = { name, nutzen, uebersetzungen: value };
@@ -69,11 +71,11 @@ export function LeistungUebersetzungenFeld({
   return (
     <details className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm" data-testid="leistung-uebersetzungen">
       <summary className="cursor-pointer font-medium text-slate-800">
-        Übersetzungen für Patienten ({geprueft} von {LEISTUNG_SPRACHEN.length} geprüft{offen > 0 ? `, ${offen} zu prüfen` : ""})
+        {ft("Übersetzungen für Patienten (")}{geprueft} von {LEISTUNG_SPRACHEN.length} geprüft{offen > 0 ? `, ${offen} zu prüfen` : ""})
       </summary>
       <div className="mt-3 space-y-3">
         <p className="text-xs text-slate-600">
-          Name und Hinweis der Praxis in den Sprachen der Patientenansicht. Patienten sehen eine Übersetzung erst, wenn „geprüft“ angehakt und gespeichert ist. Sonst bleibt der deutsche Text stehen.
+          {ft("Name und Hinweis der Praxis in den Sprachen der Patientenansicht. Patienten sehen eine Übersetzung erst, wenn „geprüft“ angehakt und gespeichert ist. Sonst bleibt der deutsche Text stehen.")}
         </p>
         {value && !aktuell && (
           <p className="rounded bg-amber-50 px-2 py-1 text-xs text-amber-900" data-testid="uebersetzung-veraltet">
@@ -123,8 +125,8 @@ export function LeistungUebersetzungenFeld({
                   lang={lang}
                   maxLength={400}
                   disabled={readOnly || !zu.kurz}
-                  placeholder={zu.kurz ? "Hinweis der Praxis" : "kein deutscher Hinweis hinterlegt"}
-                  aria-label={`Hinweis der Praxis auf ${LEISTUNG_SPRACHE_NAME[lang]}`}
+                  placeholder={zu.kurz ? ft("Hinweis der Praxis") : "kein deutscher Hinweis hinterlegt"}
+                  aria-label={ft(`Hinweis der Praxis auf ${LEISTUNG_SPRACHE_NAME[lang]}`)}
                   value={s?.kurz ?? ""}
                   onChange={(e) => setze(lang, { kurz: e.target.value, geprueft: s?.maschinell ? false : stand === "geprueft" })}
                 />
@@ -132,7 +134,7 @@ export function LeistungUebersetzungenFeld({
               {s?.name.trim() && (
                 <label className="mt-2 flex items-center gap-2 text-xs text-slate-700">
                   <input type="checkbox" disabled={readOnly} checked={stand === "geprueft"} onChange={(e) => setze(lang, { geprueft: e.target.checked })} data-testid={`uebersetzung-geprueft-${lang}`} />
-                  Geprüft: Diese Übersetzung stimmt und darf Patienten gezeigt werden
+                  {ft("Geprüft: Diese Übersetzung stimmt und darf Patienten gezeigt werden")}
                 </label>
               )}
             </fieldset>

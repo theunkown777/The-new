@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAppText } from "@/components/FachKontext";
 type S = { id: string; name: string; address: string | null; rooms: number; minutesPerDay: number; termine: number };
 const leer = { name: "", address: "", rooms: 1, stunden: 8 };
 
 export function StandorteVerwalten({ standorte }: { standorte: S[] }) {
+  const ft = useAppText();
   const router = useRouter();
   const [f, setF] = useState(leer);
   const [edit, setEdit] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export function StandorteVerwalten({ standorte }: { standorte: S[] }) {
           <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 p-4" data-testid="standort">
             <div>
               <p className="font-medium text-slate-900">{s.name}</p>
-              <p className="text-sm text-slate-600">{[s.address, `${s.rooms} ${s.rooms === 1 ? "Behandlungsplatz" : "Behandlungsplätze"}`, `${s.minutesPerDay / 60} Std. pro Tag`, `${s.termine} Termine`].filter(Boolean).join(" · ")}</p>
+              <p className="text-sm text-slate-600">{[s.address, `${s.rooms} ${s.rooms === 1 ? "Behandlungsplatz" : ft("Behandlungsplätze")}`, `${s.minutesPerDay / 60} Std. pro Tag`, `${s.termine} Termine`].filter(Boolean).join(" · ")}</p>
             </div>
             <div className="flex gap-3 text-sm">
               <button type="button" className="ziel underline" onClick={() => { setEdit(s.id); setF({ name: s.name, address: s.address ?? "", rooms: s.rooms, stunden: s.minutesPerDay / 60 }); }}>bearbeiten</button>
@@ -53,7 +55,7 @@ export function StandorteVerwalten({ standorte }: { standorte: S[] }) {
         <h2 className="font-semibold text-slate-900 sm:col-span-2">{edit ? "Standort bearbeiten" : "Standort hinzufügen"}</h2>
         <label className="text-sm text-slate-600">Name<input className="input mt-1 w-full" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="z. B. Hauptpraxis, Zweigpraxis Nord" data-testid="standort-name" /></label>
         <label className="text-sm text-slate-600">Adresse (optional)<input className="input mt-1 w-full" value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></label>
-        <label className="text-sm text-slate-600">Behandlungsplätze<input type="number" min={1} max={50} className="input mt-1 w-full" value={f.rooms} onChange={(e) => setF({ ...f, rooms: Number(e.target.value) })} data-testid="standort-plaetze" /></label>
+        <label className="text-sm text-slate-600">{ft("Behandlungsplätze")}<input type="number" min={1} max={50} className="input mt-1 w-full" value={f.rooms} onChange={(e) => setF({ ...f, rooms: Number(e.target.value) })} data-testid="standort-plaetze" /></label>
         <label className="text-sm text-slate-600">Sprechzeit pro Tag (Std.)<input type="number" min={1} max={24} step={0.5} className="input mt-1 w-full" value={f.stunden} onChange={(e) => setF({ ...f, stunden: Number(e.target.value) })} /></label>
         {error && <p className="text-sm text-red-700 sm:col-span-2">{error}</p>}
         <div className="flex gap-3 sm:col-span-2">

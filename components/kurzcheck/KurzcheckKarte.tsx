@@ -3,15 +3,17 @@ import { KoerperFigur, KopfFigur, ZahnBogen } from "./Figur";
 import { koerperPunkte } from "./figurPunkte";
 import { KurzcheckModell } from "./KurzcheckModell";
 
+import { praxisText } from "@/lib/praxisFach";
 /** Akte: der zuletzt ausgefüllte Kurz-Fragebogen des Patienten mit Bild, Stärke und den Antworten in Sätzen. */
-export function KurzcheckKarte({ eintraege }: { eintraege: { id: string; antworten: unknown; createdAt: Date }[] }) {
+export async function KurzcheckKarte({ eintraege }: { eintraege: { id: string; antworten: unknown; createdAt: Date }[] }) {
+  const ft = await praxisText();
   const liste = eintraege.map((e) => ({ ...e, a: kurzcheckLesen(e.antworten) })).filter((e) => e.a);
   const zeit = (d: Date) => d.toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
   return (
     <section id="kurzcheck" className="card scroll-mt-4" data-testid="kurzcheck-karte">
       <h2 className="font-semibold text-slate-900">Kurz-Fragebogen vor dem Termin</h2>
       {liste.length === 0 ? (
-        <p className="mt-1 text-sm text-slate-600">Noch nicht ausgefüllt. Der Patient findet die fünf Fragen in seinem Patientenlink unter „Vor Ihrem Termin“.</p>
+        <p className="mt-1 text-sm text-slate-600">{ft("Noch nicht ausgefüllt. Der Patient findet die fünf Fragen in seinem Patientenlink unter „Vor Ihrem Termin“.")}</p>
       ) : (
         liste.slice(0, 1).map((e) => {
           const a = e.a!;
@@ -29,7 +31,7 @@ export function KurzcheckKarte({ eintraege }: { eintraege: { id: string; antwort
                 </div>
               )}
               <div className="min-w-0 flex-1 text-sm">
-                <p className="text-xs text-slate-500">Vom Patienten ausgefüllt am {zeit(e.createdAt)}</p>
+                <p className="text-xs text-slate-500">{ft("Vom Patienten ausgefüllt am ")}{zeit(e.createdAt)}</p>
                 {!a.keine && a.staerke !== null && (
                   <div className="mt-2" aria-label={`Stärke ${a.staerke} von 10`}>
                     <div className="flex items-baseline justify-between"><span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Stärke</span><span className="font-medium tabular-nums text-slate-900" data-testid="kurzcheck-staerke">{a.staerke} von 10 · {staerkeWort(a.staerke)}</span></div>
@@ -38,7 +40,7 @@ export function KurzcheckKarte({ eintraege }: { eintraege: { id: string; antwort
                 )}
                 <ul className="mt-3 space-y-1 text-slate-800" data-testid="kurzcheck-antworten">{kurzcheckText(a).map((z) => <li key={z}>{z}</li>)}</ul>
                 {!a.keine && a.orte.length > 0 && <KurzcheckModell art={a.art} orte={a.orte} alt={alteOrtNamen(a.stand)} />}
-                <p className="mt-3 text-xs text-slate-500">Angaben des Patienten, keine Diagnose.{liste.length > 1 ? ` Frühere Fragebögen: ${liste.slice(1, 4).map((x) => zeit(x.createdAt)).join(" · ")}` : ""}</p>
+                <p className="mt-3 text-xs text-slate-500">{ft("Angaben des Patienten, keine Diagnose.")}{liste.length > 1 ? ` Frühere Fragebögen: ${liste.slice(1, 4).map((x) => zeit(x.createdAt)).join(" · ")}` : ""}</p>
               </div>
             </div>
           );

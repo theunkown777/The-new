@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useAppText } from "@/components/FachKontext";
 import { themaFuerFrage, vorschlagKnopf, type Antwort, type ThemaId } from "@/lib/praxisManager";
 
 const STUFE: Record<Antwort["stufe"], { dot: string; label: string }> = {
@@ -12,6 +13,7 @@ const STUFE: Record<Antwort["stufe"], { dot: string; label: string }> = {
 
 /** `start`: Thema aus der Adresse (/praxismanager?thema=…), z. B. von „Zeig mir wo“ in Frag Sorrida. */
 export function PraxisManager({ antworten, start = null }: { antworten: Antwort[]; start?: ThemaId | null }) {
+  const ft = useAppText();
   const startAntwort = start ? antworten.find((a) => a.thema === start) : undefined;
   const [frage, setFrage] = useState(startAntwort?.frage ?? "");
   const [gewaehlt, setGewaehlt] = useState<ThemaId | null>(startAntwort ? start : null);
@@ -73,7 +75,7 @@ export function PraxisManager({ antworten, start = null }: { antworten: Antwort[
               <p className="mt-1 text-lg font-medium text-slate-900">{a.kurz}</p>
               {a.punkte.length > 0 && (
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600">
-                  {a.punkte.map((p) => <li key={p}>{p}</li>)}
+                  {a.punkte.map((p) => <li key={p}>{ft(p)}</li>)}
                 </ul>
               )}
               {a.vorschlag && (

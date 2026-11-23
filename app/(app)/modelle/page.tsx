@@ -5,6 +5,8 @@ import { SPECIALTY_LABELS } from "@/lib/specialties";
 import { ModellWahl } from "@/components/modelle/ModellWahl";
 import { MenschKarte } from "@/components/modelle/erklaerung/MenschKarte";
 
+import { fachWoerter } from "@/lib/fachWoerter";
+
 // Modelle für das Gespräch am Behandlungsstuhl oder im Sprechzimmer: zeigen und erklären.
 // Nur die Modelle des eigenen Fachs (lib/modelle/fach.ts). Markiert wird beim einzelnen
 // Patienten (Patientenseite → „Am Modell zeigen“).
@@ -13,12 +15,16 @@ export default async function ModellePage() {
   const praxis = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true } });
   const fach = praxis?.specialty ?? "andere";
   const fachName = fach === "andere" ? null : SPECIALTY_LABELS[fach];
+  // Personenwort des Fachs: „für eine Patientin“, „für einen Kunden“, „für eine Frau“.
+  const w = fachWoerter(praxis?.specialty);
   return (
     <div className="mx-auto max-w-6xl">
       <h1 className="font-display text-3xl text-slate-900">Modelle</h1>
       <p className="mt-1 max-w-2xl text-sm text-slate-500">
-        Zeigen Sie am Bildschirm, wo das Problem liegt und was gemacht wird. Sie sehen die Modelle für {fachName ?? "Ihr Fach"}.
-        Um eine Stelle für einen Patienten zu markieren, öffnen Sie den Patienten und gehen zu „Am Modell zeigen“.
+        Zeigen Sie am Bildschirm, wo das Problem liegt und was gemacht wird. Sie sehen die Modelle für {fachName ?? "Ihr Fach"}.{" "}
+        {w.person === "Patient"
+          ? "Um eine Stelle für einen Patienten zu markieren, öffnen Sie den Patienten und gehen zu „Am Modell zeigen“."
+          : `Um eine Stelle für ${w.einePerson} zu markieren, öffnen Sie die Akte und gehen zu „Am Modell zeigen“.`}
       </p>
       <div className="journal mt-6 rounded-[10px] p-5 sm:p-8">
         <MenschKarte fach={fach} />

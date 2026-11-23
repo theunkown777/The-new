@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 
+import { useAppText } from "@/components/FachKontext";
 /** Schalter für die Morgen-Mail im Eingang (nur Praxisleitung). */
 export function MorgenMail({ aktiv, an, versandBereit }: { aktiv: boolean; an: string; versandBereit: boolean }) {
+  const ft = useAppText();
   const [ein, setEin] = useState(aktiv);
   const [mail, setMail] = useState(an);
   const [msg, setMsg] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export function MorgenMail({ aktiv, an, versandBereit }: { aktiv: boolean; an: s
       </p>
       <div className="mt-3 flex flex-wrap items-end gap-3">
         <label className="min-w-[16rem] flex-1">
-          <span className="block text-slate-600">E-Mail-Adresse der Praxis (z. B. Empfang)</span>
+          <span className="block text-slate-600">{ft("E-Mail-Adresse der Praxis (z. B. Empfang)")}</span>
           <input type="email" className="input mt-1 w-full" value={mail} onChange={(e) => setMail(e.target.value)} placeholder="empfang@ihre-praxis.de" data-testid="morgenmail-an" />
         </label>
         <button type="button" className={ein ? "btn-secondary" : "btn-primary"} disabled={busy || !mail.trim()} onClick={() => speichern(!ein)} data-testid="morgenmail-schalter">

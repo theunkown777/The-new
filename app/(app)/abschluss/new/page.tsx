@@ -8,7 +8,9 @@ import { TreatmentWrapUp } from "@/components/TreatmentWrapUp";
 import { resolveMed } from "@/lib/practiceMed";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 
+import { praxisText } from "@/lib/praxisFach";
 export default async function NewWrapUpPage(props: { searchParams: Promise<{ patientId?: string; q?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   const practiceId = session!.user.practiceId;
@@ -42,7 +44,7 @@ export default async function NewWrapUpPage(props: { searchParams: Promise<{ pat
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-2 font-display text-3xl text-slate-900">{w.abschluss} abschließen</h1>
         <p className="mb-6 text-sm text-slate-500">
-          Für wen? Schneller geht es direkt aus Ihrer Praxissoftware (Einstellungen → Praxissoftware).
+          {ft("Für wen? Schneller geht es direkt aus Ihrer Praxissoftware (Einstellungen → Praxissoftware).")}
         </p>
         <form action="/abschluss/new" className="mb-4 flex gap-2" role="search">
           <input name="q" defaultValue={q} className="input" placeholder="Name suchen" aria-label={`${w.person} suchen`} autoFocus />
@@ -93,7 +95,7 @@ export default async function NewWrapUpPage(props: { searchParams: Promise<{ pat
             bemaPunktwertCent: practice?.bemaPunktwertCent ?? null,
           }}
           prices={resolvePrices(practice?.proposalPrices)}
-          practiceName={practice?.name ?? "Ihre Praxis"}
+          practiceName={practice?.name ?? ft("Ihre Praxis")}
           basePath="/abschluss"
         />
       </div>

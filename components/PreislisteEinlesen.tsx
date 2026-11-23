@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { CustomOffer } from "@/lib/proposals";
 import { betragInCent, ordnePreiseZu, parsePreisliste, type Preiszeile } from "@/lib/preisliste";
 
+import { useAppText } from "@/components/FachKontext";
 export interface PreislisteZiel {
   id: string;
   /** leistung = Leistung des Fachs, eigen = eigene Leistung, vorschlag = Vorschlagspreis (Zahnmedizin), katalog = eigene Katalogposition */
@@ -56,6 +57,7 @@ async function verkleinern(datei: File): Promise<File> {
 
 /** Preisliste einlesen: Text oder Datei, Vorschau, Bestätigung Zeile für Zeile, dann speichern. */
 export function PreislisteEinlesen({ dental, readOnly, ziele: zieleStart, ki, start }: { dental: boolean; readOnly: boolean; ziele: PreislisteZiel[]; ki: { aktiv: boolean; schalter: boolean; verfuegbar: boolean }; start: Start }) {
+  const ft = useAppText();
   const router = useRouter();
   const [text, setText] = useState("");
   const [zeilen, setZeilen] = useState<Zeile[]>([]);
@@ -177,7 +179,7 @@ export function PreislisteEinlesen({ dental, readOnly, ziele: zieleStart, ki, st
 
   return (
     <div className="space-y-6" data-testid="preisliste-einlesen" data-hilfe="preisliste-einlesen">
-      {readOnly && <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">Nur die Praxisleitung kann Preise speichern. Sie können eine Liste lesen und die Vorschau ansehen.</p>}
+      {readOnly && <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{ft("Nur die Praxisleitung kann Preise speichern. Sie können eine Liste lesen und die Vorschau ansehen.")}</p>}
 
       <section className="card space-y-3" aria-labelledby="preisliste-text-titel">
         <h2 id="preisliste-text-titel" className="font-medium text-slate-900">Text einfügen oder Datei wählen</h2>
@@ -199,7 +201,7 @@ export function PreislisteEinlesen({ dental, readOnly, ziele: zieleStart, ki, st
           <p className="text-sm text-slate-500">
             Die Datei geht zum Lesen an den KI-Dienst und wird nicht gespeichert. Höchstens 5 MB. Das Ergebnis ist ein Entwurf, den Sie unten Zeile für Zeile prüfen.
           </p>
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="preisliste-ki-hinweis">Bitte keine Patientendaten hochladen. Nur die Preisliste, ohne Namen und ohne Rechnungen.</p>
+          <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="preisliste-ki-hinweis">{ft("Bitte keine Patientendaten hochladen. Nur die Preisliste, ohne Namen und ohne Rechnungen.")}</p>
           <label className="block text-xs text-slate-600">
             Foto (JPG, PNG, WebP) oder PDF
             <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="mt-1 block w-full max-w-full text-xs" disabled={kiLaeuft} data-testid="preisliste-ki-datei"

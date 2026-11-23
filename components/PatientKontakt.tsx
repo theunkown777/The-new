@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { WhatsappSenden } from "@/components/WhatsappSenden";
 import { EINWILLIGUNG_WEGE, einwilligungsText, vermerkText, type EinwilligungVermerk, type EinwilligungWeg } from "@/lib/kontakt";
 
+import { useAppText } from "@/components/FachKontext";
 const escHtml = (t: string) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
 // Kontakt, Stammdaten und Einwilligungen. Die Einwilligungen stehen im Wortlaut aus lib/kontakt.ts da: Die Praxis liest
 // ihn vor oder druckt ihn aus. Gespeichert wird je Einwilligung, wann, von wem und auf welchem Weg sie aufgenommen wurde.
 export function PatientKontakt({ patientId, email, phone, einwilligungAm, whatsappAm = null, nachfassAm = null, vermerk = {}, praxisName = "", patientName = "", whatsappDirekt = false, geschlecht = null, geburtsdatum = null }: { /** "JJJJ-MM-TT" oder null, wenn keines hinterlegt ist */ geburtsdatum?: string | null; whatsappDirekt?: boolean; patientId: string; email: string | null; phone: string | null; einwilligungAm: string | null; whatsappAm?: string | null; /** Einwilligung, an offene Vorschläge erinnert zu werden */ nachfassAm?: string | null; /** wer die Einwilligungen aufgenommen hat und wie */ vermerk?: EinwilligungVermerk; praxisName?: string; patientName?: string; geschlecht?: string | null }) {
+  const ft = useAppText();
   const router = useRouter();
   const [f, setF] = useState({ email: email ?? "", phone: phone ?? "", einwilligung: !!einwilligungAm, whatsapp: !!whatsappAm, nachfassen: !!nachfassAm, weg: "muendlich" as EinwilligungWeg, geschlecht: geschlecht ?? "", geburtsdatum: geburtsdatum ?? "" });
   const texte = {
@@ -45,7 +47,7 @@ export function PatientKontakt({ patientId, email, phone, einwilligungAm, whatsa
       <h2 className="font-semibold text-slate-900">Kontakt und Stammdaten</h2>
       {!geburtsdatum && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="kontakt-geburtsdatum-hinweis">
-          <b>Geburtsdatum fehlt.</b> Das Patientenportal fragt es ab, bevor unterschrieben oder eine Lastschrift erteilt wird. Ohne Geburtsdatum werden Unterschriften als „ohne Geburtsdatum-Prüfung“ vermerkt, und Lastschrift wird im Portal nicht angeboten. Bitte hier nachtragen.
+          <b>Geburtsdatum fehlt.</b> {ft("Das Patientenportal fragt es ab, bevor unterschrieben oder eine Lastschrift erteilt wird. Ohne Geburtsdatum werden Unterschriften als „ohne Geburtsdatum-Prüfung“ vermerkt, und Lastschrift wird im Portal nicht angeboten. Bitte hier nachtragen.")}
         </p>
       )}
       <label className="block text-sm text-slate-700 sm:max-w-xs">
@@ -63,10 +65,9 @@ export function PatientKontakt({ patientId, email, phone, einwilligungAm, whatsa
         <input className="input w-full" type="tel" placeholder="Mobilnummer" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} aria-label="Mobilnummer" />
       </div>
       <fieldset className="space-y-3 rounded-xl border border-slate-200 p-3" data-testid="kontakt-einwilligungen" data-hilfe="patient-einwilligung">
-        <legend className="px-1 text-sm font-medium text-slate-800">Einwilligungen des Patienten</legend>
+        <legend className="px-1 text-sm font-medium text-slate-800">{ft("Einwilligungen des Patienten")}</legend>
         <p className="text-xs text-slate-500">
-          Lesen Sie den Text vor oder drucken Sie ihn zum Unterschreiben aus. Setzen Sie das Häkchen erst, wenn der Patient zugestimmt hat.
-          Häkchen entfernen heißt Widerruf.
+          {ft("Lesen Sie den Text vor oder drucken Sie ihn zum Unterschreiben aus. Setzen Sie das Häkchen erst, wenn der Patient zugestimmt hat. Häkchen entfernen heißt Widerruf.")}
         </p>
         <label className="flex items-start gap-2 text-sm text-slate-700">
           <input type="checkbox" className="mt-1 h-4 w-4 shrink-0" checked={f.einwilligung} onChange={(e) => setF({ ...f, einwilligung: e.target.checked })} data-testid="kontakt-einwilligung" />

@@ -5,11 +5,13 @@ import { Hinweis } from "@/components/Hinweis";
 import { ROLLEN, ROLLEN_HINWEIS, ROLLEN_LABEL, freigabeLabel, rollenLabel, type Rolle } from "@/lib/rollen";
 import { STANDORT_HINWEIS } from "@/lib/standortRechte";
 
+import { useAppText } from "@/components/FachKontext";
 type Member = { id: string; name: string; email: string; role: string; canSeeAnalytics?: boolean; createdAt: string; standortIds?: string[] };
 type Standort = { id: string; name: string };
 type Invite = { id: string; email: string; role: string; createdAt: string; expiresAt: string };
 
 export function TeamSettings({ currentUserId }: { currentUserId: string }) {
+  const ft = useAppText();
   const [users, setUsers] = useState<Member[]>([]);
   const [invites, setInvites] = useState<Invite[]>([]);
   const [standorte, setStandorte] = useState<Standort[]>([]);
@@ -282,15 +284,15 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
           {ROLLEN.map((r) => (
             <div key={r}>
               <dt className="font-medium text-slate-800">{ROLLEN_LABEL[r]}</dt>
-              <dd className="text-slate-600">{ROLLEN_HINWEIS[r]}</dd>
+              <dd className="text-slate-600">{ft(ROLLEN_HINWEIS[r])}</dd>
             </div>
           ))}
         </dl>
         <p className="text-xs text-slate-500">Eine neue Rolle gilt sofort; die Person wird dafür einmal abgemeldet und meldet sich neu an.</p>
         <h3 className="pt-1 font-medium text-slate-900">Standorte</h3>
-        <p className="text-slate-600" data-testid="standort-hinweis">{STANDORT_HINWEIS}</p>
+        <p className="text-slate-600" data-testid="standort-hinweis">{ft(STANDORT_HINWEIS)}</p>
         {standorte.length === 0 && (
-          <p className="text-xs text-slate-500">Ihre Praxis hat noch keine Standorte angelegt. Das geht unter Einstellungen → Standorte; danach können Sie hier ankreuzen, wer wo arbeitet.</p>
+          <p className="text-xs text-slate-500">{ft("Ihre Praxis hat noch keine Standorte angelegt. Das geht unter Einstellungen → Standorte; danach können Sie hier ankreuzen, wer wo arbeitet.")}</p>
         )}
         </div>
       </Hinweis>

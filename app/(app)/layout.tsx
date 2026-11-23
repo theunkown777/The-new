@@ -1,4 +1,4 @@
-import { abschlussWort, fachprofil } from "@/lib/fachprofile";
+import { abschlussWort, fachprofil, tabletOrt } from "@/lib/fachprofile";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
@@ -31,6 +31,8 @@ import { Suspense } from "react";
 import { AppRundgang } from "@/components/AppRundgang";
 import { appStationen } from "@/lib/rundgang";
 import { gebuehrenwerkeFuer } from "@/lib/abrechnungsarten";
+import { FachKontext } from "@/components/FachKontext";
+import { appTextFuer } from "@/lib/fachText";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -53,7 +55,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const menue = await menueRechteVon(session.user.id, session.user.practiceId);
   const analyse = menue.analyse;
   // Rundgang durch die Hauptseiten (?rundgang=n), nach Rechten gefiltert (lib/rundgang.ts)
-  const rundgang = appStationen({ rechte: menue, personPl: personen, abschluss: abschlussWort(currentUser?.practice.specialty), zahn: dental });
+  const rundgang = appStationen({ rechte: menue, personPl: personen, abschluss: abschlussWort(currentUser?.practice.specialty), zahn: dental, tabletOrt: tabletOrt(currentUser?.practice.specialty) });
   const eingang = await eingangOffen(session.user.practiceId).catch(() => 0);
   // Ohne eingerichtete Zwei-Faktor-Anmeldung zeigt Sorrida bei Pflicht nur die
   // Einrichtung, keine Patientendaten.
@@ -65,8 +67,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     (!currentUser.totpEnabled || nachEinrichtungNeuAnmelden) &&
     zweiFaktorPflicht({ role: currentUser.role, require2faAll: currentUser.practice.require2faAll, isDemo: currentUser.practice.isDemo });
 
+  const fach = currentUser?.practice.specialty ?? null;
+  const t = appTextFuer(fach);
+
   return (
-    <>
+    <FachKontext fach={fach}>
     {/* Dunkle Ansicht (Beta): nur wenn ausdrücklich gewählt; vor dem ersten Bild gesetzt, damit nichts aufblitzt. */}
     <script dangerouslySetInnerHTML={{ __html: ANSICHT_SKRIPT }} />
     <AnsichtWaechter />
@@ -131,8 +136,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               <h1 className="font-display text-3xl text-slate-900">Zwei-Faktor-Anmeldung einrichten</h1>
               <p className="text-sm text-slate-600">
                 {currentUser?.role === "admin"
-                  ? "Für Konten der Praxisleitung ist die Zwei-Faktor-Anmeldung Pflicht, weil sie Zugriff auf alle Patientendaten, Exporte und Einstellungen haben."
-                  : "Ihre Praxis verlangt die Zwei-Faktor-Anmeldung für alle Konten."}{" "}
+                  ? t("Für Konten der Praxisleitung ist die Zwei-Faktor-Anmeldung Pflicht, weil sie Zugriff auf alle Patientendaten, Exporte und Einstellungen haben.")
+                  : t("Ihre Praxis verlangt die Zwei-Faktor-Anmeldung für alle Konten.")}{" "}
                 Sie brauchen eine Authenticator-App (z. B. die von Microsoft, Google oder Apple). Danach geht es direkt weiter.
               </p>
               <TwoFactorSettings initialEnabled={currentUser?.totpEnabled ?? false} />
@@ -167,6 +172,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {!sperre && <HilfeZeiger />}
       </div>
     </div>
-    </>
+    </FachKontext>
   );
 }

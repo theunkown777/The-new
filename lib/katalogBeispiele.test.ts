@@ -33,7 +33,8 @@ describe("Katalog und Leistungsverzeichnis je Fach", () => {
     for (const f of ["", null, undefined]) expect(suchBeispiel(f)).toBe("");
     expect(systemeFuer("unbekannt")).toEqual(SYSTEME_JE_GRUPPE.arzt);
     expect(suchBeispiel("physio")).toBe(", z. B. Hausbesuch");
-    expect(suchBeispiel("augen")).toBe(", z. B. Sonographie oder 03000");
+    expect(suchBeispiel("augen")).toBe(", z. B. Beratung");
+    expect(suchBeispiel("hausarzt")).toBe(", z. B. Sonographie oder 03000");
   });
 });
 

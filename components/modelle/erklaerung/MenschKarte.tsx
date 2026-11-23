@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ERKLAERUNG, THEMA_KURZ, themenFuerFach, type ErklaerThema } from "@/lib/modelle/erklaerung";
 import { ERKLAER_BILDER, MENSCH_BILD } from "@/lib/modelle/erklaerBilder";
 
+import { useAppText } from "@/components/FachKontext";
 // Einstieg in die Erklärungen: der ganze Mensch mit Punkten. Ein Klick fährt weich an die Stelle
 // heran, danach öffnet sich die Erklärungsansicht. Für ein Fach erscheinen nur seine Punkte.
 const ErklaerAnsicht = dynamic(() => import("./ErklaerAnsicht"), { ssr: false });
@@ -12,6 +13,7 @@ const ErklaerAnsicht = dynamic(() => import("./ErklaerAnsicht"), { ssr: false })
 const ZOOM_MS = 650;
 
 export function MenschKarte({ fach, ueberschrift = true }: { fach?: string | null; ueberschrift?: boolean }) {
+  const ft = useAppText();
   const themen = themenFuerFach(fach).filter((t) => ERKLAER_BILDER[t] || !MENSCH_BILD);
   const [ziel, setZiel] = useState<ErklaerThema | null>(null);
   const [offen, setOffen] = useState<ErklaerThema | null>(null);
@@ -48,8 +50,7 @@ export function MenschKarte({ fach, ueberschrift = true }: { fach?: string | nul
             Zeigen, <em>wo es sitzt.</em>
           </h2>
           <p className="j-text mt-3">
-            Tippen Sie auf einen Punkt am Körper. Das Bild fährt heran und öffnet die Erklärung mit allen Teilen, so wie Sie sie dem Patienten am
-            Bildschirm zeigen.
+            {ft("Tippen Sie auf einen Punkt am Körper. Das Bild fährt heran und öffnet die Erklärung mit allen Teilen, so wie Sie sie dem Patienten am Bildschirm zeigen.")}
           </p>
         </div>
       )}

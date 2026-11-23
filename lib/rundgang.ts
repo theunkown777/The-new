@@ -191,7 +191,7 @@ export const RUNDGANG_APP: AppStation[] = [
     text: [
       "Hier beginnt der Tag. Oben stehen die Termine von heute, daneben Auslastung, Aufgaben und Ausfallquote.",
       "Darunter sehen Sie, wie viele {personen} an welcher Station ihres Wegs stehen. Neue Rückmeldungen meldet ein Hinweis zum Eingang.",
-      "Im Menü stehen außerdem: Mein Bereich mit nur Ihren eigenen {personen} und Zahlen, der Praxismanager mit Antworten aus Ihren Daten nach festen Regeln und der Empfang für das Tablet im Wartezimmer.",
+      "Im Menü stehen außerdem: Mein Bereich mit nur Ihren eigenen {personen} und Zahlen, der Praxismanager mit Antworten aus Ihren Daten nach festen Regeln und der Empfang für das Tablet {tabletort}.",
     ],
   },
   {
@@ -298,6 +298,8 @@ export interface AppKontext {
   abschluss: string;
   /** Zahnarztpraxis: nur dort gibt es das Leistungslexikon. */
   zahn?: boolean;
+  /** „im Wartezimmer“, „am Beratungsplatz“ … (lib/fachWoerter.ts, tabletOrt) */
+  tabletOrt?: string;
 }
 
 export interface AppStationFertig {
@@ -308,7 +310,7 @@ export interface AppStationFertig {
 }
 
 const einsetzen = (t: string, k: AppKontext) =>
-  t.replaceAll("{personen}", k.personPl).replaceAll("{abschluss}", k.abschluss).replaceAll("{lexikon}", k.zahn ? " Dazu gibt es das Leistungslexikon zum Nachschlagen." : "");
+  t.replaceAll("{personen}", k.personPl).replaceAll("{abschluss}", k.abschluss).replaceAll("{tabletort}", k.tabletOrt ?? "im Wartezimmer").replaceAll("{lexikon}", k.zahn ? " Dazu gibt es das Leistungslexikon zum Nachschlagen." : "");
 
 /** Stationen für dieses Konto: nach Rechten gefiltert, Platzhalter ersetzt. */
 export function appStationen(k: AppKontext): AppStationFertig[] {

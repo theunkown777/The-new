@@ -384,15 +384,29 @@ export const FACHPROFILE: Record<string, FachProfil> = {
   },
 };
 
-const STANDARD = FACHPROFILE.hausarzt;
+/**
+ * Neutrales Profil für „andere“ und für eine Praxis ohne Fach: allgemeine Terminanlässe, neutraler Berichtsstil,
+ * Region ohne Körper- oder Zahnbezug. Bewusst nicht in FACHPROFILE, damit der Seed dafür keine Vorlagen anlegt.
+ */
+export const NEUTRALES_PROFIL: FachProfil = {
+  person: { sg: "Patient", pl: "Patienten" },
+  einrichtung: "Praxis",
+  fachkraft: "Ihre Praxis",
+  frauenAnteil: 0.52,
+  alter: [18, 90, 48],
+  region: "Region",
+  berichtStil: "sachlicher Stil mit Anlass, Befund, Beurteilung und weiterem Vorgehen, ohne Begriffe eines bestimmten Fachs",
+  termine: ["Erstgespräch", "Kontrolle", "Befundbesprechung", "Folgetermin"],
+  sitzungstypen: [],
+};
 
 export function fachprofil(fach: string | null | undefined): FachProfil {
-  return FACHPROFILE[fach ?? ""] ?? STANDARD;
+  return FACHPROFILE[fach ?? ""] ?? NEUTRALES_PROFIL;
 }
 
 // Wörter des Fachs für Sätze (Person, Einrichtung, Abschluss) stehen in lib/fachWoerter.ts: klein und ohne diese
 // Profile, damit die Patientenseiten sie nicht mitladen. Hier weitergereicht, damit bestehende Importe bleiben.
-export { abschlussWort, einrichtungWoerter, fachWoerter, fuerNeue } from "@/lib/fachWoerter";
+export { abschlussWort, einrichtungWoerter, fachWoerter, fuerNeue, tabletOrt } from "@/lib/fachWoerter";
 
 /** Passt ein Angebot/Befund mit Geschlechts- oder Altersbezug zu diesem Patienten? Unbekanntes Geschlecht schließt nichts aus. */
 export function passtZuPerson(
@@ -425,6 +439,7 @@ export function systemGruppe(fach: string | null | undefined): string {
  * Hilfsmittel Mehrkostenerklärung (§ 33 Abs. 1 SGB V), Klinik Wahlleistungsvereinbarung (§ 17 KHEntgG), sonst neutral.
  */
 export function vereinbarungFuer(fach: string | null | undefined): string {
+  if (!fach) return "Vereinbarung";
   if (fach === "klinik") return "Wahlleistungsvereinbarung";
   const g = systemGruppe(fach);
   if (g === "zahn") return "Mehrkosten- bzw. Privatvereinbarung";
@@ -436,6 +451,7 @@ export function vereinbarungFuer(fach: string | null | undefined): string {
 
 /** Woran sich die Beispielpreise orientieren: GOÄ nur bei Ärzten, GebüH bei Heilpraktikern, sonst übliche Privatpreise. */
 export function preisRahmen(fach: string | null | undefined): string {
+  if (!fach) return "Beispielwerte.";
   const g = systemGruppe(fach);
   if (g === "arzt") return "Beispielwerte im üblichen GOÄ-Rahmen.";
   if (g === "selbst") return "Beispielwerte im Rahmen des Gebührenverzeichnisses für Heilpraktiker (GebüH).";
@@ -447,10 +463,31 @@ export function preisRahmen(fach: string | null | undefined): string {
 export function leistungsBeispiel(gruppe: string): string {
   if (gruppe === "zahn") return "Bleaching";
   if (gruppe === "therapie") return "Kinesio-Taping";
-  if (gruppe === "arzt") return "Reiseimpfberatung";
   if (gruppe === "apotheke") return "Medikationsanalyse";
   if (gruppe === "hebamme") return "Babymassage-Kurs";
   return "Beratungsgespräch";
+}
+
+/** Eigene Leistungen, die zum Arztfach passen. Reiseimpfberatung nur hausärztlich. */
+const BEISPIEL_FACH: Record<string, string> = {
+  hausarzt: "Reiseimpfberatung",
+  augen: "Augeninnendruckmessung",
+  uro: "PSA-Test",
+  ortho: "Stoßwellentherapie",
+  kardio: "Sportmedizinische Untersuchung",
+  aesthetik: "Faltenbehandlung",
+};
+
+/**
+ * Beispiel für den Namen einer eigenen Leistung, je Fach: zuerst ein typisches Beispiel des Fachs, dann die erste
+ * Selbstzahlerleistung aus dem Profil, sonst das Beispiel der Gruppe. Ärzte ohne eigenes Beispiel: „Beratungsgespräch“.
+ */
+export function leistungsBeispielFuer(fach: string | null | undefined): string {
+  const f = fach ?? "";
+  if (BEISPIEL_FACH[f]) return BEISPIEL_FACH[f];
+  const selbst = FACHPROFILE[f]?.sitzungstypen.flatMap((t) => t.leistungen).find((l) => l.system === "SELBST")?.title;
+  if (selbst) return selbst.replace(/\s*\(.*\)$/, "");
+  return leistungsBeispiel(systemGruppe(f));
 }
 
 /** Beispiele für Dokumente in der Akte, je Fach. Röntgenbilder und Überweisungen nicht bei Apotheke, Optik usw. */
@@ -462,6 +499,7 @@ export function dokumentBeispiele(fach: string | null | undefined): string {
   if (f === "sanitaetshaus") return "Verordnungen, Kostenvoranschläge oder Maßblätter";
   if (f === "pflege") return "Pflegegutachten, Verordnungen oder Arztbriefe";
   if (f === "hebamme") return "Befunde, Arztbriefe oder Kopien aus dem Mutterpass";
+  if (f === "psych") return "Arztbriefe, Konsiliarberichte oder Fragebögen";
   const g = systemGruppe(f);
   if (g === "zahn") return "Röntgenbilder, Heil- und Kostenpläne oder Arztbriefe";
   if (g === "therapie") return "Verordnungen, Arztbriefe oder Befunde";

@@ -6,10 +6,11 @@ import { resolveMed } from "@/lib/practiceMed";
 import { hauptModell, modelleFuerFach } from "@/lib/modelle/fach";
 import { abrechnungsStelle, rechnetUeberKv } from "@/lib/abrechnungsarten";
 import { importVorgaben } from "@/lib/importVerzeichnisse";
-import { quellenFuer } from "@/lib/amtlich/gliederung";
+import { hatEbm, hatKvZiffern, quellenFuer } from "@/lib/amtlich/gliederung";
 import { terminDokuGeprueft } from "@/lib/billingCheckLoad";
+import { darfSeite, ratenzahlungAuf } from "@/lib/einstellungsSeiten";
 import {
-  aufVerordnung, diagnoseHinweis, dokumentBeispiele, fachWoerter, leistungsBeispiel, preisRahmen, systemGruppe,
+  aufVerordnung, diagnoseHinweis, dokumentBeispiele, fachWoerter, leistungsBeispiel, leistungsBeispielFuer, preisRahmen, systemGruppe,
 } from "@/lib/fachprofile";
 import { sichtbareSeiten, type SeitenKontext } from "@/lib/suche";
 import { menueRechte } from "@/lib/rollen";
@@ -18,6 +19,7 @@ import { appStationen } from "@/lib/rundgang";
 import { mitGespeichertemFach, mitPraxisFach } from "@/lib/proposalSchema";
 import type { ProposalInput } from "@/lib/proposals";
 import { entlastungKarten } from "@/components/Entlastung";
+import { faqRechtlich, faqVerkaufen } from "@/components/PraxisFaq";
 
 // Zahn ist kein stiller Standard: Ohne Fach ist alles neutral, Zahninhalte nur bei fach === "zahn".
 // Jede Steuerung wird für zahn und mindestens zwei andere Fächer geprüft (ortho, physio; dazu apotheke, pflege, hebamme).
@@ -108,6 +110,41 @@ describe("Abrechnung je Fach", () => {
     expect(ids("apotheke")[0]).toBe("APO");
   });
 
+  it("Import: Zahn mit GOÄ und BEL II wie im eigenen Katalog, nie EBM", () => {
+    const ids = importVorgaben("zahn").verzeichnisse.map(([id]) => id);
+    expect(ids).toEqual(["BEMA", "GOZ", "GOAE", "BEL_II", "SONSTIGES"]);
+    expect(Object.fromEntries(importVorgaben("zahn").verzeichnisse).GOAE).toBe("GOÄ (privat)");
+  });
+
+  it("Import: HZV, DMP und Impfleistung nur hausärztlich; ohne Kassenvertrag „Eigene Liste“", () => {
+    const name = (f: string) => Object.fromEntries(importVorgaben(f).verzeichnisse).SONSTIGES;
+    expect(name("hausarzt")).toBe("Sonder- und Selektivverträge (HZV, DMP …)");
+    expect(name("kardio")).toBe("Sonder- und Selektivverträge");
+    expect(name("psych")).toBe("Sonder- und Selektivverträge");
+    expect(name("zahn")).toBe("Sonder- und Selektivverträge");
+    expect(name("heilpraktiker")).toBe("Eigene Liste");
+    expect(name("optik")).toBe("Eigene Liste");
+    expect(name("aesthetik")).toBe("Eigene Liste");
+    expect(importVorgaben("hausarzt").beispiel).toContain("Impfleistung");
+    expect(importVorgaben("kardio").beispiel).not.toContain("Impf");
+    expect(importVorgaben("heilpraktiker").vertraege).toBe(false);
+    expect(importVorgaben("physio").vertraege).toBe(true);
+  });
+
+  it("KV-Ziffern und EBM nach den Verzeichnissen des Fachs: Klinik ja, Zahn, Physio und Ästhetik nein", () => {
+    for (const f of ["klinik", "hausarzt"]) {
+      expect(hatKvZiffern(f), f).toBe(true);
+      expect(hatEbm(f), f).toBe(true);
+      expect(importVorgaben(f).kv, f).toBe(true);
+      expect(importVorgaben(f).verzeichnisse.map(([id]) => id), f).toContain("EBM");
+    }
+    for (const f of ["zahn", "physio", "aesthetik"]) {
+      expect(hatKvZiffern(f), f).toBe(false);
+      expect(hatEbm(f), f).toBe(false);
+      expect(importVorgaben(f).verzeichnisse.map(([id]) => id), f).not.toContain("EBM");
+    }
+  });
+
   it("Quellenzeile nennt nur die Verzeichnisse, die das Fach sieht", () => {
     const zahn = quellenFuer(["BEMA", "GOZ"], 12.7404).join(" ");
     expect(zahn).toContain("BEMA (KZBV)");
@@ -148,12 +185,20 @@ describe("Wörter und Beispiele je Fach", () => {
     expect(leistungsBeispiel(systemGruppe("ortho"))).not.toBe("Bleaching");
     expect(leistungsBeispiel(systemGruppe("physio"))).not.toBe("Bleaching");
     expect(leistungsBeispiel(systemGruppe("apotheke"))).not.toBe("Bleaching");
+    // Reiseimpfberatung nur hausärztlich; andere Ärzte ein Beispiel ihres Fachs oder „Beratungsgespräch“.
+    expect(leistungsBeispielFuer("hausarzt")).toBe("Reiseimpfberatung");
+    for (const f of ["kardio", "psych", "aesthetik", "klinik", "zahn"]) expect(leistungsBeispielFuer(f), f).not.toBe("Reiseimpfberatung");
+    expect(leistungsBeispielFuer("zahn")).toBe("Bleaching");
+    expect(leistungsBeispielFuer("psych")).toBe("Beratungsgespräch");
+    expect(leistungsBeispielFuer("klinik")).toBe("Wahlleistung Ein- oder Zweibettzimmer");
+    expect(leistungsBeispielFuer(null)).toBe("Beratungsgespräch");
   });
 
   it("Dokumente in der Akte: keine Röntgenbilder und Überweisungen bei Apotheke und Optik", () => {
     expect(dokumentBeispiele("zahn")).toContain("Röntgenbilder");
     expect(dokumentBeispiele("ortho")).toContain("Überweisungen");
     expect(dokumentBeispiele("physio")).toContain("Verordnungen");
+    expect(dokumentBeispiele("psych")).not.toMatch(/Röntgen|Überweisung/);
     for (const f of ["apotheke", "optik"]) expect(dokumentBeispiele(f), f).not.toMatch(/Röntgen|Überweisung/);
   });
 
@@ -209,12 +254,16 @@ describe("Leistungslexikon und Suche nur in der Zahnmedizin", () => {
     expect(text(false, "Klienten", "Einsatz")).not.toContain("{lexikon}");
   });
 
-  it("Lexikon-, Punktwert- und Vorschlagspreis-Seite leiten außerhalb der Zahnmedizin weiter", () => {
-    for (const datei of ["app/(app)/settings/lexikon/page.tsx", "app/(app)/settings/billing/page.tsx", "app/(app)/settings/proposals/page.tsx"]) {
-      const text = lies(datei);
-      expect(text, datei).toMatch(/isDental\(/);
-      expect(text, datei).toMatch(/redirect\(/);
+  it("Lexikon-, Punktwert- und Vorschlagspreis-Seite nur in der Zahnmedizin (darfSeite)", () => {
+    for (const seite of ["lexikon", "billing", "proposals"] as const) {
+      expect(darfSeite("zahn", seite), seite).toBe(true);
+      for (const f of ["ortho", "physio", "apotheke", "andere", null, undefined]) expect(darfSeite(f, seite), `${seite} ${f}`).toBe(false);
     }
+  });
+
+  it("Ratenzahlung erreicht jedes Fach: Zahn bei den Vorschlagspreisen, sonst unter Fachgebiet", () => {
+    expect(ratenzahlungAuf("zahn")).toBe("/settings/proposals");
+    for (const f of ["ortho", "physio", "pflege", null]) expect(ratenzahlungAuf(f), String(f)).toBe("/settings/fachgebiet");
   });
 });
 
@@ -259,9 +308,14 @@ describe("Website: Karten je Fachgruppe", () => {
   });
 
   it("Häufige Fragen: Zahnmedizin bekommt die Regelversorgung statt des IGeL-Monitors", () => {
-    const faq = lies("components/PraxisFaq.tsx");
-    const zahnTeil = faq.slice(faq.indexOf(": dental\n          ?"), faq.indexOf("IGeL-Monitors"));
-    expect(zahnTeil).toContain("Regelversorgung");
+    const zahn = faqVerkaufen({ dental: true });
+    expect(zahn).toContain("Regelversorgung");
+    expect(zahn).not.toContain("IGeL");
+    expect(faqVerkaufen({})).toContain("IGeL-Monitors");
+    expect(faqVerkaufen({ therapie: true })).not.toContain("IGeL");
+    expect(faqRechtlich({ therapie: true })).not.toMatch(/Heil- und Kostenplan|BMV-Ä/);
+    expect(faqRechtlich({ alle: true })).not.toMatch(/Heil- und Kostenplan|BMV-Ä/);
+    expect(faqRechtlich({ dental: true })).toContain("Heil- und Kostenplan");
   });
 });
 
@@ -279,5 +333,34 @@ describe("Beispielrechnungen der Patienten-Demo je Fach", () => {
       // preparePatientDemo erkennt die vorbereitete Demo an „(frühere“
       expect(t.offen, fach).toContain("(frühere");
     }
+  });
+});
+
+describe("Kleinigkeiten je Fach (Fund 11)", () => {
+  it("GOÄ-Zahler: Klinik Wahlleistungen, Zahn ohne IGeL, Arzt mit IGeL", async () => {
+    const { zahlerFuer } = await import("@/lib/gebuehren");
+    expect(zahlerFuer("GOAE", "klinik")).toContain("Wahlleistungen");
+    expect(zahlerFuer("GOAE", "klinik")).not.toContain("IGeL");
+    expect(zahlerFuer("GOAE", "zahn")).not.toContain("IGeL");
+    expect(zahlerFuer("GOAE", "hausarzt")).toContain("IGeL");
+  });
+
+  it("Empfangs-Tablet steht in Apotheke und Pflege nicht im Wartezimmer", async () => {
+    const { tabletOrt } = await import("@/lib/fachWoerter");
+    expect(tabletOrt("apotheke")).toBe("am Beratungsplatz");
+    expect(tabletOrt("pflege")).toBe("beim Hausbesuch");
+    expect(tabletOrt("optik")).toBe("im Geschäft");
+    expect(tabletOrt("zahn")).toBe("im Wartezimmer");
+    expect(tabletOrt(null)).toBe("im Wartezimmer");
+    const rechte = { zahlungen: true, analyse: true, einstellungen: true };
+    const text = appStationen({ rechte, personPl: "Klienten", abschluss: "Einsatz", tabletOrt: tabletOrt("pflege") }).flatMap((s) => s.text).join(" ");
+    expect(text).toContain("Tablet beim Hausbesuch");
+    expect(text).not.toContain("Wartezimmer");
+  });
+
+  it("Heilmittel: kein Vertragstext im Namen einer Leistung (HM 21904)", () => {
+    const d = JSON.parse(lies("data/amtlich/heilmittel.json")) as { leistungen: { code: string; text: string }[] };
+    for (const l of d.leistungen) expect(l.text.length, l.code).toBeLessThan(600);
+    expect(d.leistungen.find((l) => l.code === "21904")?.text).not.toContain("Abrechnung der Leistungen");
   });
 });

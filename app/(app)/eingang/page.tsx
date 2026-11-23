@@ -9,6 +9,7 @@ import { EingangAktion, EingangAlle, EingangMeldungen, EingangUebernehmen } from
 import { MorgenMail } from "@/components/MorgenMail";
 import { EingangAnfragen } from "@/components/EingangAnfragen";
 import { fachWoerter } from "@/lib/fachprofile";
+import { appTextFuer } from "@/lib/fachText";
 import { EingangAntwort } from "@/components/EingangAntwort";
 import { hatAntwortEntwurf } from "@/lib/antwortBausteine";
 import { mailVersandAktiv } from "@/lib/email";
@@ -27,6 +28,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
   const sel = { id: true, art: true, entityId: true, hinweis: true, createdAt: true, erledigtAt: true, erledigtVon: true, zustaendigId: true, zustaendigName: true, patientId: true, patient: { select: { firstName: true, lastName: true } } } as const;
   const praxis = await prisma.practice.findUnique({ where: { id: practiceId }, select: { morgenMail: true, morgenMailAn: true, isDemo: true, specialty: true } });
   const w = fachWoerter(praxis?.specialty);
+  const ft = appTextFuer(praxis?.specialty);
   const [offenAlle, erledigt] = await Promise.all([
     prisma.eingang.findMany({ where: { practiceId, erledigtAt: null }, orderBy: { createdAt: "desc" }, take: 200, select: sel }),
     prisma.eingang.findMany({ where: { practiceId, erledigtAt: { gte: new Date(Date.now() - 14 * 864e5) } }, orderBy: { erledigtAt: "desc" }, take: 50, select: sel }),
@@ -55,7 +57,7 @@ export default async function EingangPage(props: { searchParams: Promise<{ f?: s
             <Link href={`/patients/${e.patientId}`} className="ziel font-medium hover:text-brand-700">{e.patient.lastName}, {e.patient.firstName}</Link>
             {e.hinweis ? <span className="text-slate-500"> · {e.hinweis}</span> : null}
           </p>
-          {!fertig && a && <p className="mt-0.5 text-xs text-slate-500">{a.tun}</p>}
+          {!fertig && a && <p className="mt-0.5 text-xs text-slate-500">{ft(a.tun)}</p>}
           {!fertig && <p className="mt-1"><EingangUebernehmen id={e.id} name={e.zustaendigName} meiner={e.zustaendigId === session!.user.id} /></p>}
           {!fertig && hatAntwortEntwurf(e.art) && <EingangAntwort id={e.id} />}
           {fertig && <p className="mt-0.5 text-xs text-slate-500">abgehakt {e.erledigtAt ? zeit(e.erledigtAt) : ""}{e.erledigtVon ? ` von ${e.erledigtVon}` : ""}</p>}

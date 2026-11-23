@@ -7,6 +7,7 @@ import { ausgangswertSchema, letzteMonate, monatName, wirkungJeMonat, type Ausga
 import { AusgangswertForm } from "@/components/AusgangswertForm";
 import { DruckKnopf } from "@/components/DruckKnopf";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Wirkungsbericht" };
 
@@ -15,6 +16,7 @@ const zahl = (n: number | null, einheit = "") => (n == null ? "–" : `${n.toLoc
 // Wirkungsbericht: Entscheidungen und Zeit je Monat, daneben die Schätzung der Praxis vor dem Start.
 // Bewusst ohne Umsatzzahlen; zum Ausdrucken für das monatliche Gespräch.
 export default async function WirkungPage() {
+  const ft = await praxisText();
   const session = await getServerSession(authOptions);
   if (!(await canSeeAnalytics(session?.user.id))) {
     return (
@@ -41,8 +43,8 @@ export default async function WirkungPage() {
 
   const zeilen: { name: string; hilfe: string; basis: string; werte: string[] }[] = [
     { name: "Vorschläge", hilfe: "im Monat erstellt", basis: zahl(wert?.vorschlaegeMonat ?? null), werte: reihen.map((r) => zahl(r.vorschlaege)) },
-    { name: "Link mitgegeben", hilfe: "Patient hat den Vorschlag aufs Handy bekommen", basis: "–", werte: reihen.map((r) => zahl(r.gesendet)) },
-    { name: "Vom Patienten geöffnet", hilfe: "", basis: "–", werte: reihen.map((r) => zahl(r.geoeffnet)) },
+    { name: "Link mitgegeben", hilfe: ft("Patient hat den Vorschlag aufs Handy bekommen"), basis: "–", werte: reihen.map((r) => zahl(r.gesendet)) },
+    { name: ft("Vom Patienten geöffnet"), hilfe: "", basis: "–", werte: reihen.map((r) => zahl(r.geoeffnet)) },
     { name: "Rückmeldung oder Unterschrift", hilfe: "", basis: "–", werte: reihen.map((r) => zahl(r.rueckmeldung)) },
     { name: "Entschieden", hilfe: "angenommen oder abgelehnt", basis: "–", werte: reihen.map((r) => zahl(r.entschieden)) },
     { name: "Noch ohne Entscheidung", hilfe: "Anteil der Vorschläge des Monats", basis: zahl(wert?.ohneEntscheidungProzent ?? null, " %"), werte: reihen.map((r) => zahl(r.ohneEntscheidungProzent, " %")) },
@@ -56,7 +58,7 @@ export default async function WirkungPage() {
         <div>
           <h1 className="font-display text-3xl text-slate-900">Wirkungsbericht</h1>
           <p className="mt-1 max-w-2xl text-sm text-slate-500">
-            {practice?.name} · Stand {now.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}. Gemessen in Ihrer Praxis: Entscheidungen und Zeit, keine Umsatzzahlen.
+            {practice?.name} · Stand {now.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}{ft(". Gemessen in Ihrer Praxis: Entscheidungen und Zeit, keine Umsatzzahlen.")}
           </p>
         </div>
         <Link href="/analyse" className="text-sm text-brand-700 underline print:hidden">Zur Analyse</Link>
@@ -66,7 +68,7 @@ export default async function WirkungPage() {
         <h2 className="font-semibold text-slate-900">Ausgangswerte vor dem Start</h2>
         <p className="mt-1 text-sm text-slate-600">
           {wert
-            ? `Schätzung der Praxis${wert.erfasstAm ? ` vom ${new Date(wert.erfasstAm).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}` : ""}: ${wert.vorschlaegeMonat} Vorschläge im Monat, davon ${wert.ohneEntscheidungProzent} % ohne Entscheidung, ${wert.tageBisZahlung} Tage bis zur Zahlung.`
+            ? ft(`Schätzung der Praxis${wert.erfasstAm ? ` vom ${new Date(wert.erfasstAm).toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}` : ""}: ${wert.vorschlaegeMonat} Vorschläge im Monat, davon ${wert.ohneEntscheidungProzent} % ohne Entscheidung, ${wert.tageBisZahlung} Tage bis zur Zahlung.`)
             : "Drei kurze Schätzungen, bevor Sie mit Sorrida arbeiten. Daran sehen Sie später, was sich verändert hat."}
         </p>
         {istAdmin && <div className="mt-4"><AusgangswertForm wert={wert} /></div>}
@@ -97,8 +99,7 @@ export default async function WirkungPage() {
       </section>
 
       <p className="max-w-3xl text-xs text-slate-500">
-        „Vorher“ ist eine Schätzung der Praxis, keine Messung. Die Monatswerte zählen Vorschläge und Rechnungen nach dem Monat, in dem sie entstanden sind; der laufende
-        Monat ist unvollständig. Der Bericht enthält keine Patientendaten. Bitte nur mit Zustimmung der Praxis weitergeben.
+        {ft("„Vorher“ ist eine Schätzung der Praxis, keine Messung. Die Monatswerte zählen Vorschläge und Rechnungen nach dem Monat, in dem sie entstanden sind; der laufende Monat ist unvollständig. Der Bericht enthält keine Patientendaten. Bitte nur mit Zustimmung der Praxis weitergeben.")}
       </p>
       <DruckKnopf />
     </div>

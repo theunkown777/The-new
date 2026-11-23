@@ -10,9 +10,11 @@ import { fachWoerter } from "@/lib/fachprofile";
 import { loadAnamnesis } from "@/lib/anamnesisView";
 import { MODELLE, MODELL_BEFUNDE, istBleibenderZahn, teilBezeichnung, teilGueltig, type Modell } from "@/lib/modelle/markierung";
 
+import { praxisText } from "@/lib/praxisFach";
 export default async function NewProposalPage(props: {
   searchParams: Promise<{ patientId?: string; modell?: string }>;
 }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
 
@@ -56,7 +58,7 @@ export default async function NewProposalPage(props: {
         patients={patients.map((p) => ({ ...p, birthDate: p.birthDate?.toISOString() ?? null }))}
         initialPatientId={searchParams.patientId}
         prices={resolvePrices(practice?.proposalPrices)}
-        practiceName={practice?.name ?? "Ihre Praxis"}
+        practiceName={practice?.name ?? ft("Ihre Praxis")}
         initialGlobals={anamnesis?.globals}
         ausModell={ausModell}
         favoriten={favoritenLesen(practice?.vorschlagFavoriten)}

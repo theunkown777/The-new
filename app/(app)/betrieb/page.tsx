@@ -8,6 +8,7 @@ import { isSupportTeam } from "@/lib/supportTeam";
 import { FEHLER_GRENZE_24H } from "@/lib/fehlerlog";
 import { FehlerErledigtButton } from "@/components/FehlerErledigtButton";
 
+import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Betrieb" };
 
@@ -21,6 +22,7 @@ const FILTER = [
 // SUPPORT_TEAM_EMAILS mit bestätigter Adresse; alle anderen sehen 404.
 // Die Einträge sind vor dem Speichern bereinigt (lib/fehlerlog.ts): keine Namen, Adressen, Nummern oder Tokens.
 export default async function BetriebPage(props: { searchParams: Promise<{ f?: string }> }) {
+  const ft = await praxisText();
   const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   if (!(await isSupportTeam(session?.user.id))) notFound();
@@ -43,7 +45,7 @@ export default async function BetriebPage(props: { searchParams: Promise<{ f?: s
           (Grenze im Statusbericht: {FEHLER_GRENZE_24H}). Nur für das Sorrida-Team sichtbar.
         </p>
         <p className="mt-1 text-sm text-slate-500">
-          Die Einträge enthalten keine Patientendaten: Ort ohne Abfrage-Teil und Token, Meldung gekürzt und bereinigt. Gelöscht 30 Tage nach dem letzten Auftreten.
+          {ft("Die Einträge enthalten keine Patientendaten: Ort ohne Abfrage-Teil und Token, Meldung gekürzt und bereinigt. Gelöscht 30 Tage nach dem letzten Auftreten.")}
         </p>
         <p className="mt-1 text-sm"><Link href="/anfragen" className="text-brand-700 underline">Zu den Anfragen</Link></p>
       </div>

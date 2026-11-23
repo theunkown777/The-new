@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAppText } from "@/components/FachKontext";
 // Einstellungen: vierstellige Empfangs-PIN festlegen oder ändern.
 export function EmpfangPinSettings({ admin, gesetzt }: { admin: boolean; gesetzt: boolean }) {
+  const ft = useAppText();
   const router = useRouter();
   const [pin, setPin] = useState("");
   const [nochmal, setNochmal] = useState("");
@@ -29,7 +31,7 @@ export function EmpfangPinSettings({ admin, gesetzt }: { admin: boolean; gesetzt
     <section className="card space-y-4" data-testid="empfang-pin" data-hilfe="empfang-pin">
       <div>
         <h2 className="font-semibold text-slate-900">Empfangs-PIN</h2>
-        <p className="mt-1 text-sm text-slate-600" data-testid="empfang-pin-stand">{gesetzt ? "Eine PIN ist festgelegt. Sie können sie hier ändern." : "Noch keine PIN festgelegt. Ohne PIN lässt sich das Tablet nicht an Patienten übergeben."}</p>
+        <p className="mt-1 text-sm text-slate-600" data-testid="empfang-pin-stand">{gesetzt ? "Eine PIN ist festgelegt. Sie können sie hier ändern." : ft("Noch keine PIN festgelegt. Ohne PIN lässt sich das Tablet nicht an Patienten übergeben.")}</p>
       </div>
       {meldung && <p role={meldung.art === "fehler" ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-sm ${meldung.art === "fehler" ? "bg-red-50 text-red-800" : "bg-salbei-50 text-salbei-900"}`} data-testid="empfang-pin-meldung">{meldung.text}</p>}
       {admin ? (

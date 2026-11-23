@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Haken } from "@/components/Haken";
 import { LeistungSchnell } from "@/components/LeistungSchnell";
-import { faktorVerzeichnisse, kategorieBeispiel, SYSTEM_LABEL, systemeFuer } from "@/lib/katalogBeispiele";
+import { faktorVerzeichnisse, gruppeHatPunkte, hatPunkte, kategorieBeispiel, SYSTEM_LABEL, systemeFuer } from "@/lib/katalogBeispiele";
 import { leistungsBeispiel } from "@/lib/fachprofile";
 
 type CatalogItem = {
@@ -22,11 +22,12 @@ type CatalogItem = {
 
 type RowState = { punktzahl: string; festbetrag: string; saving: boolean; saved: boolean; error: string | null };
 
-export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { readOnly?: boolean; systeme: string; regionLabel: string | null }) {
+export function CatalogSettings({ readOnly = false, systeme, regionLabel, beispiel }: { readOnly?: boolean; systeme: string; regionLabel: string | null; beispiel?: string }) {
   const SYSTEMS = systemeFuer(systeme);
   // Faktor-Feld nur, wo es ein Verzeichnis mit Steigerungsfaktor gibt (GOZ, GOÄ).
   const faktor = faktorVerzeichnisse(systeme);
   // Gebührenverzeichnisse dieses Fachs für den Hinweis unten (in der Zahnmedizin GOZ/BEMA/GOÄ/BEL II).
+  const punkte = gruppeHatPunkte(systeme);
   const verzeichnisse = SYSTEMS.filter((x) => x !== "SONSTIGES" && x !== "SELBST").map((x) => SYSTEM_LABEL[x] ?? x).join("/");
   const emptyNewItem = () => ({ system: SYSTEMS[0], code: "", title: "", category: "", toothRelevant: false, hasFaktor: SYSTEMS[0] === "GOZ" || SYSTEMS[0] === "GOAE" });
   const [items, setItems] = useState<CatalogItem[]>([]);
@@ -144,16 +145,15 @@ export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { re
   return (
     <div className="space-y-6">
       <div data-hilfe="katalog-eigene">
-        <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" beispiel={leistungsBeispiel(systeme)} onCreated={() => load(true)} />
+        <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" beispiel={beispiel ?? leistungsBeispiel(systeme)} onCreated={() => load(true)} />
       </div>
-      <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
-        Punktzahl und Festbetrag sind objektive Werte aus dem offiziellen Gebührenverzeichnis
-        {verzeichnisse ? ` (${verzeichnisse}) ` : " "}und daher für alle Praxen geteilt, die diesen Referenzkatalog nutzen,
-        nicht praxisspezifisch wie der Punktwert unter „Abrechnung“. Bitte gegen das aktuell
-        gültige Verzeichnis prüfen, bevor Sie Werte eintragen. Ausschluss-Regeln,
-        Gültigkeitszeiträume und Frequenzlimits lassen sich weiterhin nur über
-        <code className="mx-1 rounded bg-brand-100 px-1 text-xs">prisma/seed.ts</code>
-        pflegen.
+      <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800" data-testid="katalog-hinweis">
+        {punkte
+          ? `Punktzahl und Festbetrag sind Werte aus dem amtlichen Gebührenverzeichnis${verzeichnisse ? ` (${verzeichnisse})` : ""}. Sie gelten für alle Praxen gleich.`
+          : `Der Festbetrag ist der Betrag je Leistung laut Vergütungsliste oder Vertrag${verzeichnisse ? ` (${verzeichnisse})` : ""}.`}
+        {systeme === "zahn" && " Sie sind nicht praxisspezifisch wie der Punktwert unter Einstellungen, Abrechnung."}
+        {" "}Bitte prüfen Sie Ihre Werte gegen {punkte ? "das gültige Verzeichnis" : "die gültige Liste"}, bevor Sie sie eintragen.
+        {punkte && " Ausschluss-Regeln, Gültigkeitszeiträume und Frequenzlimits der Vorgaben pflegt Sorrida."}
       </p>
 
       {grouped.map(([category, categoryItems]) => (
@@ -176,19 +176,22 @@ export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { re
                     <div className="text-xs text-slate-500">{ref}</div>
                   </div>
                   <div className="flex flex-wrap items-end gap-3">
-                    <div className="w-28">
-                      <label className="mb-1 block text-xs text-slate-500">Punktzahl</label>
-                      <input
-                        aria-label="Punktzahl"
-                        className="input py-1 text-xs disabled:opacity-60"
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        disabled={readOnly || !item.practiceId}
-                        value={row.punktzahl}
-                        onChange={(e) => updateRow(item.id, { punktzahl: e.target.value })}
-                      />
-                    </div>
+                    {/* Punktzahl nur, wo das Verzeichnis Punkte kennt (EBM, BEMA, GOZ, GOÄ). */}
+                    {hatPunkte(item.system) && (
+                      <div className="w-28">
+                        <label className="mb-1 block text-xs text-slate-500">Punktzahl</label>
+                        <input
+                          aria-label="Punktzahl"
+                          className="input py-1 text-xs disabled:opacity-60"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          disabled={readOnly || !item.practiceId}
+                          value={row.punktzahl}
+                          onChange={(e) => updateRow(item.id, { punktzahl: e.target.value })}
+                        />
+                      </div>
+                    )}
                     <div className="w-28">
                       <label className="mb-1 block text-xs text-slate-500">Festbetrag (EUR)</label>
                       <input

@@ -4,13 +4,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { KV_BEZIRKE } from "@/lib/amtlich/gliederung";
 
+import { useAppText } from "@/components/FachKontext";
 /** KV-Bezirk der Praxis wählen: bestimmt die regionalen KV-Ziffern im Leistungsverzeichnis und beim Sitzungstyp. */
 export function KvBezirkWahl({ wert, admin }: { wert: string | null; admin: boolean }) {
+  const ft = useAppText();
   const router = useRouter();
   const [status, setStatus] = useState<string | null>(null);
   return (
     <label className="text-xs text-slate-600" data-testid="kv-bezirk">
-      KV-Bezirk der Praxis{" "}
+      {ft("KV-Bezirk der Praxis")}{" "}
       <select className="input ml-1 inline-block w-auto py-1 text-xs" value={wert ?? ""} disabled={!admin} aria-label="KV-Bezirk"
         onChange={async (e) => {
           setStatus("…");

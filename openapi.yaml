@@ -26,6 +26,17 @@ paths:
   /catalog:
     get:
       summary: Referenzkatalog und Sitzungstyp-Vorlagen abrufen
+      description: >
+        Liefert die Positionen und Vorlagen eines Fachs: das Fach aus dem
+        Parameter fach, sonst das Fach, für das Ihr API-Schlüssel ausgestellt
+        ist. Ohne beides kommen die Vorlagen aller Fächer, jede mit ihrem Fach.
+      parameters:
+        - name: fach
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [zahn, hausarzt, augen, haut, gyn, uro, ortho, hno, kinder, kardio, radiologie, neuro, psych, gastro, pneumo, endo, chirurgie, aesthetik, physio, ergo, logo, podo, hebamme, pflege, apotheke, hoerakustik, optik, sanitaetshaus, heilpraktiker, klinik]
       responses:
         "200":
           description: Katalog und Vorlagen
@@ -42,6 +53,8 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Template"
+        "400":
+          $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "429":
@@ -120,7 +133,8 @@ components:
       type: object
       properties:
         id: { type: string }
-        system: { type: string, enum: [GOZ, BEMA, GOAE, BEL_II, SONSTIGES] }
+        fach: { type: string, nullable: true, description: Fach der Position (lib/specialties.ts) }
+        system: { type: string, enum: [GOZ, BEMA, BEL_II, EBM, GOAE, UVGOAE, HEILMITTEL, HEBAMME, PFLEGE, APO, HILFSMITTEL, SELBST, SONSTIGES] }
         code: { type: string }
         title: { type: string }
         description: { type: string, nullable: true }
@@ -139,6 +153,7 @@ components:
       type: object
       properties:
         id: { type: string }
+        fach: { type: string, nullable: true }
         name: { type: string }
         description: { type: string, nullable: true }
         items:
@@ -225,8 +240,10 @@ components:
             (z. B. Zahnangaben in der Zahnmedizin, Körperregion in der Hausarztpraxis).
             Ohne Angabe gilt die Fachrichtung, für die Ihr API-Schlüssel ausgestellt
             ist. Ist dort keine hinterlegt, gilt Zahnmedizin nur, wenn die Einträge
-            GOZ oder BEMA nennen; sonst ist der Bericht fachneutral ("andere").
-            Geben Sie das Fach am besten immer mit.
+            GOZ, BEMA, BEL II oder Zahnangaben (toothNumbers) enthalten; sonst ist
+            der Bericht fachneutral ("andere"). Geben Sie das Fach am besten immer mit.
+            Bestehende Partner ohne Fach am Schlüssel schicken das Fach mit oder lassen
+            es vom Betreiber am Schlüssel hinterlegen (scripts/set-api-client-fach.ts).
         patient:
           type: object
           required: [firstName, lastName]

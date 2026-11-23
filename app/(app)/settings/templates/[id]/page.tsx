@@ -6,7 +6,9 @@ import { prisma } from "@/lib/prisma";
 import { sichtbarFuer } from "@/lib/katalogScope";
 import { TemplateEditor } from "@/components/TemplateEditor";
 
+import { praxisText } from "@/lib/praxisFach";
 export default async function TemplateEditorPage(props: { params: Promise<{ id: string }> }) {
+  const ft = await praxisText();
   await nurMitEinstellungen();
   const params = await props.params;
   const session = await getServerSession(authOptions);
@@ -23,8 +25,7 @@ export default async function TemplateEditorPage(props: { params: Promise<{ id: 
         </p>
       ) : session!.user.role !== "admin" && (
         <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          Nur Admin-Konten der Praxis können diese Vorlage bearbeiten. Sie sehen die Positionen
-          hier nur lesend.
+          {ft("Nur Admin-Konten der Praxis können diese Vorlage bearbeiten. Sie sehen die Positionen hier nur lesend.")}
         </p>
       )}
       <TemplateEditor templateId={params.id} readOnly={readOnly} />
