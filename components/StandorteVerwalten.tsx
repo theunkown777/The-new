@@ -37,12 +37,12 @@ export function StandorteVerwalten({ standorte }: { standorte: S[] }) {
   return (
     <div className="space-y-4">
       <div className="card divide-y divide-slate-100 p-0">
-        {standorte.length === 0 && <p className="p-4 text-sm text-slate-600">Noch kein Standort. Ohne Standort rechnet die Auslastung mit einem Behandlungsplatz und 8 Stunden.</p>}
+        {standorte.length === 0 && <p className="p-4 text-sm text-slate-600">{ft("Noch kein Standort. Ohne Standort rechnet die Auslastung mit einem Behandlungsplatz und 8 Stunden.")}</p>}
         {standorte.map((s) => (
           <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 p-4" data-testid="standort">
             <div>
               <p className="font-medium text-slate-900">{s.name}</p>
-              <p className="text-sm text-slate-600">{[s.address, `${s.rooms} ${s.rooms === 1 ? "Behandlungsplatz" : ft("Behandlungsplätze")}`, `${s.minutesPerDay / 60} Std. pro Tag`, `${s.termine} Termine`].filter(Boolean).join(" · ")}</p>
+              <p className="text-sm text-slate-600">{[s.address, `${s.rooms} ${ft(s.rooms === 1 ? "Behandlungsplatz" : "Behandlungsplätze")}`, `${s.minutesPerDay / 60} Std. pro Tag`, `${s.termine} Termine`].filter(Boolean).join(" · ")}</p>
             </div>
             <div className="flex gap-3 text-sm">
               <button type="button" className="ziel underline" onClick={() => { setEdit(s.id); setF({ name: s.name, address: s.address ?? "", rooms: s.rooms, stunden: s.minutesPerDay / 60 }); }}>bearbeiten</button>

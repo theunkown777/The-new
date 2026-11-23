@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { mitPatientenGrenze } from "@/lib/patientenImportSperre";
 import { resolvePrices } from "@/lib/proposals";
-import { choicesSchema, computeProposal, mitPraxisFach, proposalInputSchema, proposalStatusSchema } from "@/lib/proposalSchema";
+import { choicesSchema, computeProposal, leererVorschlag, mitPraxisFach, proposalInputSchema, proposalStatusSchema } from "@/lib/proposalSchema";
 import { OHNE_AKTE, kuerzelSchema, nameFuerSchreiben } from "@/lib/ohneAkte";
 
 const createSchema = z.object({
@@ -61,6 +61,8 @@ export async function POST(req: Request) {
   });
   // Das Fach des Vorschlags ist das Fach der Praxis, nicht was der Browser schickt (lib/proposalSchema.ts).
   const input = mitPraxisFach(parsed.data.input, practice?.specialty);
+  const leer = leererVorschlag(input, resolvePrices(practice?.proposalPrices));
+  if (leer) return NextResponse.json({ error: leer }, { status: 400 });
   // Schnellvorschlag: Der Datensatz trägt nur das Kürzel; die Versicherungsart kommt aus dem Vorschlag.
   // Gastzugang: dieselbe Obergrenze für Patienten wie bei Neuanlage und Import (lib/patientenImportSperre.ts).
   let patient;

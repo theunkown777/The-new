@@ -731,6 +731,9 @@ export function typeLabelOf(o: Pick<ProposalOption, "type" | "typeLabel">, insur
 
 /** Wert in der Auswahl, wenn eine freiwillige Leistung ausdrücklich nicht gewünscht ist. */
 export const ABGEWAEHLT = "-";
+/** Meldungen für einen Vorschlag ohne Position (Editor und API, lib/proposalSchema.ts). */
+export const LEER_ZAHN = "Bitte zuerst im Zahnschema einen Befund setzen.";
+export const LEER_MEDIZIN = "Bitte zuerst links einen Anlass ankreuzen.";
 
 /** Freiwillig ist ein Punkt, der nur aus einer einzigen Selbstzahlerleistung besteht: Der Patient kann ihn weglassen. */
 export const istFreiwillig = (item: ProposalItem) =>

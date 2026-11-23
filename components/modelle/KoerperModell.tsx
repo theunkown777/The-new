@@ -27,7 +27,7 @@ const FARBE: Record<Ebene, { flaeche: string; rand: string }> = {
   knochen: { flaeche: "#F3E9D4", rand: "#9A8763" },
   organe: { flaeche: "#D98C86", rand: "#8E4A46" },
   muskeln: { flaeche: "#C9706F", rand: "#8A3B3B" },
-  sehnen: { flaeche: "#CFE3F0", rand: "#44779B" },
+  sehnen: { flaeche: "#E7E2DC", rand: "#78716C" },
   nerven: { flaeche: "#F4D452", rand: "#9A7B10" },
 };
 const STUFE_FARBE: Record<Stufe, string> = { haut: "#D6A185", muskeln: FARBE.muskeln.flaeche, organe: FARBE.organe.flaeche, skelett: FARBE.knochen.flaeche, nerven: FARBE.nerven.flaeche };

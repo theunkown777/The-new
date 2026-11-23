@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { BETRAG_HINWEIS, betragLesen } from "@/lib/betragEingabe";
 
 // Rechnung aus einem angenommenen Vorschlag (Eigenanteil) oder frei anlegen.
 export function CreateInvoiceButton({ patientId, proposalId, title, amountEur, label = "Rechnung erstellen", free = false }: {
@@ -22,12 +23,15 @@ export function CreateInvoiceButton({ patientId, proposalId, title, amountEur, l
 
   async function create(e?: React.FormEvent) {
     e?.preventDefault();
+    const betrag = betragLesen(amount);
+    if (betrag === null) return setError(BETRAG_HINWEIS);
+    if (betrag <= 0) return setError("Der Betrag muss größer als 0 € sein.");
     setBusy(true);
     setError(null);
     const res = await fetch("/api/invoices", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ patientId, proposalId, title: t, amountEur: Number(amount.replace(/\./g, "").replace(",", ".")), dueDays: days }),
+      body: JSON.stringify({ patientId, proposalId, title: t, amountEur: betrag, dueDays: days }),
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
@@ -50,7 +54,8 @@ export function CreateInvoiceButton({ patientId, proposalId, title, amountEur, l
       </label>
       <label className="block min-w-0">
         <span className="text-xs text-slate-500">Betrag (€)</span>
-        <input className="input mt-1 w-full" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} required pattern="[0-9.]*,?[0-9]{0,2}" />
+        <input className="input mt-1 w-full" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} required title={BETRAG_HINWEIS} aria-describedby="betrag-hinweis" />
+        <span id="betrag-hinweis" className="mt-1 block text-xs text-slate-500">Betrag in Euro, z. B. 24,90</span>
       </label>
       <label className="block min-w-0">
         <span className="text-xs text-slate-500">Zahlbar in</span>

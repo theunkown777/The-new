@@ -11,12 +11,12 @@ const monat = (d: Date, letzter = false) => {
 };
 
 /** DATEV-Export auf der Zahlungsseite: Einstellungen und Download des Buchungsstapels. */
-export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | null; istAdmin: boolean }) {
+export function DatevExport({ einstellungen, istAdmin, steuerpflichtigUeblich = false }: { einstellungen: E | null; istAdmin: boolean; steuerpflichtigUeblich?: boolean }) {
   const ft = useAppText();
   const vormonat = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1);
   const [von, setVon] = useState(monat(vormonat));
   const [bis, setBis] = useState(monat(vormonat, true));
-  const [e, setE] = useState<E>(einstellungen ?? { sachkontenlaenge: 4, erloeskonto: 8100, bankkonto: 1200, geldtransit: 1360, debitor: 10000 });
+  const [e, setE] = useState<E>(einstellungen ?? { sachkontenlaenge: 4, erloeskonto: steuerpflichtigUeblich ? undefined : 8100, bankkonto: 1200, geldtransit: 1360, debitor: 10000 });
   const [bearbeiten, setBearbeiten] = useState(!einstellungen);
   const [msg, setMsg] = useState("");
 
@@ -34,7 +34,7 @@ export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | nu
   const feld = (k: keyof E, label: string, hilfe?: string) => (
     <label className="block text-sm">
       <span className="text-slate-600">{label}</span>
-      <input className="input mt-1" inputMode="numeric" value={e[k] ?? ""} onChange={(x) => setE({ ...e, [k]: x.target.value === "" ? undefined : Number(x.target.value) })} required={k === "beraternummer" || k === "mandantennummer"} />
+      <input className="input mt-1" inputMode="numeric" value={e[k] ?? ""} onChange={(x) => setE({ ...e, [k]: x.target.value === "" ? undefined : Number(x.target.value) })} required={k === "beraternummer" || k === "mandantennummer" || k === "erloeskonto"} />
       {hilfe && <span className="text-xs text-slate-500">{hilfe}</span>}
     </label>
   );
@@ -46,7 +46,7 @@ export function DatevExport({ einstellungen, istAdmin }: { einstellungen: E | nu
           {feld("beraternummer", "Beraternummer", "von Ihrer Steuerberatung")}
           {feld("mandantennummer", "Mandantennummer", "von Ihrer Steuerberatung")}
           {feld("sachkontenlaenge", "Sachkontenlänge", "meist 4")}
-          {feld("erloeskonto", "Erlöskonto", "SKR03 üblich: 8100 (steuerfrei)")}
+          {feld("erloeskonto", "Erlöskonto", steuerpflichtigUeblich ? "Bitte mit Ihrer Steuerberatung abstimmen. Verkäufe sind meist umsatzsteuerpflichtig." : "Bitte mit Ihrer Steuerberatung abstimmen. Für steuerfreie Heilbehandlung in SKR03 meist 8100.")}
           {feld("bankkonto", "Bankkonto", "SKR03 üblich: 1200")}
           {feld("geldtransit", "Geldtransit (Online-Zahlung)", "SKR03 1360, SKR04 1460")}
           {feld("debitor", "Debitor (Sammelkonto)", "eine Stelle länger als die Sachkonten, z. B. 10000")}

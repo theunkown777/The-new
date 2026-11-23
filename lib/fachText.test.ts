@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
-import { abschlussText, fachText, mitFachWoertern } from "@/lib/fachText";
+import { abschlussText, appTextFuer, fachText, mitFachWoertern } from "@/lib/fachText";
 import { UI, kostenHinweis, uiFuer, type Ui } from "@/lib/patientI18n";
 import { uiEinfach } from "@/lib/i18n/de-einfach";
 import { PORTAL_UI } from "@/lib/portalI18n";
@@ -362,5 +362,22 @@ describe("Fuß der Patientenseiten und Angstfrage je Fach", () => {
   it("fragt nur dort nach Angst vor der Behandlung, wo behandelt wird", () => {
     for (const fach of ["zahn", "ortho", "physio", "hausarzt", "klinik"]) expect(fragtNachAngst(fach), fach).toBe(true);
     for (const fach of ANDERE_WOERTER) expect(fragtNachAngst(fach), fach).toBe(false);
+  });
+});
+
+describe("appTextFuer: Einstellungen und Vorschlag in Versorgungs-Fächern", () => {
+  it("schreibt Wartezimmer, Sprechzeit, Praxisansicht und Behandlungsplatz um", () => {
+    const apo = appTextFuer("apotheke");
+    expect(apo("Empfangs-PIN für das Tablet im Wartezimmer festlegen.")).toBe("Empfangs-PIN für das Tablet am Beratungsplatz festlegen.");
+    expect(apo("mit Behandlungsplätzen und Sprechzeit")).toBe("mit Plätzen und Öffnungszeit");
+    expect(apo("1 Behandlungsplatz")).toBe("1 Platz");
+    expect(apo("Zurück zur Praxisansicht")).toBe("Zurück zur Ansicht für das Team");
+    expect(appTextFuer("pflege")("Tablet im Wartezimmer")).toBe("Tablet beim Hausbesuch");
+  });
+  it("lässt Praxis-Fächer unverändert", () => {
+    for (const fach of ["zahn", "haut", "physio"]) {
+      const t = "Tablet im Wartezimmer, Sprechzeit, Praxisansicht, 1 Behandlungsplatz";
+      expect(appTextFuer(fach)(t)).toBe(t);
+    }
   });
 });

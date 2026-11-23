@@ -1,4 +1,4 @@
-import { einrichtungWoerter, fachWoerter, personFuer } from "@/lib/fachWoerter";
+import { einrichtungWoerter, fachWoerter, personFuer, tabletOrt } from "@/lib/fachWoerter";
 
 // Deutsche Texte der Patientenseiten in den Wörtern des Fachs. Geschrieben sind sie für Praxis, Behandlung und
 // Patient: Für diese Fächer (Zahnmedizin, Ärzte, Therapie) bleiben sie Zeichen für Zeichen gleich. Bei Apotheke,
@@ -225,6 +225,7 @@ export function appTextFuer(fach: string | null | undefined): (text: string) => 
         .replace(new RegExp(`\\b(${Object.keys(WEG_ARTIKEL).join("|")}) Behandlungswegs?\\b`, "g"), (_, a: string) => `${WEG_ARTIKEL[a]} Übersicht`)
         .replace(/\bBehandlungswegs?\b/g, "Übersicht")
         .replace(/\bBehandlungsplätze(n?)\b/g, "Plätze$1")
+        .replace(/\bBehandlungsplatz(es)?\b/g, "Platz$1")
         .replace(/\bBehandlungsdokumentation\b/g, "Dokumentation")
         .replace(/\bBehandlungsoption\b/g, "Option")
         .replace(/\bBehandlungstag\b/g, "selben Tag")
@@ -237,7 +238,16 @@ export function appTextFuer(fach: string | null | undefined): (text: string) => 
   // Eine Hebammenpraxis ist eine Praxis: In der App bleibt es dort bei „Ihre Praxis“.
   const praxis = e.name === "Praxis" || e.name === "Hebammenpraxis";
   // Wo die Einrichtung keine Praxis ist: „Ihre Software“ statt „Ihre Praxissoftware“, „Konto“ statt „Praxiskonto“.
-  if (!praxis && e.name !== "Klinik") schritte.push((t) => t.replace(/\bPraxis(software|konto|programm|leitung)/g, (_, r: string) => gross(r)).replace(/\bHauptpraxis und Zweigpraxen\b/g, "Hauptsitz und weitere Standorte"));
+  if (!praxis && e.name !== "Klinik")
+    schritte.push((t) =>
+      t
+        .replace(/\bPraxis(software|konto|programm|leitung)/g, (_, r: string) => gross(r))
+        .replace(/\bHauptpraxis und Zweigpraxen\b/g, "Hauptsitz und weitere Standorte")
+        .replace(/\bPraxisansicht\b/g, "Ansicht für das Team")
+        .replace(/\bPraxiszahlen\b/g, "interne Zahlen")
+        .replace(/\bSprechzeit(en)?\b/g, "Öffnungszeit$1")
+        .replace(/\bim Wartezimmer\b/g, tabletOrt(fach)),
+    );
   const rest = regeln(fach, praxis);
   if (rest.length) schritte.push((t) => rest.reduce((x, [re, neu]) => x.replace(re, neu), t));
   const f = schritte.length ? (t: string) => schritte.reduce((x, s) => s(x), t) : gleich;

@@ -19,6 +19,7 @@ import { darfZahlungen } from "@/lib/permissions";
 import { briefMoeglich } from "@/lib/erstattungsbrief";
 import { briefOrdnungFuer } from "@/lib/abrechnungsarten";
 import { fachWoerter } from "@/lib/fachprofile";
+import { STEUERPFLICHTIG_UEBLICH } from "@/lib/datev";
 
 import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
@@ -244,7 +245,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
                       <span className="block font-medium text-slate-900">{p.patient.lastName}, {p.patient.firstName}</span>
                       <span className="text-xs text-slate-500">angenommen am {fmtDate(p.updatedAt)} · {formatCent(p.eigenanteilCent)}</span>
                     </span>
-                    <CreateInvoiceButton patientId={p.patient.id} proposalId={p.id} title="Eigenanteil Behandlung" amountEur={p.eigenanteilCent / 100} />
+                    <CreateInvoiceButton patientId={p.patient.id} proposalId={p.id} title={`Eigenanteil ${w.abschluss}`} amountEur={p.eigenanteilCent / 100} />
                   </li>
                 ))}
               </ul>
@@ -265,7 +266,7 @@ export default async function ZahlungenPage(props: { searchParams: Promise<{ f?:
           <section className="card" aria-labelledby="datev-titel" data-hilfe="zahlungen-datev">
             <h2 id="datev-titel" className="font-semibold text-slate-900">DATEV für die Steuerberatung</h2>
             <p className="mt-1 mb-3 text-sm text-slate-600">Rechnungen und Zahlungseingänge eines Zeitraums als Buchungsstapel.</p>
-            <DatevExport einstellungen={(practice?.datev as Record<string, number> | null) ?? null} istAdmin={isAdmin} />
+            <DatevExport einstellungen={(practice?.datev as Record<string, number> | null) ?? null} istAdmin={isAdmin} steuerpflichtigUeblich={STEUERPFLICHTIG_UEBLICH.includes(practice?.specialty ?? "")} />
           </section>
           <Bankabgleich />
           {practice?.iban && (

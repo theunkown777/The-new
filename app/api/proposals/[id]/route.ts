@@ -4,7 +4,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolvePrices } from "@/lib/proposals";
-import { choicesSchema, computeProposal, mitGespeichertemFach, proposalInputSchema, proposalStatusSchema } from "@/lib/proposalSchema";
+import { choicesSchema, computeProposal, leererVorschlag, mitGespeichertemFach, proposalInputSchema, proposalStatusSchema } from "@/lib/proposalSchema";
 import { nameFuerSchreiben } from "@/lib/ohneAkte";
 
 const updateSchema = z.object({
@@ -66,6 +66,8 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
   if (parsed.data.input || parsed.data.choices) {
     // Das Fach bleibt das gespeicherte; ein fehlendes fach im Browser macht keinen Zahnvorschlag daraus.
     const input = parsed.data.input ? mitGespeichertemFach(parsed.data.input, existing.input) : proposalInputSchema.parse(existing.input);
+    const leer = leererVorschlag(input, resolvePrices(existing.practice.proposalPrices));
+    if (leer) return NextResponse.json({ error: leer }, { status: 400 });
     const computed = computeProposal({
       input,
       choices: parsed.data.choices ?? choicesSchema.parse(existing.choices),

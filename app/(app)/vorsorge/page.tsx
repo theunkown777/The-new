@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ageFromBirthDate } from "@/lib/proposals";
 import { loadRecallDue } from "@/lib/recallLoad";
-import { specialty } from "@/lib/specialties";
+import { bietetKasse, specialty } from "@/lib/specialties";
 import { Laechelbogen } from "@/components/Behandlungsweg";
 import { RecallButton } from "@/components/RecallButton";
 import { Nacheinander } from "@/components/Nacheinander";
@@ -43,7 +43,7 @@ export default async function VorsorgePage() {
         <h1 className="font-display text-3xl text-slate-900">Vorsorge fällig</h1>
         <p className="mt-0.5 flex items-center gap-2 text-sm text-slate-500">
           <Laechelbogen className="h-2 w-8 text-salbei-600" />
-          {appTextFuer(fach)("Kassenleistungen, an die Ihre Patienten erinnert werden möchten.")} Kasse zuerst, auch hier.
+          {appTextFuer(fach)("Kassenleistungen, an die Ihre Patienten erinnert werden möchten.")}{bietetKasse(fach) ? " Kasse zuerst, auch hier." : ""}
         </p>
       </div>
 

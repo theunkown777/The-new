@@ -1079,6 +1079,12 @@ export function specialty(id: string | null | undefined): Specialty | null {
   return ALLE_SPECIALTIES.find((s) => s.id === id) ?? null;
 }
 
+/** Ob das Fach überhaupt Kassenleistungen anbietet (nein z. B. bei Heilpraktikern): Sätze wie „Kasse zuerst“ nur dann. */
+export function bietetKasse(fach: string | null | undefined): boolean {
+  const s = specialty(fach);
+  return !s || s.anlaesse.some((a) => a.options.some((o) => o.type === "kasse"));
+}
+
 export const SPECIALTY_LABELS: Record<string, string> = {
   [DENTAL_ID]: "Zahnmedizin",
   ...Object.fromEntries(ALLE_SPECIALTIES.map((s) => [s.id, s.name])),

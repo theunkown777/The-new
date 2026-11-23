@@ -235,7 +235,7 @@ export default async function DashboardPage() {
         </Link>
         <Link href="/proposals" className="card hover:bg-slate-50">
           <p className="text-sm text-slate-500">Mehrumsatz angenommen</p>
-          <p className="mt-1 text-2xl font-semibold text-amber-700">{formatEuro(acceptedDeltaCent / 100)}</p>
+          <p className="mt-1 text-2xl font-semibold text-brand-700">{formatEuro(acceptedDeltaCent / 100)}</p>
         </Link>
       </div>
 
@@ -246,14 +246,14 @@ export default async function DashboardPage() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Rückmeldungen von {P.pl}</h2>
           <div className="card divide-y divide-slate-100 p-0">
             {responses.map((r) => (
-              <Link key={r.id} href={`/proposals/${r.id}`} className="flex flex-wrap items-center justify-between gap-2 px-6 py-4 hover:bg-emerald-50">
+              <Link key={r.id} href={`/proposals/${r.id}`} className="flex flex-wrap items-center justify-between gap-2 px-6 py-4 hover:bg-brand-50">
                 <div>
                   <p className="font-medium text-slate-900">
                     {r.patient.firstName} {r.patient.lastName}
                   </p>
                   {r.patientNote && <p className="text-sm italic text-slate-600">„{r.patientNote}“</p>}
                 </div>
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
+                <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
                   {r.patientResponse === "RUECKRUF" ? "Rückruf gewünscht" : "möchte besprechen"}
                   {r.patientWantsInstallments && " · Ratenzahlung"}
                   {r.patientRespondedAt && ` · ${r.patientRespondedAt.toLocaleDateString("de-DE", { timeZone: "Europe/Berlin" })}`}

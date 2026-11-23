@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { resolveDatabaseUrls } from "@/lib/databaseUrl";
+import "@/lib/zodDeutsch";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 

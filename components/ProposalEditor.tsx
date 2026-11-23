@@ -6,7 +6,7 @@ import { BefundDiktat } from "@/components/BefundDiktat";
 import { favoritenFuerFach, type Favorit } from "@/lib/favoriten";
 import { AnlassPicker } from "@/components/AnlassPicker";
 import { AnlassStichworte } from "@/components/AnlassStichworte";
-import { DENTAL_ID, isDental, isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
+import { DENTAL_ID, bietetKasse, isDental, isTherapie, istZahnVorschlag, specialty } from "@/lib/specialties";
 import { fachWoerter } from "@/lib/fachprofile";
 import type { DiktatResult } from "@/lib/befundDiktat";
 import {
@@ -27,6 +27,8 @@ import {
   tageBisStichtag,
   vergleicheJahre,
   formatEuro,
+  LEER_MEDIZIN,
+  LEER_ZAHN,
   money,
   typeLabelOf,
   summarize,
@@ -281,6 +283,8 @@ export function ProposalEditor({
         .join(" · ")
     : "";
 
+  const leerHinweis = dental ? LEER_ZAHN : LEER_MEDIZIN;
+
   async function save(nextStatus?: string, choicesOverride?: Record<string, string>) {
     if (schnell && !existing) {
       if (kuerzel.trim().length < 2) {
@@ -289,6 +293,10 @@ export function ProposalEditor({
       }
     } else if (!patientId) {
       setError(`Bitte zuerst ${w.einePerson} wählen.`);
+      return;
+    }
+    if (!locked && items.length === 0) {
+      setError(leerHinweis);
       return;
     }
     setSaving(true);
@@ -371,10 +379,10 @@ export function ProposalEditor({
       {!compact && (
         <div className={`flex flex-wrap items-center justify-between gap-3 ${gespraech ? "rounded-xl bg-[#F5F2EE] px-4 py-3" : ""}`}>
           <p className="text-sm text-slate-600">
-            {gespraech ? "Ansicht für das Gespräch: Praxiszahlen und Eingabefelder sind ausgeblendet." : ft(`Drehen Sie den Bildschirm ${w.zurPerson}? Dann blendet diese Ansicht alles aus, was nur die Praxis betrifft.`)}
+            {gespraech ? ft("Ansicht für das Gespräch: Praxiszahlen und Eingabefelder sind ausgeblendet.") : ft(`Drehen Sie den Bildschirm ${w.zurPerson}? Dann blendet diese Ansicht alles aus, was nur die Praxis betrifft.`)}
           </p>
           <button type="button" className={gespraech ? "btn-primary" : "btn-secondary"} aria-pressed={gespraech} onClick={() => setGespraech((g) => !g)} data-testid="gespraech-schalter" data-hilfe="vorschlag-gespraech">
-            {gespraech ? "Zurück zur Praxisansicht" : `${w.person} schaut mit`}
+            {gespraech ? ft("Zurück zur Praxisansicht") : `${w.person} schaut mit`}
           </button>
         </div>
       )}
@@ -609,7 +617,7 @@ export function ProposalEditor({
             </div>
           ) : (
           <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-4 [&>div]:bg-white">
-            {dental ? <Stat label={factors.insurance === "PKV" ? "Nur Basis" : "Nur Kasse"} value={formatEuro(summary.baseTotal)} /> : <Stat label="Anlässe" value={String(items.length)} />}
+            {dental ? <Stat label={factors.insurance === "PKV" ? "Nur Basis" : "Nur Kasse"} value={formatEuro(summary.baseTotal)} /> : <Stat label="Anlässe" value={String(items.filter((i) => !i.zusatz).length)} />}
             <Stat label="Gewählter Plan" value={formatEuro(summary.planTotal)} />
             <Stat
               label="Mehrumsatz"
@@ -669,7 +677,7 @@ export function ProposalEditor({
                 onClick={() => setTab(t)}
                 className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium ${tab === t ? "border-brand-600 text-slate-900" : "border-transparent text-slate-500 hover:text-slate-700"}`}
               >
-                {t === "praxis" ? "Praxisansicht" : `Schreiben an ${w.person}`}
+                {t === "praxis" ? ft("Praxisansicht") : `Schreiben an ${w.person}`}
               </button>
             ))}
           </div>}
@@ -734,7 +742,7 @@ export function ProposalEditor({
                               )}
                               <span className={`mt-auto flex justify-between border-t border-dashed border-slate-200 pt-2 text-slate-500 ${gespraech ? "text-sm" : "text-xs"}`}>
                                 {gespraech ? "Ihr Eigenanteil" : "Eigenanteil"}
-                                <b className="tabular-nums text-amber-700">{formatEuro(m.netto)}</b>
+                                <b className="tabular-nums text-slate-900">{formatEuro(m.netto)}</b>
                               </span>
                               {zeigeVergleich && isZahnersatz(o) && (
                                 <span className="flex justify-between text-xs text-red-700">
@@ -789,7 +797,7 @@ export function ProposalEditor({
           <p className={gespraech ? "hidden" : "text-xs text-slate-500"}>
             {dental
               ? ft("Beträge sind Schätzungen aus der Preisliste Ihrer Praxis (Einstellungen → Vorschlagspreise). Vorausgewählt ist immer die Kassen- bzw. Regelleistung. Was Sie mit Ihrer Patientin oder Ihrem Patienten vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. HKP und Mehrkostenvereinbarung erstellen Sie wie gewohnt in Ihrer Praxissoftware.")
-              : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). Vorausgewählt ist immer die Kassenleistung. Was Sie im Gespräch vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. ${isTherapie(spec) ? `Selbstzahlerleistungen vereinbaren Sie ${w.vorAbschluss} schriftlich.` : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
+              : `Beträge sind Schätzungen nach Ihrer Preisliste (Einstellungen → Fachgebiet und Leistungen). ${bietetKasse(fach) ? "Vorausgewählt ist immer die Kassenleistung. " : ""}Was Sie im Gespräch vormerken, wählen Sie selbst; die fachliche Entscheidung trifft die behandelnde Person. ${isTherapie(spec) ? `Selbstzahlerleistungen vereinbaren Sie ${w.vorAbschluss} schriftlich.` : "Die schriftliche IGeL-Vereinbarung schließen Sie vor der Leistung."}`}
           </p>
 
           {!compact && !gespraech && patientWahl && (
@@ -816,7 +824,7 @@ export function ProposalEditor({
 
           {!compact && !gespraech && <div className="flex flex-wrap gap-2">
             {!locked && (
-              <button type="button" disabled={saving} onClick={() => save()} className="btn-primary">
+              <button type="button" disabled={saving || items.length === 0} title={items.length === 0 ? leerHinweis : undefined} onClick={() => save()} className="btn-primary" data-testid="vorschlag-speichern">
                 {saving ? "Speichert…" : existing ? "Änderungen speichern" : "Vorschlag speichern"}
               </button>
             )}
@@ -850,7 +858,7 @@ function Stat({ label, value, hint, accent }: { label: string; value: string; hi
   return (
     <div className="px-4 py-3">
       <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={`mt-0.5 text-lg font-semibold tabular-nums ${accent ? "text-amber-700" : "text-slate-900"}`}>{value}</p>
+      <p className={`mt-0.5 text-lg font-semibold tabular-nums ${accent ? "text-brand-700" : "text-slate-900"}`}>{value}</p>
       {hint && <p className="text-xs text-slate-500">{hint}</p>}
     </div>
   );

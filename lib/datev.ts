@@ -137,6 +137,9 @@ export const DATEV_SPALTEN = [
   "Abw. Skontokonto",
 ] as const;
 
+/** Fächer, deren Umsätze meist umsatzsteuerpflichtig sind (Verkauf, rein ästhetische Leistungen): kein Erlöskonto 8100 vorbelegen. */
+export const STEUERPFLICHTIG_UEBLICH: readonly string[] = ["apotheke", "optik", "hoerakustik", "sanitaetshaus", "aesthetik"];
+
 export const datevSchema = z.object({
   beraternummer: z.coerce.number().int().min(1001, "Beraternummer: 1001 bis 9999999").max(9999999),
   mandantennummer: z.coerce.number().int().min(1, "Mandantennummer: 1 bis 99999").max(99999),

@@ -20,10 +20,10 @@ const BASIS_SCHNITT = { x: SCHNITT.x, y: SCHNITT.y, w: SCHNITT.b, h: SCHNITT.h }
 const MATERIAL: Record<Material, { flaeche: string; rand: string }> = {
   metall: { flaeche: "#D3DADF", rand: "#6F7C84" },
   griff: { flaeche: "#8F9AA1", rand: "#4F5A61" },
-  glas: { flaeche: "#E8F4F8", rand: "#7FA6B6" },
-  licht: { flaeche: "#74B4F2", rand: "#3F86CC" },
-  gummi: { flaeche: "#5E9C8F", rand: "#3A6E63" },
-  schlauch: { flaeche: "#E4ECEF", rand: "#8798A0" },
+  glas: { flaeche: "#F1EDE7", rand: "#B9B0A8" },
+  licht: { flaeche: "#FBF3E4", rand: "#B9A680" },
+  gummi: { flaeche: "#B5605E", rand: "#7E3A38" },
+  schlauch: { flaeche: "#E7E2DC", rand: "#8F8780" },
   marke: { flaeche: "#39434A", rand: "#39434A" },
 };
 type Reiter = "zaehne" | "aufbau" | "instrumente";

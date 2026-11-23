@@ -98,7 +98,7 @@ const PARTNER = "Partner-Schlüssel (lib/apiAuth.ts) mit Begrenzung; liest nur d
 
 const TERMIN_NEU = { start: "2031-03-04T09:00:00.000Z", minutes: 30, reason: "Kontrolle" };
 const ZAHLUNG = { rechnungId: "$B.rechnung", datum: "2026-11-02" };
-const EINGABE = { teeth: {}, globals: {}, patient: { age: 46, insurance: "GKV", bonusYears: 0, haertefall: false, erstattungProzent: 0 } };
+const EINGABE = { teeth: { "16": "zerstoert" }, globals: {}, patient: { age: 46, insurance: "GKV", bonusYears: 0, haertefall: false, erstattungProzent: 0 } };
 const BERICHT = { type: "BEFUND", reviewConfirmed: true };
 const RECHNUNG_NEU = { title: "Eigenanteil", amountEur: 100 };
 const ZWEIT = { leistung: "Krone", eigenanteil: 400, geteilt: false };

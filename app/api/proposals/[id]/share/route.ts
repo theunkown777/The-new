@@ -5,6 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateToken } from "@/lib/tokens";
 import { PATIENT_LINK_TTL_MS } from "@/lib/patientLink";
+import { resolvePrices } from "@/lib/proposals";
+import { leererVorschlag, proposalInputSchema } from "@/lib/proposalSchema";
 
 // Patienten-Link erzeugen. Ein neuer Link macht den vorherigen ungültig.
 // Der Link wird nur in dieser Antwort im Klartext ausgegeben.
@@ -15,9 +17,13 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
   const proposal = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, practiceId: session.user.practiceId },
-    select: { id: true, shareCreatedAt: true, input: true },
+    select: { id: true, shareCreatedAt: true, input: true, practice: { select: { proposalPrices: true } } },
   });
   if (!proposal) return NextResponse.json({ error: "Vorschlag nicht gefunden" }, { status: 404 });
+  // Ohne Position sähen Patienten nur „0 Positionen“ und die Antwortknöpfe.
+  const gespeichert = proposalInputSchema.safeParse(proposal.input);
+  const leer = gespeichert.success ? leererVorschlag(gespeichert.data, resolvePrices(proposal.practice.proposalPrices)) : null;
+  if (leer) return NextResponse.json({ error: leer }, { status: 400 });
 
   const { raw, hash } = generateToken();
   const expiresAt = new Date(Date.now() + PATIENT_LINK_TTL_MS);

@@ -25,7 +25,8 @@ export function PatientLinkPanel({ proposalId, state, firstName, sofort = false 
     const res = await fetch(`/api/proposals/${proposalId}/share`, { method: "POST" }).catch(() => null);
     setBusy(false);
     if (!res?.ok) {
-      setError("Link konnte nicht erzeugt werden.");
+      const grund = res ? ((await res.json().catch(() => null)) as { error?: string } | null)?.error : undefined;
+      setError(grund && res?.status === 400 ? grund : "Link konnte nicht erzeugt werden.");
       return;
     }
     const data = await res.json();

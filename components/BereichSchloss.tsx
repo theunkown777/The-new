@@ -74,7 +74,7 @@ export function BereichSchloss({ start, demo, name }: { start: "setzen" | "entsp
             </label>
           )}
           {neu && <p className="text-xs text-slate-500">Mindestens 6 Zeichen. Nach 5 Fehlversuchen ist der Bereich 15 Minuten gesperrt; nach 30 Minuten schließt er sich von selbst.</p>}
-          {neu && demo && <p className="text-xs text-slate-500">Im Gastzugang reicht das neue Passwort. In der echten Praxis bestätigen Sie es mit Ihrem Anmeldepasswort.</p>}
+          {neu && demo && <p className="text-xs text-slate-500">Im Gastzugang reicht das neue Passwort. Im echten Zugang bestätigen Sie es mit Ihrem Anmeldepasswort.</p>}
           {fehler && (
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
               {fehler}

@@ -2,6 +2,8 @@ import { z } from "zod";
 import {
   ABGEWAEHLT,
   FINDINGS,
+  LEER_MEDIZIN,
+  LEER_ZAHN,
   GLOBAL_FINDINGS,
   PRICE_DEFS,
   PROPOSAL_STATUSES,
@@ -15,6 +17,7 @@ import {
   type Prices,
   type ProposalInput,
 } from "@/lib/proposals";
+import { istZahnVorschlag } from "@/lib/specialties";
 import { SPECIALTY_IDS, isDental } from "@/lib/specialties";
 import { leistungUebersetzungenSchema } from "@/lib/eigeneLeistung";
 
@@ -91,6 +94,15 @@ export const priceOverridesSchema = z.object(
 );
 
 /** Optionen, Summen und Patiententext serverseitig aus input + Praxispreisen berechnen. */
+/**
+ * Ein Vorschlag ohne Position hat für Patienten keinen Inhalt („0 Positionen“, „0 €“).
+ * Gibt dann die Meldung zurück, sonst null. Gilt für Speichern und Patientenlink.
+ */
+export function leererVorschlag(input: ProposalInput, prices: Prices): string | null {
+  if (buildProposal(input, prices).length > 0) return null;
+  return istZahnVorschlag(input.fach) ? LEER_ZAHN : LEER_MEDIZIN;
+}
+
 export function computeProposal(args: {
   input: ProposalInput;
   choices: Record<string, string>;

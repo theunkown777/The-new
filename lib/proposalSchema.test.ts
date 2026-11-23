@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeProposal } from "@/lib/proposalSchema";
+import { computeProposal, leererVorschlag } from "@/lib/proposalSchema";
 import { DEFAULT_PRICES, type ProposalInput } from "@/lib/proposals";
 
 const patient = { age: 50, insurance: "GKV" as const, bonusYears: 0 as const, haertefall: false, erstattungProzent: 0 };
@@ -26,5 +26,24 @@ describe("computeProposal: gespeicherte Wahl", () => {
     expect(augen.eigenanteilCent).toBe(0);
     // Bei einer Position mit Kassenleistung oder mehreren Möglichkeiten gibt es kein „nicht gewünscht“
     expect(rechne({ a_hautkrebs: "-", a_aesthetik: "-" }).choices).toEqual({});
+  });
+});
+
+describe("leererVorschlag", () => {
+  it("meldet einen Vorschlag ohne Position, je nach Fach", () => {
+    expect(leererVorschlag({ ...haut, anlaesse: [] }, DEFAULT_PRICES)).toBe("Bitte zuerst links einen Anlass ankreuzen.");
+    expect(leererVorschlag({ teeth: {}, globals: {}, patient, fach: "zahn" }, DEFAULT_PRICES)).toBe("Bitte zuerst im Zahnschema einen Befund setzen.");
+  });
+  it("lässt Vorschläge mit Position durch", () => {
+    expect(leererVorschlag(haut, DEFAULT_PRICES)).toBeNull();
+  });
+});
+
+describe("bietetKasse", () => {
+  it("kennt Fächer ohne Kassenleistung", async () => {
+    const { bietetKasse } = await import("@/lib/specialties");
+    expect(bietetKasse("heilpraktiker")).toBe(false);
+    expect(bietetKasse("haut")).toBe(true);
+    expect(bietetKasse("zahn")).toBe(true);
   });
 });

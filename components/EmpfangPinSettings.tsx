@@ -46,7 +46,7 @@ export function EmpfangPinSettings({ admin, gesetzt }: { admin: boolean; gesetzt
         <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Nur die Geschäftsführung kann die Empfangs-PIN festlegen.</p>
       )}
       <ul className="list-disc space-y-1 pl-5 text-xs text-slate-500">
-        <li>Die PIN gilt für die ganze Praxis. Geben Sie sie nur an das Team am Empfang.</li>
+        <li>{ft("Die PIN gilt für alle Geräte Ihrer Praxis. Geben Sie sie nur an das Team am Empfang.")}</li>
         <li>Nach 5 falschen Eingaben ist die PIN 5 Minuten gesperrt. Nach der dritten Sperre in Folge hilft nur die Anmeldung mit E-Mail und Passwort.</li>
         <li>Gespeichert wird die PIN nicht lesbar. Wer sie vergisst, legt hier eine neue fest.</li>
       </ul>

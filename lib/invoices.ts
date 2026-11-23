@@ -1,5 +1,6 @@
 import { anrede } from "@/lib/ohneAkte";
 import { z } from "zod";
+import { BETRAG_HINWEIS } from "@/lib/betragEingabe";
 
 // Rechnungen und Zahlungen: Die Praxis stellt den Eigenanteil in Rechnung,
 // der Patient sieht ihn im Patientenportal und überweist per GiroCode
@@ -152,8 +153,8 @@ export const paymentReference = (number: string, lastName: string) => `Rechnung 
 export const invoiceCreateSchema = z.object({
   patientId: z.string().min(1).max(40),
   proposalId: z.string().max(40).optional(),
-  title: z.string().trim().min(2).max(120),
-  amountEur: z.number().positive().max(100000),
+  title: z.string().trim().min(2, "Bitte eine Bezeichnung eingeben.").max(120, "Die Bezeichnung ist zu lang."),
+  amountEur: z.number(BETRAG_HINWEIS).positive("Der Betrag muss größer als 0 € sein.").max(100000, "Der Betrag ist zu hoch."),
   dueDays: z.number().int().min(0).max(120).default(DEFAULT_DUE_DAYS),
 });
 
