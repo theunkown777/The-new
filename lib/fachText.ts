@@ -228,7 +228,8 @@ export function appTextFuer(fach: string | null | undefined): (text: string) => 
         .replace(/\bBehandlungsdokumentation\b/g, "Dokumentation")
         .replace(/\bBehandlungsoption\b/g, "Option")
         .replace(/\bBehandlungstag\b/g, "selben Tag")
-        .replace(/\bBehandelt und berät\b/g, "Berät"),
+        .replace(/\bBehandelt und berät\b/g, "Berät")
+        .replace(/\bBehandelt von\b/g, "Betreut von"),
     );
     schritte.push((t) => abschlussText(t, w.abschluss));
   }
