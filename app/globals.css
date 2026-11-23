@@ -231,6 +231,9 @@ h1 {
 
 /* Räumliche Modelle: ruhiger Hintergrund mit Lichtschein, damit die Formen plastisch wirken */
 .modell-buehne { background: radial-gradient(110% 85% at 50% 22%, #f6f1ea 0%, #e6ddd1 48%, #c9bcab 100%); }
+/* Dunkle Ansicht der Praxis-App: dunkle Bühne statt heller Kiste, Lizenzvermerk lesbar */
+.dunkel .praxis-app .modell-buehne { background: radial-gradient(110% 85% at 50% 22%, #3a3431 0%, #2b2725 45%, #1d1a19 100%); --tw-ring-color: #3d3733; }
+.dunkel .praxis-app [data-testid="modell-quelle"] { color: #a8a29e; }
 
 
 /* ------------------------------------------------------------------------------------------------

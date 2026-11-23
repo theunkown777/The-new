@@ -1,6 +1,7 @@
 // Baupläne der 3D-Modelle für die Frage „Wo haben Sie Beschwerden?“: je Art das echte Modell.
 // Körper und Haut: Haut des ganzen Menschen (haut.glb), auf Wunsch mit dem Skelett darunter (Gelenke).
-// Zähne: Kiefer, Zähne, Zahnfleisch, Zunge und Gaumen (mund.glb) mit offenem Mund, ohne Gesicht.
+// Zähne: Kiefer, Zähne, Zahnfleisch, Zunge und Gaumen (mund.glb) mit offenem Mund, ohne Gesicht. Mundbodenmuskeln,
+// Speicheldrüsen und Zungenbein bleiben hier weg (sie lenken ab); in der Praxis-Ansicht sind sie als Schicht da.
 // Augen und HNO: Kopf-Scan mit Gesicht und Ohren (kopf.glb).
 import type { KurzArt } from "@/lib/kurzcheck";
 import type { Drei } from "@/components/modelle/drei/Buehne";
@@ -16,13 +17,15 @@ export const ORT_KUGEL: Record<"koerper" | "kopf" | "zahn", { mitte: [number, nu
   zahn: { mitte: [0, 676, 46], radius: 58 },
 };
 
+const OHNE_IM_KURZCHECK = new Set(["mund:mundboden", "mund:speicheldruesen", "mund:zungenbein"]);
+
 export function ortBauplan(T: Drei, art: KurzArt): Bauplan {
   if (art === "zahn") {
     return {
       kugel: ORT_KUGEL.zahn, winkel: 0, hoehe: 0.2, selbstDrehen: false,
       // Mund gleich offen: Ober- und Unterkiefer mit allen Zähnen zu sehen
       klappe: { achse: MUND_ACHSE, winkel: MUND_OFFEN },
-      auftraege: [async () => ladeDatei(T, "mund"), () => kiefergelenkKugeln(T)],
+      auftraege: [async () => (await ladeDatei(T, "mund")).filter((m) => !OHNE_IM_KURZCHECK.has(String(m.userData.kennung))), () => kiefergelenkKugeln(T)],
     };
   }
   if (art === "auge" || art === "hno") {

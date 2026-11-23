@@ -11,7 +11,8 @@ import { schreibeGlb } from "./glb.mjs";
 
 const ORDNER = "public/anatomie-3d";
 // Anteil der Dreiecke, der bleibt (große Ebenen stärker vereinfachen)
-const ANTEIL = { skelett: 0.35, muskeln: 0.35, haut: 0.4, mund: 0.5, lunge: 0.5, verdauung: 0.5, gehirn: 0.5, herz: 0.5, auge: 0.6, harnwege: 0.6, hno: 0.6, sehnen: 0.6 };
+// Das Gebiss (mund) fehlt hier: bauen.mjs baut mund-leicht.glb selbst (mund.mjs).
+const ANTEIL = { skelett: 0.35, muskeln: 0.35, haut: 0.4, lunge: 0.5, verdauung: 0.5, gehirn: 0.5, herz: 0.5, auge: 0.6, harnwege: 0.6, hno: 0.6, sehnen: 0.6 };
 const GRENZE = 0.15;
 const arbeit = mkdtempSync(join(tmpdir(), "anatomie-leicht-"));
 // -kn/-km/-ke: Namen, Materialien und Zusatzdaten (Kennungen der Teile) behalten; -cc: meshopt-Kompression;

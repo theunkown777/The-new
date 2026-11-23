@@ -16,6 +16,7 @@ import { huelle } from "./huelle.mjs";
 import { schreibeGlb } from "./glb.mjs";
 import { DATEIEN } from "./zuordnung.mjs";
 import { baueKopf } from "./kopf.mjs";
+import { baueMund } from "./mund.mjs";
 
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > 0 ? process.argv[i + 1] : null; };
 const OBJ = arg("obj"), LISTEN = (arg("listen") ?? "").split(",").filter(Boolean), KOPF = arg("kopf");
@@ -51,6 +52,15 @@ for (const [datei, plan] of Object.entries(DATEIEN)) {
     bericht.push(`${datei}: ${t.k ?? t.n}${gespiegelt ? " (gespiegelt)" : ""}${t.huelle ? " (berechnete Hülle)" : ""} ← ${namen.length} Namen, ${netz.idx.length / 3} Dreiecke: ${namen.slice(0, 6).join("; ")}${namen.length > 6 ? " …" : ""}`);
     roh.push({ t, netz, gespiegelt });
   }
+  if (plan.bau === "mund") {
+    // Gebiss: eigener Bau mit beiden Fassungen (voll und leicht), Eckenfarben inklusive (siehe mund.mjs)
+    const { voll, leicht, zusatz, zeilen } = baueMund(roh, alsTeil);
+    bericht.push(...zeilen);
+    const v = schreibe(datei, voll, 6), l = schreibe(`${datei}-leicht`, leicht, 5);
+    inhalt[datei] = { ...beschreibe(plan, voll, v), ...zusatz, ao: true };
+    console.log(`${datei}.glb: ${(v / 1024).toFixed(0)} KB, ${inhalt[datei].dreiecke} Dreiecke; ${datei}-leicht.glb: ${(l / 1024).toFixed(0)} KB, ${leicht.reduce((a, t) => a + t.idx.length / 3, 0)} Dreiecke`);
+    continue;
+  }
   // Dreiecke verteilen: größere Teile bekommen mehr, kleine behalten ihre Form
   const gewicht = roh.map((r) => Math.pow(r.netz.idx.length / 3, 0.8) * (r.t.gewicht ?? 1));
   const summe = gewicht.reduce((a, b) => a + b, 0);
@@ -59,31 +69,10 @@ for (const [datei, plan] of Object.entries(DATEIEN)) {
   for (let i = 0; i < roh.length; i++) {
     const { t, gespiegelt } = roh[i];
     const ziel = Math.max(Math.min(roh[i].netz.idx.length / 3, 80), (plan.dreiecke * gewicht[i]) / summe);
-    const netz = vereinfache(roh[i].netz, ziel);
-    const basis = t.k ?? `deko:${t.n}`;
-    const z = (namenZahl.get(basis) ?? 0) + 1; namenZahl.set(basis, z);
-    const extras = { g: t.g, s: t.s, f: t.f };
-    if (t.k) extras.k = t.k; else extras.n = t.n;
-    if (t.klappe) extras.klappe = t.klappe === true ? 1 : t.klappe;
-    if (t.geschlecht) extras.geschlecht = t.geschlecht;
-    if (t.huelle) extras.berechnet = true;
-    if (gespiegelt) extras.gespiegelt = true;
-    if (t.zahn) extras.zahn = true;
-    teile.push({ name: z > 1 ? `${basis}#${z}` : basis, pos: netz.pos, idx: netz.idx, extras });
+    teile.push(alsTeil(t, vereinfache(roh[i].netz, ziel), gespiegelt, namenZahl));
   }
-  let zusatz = {};
-  if (datei === "mund") zusatz = mundZusatz(teile);
-  const r = rahmen(new Float32Array(teile.flatMap((t) => [...rahmen(t.pos).min, ...rahmen(t.pos).max])));
-  const rohDatei = join(arbeit, `${datei}.glb`);
-  schreibeGlb(rohDatei, teile);
-  execFileSync(GLTFPACK, ["-i", rohDatei, "-o", join(ZIEL, `${datei}.glb`), "-cc", "-kn", "-km", "-ke", "-vp", "14"], { stdio: "inherit" });
-  const bytes = statSync(join(ZIEL, `${datei}.glb`)).size;
-  inhalt[datei] = {
-    name: plan.name, bytes, dreiecke: teile.reduce((a, t) => a + t.idx.length / 3, 0),
-    rahmen: { min: r.min.map((v) => Math.round(v)), max: r.max.map((v) => Math.round(v)) },
-    teile: teile.map((t) => ({ name: t.name.split("#")[0], g: t.extras.g, ...(t.extras.geschlecht ? { geschlecht: t.extras.geschlecht } : {}), mitte: [0, 1, 2].map((k) => { const rr = rahmen(t.pos); return Math.round((rr.min[k] + rr.max[k]) / 2); }) })).filter((t, i, a) => a.findIndex((x) => x.name === t.name) === i),
-    ...zusatz,
-  };
+  const bytes = schreibe(datei, teile);
+  inhalt[datei] = beschreibe(plan, teile, bytes);
   console.log(`${datei}.glb: ${(bytes / 1024).toFixed(0)} KB, ${inhalt[datei].dreiecke} Dreiecke`);
 }
 
@@ -97,32 +86,37 @@ writeFileSync(INHALT_PFAD, JSON.stringify(inhalt, null, 1) + "\n");
 writeFileSync(join(arbeit, "bericht.txt"), bericht.join("\n") + "\n");
 console.log(`Bericht: ${join(arbeit, "bericht.txt")}`);
 
-/** Mund: Weisheitszähne (im Scan nicht enthalten) als Kopie des Nachbarzahns ergänzen, Kiefergelenk und Drehachse bestimmen. */
-function mundZusatz(teile) {
-  const nach = (k) => teile.find((t) => t.extras.k === k);
-  const mitte = (t) => { const r = rahmen(t.pos); return [0, 1, 2].map((i) => (r.min[i] + r.max[i]) / 2); };
-  for (const q of [1, 2, 3, 4]) {
-    const z7 = nach(`${q}7`), z6 = nach(`${q}6`);
-    if (!z7 || !z6) continue;
-    const a = mitte(z6), b = mitte(z7), d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
-    const pos = new Float32Array(z7.pos.length);
-    for (let i = 0; i < pos.length; i += 3) for (let k = 0; k < 3; k++) pos[i + k] = b[k] + (z7.pos[i + k] - b[k]) * 0.9 + d[k] * 0.92;
-    teile.push({ name: `${q}8`, pos, idx: z7.idx.slice(), extras: { ...z7.extras, k: `${q}8`, nachgebildet: true } });
-  }
-  // Kiefergelenk: oberster Punkt des Unterkiefers hinten auf jeder Seite (Gelenkköpfchen)
-  const uk = nach("mund:unterkiefer");
-  const gelenk = {};
-  for (const [seite, vz] of [["R", -1], ["L", 1]]) {
-    let best = null;
-    for (let i = 0; i < uk.pos.length; i += 3) {
-      const x = uk.pos[i], y = uk.pos[i + 1], z = uk.pos[i + 2];
-      if (x * vz < 20) continue;
-      if (!best || y > best[1]) best = [x, y, z];
-    }
-    gelenk[seite] = best.map((v) => Math.round(v * 10) / 10);
-  }
-  const achse = [0, (gelenk.R[1] + gelenk.L[1]) / 2 - 4, (gelenk.R[2] + gelenk.L[2]) / 2].map((v) => Math.round(v * 10) / 10);
-  return { gelenk, achse };
+/** Ein Teil der Datei: Name (mehrfach vorkommende mit #2, #3 …) und Zusatzdaten für die Anwendung. */
+function alsTeil(t, netz, gespiegelt, namenZahl) {
+  const basis = t.k ?? `deko:${t.n}`;
+  const z = (namenZahl.get(basis) ?? 0) + 1; namenZahl.set(basis, z);
+  const extras = { g: t.g, s: t.s, f: t.f };
+  if (t.k) extras.k = t.k; else extras.n = t.n;
+  if (t.klappe) extras.klappe = t.klappe === true ? 1 : t.klappe;
+  if (t.geschlecht) extras.geschlecht = t.geschlecht;
+  if (t.huelle) extras.berechnet = true;
+  if (gespiegelt) extras.gespiegelt = true;
+  if (t.zahn) extras.zahn = true;
+  return { name: z > 1 ? `${basis}#${z}` : basis, pos: netz.pos, idx: netz.idx, extras };
+}
+
+/** GLB schreiben und packen; farbBits: Eckenfarbe behalten (so viele Bit je Kanal). Gibt die Bytes zurück. */
+function schreibe(name, teile, farbBits = 0) {
+  const rohDatei = join(arbeit, `${name}.glb`);
+  schreibeGlb(rohDatei, teile);
+  const farbe = farbBits ? ["-kv", "-vc", String(farbBits)] : [];
+  execFileSync(GLTFPACK, ["-i", rohDatei, "-o", join(ZIEL, `${name}.glb`), "-cc", "-kn", "-km", "-ke", ...farbe, "-vp", "14"], { stdio: "inherit" });
+  return statSync(join(ZIEL, `${name}.glb`)).size;
+}
+
+/** Eintrag in anatomieInhalt.json: Größe, Dreiecke, Rahmen und Teile mit Mittelpunkt. */
+function beschreibe(plan, teile, bytes) {
+  const r = rahmen(new Float32Array(teile.flatMap((t) => [...rahmen(t.pos).min, ...rahmen(t.pos).max])));
+  return {
+    name: plan.name, bytes, dreiecke: teile.reduce((a, t) => a + t.idx.length / 3, 0),
+    rahmen: { min: r.min.map((v) => Math.round(v)), max: r.max.map((v) => Math.round(v)) },
+    teile: teile.map((t) => ({ name: t.name.split("#")[0], g: t.extras.g, ...(t.extras.geschlecht ? { geschlecht: t.extras.geschlecht } : {}), mitte: [0, 1, 2].map((k) => { const rr = rahmen(t.pos); return Math.round((rr.min[k] + rr.max[k]) / 2); }) })).filter((t, i, a) => a.findIndex((x) => x.name === t.name) === i),
+  };
 }
 
 export { kompakt };

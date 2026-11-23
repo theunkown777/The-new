@@ -21,6 +21,8 @@ export interface Zustand {
 export interface EchtUniforms { auf: { value: number }; kiefer: { value: number }; achse: { value: DREI.Vector3 }; deck: { value: number }; haut: { value: number } }
 
 const GEWAEHLT = 0xf5c542, MARKIERT = 0xf28b45;
+// Große Weichteile im Gebiss: gewählt nur sanft getönt (sonst leuchten Zahnfleisch beider Kiefer grell gelb)
+const WEICH_GEWAEHLT = new Set(["mund:zahnfleisch", "mund:zunge", "mund:gaumen"]);
 /** Angaben des Patienten: Violett, deutlich anders als die orange Markierung der Praxis */
 export const PATIENT_FARBE = 0x7b5cd6;
 /** Ein Antippen am Modell: Kennung des Teils, Punkt auf der Oberfläche und Richtung der Oberfläche (Welt, mm) */
@@ -95,6 +97,8 @@ export class Buehne {
   private zeigen: ((t: Treffer) => void) | null = null;
   private lichter: { hemi: DREI.HemisphereLight; haupt: DREI.DirectionalLight; auf: DREI.DirectionalLight; kante: DREI.DirectionalLight } | null = null;
   private umgebungAn = false;
+  /** Pixeldichte beim Start: Nach dem Senken (langsame Bilder) geht es wieder bis hierhin hoch. */
+  private dichte = 1;
   private umgebungZiel: DREI.WebGLRenderTarget | null = null;
   private fleckGruppe: DREI.Group;
 
@@ -104,18 +108,20 @@ export class Buehne {
     this.zeigen = o.zeigen ?? null;
     if (o.mindestDeck !== undefined) this.mindestDeck = o.mindestDeck;
     this.m = { a: new T.Matrix4(), b: new T.Matrix4(), c: new T.Matrix4() };
-    // Kantenglättung (MSAA) kostet auf Handys Grafikleistung. Bei hoher Pixeldichte (ab 2) ist sie kaum zu sehen und bleibt aus;
-    // darunter sind Treppenstufen an den Rändern deutlich, also auch auf leichten Geräten an.
-    this.renderer = new T.WebGLRenderer({ antialias: !leichtesGeraet() || (window.devicePixelRatio || 1) < 2, alpha: true, powerPreference: "high-performance" });
     // Handys: höchstens 1,5-fache Auflösung (flüssig), sonst höchstens doppelt
     const handy = window.matchMedia?.("(pointer: coarse)").matches && Math.min(window.innerWidth, window.innerHeight) < 900;
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, handy ? 1.5 : 2));
+    const dichte = Math.min(window.devicePixelRatio || 1, handy ? 1.5 : 2);
+    // Kantenglättung (MSAA) kostet auf Handys Grafikleistung. Erst ab einer wirksamen Pixeldichte von 2 ist sie kaum
+    // zu sehen und bleibt auf leichten Geräten aus. Handys zeichnen mit höchstens 1,5: dort sind Treppen deutlich, also an.
+    this.renderer = new T.WebGLRenderer({ antialias: !leichtesGeraet() || dichte < 2, alpha: true, powerPreference: "high-performance" });
+    this.renderer.setPixelRatio(dichte);
+    this.dichte = dichte;
     // Grafik ohne Grafikkarte (Software): kleinere Auflösung, sonst stockt alles
     // (Für Bildschirmfotos in Testumgebungen ohne Grafikkarte lässt sich das mit localStorage „modell-scharf“ abschalten.
     // Nur außerhalb des Betriebs: Im ausgelieferten Code liest das Modell nichts aus dem Speicher des Browsers,
     // so wie es die Datenschutzerklärung für die öffentliche Website sagt.)
     this.scharf = process.env.NODE_ENV !== "production" && (() => { try { return localStorage.getItem("modell-scharf") === "1"; } catch { return false; } })();
-    if (!this.scharf) try { const gl = this.renderer.getContext(), info = gl.getExtension("WEBGL_debug_renderer_info"); if (info && /swiftshader|llvmpipe|software/i.test(String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) this.renderer.setPixelRatio(0.6); } catch { /* unbekannt */ }
+    if (!this.scharf) try { const gl = this.renderer.getContext(), info = gl.getExtension("WEBGL_debug_renderer_info"); if (info && /swiftshader|llvmpipe|software/i.test(String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)))) { this.renderer.setPixelRatio(0.6); this.dichte = 0.6; } } catch { /* unbekannt */ }
     this.renderer.outputColorSpace = T.SRGBColorSpace;
     this.renderer.toneMapping = T.NeutralToneMapping;
     this.renderer.toneMappingExposure = 1.0;
@@ -244,7 +250,19 @@ export class Buehne {
     const T = this.T, r = this.renderer.domElement.getBoundingClientRect();
     const strahl = new T.Raycaster();
     strahl.setFromCamera(new T.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1), this.kamera);
-    return this.trefferAus(strahl.intersectObjects(this.ziele(), false)[0]);
+    const alle = strahl.intersectObjects(this.ziele(), false);
+    // Gebiss: Tippen auf den Zahnfleischrand (Krone höchstens 2 mm dahinter) meint den Zahn, nicht das ganze Zahnfleisch
+    if (alle[0]?.object.userData.kennung === "mund:zahnfleisch") {
+      const zahn = alle.find((h) => /^\d\d$/.test(String(h.object.userData.kennung)));
+      if (zahn && zahn.distance - alle[0].distance < 2 && Buehne.wurzelAnteil(zahn) < 0.5) return this.trefferAus(zahn);
+    }
+    return this.trefferAus(alle[0]);
+  }
+  /** Gebiss: Anteil Wurzel an der getroffenen Stelle eines Zahns (Rot der Eckenfarbe, als „kiefer“ geladen); 0 ohne Angabe */
+  private static wurzelAnteil(h: DREI.Intersection): number {
+    const a = (h.object as DREI.Mesh).geometry?.getAttribute("kiefer");
+    if (!a || !h.face) return 0;
+    return (a.getX(h.face.a) + a.getX(h.face.b) + a.getX(h.face.c)) / 3;
   }
   /** Punkt auf der Oberfläche: Strahl von außen (300 mm entlang der Normale) zurück auf den Punkt. */
   aufFlaeche(p: [number, number, number], n: [number, number, number]): Treffer | null {
@@ -308,12 +326,28 @@ export class Buehne {
     if (this.lichter) { this.lichter.hemi.intensity = 0.95; this.lichter.haupt.intensity = 2.5; this.lichter.kante.intensity = 1.5; }
   }
 
+  /** Mitte eines Teils für Bildpunkt und Antippen: bei Zähnen die Mitte der Krone (ohne Wurzel), sonst die Hüllkugel */
+  private kernpunkt(mesh: DREI.Mesh): DREI.Vector3 {
+    const ud = mesh.userData, T = this.T;
+    if (!ud.kernpunkt) {
+      const g = mesh.geometry, pos = g.getAttribute("position"), w = g.getAttribute("kiefer");
+      let p: DREI.Vector3 | null = null;
+      if (w && pos && /^\d\d$/.test(String(ud.kennung))) {
+        const s = new T.Vector3(); let n = 0;
+        for (let i = 0; i < pos.count; i++) if (w.getX(i) < 0.5) { s.x += pos.getX(i); s.y += pos.getY(i); s.z += pos.getZ(i); n++; }
+        if (n) p = s.divideScalar(n);
+      }
+      if (!p) { if (!g.boundingSphere) g.computeBoundingSphere(); p = g.boundingSphere!.center.clone(); }
+      ud.kernpunkt = p.toArray();
+    }
+    return new T.Vector3(...(ud.kernpunkt as [number, number, number]));
+  }
+
   private bildpunkt(kennung: string): { x: number; y: number; vorn: boolean } | null {
     const t = (this.nachKennung.get(kennung) ?? []).find((x) => x.mesh.visible);
     if (!t) return null;
     const T = this.T, r = this.renderer.domElement.getBoundingClientRect();
-    if (!t.mesh.geometry.boundingSphere) t.mesh.geometry.computeBoundingSphere();
-    const m = t.mesh.geometry.boundingSphere!.center.clone().applyMatrix4(t.mesh.matrixWorld);
+    const m = this.kernpunkt(t.mesh).applyMatrix4(t.mesh.matrixWorld);
     const strahl = new T.Raycaster(this.kamera.position.clone(), m.clone().sub(this.kamera.position).normalize());
     const erster = strahl.intersectObjects(this.ziele(), false)[0];
     const p = m.clone().project(this.kamera);
@@ -454,7 +488,8 @@ export class Buehne {
     const s = new T.Spherical().setFromVector3(this.kamera.position.clone().sub(this.steuerung.target));
     this.flieg(new T.Spherical(d, Math.min(1.75, Math.max(1.25, s.phi)), s.theta), this.mitte.clone(), 1100);
   }
-  private abstand(r: number) { const halb = (this.kamera.fov * Math.PI) / 360; return (r / Math.sin(halb)) * (this.kamera.aspect < 1 ? Math.min(1.75, 1 / this.kamera.aspect) * 0.86 : 1.02); }
+  /** Kameraabstand, damit eine Kugel mit Radius r ganz ins Bild passt (Hochformat: weiter weg) */
+  abstand(r: number) { const halb = (this.kamera.fov * Math.PI) / 360; return (r / Math.sin(halb)) * (this.kamera.aspect < 1 ? Math.min(1.75, 1 / this.kamera.aspect) * 0.86 : 1.02); }
 
   /** Weicher Schatten unter dem Modell (gibt Halt im Raum). */
   schatten(x: number, y: number, z: number, radius: number) {
@@ -477,7 +512,7 @@ export class Buehne {
     for (const t of this.teile) {
       const k = t.mesh.userData.kennung as string | undefined;
       t.an = !!k && g.has(k); t.markiert = !!k && m.has(k); t.patient = !!k && pa.has(k);
-      t.ziel = t.markiert ? new T.Color(MARKIERT) : t.an ? new T.Color(GEWAEHLT) : t.patient ? new T.Color(PATIENT_FARBE) : t.grund;
+      t.ziel = t.markiert ? new T.Color(MARKIERT) : t.an ? (WEICH_GEWAEHLT.has(k ?? "") ? t.grund.clone().lerp(new T.Color(GEWAEHLT), 0.45) : new T.Color(GEWAEHLT)) : t.patient ? new T.Color(PATIENT_FARBE) : t.grund;
       const wert = this.zustand.sichtbar(t.mesh.userData);
       const sichtbar = wert === true ? 1 : wert === false ? 0 : Math.max(0, Math.min(1, wert));
       // Gewähltes und Markiertes wird voll deckend, auch wenn es sonst durchscheint
@@ -586,7 +621,14 @@ export class Buehne {
       else if (!this.scharf && this.bildzeiten.length === 6 && mittel > 70 && this.renderer.getPixelRatio() > 0.55) {
         this.renderer.setPixelRatio(Math.max(0.5, this.renderer.getPixelRatio() * 0.7));
         this.groesse();
-        this.bildzeiten = [];
+        this.bildzeiten = []; this.bildzeitPause = 4;
+      } else if (!this.scharf && this.bildzeiten.length === 6 && mittel < (this.umgebungAn ? 16 : 24) && this.renderer.getPixelRatio() < this.dichte - 0.01) {
+        // Wieder schnell genug (die langsamen Bilder kamen z. B. vom Laden): Auflösung stufenweise zurück, Treppen verschwinden.
+        // Solange das Umgebungslicht noch an ist, nur mit viel Luft (unter 16 ms): sonst kippt die höhere Auflösung die Bilder
+        // über 45 ms, das Umgebungslicht geht aus und die Auflösung pendelt.
+        this.renderer.setPixelRatio(Math.min(this.dichte, this.renderer.getPixelRatio() / 0.7));
+        this.groesse();
+        this.bildzeiten = []; this.bildzeitPause = 4;
       }
     } else this.bildzeiten = [];
     this.uhr = jetzt;
@@ -631,7 +673,9 @@ export class Buehne {
       t.deck += (ziel - t.deck) * (t.u ? kAuf : k);
       if (Math.abs(t.deck - ziel) < 0.004) t.deck = ziel;
       t.mesh.visible = t.deck > 0.004;
-      if (!t.mesh.visible) continue;
+      // Unsichtbare Teile wachsen nicht: ihr Erscheinen ist vorbei, sonst hielte es die Schleife für immer wach.
+      // Folge (gewollt): Wird so ein Teil später eingeblendet, zerfließt es herein, aber ohne das kurze Wachsen.
+      if (!t.mesh.visible) { if (t.start >= 0 && ziel <= 0.004) t.start = -1; continue; }
       if (t.u) {
         // Echte Teile: deckende zerfließen beim Ein- und Ausblenden, durchscheinende blenden über
         const durch = t.grundDeck < 0.99 || !!t.durch;
@@ -652,7 +696,8 @@ export class Buehne {
       }
       if (t.mat.emissive && !ud.eigenesLeuchten) {
         t.mat.emissive.setHex(t.an ? GEWAEHLT : t.markiert ? MARKIERT : t.patient ? PATIENT_FARBE : 0x000000);
-        t.mat.emissiveIntensity = t.an ? (pulsiert ? 0.12 + 0.2 * puls : 0.24) : t.markiert || t.patient ? 0.1 : 0;
+        const weich = t.an && WEICH_GEWAEHLT.has(String(ud.kennung));
+        t.mat.emissiveIntensity = t.an ? (pulsiert ? 0.12 + 0.2 * puls : 0.24) * (weich ? 0.5 : 1) : t.markiert || t.patient ? 0.1 : 0;
       }
       // Lage: Erscheinen (leicht wachsen), Atmen/Herzschlag, Kiefer
       const g = t.start < 0 ? 1 : Math.min(1, (jetzt - t.start) / 700);

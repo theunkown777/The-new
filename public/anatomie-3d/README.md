@@ -37,6 +37,28 @@ Die bearbeiteten Modelle stehen unter CC BY-SA 4.0.“
   der Eckenfarbe, berechnet mit Strahlen gegen die eigene Datei (`scripts/anatomie-3d/ao.mjs`). Falten und Zwischenräume
   wirken dadurch dunkler, ohne Rechenaufwand auf dem Gerät. Jede Datei wird dadurch höchstens 15 % größer; bei den leichten
   Fassungen bleibt die Verdeckung nur, wo das auch gilt (`leicht.mjs`).
+- **Gebiss** (`mund.glb`, `mund-leicht.glb`) hat einen eigenen Bau (`scripts/anatomie-3d/mund.mjs`, mit `glatt.mjs`,
+  `fest.mjs` und `strahlen.mjs`); beide Fassungen entstehen direkt beim Bauen:
+  - Zähne, Zahnfleisch und Zunge sind mit Loop-Unterteilung **geglättet** und erst danach vereinfacht.
+  - **Zahnfleischrand** (`saum.mjs`): In den Daten verläuft der Rand gerade. Er ist je Zahn zu einem Bogen um den Zahnhals
+    umgeformt, zwischen den Zähnen steht eine Papille. Über den Wurzeln wölbt sich das Zahnfleisch leicht nach außen
+    (über dem Eckzahn am stärksten). Höhen und Breiten sind Lehrbuchwerte, **nicht gemessen**.
+  - **Beide Kiefer sind neu gebildet** (`fest.mjs`): Die Knochen sind in einem Raster von 0,5 mm vereinigt, die Zahnwurzeln
+    eingeschlossen und kleine Spalten geschlossen. Die Oberfläche ist eine geschlossene, glatte Fläche (Surface Nets).
+    Der Oberkiefer ist über den Wurzeln abgeschnitten. Der Schnitt fällt zur Seite und hinten ab (keine Flügel, keine Kerbe)
+    und ist oben geschlossen und gerundet. Am Zahnfleisch endet der Knochen knapp unter dessen Rand.
+    Die Form folgt den Daten, ist aber an diesen Stellen **nicht mehr genau** die von BodyParts3D.
+  - Die Gaumenmuskeln sind auf Nasenboden bis Mundhöhe gekürzt (keine rosa Formen in der Nase oder im Rachen).
+    Schläfen- und Jochbein sowie der zweibäuchige Muskel (Mundboden) sind weggelassen.
+    Der Kurzcheck zeigt Mundboden, Speicheldrüsen und Zungenbein nicht (nur Zähne, Kiefer, Zahnfleisch, Zunge, Gaumen).
+  - Die Zunge öffnet mit 90 % der Bewegung des Unterkiefers (mit mehr Abstand hob sie sich vom Mundboden ab).
+  - Größen (Dreiecke volle / leichte Fassung): Oberkiefer 11 000 / 5 500, Unterkiefer 9 000 / 4 500, Zahnfleisch je Kiefer
+    9 000 / 4 000, Zunge 3 600 / 2 000, Zähne halb bzw. ein Viertel der geglätteten Netze. Zusammen etwa 143 000 / 71 000
+    Dreiecke, 588 KB / 314 KB.
+  - Verdeckung: Strahlen bis 6 mm, 32 je Ecke; Schatten werfen Zähne, Zahnfleisch, Kiefer und Zunge.
+  - Eckenfarbe: Grün = Verdeckung. Zähne: Rot = Wurzel (von Knochen oder Zahnfleisch bedeckt), Blau = Schneidekante der
+    Frontzähne. Zahnfleisch: Rot = Nähe zum freien Rand, Blau über 0,5 = feste Gingiva, darunter bewegliche Schleimhaut.
+    Zunge: Blau = Mittelfurche. Die Bühne färbt damit Schmelz, Zahnhals, Saum, Gingiva und Zunge.
 - Der Kopf-Scan ist auf den Schädel ausgerichtet (Breite über die Ohren, Mundspalte über den Schneidezähnen).
   Für das Öffnen des Mundes trägt jede Ecke ein Gewicht im Rotkanal der Eckenfarbe.
 - Nicht enthalten (fehlen in den freien Daten): Gebärmutter und Eierstöcke, Rückenmark, Nerven von Armen und Beinen,
@@ -49,4 +71,6 @@ node scripts/anatomie-3d/bauen.mjs --obj <Ordner mit FJ*.obj> \
   --listen <isa_element_parts.txt>,<partof_element_parts.txt> --kopf <Ordner mit LeePerrySmith.glb und Texturen>
 ```
 Danach: `node scripts/anatomie-3d/ao.mjs` (Umgebungsverdeckung) und `node scripts/anatomie-3d/leicht.mjs` (leichte Fassungen).
+Das Gebiss braucht beides nicht (Verdeckung und leichte Fassung entstehen schon beim Bauen); nur das Gebiss neu bauen:
+`node scripts/anatomie-3d/bauen.mjs --obj <Ordner> --listen <isa_element_parts.txt> --nur mund`.
 Die heruntergeladenen Archive nur als Daten behandeln: in einem eigenen, leeren Ordner entpacken (nur `FJ*.obj`).
