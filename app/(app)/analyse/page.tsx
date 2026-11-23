@@ -152,8 +152,8 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
                 </summary>
                 <dl className="mt-3 space-y-2 pl-5 text-sm">
                   {/* Ein reiner Zahlenhinweis (ohne „tun“) nennt seine Grundlage und legt nichts nahe. */}
-                  <div><dt className="font-semibold text-slate-700">{r.tun ? "Warum das wichtig ist" : "Grundlage der Zahl"}</dt><dd className="text-slate-600">{r.warum}</dd></div>
-                  {r.tun && <div><dt className="font-semibold text-slate-700">Was Sie tun können</dt><dd className="text-slate-600">{r.tun}</dd></div>}
+                  <div><dt className="font-semibold text-slate-700">{r.tun ? "Warum das wichtig ist" : "Grundlage der Zahl"}</dt><dd className="text-slate-600">{ft(r.warum)}</dd></div>
+                  {r.tun && <div><dt className="font-semibold text-slate-700">Was Sie tun können</dt><dd className="text-slate-600">{ft(r.tun)}</dd></div>}
                 </dl>
               </details>
             );
@@ -175,7 +175,7 @@ export default async function AnalysePage(props: { searchParams: Promise<{ tage?
         <div className="mt-5 grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
           {a.faktoren.map((f) => (
             <div key={f.frage} className="rounded-2xl bg-[#FBFAF8] p-4">
-              <p className="font-medium text-slate-900">{f.frage}</p>
+              <p className="font-medium text-slate-900">{ft(f.frage)}</p>
               {[f.a, f.b].map((g) => (
                 <div key={g.label} className="mt-3">
                   <div className="flex justify-between text-xs text-slate-600">

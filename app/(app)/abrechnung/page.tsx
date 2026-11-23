@@ -76,16 +76,16 @@ export default async function AbrechnungPage() {
             <summary className="flex cursor-pointer list-none items-start justify-between gap-3">
               <span>
                 <span className="block font-semibold text-slate-900">{a.name}</span>
-                <span className="block text-sm text-slate-600">{a.zahler}</span>
+                <span className="block text-sm text-slate-600">{ft(a.zahler)}</span>
               </span>
               <span className="text-slate-400 transition group-open:rotate-90" aria-hidden="true">›</span>
             </summary>
             <div className="mt-4 grid gap-5 lg:grid-cols-2">
               <div className="space-y-3 text-sm">
-                <p><b className="text-slate-800">Rechenweg:</b> <span className="text-slate-600">{a.rechenweg}</span></p>
+                <p><b className="text-slate-800">Rechenweg:</b> <span className="text-slate-600">{ft(a.rechenweg)}</span></p>
                 <div>
                   <p className="font-semibold text-slate-800">Regeln und Fristen</p>
-                  <ul className="mt-1 list-disc space-y-1 pl-5 text-slate-600">{a.regeln.map((r) => <li key={r}>{r}</li>)}</ul>
+                  <ul className="mt-1 list-disc space-y-1 pl-5 text-slate-600">{a.regeln.map((r) => <li key={r}>{ft(r)}</li>)}</ul>
                 </div>
                 <div>
                   <p className="font-semibold text-slate-800">Fachbegriffe</p>
@@ -97,8 +97,8 @@ export default async function AbrechnungPage() {
                 <ul className="mt-2 space-y-2">
                   {a.geldhebel.map((g) => (
                     <li key={g.problem} className="rounded-xl bg-[#FBFAF8] p-3 text-sm">
-                      <p className="text-slate-800">{g.problem}</p>
-                      <p className="mt-1 text-slate-600"><b>Was hilft:</b> {g.massnahme}</p>
+                      <p className="text-slate-800">{ft(g.problem)}</p>
+                      <p className="mt-1 text-slate-600"><b>Was hilft:</b> {ft(g.massnahme)}</p>
                       {g.inSorrida && <p className="mt-1 text-xs text-brand-700">In Sorrida: {g.inSorrida}</p>}
                     </li>
                   ))}

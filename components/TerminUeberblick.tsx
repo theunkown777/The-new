@@ -38,7 +38,7 @@ export function TerminUeberblick({ patientId, briefing, ki }: { patientId: strin
       <dl className="mt-3 grid gap-x-4 gap-y-1.5 text-sm sm:grid-cols-[9rem_1fr]">
         {briefing.zeilen.map((z) => (
           <div key={z.label} className="contents">
-            <dt className="text-slate-500">{z.label}</dt>
+            <dt className="text-slate-500">{ft(z.label)}</dt>
             <dd className="text-slate-800">{z.text}</dd>
           </div>
         ))}

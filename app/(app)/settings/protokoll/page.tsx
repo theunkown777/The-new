@@ -138,16 +138,16 @@ export default async function ProtokollPage(props: { searchParams: Promise<{ gru
               {LOESCHFRISTEN.map((f) => (
                 <tr key={f.id} className="border-t border-slate-100 align-top">
                   {/* Handy: Der Grund steht unter den Daten, damit keine Spalte rechts abgeschnitten wird */}
-                  <td className="py-2 pr-4 text-slate-800">{f.daten}<span className="mt-0.5 block text-xs text-slate-500 sm:hidden">{f.grund}</span></td>
+                  <td className="py-2 pr-4 text-slate-800">{ft(f.daten)}<span className="mt-0.5 block text-xs text-slate-500 sm:hidden">{ft(f.grund)}</span></td>
                   <td className="py-2 pr-0 text-slate-800 sm:whitespace-nowrap sm:pr-4">{f.frist}</td>
-                  <td className="hidden py-2 text-slate-600 sm:table-cell">{f.grund}</td>
+                  <td className="hidden py-2 text-slate-600 sm:table-cell">{ft(f.grund)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <p className="mt-4 text-sm text-slate-600">Nicht automatisch gelöscht wird:</p>
-        <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-600">{NICHT_AUTOMATISCH.map((t) => <li key={t}>{t}</li>)}</ul>
+        <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-600">{NICHT_AUTOMATISCH.map((t) => <li key={t}>{ft(t)}</li>)}</ul>
         <p className="mt-3 text-xs text-slate-500">Die Fristen sind Vorschläge von Sorrida. Bitte mit Ihrem Datenschutzbeauftragten abstimmen.</p>
       </section>
 

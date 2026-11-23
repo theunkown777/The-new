@@ -2,6 +2,7 @@ import Link from "next/link";
 import { EINGANG_ARTEN, eingangAnfragen } from "@/lib/eingang";
 import { praxisFach } from "@/lib/katalogScope";
 import { fachprofil } from "@/lib/fachprofile";
+import { praxisText } from "@/lib/praxisFach";
 
 const zeit = (d: Date) => d.toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
 
@@ -14,6 +15,7 @@ export async function EingangAnfragen({ practiceId }: { practiceId: string }) {
   const anfragen = await eingangAnfragen(practiceId);
   if (anfragen.length === 0) return null;
   const a = EINGANG_ARTEN.TERMINANFRAGE;
+  const ft = await praxisText();
   const P = fachprofil(await praxisFach(practiceId)).person;
   return (
     <section className="card mt-5 p-0" data-testid="eingang-anfragen">
@@ -28,7 +30,7 @@ export async function EingangAnfragen({ practiceId }: { practiceId: string }) {
                 <span className="text-xs text-slate-500">{zeit(e.createdAt)}</span>
               </p>
               <p className="mt-0.5 text-sm text-slate-700"><span className="font-medium">{e.name}</span><span className="text-slate-500"> · {e.hinweis}</span></p>
-              <p className="mt-0.5 text-xs text-slate-500">{a.tun}</p>
+              <p className="mt-0.5 text-xs text-slate-500">{ft(a.tun)}</p>
             </div>
             <Link href={e.ziel} className="btn btn-primary shrink-0" data-testid="eingang-anfrage-ziel">Öffnen</Link>
           </li>

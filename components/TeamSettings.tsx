@@ -284,13 +284,13 @@ export function TeamSettings({ currentUserId }: { currentUserId: string }) {
           {ROLLEN.map((r) => (
             <div key={r}>
               <dt className="font-medium text-slate-800">{ROLLEN_LABEL[r]}</dt>
-              <dd className="text-slate-600">{ROLLEN_HINWEIS[r]}</dd>
+              <dd className="text-slate-600">{ft(ROLLEN_HINWEIS[r])}</dd>
             </div>
           ))}
         </dl>
         <p className="text-xs text-slate-500">Eine neue Rolle gilt sofort; die Person wird dafür einmal abgemeldet und meldet sich neu an.</p>
         <h3 className="pt-1 font-medium text-slate-900">Standorte</h3>
-        <p className="text-slate-600" data-testid="standort-hinweis">{STANDORT_HINWEIS}</p>
+        <p className="text-slate-600" data-testid="standort-hinweis">{ft(STANDORT_HINWEIS)}</p>
         {standorte.length === 0 && (
           <p className="text-xs text-slate-500">{ft("Ihre Praxis hat noch keine Standorte angelegt. Das geht unter Einstellungen → Standorte; danach können Sie hier ankreuzen, wer wo arbeitet.")}</p>
         )}
