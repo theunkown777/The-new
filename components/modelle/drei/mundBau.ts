@@ -32,12 +32,12 @@ export function mundBauplan(T: Drei): Bauplan {
   };
 }
 
-/** Lage der Kiefergelenke: durchscheinende Kugel am Gelenkköpfchen (Markierung, kein Scan). */
+/** Lage der Kiefergelenke: durchscheinende Kugel am Gelenkköpfchen (Markierung, kein Scan), in hellem Bordeaux (brand-300). */
 export function kiefergelenkKugeln(T: Drei) {
   const g = ANATOMIE.mund?.gelenk;
   if (!g) return [];
   return (["R", "L"] as const).map((s) => {
-    const mat = stoffEcht(T, { s: "knorpel", f: "#F2C46B" });
+    const mat = stoffEcht(T, { s: "knorpel", f: "#C79A91" });
     mat.opacity = 0.6; mat.transparent = true; mat.depthWrite = false;
     const m = new T.Mesh(new T.SphereGeometry(6, 20, 14), mat);
     m.geometry.translate(g[s][0], g[s][1] - 3, g[s][2]);

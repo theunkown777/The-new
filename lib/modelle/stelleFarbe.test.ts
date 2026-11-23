@@ -33,7 +33,7 @@ describe("Farben für gewählte und markierte Stellen", () => {
   });
 
   it("die Modelle verwenden keine eigenen gelben oder orangen Farben für Auswahl und Markierung", () => {
-    for (const p of ["components/modelle/drei/Buehne.ts", "components/modelle/ModellTeile.tsx"]) {
+    for (const p of ["components/modelle/drei/Buehne.ts", "components/modelle/drei/mundBau.ts", "components/modelle/ModellTeile.tsx"]) {
       const s = quelle(p);
       const hexe = [...s.matchAll(/(?:0x|#)([0-9a-fA-F]{6})\b/g)].map((m) => parseInt(m[1], 16));
       expect(hexe.filter(gelbOderOrange).map((h) => h.toString(16)), p).toEqual([]);
