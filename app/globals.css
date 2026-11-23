@@ -402,7 +402,7 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
 .laecheln-frage { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: rgba(245,242,238,.75); }
 .laecheln-feld {
   display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); column-gap: .75rem; row-gap: 1.25rem;
-  grid-template-areas: "bogen bogen" "kpraxis kpatient" "status status" "tpraxis tpraxis" "tpatient tpatient";
+  grid-template-areas: "bogen bogen" "kpraxis kpatient" "tpraxis tpatient" "status status";
 }
 /* Schalter */
 .laecheln-knopf {
@@ -419,7 +419,8 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
 /* Zustand auch über die Form, nicht nur über die Farbe */
 .laecheln-knopf[aria-pressed="true"] .laecheln-punkt { background: currentColor; }
 /* Seitentexte: immer sichtbar, ausgeschaltet nur blasser (#F5F2EE bei .62 auf #5A1D1D ≈ 5,3:1) */
-.laecheln-text { font-size: 16px; line-height: 1.6; color: #F5F2EE; transition: opacity .3s var(--ease-out); }
+/* Handy: jeder Text steht direkt unter seinem Schalter, so bleibt das Abblassen im Blick */
+.laecheln-text { margin-top: -.5rem; font-size: 15px; line-height: 1.5; color: #F5F2EE; transition: opacity .3s var(--ease-out); }
 .laecheln[data-praxis="aus"] .laecheln-text[data-seite="praxis"], .laecheln[data-patient="aus"] .laecheln-text[data-seite="patient"] { opacity: .62; }
 .laecheln-link {
   display: inline-flex; align-items: center; gap: .35rem; min-height: 44px; font-size: 15px; font-weight: 600; color: #F5F2EE;
@@ -435,7 +436,7 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
   .laecheln-knopf[data-seite="praxis"], .laecheln-text[data-seite="praxis"] { justify-self: end; text-align: right; }
   .laecheln-knopf[data-seite="patient"], .laecheln-text[data-seite="patient"] { justify-self: start; text-align: left; }
   .laecheln-knopf { width: auto; align-self: start; }
-  .laecheln-text { max-width: 17rem; }
+  .laecheln-text { max-width: 17rem; margin-top: 0; font-size: 16px; line-height: 1.6; }
   .laecheln-status { text-align: center; }
 }
 /* Bogen: jede Hälfte wächst vom Mundwinkel zur Mitte */
@@ -461,6 +462,8 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
 .laecheln-wort { stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05; transition: stroke-dashoffset .3s var(--ease-out); }
 .laecheln[data-voll] .laecheln-wort { stroke-dashoffset: 0; transition: stroke-dashoffset .6s var(--ease-out) 1.15s; }
 .laecheln-status { transition: opacity .5s var(--ease-out); }
+/* Erst wenn sich der Bogen schließt (Treffpunkt nach ≈ 1 s), steht „Jetzt lächeln beide.“ da; halbe Stände kommen sofort */
+.laecheln[data-voll] .laecheln-status.kurz-ein { animation-delay: .95s; }
 /* Vorschau: Zeigt die Maus auf einen Schalter (oder liegt der Tastaturfokus darauf), hellt sich die Spur seiner Hälfte auf */
 @media (hover: hover) and (pointer: fine) {
   .laecheln-knopf[aria-pressed="false"]:hover { border-color: #F5F2EE; background: rgba(245,242,238,.08); }
@@ -474,19 +477,24 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
   .js-ein .laecheln[data-intro="wartet"] .laecheln-haelfte, .js-ein .laecheln[data-intro="wartet"] .laecheln-wort { stroke-dashoffset: 1.05; transition: none; }
   .js-ein .laecheln[data-intro="wartet"] .laecheln-gruppe { transform: scaleY(.86); transition: none; }
   .js-ein .laecheln[data-intro="wartet"] .laecheln-mitte, .js-ein .laecheln[data-intro="wartet"] .laecheln-ring { animation: none; opacity: 0; }
-  .js-ein .laecheln[data-intro="wartet"] .laecheln-knopf[aria-pressed="true"] { background: transparent; border-color: rgba(245,242,238,.5); color: #F5F2EE; transition: none; }
-  .js-ein .laecheln[data-intro="wartet"] .laecheln-punkt { background: transparent; transition: none; }
   .js-ein .laecheln[data-intro="wartet"] .laecheln-ecke { fill: #5A1D1D; transition: none; }
-  .js-ein .laecheln[data-intro="wartet"] .laecheln-text { opacity: .62; transition: none; }
   .js-ein .laecheln[data-intro="wartet"] .laecheln-status { opacity: 0; transition: none; }
+  /* Solange der Status noch nicht eingeblendet ist, nimmt er keine Klicks an (Fokus blendet ihn sofort ein, siehe Komponente) */
+  .js-ein .laecheln[data-intro="wartet"] .laecheln-status, .laecheln[data-intro="laeuft"] .laecheln-status { pointer-events: none; }
+  /* Die Schalter zeigen immer ihren echten Zustand. Beim Einstieg leuchten sie nur kurz auf, wenn ihre Hälfte losläuft. */
+  .laecheln[data-intro="laeuft"] .laecheln-knopf[aria-pressed="true"] { animation: laecheln-glanz .9s var(--ease-out) both; }
   /* Ablauf: Praxis bei 0,4 s, Patient bei 1,1 s, Vertiefen 1,6 s, Punkt und Ring 2,1 s, Status 2,1 s, Wort-Bogen 2,25 s; Ruhe nach ≈ 2,9 s */
-  .laecheln[data-intro="laeuft"] [data-seite="praxis"], .laecheln[data-intro="laeuft"] [data-seite="praxis"] .laecheln-punkt { transition-delay: .4s; }
-  .laecheln[data-intro="laeuft"] [data-seite="patient"], .laecheln[data-intro="laeuft"] [data-seite="patient"] .laecheln-punkt { transition-delay: 1.1s; }
+  .laecheln[data-intro="laeuft"] .laecheln-haelfte[data-seite="praxis"], .laecheln[data-intro="laeuft"] .laecheln-ecke[data-seite="praxis"] { transition-delay: .4s; }
+  .laecheln[data-intro="laeuft"] .laecheln-haelfte[data-seite="patient"], .laecheln[data-intro="laeuft"] .laecheln-ecke[data-seite="patient"] { transition-delay: 1.1s; }
+  .laecheln[data-intro="laeuft"] .laecheln-knopf[data-seite="praxis"] { animation-delay: .4s; }
+  .laecheln[data-intro="laeuft"] .laecheln-knopf[data-seite="patient"] { animation-delay: 1.1s; }
   .laecheln[data-intro="laeuft"][data-voll] .laecheln-gruppe { transition-delay: 1.6s; }
   .laecheln[data-intro="laeuft"][data-voll] .laecheln-mitte, .laecheln[data-intro="laeuft"][data-voll] .laecheln-ring { animation-delay: 2.1s; }
   .laecheln[data-intro="laeuft"] .laecheln-status { transition-delay: 2.1s; }
   .laecheln[data-intro="laeuft"][data-voll] .laecheln-wort { transition-delay: 2.25s; }
 }
+/* Aufleuchten im an-Zustand: ein heller Saum, der sich nach außen verliert */
+@keyframes laecheln-glanz { 0% { box-shadow: 0 0 0 0 rgba(245,242,238,0); } 25% { box-shadow: 0 0 0 4px rgba(245,242,238,.35); } 100% { box-shadow: 0 0 0 12px rgba(245,242,238,0); } }
 @media (prefers-reduced-motion: reduce) {
   .laecheln *, .laecheln-knopf { transition: none !important; animation: none !important; }
   .laecheln[data-voll] .laecheln-mitte { opacity: 1; transform: none; }

@@ -1,9 +1,10 @@
 // Texte und Logik für das Lächeln-Zitat der Startseite (components/start/LaechelnZitat.tsx).
 // Praxis und Patient zeichnen je eine Hälfte des Bogens aus dem Logo; erst zusammen wird daraus ein Lächeln.
 //
-// Pflegehinweis: Die Seitentexte wiederholen nur Aussagen, die schon auf der Startseite stehen
-// (components/Entlastung.tsx, components/ZweiAnsichten.tsx, SCHRITTE in app/page.tsx). Ändert sich dort eine
-// Produktaussage, etwa zu Rückrufwünschen, diese Texte mitpflegen. Keine Zahlen, keine neuen Versprechen.
+// Pflegehinweis: Die Seitentexte sind je ein kurzer Satz in eigenen Worten. Sie stützen sich nur auf Aussagen, die schon
+// auf der Startseite stehen (components/Entlastung.tsx: ein Klick nach dem Gespräch; components/ZweiAnsichten.tsx:
+// ohne App), übernehmen aber nicht deren Wortlaut, weil die Entlastung-Karten direkt darunter folgen.
+// Ändert sich dort eine Produktaussage, diese Texte mitpflegen. Keine Zahlen, keine neuen Versprechen.
 
 export type LaechelnSeite = "praxis" | "patient";
 export type LaechelnStand = "beide" | "praxis" | "patient" | "keine";
@@ -16,11 +17,11 @@ export function laechelnStand(praxis: boolean, patient: boolean): LaechelnStand 
 export const LAECHELN_SEITEN: Record<LaechelnSeite, { name: string; text: string }> = {
   praxis: {
     name: "Praxis",
-    text: "Ein Klick nach dem Gespräch erzeugt die Information zum Mitnehmen, den Hinweis zur Vereinbarung und die To-dos. Rückrufwünsche kommen gesammelt an.",
+    text: "Weniger Schreibarbeit nach dem Gespräch.",
   },
   patient: {
     name: "Patient",
-    text: "Der Patient liest zu Hause auf dem Handy, was die Kasse zahlt und was er selbst zahlt. Ohne App und ohne Konto.",
+    text: "Kosten in Ruhe zu Hause verstehen, ohne App.",
   },
 };
 

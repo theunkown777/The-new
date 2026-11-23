@@ -129,6 +129,27 @@ describe("Lächeln-Zitat: CSS", () => {
     }
   });
 
+  it("der Einstieg verändert nie das Aussehen der Schalter, sie zeigen immer ihren echten Zustand", () => {
+    const frei = block.slice(block.indexOf("@media (prefers-reduced-motion: no-preference)"));
+    for (const zeile of frei.split("\n").filter((z) => z.includes("data-intro"))) {
+      if (!zeile.includes("laecheln-knopf") && !zeile.includes("laecheln-punkt")) continue;
+      // erlaubt ist nur das kurze Aufleuchten (Animation), nie Hintergrund, Rand oder Farbe
+      expect(zeile, zeile).not.toMatch(/background|border-color|[^-]color:|transition-delay|laecheln-punkt/);
+    }
+  });
+
+  it("„Jetzt lächeln beide.“ erscheint nach Bedienung erst mit dem Treffpunkt, nicht vor ihm", () => {
+    expect(block).toMatch(/\.laecheln\[data-voll\] \.laecheln-status\.kurz-ein \{ animation-delay: \.9\d?s; \}/);
+  });
+
+  it("die Seitentexte wiederholen nicht den Wortlaut der Entlastung-Karten", () => {
+    const entlastung = lies("components/Entlastung.tsx");
+    for (const s of Object.values(LAECHELN_SEITEN)) {
+      expect(entlastung.includes(s.text), s.text).toBe(false);
+      expect(s.text.split(/[.!?]\s/).length, s.text).toBe(1);
+    }
+  });
+
   it("bei reduzierter Bewegung gibt es keine Übergänge und der Treffpunkt ist sichtbar", () => {
     const reduziert = block.slice(block.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
     expect(reduziert).toContain("transition: none !important; animation: none !important;");

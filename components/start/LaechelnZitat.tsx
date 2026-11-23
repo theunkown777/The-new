@@ -5,8 +5,8 @@ import { LAECHELN_HINWEIS, LAECHELN_SEITEN, LAECHELN_STAENDE, LAECHELN_STATUS, l
 
 // Bedeutung des Namens: Sorrida heißt „lächeln“. Praxis und Patient zeichnen je eine Hälfte des Bogens aus dem Logo,
 // erst zusammen wird daraus ein Lächeln. Jede Seite lässt sich aus- und wieder einschalten.
-// Der Server liefert den vollständigen Endzustand (auch ohne JavaScript). Der Einstieg ist nur Optik (data-intro)
-// und ändert nie, was die Schalter melden. Bewegt werden nur stroke-dashoffset, opacity und transform (CSS in app/globals.css).
+// Der Server liefert den vollständigen Endzustand (auch ohne JavaScript). Der Einstieg ist nur Optik (data-intro):
+// Er zeichnet Bogen, Mundwinkel, Treffpunkt und Status ein; die Schalter zeigen ab dem ersten Bild ihren echten Zustand. Bewegt werden nur stroke-dashoffset, opacity und transform (CSS in app/globals.css).
 export function LaechelnZitat({ rahmen }: { rahmen: string }) {
   const [an, setAn] = useState({ praxis: true, patient: true });
   const [intro, setIntro] = useState<"wartet" | "laeuft" | "fertig">("wartet");
@@ -27,7 +27,7 @@ export function LaechelnZitat({ rahmen }: { rahmen: string }) {
         if (!e.some((x) => x.isIntersecting)) return;
         io.disconnect();
         setIntro((i) => (i === "wartet" ? "laeuft" : i));
-        timer.current = window.setTimeout(() => setIntro("fertig"), 3200);
+        timer.current = window.setTimeout(() => setIntro("fertig"), 2900);
       },
       { threshold: 0.35 },
     );
@@ -38,9 +38,13 @@ export function LaechelnZitat({ rahmen }: { rahmen: string }) {
     };
   }, []);
 
-  const umschalten = (s: LaechelnSeite) => {
+  const fertig = () => {
     clearTimeout(timer.current);
     setIntro("fertig");
+  };
+
+  const umschalten = (s: LaechelnSeite) => {
+    fertig();
     setBenutzt(true);
     setAn((a) => ({ ...a, [s]: !a[s] }));
   };
@@ -62,7 +66,6 @@ export function LaechelnZitat({ rahmen }: { rahmen: string }) {
 
   const seitenText = (s: LaechelnSeite) => (
     <p id={`laecheln-${s}-text`} className={`laecheln-text ${s === "praxis" ? "[grid-area:tpraxis]" : "[grid-area:tpatient]"}`} data-seite={s}>
-      <span className="font-semibold lg:sr-only">{LAECHELN_SEITEN[s].name}: </span>
       {LAECHELN_SEITEN[s].text}
     </p>
   );
@@ -122,7 +125,8 @@ export function LaechelnZitat({ rahmen }: { rahmen: string }) {
               <circle className="laecheln-ring" cx={240} cy={76} r={6} fill="none" stroke="#F5F2EE" strokeWidth={1.5} />
               <circle className="laecheln-mitte" cx={240} cy={76} r={5} fill="#F5F2EE" />
             </svg>
-            <div className="grid [grid-area:status]" data-testid="laecheln-status" data-stand={stand}>
+            {/* Kommt der Fokus in den Status, bevor der Einstieg ihn eingeblendet hat, steht er sofort da */}
+            <div className="grid [grid-area:status]" data-testid="laecheln-status" data-stand={stand} onFocus={() => intro !== "fertig" && fertig()}>
               {LAECHELN_STAENDE.map((k) => {
                 const v = LAECHELN_STATUS[k];
                 const ist = k === stand;
