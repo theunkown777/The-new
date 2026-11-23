@@ -870,7 +870,7 @@ export function buildLetter(args: {
   const ft = (s: string) => fachText(s, args.fach);
   const behandelt = abschlussWort(args.fach) === "Behandlung";
   const L: string[] = [];
-  L.push(`${practiceName} – ${ft("Ihr persönlicher Behandlungsvorschlag")}`);
+  L.push(`${practiceName}: ${ft("Ihr persönlicher Behandlungsvorschlag")}`);
   L.push(`Datum: ${date.toLocaleDateString("de-DE")}`);
   L.push("");
   L.push(patientName.trim() ? `Guten Tag ${patientName},` : "Guten Tag,");

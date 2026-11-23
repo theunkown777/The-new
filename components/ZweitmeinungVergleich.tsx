@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ZweitmeinungEintrag } from "@/lib/zweitmeinung";
 import { fachText } from "@/lib/fachText";
+import { abschlussWort } from "@/lib/fachWoerter";
 
 const eur = (cent: number) => `${Math.round(cent / 100).toLocaleString("de-DE")} €`;
 
@@ -70,7 +71,7 @@ export function ZweitmeinungVergleich({
   return (
     <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" aria-labelledby="zweitmeinung" data-testid="zweitmeinung">
       <h2 id="zweitmeinung" className="font-display text-2xl text-slate-900">
-        Zweitmeinung vergleichen
+        {abschlussWort(fach) === "Behandlung" ? "Zweitmeinung vergleichen" : "Angebote vergleichen"}
       </h2>
       <div className={`mt-2 rounded-xl px-3 py-2 text-sm ${anspruch ? "bg-salbei-50 text-salbei-800" : "bg-slate-50 text-slate-700"}`} data-testid="zweitmeinung-hinweis">
         <b>{hinweis.titel}.</b> {hinweis.text}

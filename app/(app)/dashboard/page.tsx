@@ -210,7 +210,7 @@ export default async function DashboardPage() {
       {/* Sorrida-Signatur: Wege der letzten 90 Tage auf dem Lächelbogen */}
       <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-5 sm:p-6" data-testid="wege-trichter">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-semibold text-slate-900">Wo Ihre {P.pl} gerade stehen</h2>
+          <h2 className="font-semibold text-slate-900">{ft("Wo Ihre Patienten gerade stehen")}</h2>
           <Link href="/patients" className="ziel text-sm text-brand-700 underline">Zur Arbeitsliste</Link>
         </div>
         <div className="mx-auto mt-4 max-w-2xl">

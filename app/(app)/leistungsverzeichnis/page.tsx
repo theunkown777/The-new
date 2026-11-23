@@ -10,11 +10,10 @@ import { katalogEintrag, SYSTEM_KURZ, SYSTEM_TITEL } from "@/lib/amtlich/katalog
 import { LeistungUebernehmen } from "@/components/LeistungUebernehmen";
 import { LeistungenImport } from "@/components/LeistungenImport";
 import { LeistungSchnell } from "@/components/LeistungSchnell";
-import { leistungsBeispiel, systemGruppe } from "@/lib/fachprofile";
+import { leistungsBeispielFuer } from "@/lib/fachprofile";
 import { KvBezirkWahl } from "@/components/KvBezirkWahl";
-import { alleFilter, fachFilter, GAST_HINWEIS, quellenFuer, sortiereSysteme } from "@/lib/amtlich/gliederung";
+import { alleFilter, fachFilter, GAST_HINWEIS, hatEbm, hatKvZiffern, quellenFuer, sortiereSysteme } from "@/lib/amtlich/gliederung";
 import { seiteAus } from "@/lib/adresse";
-import { rechnetUeberKv } from "@/lib/abrechnungsarten";
 import { importVorgaben } from "@/lib/importVerzeichnisse";
 
 import { praxisText } from "@/lib/praxisFach";
@@ -87,16 +86,16 @@ export default async function LeistungsverzeichnisPage(props: { searchParams: Pr
             {alle ? "Nur mein Fach anzeigen" : "Alle Fächer anzeigen"}
           </Link>
         </p>
-        {gast && (alle || rechnetUeberKv(fach)) && (
+        {gast && (alle || hatEbm(fach)) && (
           <p className="mt-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-900" data-testid="ebm-gast-hinweis">
             {GAST_HINWEIS}
           </p>
         )}
-        {rechnetUeberKv(fach) && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
+        {hatKvZiffern(fach) && <div className="mt-2"><KvBezirkWahl wert={kvBezirk} admin={admin} /></div>}
       </div>
 
       <div data-testid="eigene-leistung" data-hilfe="leistungsverzeichnis-eigene">
-        <LeistungSchnell titel="Leistung nicht dabei? Eigene Leistung anlegen (nur Name und Preis)" beispiel={leistungsBeispiel(systemGruppe(fach))} />
+        <LeistungSchnell titel="Leistung nicht dabei? Eigene Leistung anlegen (nur Name und Preis)" beispiel={leistungsBeispielFuer(fach)} />
       </div>
 
       <div className="flex flex-wrap gap-2" data-testid="systeme">

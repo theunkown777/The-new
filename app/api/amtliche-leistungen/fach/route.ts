@@ -4,10 +4,9 @@ import type { Prisma } from "@prisma/client";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { praxisFach } from "@/lib/katalogScope";
-import { fachFilter, kvName, sortiereSysteme } from "@/lib/amtlich/gliederung";
+import { fachFilter, hatKvZiffern, kvName, sortiereSysteme } from "@/lib/amtlich/gliederung";
 import { SYSTEM_TITEL } from "@/lib/amtlich/katalog";
-import { rechnetUeberKv } from "@/lib/abrechnungsarten";
-import { leistungsBeispiel, systemGruppe } from "@/lib/fachprofile";
+import { leistungsBeispielFuer } from "@/lib/fachprofile";
 
 const natuerlich = (a: string | null, b: string | null) => (a ?? "").localeCompare(b ?? "", "de", { numeric: true });
 
@@ -33,8 +32,8 @@ export async function GET(req: Request) {
       anzahl: s._count,
       kapitel: proKapitel.filter((k) => k.system === s.system).sort((a, b) => natuerlich(a.kapitel, b.kapitel)).map((k) => ({ name: k.kapitel ?? "ohne Kapitel", anzahl: k._count })),
     }));
-    // kvMoeglich: Nur Vertragsärzte (EBM) haben regionale KV-Ziffern; Zahnmedizin, Therapie, Pflege usw. sehen den Hinweis nicht.
-    return NextResponse.json({ fach, kvBezirk: practice?.kvBezirk ?? null, kvName: kvName(practice?.kvBezirk), kvMoeglich: rechnetUeberKv(fach), beispiel: leistungsBeispiel(systemGruppe(fach)), gliederung });
+    // kvMoeglich: Nur Fächer mit regionalen KV-Ziffern (lib/amtlich/gliederung.ts); Zahnmedizin, Therapie, Pflege usw. sehen den Hinweis nicht.
+    return NextResponse.json({ fach, kvBezirk: practice?.kvBezirk ?? null, kvName: kvName(practice?.kvBezirk), kvMoeglich: hatKvZiffern(fach), beispiel: leistungsBeispielFuer(fach), gliederung });
   }
 
   const worte = q.split(/\s+/).filter(Boolean);

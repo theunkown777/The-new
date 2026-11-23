@@ -153,7 +153,7 @@ export function BuchungSettings({ admin, start, kalender, plaetze, vorschau, dem
       </section>
 
       <section className="card" aria-labelledby="b-vorschau" data-testid="buchung-vorschau">
-        <h2 id="b-vorschau" className="font-semibold text-slate-900">Das sehen Ihre {personPl}</h2>
+        <h2 id="b-vorschau" className="font-semibold text-slate-900">{ft("Das sehen Ihre Patienten")}</h2>
         {!start.buchungAktiv ? <p className="mt-1 text-sm text-slate-600">Online-Termine sind ausgeschaltet. Der persönliche Link zeigt dann keinen Buchungsknopf.</p>
           : vorschau.length === 0 ? <p className="mt-1 text-sm text-amber-800">Im gewählten Zeitraum ist nichts frei. Bitte Sprechzeiten und Kalender prüfen.</p>
           : <ul className="mt-2 space-y-2 text-sm">{vorschau.slice(0, 5).map((t) => <li key={t.tag}><span className="font-medium text-slate-900">{t.name}:</span> <span className="text-slate-700">{t.zeiten.slice(0, 10).join(" · ")}{t.zeiten.length > 10 ? ` · und ${t.zeiten.length - 10} weitere` : ""}</span></li>)}</ul>}

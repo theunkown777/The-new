@@ -255,7 +255,7 @@ describe("Öffentliche Terminanfrage und Schreiben je Fach", () => {
   it("Schreiben: Zahnmedizin, Ärzte und Therapie wie bisher", () => {
     for (const fach of ["zahn", "ortho", "physio", undefined]) {
       const t = brief(fach, true);
-      expect(t, String(fach)).toContain("Haus am Markt – Ihr persönlicher Behandlungsvorschlag");
+      expect(t, String(fach)).toContain("Haus am Markt: Ihr persönlicher Behandlungsvorschlag");
       expect(t, String(fach)).toContain("Hier finden Sie unsere Befunde und die Behandlungsmöglichkeiten, die wir mit Ihnen besprochen haben.");
       expect(t, String(fach)).toContain("← von Ihrer Praxis vorgemerkt");
     }
@@ -270,7 +270,7 @@ describe("Öffentliche Terminanfrage und Schreiben je Fach", () => {
 
   it("Schreiben: Apotheke, Fachgeschäft und Pflegedienst in ihren Wörtern, Klinik mit Wahlleistungsvereinbarung", () => {
     const apo = brief("apotheke", true);
-    expect(apo).toContain("Haus am Markt – Ihr persönlicher Beratungsvorschlag");
+    expect(apo).toContain("Haus am Markt: Ihr persönlicher Beratungsvorschlag");
     expect(apo).toContain("Hier finden Sie die Möglichkeiten, die wir mit Ihnen besprochen haben.");
     expect(apo).toContain("← von Ihrer Apotheke vorgemerkt");
     expect(apo).toContain("vor der Beratung vereinbaren wir sie schriftlich");

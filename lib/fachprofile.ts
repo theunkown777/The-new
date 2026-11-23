@@ -463,10 +463,31 @@ export function preisRahmen(fach: string | null | undefined): string {
 export function leistungsBeispiel(gruppe: string): string {
   if (gruppe === "zahn") return "Bleaching";
   if (gruppe === "therapie") return "Kinesio-Taping";
-  if (gruppe === "arzt") return "Reiseimpfberatung";
   if (gruppe === "apotheke") return "Medikationsanalyse";
   if (gruppe === "hebamme") return "Babymassage-Kurs";
   return "Beratungsgespräch";
+}
+
+/** Eigene Leistungen, die zum Arztfach passen. Reiseimpfberatung nur hausärztlich. */
+const BEISPIEL_FACH: Record<string, string> = {
+  hausarzt: "Reiseimpfberatung",
+  augen: "Augeninnendruckmessung",
+  uro: "PSA-Test",
+  ortho: "Stoßwellentherapie",
+  kardio: "Sportmedizinische Untersuchung",
+  aesthetik: "Faltenbehandlung",
+};
+
+/**
+ * Beispiel für den Namen einer eigenen Leistung, je Fach: zuerst ein typisches Beispiel des Fachs, dann die erste
+ * Selbstzahlerleistung aus dem Profil, sonst das Beispiel der Gruppe. Ärzte ohne eigenes Beispiel: „Beratungsgespräch“.
+ */
+export function leistungsBeispielFuer(fach: string | null | undefined): string {
+  const f = fach ?? "";
+  if (BEISPIEL_FACH[f]) return BEISPIEL_FACH[f];
+  const selbst = FACHPROFILE[f]?.sitzungstypen.flatMap((t) => t.leistungen).find((l) => l.system === "SELBST")?.title;
+  if (selbst) return selbst.replace(/\s*\(.*\)$/, "");
+  return leistungsBeispiel(systemGruppe(f));
 }
 
 /** Beispiele für Dokumente in der Akte, je Fach. Röntgenbilder und Überweisungen nicht bei Apotheke, Optik usw. */
@@ -478,6 +499,7 @@ export function dokumentBeispiele(fach: string | null | undefined): string {
   if (f === "sanitaetshaus") return "Verordnungen, Kostenvoranschläge oder Maßblätter";
   if (f === "pflege") return "Pflegegutachten, Verordnungen oder Arztbriefe";
   if (f === "hebamme") return "Befunde, Arztbriefe oder Kopien aus dem Mutterpass";
+  if (f === "psych") return "Arztbriefe, Konsiliarberichte oder Fragebögen";
   const g = systemGruppe(f);
   if (g === "zahn") return "Röntgenbilder, Heil- und Kostenpläne oder Arztbriefe";
   if (g === "therapie") return "Verordnungen, Arztbriefe oder Befunde";

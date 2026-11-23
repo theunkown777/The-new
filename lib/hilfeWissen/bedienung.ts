@@ -176,7 +176,7 @@ export const BEDIENUNG: HilfeEintrag[] = [
   {
     id: "terminanfragen",
     frage: "Wo bestätige ich Online-Anfragen neuer Patienten?",
-    antwort: "Online-Anfragen neuer Patienten stehen im Eingang und unter Termine. Dort bestätigen Sie die Anfrage oder lehnen sie ab. Erst mit der Bestätigung entstehen Patient und Termin. Die gewünschte Zeit ist 24 Stunden reserviert.",
+    antwort: "Online-Anfragen neuer Patienten stehen im Eingang und unter Termine. Dort bestätigen Sie die Anfrage oder lehnen sie ab. Erst mit der Bestätigung entstehen die Akte und der Termin. Die gewünschte Zeit ist 24 Stunden reserviert.",
     pfad: "Termine → Online-Anfragen neuer Patienten",
     href: "/termine#anfragen",
     stichwoerter: ["Terminanfrage", "neue Patienten", "bestätigen", "ablehnen", "online angefragt", "Neupatient"],

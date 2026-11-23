@@ -27,7 +27,7 @@ export default async function PatientenImportPage() {
       <div>
         <h1 className="font-display text-3xl text-slate-900">Liste einlesen</h1>
         <p className="mt-1 max-w-2xl text-sm text-slate-600">
-          Übernehmen Sie Ihre {P.pl} aus Ihrer bisherigen Software: Liste dort als CSV-Datei speichern und hier hochladen. Sorrida erkennt die Spalten, zeigt Ihnen eine Vorschau und speichert erst nach Ihrem Klick.
+          {ft("Übernehmen Sie Ihre Patienten aus Ihrer bisherigen Software:")} Liste dort als CSV-Datei speichern und hier hochladen. Sorrida erkennt die Spalten, zeigt Ihnen eine Vorschau und speichert erst nach Ihrem Klick.
           Höchstens {MAX_ZEILEN.toLocaleString("de-DE")} Zeilen je Datei.
         </p>
       </div>

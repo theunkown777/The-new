@@ -3,7 +3,7 @@ import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { CatalogSettings } from "@/components/CatalogSettings";
 import { prisma } from "@/lib/prisma";
-import { fachprofil, systemGruppe } from "@/lib/fachprofile";
+import { fachprofil, leistungsBeispielFuer, systemGruppe } from "@/lib/fachprofile";
 import { gruppeHatPunkte } from "@/lib/katalogBeispiele";
 
 import { praxisText } from "@/lib/praxisFach";
@@ -26,7 +26,7 @@ export default async function CatalogSettingsPage() {
       <p className="mb-4 text-sm text-slate-600">
         {ft("Positionen mit „Vorgabe“ stammen von Sorrida für Ihr Fach und sind schreibgeschützt. Eigene Positionen legen Sie unten an; sie gelten nur für Ihre Praxis.")}
       </p>
-      <CatalogSettings readOnly={session!.user.role !== "admin"} systeme={systemGruppe(fach)} regionLabel={fachprofil(fach).region} />
+      <CatalogSettings readOnly={session!.user.role !== "admin"} systeme={systemGruppe(fach)} regionLabel={fachprofil(fach).region} beispiel={leistungsBeispielFuer(fach)} />
     </div>
   );
 }

@@ -9,7 +9,7 @@ type Antwort = { gelesen: number; uebernommen: number; neu: number; schonVorhand
 /** Leistungslisten der eigenen KV oder aus Verträgen als CSV in den Praxiskatalog übernehmen. Verzeichnisse je Fach (lib/importVerzeichnisse.ts). */
 export function LeistungenImport({ vorgaben }: { vorgaben: ImportVorgaben }) {
   const ft = useAppText();
-  const { verzeichnisse, kv } = vorgaben;
+  const { verzeichnisse, kv, vertraege } = vorgaben;
   const [csv, setCsv] = useState("");
   const [system, setSystem] = useState(verzeichnisse[0]?.[0] ?? "SELBST");
   const [kategorie, setKategorie] = useState(vorgaben.kategorie);
@@ -25,12 +25,14 @@ export function LeistungenImport({ vorgaben }: { vorgaben: ImportVorgaben }) {
 
   return (
     <details className="card p-5" data-testid="leistungen-import">
-      <summary className="cursor-pointer text-sm font-medium text-slate-900">{kv ? "Regionale KV-Ziffern, Sonderverträge oder eigene Liste importieren" : "Sonderverträge oder eigene Liste importieren"}</summary>
+      <summary className="cursor-pointer text-sm font-medium text-slate-900">{kv ? "Regionale KV-Ziffern, Sonderverträge oder eigene Liste importieren" : vertraege ? "Sonderverträge oder eigene Liste importieren" : "Eigene Liste importieren"}</summary>
       <div className="mt-3 space-y-3 text-sm">
         <p className="text-slate-600">
           {kv
             ? ft("Regionale Gebührenordnungspositionen und Vertragsziffern veröffentlicht jede KV bzw. jeder Vertrag selbst (Rundschreiben, Abrechnungsseite der KV, Praxissoftware).")
-            : ft("Vertragsziffern und Preislisten stehen im jeweiligen Vertrag oder in Ihrer Praxissoftware.")}{" "}
+            : vertraege
+              ? ft("Vertragsziffern und Preislisten stehen im jeweiligen Vertrag oder in Ihrer Praxissoftware.")
+              : ft("Ihre Preisliste haben Sie in Ihrer Praxissoftware oder in Ihren Unterlagen.")}{" "}
           Fügen Sie die Liste hier ein oder laden Sie eine CSV-Datei:
           eine Zeile je Leistung, <span className="font-mono text-xs">Ziffer;Bezeichnung;Betrag in Euro</span> (Betrag, Punkte und Hinweis optional, Kopfzeile erlaubt).
         </p>
@@ -52,7 +54,7 @@ export function LeistungenImport({ vorgaben }: { vorgaben: ImportVorgaben }) {
           </label>
         </div>
         <textarea className="input h-32 w-full font-mono text-xs" value={csv} onChange={(e) => setCsv(e.target.value)} aria-label="Leistungsliste"
-          placeholder={kv ? "Ziffer;Bezeichnung;Betrag\n99001;Beispiel: regionale Impfleistung;10,50" : "Ziffer;Bezeichnung;Betrag\n1001;Beispiel: eigene Leistung;10,50"} />
+          placeholder={`Ziffer;Bezeichnung;Betrag\n${vorgaben.beispiel}`} />
         <div className="flex flex-wrap gap-2">
           <button type="button" className="btn-secondary py-1.5 text-sm" disabled={!csv.trim() || laeuft} onClick={() => senden(true)}>Prüfen</button>
           <button type="button" className="btn-primary py-1.5 text-sm" disabled={!csv.trim() || laeuft} onClick={() => senden(false)}>In den Katalog übernehmen</button>

@@ -22,7 +22,7 @@ type CatalogItem = {
 
 type RowState = { punktzahl: string; festbetrag: string; saving: boolean; saved: boolean; error: string | null };
 
-export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { readOnly?: boolean; systeme: string; regionLabel: string | null }) {
+export function CatalogSettings({ readOnly = false, systeme, regionLabel, beispiel }: { readOnly?: boolean; systeme: string; regionLabel: string | null; beispiel?: string }) {
   const SYSTEMS = systemeFuer(systeme);
   // Faktor-Feld nur, wo es ein Verzeichnis mit Steigerungsfaktor gibt (GOZ, GOÄ).
   const faktor = faktorVerzeichnisse(systeme);
@@ -145,7 +145,7 @@ export function CatalogSettings({ readOnly = false, systeme, regionLabel }: { re
   return (
     <div className="space-y-6">
       <div data-hilfe="katalog-eigene">
-        <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" beispiel={leistungsBeispiel(systeme)} onCreated={() => load(true)} />
+        <LeistungSchnell offen titel="Eigene Leistung schnell anlegen" beispiel={beispiel ?? leistungsBeispiel(systeme)} onCreated={() => load(true)} />
       </div>
       <p className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800" data-testid="katalog-hinweis">
         {punkte

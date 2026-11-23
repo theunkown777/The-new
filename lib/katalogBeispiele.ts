@@ -43,9 +43,11 @@ export const hatPunkte = (system: string): boolean => MIT_PUNKTEN.includes(syste
 export const gruppeHatPunkte = (gruppe: string): boolean => systemeFuer(gruppe).some(hatPunkte);
 
 /** Beispiele im Suchfeld des Leistungsverzeichnisses. Ohne Fach kein Beispiel. */
-const SUCH_BEISPIEL: Record<string, string> = { zahn: "Füllung oder Krone", arzt: "Sonographie oder 03000", therapie: "Hausbesuch" };
+const SUCH_BEISPIEL: Record<string, string> = { zahn: "Füllung oder Krone", arzt: "Beratung", therapie: "Hausbesuch" };
+/** 03000 ist die hausärztliche Versichertenpauschale: nur dort als Beispiel. */
+const SUCH_BEISPIEL_FACH: Record<string, string> = { hausarzt: "Sonographie oder 03000" };
 export function suchBeispiel(fach: string | null | undefined): string {
   if (!fach) return "";
-  const b = SUCH_BEISPIEL[systemGruppe(fach)];
+  const b = SUCH_BEISPIEL_FACH[fach] ?? SUCH_BEISPIEL[systemGruppe(fach)];
   return b ? `, z. B. ${b}` : "";
 }

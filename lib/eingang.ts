@@ -21,7 +21,7 @@ export const EINGANG_ARTEN = {
   TERMIN_ABGESAGT: { titel: "Termin online abgesagt", tun: "Die Zeit ist wieder frei; bei Bedarf neu vergeben.", gruppe: "Termine" },
   // Anfrage über die Buchungsseite für neue Patienten (/t/<kennung>). Dazu gibt es noch keinen Patienten und deshalb
   // keine Zeile in der Tabelle Eingang: Die offenen Anfragen liefert eingangAnfragen() aus der Tabelle Terminanfrage.
-  TERMINANFRAGE: { titel: "Online-Anfrage eines neuen Patienten", tun: "Unter Termine prüfen, dann bestätigen oder ablehnen. Erst mit der Bestätigung entstehen Patient und Termin.", gruppe: "Termine" },
+  TERMINANFRAGE: { titel: "Online-Anfrage eines neuen Patienten", tun: "Unter Termine prüfen, dann bestätigen oder ablehnen. Erst mit der Bestätigung entstehen die Akte und der Termin.", gruppe: "Termine" },
 } as const;
 
 export type EingangArt = keyof typeof EINGANG_ARTEN;

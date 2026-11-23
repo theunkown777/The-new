@@ -93,7 +93,7 @@ export default async function MeinBereichPage(props: { searchParams: Promise<{ q
         <div>
         <h1 className="font-display text-3xl text-slate-900">Mein Bereich</h1>
         <p className="mt-1 text-sm text-slate-500">
-          {me?.name}: nur Ihre {P.pl} und Ihre Zahlen. Kolleginnen und Kollegen sehen hier ihre eigenen. Geschützt mit Ihrem Bereichs-Passwort.
+          {me?.name}: {ft("nur Ihre Patienten und Ihre Zahlen.")} Kolleginnen und Kollegen sehen hier ihre eigenen. Geschützt mit Ihrem Bereichs-Passwort.
         </p>
         </div>
         <BereichAktionen />
@@ -133,7 +133,7 @@ export default async function MeinBereichPage(props: { searchParams: Promise<{ q
           <section className="card" aria-labelledby="heute">
             <h2 id="heute" className="font-display text-xl text-slate-900">Heute bei mir</h2>
             {termine.length === 0 ? (
-              <p className="mt-2 text-sm text-slate-500">Heute keine Termine mit Ihren {P.pl}.</p>
+              <p className="mt-2 text-sm text-slate-500">{ft("Heute keine Termine mit Ihren Patienten.")}</p>
             ) : (
               <ul className="mt-2 divide-y divide-slate-100">
                 {termine.map((t) => (

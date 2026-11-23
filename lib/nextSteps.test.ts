@@ -29,7 +29,7 @@ describe("Vereinbarung vor einer Selbstzahlerleistung je Fach", () => {
     buildNextSteps({ items: [item], choices: { a: "wunsch" }, patient: GKV10, reportFinal: true, hasProposal: true, today: OCT, fach }).find((x) => x.id === "igel")!;
   it("Ärzte: IGeL nach BMV-Ä; Therapie: Privatvereinbarung; Hilfsmittel: Mehrkostenerklärung; Klinik: Wahlleistungsvereinbarung", () => {
     expect(igel("ortho").text).toBe("Schriftliche Vereinbarung über Selbstzahlerleistungen (IGeL) vor der Leistung unterschreiben lassen");
-    expect(igel("ortho").detail).toBe("Allgemein: Wunschleistung – falls der Patient diese Leistung wählt; Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä)");
+    expect(igel("ortho").detail).toBe("Allgemein: Wunschleistung. Gilt, falls der Patient diese Leistung wählt. Kosten nach GOÄ, ausreichende Bedenkzeit (§ 18 Abs. 8 BMV-Ä).");
     expect(igel("physio").text).toBe("Privatvereinbarung über Selbstzahlerleistungen vor der Behandlung unterschreiben lassen");
     expect(igel("physio").detail).not.toMatch(/GOÄ|BMV-Ä|IGeL/);
     expect(igel("optik").text).toContain("Mehrkostenerklärung vor der Versorgung");

@@ -49,8 +49,14 @@ export const REIHENFOLGE: Record<string, string[]> = {
   optik: ["HMV", "HMV_PRODUKT"],
   sanitaetshaus: ["HMV", "HMV_PRODUKT"],
   heilpraktiker: ["HEILPRAKTIKER"],
+  // Ästhetische Medizin rechnet privat ab (lib/abrechnungsarten.ts: GOÄ und IGeL), ohne EBM und KV-Ziffern.
+  aesthetik: ["GOAE", "OPS"],
 };
 export const reihenfolge = (fach: string) => REIHENFOLGE[fach] ?? ARZT;
+/** Sieht das Fach regionale KV-Ziffern (Wahl des KV-Bezirks)? Klinik ja (ambulante Operationen, Dialyse), Zahn und Therapie nein. */
+export const hatKvZiffern = (fach: string | null | undefined): boolean => reihenfolge(fach || "andere").includes("KV_REGIONAL");
+/** Hat das Fach den EBM in seinen Verzeichnissen (Gast-Hinweis, Import von EBM-Listen)? */
+export const hatEbm = (fach: string | null | undefined): boolean => reihenfolge(fach || "andere").includes("EBM");
 export const sortiereSysteme = <T extends { system: string }>(fach: string, liste: T[]) => {
   const r = reihenfolge(fach);
   const pos = (s: string) => (r.indexOf(s) < 0 ? 99 : r.indexOf(s));

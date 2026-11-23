@@ -6,7 +6,6 @@ import { nurMitEinstellungen } from "@/lib/permissions";
 import { leseStammdaten, praxisZeile, stammdatenBeispiele, stammdatenFehlen } from "@/lib/praxisStammdaten";
 import { PraxisStammdaten } from "@/components/PraxisStammdaten";
 import { PraxisFuss } from "@/components/PraxisFuss";
-import { fachprofil } from "@/lib/fachprofile";
 
 import { praxisText } from "@/lib/praxisFach";
 export const dynamic = "force-dynamic";
@@ -37,7 +36,7 @@ export default async function PraxisAngabenPage() {
         <p className="card text-sm text-slate-600">{ft("Diese Angaben ändert die Praxisleitung. Eingetragen ist: ")}{praxisZeile(name, s)}.</p>
       )}
       <section className="card">
-        <h2 className="font-semibold text-slate-900">So sehen es Ihre {fachprofil(practice?.specialty).person.pl}</h2>
+        <h2 className="font-semibold text-slate-900">{ft("So sehen es Ihre Patienten")}</h2>
         <PraxisFuss name={name} stammdaten={practice?.stammdaten} fach={practice?.specialty} className="mt-3 !text-left" />
       </section>
     </div>
