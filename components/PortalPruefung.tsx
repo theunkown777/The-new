@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { pruefFehlerText, pruefText } from "@/lib/portalPruefung";
 
 // Geburtsdatum bestätigen, bevor im Patientenportal unterschrieben oder eine
@@ -35,6 +35,15 @@ export function GeburtsdatumPruefung({
   const [f, setF] = useState({ tag: "", monat: "", jahr: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Nach einem Fehler zurück in das Feld „Tag“: Der Knopf ist während der Prüfung gesperrt, sonst läge der Fokus
+  // danach auf der ganzen Seite und man müsste mit Tastatur oder Screenreader von oben neu anfangen.
+  const [fehlerNr, setFehlerNr] = useState(0);
+  const tagRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!fehlerNr) return;
+    tagRef.current?.focus();
+    tagRef.current?.select();
+  }, [fehlerNr]);
   const fehlerId = `${id}-fehler`;
   const grundId = `${id}-grund`;
 
@@ -44,7 +53,10 @@ export function GeburtsdatumPruefung({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (!vollstaendig) return setError(t.unvollstaendig);
+    if (!vollstaendig) {
+      setError(t.unvollstaendig);
+      return setFehlerNr((n) => n + 1);
+    }
     setBusy(true);
     setError(null);
     const res = await fetch(pruefUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) }).catch(() => null);
@@ -52,6 +64,7 @@ export function GeburtsdatumPruefung({
     setBusy(false);
     if (res?.ok && d?.ok) return onBestaetigt();
     setError(pruefFehlerText(t, d));
+    setFehlerNr((n) => n + 1);
   }
 
   const feld = "input mt-1 !py-3 text-center !text-base tabular-nums";
@@ -69,7 +82,7 @@ export function GeburtsdatumPruefung({
         <div className="mt-2 grid grid-cols-[1fr_1fr_1.4fr] gap-3">
           <label className="block text-sm text-slate-700" htmlFor={`${id}-tag`}>
             {t.tag}
-            <input id={`${id}-tag`} className={feld} inputMode="numeric" pattern="[0-9]*" autoComplete="bday-day" maxLength={2} placeholder={t.platzhalter[0]} value={f.tag} onChange={(e) => setF({ ...f, tag: ziffern(e.target.value, 2) })} aria-invalid={error ? true : undefined} required autoFocus={autoFocus} data-testid="geb-tag" />
+            <input ref={tagRef} id={`${id}-tag`} className={feld} inputMode="numeric" pattern="[0-9]*" autoComplete="bday-day" maxLength={2} placeholder={t.platzhalter[0]} value={f.tag} onChange={(e) => setF({ ...f, tag: ziffern(e.target.value, 2) })} aria-invalid={error ? true : undefined} required autoFocus={autoFocus} data-testid="geb-tag" />
           </label>
           <label className="block text-sm text-slate-700" htmlFor={`${id}-monat`}>
             {t.monat}

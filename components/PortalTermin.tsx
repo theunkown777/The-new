@@ -12,11 +12,11 @@ const uhr = (iso: string) => new Date(iso).toLocaleTimeString("de-DE", { hour: "
 const termin = (iso: string) => `${new Date(iso).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Berlin" })}, ${uhr(iso)} Uhr`;
 
 /** Patientenportal: freien Termin wählen und buchen. Angeboten wird nur, was wirklich frei ist. */
-export function PortalTermin({ token, praxis, anlassVor = "", fach }: { token: string; praxis: string; /** Aus der Erinnerung der Praxis: Anlass ist schon eingetragen */ anlassVor?: string; /** Fach der Praxis: „in der Apotheke“, „vom Pflegedienst bestätigt“ (lib/fachText.ts) */ fach?: string | null }) {
+export function PortalTermin({ token, praxis, anlassVor = "", fach, buchbar = true }: { token: string; praxis: string; /** Online-Buchung eingeschaltet (Stand beim Laden der Seite) */ buchbar?: boolean; /** Aus der Erinnerung der Praxis: Anlass ist schon eingetragen */ anlassVor?: string; /** Fach der Praxis: „in der Apotheke“, „vom Pflegedienst bestätigt“ (lib/fachText.ts) */ fach?: string | null }) {
   const ft = (s: string) => fachText(s, fach);
   const [tage, setTage] = useState<Tag[] | null>(null);
   const [meine, setMeine] = useState<Meiner[]>([]);
-  const [aktiv, setAktiv] = useState(true);
+  const [aktiv, setAktiv] = useState(buchbar);
   const [minuten, setMinuten] = useState(20);
   const [tag, setTag] = useState<string | null>(null);
   const [zeit, setZeit] = useState<string | null>(null);
@@ -54,6 +54,8 @@ export function PortalTermin({ token, praxis, anlassVor = "", fach }: { token: s
   }
 
   const aktuell = tage?.find((t) => t.tag === tag) ?? null;
+  const absagbar = (m: Meiner) => m.quelle === "PATIENT" && new Date(m.start).getTime() - Date.now() > 24 * 3600e3;
+  const einerAbsagbar = meine.some(absagbar);
   return (
     <div className="space-y-4" data-testid="portal-termin">
       {gebucht && (
@@ -71,17 +73,19 @@ export function PortalTermin({ token, praxis, anlassVor = "", fach }: { token: s
             {meine.map((m) => (
               <li key={m.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm" data-testid="mein-termin">
                 <span className="min-w-0"><span className="font-medium text-slate-900">{termin(m.start)}</span><span className="block text-xs text-slate-500">{m.minutes} Minuten{m.status === "BESTAETIGT" ? ft(" · von der Praxis bestätigt") : ""}</span></span>
-                {m.quelle === "PATIENT" && new Date(m.start).getTime() - Date.now() > 24 * 3600e3 && <button type="button" className="btn-secondary text-sm" disabled={busy} onClick={() => absagen(m.id)}>Absagen</button>}
+                {absagbar(m) && <button type="button" className="btn-secondary text-sm" disabled={busy} onClick={() => absagen(m.id)}>Absagen</button>}
               </li>
             ))}
           </ul>
         </section>
       )}
 
+      {!aktiv ? (
+        <p className="rounded-2xl bg-white p-4 text-sm text-slate-600" data-testid="termin-aus">{praxis} bietet zurzeit keine Online-Termine an. {ft("Termine vereinbaren Sie bitte telefonisch mit der Praxis.")}</p>
+      ) : (
       <section className="rounded-2xl bg-white p-4" aria-labelledby="freie-termine">
         <h2 id="freie-termine" className="text-sm font-semibold text-slate-900">Freien Termin wählen</h2>
         {tage === null ? <p className="mt-2 text-sm text-slate-500">Freie Termine werden geladen …</p>
-          : !aktiv ? <p className="mt-2 text-sm text-slate-600">{praxis} bietet zurzeit keine Online-Termine an. {ft("Bitte rufen Sie in der Praxis an.")}</p>
           : tage.length === 0 ? <p className="mt-2 text-sm text-slate-600" data-testid="termin-keine">{ft("In den nächsten Wochen ist online kein Termin frei. Bitte rufen Sie in der Praxis an.")}</p>
           : (
             <>
@@ -116,7 +120,12 @@ export function PortalTermin({ token, praxis, anlassVor = "", fach }: { token: s
             </>
           )}
       </section>
-      <p className="text-center text-xs text-slate-500">Es werden nur freie Zeiten angezeigt. Absagen sind hier bis 24 Stunden vorher möglich, danach bitte telefonisch.</p>
+      )}
+      {(aktiv || meine.length > 0) && (
+        <p className="text-center text-xs text-slate-500" data-testid="termin-fuss">
+          {[aktiv ? "Es werden nur freie Zeiten angezeigt." : "", einerAbsagbar ? "Absagen sind hier bis 24 Stunden vorher möglich, danach bitte telefonisch." : meine.length > 0 ? ft("Zum Absagen rufen Sie bitte in der Praxis an.") : ""].filter(Boolean).join(" ")}
+        </p>
+      )}
     </div>
   );
 }

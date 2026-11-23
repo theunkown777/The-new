@@ -404,7 +404,7 @@ describe("Speicher auf dem Gerät: nur an den vorgesehenen Stellen", () => {
     const nutzer = QUELLEN.filter((d) => /from\s+["']@\/lib\/geraeteSpeicher["']/.test(lies(d)));
     expect(nutzer.sort()).toEqual(["components/AnamneseGeraet.tsx", "components/MeineAngaben.tsx", "components/MeinePraxen.tsx", "components/PraxisMerken.tsx"]);
     const merkenNutzer = QUELLEN.filter((d) => /from\s+["']@\/components\/(PraxisMerken|MeinePraxen)["']/.test(lies(d)));
-    expect(merkenNutzer.sort()).toEqual(["app/meine-praxen/page.tsx", "app/portal/[token]/page.tsx"]);
+    expect(merkenNutzer.sort()).toEqual(["app/meine-praxen/page.tsx", "app/portal/[token]/page.tsx", "components/PortalUngueltig.tsx"]);
     // Kopien eigener Angaben: nur im Bogen auf dem Gerät des Patienten (/a, Portal) und auf /meine-praxen.
     const bogenNutzer = QUELLEN.filter((d) => /from\s+["']@\/components\/AnamneseGeraet["']/.test(lies(d)));
     expect(bogenNutzer.sort()).toEqual(["app/a/[token]/page.tsx", "app/portal/[token]/anamnese/[id]/page.tsx"]);
@@ -434,10 +434,13 @@ describe("Speicher auf dem Gerät: nur an den vorgesehenen Stellen", () => {
     expect(knopf.match(/const lese = gemerktePraxenLesen\(\)/g)).toHaveLength(2);
   });
   it("die Seite „Link nicht mehr gültig“ bietet das Entfernen nur unter derselben Regel an", () => {
+    const seite = ohneKommentare(lies("components/PortalUngueltig.tsx"));
+    expect(seite).toMatch(/darfAufGeraetMerken\(\(await cookies\(\)\)\.getAll\(\)\.map\(\(c\) => c\.name\)\)/);
+    expect(seite).toMatch(/\{aufGeraet && \(\s*<>[\s\S]*<GemerktEntfernen token=\{token\}/);
     const portal = ohneKommentare(lies("app/portal/[token]/page.tsx"));
-    expect(portal).toMatch(/darfAufGeraetMerken\(\(await cookies\(\)\)\.getAll\(\)\.map\(\(c\) => c\.name\)\)/);
-    expect(portal).toMatch(/<GemerktEntfernen token=\{token\}/);
-    expect(portal.match(/<Expired token=\{params\.token\} lang=\{searchParams\.lang\} \/>/g)).toHaveLength(2);
+    expect(portal.match(/<PortalUngueltig token=\{params\.token\} lang=\{searchParams\.lang\} \/>/g)).toHaveLength(2);
+    // Alle Unterseiten zeigen dieselbe Seite.
+    for (const d of ["fragen", "modell", "termin"]) expect(ohneKommentare(lies(`app/portal/[token]/${d}/page.tsx`)), d).toMatch(/<PortalUngueltig token=\{params\.token\}/);
   });
 });
 

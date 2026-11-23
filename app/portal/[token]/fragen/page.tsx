@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PortalUngueltig } from "@/components/PortalUngueltig";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -12,7 +13,6 @@ import { Kurzcheck } from "@/components/kurzcheck/Kurzcheck";
 import { PraxisFuss } from "@/components/PraxisFuss";
 import { PraxisBand } from "@/components/PraxisKennung";
 import { portalKennung, portalSymbole } from "@/lib/portalKopf";
-import { fachText } from "@/lib/fachText";
 
 export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
   const k = await portalKennung((await props.params).token);
@@ -35,12 +35,7 @@ export default async function PortalFragenPage(props: { params: Promise<{ token:
   const paket = kurzPaket(lang, { eltern, fach: gefunden?.practice.specialty });
   const { t, dir } = kurzUebersetzer(paket);
   if (!gefunden || !gefunden.portalExpiresAt || gefunden.portalExpiresAt < new Date()) {
-    return (
-      <main className="mx-auto max-w-md px-4 py-16 text-center text-sm text-slate-600">
-        <h1 className="text-base font-semibold text-slate-900">Link ungültig</h1>
-        <p className="mt-2">{fachText("Dieser Link ist nicht mehr gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen.", gefunden?.practice.specialty)}</p>
-      </main>
-    );
+    return <PortalUngueltig token={params.token} lang={searchParams.lang} fach={gefunden?.practice.specialty} />;
   }
   const praxis = gefunden.practice;
   const kennung = await portalKennung(params.token);
@@ -48,10 +43,10 @@ export default async function PortalFragenPage(props: { params: Promise<{ token:
     <main className="min-h-screen bg-[#F5F2EE]" data-testid="portal-fragen" lang={lang} dir={dir}>
       {kennung && <PraxisBand k={kennung} />}
       <div className="mx-auto max-w-xl px-4 pb-16 pt-6 sm:pt-10">
-        <p className="text-sm"><Link href={`/portal/${params.token}${lang === "de" ? "" : `?lang=${lang}`}`} className="text-brand-700 hover:underline">{dir === "rtl" ? "→" : "←"} {t("uebersicht")}</Link></p>
+        <p className="text-sm"><Link href={`/portal/${params.token}${lang === "de" ? "" : `?lang=${lang}`}`} className="ziel min-h-[44px] text-brand-700 hover:underline">{dir === "rtl" ? "→" : "←"} {t("uebersicht")}</Link></p>
         <h1 className="mt-2 font-display text-2xl text-slate-900 sm:text-3xl">{t("seitenTitel")}</h1>
         <p className="mt-1 text-sm text-slate-600">{t("seitenUnter", { praxis: praxis.name })}</p>
-        <div className="mt-5"><Kurzcheck token={params.token} art={kurzArt(praxis.specialty)} praxis={praxis.name} vorname={gefunden.firstName} paket={paket} gelenkeErlaubt={gelenkeFuerFach(praxis.specialty)} ohneAngst={!fragtNachAngst(praxis.specialty)} /></div>
+        <div className="mt-5"><Kurzcheck token={params.token} art={kurzArt(praxis.specialty)} fach={praxis.specialty} praxis={praxis.name} vorname={gefunden.firstName} paket={paket} gelenkeErlaubt={gelenkeFuerFach(praxis.specialty)} ohneAngst={!fragtNachAngst(praxis.specialty)} /></div>
         <nav className="mt-8 flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm" aria-label="Sprache" data-testid="fragen-sprachen">
           {PORTAL_LANGS.map((l) => (
             <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-brand-700 underline" : "text-slate-600 hover:text-brand-700"}>{PORTAL_LANG_NAMES[l]}</a>

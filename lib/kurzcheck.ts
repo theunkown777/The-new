@@ -205,6 +205,30 @@ export const ZEICHEN: Record<KurzArt, { id: string; name: string }[]> = {
   ],
 };
 
+/** Zeichen, die nur einzelne Fächer anbieten. Sie gehören zur Art, damit gespeicherte Antworten lesbar bleiben. */
+export const ZEICHEN_EXTRA: Partial<Record<KurzArt, { id: string; name: string }[]>> = {
+  hno: [
+    { id: "laerm", name: "Im Lärm schwer zu verstehen" },
+    { id: "hoergeraet", name: "Hörgerät drückt oder pfeift" },
+  ],
+};
+/**
+ * Was ein Fach in „Was bemerken Sie?“ zeigt: Die Zeichen hängen am Modell (Ohr), aber nicht jedes Fach versorgt alles.
+ * Die Hörakustik fragt nicht nach Hals, Nase und Stimme, dafür nach dem Verstehen im Lärm und dem Hörgerät.
+ */
+export const ZEICHEN_JE_FACH: Record<string, { ohne?: readonly string[]; mit?: readonly string[] }> = {
+  hoerakustik: { ohne: ["schlucken", "nase", "heiser", "riechen"], mit: ["laerm", "hoergeraet"] },
+};
+/** Alle Zeichen einer Art, auch die einzelner Fächer (zum Lesen gespeicherter Antworten). */
+export const alleZeichen = (art: KurzArt) => [...ZEICHEN[art], ...(ZEICHEN_EXTRA[art] ?? [])];
+/** Die Zeichen, die ein Fach anbietet; ohne Fach die der Art. */
+export function zeichenFuer(art: KurzArt, fach?: string | null): { id: string; name: string }[] {
+  const j = fach && Object.prototype.hasOwnProperty.call(ZEICHEN_JE_FACH, fach) ? ZEICHEN_JE_FACH[fach] : undefined;
+  if (!j) return ZEICHEN[art];
+  const extra = (ZEICHEN_EXTRA[art] ?? []).filter((z) => j.mit?.includes(z.id));
+  return [...ZEICHEN[art].filter((z) => !j.ohne?.includes(z.id)), ...extra];
+}
+
 export const WICHTIG = {
   schnell: "Schnell weniger Beschwerden",
   ursache: "Verstehen, woher es kommt",
@@ -221,7 +245,11 @@ export const ORTE_STAND = 2 as const;
  */
 export const alteOrtNamen = (stand: number | null | undefined) => !stand || stand < 2;
 export const MAX_ORTE = 3;
-export const kurzcheckSchema = (art: KurzArt) =>
+/**
+ * Prüfung der Antworten. Mit Fach (beim Absenden) gelten nur die Zeichen des Fachs; ohne Fach (beim Lesen)
+ * alle Zeichen der Art, damit ältere Einträge lesbar bleiben.
+ */
+export const kurzcheckSchema = (art: KurzArt, fach?: string | null) =>
   z
     .object({
       keine: z.boolean().default(false),
@@ -238,7 +266,7 @@ export const kurzcheckSchema = (art: KurzArt) =>
     .refine((d) => d.keine || d.orte.length > 0, { message: "Bitte tippen Sie an, wo Sie Beschwerden haben." })
     .refine((d) => d.orte.every((o) => ortGueltig(art, o)), { message: "Diese Stelle gibt es nicht." })
     .refine((d) => d.keine || (d.staerke !== null && d.seit !== null), { message: "Bitte geben Sie an, wie stark und seit wann." })
-    .refine((d) => d.zeichen.every((x) => ZEICHEN[art].some((e) => e.id === x)), { message: "Unbekannte Angabe." })
+    .refine((d) => { const erlaubt = fach === undefined ? alleZeichen(art) : zeichenFuer(art, fach); return d.zeichen.every((x) => erlaubt.some((e) => e.id === x)); }, { message: "Unbekannte Angabe." })
     .transform((d) => ({ ...d, art, orte: Array.from(new Set(d.orte)), zeichen: Array.from(new Set(d.zeichen)) }));
 
 export type KurzAntworten = z.infer<ReturnType<typeof kurzcheckSchema>>;
@@ -260,7 +288,7 @@ export function kurzcheckText(a: KurzAntworten): string[] {
   else {
     zeilen.push(`Wo: ${a.orte.map((o) => ortName(o, alteOrtNamen(a.stand))).join(", ")}`);
     zeilen.push(`Wie stark: ${a.staerke} von 10 (${staerkeWort(a.staerke ?? 0)}), ${a.seit ? SEIT[a.seit] : ""}`);
-    if (a.zeichen.length) zeilen.push(`Wie es sich zeigt: ${a.zeichen.map((x) => ZEICHEN[a.art].find((e) => e.id === x)?.name ?? x).join(", ")}`);
+    if (a.zeichen.length) zeilen.push(`Wie es sich zeigt: ${a.zeichen.map((x) => alleZeichen(a.art).find((e) => e.id === x)?.name ?? x).join(", ")}`);
   }
   zeilen.push(`Wichtig für den Termin: ${WICHTIG[a.wichtig]}`);
   if (a.notiz) zeilen.push(`Eigene Worte: „${a.notiz}“`);

@@ -169,8 +169,8 @@ function SignForm({ postUrl, backHref, text, defaultName, gesperrt, kopf, onPrue
           <path d="M2 2 Q20 10 38 2" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" />
         </svg>
       </div>
-      <label className="flex items-start gap-2 text-sm text-slate-700">
-        <input type="checkbox" className="mt-1" checked={accept} onChange={(e) => setAccept(e.target.checked)} required />
+      <label className="flex min-h-[44px] cursor-pointer items-center gap-3 py-2 text-sm text-slate-700">
+        <input type="checkbox" className="h-5 w-5 shrink-0" checked={accept} onChange={(e) => setAccept(e.target.checked)} required />
         Ich bestätige die obige Erklärung.
       </label>
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{error}</p>}

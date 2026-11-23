@@ -1,4 +1,5 @@
 import { PraxisFussLaden } from "@/components/PraxisFussLaden";
+import { PortalUngueltig } from "@/components/PortalUngueltig";
 import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -16,7 +17,7 @@ import { fachText } from "@/lib/fachText";
 export const dynamic = "force-dynamic";
 export async function generateMetadata(props: { params: Promise<{ token: string }> }): Promise<Metadata> {
   const k = await portalKennung((await props.params).token);
-  return { title: k ? `Anamnesebogen · ${k.name}` : "Anamnesebogen", icons: k ? portalSymbole(k) : undefined, robots: { index: false, follow: false }, referrer: "no-referrer" };
+  return { title: k ? `Gesundheitsfragebogen · ${k.name}` : "Gesundheitsfragebogen", icons: k ? portalSymbole(k) : undefined, robots: { index: false, follow: false }, referrer: "no-referrer" };
 }
 
 // Anamnesebogen im Patientenportal (statt eines eigenen Links).
@@ -30,12 +31,13 @@ export default async function PortalAnamnesis(props: { params: Promise<{ token: 
         include: { practice: { select: { name: true, specialty: true } }, patient: { select: { birthDate: true, geschlecht: true } } },
       })
     : null;
-  if (!patient || !form) {
+  if (!patient) return <PortalUngueltig token={params.token} lang={(await props.searchParams).lang} />;
+  if (!form) {
     return (
-      <main className="mx-auto max-w-xl px-4 py-16 text-center">
+      <main className="min-h-screen bg-[#F5F2EE] px-4 py-16 text-center">
         <h1 className="text-xl font-semibold text-slate-900">Dieser Bogen ist nicht mehr offen</h1>
         <p className="mt-3 text-slate-600">Er wurde schon abgeschickt oder ist abgelaufen.</p>
-        {patient && <a href={back} className="btn-primary mt-6 inline-block">{fachText("Zurück zu Ihrem Behandlungsweg", (await portalKennung(params.token))?.fach)}</a>}
+        <a href={back} className="btn-primary mt-6 inline-block">{fachText("Zurück zu Ihrem Behandlungsweg", (await portalKennung(params.token))?.fach)}</a>
       </main>
     );
   }

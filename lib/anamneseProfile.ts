@@ -3,7 +3,9 @@
 // Aufbau:
 // - ANAMNESE_FRAGEN und ANLIEGEN sind der Katalog mit festen Schlüsseln. Ein Schlüssel wird nie für etwas
 //   anderes verwendet und nie gelöscht, damit gespeicherte Antworten lesbar bleiben (lib/anamnesis.ts).
-// - BASIS_FRAGEN und BASIS_ANLIEGEN bekommt jedes Fach. Die Anliegen sind fachneutral: Kasse zuerst.
+// - BASIS_FRAGEN und BASIS_ANLIEGEN bekommt jedes Fach, außer was es mit `ohneFragen`/`ohneAnliegen` abwählt.
+//   Gesundheitsdaten nur, wenn das Fach sie braucht (Datensparsamkeit): Fachgeschäfte fragen nicht nach
+//   Gerinnung oder Infektionen. Die Anliegen sind fachneutral: Kasse zuerst.
 // - ANAMNESE_JE_FACH ergänzt je Fach eigene Fragen und Anliegen. Zahnärztliches steht nur bei "zahn".
 // - Ein unbekanntes oder fehlendes Fach (auch "andere") bekommt den neutralen Bogen, nie den zahnärztlichen.
 //
@@ -324,23 +326,27 @@ export const ANAMNESE_JE_FACH: Record<string, FachAnamnese> = {
   radiologie: { gruppe: "arzt", fragen: ["metall_im_koerper", "kontrastmittel", "niere_schilddruese", "platzangst"], anliegen: ["mrt_kasse", "befunde"] },
   neuro: { gruppe: "arzt", fragen: ["kopfschmerz", "krampfanfall", "schlaganfall", "taubheit_schwindel"], anliegen: ["befunde"] },
   // Psychotherapie leisten auch Psychologische Psychotherapeutinnen und -therapeuten: Schweigepflicht ohne „ärztlich“.
-  psych: { gruppe: "heilberuf", fragen: ["psy_vorbehandlung", "psy_klinik", "psy_medikamente"], anliegen: ["therapieplatz_kasse", "kostenerstattung"], hinweis: KRISENHILFE, hinweisEltern: KRISENHILFE_ELTERN },
+  // Blutverdünner und Herz bleiben wegen der Psychopharmaka; Gerinnung und Infektionen braucht das Gespräch nicht.
+  psych: { gruppe: "heilberuf", ohneFragen: ["gerinnung", "infektion"], fragen: ["psy_vorbehandlung", "psy_klinik", "psy_medikamente"], anliegen: ["therapieplatz_kasse", "kostenerstattung"], hinweis: KRISENHILFE, hinweisEltern: KRISENHILFE_ELTERN },
   gastro: { gruppe: "arzt", fragen: ["spiegelung", "darm_familie", "narkose", "verdauung"], anliegen: ["darmkrebs_vorsorge_kasse", "befunde"] },
   pneumo: { gruppe: "arzt", fragen: ["atemnot_husten", "lungenerkrankung", "inhalieren", "staub_beruf"], anliegen: ["rauchstopp", "befunde"] },
   endo: { gruppe: "arzt", fragen: ["schilddruese", "insulin_sensor", "unterzucker", "gewicht"], anliegen: ["sensor_kasse", "befunde"] },
   chirurgie: { gruppe: "arzt", fragen: ["operationen", "narkose", "thrombose", "krampfadern"], anliegen: ["krampfadern_kasse"] },
   aesthetik: { gruppe: "arzt", fragen: ["aesthetik_vorbehandlung", "narkose", "thrombose", "narben"], anliegen: ["bedenkzeit"] },
   physio: { gruppe: "heilberuf", fragen: ["verordnung", "physio_frueher", "op_unfall_jahr", "gelenkersatz"], anliegen: ["zuzahlung", "uebungen"] },
-  ergo: { gruppe: "heilberuf", fragen: ["verordnung", "alltag", "hilfsmittel_alltag", "ergo_frueher"], anliegen: ["zuzahlung", "uebungen"] },
-  logo: { gruppe: "heilberuf", fragen: ["verordnung", "schlucken", "hoergeraet", "sprachen_zuhause"], anliegen: ["zuzahlung", "uebungen"] },
+  // Herz bleibt (z. B. Elektrostimulation); Blut und Infektionen spielen in der Übungsbehandlung keine Rolle.
+  ergo: { gruppe: "heilberuf", ohneFragen: ["blutverduenner", "gerinnung", "infektion"], fragen: ["verordnung", "alltag", "hilfsmittel_alltag", "ergo_frueher"], anliegen: ["zuzahlung", "uebungen"] },
+  logo: { gruppe: "heilberuf", ohneFragen: ["blutverduenner", "gerinnung", "infektion"], fragen: ["verordnung", "schlucken", "hoergeraet", "sprachen_zuhause"], anliegen: ["zuzahlung", "uebungen"] },
   podo: { gruppe: "heilberuf", fragen: ["verordnung", "fuesse_gefuehl", "fuesse_wunden", "orthopaedische_schuhe"], anliegen: ["zuzahlung", "fussbehandlung_kasse"] },
   // Die Frage „Sind Sie schwanger?“ aus der Basis ist bei der Hebamme selbstverständlich und entfällt.
   hebamme: { gruppe: "heilberuf", selbstAb: SELBST_AB_ALTER_VERTRAULICH, ohneFragen: ["schwanger"], ohneAnliegen: ["angst"], zweck: "betreuen", fragen: ["mutterpass", "geburten", "fruehere_schwangerschaft"], anliegen: ["hebammenhilfe_kasse", "wochenbett"] },
   pflege: { gruppe: "heilberuf", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["pflegegrad", "sturz", "hilfsmittel_alltag", "vollmacht"], anliegen: ["pflegekasse", "angehoerige"] },
-  apotheke: { gruppe: "heilberuf", zweck: "beraten", ohneAnliegen: ["angst"], fragen: ["medikationsplan", "ohne_rezept", "mehrere_praxen"], anliegen: ["zuzahlung_befreiung", "medikamente_durchsehen"] },
-  hoerakustik: { gruppe: "vertraulich", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["hoergeraet", "verordnung", "ohrgeraeusche", "ohr_op_entzuendung"], anliegen: ["hoergeraet_kasse"] },
-  optik: { gruppe: "vertraulich", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["brille", "kontaktlinsen", "augen_op", "bildschirm"], anliegen: ["brillenglaeser_kasse"] },
-  sanitaetshaus: { gruppe: "vertraulich", zweck: "versorgen", ohneAnliegen: ["angst"], fragen: ["verordnung", "hilfsmittel_alltag", "schwellung", "druckstellen"], anliegen: ["hilfsmittel_kasse"] },
+  // Blutverdünner und Herz bleiben wegen der Wechselwirkungen; Gerinnung und Infektionen fragt die Apotheke nicht ab.
+  apotheke: { gruppe: "heilberuf", zweck: "beraten", ohneFragen: ["gerinnung", "infektion"], ohneAnliegen: ["angst"], fragen: ["medikationsplan", "ohne_rezept", "mehrere_praxen"], anliegen: ["zuzahlung_befreiung", "medikamente_durchsehen"] },
+  // Fachgeschäfte: nur, was für die Versorgung zählt (Medikamente, Allergien, Diabetes; beim Sanitätshaus auch Blutdruck).
+  hoerakustik: { gruppe: "vertraulich", zweck: "versorgen", ohneFragen: ["blutverduenner", "gerinnung", "herz", "blutdruck", "infektion", "schwanger", "rauchen"], ohneAnliegen: ["angst"], fragen: ["hoergeraet", "verordnung", "ohrgeraeusche", "ohr_op_entzuendung"], anliegen: ["hoergeraet_kasse"] },
+  optik: { gruppe: "vertraulich", zweck: "versorgen", ohneFragen: ["blutverduenner", "gerinnung", "herz", "blutdruck", "infektion", "schwanger"], ohneAnliegen: ["angst"], fragen: ["brille", "kontaktlinsen", "augen_op", "bildschirm"], anliegen: ["brillenglaeser_kasse"] },
+  sanitaetshaus: { gruppe: "vertraulich", zweck: "versorgen", ohneFragen: ["blutverduenner", "gerinnung", "herz", "infektion", "schwanger"], ohneAnliegen: ["angst"], fragen: ["verordnung", "hilfsmittel_alltag", "schwellung", "druckstellen"], anliegen: ["hilfsmittel_kasse"] },
   heilpraktiker: { gruppe: "vertraulich", fragen: ["aerztliche_behandlung", "naturheilkunde_frueher", "operationen"], anliegen: ["zusatzversicherung"] },
   klinik: { gruppe: "heilberuf", fragen: ["operationen", "narkose", "thrombose", "vollmacht"], anliegen: ["wahlleistungen"] },
   [NEUTRAL]: { gruppe: "vertraulich", fragen: [], anliegen: [] },

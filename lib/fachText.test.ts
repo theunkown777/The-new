@@ -381,3 +381,14 @@ describe("appTextFuer: Einstellungen und Vorschlag in Versorgungs-Fächern", () 
     }
   });
 });
+
+describe("„Meine Praxen auf diesem Gerät“ in den Wörtern des Fachs", () => {
+  it("„Diese Praxis“ wird zur Apotheke, zum Fachgeschäft oder Pflegedienst", () => {
+    expect(fachText("Diese Praxis auf diesem Gerät merken", "apotheke")).toBe("Diese Apotheke auf diesem Gerät merken");
+    expect(fachText("Diese Praxis auf diesem Gerät merken", "optik")).toBe("Dieses Fachgeschäft auf diesem Gerät merken");
+    expect(fachText("Diese Praxis auf diesem Gerät merken", "pflege")).toBe("Diesen Pflegedienst auf diesem Gerät merken");
+    expect(fachText("Diese Praxis ließ sich nicht merken.", "pflege")).toBe("Dieser Pflegedienst ließ sich nicht merken.");
+    expect(fachText("Diese Praxis auf diesem Gerät merken", "hausarzt")).toBe("Diese Praxis auf diesem Gerät merken");
+    expect(fachText("Die Praxis sieht das nicht.", "hoerakustik")).toBe("Das Fachgeschäft sieht das nicht.");
+  });
+});

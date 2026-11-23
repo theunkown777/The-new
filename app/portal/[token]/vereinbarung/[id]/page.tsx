@@ -1,4 +1,5 @@
 import { PraxisFussLaden } from "@/components/PraxisFussLaden";
+import { PortalUngueltig } from "@/components/PortalUngueltig";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -32,9 +33,10 @@ export default async function Vereinbarung(props: { params: Promise<{ token: str
         include: { practice: { select: { name: true, proposalPrices: true } } },
       })
     : null;
-  if (!patient || !proposal || !agreementContext(proposal)) {
+  if (!patient) return <PortalUngueltig token={params.token} lang={searchParams.lang} />;
+  if (!proposal || !agreementContext(proposal)) {
     return (
-      <main className="mx-auto max-w-xl px-4 py-16 text-center">
+      <main className="min-h-screen bg-[#F5F2EE] px-4 py-16 text-center">
         <h1 className="font-display text-3xl text-slate-900">Nicht verfügbar</h1>
         <p className="mt-3 text-slate-600">{ft("Bitte fragen Sie in Ihrer Praxis nach.")}</p>
       </main>
@@ -58,7 +60,7 @@ export default async function Vereinbarung(props: { params: Promise<{ token: str
     <main className="min-h-screen bg-[#F5F2EE]" data-testid="vereinbarung">
       {kennung && <PraxisBand k={kennung} />}
       <div className="mx-auto max-w-xl px-4 pb-16 pt-6 sm:pt-10">
-        <a href={back} className="text-sm text-brand-700 underline">{ft("← Zurück zu Ihrem Behandlungsweg")}</a>
+        <a href={back} className="ziel min-h-[44px] text-sm text-brand-700 underline">{ft("← Zurück zu Ihrem Behandlungsweg")}</a>
         <h1 className="font-display mt-6 text-4xl leading-tight text-slate-900">Ihr Einverständnis</h1>
         <p className="mt-2 text-slate-600">{ft("Bestätigen Sie Ihre Wahl schon jetzt. Die Praxis sieht es sofort und bereitet alles vor.")}</p>
         <KassenSockel className="mt-5" kasse={kasse} eigen={eigen} labels={{ kasse: privat ? "Versicherung erstattet" : "Kasse zahlt", eigen: "Ihr Anteil" }} />

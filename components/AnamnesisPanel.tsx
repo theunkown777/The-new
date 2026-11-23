@@ -25,7 +25,7 @@ export function AnamnesisPanel({ patientId, firstName, summary }: { patientId: s
     router.refresh();
   }
 
-  const text = link ? `${anrede("Guten Tag", firstName)}, bitte füllen Sie vor Ihrem Termin kurz den Anamnesebogen aus: ${link.url}` : "";
+  const text = link ? `${anrede("Guten Tag", firstName)}, bitte füllen Sie vor Ihrem Termin kurz den Gesundheitsfragebogen aus: ${link.url}` : "";
   const a = summary.answers;
 
   return (

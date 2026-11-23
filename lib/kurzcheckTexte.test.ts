@@ -86,3 +86,13 @@ describe("Fassung für Eltern (Kind, wie im Anamnesebogen)", () => {
     expect(seite).not.toMatch(/<Kurzcheck[^>]*birthDate/);
   });
 });
+
+describe("Apotheke: Besuch statt Termin", () => {
+  it("der Fragebogen spricht in der Apotheke vom Besuch", () => {
+    const t = kurzUebersetzer(kurzPaket("de", { fach: "apotheke" })).t;
+    expect(t("wichtig")).toBe("Was ist Ihnen für Ihren Besuch am wichtigsten?");
+    expect(t("seitenTitel")).toBe("Fünf Fragen vor Ihrem Besuch");
+    expect(t("dringend")).not.toMatch(/Termin/);
+    expect(kurzUebersetzer(kurzPaket("de", { fach: "hausarzt" })).t("wichtig")).toBe("Was ist Ihnen für den Termin am wichtigsten?");
+  });
+});

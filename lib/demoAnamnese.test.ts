@@ -24,7 +24,11 @@ describe("Demo-Anamnesen je Fach", () => {
         expect(t, `${fach}: ${t.match(ZAHN_BEGRIFFE)?.[0]}`).not.toMatch(ZAHN_BEGRIFFE);
         expect(Object.keys(a.q).sort(), fach).toEqual(anamneseFuer(fach, person).fragen.map((f) => f.key).sort());
         expect(anamnesisProposalGlobals(a, "zahn"), fach).toEqual([]);
-        expect(anamnesisFlags(a).map((f) => f.text), fach).toContain("Blutverdünner");
+        // Blutverdünner nur, wo das Fach danach fragt (Datensparsamkeit: z. B. nicht in Optik oder Logopädie).
+        const fragtBlut = anamneseFuer(fach, person).fragen.some((f) => f.key === "blutverduenner");
+        const texte = anamnesisFlags(a).map((f) => f.text);
+        if (fragtBlut) expect(texte, fach).toContain("Blutverdünner");
+        else expect(texte, fach).not.toContain("Blutverdünner");
       }
   });
 
@@ -41,7 +45,9 @@ describe("Demo-Anamnesen je Fach", () => {
   it("jedes Fach zeigt im Beispiel eine eigene Angabe als Hinweis", () => {
     for (const fach of ALLE_SPECIALTIES.map((s) => s.id)) {
       const a = demoAnamneseBeispiel(fach, { geschlecht: "W", alter: 40 }, "Anna Krüger");
-      expect(anamnesisFlags(a).length, fach).toBe(3);
+      // Allergie, eigene Angabe des Fachs und Blutverdünner, wo das Fach danach fragt.
+      const fragtBlut = anamneseFuer(fach, { geschlecht: "W", alter: 40 }).fragen.some((f) => f.key === "blutverduenner");
+      expect(anamnesisFlags(a).length, fach).toBe(fragtBlut ? 3 : 2);
       expect(a.wishes.length, fach).toBe(1);
     }
   });

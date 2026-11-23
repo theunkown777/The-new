@@ -2,7 +2,7 @@
 // Die Oberfläche hat kurze Schlüssel; Stellen, Beschreibungen und Antworten hängen am deutschen Wort
 // aus lib/kurzcheck.ts. Fehlt etwas, bleibt der deutsche Text stehen. Die Akte der Praxis bleibt deutsch.
 import type { PortalLang } from "@/lib/portalI18n";
-import { ORT_NACH, ORTE, SEIT_KURZ, WICHTIG, ZEICHEN, type KurzArt } from "@/lib/kurzcheck";
+import { ORT_NACH, ORTE, SEIT_KURZ, WICHTIG, ZEICHEN, ZEICHEN_EXTRA, alleZeichen, type KurzArt } from "@/lib/kurzcheck";
 import { mitFachWoertern } from "@/lib/fachText";
 
 export const KURZ_UI = {
@@ -101,6 +101,7 @@ export function kurzWoerter(): string[] {
   const s = new Set<string>();
   for (const o of ORTE) s.add(o.basis);
   for (const l of Object.values(ZEICHEN)) for (const z of l) s.add(z.name);
+  for (const l of Object.values(ZEICHEN_EXTRA)) for (const z of l ?? []) s.add(z.name);
   for (const x of Object.values(SEIT_KURZ)) s.add(x);
   for (const x of Object.values(WICHTIG)) s.add(x);
   for (const x of STAERKE_WORTE) s.add(x);
@@ -136,7 +137,7 @@ const EN: KurzPaket = {
     "Bei Kaltem": "With cold", "Bei Heißem oder Süßem": "With hot or sweet", "Beim Kauen oder Aufbeißen": "When chewing or biting", "Pochend, auch nachts": "Throbbing, also at night", "Zahnfleisch blutet": "Gums bleed", Geschwollen: "Swollen", "Etwas ist abgebrochen": "Something has broken off", "Zahn oder Füllung ist locker": "Tooth or filling is loose",
     Stechend: "Stabbing", "Dumpf oder drückend": "Dull or pressing", Pochend: "Throbbing", Brennend: "Burning", "Kribbelnd oder taub": "Tingling or numb", "Steif, schwer beweglich": "Stiff, hard to move", "Vor allem bei Bewegung": "Mainly when moving",
     "Gerötet": "Red", "Juckt oder brennt": "Itchy or burning", "Tränt": "Watery", "Trocken oder sandig": "Dry or gritty", "Ich sehe verschwommen": "My vision is blurred", "Licht blendet": "Light is dazzling", "Drückt oder schmerzt": "Pressure or pain", "Blitze, Schatten oder Flecken": "Flashes, shadows or spots",
-    "Druck im Ohr": "Pressure in the ear", "Ich höre schlechter": "I hear less well", "Ohrgeräusch, Pfeifen oder Rauschen": "Noise in the ear, ringing or rushing", Schwindel: "Dizziness", "Schmerzt beim Schlucken": "Hurts when swallowing", "Nase verstopft oder läuft": "Blocked or runny nose", Heiser: "Hoarse", "Riechen oder Schmecken verändert": "Smell or taste has changed",
+    "Im Lärm schwer zu verstehen": "Hard to understand in noise", "Hörgerät drückt oder pfeift": "Hearing aid presses or whistles", "Druck im Ohr": "Pressure in the ear", "Ich höre schlechter": "I hear less well", "Ohrgeräusch, Pfeifen oder Rauschen": "Noise in the ear, ringing or rushing", Schwindel: "Dizziness", "Schmerzt beim Schlucken": "Hurts when swallowing", "Nase verstopft oder läuft": "Blocked or runny nose", Heiser: "Hoarse", "Riechen oder Schmecken verändert": "Smell or taste has changed",
     Juckt: "Itchy", "Trocken oder schuppig": "Dry or scaly", "Nässt oder verkrustet": "Weeping or crusted", "Bläschen oder Pickel": "Blisters or pimples", "Fleck oder Muttermal verändert": "Spot or mole has changed", "Brennt oder schmerzt": "Burning or painful",
     Heute: "Today", "Ein paar Tage": "A few days", Wochen: "Weeks", "Monate oder länger": "Months or longer",
     "Schnell weniger Beschwerden": "Feeling better quickly", "Verstehen, woher es kommt": "Understanding the cause", "Kosten vorher kennen": "Knowing the costs beforehand", "Ich bin nervös vor der Behandlung": "I am nervous about the treatment", "Nur Kontrolle oder Vorsorge": "Only a check-up",
@@ -170,7 +171,7 @@ const UK: KurzPaket = {
     "Bei Kaltem": "Від холодного", "Bei Heißem oder Süßem": "Від гарячого або солодкого", "Beim Kauen oder Aufbeißen": "Під час жування або накушування", "Pochend, auch nachts": "Пульсує, також уночі", "Zahnfleisch blutet": "Ясна кровоточать", Geschwollen: "Набряк", "Etwas ist abgebrochen": "Щось відламалося", "Zahn oder Füllung ist locker": "Зуб або пломба хитається",
     Stechend: "Колючий біль", "Dumpf oder drückend": "Тупий або тиснучий біль", Pochend: "Пульсуючий біль", Brennend: "Пекучий біль", "Kribbelnd oder taub": "Поколювання або оніміння", "Steif, schwer beweglich": "Скутість, важко рухатися", "Vor allem bei Bewegung": "Переважно під час руху",
     "Gerötet": "Почервоніння", "Juckt oder brennt": "Свербить або пече", "Tränt": "Сльозиться", "Trocken oder sandig": "Сухість або відчуття піску", "Ich sehe verschwommen": "Бачу розмито", "Licht blendet": "Світло сліпить", "Drückt oder schmerzt": "Тисне або болить", "Blitze, Schatten oder Flecken": "Спалахи, тіні або плями",
-    "Druck im Ohr": "Тиск у вусі", "Ich höre schlechter": "Гірше чую", "Ohrgeräusch, Pfeifen oder Rauschen": "Шум, свист або дзвін у вусі", Schwindel: "Запаморочення", "Schmerzt beim Schlucken": "Боляче ковтати", "Nase verstopft oder läuft": "Закладений ніс або нежить", Heiser: "Хрипкий голос", "Riechen oder Schmecken verändert": "Змінився нюх або смак",
+    "Im Lärm schwer zu verstehen": "Важко розуміти в шумі", "Hörgerät drückt oder pfeift": "Слуховий апарат тисне або свистить", "Druck im Ohr": "Тиск у вусі", "Ich höre schlechter": "Гірше чую", "Ohrgeräusch, Pfeifen oder Rauschen": "Шум, свист або дзвін у вусі", Schwindel: "Запаморочення", "Schmerzt beim Schlucken": "Боляче ковтати", "Nase verstopft oder läuft": "Закладений ніс або нежить", Heiser: "Хрипкий голос", "Riechen oder Schmecken verändert": "Змінився нюх або смак",
     Juckt: "Свербить", "Trocken oder schuppig": "Сухість або лущення", "Nässt oder verkrustet": "Мокне або вкривається кіркою", "Bläschen oder Pickel": "Пухирці або прищі", "Fleck oder Muttermal verändert": "Пляма або родимка змінилася", "Brennt oder schmerzt": "Пече або болить",
     Heute: "Сьогодні", "Ein paar Tage": "Кілька днів", Wochen: "Тижні", "Monate oder länger": "Місяці або довше",
     "Schnell weniger Beschwerden": "Швидко полегшити скарги", "Verstehen, woher es kommt": "Зрозуміти причину", "Kosten vorher kennen": "Знати вартість заздалегідь", "Ich bin nervös vor der Behandlung": "Я хвилююся перед лікуванням", "Nur Kontrolle oder Vorsorge": "Лише огляд або профілактика",
@@ -204,7 +205,7 @@ const RU: KurzPaket = {
     "Bei Kaltem": "От холодного", "Bei Heißem oder Süßem": "От горячего или сладкого", "Beim Kauen oder Aufbeißen": "При жевании или надкусывании", "Pochend, auch nachts": "Пульсирует, также ночью", "Zahnfleisch blutet": "Дёсны кровоточат", Geschwollen: "Отёк", "Etwas ist abgebrochen": "Что-то откололось", "Zahn oder Füllung ist locker": "Зуб или пломба шатается",
     Stechend: "Колющая боль", "Dumpf oder drückend": "Тупая или давящая боль", Pochend: "Пульсирующая боль", Brennend: "Жгучая боль", "Kribbelnd oder taub": "Покалывание или онемение", "Steif, schwer beweglich": "Скованность, трудно двигаться", "Vor allem bei Bewegung": "В основном при движении",
     "Gerötet": "Покраснение", "Juckt oder brennt": "Зудит или жжёт", "Tränt": "Слезится", "Trocken oder sandig": "Сухость или ощущение песка", "Ich sehe verschwommen": "Вижу размыто", "Licht blendet": "Свет слепит", "Drückt oder schmerzt": "Давит или болит", "Blitze, Schatten oder Flecken": "Вспышки, тени или пятна",
-    "Druck im Ohr": "Давление в ухе", "Ich höre schlechter": "Слышу хуже", "Ohrgeräusch, Pfeifen oder Rauschen": "Шум, свист или звон в ухе", Schwindel: "Головокружение", "Schmerzt beim Schlucken": "Больно глотать", "Nase verstopft oder läuft": "Нос заложен или течёт", Heiser: "Хриплый голос", "Riechen oder Schmecken verändert": "Изменились обоняние или вкус",
+    "Im Lärm schwer zu verstehen": "Трудно понимать в шуме", "Hörgerät drückt oder pfeift": "Слуховой аппарат давит или свистит", "Druck im Ohr": "Давление в ухе", "Ich höre schlechter": "Слышу хуже", "Ohrgeräusch, Pfeifen oder Rauschen": "Шум, свист или звон в ухе", Schwindel: "Головокружение", "Schmerzt beim Schlucken": "Больно глотать", "Nase verstopft oder läuft": "Нос заложен или течёт", Heiser: "Хриплый голос", "Riechen oder Schmecken verändert": "Изменились обоняние или вкус",
     Juckt: "Зудит", "Trocken oder schuppig": "Сухость или шелушение", "Nässt oder verkrustet": "Мокнет или покрывается коркой", "Bläschen oder Pickel": "Пузырьки или прыщи", "Fleck oder Muttermal verändert": "Пятно или родинка изменились", "Brennt oder schmerzt": "Жжёт или болит",
     Heute: "Сегодня", "Ein paar Tage": "Несколько дней", Wochen: "Недели", "Monate oder länger": "Месяцы или дольше",
     "Schnell weniger Beschwerden": "Быстро облегчить жалобы", "Verstehen, woher es kommt": "Понять причину", "Kosten vorher kennen": "Знать стоимость заранее", "Ich bin nervös vor der Behandlung": "Я волнуюсь перед лечением", "Nur Kontrolle oder Vorsorge": "Только осмотр или профилактика",
@@ -238,7 +239,7 @@ const PL: KurzPaket = {
     "Bei Kaltem": "Przy zimnym", "Bei Heißem oder Süßem": "Przy gorącym lub słodkim", "Beim Kauen oder Aufbeißen": "Przy żuciu lub nagryzaniu", "Pochend, auch nachts": "Pulsujący, także w nocy", "Zahnfleisch blutet": "Dziąsła krwawią", Geschwollen: "Obrzęk", "Etwas ist abgebrochen": "Coś się ułamało", "Zahn oder Füllung ist locker": "Ząb lub wypełnienie się rusza",
     Stechend: "Kłujący", "Dumpf oder drückend": "Tępy lub uciskający", Pochend: "Pulsujący", Brennend: "Piekący", "Kribbelnd oder taub": "Mrowienie lub drętwienie", "Steif, schwer beweglich": "Sztywność, trudno się ruszać", "Vor allem bei Bewegung": "Głównie przy ruchu",
     "Gerötet": "Zaczerwienienie", "Juckt oder brennt": "Swędzi lub piecze", "Tränt": "Łzawi", "Trocken oder sandig": "Suchość lub uczucie piasku", "Ich sehe verschwommen": "Widzę niewyraźnie", "Licht blendet": "Światło razi", "Drückt oder schmerzt": "Uciska lub boli", "Blitze, Schatten oder Flecken": "Błyski, cienie lub plamy",
-    "Druck im Ohr": "Ucisk w uchu", "Ich höre schlechter": "Słyszę gorzej", "Ohrgeräusch, Pfeifen oder Rauschen": "Szum, pisk lub dzwonienie w uchu", Schwindel: "Zawroty głowy", "Schmerzt beim Schlucken": "Ból przy przełykaniu", "Nase verstopft oder läuft": "Zatkany lub cieknący nos", Heiser: "Chrypka", "Riechen oder Schmecken verändert": "Zmieniony węch lub smak",
+    "Im Lärm schwer zu verstehen": "Trudno zrozumieć w hałasie", "Hörgerät drückt oder pfeift": "Aparat słuchowy uciska lub piszczy", "Druck im Ohr": "Ucisk w uchu", "Ich höre schlechter": "Słyszę gorzej", "Ohrgeräusch, Pfeifen oder Rauschen": "Szum, pisk lub dzwonienie w uchu", Schwindel: "Zawroty głowy", "Schmerzt beim Schlucken": "Ból przy przełykaniu", "Nase verstopft oder läuft": "Zatkany lub cieknący nos", Heiser: "Chrypka", "Riechen oder Schmecken verändert": "Zmieniony węch lub smak",
     Juckt: "Swędzi", "Trocken oder schuppig": "Suchość lub łuszczenie", "Nässt oder verkrustet": "Sączy się lub tworzy strupy", "Bläschen oder Pickel": "Pęcherzyki lub krosty", "Fleck oder Muttermal verändert": "Zmieniona plama lub znamię", "Brennt oder schmerzt": "Piecze lub boli",
     Heute: "Dzisiaj", "Ein paar Tage": "Kilka dni", Wochen: "Tygodnie", "Monate oder länger": "Miesiące lub dłużej",
     "Schnell weniger Beschwerden": "Szybka ulga", "Verstehen, woher es kommt": "Zrozumieć przyczynę", "Kosten vorher kennen": "Znać koszty z góry", "Ich bin nervös vor der Behandlung": "Denerwuję się przed leczeniem", "Nur Kontrolle oder Vorsorge": "Tylko kontrola lub profilaktyka",
@@ -272,7 +273,7 @@ const TR: KurzPaket = {
     "Bei Kaltem": "Soğukta", "Bei Heißem oder Süßem": "Sıcakta veya tatlıda", "Beim Kauen oder Aufbeißen": "Çiğnerken veya ısırırken", "Pochend, auch nachts": "Zonklama, geceleri de", "Zahnfleisch blutet": "Diş eti kanıyor", Geschwollen: "Şişlik", "Etwas ist abgebrochen": "Bir parça kırıldı", "Zahn oder Füllung ist locker": "Diş veya dolgu sallanıyor",
     Stechend: "Batıcı", "Dumpf oder drückend": "Künt veya baskı yapan", Pochend: "Zonklayan", Brennend: "Yanan", "Kribbelnd oder taub": "Karıncalanma veya uyuşma", "Steif, schwer beweglich": "Sertlik, zor hareket", "Vor allem bei Bewegung": "Özellikle hareket ederken",
     "Gerötet": "Kızarıklık", "Juckt oder brennt": "Kaşıntı veya yanma", "Tränt": "Sulanma", "Trocken oder sandig": "Kuruluk veya kumlanma", "Ich sehe verschwommen": "Bulanık görüyorum", "Licht blendet": "Işık rahatsız ediyor", "Drückt oder schmerzt": "Baskı veya ağrı", "Blitze, Schatten oder Flecken": "Işık çakmaları, gölgeler veya lekeler",
-    "Druck im Ohr": "Kulakta basınç", "Ich höre schlechter": "Daha kötü duyuyorum", "Ohrgeräusch, Pfeifen oder Rauschen": "Kulak çınlaması, ıslık veya uğultu", Schwindel: "Baş dönmesi", "Schmerzt beim Schlucken": "Yutkunurken ağrı", "Nase verstopft oder läuft": "Burun tıkalı veya akıyor", Heiser: "Ses kısıklığı", "Riechen oder Schmecken verändert": "Koku veya tat değişti",
+    "Im Lärm schwer zu verstehen": "Gürültüde anlamakta zorlanıyorum", "Hörgerät drückt oder pfeift": "İşitme cihazı sıkıyor veya ıslık çalıyor", "Druck im Ohr": "Kulakta basınç", "Ich höre schlechter": "Daha kötü duyuyorum", "Ohrgeräusch, Pfeifen oder Rauschen": "Kulak çınlaması, ıslık veya uğultu", Schwindel: "Baş dönmesi", "Schmerzt beim Schlucken": "Yutkunurken ağrı", "Nase verstopft oder läuft": "Burun tıkalı veya akıyor", Heiser: "Ses kısıklığı", "Riechen oder Schmecken verändert": "Koku veya tat değişti",
     Juckt: "Kaşıntı", "Trocken oder schuppig": "Kuruluk veya pullanma", "Nässt oder verkrustet": "Sulanma veya kabuklanma", "Bläschen oder Pickel": "Kabarcık veya sivilce", "Fleck oder Muttermal verändert": "Leke veya ben değişti", "Brennt oder schmerzt": "Yanma veya ağrı",
     Heute: "Bugün", "Ein paar Tage": "Birkaç gün", Wochen: "Haftalar", "Monate oder länger": "Aylar veya daha uzun",
     "Schnell weniger Beschwerden": "Şikâyetlerin çabuk azalması", "Verstehen, woher es kommt": "Nedenini anlamak", "Kosten vorher kennen": "Maliyetleri önceden bilmek", "Ich bin nervös vor der Behandlung": "Tedaviden önce gerginim", "Nur Kontrolle oder Vorsorge": "Sadece kontrol veya koruyucu bakım",
@@ -306,7 +307,7 @@ const AR: KurzPaket = {
     "Bei Kaltem": "مع البارد", "Bei Heißem oder Süßem": "مع الساخن أو الحلو", "Beim Kauen oder Aufbeißen": "عند المضغ أو العض", "Pochend, auch nachts": "نابض، في الليل أيضًا", "Zahnfleisch blutet": "نزيف اللثة", Geschwollen: "تورم", "Etwas ist abgebrochen": "انكسر جزء", "Zahn oder Füllung ist locker": "السن أو الحشوة متخلخلة",
     Stechend: "طاعن", "Dumpf oder drückend": "مكتوم أو ضاغط", Pochend: "نابض", Brennend: "حارق", "Kribbelnd oder taub": "وخز أو خدر", "Steif, schwer beweglich": "تيبس، صعوبة في الحركة", "Vor allem bei Bewegung": "خاصة عند الحركة",
     "Gerötet": "احمرار", "Juckt oder brennt": "حكة أو حرقة", "Tränt": "دموع", "Trocken oder sandig": "جفاف أو إحساس بالرمل", "Ich sehe verschwommen": "أرى بشكل ضبابي", "Licht blendet": "الضوء يبهرني", "Drückt oder schmerzt": "ضغط أو ألم", "Blitze, Schatten oder Flecken": "ومضات أو ظلال أو بقع",
-    "Druck im Ohr": "ضغط في الأذن", "Ich höre schlechter": "أسمع بشكل أضعف", "Ohrgeräusch, Pfeifen oder Rauschen": "طنين أو صفير في الأذن", Schwindel: "دوار", "Schmerzt beim Schlucken": "ألم عند البلع", "Nase verstopft oder läuft": "انسداد الأنف أو سيلانه", Heiser: "بحة في الصوت", "Riechen oder Schmecken verändert": "تغير في الشم أو التذوق",
+    "Im Lärm schwer zu verstehen": "صعوبة الفهم في الضوضاء", "Hörgerät drückt oder pfeift": "سماعة الأذن تضغط أو تصفر", "Druck im Ohr": "ضغط في الأذن", "Ich höre schlechter": "أسمع بشكل أضعف", "Ohrgeräusch, Pfeifen oder Rauschen": "طنين أو صفير في الأذن", Schwindel: "دوار", "Schmerzt beim Schlucken": "ألم عند البلع", "Nase verstopft oder läuft": "انسداد الأنف أو سيلانه", Heiser: "بحة في الصوت", "Riechen oder Schmecken verändert": "تغير في الشم أو التذوق",
     Juckt: "حكة", "Trocken oder schuppig": "جفاف أو تقشر", "Nässt oder verkrustet": "نز أو قشور", "Bläschen oder Pickel": "بثور أو حبوب", "Fleck oder Muttermal verändert": "تغير في بقعة أو شامة", "Brennt oder schmerzt": "حرقة أو ألم",
     Heute: "اليوم", "Ein paar Tage": "بضعة أيام", Wochen: "أسابيع", "Monate oder länger": "أشهر أو أكثر",
     "Schnell weniger Beschwerden": "تخفيف الأعراض بسرعة", "Verstehen, woher es kommt": "فهم السبب", "Kosten vorher kennen": "معرفة التكاليف مسبقًا", "Ich bin nervös vor der Behandlung": "أشعر بالتوتر قبل العلاج", "Nur Kontrolle oder Vorsorge": "فحص أو وقاية فقط",
@@ -419,9 +420,19 @@ export const kurzPaket = (lang: string, opts: { eltern?: boolean; fach?: string 
   if (p.lang !== "de") return paket;
   // Das deutsche Paket ist leer (die Texte stehen in KURZ_UI): erst zusammenlegen, dann in die Wörter des Fachs.
   const basis: KurzPaket["ui"] = { ...KURZ_UI, ...paket.ui };
-  const ui = mitFachWoertern(basis, opts.fach);
+  let ui = mitFachWoertern(basis, opts.fach);
+  if (opts.fach && OHNE_TERMIN.includes(opts.fach)) ui = Object.fromEntries(Object.entries(ui).map(([k, v]) => [k, typeof v === "string" ? besuchStattTermin(v) : v])) as KurzPaket["ui"];
   return ui === basis ? paket : { ...paket, ui };
 };
+
+/** In der Apotheke kommt man ohne Termin vorbei: Der Fragebogen spricht dort vom Besuch. */
+export const OHNE_TERMIN: readonly string[] = ["apotheke"];
+const besuchStattTermin = (s: string) =>
+  s
+    .replace(/\b(für|vor|auf) (den|dem|Ihren|Ihrem) Termin\b/g, (_, p: string) => `${p} ${p === "vor" ? "Ihrem" : "Ihren"} Besuch`)
+    .replace(/\bVor (dem|Ihrem) Termin\b/g, "Vor Ihrem Besuch")
+    .replace(/\bden Termin Ihres Kindes\b/g, "den Besuch Ihres Kindes")
+    .replace(/\bnicht auf Ihren Besuch\b/g, "nicht ab");
 
 /** Übersetzer für ein Paket: Oberfläche (t), Wörter (w) und Stellen mit Seite (ort). */
 export function kurzUebersetzer(p: KurzPaket) {
@@ -437,7 +448,7 @@ export function kurzUebersetzer(p: KurzPaket) {
     const x = p.seite.klein ? basis.toLocaleLowerCase(p.lang === "tr" ? "tr" : p.lang) : basis;
     return p.seite[o.seite].replace("{x}", x);
   };
-  const zeichen = (art: KurzArt, id: string) => w(ZEICHEN[art].find((z) => z.id === id)?.name ?? id);
+  const zeichen = (art: KurzArt, id: string) => w(alleZeichen(art).find((z) => z.id === id)?.name ?? id);
   const staerke = (n: number) => w(n === 0 ? "keine" : n <= 3 ? "leicht" : n <= 6 ? "mittel" : n <= 8 ? "stark" : "sehr stark");
   return { t, w, ort, zeichen, staerke, lang: p.lang, dir: p.lang === "ar" ? ("rtl" as const) : ("ltr" as const) };
 }

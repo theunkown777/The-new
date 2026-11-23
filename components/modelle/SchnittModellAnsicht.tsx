@@ -25,6 +25,12 @@ export function SchnittModellAnsicht({ modell, markierungen = [], patientId, ein
   const plan = useCallback((T: Parameters<typeof scheibeBauplan>[0]) => scheibeBauplan(T, m.teile.map((x) => ({ id: x.id, farbe: x.farbe, formen: x.formen })), m.breite, m.hoehe), [m]);
   const immer = useCallback(() => true, []);
   const teil = m.teile.find((y) => y.id === gewaehlt) ?? null;
+  // Bis das 3D-Modell geöffnet ist, zeigt die Bühne das Schema als Standbild statt einer leeren Fläche.
+  const vorschau = (
+    <svg viewBox={`0 0 ${m.breite} ${m.hoehe}`} className="h-full w-full p-6" data-testid="schnitt-vorschau">
+      {m.teile.map((x) => x.formen.map((f, i) => <FormPfad key={`${x.id}-${i}`} form={f} flaeche={x.farbe} rand={x.rand} randStaerke={1} />))}
+    </svg>
+  );
   const waehlen = (id: string, hinzoomen = false) => {
     setGewaehlt(id);
     const ziel = m.teile.find((y) => y.id === id);
@@ -39,7 +45,7 @@ export function SchnittModellAnsicht({ modell, markierungen = [], patientId, ein
           <DreiSchalter raum={raum} setRaum={setRaum} />
           <ZoomTasten zoom={raum ? { vergroessern: () => griff.current?.zoom(0.72), verkleinern: () => griff.current?.zoom(1.38), zuruecksetzen: () => griff.current?.zuruecksetzen(), gezoomt: true } : zoom} />
           {teil && <GewaehltLeiste titel={t(teil.name)} zielId={`${modell}-erklaerung`} />}
-          {raum && <Modell3D ref={griff} plan={plan} schluessel={modell} beschriftung={t(m.titel)} hoehe="h-[min(60vh,32rem)]" gewaehlt={gewaehlt ? [gewaehlt] : []} markiert={marken.liste.map((x) => x.teil)} sichtbar={immer} sichtbarSchluessel="alle" onWahl={(k) => waehlen(k)} ohne3D={() => setRaum(false)} />}
+          {raum && <Modell3D ref={griff} plan={plan} schluessel={modell} beschriftung={t(m.titel)} hoehe="h-[min(60vh,32rem)]" gewaehlt={gewaehlt ? [gewaehlt] : []} markiert={marken.liste.map((x) => x.teil)} sichtbar={immer} sichtbarSchluessel="alle" vorschau={vorschau} onWahl={(k) => waehlen(k)} ohne3D={() => setRaum(false)} />}
           {!raum && <svg ref={zoom.svgRef} viewBox={zoom.viewBox} {...zoom.ereignisse} className="mx-auto block h-[min(60vh,32rem)] w-full select-none" style={{ touchAction: zoom.touchAction }} role="group" aria-label={`${t(m.titel)}: ${t(m.ansicht)}`} data-testid="schnitt-svg">
             {m.teile.map((x) => {
               const an = gewaehlt === x.id, markiert = marken.istMarkiert(x.id);

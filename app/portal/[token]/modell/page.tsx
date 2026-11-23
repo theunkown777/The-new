@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PortalUngueltig } from "@/components/PortalUngueltig";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/tokens";
@@ -36,12 +37,7 @@ export default async function PortalModellPage(props: { params: Promise<{ token:
   // Der Aufruf von t mit dem deutschen Text bleibt wörtlich stehen: Daran sammelt lib/modelle/i18n die Texte ein.
   const fd = (s: string) => (lang === "de" ? fachText(s, gefunden?.practice.specialty) : s);
   if (!patient) {
-    return (
-      <main className="mx-auto max-w-md px-4 py-16 text-center text-sm text-slate-600">
-        <h1 className="text-base font-semibold text-slate-900">{t("Link ungültig")}</h1>
-        <p className="mt-2">{fd(t("Dieser Link ist nicht mehr gültig. Bitte fragen Sie in Ihrer Praxis nach einem neuen."))}</p>
-      </main>
-    );
+    return <PortalUngueltig token={params.token} lang={searchParams.lang} fach={gefunden?.practice.specialty} />;
   }
   const marken = patient.modellMarkierungen;
   const kennung = await portalKennung(params.token);
@@ -49,7 +45,7 @@ export default async function PortalModellPage(props: { params: Promise<{ token:
     <main className="min-h-screen bg-[#F5F2EE]" lang={lang} data-testid="portal-modell">
       {kennung && <PraxisBand k={kennung} breite="max-w-5xl" />}
       <div className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:pt-10">
-        <p className="text-sm"><Link href={`/portal/${params.token}${lang === "de" ? "" : `?lang=${lang}`}`} className="text-brand-700 hover:underline">← {t("Zurück zur Übersicht")}</Link></p>
+        <p className="text-sm"><Link href={`/portal/${params.token}${lang === "de" ? "" : `?lang=${lang}`}`} className="ziel min-h-[44px] text-brand-700 hover:underline">← {t("Zurück zur Übersicht")}</Link></p>
         <h1 className="mt-2 font-display text-2xl text-slate-900 sm:text-3xl">{t("Im Modell ansehen")}</h1>
         <p className="mt-1 text-sm text-slate-600">
           {marken.length === 0

@@ -61,7 +61,7 @@ export default async function MeinePraxenSeite(props: { searchParams: Promise<{ 
         <footer className="mt-12 space-y-3 text-center text-xs text-slate-600 dark:text-[#BDB3A8]">
           <nav className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm" aria-label="Sprache" data-testid="meine-praxen-sprachen">
             {PORTAL_LANGS.map((l) => (
-              <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-brand-700 underline dark:text-[#E6C3BC]" : "hover:underline"}>
+              <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={`ziel min-h-[44px] ${l === lang ? "font-semibold text-brand-700 underline dark:text-[#E6C3BC]" : "hover:underline"}`}>
                 {PORTAL_LANG_NAMES[l]}
               </a>
             ))}

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MAX_ORTE, MUND_BEREICHE, ORTE_STAND, SEIT_KURZ, WICHTIG, ZEICHEN, nachbarZaehne, orteFuer, type KurzArt, type OrtGruppe } from "@/lib/kurzcheck";
+import { MAX_ORTE, MUND_BEREICHE, ORTE_STAND, SEIT_KURZ, WICHTIG, nachbarZaehne, zeichenFuer, orteFuer, type KurzArt, type OrtGruppe } from "@/lib/kurzcheck";
 import { kurzUebersetzer, type KurzPaket } from "@/lib/kurzcheckTexte";
 import { ZAEHNE } from "@/lib/modelle/gebiss";
 import { webglDa } from "@/components/modelle/drei/Buehne";
@@ -87,7 +87,7 @@ const knopf = (an: boolean) => `rounded-full px-3 py-2 text-sm ring-1 ${an ? "bg
 const OBEN = ZAEHNE.filter((z) => z.fdi < 30).map((z) => z.fdi).sort((a, b) => (a < 20 ? -a : a) - (b < 20 ? -b : b));
 const UNTEN = ZAEHNE.filter((z) => z.fdi > 30).map((z) => z.fdi).sort((a, b) => (a > 40 ? -a : a) - (b > 40 ? -b : b));
 
-export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt = false, ohneAngst = false }: { token: string; art: KurzArt; praxis: string; vorname: string; paket: KurzPaket; gelenkeErlaubt?: boolean; /** Fach ohne Behandlung (Apotheke, Hilfsmittel, Pflege, Hebamme): keine Kachel „nervös vor der Behandlung“ */ ohneAngst?: boolean }) {
+export function Kurzcheck({ token, art, fach = null, praxis, vorname, paket, gelenkeErlaubt = false, ohneAngst = false }: { token: string; art: KurzArt; /** Fach der Praxis: bestimmt, welche Zeichen angeboten werden */ fach?: string | null; praxis: string; vorname: string; paket: KurzPaket; gelenkeErlaubt?: boolean; /** Fach ohne Behandlung (Apotheke, Hilfsmittel, Pflege, Hebamme): keine Kachel „nervös vor der Behandlung“ */ ohneAngst?: boolean }) {
   const tt = useMemo(() => kurzUebersetzer(paket), [paket]);
   const { t } = tt;
   const [schritt, setSchritt] = useState(0);
@@ -320,8 +320,8 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
             <p className="mt-2 font-display text-4xl tabular-nums text-slate-900" data-testid="kurz-staerke-wert">{staerke ?? "–"}<span className="text-lg text-slate-500"> {t("vonZehn")}</span></p>
             <p className="text-sm text-slate-600">{staerke === null ? t("bitteWaehlen") : tt.staerke(staerke)}</p>
             <input type="range" min={0} max={10} step={1} value={staerke ?? 0} onChange={(e) => setStaerke(Number(e.target.value))} aria-label={t("staerkeRegler")} className="kurz-regler mt-4 w-full" data-testid="kurz-staerke" />
-            <div className="mt-2 grid grid-cols-11 gap-1" role="group" aria-label={t("staerkeWahl")} dir="ltr">
-              {Array.from({ length: 11 }, (_, n) => <button key={n} type="button" aria-pressed={staerke === n} onClick={() => setStaerke(n)} className={`rounded-lg py-2 text-sm tabular-nums ${staerke === n ? "bg-brand-600 font-semibold text-white" : "bg-slate-100 text-slate-700"}`} data-testid={`kurz-staerke-${n}`}>{n}</button>)}
+            <div className="mt-2 grid grid-cols-6 gap-2" role="group" aria-label={t("staerkeWahl")} dir="ltr">
+              {Array.from({ length: 11 }, (_, n) => <button key={n} type="button" aria-pressed={staerke === n} onClick={() => setStaerke(n)} className={`min-h-[44px] rounded-lg text-sm tabular-nums ${staerke === n ? "bg-brand-600 font-semibold text-white" : "bg-slate-100 text-slate-700"}`} data-testid={`kurz-staerke-${n}`}>{n}</button>)}
             </div>
             {(staerke ?? 0) >= 8 && <p className="mt-4 rounded-xl bg-red-50 p-3 text-start text-sm text-red-900" role="alert" data-testid="kurz-dringend">{t("dringend")}</p>}
           </div>
@@ -335,7 +335,7 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
 
         {schritt === 3 && (
           <div className="kurz-ein grid gap-2 sm:grid-cols-2">
-            {ZEICHEN[art].map((z) => { const an = zeichen.includes(z.id); return <button key={z.id} type="button" className={kachel(an)} aria-pressed={an} onClick={() => setZeichen((l) => (an ? l.filter((x) => x !== z.id) : l.length >= 4 ? l : [...l, z.id]))} data-testid={`kurz-zeichen-${z.id}`}><Bild id={z.id} />{tt.w(z.name)}</button>; })}
+            {zeichenFuer(art, fach).map((z) => { const an = zeichen.includes(z.id); return <button key={z.id} type="button" className={kachel(an)} aria-pressed={an} onClick={() => setZeichen((l) => (an ? l.filter((x) => x !== z.id) : l.length >= 4 ? l : [...l, z.id]))} data-testid={`kurz-zeichen-${z.id}`}><Bild id={z.id} />{tt.w(z.name)}</button>; })}
           </div>
         )}
 

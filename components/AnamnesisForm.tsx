@@ -144,7 +144,7 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
         <div className="text-center" role="status">
           <h1 className="text-xl font-semibold text-slate-900">{eltern ? "Vielen Dank" : `Vielen Dank, ${firstName}`}</h1>
           <p className="mt-3 text-slate-600">
-            {eltern ? `Der Anamnesebogen für ${firstName}` : "Ihr Anamnesebogen"} ist bei {practiceName} angekommen. {ft("Sie müssen in der Praxis nichts mehr ausfüllen.")}
+            {eltern ? `Der Gesundheitsfragebogen für ${firstName}` : "Ihr Gesundheitsfragebogen"} ist bei {practiceName} angekommen. {ft("Sie müssen in der Praxis nichts mehr ausfüllen.")}
           </p>
         </div>
         {backHref && (
@@ -161,7 +161,7 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
     <main className="mx-auto max-w-2xl px-4 pb-16 pt-8">
       {backHref && <a href={backHref} className="mb-4 inline-block text-sm text-brand-700 underline">{ft("← Zurück zu Ihrem Behandlungsweg")}</a>}
       <p className="text-sm font-medium text-brand-700">{practiceName}</p>
-      <h1 className="mt-1 text-2xl font-semibold text-slate-900">Anamnesebogen für {firstName}</h1>
+      <h1 className="mt-1 text-2xl font-semibold text-slate-900">Gesundheitsfragebogen für {firstName}</h1>
       <p className="mt-2 text-slate-600" data-testid="anamnese-einleitung">
         Etwa drei Minuten. {profil.einleitung} Die Angaben gehen direkt an {practiceName}. {profil.schweigepflicht}
       </p>
@@ -199,7 +199,8 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
               data-offen={nochOffen ? "ja" : undefined}
             >
               <legend className="sr-only">{q.text}</legend>
-              <p className="font-medium text-slate-900">
+              {/* Sichtbar mit Nummer; der Screenreader liest die Frage nur einmal (aus der Legende). */}
+              <p className="font-medium text-slate-900" aria-hidden="true">
                 <span className="mr-1 text-slate-500">{i + 1}.</span>
                 {q.text}
               </p>
@@ -317,7 +318,7 @@ export function AnamnesisForm({ token, practiceName, firstName, profil, postUrl,
           </p>
         )}
         <button className="btn btn-primary w-full py-3" disabled={state === "sending"}>
-          {state === "sending" ? "Wird gesendet …" : "Anamnesebogen absenden"}
+          {state === "sending" ? "Wird gesendet …" : "Fragebogen absenden"}
         </button>
         <p className="text-xs text-slate-500">{ft("Nach dem Absenden ist der Link verbraucht. Änderungen besprechen Sie bitte in der Praxis.")}</p>
       </form>

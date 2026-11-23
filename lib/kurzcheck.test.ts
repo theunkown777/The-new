@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { KURZ_ARTEN, ORTE, ORTE_STAND, ORT_NACH, ZEICHEN, alteOrtNamen, kurzArt, kurzcheckLesen, kurzcheckSchema, kurzcheckText, nachbarZaehne, ortGueltig, ortName, orteFuer, staerkeWort } from "./kurzcheck";
+import { KURZ_ARTEN, ORTE, ORTE_STAND, ORT_NACH, ZEICHEN, zeichenFuer, alteOrtNamen, kurzArt, kurzcheckLesen, kurzcheckSchema, kurzcheckText, nachbarZaehne, ortGueltig, ortName, orteFuer, staerkeWort } from "./kurzcheck";
 import { KOPF_PUNKTE } from "../components/kurzcheck/figurPunkte";
 import { FACH_MODELLE } from "./modelle/fach";
 
@@ -141,5 +141,25 @@ describe("Kurz-Fragebogen", () => {
     expect(kurzcheckLesen("koerper")).toBeNull();
     expect(kurzcheckLesen({ ...basis, art: "auge", orte: ["auge:B"] })?.orte).toEqual(["auge:B"]);
     expect(ORT_NACH.get("auge:B")?.basis).toBe("Beide Augen");
+  });
+});
+
+describe("Zeichen je Fach", () => {
+  it("Hörakustik fragt nicht nach Hals, Nase und Stimme, dafür nach Lärm und Hörgerät", () => {
+    const ids = zeichenFuer("hno", "hoerakustik").map((z) => z.id);
+    for (const weg of ["schlucken", "nase", "heiser", "riechen"]) expect(ids).not.toContain(weg);
+    expect(ids).toEqual(expect.arrayContaining(["hoeren", "geraeusch", "laerm", "hoergeraet"]));
+    expect(ids.length).toBeLessThanOrEqual(8);
+    // HNO-Praxis: alle Zeichen des Ohr-Modells, ohne die der Hörakustik
+    expect(zeichenFuer("hno", "hno")).toEqual(ZEICHEN.hno);
+  });
+  it("beim Absenden zählt das Fach, beim Lesen bleibt alles der Art lesbar", () => {
+    const eingabe = { orte: ["ohr:B"], staerke: 3, seit: "wochen", zeichen: ["nase"], wichtig: "ursache" };
+    expect(kurzcheckSchema("hno", "hoerakustik").safeParse(eingabe).success).toBe(false);
+    expect(kurzcheckSchema("hno", "hno").safeParse(eingabe).success).toBe(true);
+    expect(kurzcheckSchema("hno", "hno").safeParse({ ...eingabe, zeichen: ["laerm"] }).success).toBe(false);
+    const neu = kurzcheckSchema("hno", "hoerakustik").parse({ ...eingabe, zeichen: ["laerm"] });
+    expect(kurzcheckLesen(neu)?.zeichen).toEqual(["laerm"]);
+    expect(kurzcheckText(kurzcheckLesen(neu)!).join(" ")).toContain("Im Lärm schwer zu verstehen");
   });
 });

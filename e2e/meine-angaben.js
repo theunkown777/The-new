@@ -139,7 +139,7 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     await hp.getByLabel('Weitere Hinweise (freiwillig)').fill('Bitte morgens anrufen');
     await hp.locator('#confirm').fill('Anna Zwilling');
     pruef('A: ohne Übernahme kein Haken „geprüft“', (await hp.getByTestId('anamnese-geprueft').count()) === 0);
-    await hp.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+    await hp.getByRole('button', { name: 'Fragebogen absenden' }).click();
     await hp.getByTestId('angaben-angebot').waitFor({ timeout: 30000 });
     pruef('A: gesendet, danach das Angebot mit dem Knopf „Kopie meiner Angaben auf diesem Gerät behalten“', (await hp.getByTestId('angaben-behalten').innerText()).trim() === 'Kopie meiner Angaben auf diesem Gerät behalten');
     pruef('A: ohne Klick nichts im Speicher', (await hp.evaluate((s) => localStorage.getItem(s), SCHLUESSEL)) === null);
@@ -230,7 +230,7 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     await fotos(hp, '06-b-uebernommen-390');
     for (const k of offenB) await antworten(hp, k, false);
     await hp.locator('#confirm').fill('Anna Zwilling');
-    await hp.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+    await hp.getByRole('button', { name: 'Fragebogen absenden' }).click();
     const hakenFehler = await hp.locator('#anamnese-fehler').innerText();
     pruef('B: ohne Haken „geprüft“ kein Senden, Meldung und Fokus am Haken', hakenFehler === 'Bitte bestätigen Sie, dass Sie die übernommenen Angaben geprüft haben.' && (await aktivId(hp)) === 'vorbefuellt-geprueft', `${hakenFehler} / ${await aktivId(hp)}`);
     pruef('B: Haken als ungültig markiert und mit der Meldung verbunden', (await hp.getByTestId('anamnese-geprueft').getAttribute('aria-invalid')) === 'true' && (await hp.getByTestId('anamnese-geprueft').getAttribute('aria-describedby')) === 'anamnese-fehler vorbefuellt-praxis-sieht');
@@ -241,7 +241,7 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     await fotos(hp, '07-b-haken-fehlt-390', false);
     await hp.getByTestId('anamnese-geprueft').check();
     const vorSenden = anfragen.length;
-    await hp.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+    await hp.getByRole('button', { name: 'Fragebogen absenden' }).click();
     await hp.getByRole('status').filter({ hasText: 'ist bei' }).waitFor({ timeout: 30000 });
     const post = anfragen.slice(vorSenden).find((a) => a.url === `/api/portal/${tB}/anamnese/${KENN}-anamB1`);
     const body = post ? JSON.parse(post.body) : {};
@@ -303,7 +303,7 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
     pruef('Praxis-Gerät: auch /a ohne Knopf zum Übernehmen', (await pp.getByTestId('angaben-uebernahme').count()) === 0 && (await pp.getByTestId('angaben-uebernehmen').count()) === 0);
     for (const k of await fragen(pp)) await antworten(pp, k, false);
     await pp.locator('#confirm').fill('Anna Zwilling');
-    await pp.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+    await pp.getByRole('button', { name: 'Fragebogen absenden' }).click();
     await pp.getByRole('status').filter({ hasText: 'ist bei' }).waitFor({ timeout: 30000 });
     await pp.waitForTimeout(800);
     pruef('Praxis-Gerät: nach dem Senden über /a kein Angebot, eine Kopie zu behalten', (await pp.getByTestId('angaben-angebot').count()) === 0 && (await pp.getByTestId('angaben-behalten').count()) === 0);
@@ -366,7 +366,7 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
       for (const k of await unbeantwortet(p)) await antworten(p, k, false);
       await p.locator('#confirm').fill('Anna Zwilling');
       await p.getByTestId('anamnese-geprueft').check();
-      await p.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+      await p.getByRole('button', { name: 'Fragebogen absenden' }).click();
       await p.getByTestId('angaben-angebot').waitFor({ timeout: 30000 });
       pruef('1280 px (hell): gesendet, Angebot für eine neue Kopie', await p.getByTestId('angaben-behalten').isVisible());
       await fotos(p, '14-b-gesendet-1280-hell');
@@ -456,7 +456,7 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
       const namenK = await fragen(p);
       for (const k of namenK) await antworten(p, k, k === 'allergien', 'Erdnüsse');
       await p.locator('#confirm').fill('Anna Zwilling');
-      await p.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+      await p.getByRole('button', { name: 'Fragebogen absenden' }).click();
       await p.getByTestId('angaben-angebot').waitFor({ timeout: 30000 });
       // Speichern nur mit der Tastatur: Knopf mit Enter, Tab von Feld zu Feld, Enter zum Speichern.
       await p.getByTestId('angaben-behalten').focus();
@@ -519,7 +519,7 @@ const aktivId = (p) => p.evaluate(() => (document.activeElement && document.acti
         pruef(`${lang}: Text am Haken „geprüft“ mit lang und dir`, (await haken.getAttribute('lang')) === lang && (await haken.getAttribute('dir')) === dir);
         for (const k of await unbeantwortet(p)) await antworten(p, k, false);
         await p.locator('#confirm').fill('Anna Zwilling');
-        await p.getByRole('button', { name: 'Anamnesebogen absenden' }).click();
+        await p.getByRole('button', { name: 'Fragebogen absenden' }).click();
         const meldung = p.locator('#anamnese-fehler');
         pruef(`${lang}: Meldung „geprüft fehlt“ in der Sprache des Portals mit lang und dir`, (await meldung.getAttribute('lang')) === lang && (await meldung.getAttribute('dir')) === dir && !(await meldung.innerText()).includes('Bitte bestätigen'));
         pruef(`${lang}: 390 px ohne waagerechtes Scrollen`, await breiteOk(p));

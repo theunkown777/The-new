@@ -1,4 +1,5 @@
 import { PraxisFussLaden } from "@/components/PraxisFussLaden";
+import { PortalUngueltig } from "@/components/PortalUngueltig";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -28,7 +29,7 @@ export async function generateMetadata(props: { params: Promise<{ token: string 
 function Gone({ back, lang }: { back?: string; lang: PatientLang }) {
   const t = UI[lang];
   return (
-    <main className="mx-auto max-w-xl px-4 py-16 text-center" lang={lang} dir={langDir(lang)}>
+    <main className="min-h-screen bg-[#F5F2EE] px-4 py-16 text-center" lang={lang} dir={langDir(lang)}>
       <h1 className="text-xl font-semibold text-slate-900">{t.goneTitle}</h1>
       <p className="mt-3 text-slate-600">{t.goneText}</p>
       {back && <a href={back} className="btn-primary mt-6 inline-block">{t.back}</a>}
@@ -44,7 +45,7 @@ export default async function PortalProposal(props: { params: Promise<{ token: s
   // Sprache: `?lang=`, sonst die bevorzugte Sprache des Browsers, sonst Deutsch.
   const lang = pickLang(searchParams.lang, (await headers()).get("accept-language"));
   const patient = await portalPatient(params.token);
-  if (!patient) return <Gone lang={lang} />;
+  if (!patient) return <PortalUngueltig token={params.token} lang={lang} />;
   const back = `/portal/${params.token}`;
   const proposal = await prisma.treatmentProposal.findFirst({
     where: { id: params.id, ...portalProposalWhere(patient.id) },

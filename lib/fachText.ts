@@ -44,6 +44,9 @@ function regeln(fach: string | null | undefined, ohneEinrichtung = false): Regel
       [/\beiner anderen Praxis\b/g, e.einerAnderen],
       [/\bder anderen Praxis\b/g, e.derAnderen],
       [/\bWas schlägt sie vor\?/g, `Was schlägt ${e.sie} vor?`],
+      // Akkusativ: „Diese Praxis auf diesem Gerät merken“, „… von diesem Gerät entfernen?“; sonst Nominativ.
+      [/\bDiese Praxis(?= (auf|von) diesem Gerät (merken|entfernen))/g, gross(e.dieseAkk)],
+      [/\bDiese Praxis\b/g, gross(e.diese)],
       // Akkusativ: „rufen Sie die Praxis an“, „gehen an die Praxis“
       [/\b(Sie|an|auf|für|über|durch|ohne) die Praxis\b/g, `$1 ${e.dieAkk}`],
       // Dativ: „Möchten Sie der Praxis noch etwas sagen?“

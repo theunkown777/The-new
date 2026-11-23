@@ -25,7 +25,8 @@ import { praxisKennzeichen } from "@/lib/praxisKennung";
 import { portalKennung, portalSymbole } from "@/lib/portalKopf";
 import { darfAufGeraetMerken } from "@/lib/meinePraxenSchutz";
 import { PraxisKennzeile, PraxisStreifen } from "@/components/PraxisKennung";
-import { GemerktEntfernen, PraxisMerken } from "@/components/PraxisMerken";
+import { PraxisMerken } from "@/components/PraxisMerken";
+import { PortalUngueltig } from "@/components/PortalUngueltig";
 
 export const dynamic = "force-dynamic";
 // Tab-Titel, Titel der Web-App auf dem iPhone und Symbol tragen Praxisname und Gruppe (lib/praxisKennung.ts), damit
@@ -60,35 +61,12 @@ export async function generateViewport(props: { params: Promise<{ token: string 
   return k ? { themeColor: k.farbe } : {};
 }
 
-/**
- * „Dieser Link ist nicht mehr gültig“: abgelaufen oder von der Praxis durch einen neuen Link ersetzt (jede neue
- * Nachricht oder Freigabe erzeugt einen neuen Link). Auf dem Gerät des Patienten (keine Praxis-Sitzung) dazu der
- * Hinweis, den neuen Link zu merken, und auf Wunsch das Entfernen dieses Links aus „Meine Praxen auf diesem Gerät“.
- */
-async function Expired({ token, lang }: { token: string; lang?: string }) {
-  const sprache = pickPortalLang(lang, (await headers()).get("accept-language"));
-  const g = GERAET_UI[sprache];
-  const aufGeraet = /^[A-Za-z0-9_-]{20,128}$/.test(token) && darfAufGeraetMerken((await cookies()).getAll().map((c) => c.name));
-  return (
-    <main className="mx-auto max-w-xl px-4 py-16 text-center" lang={sprache} dir={portalDir(sprache)} data-testid="portal-ungueltig">
-      <h1 className="text-xl font-semibold text-slate-900">{g.ungueltigTitel}</h1>
-      <p className="mt-3 text-slate-600">{g.ungueltigText}</p>
-      {aufGeraet && (
-        <>
-          <p className="mt-3 text-slate-600" data-testid="portal-ungueltig-hinweis">{g.ungueltigHinweis}</p>
-          <GemerktEntfernen token={token} t={{ ungueltigEntfernen: g.ungueltigEntfernen, ungueltigEntfernt: g.ungueltigEntfernt, ungueltigNichtGemerkt: g.ungueltigNichtGemerkt, nichtMoeglich: g.nichtMoeglich }} />
-        </>
-      )}
-    </main>
-  );
-}
-
 // Patientenportal: offene Rechnungen mit GiroCode, Vorschläge als Dokument.
 // Gezeigt werden nur Vorname und Praxisname, keine Kassen- oder Geburtsdaten.
 export default async function PortalPage(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string; bezahlt?: string }> }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <Expired token={params.token} lang={searchParams.lang} />;
+  if (!/^[A-Za-z0-9_-]{20,128}$/.test(params.token)) return <PortalUngueltig token={params.token} lang={searchParams.lang} />;
   const now = new Date();
   const patient = await prisma.patient.findUnique({
     where: { portalTokenHash: hashToken(params.token) },
@@ -112,7 +90,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
       appointments: { where: { start: { gte: now }, status: { in: ["GEPLANT", "BESTAETIGT"] } }, orderBy: { start: "asc" }, take: 1, select: { start: true, minutes: true } },
     },
   });
-  if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < now) return <Expired token={params.token} lang={searchParams.lang} />;
+  if (!patient || !patient.portalExpiresAt || patient.portalExpiresAt < now) return <PortalUngueltig token={params.token} lang={searchParams.lang} />;
   if (!patient.portalViewedAt) await prisma.patient.update({ where: { id: patient.id }, data: { portalViewedAt: now } });
 
   const lang = pickPortalLang(searchParams.lang, (await headers()).get("accept-language"));
@@ -126,7 +104,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
   const kennung = praxisKennzeichen(practice);
   // „Diese Praxis auf diesem Gerät merken“ nur auf Geräten ohne Praxis-Sitzung und ohne Empfangsmodus (lib/meinePraxenSchutz.ts).
   const merkenErlaubt = darfAufGeraetMerken((await cookies()).getAll().map((c) => c.name));
-  const geraet = GERAET_UI[lang];
+  const geraet = lang === "de" ? mitFachWoertern(GERAET_UI.de, practice.specialty) : GERAET_UI[lang];
   const bank = practice.iban ? { name: practice.accountHolder || practice.name, iban: practice.iban, bic: practice.bic } : null;
 
   const onlineAktiv = onlineZahlungStatus().aktiv;
@@ -421,7 +399,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
         <footer className="mt-10 space-y-1 text-center text-xs text-slate-500">
           <nav className="mb-3 flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm" aria-label="Sprache" data-testid="portal-sprachen">
             {PORTAL_LANGS.map((l) => (
-              <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-brand-700 underline" : "text-slate-600 hover:text-brand-700"}>
+              <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={`ziel min-h-[44px] ${l === lang ? "font-semibold text-brand-700 underline" : "text-slate-600 hover:text-brand-700"}`}>
                 {PORTAL_LANG_NAMES[l]}
               </a>
             ))}

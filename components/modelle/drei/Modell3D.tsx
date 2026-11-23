@@ -42,7 +42,9 @@ export const Modell3D = forwardRef<Modell3DGriff, {
   /** Kennungen, die der Patient selbst angegeben hat (eigene Farbe) */
   patient?: string[];
   children?: React.ReactNode;
-}>(function Modell3D({ plan, schluessel, gewaehlt, markiert, sichtbar, sichtbarSchluessel, onWahl, ohne3D, hoehe = "h-[min(70vh,40rem)]", beschriftung, dateien, onBereit, onGeladen, quelle, poster, sofort = false, onPunkt, mindestDeck, patient = [], children }, ref) {
+  /** Vorschau vor dem Öffnen, wenn es kein Standbild gibt (z. B. das Schema der Schnittmodelle) */
+  vorschau?: React.ReactNode;
+}>(function Modell3D({ plan, schluessel, gewaehlt, markiert, sichtbar, sichtbarSchluessel, onWahl, ohne3D, hoehe = "h-[min(70vh,40rem)]", beschriftung, dateien, onBereit, onGeladen, quelle, poster, sofort = false, onPunkt, mindestDeck, patient = [], children, vorschau }, ref) {
   const t = useT();
   const behaelter = useRef<HTMLDivElement | null>(null);
   const buehne = useRef<Buehne | null>(null);
@@ -159,6 +161,7 @@ export const Modell3D = forwardRef<Modell3DGriff, {
         <button type="button" onClick={oeffnen} className="group absolute inset-0 flex flex-col items-center justify-center gap-3 overflow-hidden" data-testid="modell-3d-start" aria-label={t("3D-Modell öffnen")}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {poster && <img src={poster} alt="" className="absolute inset-0 h-full w-full object-contain opacity-90 transition-opacity group-hover:opacity-100" loading="lazy" decoding="async" />}
+          {!poster && vorschau && <span className="absolute inset-0 opacity-80 transition-opacity group-hover:opacity-100" aria-hidden="true">{vorschau}</span>}
           <span className="relative rounded-full bg-brand-600 px-5 py-2.5 text-sm font-medium text-white shadow-lg ring-4 ring-white/70 transition group-hover:bg-brand-700">{t("3D-Modell öffnen")}</span>
         </button>
       )}

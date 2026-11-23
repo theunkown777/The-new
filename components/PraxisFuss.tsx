@@ -15,7 +15,9 @@ export function PraxisFuss({ name, stammdaten, className = "", ohneLinks = false
   const anschrift = [s.strasse, s.plzOrt].filter(Boolean).join(", ");
   const kontakt = [s.telefon ? `Telefon ${s.telefon}` : "", s.email].filter(Boolean).join(" · ");
   const beruf = [s.berufsbezeichnung, s.kammer ? `Kammer: ${s.kammer}` : "", s.aufsicht ? `Aufsicht: ${s.aufsicht}` : ""].filter(Boolean).join(" · ");
-  const a = "underline";
+  const a = "ziel min-h-[44px] underline";
+  // Links mitten im Satz brauchen keine eigene Tippfläche (WCAG 2.5.8, Ausnahme für Text im Satz).
+  const imSatz = "underline";
   return (
     <div className={`space-y-1 text-center text-xs text-slate-500 [overflow-wrap:anywhere] ${className}`} lang="de" data-testid="praxis-fuss">
       <p>
@@ -37,7 +39,7 @@ export function PraxisFuss({ name, stammdaten, className = "", ohneLinks = false
       )}
       <p>
         Ihre Angaben gehen an {name} und werden dort {wofuer} verwendet. Technische Bereitstellung im Auftrag {derPraxis}:{" "}
-        {ohneLinks ? "Sorrida." : <>Sorrida (<a href="/impressum" target="_blank" rel="noopener noreferrer" className={a}>Impressum</a>).</>}
+        {ohneLinks ? "Sorrida." : <>Sorrida (<a href="/impressum" target="_blank" rel="noopener noreferrer" className={imSatz}>Impressum</a>).</>}
       </p>
     </div>
   );

@@ -51,7 +51,7 @@ describe("Anamnesebogen je Fach", () => {
       // Im fertigen Bogen kommen die eigenen Fragen auch an (für eine Person ohne Einschränkung).
       const p = anamneseFuer(id, { geschlecht: "W", alter: 40 });
       expect(p.fach).toBe(id);
-      expect(p.fragen.length, id).toBeGreaterThanOrEqual(BASIS_FRAGEN.length + 2);
+      expect(p.fragen.length, id).toBeGreaterThanOrEqual(BASIS_FRAGEN.length - (d.ohneFragen?.length ?? 0) + 2);
     }
   });
 
@@ -134,12 +134,13 @@ describe("Filter nach Geschlecht und Alter", () => {
       expect(keys(fach, { geschlecht: "M", alter: 40 }), fach).not.toContain("schwanger");
       expect(keys(fach, { geschlecht: "W", alter: 11 }), fach).not.toContain("schwanger");
       expect(keys(fach, { alter: 8 }), fach).not.toContain("rauchen");
-      if (ohneSchwanger.includes(fach)) {
+      const ohne = ANAMNESE_JE_FACH[anamneseFach(fach)].ohneFragen ?? [];
+      if (ohneSchwanger.includes(fach) || ohne.includes("schwanger")) {
         expect(keys(fach, { geschlecht: "W", alter: 30 }), fach).not.toContain("schwanger");
         continue;
       }
       expect(keys(fach, { geschlecht: "W", alter: 30 }), fach).toContain("schwanger");
-      expect(keys(fach, {}), fach).toEqual(expect.arrayContaining(["schwanger", "rauchen"]));
+      expect(keys(fach, {}), fach).toEqual(expect.arrayContaining(ohne.includes("rauchen") ? ["schwanger"] : ["schwanger", "rauchen"]));
     }
     expect(keys("uro", { geschlecht: "M", alter: 60 })).not.toContain("schwanger");
   });
@@ -245,5 +246,24 @@ describe("Prüfung je Fach", () => {
     const a = parseAnamnesis({ q: { blutverduenner: { yes: true, detail: "ASS 100" }, knirschen: { yes: false } }, wishes: ["angst"], confirmName: "A B" });
     expect(a).toMatchObject({ v: 1, fach: null, wishes: ["angst"] });
     expect(anamnesisFlags(a!).map((f) => f.text)).toEqual(["Blutverdünner", "Angst vor der Behandlung angegeben"]);
+  });
+});
+
+describe("Datensparsamkeit: nur die Gesundheitsfragen, die das Fach braucht", () => {
+  const keys = (fach: string) => anamneseFuer(fach, { geschlecht: "W", alter: 40 }).fragen.map((f) => f.key);
+  it("Fachgeschäfte fragen nicht nach Gerinnung, Infektionen oder Herz", () => {
+    for (const fach of ["optik", "hoerakustik", "sanitaetshaus"]) {
+      const k = keys(fach);
+      for (const weg of ["blutverduenner", "gerinnung", "herz", "infektion", "schwanger"]) expect(k, `${fach}: ${weg}`).not.toContain(weg);
+      for (const bleibt of ["medikamente", "allergien", "diabetes"]) expect(k, `${fach}: ${bleibt}`).toContain(bleibt);
+    }
+    expect(keys("sanitaetshaus")).toContain("blutdruck");
+  });
+  it("Therapie und Beratung behalten, was fachlich begründet ist", () => {
+    expect(keys("psych")).toEqual(expect.arrayContaining(["blutverduenner", "herz"]));
+    expect(keys("apotheke")).toEqual(expect.arrayContaining(["blutverduenner", "herz", "schwanger"]));
+    for (const fach of ["psych", "logo", "ergo", "apotheke"]) expect(keys(fach), fach).not.toContain("infektion");
+    // Ärztliche Fächer und die Zahnmedizin fragen weiter alles.
+    for (const fach of ["hausarzt", "zahn", "chirurgie"]) for (const k of BASIS_FRAGEN) expect(keys(fach), `${fach}: ${k}`).toContain(k);
   });
 });

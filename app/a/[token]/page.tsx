@@ -14,10 +14,10 @@ import { fachText } from "@/lib/fachText";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Anamnesebogen",
+  title: "Gesundheitsfragebogen",
   robots: { index: false, follow: false },
   referrer: "no-referrer",
-  openGraph: { title: "Ihr Anamnesebogen", description: "In drei Minuten vor Ihrem Termin ausgefüllt.", images: [{ url: "/og/anamnese.png", width: 1200, height: 630 }] },
+  openGraph: { title: "Ihr Gesundheitsfragebogen", description: "In drei Minuten vor Ihrem Termin ausgefüllt.", images: [{ url: "/og/anamnese.png", width: 1200, height: 630 }] },
 };
 
 export default async function AnamnesisPage(props: { params: Promise<{ token: string }>; searchParams: Promise<{ lang?: string }> }) {

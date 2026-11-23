@@ -608,7 +608,7 @@ export const reminderLabel = (level: number, lang: PortalLang) => STATUS[lang].m
 // Die Fachbezeichnung der Praxis („Hausarztpraxis“) bleibt wie Rechnungstitel in der Sprache der Praxis.
 const GERAET_DE = {
   merken: "Diese Praxis auf diesem Gerät merken",
-  merkenHinweis: "Der Link wird nur in diesem Browser auf diesem Gerät gespeichert. Die Praxen sehen das nicht.",
+  merkenHinweis: "Der Link wird nur in diesem Browser auf diesem Gerät gespeichert. Die Praxis sieht das nicht.",
   gemerkt: "Gemerkt. Sie finden die Praxis jetzt unter „Meine Praxen auf diesem Gerät“.",
   voll: "Die Liste auf diesem Gerät ist voll. Bitte entfernen Sie zuerst eine Praxis.",
   nichtMoeglich: "Dieser Browser erlaubt das Speichern auf dem Gerät nicht.",
@@ -1001,7 +1001,7 @@ const ANGABEN_DE = {
   zuMeinenPraxen: "Zu „Meine Praxen auf diesem Gerät“",
   abschnitt: "Meine Angaben auf diesem Gerät",
   abschnittText: "Hier liegen verschlüsselte Kopien Ihrer Antworten aus Anamnesebögen. Nur mit Ihrem Code lassen sie sich öffnen. Die Praxen sehen sie nicht.",
-  keineKopie: "Hier liegt keine Kopie Ihrer Angaben. Eine Kopie können Sie nach dem Absenden eines Anamnesebogens behalten.",
+  keineKopie: "Hier liegt keine Kopie Ihrer Angaben. Eine Kopie können Sie nach dem Absenden eines Gesundheitsfragebogens behalten.",
   stand: "Stand {datum}",
   bogen: "Bogen: {fach}",
   giltBis: "Wird ab dem {datum} gelöscht.",

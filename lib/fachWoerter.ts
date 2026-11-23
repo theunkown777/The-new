@@ -105,7 +105,7 @@ export function einrichtungWoerter(fach: string | null | undefined) {
     return {
       name, ihre: `Ihre ${name}`, ihreAkk: `Ihre ${name}`, ihrer: `Ihrer ${name}`, ihresGen: `Ihrer ${name}`, meiner: `meiner ${name}`,
       dieNom: `die ${name}`, dieAkk: `die ${name}`, derDat: `der ${name}`, derGen: `der ${name}`, inIhrer: `in Ihrer ${name}`, inDer: `in der ${name}`,
-      andere: `Andere ${name}`, derAnderen: `der anderen ${name}`, einerAnderen: `einer anderen ${name}`, sie: "sie",
+      andere: `Andere ${name}`, derAnderen: `der anderen ${name}`, einerAnderen: `einer anderen ${name}`, sie: "sie", diese: `diese ${name}`, dieseAkk: `diese ${name}`,
     };
   }
   return {
@@ -133,6 +133,10 @@ export function einrichtungWoerter(fach: string | null | undefined) {
     einerAnderen: `eines anderen ${gen}`,
     /** Pronomen im Nominativ */
     sie: g === "m" ? "er" : "es",
+    /** Nominativ: „dieses Fachgeschäft“, „dieser Pflegedienst“ */
+    diese: g === "m" ? `dieser ${name}` : `dieses ${name}`,
+    /** Akkusativ: „diesen Pflegedienst merken“ */
+    dieseAkk: g === "m" ? `diesen ${name}` : `dieses ${name}`,
   };
 }
 
