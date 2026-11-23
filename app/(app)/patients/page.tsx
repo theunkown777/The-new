@@ -212,7 +212,7 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
                     <Behandlungsweg erreicht={w.erreicht} aktuell={w.aktuell} abgelehnt={w.abgelehnt} className="hidden sm:block" />
                     <span className={`text-sm ${TONE_STYLE[w.praxis.tone]}`}>
                       {w.praxis.tone === "achtung" && <span aria-hidden="true">● </span>}
-                      {w.praxis.text}
+                      {ft(w.praxis.text)}
                     </span>
                   </Link>
                 </li>
@@ -266,7 +266,7 @@ export default async function PatientsPage(props: { searchParams: Promise<{ q?: 
 
           <div className={`mt-2 rounded-2xl p-4 ${selWeg.praxis.tone === "achtung" ? "bg-red-50" : selWeg.praxis.tone === "erledigt" ? "bg-salbei-50" : "bg-brand-50"}`} data-testid="naechster-schritt">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Nächster Schritt</p>
-            <p className={`mt-1 font-medium ${TONE_STYLE[selWeg.praxis.tone]}`}>{selWeg.praxis.text}</p>
+            <p className={`mt-1 font-medium ${TONE_STYLE[selWeg.praxis.tone]}`}>{ft(selWeg.praxis.text)}</p>
           </div>
 
           {anamnesis?.submittedAt && anamnesis.flags.length > 0 && (
