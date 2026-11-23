@@ -202,11 +202,14 @@ h1 {
   font-weight: 600;
 }
 
-/* Mindestgröße für Klickziele (WCAG 2.2, 2.5.8): 24 px Höhe für eigenständige Links und Textknöpfe. */
-.ziel {
-  display: inline-flex;
-  min-height: 24px;
-  align-items: center;
+/* Mindestgröße für Klickziele (WCAG 2.2, 2.5.8): 24 px Höhe für eigenständige Links und Textknöpfe.
+   In @layer components, damit eine größere Höhe an der Stelle (z. B. min-h-[44px]) gewinnt. */
+@layer components {
+  .ziel {
+    display: inline-flex;
+    min-height: 24px;
+    align-items: center;
+  }
 }
 
 /* Handy: Eingabefelder brauchen mindestens 16 px Schrift, sonst zoomt das iPhone beim Antippen in die
@@ -224,12 +227,17 @@ h1 {
   min-width: 0;
 }
 /* Finger statt Maus: Textknöpfe und eigenständige Links bekommen eine größere Tippfläche. */
-@media (pointer: coarse) {
-  .ziel {
-    min-height: 36px;
+/* Ohne Gewicht (:where, @layer components): Eine größere Höhe an der Stelle (z. B. min-h-[44px]) gewinnt. */
+@layer components {
+  @media (pointer: coarse) {
+    .ziel {
+      min-height: 36px;
+    }
   }
+}
+@media (pointer: coarse) {
   /* Alle Knöpfe mindestens 36 px hoch; ausgenommen sind Knöpfe mit fester Größe (Symbole, Zähne im Zahnschema). */
-  button:not([role="checkbox"]):not([class*=" h-"]):not([class^="h-"]):not([class*="aspect-"]) {
+  :where(button:not([role="checkbox"]):not([class*=" h-"]):not([class^="h-"]):not([class*="aspect-"])) {
     min-height: 36px;
   }
 }

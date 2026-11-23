@@ -196,7 +196,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
           : openProposal
             ? { text: "Ihren Vorschlag ansehen und wählen.", href: vorschlagHref(openProposal.id) }
             : ohneUnterschrift
-              ? { text: PORTAL_SCHRITT.unterschrift, href: `/portal/${params.token}/vereinbarung/${ohneUnterschrift.id}` }
+              ? { text: PORTAL_SCHRITT.unterschrift, href: `/portal/${params.token}/vereinbarung/${ohneUnterschrift.id}${sprachZusatz}` }
               : fragebogen
                 ? { text: PORTAL_SCHRITT.fragebogen, href: `/portal/${params.token}/anamnese/${fragebogen.id}${sprachZusatz}` }
                 : { text: weg.patient, href: null };
@@ -365,7 +365,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
                       p.agreedAt ? (
                         <p className="mt-1 px-4 text-sm text-salbei-700">✓ {t.signed} · {date(p.agreedAt)}</p>
                       ) : (
-                        <a href={`/portal/${params.token}/vereinbarung/${p.id}`} className="mt-1 block px-4 py-2 text-sm font-medium text-brand-700 underline" data-testid="portal-unterschreiben">
+                        <a href={`/portal/${params.token}/vereinbarung/${p.id}${sprachZusatz}`} className="mt-1 block px-4 py-2 text-sm font-medium text-brand-700 underline" data-testid="portal-unterschreiben">
                           {t.sign} {pfeil}
                         </a>
                       )
