@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { datumDE } from "@/lib/datum";
 
 // Daten für den ReportEditor, gemeinsam genutzt von der Berichtsseite der App
 // und vom Praxissoftware-Fenster (/embed/report/[id]).
@@ -54,7 +55,7 @@ export async function loadReportEditorProps(id: string, practiceId: string) {
       patient: { firstName: report.patient.firstName, lastName: report.patient.lastName },
       pvs: !!report.patient.externalId,
       author: { name: report.author.name },
-      createdAt: report.createdAt.toLocaleDateString("de-DE"),
+      createdAt: datumDE(report.createdAt),
       approval: report.approvedAt
         ? { name: report.approvedByName ?? "Unbekannt", at: report.approvedAt.toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" }) }
         : null,

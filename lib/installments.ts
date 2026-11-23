@@ -28,7 +28,7 @@ export function resolveInstallments(raw: unknown): Installments {
 }
 
 /**
- * Ratenanzeige im Patientenlink ist angehalten. Ab dem 20.11.2026 gilt das Verbraucherkreditrecht auch
+ * Ratenanzeige im Patientenlink ist angehalten. Seit dem 20.11.2026 gilt das Verbraucherkreditrecht auch
  * für zinsfreie Teilzahlungen über mehr als 50 Tage (§ 506 BGB n. F.), mit Pflichtangaben, Widerrufsrecht,
  * Prüfung der Kreditwürdigkeit und einem Pflicht-Warnhinweis in der Werbung. Bis eine Kanzlei den Ablauf
  * freigegeben hat, zeigt Sorrida keine Raten und wirbt nicht mit Teilzahlung; die Praxis bespricht das persönlich.

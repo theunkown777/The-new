@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LOCALES, type PatientLang, type Ui } from "@/lib/patientI18n";
 import { SPRECH_SPRACHE, lokaleStimme, type VorleseTeil } from "@/lib/vorlesen";
+import { datumDE } from "@/lib/datum";
 
 // Zusätze der Patientenansicht des Vorschlags: Vorlesen, Lese-Link für eine Vertrauensperson und „Erinnern Sie mich“.
 // Alles läuft auf dem Gerät des Patienten bzw. gegen die eigenen Schnittstellen; es wird nichts von fremden Servern geladen
@@ -12,7 +13,7 @@ export type LeseLinkZeile = { id: string; createdAt: string };
 
 /** Kalendertag (als Mitternacht UTC gespeichert) in der Schreibweise der Sprache. */
 const tag = (iso: string, lang: PatientLang) => new Date(iso).toLocaleDateString(LOCALES[lang].dateLocale, { timeZone: "UTC" });
-const tagErzeugt = (iso: string, lang: PatientLang) => new Date(iso).toLocaleDateString(LOCALES[lang].dateLocale);
+const tagErzeugt = (iso: string, lang: PatientLang) => datumDE(iso, {}, LOCALES[lang].dateLocale);
 
 async function ruf(url: string, method: string, body?: unknown) {
   const res = await fetch(url, { method, headers: body ? { "Content-Type": "application/json" } : undefined, body: body ? JSON.stringify(body) : undefined }).catch(() => null);

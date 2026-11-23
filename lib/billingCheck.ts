@@ -9,6 +9,7 @@
 
 import { validateFaktor, findExclusionConflicts } from "@/lib/serviceRules";
 import { parseDependsOn } from "@/lib/serviceDependency";
+import { datumDE } from "@/lib/datum";
 
 export type BefundArt = "ohne_doku" | "ohne_rechnung" | "faktor" | "ausschluss" | "frequenz";
 
@@ -59,7 +60,7 @@ export interface CheckInput {
 }
 
 const DAY = 864e5;
-const fmt = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+const fmt = (d: Date) => datumDE(d, { day: "2-digit", month: "2-digit" });
 
 export function billingCheck(i: CheckInput): Befund[] {
   const out: Befund[] = [];

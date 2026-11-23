@@ -11,6 +11,7 @@ import { PatientAuswahl } from "@/components/PatientAuswahl";
 import { aufVerordnung as fachAufVerordnung, fachWoerter } from "@/lib/fachprofile";
 
 import { useAppText } from "@/components/FachKontext";
+import { SYSTEM_LABEL } from "@/lib/katalogBeispiele";
 function formatEuro(cents: number): string {
   return (cents / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 }
@@ -536,7 +537,7 @@ export function ServiceChecklistForm({
                           : badge.tone === "labor"
                             ? { text: "Labor", cls: "text-amber-700", dot: "bg-amber-500" }
                             : { text: item.catalogItem.system === "APO" ? "Apotheke" : "ohne eigene Abrechnung", cls: "text-slate-500", dot: "bg-slate-300" };
-                    const code = item.catalogItem.code !== "–" ? `${item.catalogItem.system} ${item.catalogItem.code}` : null;
+                    const code = item.catalogItem.code !== "–" ? `${SYSTEM_LABEL[item.catalogItem.system] ?? item.catalogItem.system} ${item.catalogItem.code}` : null;
                     const hasFaktor = item.catalogItem.faktorMin != null && item.catalogItem.faktorMax != null;
                     const threshold = item.catalogItem.begruendungspflichtAbFaktor ?? item.catalogItem.regelhoechstfaktor;
                     const faktorNum = entry.faktor.trim() !== "" ? Number(entry.faktor) : null;

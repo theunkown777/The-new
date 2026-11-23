@@ -37,7 +37,7 @@ export function InstallmentSettings({ initial, readOnly = false }: { initial: In
           {ft("Wenn Ihre Praxis Teilzahlung anbietet, etwa über Ihren Abrechnungsdienstleister, erfahren Patienten es direkt beim Eigenanteil. Sie können ihr Interesse mit der Rückmeldung ankreuzen.")}
         </p>
         <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900" data-testid="raten-angehalten">
-          <b>Zurzeit angehalten.</b> {ft("Ab dem 20.11.2026 gelten für Ratenangebote an Patienten die Regeln für Verbraucherkredite, auch wenn die Raten zinsfrei sind (Pflichtangaben, Widerrufsrecht, Prüfung der Kreditwürdigkeit, Warnhinweis in der Werbung). Sorrida zeigt deshalb im Patienten-Link vorerst keine Raten und keinen Hinweis auf Teilzahlung. Besprechen Sie Teilzahlungen bitte persönlich. Ihre Einstellungen unten bleiben gespeichert.")}
+          <b>Zurzeit angehalten.</b> {ft("Seit dem 20.11.2026 gelten für Ratenangebote an Patienten die Regeln für Verbraucherkredite, auch wenn die Raten zinsfrei sind (Pflichtangaben, Widerrufsrecht, Prüfung der Kreditwürdigkeit, Warnhinweis in der Werbung). Sorrida zeigt deshalb im Patienten-Link vorerst keine Raten und keinen Hinweis auf Teilzahlung. Besprechen Sie Teilzahlungen bitte persönlich. Ihre Einstellungen unten bleiben gespeichert.")}
         </p>
       </div>
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}

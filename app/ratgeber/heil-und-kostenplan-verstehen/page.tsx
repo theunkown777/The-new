@@ -80,7 +80,7 @@ export default function Page() {
           <b>„Zahlt meine Zusatzversicherung?“</b> Oft einen Teil des Eigenanteils. Den HKP vor Behandlungsbeginn dort einreichen.
         </li>
         <li>
-          <b>„Kann ich in Raten zahlen?“</b> Ab dem 20.11.2026 gelten dafür die Regeln für Verbraucherkredite, auch bei zinsfreien
+          <b>„Kann ich in Raten zahlen?“</b> Seit dem 20.11.2026 gelten dafür die Regeln für Verbraucherkredite, auch bei zinsfreien
           Raten. Klären Sie Ihr Angebot vorher mit Ihrem Abrechnungsdienstleister.
         </li>
       </ul>

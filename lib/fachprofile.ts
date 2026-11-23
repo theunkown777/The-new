@@ -60,6 +60,8 @@ const arzt = (fach: string, f: Omit<FachProfil, "person" | "einrichtung" | "fach
 
 // Häufige ärztliche Grundpositionen
 const beratung = (f: string) => L(f, "Beratung", "GOAE", "1", "Beratung");
+// GOÄ 3 nur als einzige Leistung oder neben einer Untersuchung nach GOÄ 5, 6, 7, 8, 800 oder 801 (Hinweis zu Nr. 3).
+// Geprüft in lib/fachprofile.test.ts.
 const eingehendeBeratung = (f: string) => L(f, "Eingehende Beratung (mind. 10 Minuten)", "GOAE", "3", "Beratung");
 const symptomUnters = (f: string) => L(f, "Symptombezogene Untersuchung", "GOAE", "5", "Untersuchung");
 const grundpauschale = (f: string) => L(f, "Grundpauschale (fachärztliches Kapitel)", "EBM", "–", "Pauschale");
@@ -80,7 +82,7 @@ export const FACHPROFILE: Record<string, FachProfil> = {
     termine: ["Akutsprechstunde", "Check-up", "Impfung", "Blutabnahme", "Befundbesprechung", "Chronikerkontrolle (DMP)", "Hausbesuch"],
     sitzungstypen: [
       { name: "Akutsprechstunde", description: "Infekt, Schmerzen oder neue Beschwerden", leistungen: [L("hausarzt", "Versichertenpauschale", "EBM", "03000", "Pauschale"), symptomUnters("hausarzt"), beratung("hausarzt"), L("hausarzt", "Arbeitsunfähigkeitsbescheinigung (eAU)", "SONSTIGES", "–", "Bescheinigung")] },
-      { name: "Gesundheitsuntersuchung (Check-up)", description: "Ab 35 alle drei Jahre, einmalig 18–34", leistungen: [L("hausarzt", "Gesundheitsuntersuchung", "EBM", "01732", "Vorsorge"), blutentnahme("hausarzt"), L("hausarzt", "Hautkrebs-Screening zusammen mit Check-up", "EBM", "01746", "Vorsorge"), eingehendeBeratung("hausarzt")] },
+      { name: "Gesundheitsuntersuchung (Check-up)", description: "Ab 35 alle drei Jahre, einmalig 18–34", leistungen: [L("hausarzt", "Gesundheitsuntersuchung", "EBM", "01732", "Vorsorge"), blutentnahme("hausarzt"), L("hausarzt", "Hautkrebs-Screening zusammen mit Check-up", "EBM", "01746", "Vorsorge"), L("hausarzt", "Gesundheitsuntersuchung (Privatpatienten)", "GOAE", "29", "Vorsorge")] },
       { name: "Chronikerkontrolle / DMP", description: "Diabetes, KHK, Asthma, COPD, Hypertonie", leistungen: [L("hausarzt", "Chronikerpauschale", "EBM", "03220", "Pauschale"), L("hausarzt", "DMP-Dokumentation", "SONSTIGES", "–", "Dokumentation"), blutentnahme("hausarzt"), L("hausarzt", "Ruhe-EKG", "GOAE", "651", "Diagnostik")] },
       { name: "Impfsprechstunde", description: "Impfungen nach STIKO, Reiseimpfungen", leistungen: [L("hausarzt", "Schutzimpfung", "GOAE", "375", "Impfung"), L("hausarzt", "Impfberatung", "GOAE", "1", "Beratung"), L("hausarzt", "Impfpass-Eintrag", "SONSTIGES", "–", "Dokumentation")] },
       { name: "Hausbesuch", description: "Besuch bei immobilen Patienten", leistungen: [L("hausarzt", "Hausbesuch", "EBM", "–", "Besuch"), L("hausarzt", "Wegegeld", "EBM", "–", "Besuch"), symptomUnters("hausarzt")] },
@@ -115,7 +117,7 @@ export const FACHPROFILE: Record<string, FachProfil> = {
     sitzungstypen: [
       { name: "Krebsfrüherkennung", description: "Nach Richtlinie, ab 20 jährlich, ab 35 Ko-Test alle drei Jahre", leistungen: [L("gyn", "Krebsfrüherkennungsuntersuchung der Frau", "EBM", "01730", "Vorsorge"), L("gyn", "Zytologischer Abstrich / HPV-Test", "EBM", "–", "Vorsorge"), L("gyn", "Tastuntersuchung der Brust (ab 30)", "EBM", "–", "Vorsorge"), L("gyn", "Vaginaler Ultraschall (auf Wunsch, IGeL)", "GOAE", "–", "Bildgebung")] },
       { name: "Schwangerschaftsvorsorge", description: "Nach Mutterschafts-Richtlinien", leistungen: [L("gyn", "Mutterschaftsvorsorge (Betreuungspauschale)", "EBM", "–", "Vorsorge"), L("gyn", "Ultraschall nach Mutterschafts-Richtlinien", "EBM", "–", "Bildgebung"), blutentnahme("gyn"), L("gyn", "Mutterpass-Eintrag", "SONSTIGES", "–", "Dokumentation")] },
-      { name: "Verhütungsberatung", description: "Pille, Spirale, Implantat", leistungen: [eingehendeBeratung("gyn"), L("gyn", "Einlage eines Intrauterinpessars", "GOAE", "–", "Eingriff"), L("gyn", "Lagekontrolle per Ultraschall", "GOAE", "–", "Bildgebung"), L("gyn", "Rezept (Kasse bis 22. Geburtstag)", "SONSTIGES", "–", "Verordnung")] },
+      { name: "Verhütungsberatung", description: "Pille, Spirale, Implantat", leistungen: [beratung("gyn"), L("gyn", "Einlage eines Intrauterinpessars", "GOAE", "–", "Eingriff"), L("gyn", "Lagekontrolle per Ultraschall", "GOAE", "–", "Bildgebung"), L("gyn", "Rezept (Kasse bis 22. Geburtstag)", "SONSTIGES", "–", "Verordnung")] },
     ],
   }),
   uro: arzt("uro", {
@@ -123,9 +125,9 @@ export const FACHPROFILE: Record<string, FachProfil> = {
     berichtStil: "urologischer Stil mit Miktionsanamnese, Urinbefund, Sonographie und Empfehlung",
     termine: ["Krebsfrüherkennung (Mann)", "Harnwegsinfekt", "Inkontinenz-Sprechstunde", "Nierenstein", "PSA-Kontrolle", "Ultraschall Nieren/Blase", "Befundbesprechung"],
     sitzungstypen: [
-      { name: "Krebsfrüherkennung Mann", description: "Ab 45 jährlich, nur Männer", leistungen: [L("uro", "Krebsfrüherkennungsuntersuchung beim Mann", "EBM", "01731", "Vorsorge"), L("uro", "Tastuntersuchung der Prostata", "EBM", "–", "Vorsorge"), L("uro", "PSA-Test (IGeL ohne Verdacht)", "GOAE", "–", "Labor"), eingehendeBeratung("uro")] },
+      { name: "Krebsfrüherkennung Mann", description: "Ab 45 jährlich, nur Männer", leistungen: [L("uro", "Krebsfrüherkennungsuntersuchung beim Mann", "EBM", "01731", "Vorsorge"), L("uro", "Tastuntersuchung der Prostata", "EBM", "–", "Vorsorge"), L("uro", "PSA-Test (IGeL ohne Verdacht)", "GOAE", "–", "Labor"), beratung("uro")] },
       { name: "Harnwegsinfekt / Blasenbeschwerden", description: "Frauen und Männer", leistungen: [grundpauschale("uro"), L("uro", "Urinstatus und Urinkultur", "SONSTIGES", "–", "Labor"), ultraschall("uro", "von Nieren und Blase"), L("uro", "Restharnbestimmung", "GOAE", "–", "Diagnostik")] },
-      { name: "Inkontinenz-Sprechstunde", description: "Belastungs- und Dranginkontinenz, Frauen und Männer", leistungen: [L("uro", "Miktionstagebuch auswerten", "SONSTIGES", "–", "Diagnostik"), ultraschall("uro", "Blase / Beckenboden"), L("uro", "Verordnung Beckenbodentraining (Heilmittel)", "SONSTIGES", "–", "Verordnung"), eingehendeBeratung("uro")] },
+      { name: "Inkontinenz-Sprechstunde", description: "Belastungs- und Dranginkontinenz, Frauen und Männer", leistungen: [L("uro", "Miktionstagebuch auswerten", "SONSTIGES", "–", "Diagnostik"), ultraschall("uro", "Blase / Beckenboden"), L("uro", "Verordnung Beckenbodentraining (Heilmittel)", "SONSTIGES", "–", "Verordnung"), beratung("uro")] },
       { name: "Nierenstein", description: "Kolik, Kontrolle, Nachsorge", leistungen: [ultraschall("uro", "der Nieren"), L("uro", "Steinanalyse (Einsendung)", "SONSTIGES", "–", "Labor"), beratung("uro")] },
     ],
   }),
@@ -164,7 +166,7 @@ export const FACHPROFILE: Record<string, FachProfil> = {
     berichtStil: "kardiologischer Arztbrief mit EKG, Echokardiographie, Belastungsuntersuchung, Medikation",
     termine: ["Echokardiographie", "Belastungs-EKG", "Langzeit-EKG", "Herzschrittmacher-Kontrolle", "Kontrolle Vorhofflimmern", "Blutdruck-Einstellung", "Befundbesprechung"],
     sitzungstypen: [
-      { name: "Kardiologische Untersuchung", description: "Erstvorstellung oder Kontrolle", leistungen: [grundpauschale("kardio"), L("kardio", "Ruhe-EKG", "GOAE", "651", "Diagnostik"), L("kardio", "Echokardiographie", "GOAE", "–", "Bildgebung"), eingehendeBeratung("kardio")] },
+      { name: "Kardiologische Untersuchung", description: "Erstvorstellung oder Kontrolle", leistungen: [grundpauschale("kardio"), L("kardio", "Ruhe-EKG", "GOAE", "651", "Diagnostik"), L("kardio", "Echokardiographie", "GOAE", "–", "Bildgebung"), L("kardio", "Untersuchung der Brustorgane", "GOAE", "7", "Untersuchung"), beratung("kardio")] },
       { name: "Belastungsuntersuchung", description: "Ergometrie", leistungen: [L("kardio", "Belastungs-EKG", "GOAE", "652", "Diagnostik"), L("kardio", "Blutdruck unter Belastung", "SONSTIGES", "–", "Diagnostik"), beratung("kardio")] },
       { name: "Rhythmus und Geräte", description: "Langzeit-EKG, Schrittmacher-/ICD-Kontrolle", leistungen: [L("kardio", "Langzeit-EKG (Anlage und Auswertung)", "GOAE", "–", "Diagnostik"), L("kardio", "Schrittmacher-/ICD-Abfrage", "GOAE", "–", "Diagnostik"), L("kardio", "Langzeit-Blutdruckmessung", "GOAE", "–", "Diagnostik")] },
     ],
@@ -176,7 +178,7 @@ export const FACHPROFILE: Record<string, FachProfil> = {
     sitzungstypen: [
       { name: "MRT", description: "Auf Überweisung oder Wunsch", leistungen: [L("radiologie", "MRT (Region)", "EBM", "–", "Bildgebung", true), L("radiologie", "Kontrastmittelgabe", "SONSTIGES", "–", "Bildgebung"), L("radiologie", "Befundung und Bericht", "SONSTIGES", "–", "Befund")] },
       { name: "CT oder Röntgen", description: "Auf Überweisung", leistungen: [L("radiologie", "CT (Region)", "EBM", "–", "Bildgebung", true), L("radiologie", "Röntgen (Region)", "EBM", "–", "Bildgebung", true), L("radiologie", "Befundung und Bericht", "SONSTIGES", "–", "Befund")] },
-      { name: "Knochendichtemessung", description: "DXA, Kasse bei Fraktur ohne Trauma bzw. Verdacht, sonst IGeL; ohne Krankheitszeichen und konkreten Verdacht Früherkennung, nicht zulässig (§ 84 Abs. 1 StrlSchG)", leistungen: [L("radiologie", "Osteodensitometrie (DXA)", "GOAE", "–", "Bildgebung"), beratung("radiologie")] },
+      { name: "Knochendichtemessung", description: "DXA: Kassenleistung nach Knochenbruch ohne passenden Unfall bei Verdacht auf Osteoporose oder vor geplanter Behandlung. Selbst zahlen nur mit ärztlichem Grund. Ohne Anzeichen nicht als Früherkennung (§ 84 StrlSchG).", leistungen: [L("radiologie", "Osteodensitometrie (DXA)", "GOAE", "–", "Bildgebung"), beratung("radiologie")] },
     ],
   }),
   neuro: arzt("neuro", {
@@ -204,7 +206,7 @@ export const FACHPROFILE: Record<string, FachProfil> = {
     berichtStil: "gastroenterologischer Stil mit Endoskopiebefund und Histologie",
     termine: ["Darmkrebsvorsorge", "Magenspiegelung", "Ultraschall Bauch", "Atemtest", "Befundbesprechung"],
     sitzungstypen: [
-      { name: "Vorsorge-Koloskopie", description: "Ab 50 (Männer) bzw. 55 (Frauen) Kassenleistung", leistungen: [L("gastro", "Früherkennungs-Koloskopie", "EBM", "–", "Vorsorge"), L("gastro", "Polypabtragung", "EBM", "–", "Eingriff"), L("gastro", "Sedierung", "SONSTIGES", "–", "Eingriff"), L("gastro", "Histologie (Einsendung)", "SONSTIGES", "–", "Labor")] },
+      { name: "Vorsorge-Koloskopie", description: "Kassenleistung ab 50 für Frauen und Männer, höchstens zweimal im Abstand von 10 Jahren", leistungen: [L("gastro", "Früherkennungs-Koloskopie", "EBM", "–", "Vorsorge"), L("gastro", "Polypabtragung", "EBM", "–", "Eingriff"), L("gastro", "Sedierung", "SONSTIGES", "–", "Eingriff"), L("gastro", "Histologie (Einsendung)", "SONSTIGES", "–", "Labor")] },
       { name: "Gastroskopie", description: "Magenspiegelung", leistungen: [L("gastro", "Ösophagogastroduodenoskopie", "EBM", "–", "Endoskopie"), L("gastro", "Helicobacter-Test", "SONSTIGES", "–", "Labor"), L("gastro", "Sedierung", "SONSTIGES", "–", "Eingriff")] },
       { name: "Gastroenterologische Sprechstunde", description: "Bauchbeschwerden, Leber", leistungen: [grundpauschale("gastro"), L("gastro", "Untersuchung der Bauchorgane", "GOAE", "7", "Untersuchung"), ultraschall("gastro", "des Abdomens"), L("gastro", "H2-Atemtest", "GOAE", "–", "Diagnostik")] },
     ],
@@ -254,7 +256,7 @@ export const FACHPROFILE: Record<string, FachProfil> = {
     berichtStil: "physiotherapeutischer Therapiebericht an die verordnende Ärztin: Befund, Ziele, Maßnahmen, Verlauf",
     termine: ["Krankengymnastik", "Manuelle Therapie", "Lymphdrainage", "KG am Gerät", "Befundaufnahme", "Hausbesuch", "Präventionskurs"],
     sitzungstypen: [
-      { name: "Krankengymnastik", description: "Heilmittel auf Verordnung", leistungen: [L("physio", "Krankengymnastik (KG)", "HEILMITTEL", "–", "Heilmittel", true), L("physio", "Wärmetherapie (ergänzend)", "HEILMITTEL", "–", "Heilmittel", true), L("physio", "Zuzahlung erhoben (10 % + 10 € je Verordnung)", "SONSTIGES", "–", "Zuzahlung")] },
+      { name: "Krankengymnastik", description: "Heilmittel auf Verordnung", leistungen: [L("physio", "Krankengymnastik (KG)", "HEILMITTEL", "–", "Heilmittel", true), L("physio", "Wärmetherapie (ergänzend)", "HEILMITTEL", "–", "Heilmittel", true), L("physio", "Gesetzliche Zuzahlung erhoben", "SONSTIGES", "–", "Zuzahlung")] },
       { name: "Manuelle Therapie", description: "Qualifikation MT nötig", leistungen: [L("physio", "Manuelle Therapie (MT)", "HEILMITTEL", "–", "Heilmittel", true), L("physio", "Befund und Verlauf dokumentiert", "SONSTIGES", "–", "Dokumentation")] },
       { name: "Manuelle Lymphdrainage", description: "MLD 30, 45 oder 60 Minuten", leistungen: [L("physio", "Manuelle Lymphdrainage (MLD)", "HEILMITTEL", "–", "Heilmittel", true), L("physio", "Kompressionsbandagierung", "HEILMITTEL", "–", "Heilmittel", true)] },
       { name: "Privat / Selbstzahler", description: "Osteopathie, Training, Prävention", leistungen: [L("physio", "Osteopathische Behandlung", "SELBST", "–", "Selbstzahler", true), L("physio", "Gerätegestütztes Training", "SELBST", "–", "Selbstzahler"), L("physio", "Präventionskurs nach § 20 SGB V (Kasse bezuschusst)", "SELBST", "–", "Prävention")] },
@@ -357,7 +359,7 @@ export const FACHPROFILE: Record<string, FachProfil> = {
     berichtStil: "Versorgungsdokumentation mit Maßen, Produkt, Hilfsmittelnummer und Einweisung",
     termine: ["Einlagenversorgung", "Kompression anmessen", "Bandage / Orthese", "Rollator / Rollstuhl", "Brustprothetik", "Stoma- und Inkontinenzversorgung", "Hausbesuch"],
     sitzungstypen: [
-      { name: "Einlagenversorgung", description: "Fußabdruck/Scan, Fertigung, Anprobe", leistungen: [L("sanitaetshaus", "Fußdruckmessung / Scan", "HILFSMITTEL", "–", "Messung", true), L("sanitaetshaus", "Orthopädische Einlagen", "HILFSMITTEL", "–", "Versorgung", true), L("sanitaetshaus", "Zuzahlung (10 %, 5–10 €)", "SONSTIGES", "–", "Zuzahlung")] },
+      { name: "Einlagenversorgung", description: "Fußabdruck/Scan, Fertigung, Anprobe", leistungen: [L("sanitaetshaus", "Fußdruckmessung / Scan", "HILFSMITTEL", "–", "Messung", true), L("sanitaetshaus", "Orthopädische Einlagen", "HILFSMITTEL", "–", "Versorgung", true), L("sanitaetshaus", "Gesetzliche Zuzahlung", "SONSTIGES", "–", "Zuzahlung")] },
       { name: "Kompressionsversorgung", description: "Rundstrick oder Flachstrick nach Maß", leistungen: [L("sanitaetshaus", "Anmessen", "HILFSMITTEL", "–", "Messung", true), L("sanitaetshaus", "Kompressionsstrümpfe", "HILFSMITTEL", "–", "Versorgung", true), L("sanitaetshaus", "An- und Ausziehhilfe", "HILFSMITTEL", "–", "Versorgung")] },
       { name: "Mobilität und Pflegehilfsmittel", description: "Rollator, Rollstuhl, Pflegebett", leistungen: [L("sanitaetshaus", "Bedarfsermittlung", "HILFSMITTEL", "–", "Beratung"), L("sanitaetshaus", "Auslieferung und Einweisung", "HILFSMITTEL", "–", "Versorgung"), L("sanitaetshaus", "Mehrkostenerklärung bei Wunschausführung", "SONSTIGES", "–", "Dokumentation")] },
     ],

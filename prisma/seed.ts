@@ -555,6 +555,17 @@ async function main() {
   console.log(`Vorlagen: ${TEMPLATES.length}.`);
 
   // Sitzungstypen der übrigen Fächer aus lib/fachprofile.ts
+  // Umbenannte Katalogeinträge: der Seed findet Einträge über den Titel. Ohne Umbenennen entstünde ein zweiter
+  // Eintrag, und der alte Titel (z. B. mit dem Betrag von 2026) bliebe in bestehenden Datenbanken stehen.
+  const FACH_UMBENANNT: { fach: string; system: "SONSTIGES"; code: string; alt: string; neu: string }[] = [
+    { fach: "physio", system: "SONSTIGES", code: "–", alt: "Zuzahlung erhoben (10 % + 10 € je Verordnung)", neu: "Gesetzliche Zuzahlung erhoben" },
+    { fach: "sanitaetshaus", system: "SONSTIGES", code: "–", alt: "Zuzahlung (10 %, 5–10 €)", neu: "Gesetzliche Zuzahlung" },
+  ];
+  for (const u of FACH_UMBENANNT) {
+    const alt = await prisma.serviceCatalogItem.findFirst({ where: { practiceId: null, fach: u.fach, system: u.system, code: u.code, title: u.alt } });
+    const neu = await prisma.serviceCatalogItem.findFirst({ where: { practiceId: null, fach: u.fach, system: u.system, code: u.code, title: u.neu } });
+    if (alt && !neu) await prisma.serviceCatalogItem.update({ where: { id: alt.id }, data: { title: u.neu } });
+  }
   let fachVorlagen = 0;
   for (const [fach, profil] of Object.entries(FACHPROFILE)) {
     for (const st of profil.sitzungstypen) {
@@ -562,6 +573,7 @@ async function main() {
       template = template
         ? await prisma.serviceTemplate.update({ where: { id: template.id }, data: { description: st.description } })
         : await prisma.serviceTemplate.create({ data: { practiceId: null, fach, name: st.name, description: st.description } });
+      const behalten: string[] = [];
       for (let i = 0; i < st.leistungen.length; i++) {
         const l = st.leistungen[i];
         const faktor = l.system === "GOAE" ? STANDARD_FAKTOR : {};
@@ -574,7 +586,11 @@ async function main() {
           update: { position: i },
           create: { templateId: template.id, catalogItemId: item.id, position: i },
         });
+        behalten.push(item.id);
       }
+      // Positionen, die nicht mehr in der Vorlage stehen (z. B. GOÄ 3 neben nicht erlaubten Leistungen), entfernen.
+      // Globale Vorlagen sind für Praxen schreibgeschützt; eigene Vorlagen der Praxen bleiben unberührt.
+      await prisma.serviceTemplateItem.deleteMany({ where: { templateId: template.id, catalogItemId: { notIn: behalten } } });
       fachVorlagen++;
     }
   }

@@ -22,6 +22,7 @@ import festzuschuss2027Datei from "@/data/festzuschuss-2027.json";
 export { FINDINGS, GLOBAL_FINDINGS, UPPER_TEETH, LOWER_TEETH, isValidTooth } from "@/lib/dentalFindings";
 export type { FindingCode, GlobalCode } from "@/lib/dentalFindings";
 import { FINDINGS, GLOBAL_FINDINGS, UPPER_TEETH, LOWER_TEETH, type FindingCode, type GlobalCode } from "@/lib/dentalFindings";
+import { datumDE } from "@/lib/datum";
 const ALL_TEETH = [...UPPER_TEETH, ...LOWER_TEETH];
 
 export const PRICE_DEFS = [
@@ -874,7 +875,7 @@ export function buildLetter(args: {
   const behandelt = abschlussWort(args.fach) === "Behandlung";
   const L: string[] = [];
   L.push(`${practiceName}: ${ft("Ihr persönlicher Behandlungsvorschlag")}`);
-  L.push(`Datum: ${date.toLocaleDateString("de-DE")}`);
+  L.push(`Datum: ${datumDE(date)}`);
   L.push("");
   L.push(patientName.trim() ? `Guten Tag ${patientName},` : "Guten Tag,");
   L.push("");

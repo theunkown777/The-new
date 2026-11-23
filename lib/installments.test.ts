@@ -20,7 +20,7 @@ describe("Ratenzahlung", () => {
   });
 });
 
-describe("Ratenanzeige angehalten (Verbraucherkreditrecht ab 20.11.2026)", () => {
+describe("Ratenanzeige angehalten (Verbraucherkreditrecht seit 20.11.2026)", () => {
   it("zeigt in der Voreinstellung weder Rate noch Hinweis auf Teilzahlung", () => {
     const an = { enabled: true, months: 12, zinsfrei: true, minEur: 300 };
     expect(installmentOffer(2088, an)).toEqual({ kind: "none" });

@@ -1,6 +1,7 @@
 import { anrede } from "@/lib/ohneAkte";
 import { z } from "zod";
 import { BETRAG_HINWEIS } from "@/lib/betragEingabe";
+import { datumDE } from "@/lib/datum";
 
 // Rechnungen und Zahlungen: Die Praxis stellt den Eigenanteil in Rechnung,
 // der Patient sieht ihn im Patientenportal und überweist per GiroCode
@@ -177,7 +178,7 @@ export const nextReminderLevel = (level: number) => Math.min(3, Math.max(0, leve
  */
 export function reminderText(a: { level: number; firstName: string; practiceName: string; number: string; amountCent: number; dueDate: Date; url: string }): string {
   const betrag = formatCent(a.amountCent);
-  const bis = a.dueDate.toLocaleDateString("de-DE");
+  const bis = datumDE(a.dueDate);
   if (a.level <= 1) {
     return `${anrede("Hallo", a.firstName)}, eine freundliche Erinnerung von ${a.practiceName}: Die Rechnung ${a.number} über ${betrag} ist am ${bis} fällig. Sie können bequem per GiroCode zahlen: ${a.url}`;
   }

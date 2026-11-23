@@ -41,4 +41,44 @@ describe("Fachprofile", () => {
     expect(passtZuPerson({ abAlter: 45 }, { alter: 30 })).toBe(false);
     expect(passtZuPerson({ bisAlter: 21 }, { alter: 30 })).toBe(false);
   });
+
+  // Hinweis zu GOÄ Nr. 3: nur als einzige Leistung oder neben einer Untersuchung nach Nr. 5, 6, 7, 8, 800 oder 801.
+  // EBM und Sonstiges stehen in gemischten Vorlagen für Kassenpatienten und zählen hier nicht mit.
+  it("GOÄ 3 steht nur neben erlaubten GOÄ-Untersuchungen", () => {
+    const erlaubt = new Set(["3", "5", "6", "7", "8", "800", "801"]);
+    for (const [id, p] of Object.entries(FACHPROFILE))
+      for (const st of p.sitzungstypen) {
+        const goae = st.leistungen.filter((l) => l.system === "GOAE");
+        if (!goae.some((l) => l.code === "3")) continue;
+        const andere = goae.filter((l) => !erlaubt.has(l.code)).map((l) => `${l.code} ${l.title}`);
+        expect(andere, `${id}: ${st.name}`).toEqual([]);
+      }
+  });
+
+  it("Check-up hat für Privatpatienten die Gesundheitsuntersuchung nach GOÄ 29", () => {
+    const checkup = FACHPROFILE.hausarzt.sitzungstypen.find((s) => s.name.startsWith("Gesundheitsuntersuchung"));
+    expect(checkup?.leistungen.some((l) => l.system === "GOAE" && l.code === "29")).toBe(true);
+  });
+
+  // Beträge ändern sich mit dem Jahr (ab 1.1.2027 höher). Den Betrag rechnet lib/proposals.ts nach Datum.
+  it("Vorlagen nennen keine festen Zuzahlungsbeträge", () => {
+    for (const [id, p] of Object.entries(FACHPROFILE))
+      for (const st of p.sitzungstypen)
+        for (const text of [st.name, st.description, ...st.leistungen.map((l) => l.title)])
+          if (/zuzahlung/i.test(text)) expect(text, `${id}: ${st.name}`).not.toMatch(/\d\s*(€|%)/);
+  });
+
+  it("Vorsorge-Koloskopie: Kasse ab 50 für Frauen und Männer", () => {
+    const kolo = FACHPROFILE.gastro.sitzungstypen.find((s) => s.name === "Vorsorge-Koloskopie");
+    expect(kolo?.description).toMatch(/ab 50 für Frauen und Männer/);
+    expect(kolo?.description).not.toMatch(/55/);
+  });
+
+  it("Leistungstexte der Fächer nennen keine festen Zuzahlungsbeträge", () => {
+    for (const sp of ALLE_SPECIALTIES)
+      for (const a of sp.anlaesse)
+        for (const o of a.options)
+          for (const text of [o.name, ...o.benefits])
+            if (/zuzahlung/i.test(text)) expect(text, `${sp.id}: ${o.id}`).not.toMatch(/\d\s*€/);
+  });
 });

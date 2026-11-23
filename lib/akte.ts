@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { datumDE } from "@/lib/datum";
 
 // Patientenakte in Sorrida: strukturierte Einträge (Allergien, Diagnosen,
 // Befunde, Medikation, Notizen) und Dokumente. Ergänzt die Akte der
@@ -84,7 +85,7 @@ export interface Briefing {
   zeilen: { label: string; text: string }[];
 }
 
-const fmt = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+const fmt = (d: Date) => datumDE(d, { day: "2-digit", month: "2-digit", year: "numeric" });
 
 /**
  * Überblick für die Minute vor dem Termin, nach festen Regeln aus der Akte.

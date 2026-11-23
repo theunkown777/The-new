@@ -165,7 +165,7 @@ export function CatalogSettings({ readOnly = false, systeme, regionLabel, beispi
             {categoryItems.map((item) => {
               const row = rows[item.id];
               if (!row) return null;
-              const ref = item.code !== "–" ? `${item.system} ${item.code}` : item.system;
+              const ref = item.code !== "–" ? `${SYSTEM_LABEL[item.system] ?? item.system} ${item.code}` : SYSTEM_LABEL[item.system] ?? item.system;
               return (
                 <div key={item.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                   <div className="w-full sm:min-w-[220px] sm:w-auto sm:flex-1">

@@ -27,6 +27,7 @@ import { darfAufGeraetMerken } from "@/lib/meinePraxenSchutz";
 import { PraxisKennzeile, PraxisStreifen } from "@/components/PraxisKennung";
 import { PraxisMerken } from "@/components/PraxisMerken";
 import { PortalUngueltig } from "@/components/PortalUngueltig";
+import { datumDE } from "@/lib/datum";
 
 export const dynamic = "force-dynamic";
 // Tab-Titel, Titel der Web-App auf dem iPhone und Symbol tragen Praxisname und Gruppe (lib/praxisKennung.ts), damit
@@ -98,7 +99,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
   const t = lang === "de" ? mitFachWoertern(PORTAL_UI.de, patient.practice.specialty) : PORTAL_UI[lang];
   const kt = kurzUebersetzer(kurzPaket(lang, { fach: patient.practice.specialty })).t;
   const locale = PORTAL_LOCALE[lang];
-  const date = (d: Date) => d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
+  const date = (d: Date) => datumDE(d, { day: "2-digit", month: "2-digit", year: "numeric" }, locale);
   const money = (c: number) => (c / 100).toLocaleString(locale, { style: "currency", currency: "EUR" });
   const { practice } = patient;
   const kennung = praxisKennzeichen(practice);
@@ -137,7 +138,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
         wantsInstallments: i.wantsInstallments,
         reference,
         qr,
-        due: [String(i.dueDate.getDate()), i.dueDate.toLocaleDateString(locale, { month: "short" })] as [string, string],
+        due: [datumDE(i.dueDate, { day: "numeric" }, locale), datumDE(i.dueDate, { month: "short" }, locale)] as [string, string],
         sepa: !!i.sepaMandatAt,
         online: onlineAktiv && !!practice.stripeAccountId && i.amountCent > 0,
         mandat: practice.glaeubigerId && patient.birthDate && i.status === "OFFEN" && !i.sepaExportedAt ? mandatsText(practice.accountHolder || practice.name, practice.glaeubigerId, mandatsReferenz(i.number)) : null,

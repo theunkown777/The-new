@@ -7,6 +7,7 @@ import { REPORT_TYPE_LABELS } from "@/lib/reportLabels";
 import { estimateAmountCent, kassenLabel } from "@/lib/billing";
 
 import { useAppText } from "@/components/FachKontext";
+import { SYSTEM_LABEL } from "@/lib/katalogBeispiele";
 function formatEuro(cents: number): string {
   return (cents / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 }
@@ -303,8 +304,8 @@ export function ReportEditor({
           {report.serviceEntries.map((entry) => {
             const ref =
               entry.catalogItem.code !== "–"
-                ? `${entry.catalogItem.system} ${entry.catalogItem.code}`
-                : entry.catalogItem.system;
+                ? `${SYSTEM_LABEL[entry.catalogItem.system] ?? entry.catalogItem.system} ${entry.catalogItem.code}`
+                : SYSTEM_LABEL[entry.catalogItem.system] ?? entry.catalogItem.system;
             const badge = kassenLabel(entry.catalogItem.system);
             const badgeClass =
               badge.tone === "gkv"

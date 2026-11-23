@@ -918,7 +918,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Hörgeräteversorgung",
         bereich: "Hörgeräte",
         options: [
-          { id: "hg_kasse", name: "Hörgerät ohne Aufzahlung (je Ohr)", type: "kasse", price: 750, zuzahlung: "hilfsmittel", benefits: ["Kassenversorgung ohne Aufzahlung", "gesetzliche Zuzahlung 10 €"] },
+          { id: "hg_kasse", name: "Hörgerät ohne Aufzahlung (je Ohr)", type: "kasse", price: 750, zuzahlung: "hilfsmittel", benefits: ["Kassenversorgung ohne Aufzahlung", "gesetzliche Zuzahlung"] },
           { id: "hg_plus", name: "Höherwertiges Hörgerät (je Ohr)", type: "igel", price: 1650, kasseAnteil: 750, zuzahlung: "hilfsmittel", benefits: ["z. B. Akku, Bluetooth, weitere Hörprogramme"] },
         ],
         notes: ["Ein aufzahlungsfreies Gerät muss immer angeboten werden; die Mehrkosten eines anderen Geräts tragen Sie nur, wenn Sie es ausdrücklich wählen."],
@@ -1030,7 +1030,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Stationärer Aufenthalt",
         bereich: "Aufnahme",
         options: [
-          { id: "allgemein", name: "Allgemeine Krankenhausleistung", type: "kasse", price: 0, benefits: ["Kassenleistung: allgemeine Krankenhausleistungen nach § 2 Abs. 2 KHEntgG", "gesetzliche Zuzahlung 10 € pro Tag, höchstens 28 Tage im Jahr"] },
+          { id: "allgemein", name: "Allgemeine Krankenhausleistung", type: "kasse", price: 0, benefits: ["Kassenleistung: allgemeine Krankenhausleistungen nach § 2 Abs. 2 KHEntgG", "gesetzliche Zuzahlung je Tag, höchstens 28 Tage im Jahr"] },
           { id: "zweibett", zusatz: true, name: "Zweibettzimmer (je Tag)", type: "igel", price: 60, benefits: ["Zimmer mit zwei Betten"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen." },
           { id: "einbett", zusatz: true, name: "Einbettzimmer (je Tag)", type: "igel", price: 110, benefits: ["eigenes Zimmer"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen." },
           { id: "wahlarzt", zusatz: true, name: "Wahlärztliche Behandlung (geschätzt für den Aufenthalt)", type: "igel", price: 800, benefits: ["Behandlung durch die leitenden Ärztinnen und Ärzte"], kasseWenn: "Manche privaten Zusatzversicherungen übernehmen das. Bitte vorher dort fragen.", nutzen: "§ 2 Abs. 2 Satz 1 KHEntgG: „Allgemeine Krankenhausleistungen sind die Krankenhausleistungen, die unter Berücksichtigung der Leistungsfähigkeit des Krankenhauses im Einzelfall nach Art und Schwere der Krankheit für die medizinisch zweckmäßige und ausreichende Versorgung des Patienten notwendig sind.“ § 17 Abs. 1 Satz 1 KHEntgG: „Neben den Entgelten für die voll- und teilstationäre Behandlung dürfen andere als die allgemeinen Krankenhausleistungen als Wahlleistungen gesondert berechnet werden, wenn die allgemeinen Krankenhausleistungen durch die Wahlleistungen nicht beeinträchtigt werden und die gesonderte Berechnung mit dem Krankenhaus vereinbart ist.“", nutzenQuelle: [{ name: "§ 2 Abs. 2 Satz 1 KHEntgG", url: "https://www.gesetze-im-internet.de/khentgg/__2.html", stand: NUTZEN_STAND }, { name: "§ 17 Abs. 1 Satz 1 KHEntgG", url: "https://www.gesetze-im-internet.de/khentgg/__17.html", stand: NUTZEN_STAND }] },

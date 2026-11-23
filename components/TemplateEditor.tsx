@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Haken } from "@/components/Haken";
 import { useEffect, useMemo, useState } from "react";
+import { SYSTEM_LABEL } from "@/lib/katalogBeispiele";
 
 type CatalogItem = {
   id: string;
@@ -179,7 +180,7 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
                 <div className="min-w-[220px] flex-1">
                   <div className="text-sm font-medium text-slate-900">{item.catalogItem.title}</div>
                   <div className="text-xs text-slate-500">
-                    {item.catalogItem.code !== "–" ? `${item.catalogItem.system} ${item.catalogItem.code}` : item.catalogItem.system}
+                    {item.catalogItem.code !== "–" ? `${SYSTEM_LABEL[item.catalogItem.system] ?? item.catalogItem.system} ${item.catalogItem.code}` : SYSTEM_LABEL[item.catalogItem.system] ?? item.catalogItem.system}
                     {" · "}
                     {item.catalogItem.category}
                   </div>
@@ -239,7 +240,7 @@ export function TemplateEditor({ templateId, readOnly = false }: { templateId: s
               <option value="">Katalogposition wählen…</option>
               {availableCatalog.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.category} – {c.title} ({c.code !== "–" ? `${c.system} ${c.code}` : c.system})
+                  {c.category} – {c.title} ({c.code !== "–" ? `${SYSTEM_LABEL[c.system] ?? c.system} ${c.code}` : SYSTEM_LABEL[c.system] ?? c.system})
                 </option>
               ))}
             </select>
