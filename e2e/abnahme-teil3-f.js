@@ -100,7 +100,7 @@ lauf('F Neupatienten-Buchung', async (b) => {
   const zeile = p.getByTestId('terminanfrage').filter({ hasText: 'Neupatientin' });
   await zeile.getByTestId('terminanfrage-bestaetigen').click(); await p.getByTestId('terminanfrage-erledigt').waitFor({ timeout: 10000 });
   const erl = await p.getByTestId('terminanfrage-erledigt').innerText();
-  pruef('Bestätigen: Meldung mit Text zum Weitergeben', /bestätigt, Patient neu angelegt/.test(erl) && (await p.getByTestId('terminanfrage-text').innerText()).length > 30, erl.split('\n')[0]);
+  pruef('Bestätigen: Meldung mit Text zum Weitergeben', /bestätigt, Akte neu angelegt/.test(erl) && (await p.getByTestId('terminanfrage-text').innerText()).length > 30, erl.split('\n')[0]);
   const neu = sql(`select p.id||'|'||a.quelle||'|'||to_char(a.start,'YYYY-MM-DD') from "Patient" p join "Appointment" a on a."patientId"=p.id where p."practiceId"='${pr}' and p."lastName"='Neupatientin'`).split('|');
   pruef('Patient und Termin sind entstanden (Quelle NEU)', neu.length === 3 && neu[1] === 'NEU', neu.join(' · '));
   const einw = sql(`select count(*) from "Patient" where "practiceId"='${pr}' and "lastName"='Neupatientin' and ("contactConsentAt" is not null or "whatsappConsentAt" is not null)`);

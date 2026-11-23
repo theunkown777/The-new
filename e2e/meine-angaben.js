@@ -29,9 +29,9 @@ const token = () => crypto.randomBytes(32).toString('hex');
 const hash = (t) => crypto.createHash('sha256').update(t).digest('hex');
 const q = (s) => s.replace(/'/g, "''");
 const zwei = (n) => String(n).padStart(2, '0');
-const jetzt = new Date();
-const HEUTE_ISO = `${jetzt.getFullYear()}-${zwei(jetzt.getMonth() + 1)}-${zwei(jetzt.getDate())}`;
-const HEUTE = `${zwei(jetzt.getDate())}.${zwei(jetzt.getMonth() + 1)}.${jetzt.getFullYear()}`;
+// „Heute“ in deutscher Zeit wie in der App, nicht in der Zeitzone der Maschine.
+const HEUTE_ISO = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+const HEUTE = HEUTE_ISO.split('-').reverse().join('.');
 const PRAXIS_A = 'Zahnarztpraxis Dr. Sonnenberg (Demo)';
 
 // Antworten im Bogen von A: Ja mit Ergänzung, Ja ohne Ergänzung, sonst Nein.

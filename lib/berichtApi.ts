@@ -36,16 +36,34 @@ export const generateReportSchema = z.object({
  * Fach für den Bericht, in dieser Reihenfolge (openapi.yaml):
  * 1. `fach` im Aufruf,
  * 2. die Fachrichtung, für die der Schlüssel ausgestellt ist (ApiClient.fach; ein Schlüssel gehört zu keiner Praxis),
- * 3. Zahnmedizin nur, wenn die Einträge zahnärztliche Verzeichnisse nennen (GOZ, BEMA),
- * 4. sonst neutral "andere". Zahnmedizin ist nie der stille Standard.
+ * 3. Zahnmedizin nur, wenn die Einträge zahnärztliche Verzeichnisse nennen (GOZ, BEMA, BEL II, gleich in welcher
+ *    Schreibweise) oder Zähne angeben (toothNumbers),
+ * 4. sonst neutral "andere" mit eigenem, fachneutralem Berichtsstil. Zahnmedizin ist nie der stille Standard.
  */
 export function berichtFachFuerApi(
   fach: string | null | undefined,
   schluesselFach: string | null | undefined,
-  entries: { system: string }[],
+  entries: { system: string; toothNumbers?: string | null }[],
 ): string {
   if (fach) return fach;
   if (schluesselFach && (SPECIALTY_IDS as readonly string[]).includes(schluesselFach)) return schluesselFach;
-  if (entries.some((e) => e.system === "GOZ" || e.system === "BEMA")) return DENTAL_ID;
+  if (entries.some((e) => ZAHN_VERZEICHNISSE.has(verzeichnis(e.system)) || !!e.toothNumbers?.trim())) return DENTAL_ID;
   return "andere";
+}
+
+/** Verzeichnis ohne Groß- und Kleinschreibung, Leerzeichen, Binde- und Unterstriche: "bel ii", "BEL_II" und "Bel-II" sind gleich. */
+const verzeichnis = (system: string): string => system.toUpperCase().replace(/[\s_-]/g, "");
+const ZAHN_VERZEICHNISSE = new Set(["GOZ", "BEMA", "BELII"]);
+
+/**
+ * Fach für GET /api/v1/catalog: ?fach= vor dem Fach des Schlüssels; ohne beides null (alle Fächer).
+ * Ein unbekanntes ?fach= ist ein Fehler, ein unbekanntes Fach am Schlüssel zählt nicht.
+ */
+export function katalogFachFuerApi(
+  param: string | null | undefined,
+  schluesselFach: string | null | undefined,
+): { ok: true; fach: string | null } | { ok: false } {
+  const bekannt = (f: string) => (SPECIALTY_IDS as readonly string[]).includes(f) && f !== "andere";
+  if (param) return bekannt(param) ? { ok: true, fach: param } : { ok: false };
+  return { ok: true, fach: schluesselFach && bekannt(schluesselFach) ? schluesselFach : null };
 }

@@ -147,8 +147,8 @@ export function hasTranslation(text: string, lang: PatientLang = "en"): boolean 
 /** Betrag in Euro, gerundet, in der Schreibweise der Sprache (immer lateinische Ziffern). */
 export const euro = (n: number, lang: PatientLang) => LOCALES[lang].euro(n);
 
-/** Datum (z. B. „gültig bis“) in der Schreibweise der Sprache. */
-export const datum = (d: Date | string, lang: PatientLang) => new Date(d).toLocaleDateString(LOCALES[lang].dateLocale);
+/** Datum in deutscher Zeit: Server und Browser zeigen denselben Tag, auch kurz nach Mitternacht. */
+export const datum = (d: Date | string, lang: PatientLang) => new Date(d).toLocaleDateString(LOCALES[lang].dateLocale, { timeZone: "Europe/Berlin" });
 
 /**
  * Vormerkung der Praxis je Position für die Kontrolle im Patientenvorschlag: nur was die Praxis im
