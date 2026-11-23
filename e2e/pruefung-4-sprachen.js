@@ -1,5 +1,5 @@
-const { chromium, devices } = require('playwright'); const { L, D, abbruch } = require('./gemeinsam');
-let ok = 0, fehl = 0; const pruef = (n, b, i = '') => { console.log(`${b ? 'OK  ' : 'FEHL'} ${n}${i ? ' — ' + i : ''}`); b ? ok++ : fehl++; };
+const { chromium, devices } = require('playwright'); const { L, D, abbruch, eineZeile } = require('./gemeinsam');
+let ok = 0, fehl = 0; const pruef = (n, b, i = '') => { console.log(`${b ? 'OK  ' : 'FEHL'} ${n}${i ? ' — ' + eineZeile(i) : ''}`); b ? ok++ : fehl++; };
 (async () => { const b = await chromium.launch(); const ip = '10.75.' + Math.floor(Math.random() * 250) + '.9';
   const c = await b.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE', timezoneId: 'Europe/Berlin', extraHTTPHeaders: { 'x-forwarded-for': ip } }); const p = await c.newPage();
   await p.goto(L + '/demo?fach=zahn'); await p.getByRole('button', { name: 'Demo-Praxis öffnen' }).click(); await p.waitForURL('**/dashboard', { timeout: 120000 });

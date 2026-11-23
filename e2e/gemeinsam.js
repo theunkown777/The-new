@@ -37,7 +37,9 @@ const sql = (q) => {
 };
 
 let ok = 0, fehl = 0;
-const pruef = (n, b, x = '') => { console.log(`${b ? 'OK  ' : 'FEHL'} ${n}${x ? ' — ' + x : ''}`); b ? ok++ : fehl++; return b; };
+/** Eine Zeile je Prüfung: mehrzeilige Seitentexte in der Angabe werden mit „ · “ verbunden, damit das Protokoll lesbar bleibt. */
+const eineZeile = (x) => String(x).trim().replace(/\s*\n+\s*/g, ' · ');
+const pruef = (n, b, x = '') => { console.log(`${b ? 'OK  ' : 'FEHL'} ${n}${x ? ' — ' + eineZeile(x) : ''}`); b ? ok++ : fehl++; return b; };
 const stand = () => ({ ok, fehl });
 
 const IP = process.env.E2E_IP === 'aus' ? null : process.env.E2E_IP || `10.${60 + Math.floor(Math.random() * 30)}.${Math.floor(Math.random() * 250)}.${1 + Math.floor(Math.random() * 250)}`;
@@ -45,10 +47,18 @@ const kopf = IP ? { extraHTTPHeaders: { 'x-forwarded-for': IP } } : {};
 const KONTEXT = { viewport: { width: 1280, height: 900 }, locale: 'de-DE', timezoneId: 'Europe/Berlin', deviceScaleFactor: 1, ...kopf };
 const HANDY = { viewport: { width: 390, height: 844 }, locale: 'de-DE', timezoneId: 'Europe/Berlin', deviceScaleFactor: 1, isMobile: true, hasTouch: true, ...kopf };
 
-/** Gastzugang öffnen; liefert die ID der neuen Demo-Praxis. */
+/** Gastzugang öffnen; liefert die ID der neuen Demo-Praxis dieser Sitzung (nicht die zuletzt angelegte aller Gäste). */
 async function demo(p, fach = 'hausarzt') {
   await p.goto(L + '/demo?fach=' + fach); await p.getByRole('button', { name: 'Demo-Praxis öffnen' }).click(); await p.waitForURL('**/dashboard', { timeout: 120000 });
-  return sql(`select id from "Practice" where "isDemo" order by "createdAt" desc limit 1`);
+  return eigenePraxis(p);
+}
+
+/** ID der Praxis, zu der die angemeldete Sitzung der Seite gehört. Laufen Prüfungen gleichzeitig, bleibt jede bei ihrer Praxis. */
+async function eigenePraxis(p) {
+  const s = await p.evaluate(async () => (await fetch('/api/auth/session')).json());
+  const id = s && s.user && s.user.practiceId;
+  if (!id) throw new Error('Keine angemeldete Sitzung: Praxis unbekannt');
+  return id;
 }
 
 /** Einen Durchlauf ausführen. Ein Abbruch zählt als fehlgeschlagene Prüfung; am Ende steht der Code 0 oder 1. */
@@ -66,4 +76,4 @@ function abbruch(e) {
   process.exit(1);
 }
 
-module.exports = { chromium, devices, L, D, DB, WURZEL, sql, pruef, stand, KONTEXT, HANDY, demo, lauf, abbruch };
+module.exports = { chromium, devices, L, D, DB, WURZEL, sql, eineZeile, pruef, stand, KONTEXT, HANDY, demo, eigenePraxis, lauf, abbruch };

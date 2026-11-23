@@ -29,6 +29,7 @@ const DURCHLAEUFE = [
   'abnahme-teil3-g.js',
   'abnahme-teil3-h.js',
   'probe-teil3.js',
+  'modelle-realismus.js',
   'generalprobe-5-mit-geburtsdatum.js',
 ];
 

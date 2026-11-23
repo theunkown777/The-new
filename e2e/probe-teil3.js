@@ -1,16 +1,15 @@
 // Probe Teil 3: Portal-Termin, Vorsorge, Sammelaktionen, Gespräch, Schnellvorschlag, Favoriten, Eingang.
 const { chromium, devices } = require('playwright');
-const { L, D, sql, abbruch } = require('./gemeinsam');
+const { L, D, sql, abbruch, demo, eineZeile } = require('./gemeinsam');
 let ok = 0, fehl = 0;
-const pruef = (n, b, x = '') => { console.log(`${b ? 'OK  ' : 'FEHL'} ${n}${x ? ' — ' + x : ''}`); b ? ok++ : fehl++; };
+const pruef = (n, b, x = '') => { console.log(`${b ? 'OK  ' : 'FEHL'} ${n}${x ? ' — ' + eineZeile(x) : ''}`); b ? ok++ : fehl++; };
 (async () => {
   const b = await chromium.launch();
   const c = await b.newContext({ viewport: { width: 1280, height: 900 }, locale: 'de-DE', timezoneId: 'Europe/Berlin', permissions: ['clipboard-read', 'clipboard-write'] });
   const p = await c.newPage();
   const fehler = []; p.on('pageerror', (e) => fehler.push(p.url() + ' ' + e.message));
   try {
-    await p.goto(L + '/demo?fach=hausarzt'); await p.getByRole('button', { name: 'Demo-Praxis öffnen' }).click(); await p.waitForURL('**/dashboard', { timeout: 120000 });
-    const pr = sql(`select id from "Practice" where "isDemo" order by "createdAt" desc limit 1`);
+    const pr = await demo(p, 'hausarzt');
     // 3.1 Recall-Kette
     await p.goto(L + '/vorsorge'); pruef('Vorsorge: Hinweis, solange Online-Termine aus sind', await p.getByTestId('vorsorge-kette-aus').count() === 1);
     sql(`update "Practice" set "buchungAktiv"=true where id='${pr}'`);

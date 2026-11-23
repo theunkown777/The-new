@@ -180,7 +180,7 @@ export default async function DashboardPage() {
           <Link href="/termine" className="card hover:bg-slate-50">
             <p className="text-xs text-slate-500">Auslastung</p>
             <p className="mt-1 text-xl font-semibold tabular-nums">{termine.auslastungHeute} %</p>
-            <p className="text-xs text-slate-500">{termine.heute} Termine</p>
+            <p className="text-xs text-slate-500"><span data-testid="termine-heute-zahl">{termine.heute}</span> {termine.heute === 1 ? "Termin" : "Termine"}</p>
           </Link>
           <Link href="/praxismanager" className="card hover:bg-slate-50" data-testid="aufgaben">
             <p className="text-xs text-slate-500">Aufgaben</p>

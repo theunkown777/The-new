@@ -1,7 +1,7 @@
 // Gesamtprüfung nach dem Umbau „für alle Fachrichtungen“: Inhaltsrichtlinie, Einstiege, Ratgeber,
 // Zusatzleistungen, Diktat-Schalter, Zahn-Begriffe in Arzt- und Therapie-Demos.
-const { chromium, devices } = require('playwright'); const { L, D, abbruch } = require('./gemeinsam');
-let ok = 0, fehl = 0; const pruef = (name, bed, info = '') => { console.log(`${bed ? 'OK  ' : 'FEHL'} ${name}${info ? ' — ' + info : ''}`); bed ? ok++ : fehl++; };
+const { chromium, devices } = require('playwright'); const { L, D, abbruch, eineZeile } = require('./gemeinsam');
+let ok = 0, fehl = 0; const pruef = (name, bed, info = '') => { console.log(`${bed ? 'OK  ' : 'FEHL'} ${name}${info ? ' — ' + eineZeile(info) : ''}`); bed ? ok++ : fehl++; };
 const ctx = (b, o = {}) => b.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE', timezoneId: 'Europe/Berlin', extraHTTPHeaders: { 'x-forwarded-for': '10.74.' + Math.floor(Math.random() * 250) + '.' + Math.floor(Math.random() * 250) }, ...o });
 const horch = (p, liste) => { p.on('console', (m) => { const t = m.text(); if (/Content Security Policy|Refused to/i.test(t)) liste.push(p.url().replace(L, '') + ': ' + t.slice(0, 160)); }); p.on('pageerror', (e) => liste.push(p.url().replace(L, '') + ' Seitenfehler: ' + e.message.slice(0, 120))); p.on('response', (r) => { if (r.status() >= 500) liste.push(r.status() + ' ' + r.url().replace(L, '')); }); };
 (async () => { const b = await chromium.launch();

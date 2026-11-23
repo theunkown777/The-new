@@ -2,7 +2,7 @@
 // Je Art eine Demo-Praxis des passenden Fachs, ein Patientenlink, die Seite /portal/<token>/fragen:
 // warten, bis das Modell bereit ist (data-bereit), an einer bekannten Stelle tippen und prüfen, dass der
 // richtige Ort erscheint. Dazu: Liste per Tastatur, Absenden, genau ein Eintrag in der Datenbank, und die
-// Akte zeigt die Angabe am Modell (nur lesend, Violett). Bildschirmfotos mit 390 und 1280 px Breite.
+// Akte zeigt die Angabe am Modell (nur lesend, Bordeaux). Bildschirmfotos mit 390 und 1280 px Breite.
 //
 // Aufruf: BASIS=http://localhost:3103 BILDER=<Ordner> node e2e/modelle-realismus.js [koerper,zahn,auge,hno,haut]
 // Ohne Grafikkarte setzt der Durchlauf localStorage „modell-scharf“ = 1 (nur außerhalb des Betriebs wirksam).
@@ -187,7 +187,7 @@ async function eineArt(b, art) {
   const gespeichert = JSON.parse(json || '{}');
   pruef(`${art}: genau ein Eintrag mit Art und Stand 2`, anzahl === '1' && gespeichert.art === art && gespeichert.stand === 2, `${anzahl}, ${(gespeichert.orte || []).join(', ')}`);
 
-  // Akte: Angabe am Modell ansehen (nur lesend, Violett)
+  // Akte: Angabe am Modell ansehen (nur lesend, Bordeaux)
   await p.goto(`${L}/patients/${pid}#kurzcheck`, { timeout: 180000 });
   await p.getByTestId('kurzcheck-modell-knopf').click({ timeout: 180000 }); // beim ersten Aufruf übersetzt next dev die Seite erst
   await p.waitForSelector('[data-testid="kurzcheck-modell"] [data-testid="modell-3d-buehne"][data-bereit="1"]', { timeout: 240000 });

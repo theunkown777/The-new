@@ -88,8 +88,10 @@ lauf('C Rollen und Standorte', async (b) => {
   pruef('/termine?ort=<fremd> zeigt keinen fremden Termin', !t.includes('SUED-Termin'));
   await q.goto(L + '/dashboard'); t = await q.locator('main').innerText();
   pruef('Dashboard zeigt nur den eigenen Termin', t.includes(pats[0][1]) && !new RegExp(`${pats[1][1]}[^\\n]*\\n?[^\\n]*SUED`).test(t) && !t.includes('SUED-Termin') && !t.includes('OHNE-Ort-Termin'), (t.match(/[A-Z]+-(Ort-)?Termin/g) || []).join(', ') || 'keine Anlässe im Text');
-  const zahl = async (seite) => { await seite.goto(L + '/dashboard'); const x = await seite.locator('main').innerText(); return (x.match(/(\d+)\s*Termine? heute|Heute[^\n]*\n\s*(\d+)/i) || []).slice(1).find(Boolean); };
-  console.log('     (Dashboard-Zahl Termine heute: Leitung ' + await zahl(p) + ', Behandler/in ' + await zahl(q) + ')');
+  // Die Zahl der Termine heute steht in der Kachel „Auslastung“. Angelegt sind heute genau drei Termine: NORD, SUED, OHNE Ort.
+  const zahl = async (seite) => { await seite.goto(L + '/dashboard'); return Number(await seite.getByTestId('termine-heute-zahl').innerText()); };
+  const zahlLeitung = await zahl(p), zahlBehandler = await zahl(q);
+  pruef('Dashboard: Leitung zählt alle drei Termine, Behandler/in nur den des eigenen Standorts', zahlLeitung === 3 && zahlBehandler === 1, `Leitung ${zahlLeitung}, Behandler/in ${zahlBehandler}`);
   for (const u of ['/praxismanager', '/mein-bereich', '/eingang', '/patients/' + pats[1][0]]) { await q.goto(L + u); const x = await q.locator('main').innerText(); pruef(`${u.replace(/\/c\w+$/, '/<Patient Süd>')} ohne fremden Termin`, !x.includes('SUED-Termin') && !x.includes('OHNE-Ort-Termin')); }
   let r = await api(q, 'POST', '/api/appointments', { patientId: pats[1][0], locationId: ids[1], start: `${tag}T22:00:00+01:00`, minutes: 30, reason: 'Fremd' });
   pruef('Termin am fremden Standort per Schnittstelle → 403', r.status === 403, `Status ${r.status} ${r.j?.error || ''}`);
