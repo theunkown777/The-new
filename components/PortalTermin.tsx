@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { fachText } from "@/lib/fachText";
+import { useFehlerSicht } from "@/components/useFehlerSicht";
 
 type Tag = { tag: string; zeiten: string[] };
 type Meiner = { id: string; start: string; minutes: number; reason: string; quelle: string; status: string };
@@ -22,6 +23,7 @@ export function PortalTermin({ token, praxis, anlassVor = "", fach }: { token: s
   const [anlass, setAnlass] = useState(anlassVor);
   const [busy, setBusy] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
+  const fehlerRef = useFehlerSicht(fehler);
   const [gebucht, setGebucht] = useState<string | null>(null);
 
   const laden = useCallback(async () => {
@@ -60,7 +62,7 @@ export function PortalTermin({ token, praxis, anlassVor = "", fach }: { token: s
           <p className="mt-1 text-sm">{termin(gebucht)} bei {praxis}. Wenn Sie nicht kommen können, sagen Sie bitte rechtzeitig ab.</p>
         </div>
       )}
-      {fehler && <p className="rounded-2xl bg-red-50 p-4 text-sm text-red-800" role="alert" data-testid="termin-fehler">{fehler}</p>}
+      {fehler && <p ref={fehlerRef} tabIndex={-1} className="rounded-2xl bg-red-50 p-4 text-sm text-red-800 outline-none" role="alert" data-testid="termin-fehler">{fehler}</p>}
 
       {meine.length > 0 && (
         <section className="rounded-2xl bg-white p-4" aria-labelledby="meine-termine">
@@ -97,7 +99,7 @@ export function PortalTermin({ token, praxis, anlassVor = "", fach }: { token: s
                   <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Uhrzeit">
                     {aktuell.zeiten.map((z) => (
                       <button key={z} type="button" role="radio" aria-checked={zeit === z} onClick={() => setZeit(z)} data-testid="termin-zeit"
-                        className={`rounded-xl py-2.5 text-sm font-medium ring-1 ${zeit === z ? "bg-salbei-600 text-white ring-salbei-600" : "bg-salbei-50 text-salbei-900 ring-salbei-200"}`}>{uhr(z)}</button>
+                        className={`rounded-xl py-2.5 text-sm font-medium ring-1 ${zeit === z ? "bg-brand-600 text-white ring-brand-600" : "bg-white text-slate-800 ring-slate-200"}`}>{uhr(z)}</button>
                     ))}
                   </div>
                 </>

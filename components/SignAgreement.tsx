@@ -138,7 +138,7 @@ function SignForm({ postUrl, backHref, text, defaultName, gesperrt, kopf, onPrue
       <div className="rounded-3xl bg-white p-6 text-center" role="status" data-testid="vereinbarung-fertig">
         <p className="font-display text-3xl text-slate-900">Vielen Dank</p>
         <p className="mt-2 text-slate-600">{fachText("Ihr Einverständnis ist bei Ihrer Praxis angekommen. Die schriftliche Vereinbarung unterschreiben Sie vor der Behandlung in der Praxis.", fach)}</p>
-        <a href={backHref} className="btn-primary !bg-salbei-600 hover:!bg-salbei-700 !border-salbei-600 mt-6 inline-block">{fachText("Zurück zu Ihrem Behandlungsweg", fach)}</a>
+        <a href={backHref} className="btn-primary mt-6 inline-block">{fachText("Zurück zu Ihrem Behandlungsweg", fach)}</a>
       </div>
     );
 
@@ -161,11 +161,11 @@ function SignForm({ postUrl, backHref, text, defaultName, gesperrt, kopf, onPrue
           onPointerMove={move}
           onPointerUp={up}
           onPointerLeave={up}
-          className="mt-1 h-36 w-full touch-none rounded-2xl border-2 border-dashed border-salbei-200 bg-[#FFFDFB]"
+          className="mt-1 h-36 w-full touch-none rounded-2xl border-2 border-dashed border-brand-200 bg-[#FFFDFB]"
           aria-label="Unterschriftsfeld: mit Finger oder Maus unterschreiben"
           data-testid="unterschrift"
         />
-        <svg viewBox="0 0 40 8" className="-mt-6 ml-4 h-2 w-24 text-salbei-300" aria-hidden="true">
+        <svg viewBox="0 0 40 8" className="-mt-6 ml-4 h-2 w-24 text-brand-300" aria-hidden="true">
           <path d="M2 2 Q20 10 38 2" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" />
         </svg>
       </div>
@@ -174,7 +174,7 @@ function SignForm({ postUrl, backHref, text, defaultName, gesperrt, kopf, onPrue
         Ich bestätige die obige Erklärung.
       </label>
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{error}</p>}
-      <button className="btn-primary !bg-salbei-600 hover:!bg-salbei-700 !border-salbei-600 w-full py-3" disabled={state === "busy" || gesperrt}>{state === "busy" ? "Wird gesendet …" : "Einverständnis senden"}</button>
+      <button className="btn-primary w-full py-3" disabled={state === "busy" || gesperrt}>{state === "busy" ? "Wird gesendet …" : "Einverständnis senden"}</button>
     </form>
   );
 }

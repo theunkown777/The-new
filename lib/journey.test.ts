@@ -72,3 +72,15 @@ describe("Patiententexte des Behandlungswegs versprechen kein Handeln der Praxis
     expect(text).not.toMatch(/meldet sich|Sie meldet/);
   });
 });
+
+describe("journey: Ziel von „Als Nächstes“", () => {
+  const now = new Date(2026, 10, 1);
+  it("führt nur dorthin, wovon der Text spricht", () => {
+    expect(journey({ proposal: { status: "BESPROCHEN", shareCreatedAt: now } }, now).ziel).toBe("vorschlag");
+    expect(journey({ proposal: { status: "ANGENOMMEN", eigenanteilCent: 100 }, invoices: [{ status: "OFFEN", dueDate: now }] }, now).ziel).toBe("rechnungen");
+    expect(journey({ proposal: { status: "ABGELEHNT" } }, now).ziel).toBeNull();
+    expect(journey({ proposal: { status: "ANGENOMMEN", eigenanteilCent: 100 } }, now).ziel).toBeNull();
+    expect(journey({}, now).ziel).toBeNull();
+    expect(journey({ proposal: { status: "ANGENOMMEN", eigenanteilCent: 0 } }, now).ziel).toBeNull();
+  });
+});

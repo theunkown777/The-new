@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { fachText } from "@/lib/fachText";
+import { useFehlerSicht } from "@/components/useFehlerSicht";
 
 type Tag = { tag: string; zeiten: string[] };
 const tagName = (tag: string) => new Date(`${tag}T12:00:00Z`).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
@@ -28,6 +29,8 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
   const [busy, setBusy] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
   const [fertig, setFertig] = useState<string | null>(null);
+  const fehlerRef = useFehlerSicht(fehler);
+  const ohneKontakt = !!fehler && !f.mobil.trim() && !f.email.trim();
   const setze = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF((x) => ({ ...x, [k]: e.target.value }));
 
   const laden = useCallback(async () => {
@@ -74,7 +77,7 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
   const heute = new Date().toISOString().slice(0, 10);
   return (
     <div className="space-y-4" data-testid="neutermin">
-      {fehler && <p className="rounded-2xl bg-red-50 p-4 text-sm text-red-800" role="alert" data-testid="neutermin-fehler">{fehler}</p>}
+      {fehler && <p ref={fehlerRef} tabIndex={-1} className="rounded-2xl bg-red-50 p-4 text-sm text-red-800 outline-none" role="alert" data-testid="neutermin-fehler">{fehler}</p>}
 
       <section className="rounded-2xl bg-white p-4" aria-labelledby="neutermin-zeiten">
         <h2 id="neutermin-zeiten" className="text-sm font-semibold text-slate-900">1. Freie Zeit wählen</h2>
@@ -96,7 +99,7 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
                   <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4" role="radiogroup" aria-label="Uhrzeit">
                     {aktuell.zeiten.map((z) => (
                       <button key={z} type="button" role="radio" aria-checked={zeit === z} onClick={() => { setZeit(z); setFehler(null); }} data-testid="neutermin-zeit"
-                        className={`rounded-xl py-2.5 text-sm font-medium ring-1 ${zeit === z ? "bg-salbei-600 text-white ring-salbei-600" : "bg-salbei-50 text-salbei-900 ring-salbei-200"}`}>{uhr(z)}</button>
+                        className={`rounded-xl py-2.5 text-sm font-medium ring-1 ${zeit === z ? "bg-brand-600 text-white ring-brand-600" : "bg-white text-slate-800 ring-slate-200"}`}>{uhr(z)}</button>
                     ))}
                   </div>
                 </>
@@ -115,7 +118,7 @@ export function NeupatientTermin(props: { kennung: string; praxis: string; aktiv
           </div>
           <label className="block"><span className="label">Geburtsdatum</span><input type="date" className="input" value={f.geburtsdatum} onChange={setze("geburtsdatum")} required min="1900-01-01" max={heute} autoComplete="bday" data-testid="neutermin-geburtsdatum" /></label>
           <div className="grid gap-3 sm:grid-cols-2">
-            <label className="block"><span className="label">Mobilnummer</span><input type="tel" inputMode="tel" className="input" value={f.mobil} onChange={setze("mobil")} maxLength={30} autoComplete="tel" placeholder="z. B. 0171 2345678" data-testid="neutermin-mobil" /></label>
+            <label className="block"><span className="label">Mobilnummer</span><input type="tel" inputMode="tel" className="input" value={f.mobil} onChange={setze("mobil")} aria-invalid={ohneKontakt || undefined} maxLength={30} autoComplete="tel" placeholder="z. B. 0171 2345678" data-testid="neutermin-mobil" /></label>
             <label className="block"><span className="label">oder E-Mail</span><input type="email" inputMode="email" className="input" value={f.email} onChange={setze("email")} maxLength={200} autoComplete="email" data-testid="neutermin-email" /></label>
           </div>
           <p className="-mt-1 text-xs text-slate-500">{ft("Eines von beiden genügt. Darüber bestätigt die Praxis Ihren Termin.")}</p>

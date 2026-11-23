@@ -57,7 +57,7 @@ export function PortalRueckmeldung({ token, appointmentId, t }: { token: string;
         {bewertungUrl && (
           <p className="mt-2 text-sm text-slate-600" data-testid="rueckmeldung-bewertung">
             {t.publicText}{" "}
-            <a href={bewertungUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-salbei-700 underline underline-offset-2" data-testid="rueckmeldung-bewertung-link">
+            <a href={bewertungUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-brand-700 underline underline-offset-2" data-testid="rueckmeldung-bewertung-link">
               {t.publicLink}
             </a>
           </p>
@@ -76,9 +76,9 @@ export function PortalRueckmeldung({ token, appointmentId, t }: { token: string;
             const wert = i + 1;
             const an = stufe === wert;
             return (
-              <label key={wert} className={`flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-salbei-700 ${an ? "border-salbei-600 bg-salbei-50 text-slate-900" : "border-slate-200 text-slate-700"}`}>
+              <label key={wert} className={`flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-700 ${an ? "border-brand-600 bg-brand-50 text-slate-900" : "border-slate-200 text-slate-700"}`}>
                 <input type="radio" name="rueckmeldung-stufe" value={wert} checked={an} onChange={() => { setStufe(wert); setFehler(""); }} className="sr-only" data-testid={`rueckmeldung-stufe-${wert}`} />
-                <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-semibold tabular-nums ${an ? "bg-salbei-600 text-white" : "bg-slate-100 text-slate-600"}`} aria-hidden="true">{wert}</span>
+                <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-semibold tabular-nums ${an ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-600"}`} aria-hidden="true">{wert}</span>
                 <span>{label}</span>
               </label>
             );

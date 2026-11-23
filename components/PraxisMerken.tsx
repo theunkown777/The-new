@@ -66,7 +66,7 @@ export function PraxisMerken({ eintrag, t, listeHref }: { eintrag: NeuePraxis; t
           {fehler[stand]}
         </p>
       )}
-      <a href={listeHref} className="mt-3 inline-block py-1 text-sm font-medium text-salbei-700 underline" data-testid="meine-praxen-link">
+      <a href={listeHref} className="mt-3 inline-block py-1 text-sm font-medium text-brand-700 underline" data-testid="meine-praxen-link">
         {t.liste}
       </a>
     </div>

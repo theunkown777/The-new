@@ -58,7 +58,7 @@ export function WegLaeufer() {
   return (
     <div ref={flaeche} className="pointer-events-none absolute inset-x-0 top-0 aspect-[200/40]" aria-hidden="true">
       <span ref={punkt} className="absolute left-0 top-0 block h-0 w-0 opacity-0" style={{ willChange: "transform" }}>
-        <span className="absolute -left-[4.5px] -top-[4.5px] block h-[9px] w-[9px] rounded-full bg-salbei-500 ring-2 ring-white" />
+        <span className="absolute -left-[4.5px] -top-[4.5px] block h-[9px] w-[9px] rounded-full bg-brand-500 ring-2 ring-white" />
       </span>
     </div>
   );

@@ -18,7 +18,7 @@ import { PortalInvoice, type PortalInvoiceData, type PortalPruefungStand, type P
 import { pruefLage } from "@/lib/portalPruefungServer";
 import { Behandlungsweg, Laechelbogen } from "@/components/Behandlungsweg";
 import { KassenSockel } from "@/components/KassenSockel";
-import { journey } from "@/lib/journey";
+import { PORTAL_SCHRITT, journey } from "@/lib/journey";
 import { buildProposal, patientAnteile, resolvePrices } from "@/lib/proposals";
 import { choicesSchema, proposalInputSchema } from "@/lib/proposalSchema";
 import { praxisKennzeichen } from "@/lib/praxisKennung";
@@ -199,20 +199,28 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
   const dir = portalDir(lang);
   const pfeil = dir === "rtl" ? "←" : "→";
 
-  // Wohin der Knopf "Als Nächstes" führt: Rechnung, Vorschlag, Fragebogen oder Unterlagen.
+  // „Als Nächstes“: Text und Ziel kommen aus einer Quelle. Verlangt der Weg gerade nichts von der Person (ziel null),
+  // zeigt die Karte den ersten anderen offenen Punkt: Rechnung, Vorschlag zur Wahl, Unterschrift, Fragebogen.
   const openProposal = patient.proposals.find((p) => (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse);
+  const ohneUnterschrift = patient.proposals.find((p) => p.status !== "ABGELEHNT" && !p.agreedAt && (p.patientResponse || p.status === "ANGENOMMEN"));
+  const fragebogen = patient.anamnesisForms[0] ?? null;
   // Die im Portal gewählte Sprache geht in den Vorschlag mit (sonst entscheidet dort wieder der Browser).
   const sprachZusatz = lang === "de" ? "" : `?lang=${lang}`;
-  // Der Knopf führt dorthin, wovon sein Text spricht: steht der aktuelle Vorschlag zur Wahl, dann zum Vorschlag.
-  const nextHref = weg.aktuell === 2 && openProposal && current?.id === openProposal.id
-    ? `/portal/${params.token}/vorschlag/${openProposal.id}${sprachZusatz}`
-    : open.length
-    ? "#rechnungen"
-    : openProposal
-      ? `/portal/${params.token}/vorschlag/${openProposal.id}${sprachZusatz}`
-      : patient.anamnesisForms[0]
-        ? `/portal/${params.token}/anamnese/${patient.anamnesisForms[0].id}${sprachZusatz}`
-        : "#dokumente";
+  const vorschlagHref = (id: string) => `/portal/${params.token}/vorschlag/${id}${sprachZusatz}`;
+  const naechster: { text: string; href: string | null } =
+    weg.ziel === "vorschlag" && current
+      ? { text: weg.patient, href: vorschlagHref(current.id) }
+      : weg.ziel === "rechnungen" && open.length
+        ? { text: weg.patient, href: "#rechnungen" }
+        : open.length
+          ? { text: PORTAL_SCHRITT.rechnung, href: "#rechnungen" }
+          : openProposal
+            ? { text: "Ihren Vorschlag ansehen und wählen.", href: vorschlagHref(openProposal.id) }
+            : ohneUnterschrift
+              ? { text: PORTAL_SCHRITT.unterschrift, href: `/portal/${params.token}/vereinbarung/${ohneUnterschrift.id}` }
+              : fragebogen
+                ? { text: PORTAL_SCHRITT.fragebogen, href: `/portal/${params.token}/anamnese/${fragebogen.id}${sprachZusatz}` }
+                : { text: weg.patient, href: null };
 
   return (
     <main className="min-h-screen bg-[#F5F2EE]" lang={lang} dir={dir} data-testid="portal">
@@ -227,32 +235,32 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
           <PraxisKennzeile k={kennung} />
         </header>
 
-        <section className="mt-5 rounded-[2rem] bg-salbei-50 px-5 pb-5 pt-6 text-center" aria-labelledby="weg" data-testid="portal-weg">
-          <h2 id="weg" className="text-xs font-semibold uppercase tracking-[0.18em] text-salbei-700">{t.wayTitle}</h2>
+        <section className="mt-5 rounded-[2rem] bg-brand-50 px-5 pb-5 pt-6 text-center" aria-labelledby="weg" data-testid="portal-weg">
+          <h2 id="weg" className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">{t.wayTitle}</h2>
           <div className="mt-4">
             <Behandlungsweg erreicht={weg.erreicht} aktuell={weg.aktuell} abgelehnt={weg.abgelehnt} size="gross" labels={t.stations.split("|")} animate name={fachText("Ihr Behandlungsweg", patient.practice.specialty).replace(/^Ihre? /, "")} />
           </div>
           <h1 className="font-display mt-3 text-4xl leading-tight text-slate-900">{t.hello(patient.firstName)}</h1>
-          <a href={nextHref} className="mt-4 flex items-center gap-3 rounded-2xl bg-white p-4 text-start shadow-[0_10px_30px_-22px_rgba(52,72,50,.9)]" data-testid="portal-summary">
-            <span className="min-w-0 flex-1">
-              <span className="block text-xs font-semibold uppercase tracking-wide text-salbei-700">{t.next}</span>
-              <span className="block text-lg leading-snug text-slate-900">{t.step(weg.patient)}</span>
-            </span>
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-salbei-600 text-white" aria-hidden="true">{pfeil}</span>
-          </a>
-          {split && split.kasse + split.eigen > 0 && (
+          {naechster.href ? (
+            <a href={naechster.href} className="mt-4 flex items-center gap-3 rounded-2xl bg-white p-4 text-start shadow-[0_10px_30px_-22px_rgba(36,32,31,.6)]" data-testid="portal-summary">
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs font-semibold uppercase tracking-wide text-brand-700">{t.next}</span>
+                <span className="block text-lg leading-snug text-slate-900">{t.step(naechster.text)}</span>
+              </span>
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-600 text-white" aria-hidden="true">{pfeil}</span>
+            </a>
+          ) : (
+            <div className="mt-4 rounded-2xl bg-white p-4 text-start shadow-[0_10px_30px_-22px_rgba(36,32,31,.6)]" data-testid="portal-summary">
+              <span className="block text-lg leading-snug text-slate-900">{t.step(naechster.text)}</span>
+            </div>
+          )}
+          {split && split.kasse + split.eigen > 0 && current?.status !== "ABGELEHNT" && (
             <KassenSockel className="mt-4 text-start" kasse={split.kasse} eigen={split.eigen} labels={{ kasse: privat && lang === "de" ? "Versicherung erstattet" : t.kassePays, eigen: t.yourShare }} />
           )}
-          {/* „Alles erledigt“ nur, wenn wirklich nichts aussteht: nicht, solange ein Vorschlag auf die Wahl wartet (der Schritt darüber sagt es). */}
-          {(open.length > 0 || !openProposal) && (
+          {/* Offener Betrag, wenn es Rechnungen gibt. „Alles erledigt“ sagt die Karte darüber selbst, und nur, wenn nichts mehr aussteht. */}
+          {open.length > 0 && (
             <p className="mt-3 text-sm text-slate-600" data-testid="portal-offen">
-              {open.length ? (
-                <>
-                  {t.openTotal}: <b className="tabular-nums text-slate-900">{money(openCent)}</b> · {t.nextDue(date(open[0].dueDate))}
-                </>
-              ) : (
-                t.allPaid
-              )}
+              {t.openTotal}: <b className="tabular-nums text-slate-900">{money(openCent)}</b> · {t.nextDue(date(open[0].dueDate))}
             </p>
           )}
         </section>
@@ -264,7 +272,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
         )}
         {besuch && (
           <section className="mt-8" aria-labelledby="rueckmeldung-titel" data-testid="portal-rueckmeldung">
-            <h2 id="rueckmeldung-titel" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{t.feedbackTitle}</h2>
+            <h2 id="rueckmeldung-titel" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-brand-600" />{t.feedbackTitle}</h2>
             <PortalRueckmeldung
               token={params.token}
               appointmentId={besuch.id}
@@ -286,7 +294,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
         )}
         {(practice.buchungAktiv || naechsterTermin) && (
           <section className="mt-8" aria-labelledby="termin" data-testid="portal-termin-hinweis" lang="de" dir="ltr">
-            <h2 id="termin" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />Ihr Termin</h2>
+            <h2 id="termin" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-brand-600" />Ihr Termin</h2>
             <div className="mt-3 rounded-2xl bg-white p-4">
               {naechsterTermin
                 ? <p className="text-sm text-slate-800">Nächster Termin: <b>{naechsterTermin.start.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Berlin" })}, {naechsterTermin.start.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" })} Uhr</b></p>
@@ -297,20 +305,20 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
         )}
 
         <section className="mt-8" aria-labelledby="fragen" data-testid="portal-fragen-hinweis">
-          <h2 id="fragen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{kt("vorTermin")}</h2>
-          <a href={`/portal/${params.token}/fragen${lang === "de" ? "" : `?lang=${lang}`}`} className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-salbei-50" data-testid="portal-fragen-link">
+          <h2 id="fragen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-brand-600" />{kt("vorTermin")}</h2>
+          <a href={`/portal/${params.token}/fragen${lang === "de" ? "" : `?lang=${lang}`}`} className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-brand-50" data-testid="portal-fragen-link">
             <span>
               <span className="block font-medium text-slate-900">{kt("fuenf")}</span>
               <span className="text-sm text-slate-600">{kt("fuenfText")}</span>
             </span>
-            <span className="shrink-0 rounded-full bg-salbei-600 px-3 py-1 text-sm font-medium text-white">{kt("starten")}</span>
+            <span className="shrink-0 rounded-full bg-brand-600 px-3 py-1 text-sm font-medium text-white">{kt("starten")}</span>
           </a>
         </section>
 
         {/* Das Modell erscheint nur, wenn die Praxis dort etwas für diese Person markiert hat. */}
         {modellMarken.length > 0 && (
         <section className="mt-8" aria-labelledby="modell" data-testid="portal-modell-hinweis" lang="de" dir="ltr">
-          <h2 id="modell" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{modellMarken.length ? fachText("Von Ihrer Praxis im Modell markiert", patient.practice.specialty) : modellArt === "gebiss" ? "Ihr Gebiss im Modell" : "Im Modell ansehen und verstehen"}</h2>
+          <h2 id="modell" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-brand-600" />{modellMarken.length ? fachText("Von Ihrer Praxis im Modell markiert", patient.practice.specialty) : modellArt === "gebiss" ? "Ihr Gebiss im Modell" : "Im Modell ansehen und verstehen"}</h2>
           <div className="mt-3 rounded-2xl bg-white p-4">
             {modellMarken.length > 0 ? (
               <>
@@ -333,7 +341,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
         )}
         {openInvoices.length > 0 && (
           <section className="mt-8" aria-labelledby="rechnungen">
-            <h2 id="rechnungen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{t.invoices}</h2>
+            <h2 id="rechnungen" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-brand-600" />{t.invoices}</h2>
             {!bank && <p className="mt-3 rounded-2xl bg-white p-4 text-sm text-slate-600">{t.noBank}</p>}
             <ul className="mt-3 space-y-3">
               {openInvoices.map((i, idx) => (
@@ -347,7 +355,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
 
         {(docs > 0 || patient.anamnesisForms.length > 0) && (
           <section className="mt-8" aria-labelledby="dokumente">
-            <h2 id="dokumente" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{t.documents}</h2>
+            <h2 id="dokumente" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-brand-600" />{t.documents}</h2>
             <ul className="mt-3 space-y-3">
               {patient.anamnesisForms.map((f) => (
                 <li key={f.id}>
@@ -364,21 +372,21 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
                 const open = (p.status === "ENTWURF" || p.status === "BESPROCHEN") && !p.patientResponse;
                 return (
                   <li key={p.id}>
-                    <a href={`/portal/${params.token}/vorschlag/${p.id}${sprachZusatz}`} className="flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-salbei-50" data-testid="portal-vorschlag">
+                    <a href={`/portal/${params.token}/vorschlag/${p.id}${sprachZusatz}`} className="flex items-center justify-between gap-3 rounded-2xl bg-white p-4 hover:bg-brand-50" data-testid="portal-vorschlag">
                       <span>
                         <span className="block font-medium text-slate-900">{t.proposalDoc(date(p.createdAt))}</span>
                         <span className="text-sm text-slate-500">
-                          {t.eigen}: {money(p.eigenanteilCent)} · {p.status === "ANGENOMMEN" ? t.accepted : p.patientResponse ? t.answered : t.waiting}
+                          {t.eigen}: {money(p.eigenanteilCent)} · {p.status === "ABGELEHNT" ? t.declined : p.status === "ANGENOMMEN" ? t.accepted : p.patientResponse ? t.answered : t.waiting}
                         </span>
                       </span>
-                      <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-medium ${open ? "bg-salbei-600 text-white" : "bg-salbei-50 text-salbei-700"}`}>{open ? t.choose : t.show}</span>
+                      <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-medium ${open ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-700"}`}>{open ? t.choose : t.show}</span>
                     </a>
                     {/* Unterschreiben erst, wenn der Patient gewählt hat oder die Praxis die Wahl festgehalten hat. */}
                     {p.status !== "ABGELEHNT" && (p.agreedAt || p.patientResponse || p.status === "ANGENOMMEN") && (
                       p.agreedAt ? (
                         <p className="mt-1 px-4 text-sm text-salbei-700">✓ {t.signed} · {date(p.agreedAt)}</p>
                       ) : (
-                        <a href={`/portal/${params.token}/vereinbarung/${p.id}`} className="mt-1 block px-4 py-2 text-sm font-medium text-salbei-700 underline" data-testid="portal-unterschreiben">
+                        <a href={`/portal/${params.token}/vereinbarung/${p.id}`} className="mt-1 block px-4 py-2 text-sm font-medium text-brand-700 underline" data-testid="portal-unterschreiben">
                           {t.sign} {pfeil}
                         </a>
                       )
@@ -392,7 +400,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
 
         {done.length > 0 && (
           <section className="mt-8" aria-labelledby="erledigt">
-            <h2 id="erledigt" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-salbei-600" />{t.history}</h2>
+            <h2 id="erledigt" className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Laechelbogen className="h-2 w-8 text-brand-600" />{t.history}</h2>
             <ul className="mt-3 divide-y divide-slate-200 rounded-2xl bg-white">
               {done.map((i) => (
                 <li key={i.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
@@ -413,7 +421,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
         <footer className="mt-10 space-y-1 text-center text-xs text-slate-500">
           <nav className="mb-3 flex flex-wrap justify-center gap-x-3 gap-y-1 text-sm" aria-label="Sprache" data-testid="portal-sprachen">
             {PORTAL_LANGS.map((l) => (
-              <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-salbei-700 underline" : "text-slate-600 hover:text-salbei-700"}>
+              <a key={l} href={`?lang=${l}`} lang={l} aria-current={l === lang ? "true" : undefined} className={l === lang ? "font-semibold text-brand-700 underline" : "text-slate-600 hover:text-brand-700"}>
                 {PORTAL_LANG_NAMES[l]}
               </a>
             ))}

@@ -81,9 +81,9 @@ export function GeburtsdatumPruefung({
           </label>
         </div>
       </fieldset>
-      {demoDatum && <p className="rounded-lg border border-dashed border-salbei-300 px-3 py-2 text-xs text-slate-600" data-testid="geb-demo">{t.demo(demoDatum)}</p>}
+      {demoDatum && <p className="rounded-lg border border-dashed border-brand-200 px-3 py-2 text-xs text-slate-600" data-testid="geb-demo">{t.demo(demoDatum)}</p>}
       {error && <p id={fehlerId} className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert" data-testid="geb-fehler">{error}</p>}
-      <button className="w-full rounded-xl bg-salbei-600 px-4 py-3 text-base font-semibold text-white hover:bg-salbei-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-salbei-700 focus-visible:ring-offset-2 disabled:opacity-60" disabled={busy} data-testid="geb-senden">
+      <button className="w-full rounded-xl bg-brand-600 px-4 py-3 text-base font-semibold text-white hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 focus-visible:ring-offset-2 disabled:opacity-60" disabled={busy} data-testid="geb-senden">
         {busy ? t.laeuft : t.senden}
       </button>
     </form>

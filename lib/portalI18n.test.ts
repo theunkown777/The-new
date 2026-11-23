@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PORTAL_LANGS, PORTAL_LANG_NAMES, PORTAL_LOCALE, PORTAL_UI, pickPortalLang, portalDir, portalStatus, reminderLabel } from "@/lib/portalI18n";
-import { journey } from "@/lib/journey";
+import { PORTAL_SCHRITT, journey } from "@/lib/journey";
 
 const now = new Date(2026, 10, 1);
 const d = (n: number) => new Date(now.getTime() + n * 86400000);
@@ -17,7 +17,7 @@ const steps = [
   journey({ proposal: { status: "BESPROCHEN", patientResponse: "INTERESSE", patientRespondedAt: d(-1) } }, now),
   journey({ proposal: { status: "BESPROCHEN", shareCreatedAt: d(-1) } }, now),
   journey({ proposal: { status: "ENTWURF" } }, now),
-].map((j) => j.patient);
+].map((j) => j.patient).concat(Object.values(PORTAL_SCHRITT), ["Ihren Vorschlag ansehen und wählen."]);
 
 describe("Portal-Sprachen", () => {
   it("jede Sprache übersetzt jeden nächsten Schritt", () => {

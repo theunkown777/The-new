@@ -450,7 +450,7 @@ export function PatientProposalView(props: Props) {
             )}
             {hatVormerkung && <button
               type="button"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-salbei-300 bg-salbei-50 px-3 py-1.5 text-sm text-salbei-800 hover:bg-salbei-100"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-sm text-brand-800 hover:bg-brand-100"
               onClick={() => setRecOpen(true)}
               data-testid="empfehlung-oeffnen"
             >
