@@ -510,7 +510,7 @@ export function ProposalEditor({
               </ul>
               <p className="mt-2 text-xs text-brand-800/80">
                 {dental
-                  ? "Zähne mit Befund sind schon im Zahnschema eingetragen. Zähne ohne Befund sind orange umrandet: antippen und den Befund wählen."
+                  ? "Zähne mit Befund sind schon im Zahnschema eingetragen. Zähne ohne Befund sind dunkelrot umrandet: antippen und den Befund wählen."
                   : ft(`Diese Stellen hat die Praxis im Modell ${w.fuerPerson} markiert. Wählen Sie unten den passenden Anlass.`)}
               </p>
             </div>
