@@ -8,7 +8,7 @@ import { fehlerMelden } from "@/components/fehlerMelden";
 export default function Fehler({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => { fehlerMelden(error); }, [error]);
   return (
-    <main className="flex min-h-[100dvh] items-center justify-center bg-[#F5F2EE] px-4 py-16 text-center" data-testid="fehlerseite">
+    <main className="website flex min-h-[100dvh] items-center justify-center bg-[#F5F2EE] px-4 py-16 text-center" data-testid="fehlerseite">
       <div className="max-w-md">
         <h1 className="font-display text-4xl text-slate-900">Das hat nicht geklappt</h1>
         <p className="mt-3 text-slate-600">

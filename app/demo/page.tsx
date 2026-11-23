@@ -62,12 +62,12 @@ export default function DemoPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
+    <main className="website flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/sorrida-mark.webp" alt="" className="mx-auto mb-3 h-24 w-auto" />
-        <h1 className="font-brand text-3xl text-brand-700">SORRIDA</h1>
-        <p className="mt-1 text-sm text-slate-500">Gastzugang</p>
+        <p className="font-brand text-3xl text-brand-700">SORRIDA</p>
+        <h1 className="mt-1 text-sm font-normal text-slate-500">Gastzugang</h1>
 
         <div className="card mt-6 space-y-4 text-left">
           <p className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-900" data-testid="demo-zugang">

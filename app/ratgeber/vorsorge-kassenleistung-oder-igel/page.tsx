@@ -28,7 +28,6 @@ const IGEL: [string, string, string][] = [
   ["PSA-Test zur Früherkennung von Prostatakrebs", "tendenziell negativ", "bei Beschwerden, Verdacht oder zur Verlaufskontrolle"],
   ["Ultraschall der Eierstöcke zur Krebsfrüherkennung", "negativ", "bei Beschwerden oder auffälligem Befund"],
   ["Ultraschall der Brust zur Krebsfrüherkennung", "unklar", "bei Tastbefund oder Verdacht"],
-  ["Augenspiegelung mit Augeninnendruckmessung zur Glaukom-Früherkennung", "tendenziell negativ", "bei Verdacht, Risikofaktoren oder Beschwerden"],
   ["Ultraschall der Halsschlagadern zur Schlaganfallvorsorge", "tendenziell negativ", "bei Beschwerden oder zur Abklärung"],
   ["Früherkennung auf Vitamin-D-Mangel", "unklar", "bei begründetem Verdacht"],
 ];

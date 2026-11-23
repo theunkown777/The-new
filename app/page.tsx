@@ -83,7 +83,7 @@ export default async function Start() {
   const gast = gastzugangOffen();
 
   return (
-    <div className="journal min-h-screen">
+    <div className="journal website min-h-screen">
       {/* Angaben für Suchmaschinen: was Sorrida ist. Ohne Preise, Bewertungen oder Versprechen. */}
       <script
         type="application/ld+json"

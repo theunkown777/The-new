@@ -81,13 +81,13 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4">
+    <main className="website flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/sorrida-mark.webp" alt="" className="mx-auto mb-3 h-24 w-auto" />
-          <h1 className="font-brand text-3xl text-brand-700">SORRIDA</h1>
-          <p className="mt-1 text-sm text-slate-500">Anmeldung für Ihre Praxis</p>
+          <p className="font-brand text-3xl text-brand-700">SORRIDA</p>
+          <h1 className="mt-1 text-sm font-normal text-slate-500">Anmeldung für Ihre Praxis</h1>
         </div>
         <form onSubmit={handleSubmit} className="card space-y-4">
           {error && (

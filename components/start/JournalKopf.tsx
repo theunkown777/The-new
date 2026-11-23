@@ -130,7 +130,7 @@ export function JournalFuss({ gastzugang = gastzugangOffen() }: { gastzugang?: b
  */
 export function JournalRahmen({ children, hilfe = true }: { children: React.ReactNode; hilfe?: boolean }) {
   return (
-    <div className="journal flex min-h-screen flex-col">
+    <div className="journal website flex min-h-screen flex-col">
       <a href="#inhalt" className="sprunglink">Zum Inhalt</a>
       <JournalKopf angemeldet={false} />
       <div id="inhalt" className="flex-1">{children}</div>

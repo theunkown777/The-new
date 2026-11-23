@@ -399,14 +399,16 @@ export function FragSorrida({
           onClick={oeffnen}
           aria-haspopup="dialog"
           aria-expanded={false}
-          className="rundgang-ausweichen fixed bottom-4 right-4 z-[46] flex min-h-[44px] items-center gap-2 rounded-xl bg-brand-700 px-4 py-2 text-sm font-semibold text-white shadow-lg ring-1 ring-black/5 hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 print:hidden"
+          aria-label="Frag Sorrida"
+          className="rundgang-ausweichen fixed bottom-4 right-4 z-[46] flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-xl bg-brand-700 px-3 py-2 text-sm sm:px-4 font-semibold text-white shadow-lg ring-1 ring-black/5 hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 print:hidden"
           data-testid="frag-sorrida-knopf"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M4 5h16v11H9l-5 4z" />
             <path d="M9.5 9.2a2.5 2.5 0 0 1 4.8.8c0 1.5-2.3 1.7-2.3 3M12 14.6h.01" />
           </svg>
-          Frag Sorrida
+          {/* Auf dem Handy nur das Zeichen: So verdeckt der Knopf keine Bedienelemente der Seite. */}
+          <span className="hidden sm:inline">Frag Sorrida</span>
         </button>
       )}
 

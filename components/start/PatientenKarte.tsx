@@ -1,10 +1,11 @@
 import { Behandlungsweg } from "@/components/Behandlungsweg";
 
 // Die echte Patientenansicht (Behandlungsweg im Patientenlink), in Originalgröße eines Handy-Bildschirms
-// (375 × 812), als Blatt auf dem Tisch. Salbei, weil sie dem Patienten gehört.
+// (375 × 812), als Blatt auf dem Tisch. Salbei, weil sie dem Patienten gehört. Am PC etwas schmaler, damit der Knopf
+// „Frag Sorrida“ unten rechts beim ersten Blick nichts davon verdeckt.
 export function PatientenKarte() {
   return (
-    <div className="relative mx-auto w-full max-w-[340px]">
+    <div className="relative mx-auto w-full max-w-[340px] lg:max-w-[310px]">
       <div className="absolute inset-0 translate-x-5 translate-y-4 rotate-[4deg] rounded-[1.6rem] bg-salbei-200/70" aria-hidden="true" />
       <div className="absolute inset-0 translate-x-2.5 translate-y-2 rotate-[1.8deg] rounded-[1.6rem] bg-salbei-100" aria-hidden="true" />
       <div className="relative" data-testid="handy-mockup" aria-hidden="true">

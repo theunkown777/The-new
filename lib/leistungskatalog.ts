@@ -14,13 +14,14 @@ export type { Leistung, Leistungskatalog, KostentraegerCode };
 
 export const KATALOG = roh as Leistungskatalog;
 export const LEISTUNGEN: Leistung[] = KATALOG.leistungen;
-/** Bereiche in Katalogreihenfolge */
-export const BEREICHE: string[] = Array.from(new Set(LEISTUNGEN.map((l) => l.bereich)));
+/** Bereiche alphabetisch: So steht kein Fach (etwa die Zahnmedizin) nur wegen der Datenreihenfolge vorne. */
+const nachBereich = (a: string, b: string) => a.localeCompare(b, "de");
+export const BEREICHE: string[] = Array.from(new Set(LEISTUNGEN.map((l) => l.bereich))).sort(nachBereich);
 const BY_ID = new Map(LEISTUNGEN.map((l) => [l.id, l]));
 
 export const leistung = (id: string) => BY_ID.get(id) ?? null;
 
-/** Bereiche in Katalogreihenfolge, je Bereich die Kategorien mit ihren Leistungen. */
+/** Bereiche alphabetisch, je Bereich die Kategorien (in Katalogreihenfolge) mit ihren Leistungen. */
 export function navigation(liste: Leistung[] = LEISTUNGEN): { bereich: string; kategorien: { kategorie: string; leistungen: Leistung[] }[] }[] {
   const out: { bereich: string; kategorien: { kategorie: string; leistungen: Leistung[] }[] }[] = [];
   for (const l of liste) {
@@ -30,7 +31,7 @@ export function navigation(liste: Leistung[] = LEISTUNGEN): { bereich: string; k
     if (!k) b.kategorien.push((k = { kategorie: l.kategorie, leistungen: [] }));
     k.leistungen.push(l);
   }
-  return out;
+  return out.sort((a, b) => nachBereich(a.bereich, b.bereich));
 }
 
 export const slugBereich = (b: string) => normalisieren(b).replace(/\s+/g, "-");

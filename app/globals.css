@@ -5,9 +5,9 @@
 /* ------------------------------------------------------------------------------------------------
    Farben und Rundungen als Variablen (Namen und Rollen: tailwind.config.ts, Regeln: docs/GESTALTUNG.md).
    Jede Stufe gibt es dreimal: --slate-500 (Schrift), --slate-fl-500 (Fläche), --slate-li-500 (Linie).
-   Außerhalb der App bleibt alles wie gewohnt; die App für die Praxis (.praxis-app) setzt eigene Werte.
+   Website (.website) und App für die Praxis (.praxis-app) setzen warme Werte; die Patientenseiten bleiben wie gewohnt.
    ------------------------------------------------------------------------------------------------ */
-/* Gewohnte Werte (Website, Patientenseiten, Anmeldung). */
+/* Gewohnte Werte (Patientenseiten; Website und App setzen unten eigene). */
 :root {
   --slate-50: 248 250 252; --slate-100: 241 245 249; --slate-200: 226 232 240; --slate-300: 203 213 225; --slate-400: 148 163 184; --slate-500: 100 116 139; --slate-600: 71 85 105; --slate-700: 51 65 85; --slate-800: 30 41 59; --slate-900: 15 23 42; --slate-950: 2 6 23;
   --brand-50: 248 241 240; --brand-100: 240 226 223; --brand-200: 223 194 188; --brand-300: 199 154 145; --brand-400: 168 105 94; --brand-500: 134 67 58; --brand-600: 107 42 36; --brand-700: 90 29 29; --brand-800: 67 21 21;
@@ -23,7 +23,7 @@
   --rund-lg: 0.5rem; --rund-xl: 0.75rem; --rund-2xl: 1rem; --rund-3xl: 1.5rem;
 }
 /* Flächen und Linien folgen der Schriftfarbe, solange nichts anderes gesetzt ist. */
-:root, .praxis-app {
+:root, .praxis-app, .website, .dunkel .praxis-app .journal {
   --slate-fl-50: var(--slate-50); --slate-fl-100: var(--slate-100); --slate-fl-200: var(--slate-200); --slate-fl-300: var(--slate-300); --slate-fl-400: var(--slate-400); --slate-fl-500: var(--slate-500); --slate-fl-600: var(--slate-600); --slate-fl-700: var(--slate-700); --slate-fl-800: var(--slate-800); --slate-fl-900: var(--slate-900); --slate-fl-950: var(--slate-950);
   --slate-li-50: var(--slate-50); --slate-li-100: var(--slate-100); --slate-li-200: var(--slate-200); --slate-li-300: var(--slate-300); --slate-li-400: var(--slate-400); --slate-li-500: var(--slate-500); --slate-li-600: var(--slate-600); --slate-li-700: var(--slate-700); --slate-li-800: var(--slate-800); --slate-li-900: var(--slate-900); --slate-li-950: var(--slate-950);
   --brand-fl-50: var(--brand-50); --brand-fl-100: var(--brand-100); --brand-fl-200: var(--brand-200); --brand-fl-300: var(--brand-300); --brand-fl-400: var(--brand-400); --brand-fl-500: var(--brand-500); --brand-fl-600: var(--brand-600); --brand-fl-700: var(--brand-700); --brand-fl-800: var(--brand-800);
@@ -45,6 +45,11 @@
   --blue-fl-50: var(--blue-50); --blue-fl-100: var(--blue-100); --blue-fl-200: var(--blue-200); --blue-fl-300: var(--blue-300); --blue-fl-400: var(--blue-400); --blue-fl-500: var(--blue-500); --blue-fl-600: var(--blue-600); --blue-fl-700: var(--blue-700); --blue-fl-800: var(--blue-800); --blue-fl-900: var(--blue-900); --blue-fl-950: var(--blue-950);
   --blue-li-50: var(--blue-50); --blue-li-100: var(--blue-100); --blue-li-200: var(--blue-200); --blue-li-300: var(--blue-300); --blue-li-400: var(--blue-400); --blue-li-500: var(--blue-500); --blue-li-600: var(--blue-600); --blue-li-700: var(--blue-700); --blue-li-800: var(--blue-800); --blue-li-900: var(--blue-900); --blue-li-950: var(--blue-950);
 }
+/* Website (öffentliche Seiten, Anmeldung, 404): Grau ist auch hier die warme Tinte, wie in der App. Klasse „website“ am Rahmen. */
+.website {
+  --slate-50: 249 246 242; --slate-100: 236 229 220; --slate-200: 220 210 198; --slate-300: 196 182 166; --slate-400: 154 142 132; --slate-500: 107 98 91; --slate-600: 82 74 69; --slate-700: 63 56 52; --slate-800: 47 42 40; --slate-900: 36 32 31; --slate-950: 23 20 19;
+}
+html:has(.website) body { background-color: #F9F6F2; color: #24201F; }
 /* App für die Praxis, hell: warme Tinte statt kühlem Grau, Haarlinien in Papierfarbe, Grün wird Salbei. */
 .praxis-app {
   --slate-50: 249 246 242; --slate-100: 236 229 220; --slate-200: 220 210 198; --slate-300: 196 182 166; --slate-400: 154 142 132; --slate-500: 107 98 91; --slate-600: 82 74 69; --slate-700: 63 56 52; --slate-800: 47 42 40; --slate-900: 36 32 31; --slate-950: 23 20 19;
@@ -87,6 +92,22 @@
   --weiss-fl: 35 32 30;
 }
 
+/* Helle Journal-Flächen in der dunklen App (/modelle, Erklärtafel) bleiben hell: Farbwerte wie in der hellen App. */
+.dunkel .praxis-app .journal {
+  --slate-50: 249 246 242; --slate-100: 236 229 220; --slate-200: 220 210 198; --slate-300: 196 182 166; --slate-400: 154 142 132; --slate-500: 107 98 91; --slate-600: 82 74 69; --slate-700: 63 56 52; --slate-800: 47 42 40; --slate-900: 36 32 31; --slate-950: 23 20 19;
+  --brand-50: 248 241 240; --brand-100: 240 226 223; --brand-200: 223 194 188; --brand-300: 199 154 145; --brand-400: 168 105 94; --brand-500: 134 67 58; --brand-600: 107 42 36; --brand-700: 90 29 29; --brand-800: 67 21 21;
+  --salbei-50: 242 245 241; --salbei-100: 227 235 224; --salbei-200: 199 214 194; --salbei-300: 162 185 155; --salbei-500: 108 140 101; --salbei-600: 85 115 80; --salbei-700: 67 92 64; --salbei-800: 52 72 50;
+  --emerald-50: 242 245 241; --emerald-100: 227 235 224; --emerald-200: 199 214 194; --emerald-300: 162 185 155; --emerald-400: 134 163 127; --emerald-500: 108 140 101; --emerald-600: 85 115 80; --emerald-700: 67 92 64; --emerald-800: 52 72 50; --emerald-900: 40 56 38; --emerald-950: 23 33 22;
+  --green-50: 242 245 241; --green-100: 227 235 224; --green-200: 199 214 194; --green-300: 162 185 155; --green-400: 134 163 127; --green-500: 108 140 101; --green-600: 85 115 80; --green-700: 67 92 64; --green-800: 52 72 50; --green-900: 40 56 38; --green-950: 23 33 22;
+  --red-50: 254 242 242; --red-100: 254 226 226; --red-200: 254 202 202; --red-300: 252 165 165; --red-400: 248 113 113; --red-500: 239 68 68; --red-600: 220 38 38; --red-700: 185 28 28; --red-800: 153 27 27; --red-900: 127 29 29; --red-950: 69 10 10;
+  --amber-50: 255 251 235; --amber-100: 254 243 199; --amber-200: 253 230 138; --amber-300: 252 211 77; --amber-400: 251 191 36; --amber-500: 245 158 11; --amber-600: 217 119 6; --amber-700: 180 83 9; --amber-800: 146 64 14; --amber-900: 120 53 15; --amber-950: 69 26 3;
+  --orange-50: 255 247 237; --orange-100: 255 237 213; --orange-200: 254 215 170; --orange-300: 253 186 116; --orange-400: 251 146 60; --orange-500: 249 115 22; --orange-600: 234 88 12; --orange-700: 194 65 12; --orange-800: 154 52 18; --orange-900: 124 45 18; --orange-950: 67 20 7;
+  --sky-50: 240 249 255; --sky-100: 224 242 254; --sky-200: 186 230 253; --sky-300: 125 211 252; --sky-400: 56 189 248; --sky-500: 14 165 233; --sky-600: 2 132 199; --sky-700: 3 105 161; --sky-800: 7 89 133; --sky-900: 12 74 110; --sky-950: 8 47 73;
+  --blue-50: 239 246 255; --blue-100: 219 234 254; --blue-200: 191 219 254; --blue-300: 147 197 253; --blue-400: 96 165 250; --blue-500: 59 130 246; --blue-600: 37 99 235; --blue-700: 29 78 216; --blue-800: 30 64 175; --blue-900: 30 58 138; --blue-950: 23 37 84;
+  --weiss-fl: 255 255 255;
+  color-scheme: light;
+}
+
 
 body {
   @apply bg-slate-50 font-sans text-[15px] font-normal text-slate-900;
@@ -96,6 +117,13 @@ h1 {
   @apply font-light tracking-tight;
 }
 
+/* Häkchen, Auswahlpunkte und Regler in Bordeaux statt im Blau des Browsers. Ohne Gewicht: accent-* an der Stelle gewinnt. */
+@layer base {
+  :where(input[type="checkbox"], input[type="radio"], input[type="range"]) {
+    accent-color: rgb(var(--brand-700));
+  }
+}
+
 /* Karte in der Komponenten-Ebene: Hilfsklassen wie p-0, p-4 oder bg-amber-50 an derselben Karte gewinnen. */
 @layer components {
   .card {
@@ -103,24 +131,27 @@ h1 {
   }
 }
 
-.btn {
-  @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
-}
+/* Knöpfe und Felder in der Komponenten-Ebene: Hilfsklassen wie py-1, w-full oder text-sm daneben gewinnen. */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
 
-.btn-primary {
-  @apply btn bg-brand-600 text-white hover:bg-brand-700;
-}
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  }
 
-.btn-secondary {
-  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
-}
+  .btn-secondary {
+    @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+  }
 
-.input {
-  @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
-}
+  .input {
+    @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+  }
 
-.label {
-  @apply mb-1 block text-sm font-medium text-slate-700;
+  .label {
+    @apply mb-1 block text-sm font-medium text-slate-700;
+  }
 }
 
 /* Wortmarke SORRIDA (Schrift liegt lokal, keine Verbindung zu Google). */
@@ -637,8 +668,9 @@ html.dunkel:has(.praxis-app) body { background-color: #191615; }
 }
 .dunkel .praxis-app :where(input[type="checkbox"], input[type="radio"]):checked { background-color: #8A372F; border-color: #8A372F; }
 /* Feste Papier- und Hinweisfarben einzelner Stellen */
-.dunkel .praxis-app :where(.bg-\[\#F5F2EE\], .bg-\[\#FBFAF8\], .bg-\[\#FBF9F6\], .bg-\[\#FFFDFB\]) { background-color: #2B2725; }
-.dunkel .praxis-app :where(.bg-\[\#F3E4DF\]) { background-color: #3F2623; }
+/* Nicht innerhalb heller Journal-Flächen (/modelle, Erklärtafel): Dort bleibt alles hell, sonst stünde Tinte auf dunklem Grund. */
+.dunkel .praxis-app :where(.bg-\[\#F5F2EE\], .bg-\[\#FBFAF8\], .bg-\[\#FBF9F6\], .bg-\[\#FFFDFB\]):where(:not(.journal *)) { background-color: #2B2725; }
+.dunkel .praxis-app :where(.bg-\[\#F3E4DF\]):where(:not(.journal *)) { background-color: #3F2623; }
 .dunkel .praxis-app :where(.bg-\[\#E4EDE2\]) { background-color: #2A3329; }
 .dunkel .praxis-app :where(.border-\[\#E9E2DA\]) { border-color: #3D3733; }
 .dunkel .praxis-app :where(.text-\[\#5A1D1D\], .text-\[\#5b3a35\]) { color: #E6B6AD; }

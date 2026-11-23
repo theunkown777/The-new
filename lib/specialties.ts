@@ -46,6 +46,10 @@ export interface MedOption {
    * (z. B. Auflichtmikroskopie zum Hautkrebs-Screening). Ohne Angabe ist die Leistung eine Alternative.
    */
   zusatz?: boolean;
+  /** Keine Erstattung durch die Versicherung vorbelegen (z. B. rezeptfreie Präparate, Messungen in der Apotheke). */
+  ohneErstattung?: boolean;
+  /** Wer zahlt, wenn es nicht die Krankenkasse ist: "bg" = Berufsgenossenschaft (Arbeits- und Wegeunfall). */
+  kostentraeger?: "bg";
 }
 
 export interface Anlass {
@@ -95,8 +99,6 @@ const IGEL = {
   vitaminD: igelMonitor("Früherkennungsuntersuchung auf Vitamin-D-Mangel", "frueherkennungsuntersuchung-auf-vitamin-d-mangel", NUTZEN_STAND, "unklar", "für Erwachsene ohne Anzeichen eines Mangels"),
   schilddrueseBlut: igelMonitor("Blutuntersuchung zur Früherkennung von Schilddrüsenfunktionsstörungen", "blutuntersuchung-zur-frueherkennung-von-schilddruesenfunktionsstoerungen", NUTZEN_STAND, "tendenziell negativ", G_NICHT_SCHWANGER),
   schilddrueseUltraschall: igelMonitor("Ultraschall zur Früherkennung von Veränderungen der Schilddrüse", "ultraschall-zur-frueherkennung-von-veraenderungen-der-schilddruese", NUTZEN_STAND, "tendenziell negativ", G_NICHT_SCHWANGER),
-  glaukom: igelMonitor("Augenspiegelung mit Augeninnendruckmessung zur Glaukom-Früherkennung", "augenspiegelung-mit-augeninnendruckmessung-zur-glaukom-frueherkennung", NUTZEN_STAND, "tendenziell negativ"),
-  glaukomOct: igelMonitor("OCT zur Früherkennung eines Glaukoms", "oct-zur-frueherkennung-eines-glaukoms", NUTZEN_STAND, "tendenziell negativ"),
   amdOct: igelMonitor("OCT zur Früherkennung einer feuchten, altersbedingten Makuladegeneration (nAMD)", "oct-zur-frueherkennung-einer-feuchten-altersbedingten-makuladegeneration-namd", NUTZEN_STAND, "tendenziell negativ"),
   eierstoecke: igelMonitor("Ultraschall der Eierstöcke zur Krebsfrüherkennung", "ultraschall-der-eierstoecke-zur-krebsfrueherkennung", NUTZEN_STAND, "negativ"),
   gebaermutter: igelMonitor("Ultraschall zur Früherkennung von Gebärmutterkörperkrebs", "ultraschall-zur-frueherkennung-von-gebaermutterkoerperkrebs", NUTZEN_STAND, "tendenziell negativ"),
@@ -166,9 +168,9 @@ export const ALLE_SPECIALTIES: Specialty[] = [
     kurz: "Augenarztpraxis",
     arztDativ: "Ihrer Augenärztin oder Ihrem Augenarzt",
     marketing: {
-      headline: "Glaukom-Vorsorge und OCT schriftlich erklärt, mit Preis und Bewertung des IGeL-Monitors",
+      headline: "Glaukom-Vorsorge und OCT schriftlich erklärt, mit Preis und klarer Grenze zur Kassenleistung",
       problem: "Zur Glaukom-Früherkennung haben Patienten Fragen. Sie braucht eine klare Aufklärung, damit sich niemand überrumpelt fühlt.",
-      beispiel: "Untersuchung bei Verdacht als Kassenleistung, Vorsorge ohne Verdacht mit Preis und der Bewertung des IGeL-Monitors.",
+      beispiel: "Untersuchung bei Verdacht als Kassenleistung, Vorsorge ohne Verdacht als Selbstzahlerleistung mit Preis.",
     },
     anlaesse: [
       {
@@ -177,8 +179,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         bereich: "Vorsorge",
         options: [
           { id: "glaukom_kasse", name: "Augendruck und Sehnerv bei Verdacht oder Risiko", type: "kasse", price: 40, benefits: ["Kassenleistung bei Verdacht, Risikofaktoren oder Beschwerden"] },
-          { id: "glaukom_igel", name: "Glaukom-Vorsorge ohne Verdacht (Augendruck und Sehnerv)", type: "igel", price: 40, benefits: ["Messung des Augendrucks", "Beurteilung des Sehnervs"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Augenspiegelung mit Augeninnendruckmessung zur Glaukom-Früherkennung“ mit „tendenziell negativ“.", nutzenQuelle: IGEL.glaukom },
-          { id: "glaukom_oct", zusatz: true, name: "Zusätzlich OCT des Sehnervs", type: "igel", price: 60, benefits: ["Schichtaufnahme des Sehnervs", "Bilder lassen sich später vergleichen"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „OCT zur Früherkennung eines Glaukoms“ mit „tendenziell negativ“.", nutzenQuelle: IGEL.glaukomOct },
+          { id: "glaukom_igel", name: "Glaukom-Vorsorge ohne Verdacht (Augendruck und Sehnerv)", type: "igel", price: 40, benefits: ["Messung des Augendrucks", "Beurteilung des Sehnervs"] },
+          { id: "glaukom_oct", zusatz: true, name: "Zusätzlich OCT des Sehnervs", type: "igel", price: 60, benefits: ["Schichtaufnahme des Sehnervs", "Bilder lassen sich später vergleichen"] },
         ],
       },
       {
@@ -320,7 +322,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Chronische Gelenk- oder Sehnenschmerzen",
         bereich: "Schmerztherapie",
         options: [
-          { id: "ortho_kasse", name: "Behandlung nach Leitlinie (z. B. Physiotherapie, Medikamente)", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "ortho_kasse", name: "Behandlung nach Leitlinie (z. B. Physiotherapie, Medikamente)", type: "kasse", price: 0, benefits: [] },
           { id: "eswt", zusatz: true, name: "Stoßwellentherapie (je Sitzung)", type: "igel", price: 80, benefits: ["ohne Operation, meist 3–5 Sitzungen"], kasseWenn: "Bei Fersenschmerz (Plantarfasziitis) nach erfolgloser Vorbehandlung Kassenleistung.", nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Stoßwellentherapie beim Tennisarm“ und die IGeL „Stoßwellentherapie der Kalkschulter“ jeweils mit „unklar“.", nutzenQuelle: [IGEL.stosswelleTennisarm, IGEL.stosswelleKalkschulter] },
           { id: "hyaluron", zusatz: true, name: "Hyaluronsäure-Injektion ins Knie (je Spritze)", type: "igel", price: 90, benefits: ["Spritze in das Kniegelenk"], nutzen: NUTZEN_FRAGEN },
           { id: "akupunktur", zusatz: true, name: "Akupunktur", type: "igel", price: 40, benefits: ["Ergänzung zur Schmerztherapie"], kasseWenn: "Bei chronischen Rücken- oder Knieschmerzen Kassenleistung." },
@@ -389,7 +391,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Vorsorgeuntersuchungen",
         bereich: "Vorsorge",
         options: [
-          { id: "u_kasse", name: "U1 bis U9 und J1", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "u_kasse", name: "U1 bis U9 und J1", type: "kasse", price: 0, benefits: [] },
           { id: "u_extra", zusatz: true, name: "U10, U11 oder J2", type: "igel", price: 50, benefits: ["Entwicklung, Schule, Pubertät"], kasseWenn: "Manche Krankenkassen zahlen sie über Verträge mit den Kinderärzten. Bitte vorher bei der Kasse fragen." },
         ],
       },
@@ -420,7 +422,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Herz-Check ohne Beschwerden",
         bereich: "Vorsorge",
         options: [
-          { id: "kardio_kasse", name: "Abklärung bei Beschwerden oder Risikofaktoren", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "kardio_kasse", name: "Abklärung bei Beschwerden oder Risikofaktoren", type: "kasse", price: 0, benefits: [] },
           { id: "ergometrie", name: "Belastungs-EKG ohne Beschwerden", type: "igel", price: 70, benefits: ["zeigt die Belastbarkeit des Herzens"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „EKG zur Früherkennung einer koronaren Herzerkrankung“ für Menschen ohne Beschwerden mit „tendenziell negativ“.", nutzenQuelle: IGEL.ekg },
           { id: "carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: NUTZEN_HALSSCHLAGADERN, nutzenQuelle: IGEL.halsschlagadern },
         ],
@@ -489,7 +491,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Gedächtnis und Konzentration",
         bereich: "Diagnostik",
         options: [
-          { id: "demenz_kasse", name: "Abklärung bei Beschwerden oder Verdacht", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "demenz_kasse", name: "Abklärung bei Beschwerden oder Verdacht", type: "kasse", price: 0, benefits: [] },
           { id: "demenz_check", name: "Gedächtnis-Check ohne Beschwerden", type: "igel", price: 80, benefits: ["Tests zu Gedächtnis und Aufmerksamkeit"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Hirnleistungs-Check zur Früherkennung einer Demenz“ für Menschen unter 70 Jahren ohne Anzeichen einer Demenz mit „tendenziell negativ“.", nutzenQuelle: IGEL.demenz },
         ],
       },
@@ -498,7 +500,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Gefäß-Ultraschall ohne Beschwerden",
         bereich: "Vorsorge",
         options: [
-          { id: "neuro_kasse", name: "Ultraschall bei Beschwerden oder Risikofaktoren", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "neuro_kasse", name: "Ultraschall bei Beschwerden oder Risikofaktoren", type: "kasse", price: 0, benefits: [] },
           { id: "neuro_carotis", name: "Ultraschall der Halsschlagadern ohne Beschwerden", type: "igel", price: 60, benefits: ["sucht nach Ablagerungen"], nutzen: NUTZEN_HALSSCHLAGADERN, nutzenQuelle: IGEL.halsschlagadern },
         ],
       },
@@ -507,7 +509,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Chronischer Kopfschmerz",
         bereich: "Schmerz",
         options: [
-          { id: "kopf_kasse", name: "Diagnostik und Behandlung nach Leitlinie", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "kopf_kasse", name: "Diagnostik und Behandlung nach Leitlinie", type: "kasse", price: 0, benefits: [] },
           { id: "kopf_akupunktur", zusatz: true, name: "Akupunktur bei Kopfschmerz", type: "igel", price: 40, benefits: ["Ergänzung zur Behandlung"], kasseWenn: "Akupunktur ist nur bei chronischen Rücken- oder Knieschmerzen Kassenleistung.", nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Akupunktur zur Vorbeugung von Migräneanfällen“ mit „tendenziell positiv“ und die IGeL „Akupunktur zur Vorbeugung von Spannungskopfschmerzen“ mit „unklar“.", nutzenQuelle: [IGEL.akupunkturMigraene, IGEL.akupunkturSpannungskopfschmerz] },
         ],
       },
@@ -570,7 +572,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Nahrungsmittel-Unverträglichkeit",
         bereich: "Diagnostik",
         options: [
-          { id: "atemtest_kasse", name: "Atemtest bei Beschwerden", type: "kasse", price: 45, benefits: ["Kassenleistung"] },
+          { id: "atemtest_kasse", name: "Atemtest bei Beschwerden", type: "kasse", price: 45, benefits: [] },
           { id: "atemtest_igel", name: "Atemtest ohne Beschwerden", type: "igel", price: 45, benefits: ["Laktose oder Fruktose"], nutzen: NUTZEN_FRAGEN },
         ],
       },
@@ -631,7 +633,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Schilddrüse",
         bereich: "Diagnostik",
         options: [
-          { id: "sd_kasse", name: "Ultraschall und Blutwerte bei Beschwerden oder Befund", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "sd_kasse", name: "Ultraschall und Blutwerte bei Beschwerden oder Befund", type: "kasse", price: 0, benefits: [] },
           { id: "sd_igel", name: "Schilddrüsen-Check ohne Beschwerden", type: "igel", price: 50, benefits: ["Ultraschall und Blutwerte"], nutzen: "Der IGeL-Monitor des Medizinischen Dienstes bewertet die IGeL „Ultraschall zur Früherkennung von Veränderungen der Schilddrüse“ und die IGeL „Blutuntersuchung zur Früherkennung von Schilddrüsenfunktionsstörungen“ jeweils für nicht-schwangere Erwachsene ohne Beschwerden mit „tendenziell negativ“.", nutzenQuelle: [IGEL.schilddrueseUltraschall, IGEL.schilddrueseBlut] },
         ],
       },
@@ -660,7 +662,7 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         label: "Krampfadern und Besenreiser",
         bereich: "Venen",
         options: [
-          { id: "venen_kasse", name: "Behandlung von Krampfadern bei Beschwerden", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+          { id: "venen_kasse", name: "Behandlung von Krampfadern bei Beschwerden", type: "kasse", price: 0, benefits: [] },
           { id: "besenreiser", zusatz: true, name: "Verödung von Besenreisern (je Sitzung)", type: "igel", price: 120, benefits: ["Behandlung aus kosmetischem Wunsch"], nutzen: "Behandlung aus kosmetischem Wunsch, keine Kassenleistung." },
         ],
       },
@@ -891,8 +893,8 @@ export const ALLE_SPECIALTIES: Specialty[] = [
         options: [
           { id: "rx_kasse", name: "Arzneimittel auf Kassenrezept (je Packung)", type: "kasse", price: 40, zuzahlung: "hilfsmittel", benefits: ["Kassenleistung mit gesetzlicher Zuzahlung"] },
           { id: "medikationsberatung", name: "Erweiterte Medikationsberatung bei Polymedikation", type: "kasse", price: 0, benefits: ["Kassenleistung bei dauerhaft mindestens fünf Wirkstoffen"] },
-          { id: "otc", zusatz: true, name: "Rezeptfreies Präparat zur Selbstmedikation", type: "igel", price: 12, benefits: ["mit Beratung in der Apotheke"] },
-          { id: "messung", zusatz: true, name: "Blutzucker- oder Cholesterinmessung", type: "igel", price: 8, benefits: ["Ergebnis in wenigen Minuten"], nutzen: "Ersetzt keine ärztliche Untersuchung." },
+          { id: "otc", zusatz: true, name: "Rezeptfreies Präparat zur Selbstmedikation", type: "igel", price: 12, ohneErstattung: true, benefits: ["mit Beratung in der Apotheke"] },
+          { id: "messung", zusatz: true, name: "Blutzucker- oder Cholesterinmessung", type: "igel", price: 8, ohneErstattung: true, benefits: ["Ergebnis in wenigen Minuten"], nutzen: "Ersetzt keine ärztliche Untersuchung." },
         ],
       },
     ],

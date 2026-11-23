@@ -55,7 +55,7 @@ export default function LizenzenPage() {
         <ul className="ml-5 list-disc space-y-1">
           <li>
             <b>BodyParts3D 4.0</b>, © The Database Center for Life Science (DBCLS),{" "}
-            <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/" target="_blank" rel="noopener noreferrer">dbarchive.biosciencedbc.jp</a>. Verwendet
+            <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/desc.html" target="_blank" rel="noopener noreferrer">dbarchive.biosciencedbc.jp</a>. Verwendet
             sind Daten mit Stand 22.05.2013. Lizenz laut den Dateiköpfen:{" "}
             <a href="https://creativecommons.org/licenses/by-sa/2.1/jp/" target="_blank" rel="noopener noreferrer">Creative Commons Attribution-Share Alike 2.1 Japan</a>.
             Die Datenbank selbst nennt seit 25.02.2025 die Lizenz CC Attribution 4.0 International mit der Namensnennung „BodyParts3D, © The
@@ -109,7 +109,7 @@ export default function LizenzenPage() {
         <ul className="ml-5 list-disc space-y-1">
           {SCHRIFTEN.map(([name, urheber, url]) => (
             <li key={name}>
-              <b>{name}:</b> {urheber}.{" "}
+              <b>{name}:</b> {urheber}{urheber.endsWith(".") ? "" : "."}{" "}
               <a href={url} target="_blank" rel="noopener noreferrer">
                 Lizenz
               </a>

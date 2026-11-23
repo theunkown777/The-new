@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${base}/vorschau`, changeFrequency: "monthly", priority: 0.8 },
     ...["zahn", ...SPECIALTIES.map((x) => x.id)].map((id) => ({ url: `${base}/fachgebiete/${id}`, changeFrequency: "weekly" as const, priority: 0.8 })),
+    { url: `${base}/fachgebiete/andere`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/ratgeber`, changeFrequency: "monthly", priority: 0.7 },
     ...RATGEBER.map((a) => ({ url: `${base}/ratgeber/${a.slug}`, lastModified: a.updated, changeFrequency: "monthly" as const, priority: 0.6 })),
     { url: `${base}/rechner`, changeFrequency: "monthly", priority: 0.7 },

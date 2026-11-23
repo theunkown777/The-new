@@ -92,7 +92,7 @@ export default async function LeistungenPage(props: { searchParams: Promise<SP> 
           <input
             name="q"
             defaultValue={q}
-            placeholder="Was suchen Sie? z. B. Zahnreinigung, Kreuzbandriss, Krankengymnastik"
+            placeholder="Was suchen Sie? z. B. Hautkrebs-Screening, Kreuzbandriss, Krankengymnastik"
             aria-label="Leistung suchen"
             className="input flex-1 py-2.5 text-base"
           />

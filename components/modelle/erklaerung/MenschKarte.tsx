@@ -88,7 +88,7 @@ export function MenschKarte({ fach, ueberschrift = true }: { fach?: string | nul
               })}
             </div>
             {MENSCH_BILD && (
-              <p className="absolute bottom-1 right-2 text-[10px] text-tinte-2/80">
+              <p className="absolute bottom-1 right-2 text-[10px] text-tinte-2">
                 Bild:{" "}
                 <a href={MENSCH_BILD.quelleUrl} className="underline" target="_blank" rel="noopener">
                   {MENSCH_BILD.autor}

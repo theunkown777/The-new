@@ -467,3 +467,17 @@ describe("Alltagsfragen", () => {
     expect(p("Steuerbüro")).toBeLessThan(p("Steuerberatung"));
   });
 });
+
+describe("Frag Sorrida auf der Website: typische Fragen vor dem Kauf", () => {
+  it.each([
+    ["Kann ich kündigen?", "web-laufzeit"],
+    ["Wie kündige ich?", "web-laufzeit"],
+    ["Gibt es eine Mindestlaufzeit?", "web-laufzeit"],
+    ["Wie lange dauert die Einrichtung?", "web-einfuehrung"],
+    ["Gibt es einen Vertrag zur Auftragsverarbeitung?", "web-avv"],
+    ["Funktioniert das mit Medistar?", "web-praxissoftware"],
+    ["Geht das mit Dampsoft?", "web-praxissoftware"],
+  ])("%s → %s", (frage, id) => {
+    expect(sucheHilfe(frage, WEBSITE_WISSEN)[0]?.eintrag.id).toBe(id);
+  });
+});

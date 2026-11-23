@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = { title: "Seite nicht gefunden – Sorrida" };
 
 // Deutsche Seite für Adressen, die es nicht gibt (statt der englischen Standardseite).
 export default function NichtGefunden() {
   return (
-    <main className="flex min-h-[100dvh] items-center justify-center bg-[#F5F2EE] px-4 py-16 text-center">
+    <main className="website flex min-h-[100dvh] items-center justify-center bg-[#F5F2EE] px-4 py-16 text-center">
       <div className="max-w-md">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/sorrida-mark.webp" alt="" className="mx-auto h-14 w-14" />

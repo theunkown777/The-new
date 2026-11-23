@@ -90,7 +90,6 @@ export default function Page() {
         </thead>
         <tbody>
           <tr><td>Ultraschall der Eierstöcke zur Krebsfrüherkennung</td><td>negativ</td></tr>
-          <tr><td>Augenspiegelung mit Augeninnendruckmessung zur Glaukom-Früherkennung</td><td>tendenziell negativ</td></tr>
           <tr><td>PSA-Test zur Früherkennung von Prostatakrebs</td><td>tendenziell negativ</td></tr>
           <tr><td>Ultraschall der Halsschlagadern zur Schlaganfallvorsorge</td><td>tendenziell negativ</td></tr>
           <tr><td>Ultraschall der Brust zur Krebsfrüherkennung</td><td>unklar</td></tr>

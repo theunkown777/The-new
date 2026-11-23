@@ -1,6 +1,6 @@
 # Gestaltung der App für die Praxis
 
-Dieses Blatt gilt für alles unter `app/(app)` (die App für die Praxis). Website und Patientenseiten haben ihre eigene Gestaltung und bleiben davon unberührt.
+Dieses Blatt gilt für alles unter `app/(app)` (die App für die Praxis). Website und Patientenseiten haben ihre eigene Gestaltung. Die Farbe Grau ist aber auch auf der Website die warme Tinte: Der Rahmen der öffentlichen Seiten (Journal-Rahmen, Startseite, Anmeldung, 404) trägt die Klasse `website` mit denselben warmen slate-Werten wie die App. Die Patientenseiten bleiben vorerst beim gewohnten Grau.
 
 Ziel: Jede neue Seite sieht aus wie die vorhandenen, ohne dass jemand Farben oder Formen neu erfindet.
 
@@ -12,7 +12,7 @@ Ziel: Jede neue Seite sieht aus wie die vorhandenen, ohne dass jemand Farben ode
   - `--slate-500` für Schrift und Symbole (`text-`, `fill-`, `stroke-`)
   - `--slate-fl-500` für Flächen (`bg-`)
   - `--slate-li-500` für Linien (`border-`, `divide-`, `ring-`)
-- Außerhalb der App stehen in den Variablen die gewohnten Werte. In der App stehen dort die Werte unten.
+- Außerhalb der App stehen in den Variablen die gewohnten Werte; nur auf der Website (`.website`) ist Grau ebenfalls warm. In der App stehen dort die Werte unten.
 - Wer in der App `text-slate-600` schreibt, bekommt deshalb warme Tinte statt kühlem Grau. Nichts muss umbenannt werden.
 - `lib/gestaltung.test.ts` prüft die Kontraste aus `app/globals.css`, hell und dunkel. Wer Farbwerte ändert, lässt diesen Test laufen.
 

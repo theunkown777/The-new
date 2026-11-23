@@ -5,7 +5,7 @@ Die Dateien in diesem Ordner (`*.glb`) sind **bearbeitete Fassungen** fremder Da
 
 ## Quellen
 
-**BodyParts3D 4.0** – © The Database Center for Life Science (DBCLS), https://dbarchive.biosciencedbc.jp/en/bodyparts3d/
+**BodyParts3D 4.0** – © The Database Center for Life Science (DBCLS), https://dbarchive.biosciencedbc.jp/en/bodyparts3d/desc.html
 - Verwendet: `isa_BP3D_4.0_obj_99.zip`, `isa_element_parts.txt`, `partof_element_parts.txt` (Stand 2013-05-22)
 - Lizenz der Daten laut Dateiköpfen der OBJ-Dateien: **Creative Commons Attribution-Share Alike 2.1 Japan (CC BY-SA 2.1 JP)**.
   Die README der Datenbank nennt seit 25.02.2025 **CC BY 4.0** mit der Namensnennung
