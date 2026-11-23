@@ -9,7 +9,12 @@ import type { MedInput, ProposalInput, ProposalItem, ProposalOption } from "@/li
 
 export const CUSTOM_PREFIX = "eigen_";
 
-function toOption(o: MedOption, med: MedInput, age: number | null, therapie: boolean): ProposalOption {
+/** Texte, die von der gesetzlichen Krankenkasse sprechen (nicht Pflegekasse). Bei Privatversicherten passen sie nicht. */
+const KASSEN_TEXT = /\bKass|Krankenkass/;
+const TARIF_HINWEIS = "Ob Ihre Versicherung zahlt, hängt von Ihrem Tarif ab. Bitte vorher fragen.";
+
+function toOption(o: MedOption, med: MedInput, age: number | null, therapie: boolean, insurance: "GKV" | "PKV" = "GKV"): ProposalOption {
+  const pkv = insurance === "PKV";
   const price = med.prices?.[o.id] ?? o.price;
   let type: ProposalOption["type"] = o.type;
   let hinweis = o.kasseWenn;
@@ -21,20 +26,22 @@ function toOption(o: MedOption, med: MedInput, age: number | null, therapie: boo
       hinweis = `Kassenleistung ab ${o.kasseAbAlter} Jahren.${o.kasseWenn ? ` ${o.kasseWenn}` : ""}`;
     }
   }
-  const typeLabel = therapie
-    ? type === "igel"
+  // Privatversicherte: keine Kassen-Bezeichnung und keine Kassen-Texte; die Bezeichnung kommt aus optionTypeLabel (PKV).
+  const typeLabel = o.kostentraeger === "bg"
+    ? "Zahlt die Berufsgenossenschaft"
+    : therapie && type === "igel"
       ? "Selbstzahlerleistung"
-      : o.zuzahlung
+      : o.zuzahlung && type === "kasse" && !pkv
         ? "Kassenleistung mit Zuzahlung"
-        : undefined
-    : o.zuzahlung && type === "kasse"
-      ? "Kassenleistung mit Zuzahlung"
-      : undefined;
+        : undefined;
+  const benefits = pkv && o.kostentraeger !== "bg" ? o.benefits.filter((b) => !KASSEN_TEXT.test(b)) : o.benefits;
+  if (pkv && o.kostentraeger !== "bg" && hinweis && KASSEN_TEXT.test(hinweis)) hinweis = TARIF_HINWEIS;
+  const erstattung = o.ohneErstattung || o.kostentraeger === "bg" ? { ohneErstattung: true } : {};
   // Festbetrag + Aufzahlung (z. B. höherwertiges Hörgerät): Kasse zahlt den Anteil, Patient die Differenz.
   if (o.kasseAnteil != null && type === "igel") {
-    return { id: o.id, type: "mehrkosten", base: o.kasseAnteil, name: o.name, total: price, benefits: o.benefits, hinweis, nutzen: o.nutzen, nutzenQuelle: o.nutzenQuelle, zuzahlung: o.zuzahlung, typeLabel: "Kassenanteil + Aufzahlung" };
+    return { id: o.id, type: "mehrkosten", base: o.kasseAnteil, name: o.name, total: price, benefits, hinweis, nutzen: o.nutzen, nutzenQuelle: o.nutzenQuelle, zuzahlung: o.zuzahlung, typeLabel: pkv ? undefined : "Kassenanteil + Aufzahlung", ...erstattung };
   }
-  return { id: o.id, type, name: o.name, total: price, benefits: o.benefits, hinweis, nutzen: o.nutzen, nutzenQuelle: o.nutzenQuelle, zuzahlung: o.zuzahlung, typeLabel };
+  return { id: o.id, type, name: o.name, total: price, benefits, hinweis, nutzen: o.nutzen, nutzenQuelle: o.nutzenQuelle, zuzahlung: o.zuzahlung, typeLabel, ...erstattung };
 }
 
 export function buildMedicalProposal(input: ProposalInput): ProposalItem[] {
@@ -45,7 +52,7 @@ export function buildMedicalProposal(input: ProposalInput): ProposalItem[] {
 
   for (const a of spec?.anlaesse ?? []) {
     if (!chosen.has(a.id)) continue;
-    const alle = a.options.map((o) => ({ roh: o, opt: toOption(o, med, input.patient.age, isTherapie(spec)) }));
+    const alle = a.options.map((o) => ({ roh: o, opt: toOption(o, med, input.patient.age, isTherapie(spec), input.patient.insurance) }));
     // Zusatzleistungen (z. B. Auflichtmikroskopie zum Hautkrebs-Screening) werden eigene Positionen zum Ankreuzen,
     // damit die Kassenleistung daneben gewählt bleibt. Voraussetzung: Es bleibt eine Hauptleistung übrig.
     const istZusatz = (x: (typeof alle)[number]) => !!x.roh.zusatz && x.opt.type === "igel";

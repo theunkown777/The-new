@@ -228,6 +228,8 @@ const content: Record<string, string> = {
   Selbstzahlerleistung: "Świadczenie płatne samodzielnie",
   "Kassenleistung mit Zuzahlung": "Na koszt kasy chorych, z dopłatą",
   "Kassenanteil + Aufzahlung": "Udział kasy + Pani/Pana dopłata",
+  "Zahlt die Berufsgenossenschaft": "Płaci ubezpieczenie wypadkowe (BG)",
+  "Ob Ihre Versicherung zahlt, hängt von Ihrem Tarif ab. Bitte vorher fragen.": "To, czy ubezpieczenie zapłaci, zależy od Pani/Pana taryfy. Proszę zapytać wcześniej.",
   "Leistung der Praxis": "Świadczenie gabinetu",
   "Kassenleistung bei Beschwerden": "przy dolegliwościach na koszt kasy chorych",
   "Kassenleistung mit gesetzlicher Zuzahlung": "na koszt kasy chorych, z ustawową dopłatą",

@@ -208,4 +208,26 @@ describe("Zusatzleistungen zur Kassenleistung", () => {
     expect(brief({ a_hautkrebs__auflicht: "auflicht" })).toContain("(zusätzlich gewählt)");
     expect(brief({})).toContain("Summe Ihres Eigenanteils");
   });
+
+  it("Privatversicherte sehen keine Kassen-Texte, rezeptfreie Präparate ohne Erstattung, BG-Fälle mit eigener Bezeichnung", () => {
+    const physio = (insurance: "GKV" | "PKV") => buildProposal({ teeth: {}, globals: {}, patient: patient(40, insurance), fach: "physio", anlaesse: ["ruecken"] }, DEFAULT_PRICES);
+    const gkv = physio("GKV").flatMap((i) => i.options);
+    const pkv = physio("PKV").flatMap((i) => i.options);
+    expect(gkv.find((o) => o.id === "kg_rezept")?.typeLabel).toBe("Kassenleistung mit Zuzahlung");
+    const kg = pkv.find((o) => o.id === "kg_rezept")!;
+    expect(typeLabelOf(kg, "PKV")).toBe("Basisleistung");
+    for (const o of pkv) {
+      for (const b of o.benefits) expect(b, o.id).not.toMatch(/\bKass|Krankenkass/);
+      if (o.hinweis) expect(o.hinweis, o.id).not.toMatch(/\bKass|Krankenkass/);
+    }
+    const apo = buildProposal({ teeth: {}, globals: {}, patient: patient(60, "PKV"), fach: "apotheke", anlaesse: ["rezept"] }, DEFAULT_PRICES).flatMap((i) => i.options);
+    for (const id of ["otc", "messung"]) {
+      const o = apo.find((x) => x.id === id)!;
+      expect(o.ohneErstattung, id).toBe(true);
+      expect(money(o, patient(60, "PKV")).kasse, id).toBe(0);
+    }
+    const bg = buildProposal({ teeth: {}, globals: {}, patient: patient(40), fach: "ortho", anlaesse: ["arbeitsunfall"] }, DEFAULT_PRICES)[0].options[0];
+    expect(typeLabelOf(bg, "GKV")).toBe("Zahlt die Berufsgenossenschaft");
+    expect(typeLabelOf(bg, "PKV")).toBe("Zahlt die Berufsgenossenschaft");
+  });
 });

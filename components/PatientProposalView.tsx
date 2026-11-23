@@ -273,14 +273,14 @@ export function PatientProposalView(props: Props) {
             <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
               <dt className="text-sm text-slate-500">{gkv ? t.stepInsurerGkv : t.stepInsurerPkv}</dt>
               <dd className="text-end font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-start sm:text-lg" data-testid="schritt-kasse">
-                {nochNichtsGewaehlt ? <><span aria-hidden="true">–</span><span className="sr-only">{t.open(offen.length)}</span></> : fmt(anteile.kasse)}
-                {anteile.zusatz > 0.5 && <span className="block text-xs font-normal text-slate-500">+ {t.supplementary} {fmt(anteile.zusatz)}</span>}
+                {nochNichtsGewaehlt ? <><span aria-hidden="true">–</span><span className="sr-only">{t.open(offen.length)}</span></> : <span className="whitespace-nowrap">{fmt(anteile.kasse)}</span>}
+                {anteile.zusatz > 0.5 && <span className="block text-xs font-normal text-slate-500">+ {t.supplementary} <span className="whitespace-nowrap">{fmt(anteile.zusatz)}</span></span>}
               </dd>
             </div>
             <div className="flex items-baseline justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:block">
               <dt className="text-sm text-slate-500">{t.stepSelf}</dt>
               <dd className="text-end font-semibold tabular-nums text-slate-900 sm:mt-1 sm:text-start sm:text-lg" data-testid="schritt-selbst">
-                {nochNichtsGewaehlt ? <span aria-hidden="true">–</span> : fmt(sum.netto)}
+                {nochNichtsGewaehlt ? <span aria-hidden="true">–</span> : <span className="whitespace-nowrap">{fmt(sum.netto)}</span>}
                 {/* Auf dem Handy steht der Hinweis unter dem Betrag, sonst bricht er mitten im Satz um. */}
                 {offen.length > 0 && <span className="block text-xs font-normal text-brand-700">{t.open(offen.length)}</span>}
               </dd>
@@ -368,8 +368,8 @@ export function PatientProposalView(props: Props) {
                         </ul>
                       )}
                       {o.hinweis && (
-                        <p className="mt-2 text-xs text-emerald-800">
-                          {t.kasseWenn} <Rt text={o.hinweis} lang={lang} z={zusatz} />
+                        <p className="mt-2 text-xs text-salbei-800">
+                          {patient.insurance !== "PKV" && <>{t.kasseWenn} </>}<Rt text={o.hinweis} lang={lang} z={zusatz} />
                         </p>
                       )}
                       {o.nutzen && (
@@ -522,15 +522,15 @@ export function PatientProposalView(props: Props) {
           <div>
             <div className="text-xs text-slate-500">{t.barLabel}</div>
             <div className="text-xl font-semibold tabular-nums text-slate-900" aria-live="polite">
-              {nochNichtsGewaehlt ? <span aria-hidden="true">–</span> : fmt(sum.netto)}
+              {nochNichtsGewaehlt ? <span aria-hidden="true">–</span> : <span className="whitespace-nowrap">{fmt(sum.netto)}</span>}
             </div>
             {offen.length > 0 && <div className="text-xs text-brand-700">{t.open(offen.length)}</div>}
             {offer.kind === "rate" && (
-              <div className="text-xs text-emerald-700" data-testid="installment-rate">
+              <div className="text-xs text-brand-700" data-testid="installment-rate">
                 {t.rate(offer.months, fmt(offer.monthly))}
               </div>
             )}
-            {offer.kind === "ask" && <div className="text-xs text-emerald-700">{t.ask}</div>}
+            {offer.kind === "ask" && <div className="text-xs text-brand-700">{t.ask}</div>}
           </div>
           {props.showJahresvergleich && jahre.betroffen && jahre.mehrkosten > 0.5 && (
             <div className="text-end text-xs text-amber-800">

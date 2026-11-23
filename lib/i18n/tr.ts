@@ -227,6 +227,8 @@ const content: Record<string, string> = {
   Selbstzahlerleistung: "Ücreti hasta tarafından ödenen hizmet",
   "Kassenleistung mit Zuzahlung": "Sağlık sigortası kapsamında, katkı payı ile",
   "Kassenanteil + Aufzahlung": "Sigortanın payı + sizin ek ödemeniz",
+  "Zahlt die Berufsgenossenschaft": "İş kazası sigortası (BG) öder",
+  "Ob Ihre Versicherung zahlt, hängt von Ihrem Tarif ab. Bitte vorher fragen.": "Sigortanızın ödeyip ödemediği tarifenize bağlıdır. Lütfen önceden sorun.",
   "Leistung der Praxis": "Muayenehanenin hizmeti",
   "Kassenleistung bei Beschwerden": "şikâyet varsa sağlık sigortası kapsamında",
   "Kassenleistung mit gesetzlicher Zuzahlung": "yasal katkı payı ile sağlık sigortası kapsamında",

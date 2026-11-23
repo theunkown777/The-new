@@ -725,7 +725,7 @@ export function ProposalEditor({
                                   Festzuschuss Befund {o.befunde.filter((b, i, a) => a.indexOf(b) === i).map((b) => (o.befunde!.filter((x) => x === b).length > 1 ? `${o.befunde!.filter((x) => x === b).length}× ${b}` : b)).join(" + ")}: {m.kasse.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}
                                 </span>
                               )}
-                              {o.hinweis && <span className="text-xs text-green-800">Kasse: {o.hinweis}</span>}
+                              {o.hinweis && <span className="text-xs text-green-800">{factors.insurance === "PKV" ? "" : "Kasse: "}{o.hinweis}</span>}
                               {o.nutzen && !gespraech && (
                                 <span className="text-xs text-amber-800">
                                   {o.nutzenVonPraxis ? ft("Hinweis der Praxis") : "Nutzen"}: {o.nutzen}

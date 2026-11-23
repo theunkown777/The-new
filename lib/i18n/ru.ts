@@ -228,6 +228,8 @@ const content: Record<string, string> = {
   Selbstzahlerleistung: "Услуга за собственный счёт",
   "Kassenleistung mit Zuzahlung": "Оплачивает больничная касса, с доплатой",
   "Kassenanteil + Aufzahlung": "Доля кассы + Ваша доплата",
+  "Zahlt die Berufsgenossenschaft": "Оплачивает страхование от несчастных случаев на производстве",
+  "Ob Ihre Versicherung zahlt, hängt von Ihrem Tarif ab. Bitte vorher fragen.": "Оплатит ли страховка, зависит от Вашего тарифа. Пожалуйста, уточните заранее.",
   "Leistung der Praxis": "Услуга практики",
   "Kassenleistung bei Beschwerden": "при наличии жалоб оплачивает больничная касса",
   "Kassenleistung mit gesetzlicher Zuzahlung": "оплачивает больничная касса, с установленной законом доплатой",

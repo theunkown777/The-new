@@ -193,6 +193,8 @@ export default async function SpecialtyPage(props: { params: Promise<{ id: strin
                           <span className="text-sm tabular-nums text-slate-700">
                             {o.type === "kasse" && dental && o.kasseAnteil == null && /Regelversorgung/.test(o.name)
                               ? `ca. ${euro(o.price)}, Kasse zahlt Festzuschuss`
+                              : o.kostentraeger === "bg"
+                              ? "Zahlt die Berufsgenossenschaft"
                               : o.type === "kasse"
                               ? o.kasseAbAlter
                                 ? `Kasse ab ${o.kasseAbAlter} Jahren`

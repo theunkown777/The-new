@@ -89,7 +89,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "hwi", label: "Wiederkehrende Harnwegsinfekte", bereich: "Blase",
       options: [
-        { id: "uro_hwi_kultur", name: "Urinkultur und gezielte Behandlung", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+        { id: "uro_hwi_kultur", name: "Urinkultur und gezielte Behandlung", type: "kasse", price: 0, benefits: [] },
         { id: "uro_hwi_immun", zusatz: true, name: "Immunprophylaxe (orale Impfung gegen Harnwegsinfekte)", type: "igel", price: 60, benefits: ["Kapseln zum Einnehmen"], kasseWenn: "Manche Kassen erstatten auf Antrag." },
       ],
     },
@@ -118,14 +118,14 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "wechseljahre", geschlecht: "W", abAlter: 40, label: "Wechseljahre", bereich: "Hormone",
       options: [
-        { id: "gyn_wj_ber", name: "Beratung und Behandlung bei Beschwerden", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+        { id: "gyn_wj_ber", name: "Beratung und Behandlung bei Beschwerden", type: "kasse", price: 0, benefits: [] },
         { id: "gyn_wj_horm", name: "Hormonstatus ohne Beschwerden", type: "igel", price: 60, benefits: ["Blutwerte"], nutzen: NUTZEN_FRAGEN },
       ],
     },
     {
       id: "hpv", geschlecht: "W", abAlter: 9, bisAlter: 45, label: "HPV-Impfung", bereich: "Impfung",
       options: [
-        { id: "gyn_hpv_kasse", name: "HPV-Impfung nach STIKO (9 bis 14 Jahre, Nachholimpfung bis 17)", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+        { id: "gyn_hpv_kasse", name: "HPV-Impfung nach STIKO (9 bis 14 Jahre, Nachholimpfung bis 17)", type: "kasse", price: 0, benefits: [] },
         { id: "gyn_hpv_privat", name: "HPV-Impfung als Erwachsene (je Dosis)", type: "igel", price: 160, benefits: ["Impfung gegen humane Papillomviren"], kasseWenn: "Manche Krankenkassen erstatten die Impfung auch später. Bitte vorher bei der Kasse fragen." },
       ],
     },
@@ -135,7 +135,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "impfen", label: "Impfungen nach STIKO", bereich: "Impfung",
       options: [
         { id: "ha_impf_stiko", name: "Standard- und Auffrischimpfungen (z. B. Tetanus, Grippe ab 60)", type: "kasse", price: 0, benefits: ["Kassenleistung nach Schutzimpfungs-Richtlinie"] },
-        { id: "ha_impf_gs", name: "Gürtelrose-Impfung ab 60 (bei Risiko ab 50)", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+        { id: "ha_impf_gs", name: "Gürtelrose-Impfung ab 60 (bei Risiko ab 50)", type: "kasse", price: 0, benefits: [] },
       ],
     },
     {
@@ -181,7 +181,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "tinnitus", label: "Tinnitus", bereich: "Ohr",
       options: [
-        { id: "hno_tin_diag", name: "Hördiagnostik und Abklärung", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+        { id: "hno_tin_diag", name: "Hördiagnostik und Abklärung", type: "kasse", price: 0, benefits: [] },
         { id: "hno_tin_app", name: "Digitale Gesundheitsanwendung (DiGA) auf Rezept, falls gelistet", type: "kasse", price: 0, benefits: ["Kassenleistung auf Verordnung"] },
       ],
     },
@@ -197,7 +197,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "ruecken", label: "Rückenschmerzen", bereich: "Wirbelsäule",
       options: [
-        { id: "or_ruecken_kasse", name: "Untersuchung, Physiotherapie auf Verordnung", type: "kasse", price: 0, zuzahlung: "heilmittel", benefits: ["Kassenleistung"] },
+        { id: "or_ruecken_kasse", name: "Untersuchung, Physiotherapie auf Verordnung", type: "kasse", price: 0, zuzahlung: "heilmittel", benefits: ["Physiotherapie auf Verordnung der Ärztin oder des Arztes"] },
         { id: "or_akupunktur", name: "Akupunktur bei chronischem Kreuzschmerz", type: "kasse", price: 0, benefits: ["Kassenleistung bei mindestens 6 Monaten Beschwerden"] },
         { id: "or_rueckenkurs", zusatz: true, name: "Präventionskurs Rücken", type: "igel", price: 120, benefits: ["Kasse bezuschusst zertifizierte Kurse"] },
       ],
@@ -205,7 +205,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "arbeitsunfall", label: "Arbeits- oder Wegeunfall", bereich: "Unfall",
       options: [
-        { id: "or_bg", name: "Behandlung über die Berufsgenossenschaft", type: "kasse", price: 0, benefits: ["keine Zuzahlung, Abrechnung mit der BG"] },
+        { id: "or_bg", name: "Behandlung über die Berufsgenossenschaft", type: "kasse", kostentraeger: "bg", price: 0, benefits: ["keine Zuzahlung, Abrechnung mit der BG"] },
       ],
     },
   ],
@@ -213,7 +213,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "impfen_kind", bisAlter: 17, label: "Impfungen nach STIKO", bereich: "Impfung",
       options: [
-        { id: "ki_impf", name: "Impfungen nach Impfkalender", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+        { id: "ki_impf", name: "Impfungen nach Impfkalender", type: "kasse", price: 0, benefits: [] },
       ],
     },
     {
@@ -342,14 +342,14 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "mobilitaet", label: "Rollator, Rollstuhl, Pflegebett", bereich: "Mobilität",
       options: [
-        { id: "sh_rollator", name: "Standardrollator auf Rezept", type: "kasse", price: 0, zuzahlung: "hilfsmittel", benefits: ["Kassenleistung"] },
+        { id: "sh_rollator", name: "Standardrollator auf Rezept", type: "kasse", price: 0, zuzahlung: "hilfsmittel", benefits: [] },
         { id: "sh_rollator_leicht", name: "Leichtgewicht-Rollator (Aufpreis)", type: "igel", price: 120, benefits: ["leichter, faltbar"], kasseAnteil: 0 },
       ],
     },
     {
       id: "brustprothetik", geschlecht: "W", label: "Brustprothetik nach Operation", bereich: "Prothetik",
       options: [
-        { id: "sh_brust", name: "Brustprothese und Spezial-BH auf Rezept", type: "kasse", price: 0, zuzahlung: "hilfsmittel", benefits: ["Kassenleistung"] },
+        { id: "sh_brust", name: "Brustprothese und Spezial-BH auf Rezept", type: "kasse", price: 0, zuzahlung: "hilfsmittel", benefits: [] },
       ],
     },
     {
@@ -385,8 +385,8 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
       id: "wochenbett", geschlecht: "W", label: "Wochenbett und Stillzeit", bereich: "Wochenbett",
       options: [
         { id: "he_wb", name: "Hausbesuche im Wochenbett", type: "kasse", price: 0, benefits: ["bis 12 Wochen nach der Geburt, danach auf ärztliche Anordnung"] },
-        { id: "he_still", name: "Stillberatung", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
-        { id: "he_rueck", name: "Rückbildungskurs", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+        { id: "he_still", name: "Stillberatung", type: "kasse", price: 0, benefits: [] },
+        { id: "he_rueck", name: "Rückbildungskurs", type: "kasse", price: 0, benefits: [] },
       ],
     },
     {
@@ -401,7 +401,7 @@ export const ZUSATZ_ANLAESSE: Record<string, Anlass[]> = {
     {
       id: "begleitperson", label: "Begleitperson", bereich: "Aufenthalt",
       options: [
-        { id: "kl_begleit_kind", name: "Mitaufnahme bei Kindern, wenn medizinisch notwendig", type: "kasse", price: 0, benefits: ["Kassenleistung"] },
+        { id: "kl_begleit_kind", name: "Mitaufnahme bei Kindern, wenn medizinisch notwendig", type: "kasse", price: 0, benefits: [] },
         { id: "kl_begleit", name: "Begleitperson auf Wunsch (je Tag)", type: "igel", price: 60, benefits: ["Übernachtung und Verpflegung"] },
       ],
     },

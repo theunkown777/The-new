@@ -224,6 +224,8 @@ const content: Record<string, string> = {
   Selbstzahlerleistung: "Self-pay service",
   "Kassenleistung mit Zuzahlung": "Covered by your insurer, with co-payment",
   "Kassenanteil + Aufzahlung": "Insurer's share + your top-up",
+  "Zahlt die Berufsgenossenschaft": "Paid by the employers’ liability insurance (BG)",
+  "Ob Ihre Versicherung zahlt, hängt von Ihrem Tarif ab. Bitte vorher fragen.": "Whether your insurance pays depends on your plan. Please ask beforehand.",
   "Leistung der Praxis": "Service offered by the practice",
   "Kassenleistung bei Beschwerden": "covered by your insurer if you have symptoms",
   "Kassenleistung mit gesetzlicher Zuzahlung": "covered by your insurer, with the statutory co-payment",

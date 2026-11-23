@@ -228,6 +228,8 @@ const content: Record<string, string> = {
   Selbstzahlerleistung: "Послуга за власний рахунок",
   "Kassenleistung mit Zuzahlung": "Оплачує лікарняна каса, з доплатою",
   "Kassenanteil + Aufzahlung": "Частка каси + Ваша доплата",
+  "Zahlt die Berufsgenossenschaft": "Оплачує страхування від нещасних випадків на виробництві",
+  "Ob Ihre Versicherung zahlt, hängt von Ihrem Tarif ab. Bitte vorher fragen.": "Чи оплатить страховка, залежить від Вашого тарифу. Будь ласка, запитайте заздалегідь.",
   "Leistung der Praxis": "Послуга практики",
   "Kassenleistung bei Beschwerden": "за наявності скарг оплачує лікарняна каса",
   "Kassenleistung mit gesetzlicher Zuzahlung": "оплачує лікарняна каса, з доплатою, встановленою законом",

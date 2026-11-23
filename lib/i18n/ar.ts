@@ -238,6 +238,8 @@ const content: Record<string, string> = {
   Selbstzahlerleistung: "خدمة يدفعها المريض بنفسه",
   "Kassenleistung mit Zuzahlung": "على نفقة التأمين الصحي، مع مساهمة منكم",
   "Kassenanteil + Aufzahlung": "حصة التأمين الصحي + مبلغ إضافي منكم",
+  "Zahlt die Berufsgenossenschaft": "يدفعها تأمين حوادث العمل",
+  "Ob Ihre Versicherung zahlt, hängt von Ihrem Tarif ab. Bitte vorher fragen.": "يعتمد دفع التأمين على خطتكم التأمينية. يرجى السؤال مسبقًا.",
   "Leistung der Praxis": "خدمة تقدمها العيادة",
   "Kassenleistung bei Beschwerden": "على نفقة التأمين الصحي عند وجود أعراض",
   "Kassenleistung mit gesetzlicher Zuzahlung": "على نفقة التأمين الصحي، مع المساهمة القانونية",
