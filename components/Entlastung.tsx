@@ -19,6 +19,7 @@ export type EntlastungGruppe = "zahn" | "arzt" | "therapie" | "andere";
 export function entlastungKarten(gruppe?: EntlastungGruppe): Karte[] {
   const alle = !gruppe;
   const aerztlich = alle || gruppe === "arzt";
+  // Die Aussagen in „sorrida“ stehen verkürzt auch im Lächeln-Zitat der Startseite (lib/laecheln.ts): dort mitpflegen.
   return [
     aerztlich
       ? {
