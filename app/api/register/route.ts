@@ -4,7 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { STANDARD_GOZ_PUNKTWERT_CENT } from "@/lib/billing";
-import { SPECIALTY_IDS } from "@/lib/specialties";
+import { NEU_WAEHLBARE_IDS } from "@/lib/specialties";
 import { sendVerificationEmail } from "@/lib/emailVerification";
 import { REGISTRIERUNG_GESCHLOSSEN, VERTRAGSTEXTE_FASSUNG, registrierungOffen } from "@/lib/registrierung";
 
@@ -12,7 +12,8 @@ import { anschluss } from "@/lib/anschluss";
 const registerSchema = z.object({
   practiceName: z.string().min(2, "Praxisname ist zu kurz"),
   // Pflichtfeld: kein stiller Rückfall auf Zahnmedizin, wenn das Fach fehlt oder unbekannt ist.
-  specialty: z.enum(SPECIALTY_IDS as unknown as [string, ...string[]], "Bitte wählen Sie Ihr Fachgebiet."),
+  // Ausgeblendete Fächer (lib/specialties.ts AUSGEBLENDETE_GRUPPEN) nimmt die Registrierung nicht an.
+  specialty: z.enum(NEU_WAEHLBARE_IDS as unknown as [string, ...string[]], "Bitte wählen Sie Ihr Fachgebiet."),
   name: z.string().min(2, "Name ist zu kurz"),
   email: z.string().email("Ungültige E-Mail-Adresse"),
   password: z.string().min(8, "Passwort muss mindestens 8 Zeichen haben"),

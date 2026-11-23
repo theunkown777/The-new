@@ -1070,6 +1070,8 @@ for (const s of ALLE_SPECIALTIES) {
 export const isTherapie = (s: Specialty | null | undefined) => s?.beruf === "therapie";
 
 export const SPECIALTY_IDS = [DENTAL_ID, ...ALLE_SPECIALTIES.map((s) => s.id), "andere"] as const;
+/** Fächer, mit denen eine neue Praxis oder ein Gastzugang entstehen darf: nur sichtbare (ohne ausgeblendete Gruppen). */
+export const NEU_WAEHLBARE_IDS = [DENTAL_ID, ...SPECIALTIES.map((s) => s.id), "andere"] as const;
 
 export function specialty(id: string | null | undefined): Specialty | null {
   return ALLE_SPECIALTIES.find((s) => s.id === id) ?? null;

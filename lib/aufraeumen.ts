@@ -4,7 +4,7 @@ import { abgelaufeneDemosLoeschen } from "@/lib/demo";
 import { fehlerSchreiben } from "@/lib/fehlerSpeicher";
 
 /** Wendet die automatischen Löschfristen an (lib/loeschfristen.ts). Idempotent. */
-export async function aufraeumen(now = new Date()) {
+export async function aufraeumen(now = new Date(), opts: { demosHoechstens?: number } = {}) {
   const t = stichtag("token", now);
   const [ev, pr, inv, lt, portal, anam, leads, logs] = await Promise.all([
     prisma.emailVerificationToken.deleteMany({ where: { expiresAt: { lt: t } } }),
@@ -34,7 +34,7 @@ export async function aufraeumen(now = new Date()) {
   // Abgelaufene Demo-Praxen. Lässt sich eine nicht löschen, laufen die übrigen Schritte der Nacht trotzdem weiter
   // (Kalender, Erinnerungen, Fehler-Mail in app/api/cron/aufraeumen/route.ts). Der Fehler kommt ins Fehlerlog und
   // damit in die tägliche Fehler-Mail; die Praxis bleibt stehen, bis der Grund geklärt ist.
-  const demoLauf = await abgelaufeneDemosLoeschen(now);
+  const demoLauf = await abgelaufeneDemosLoeschen(now, { hoechstens: opts.demosHoechstens });
   for (const f of demoLauf.fehler) {
     console.error("Abgelaufene Demo-Praxis nicht gelöscht", f.id, f.fehler);
     await fehlerSchreiben({ quelle: "server", ort: "/api/cron/aufraeumen", meldung: `Abgelaufene Demo-Praxis nicht gelöscht: ${f.fehler instanceof Error ? f.fehler.message : String(f.fehler)}` }, null, now);

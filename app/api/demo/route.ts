@@ -1,12 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { isRateLimited, recordAttempt } from "@/lib/rateLimit";
 import { cleanupExpiredDemos, createDemoPractice } from "@/lib/demo";
 import { aufraeumen } from "@/lib/aufraeumen";
+import { DENTAL_ID, specialty, istSichtbar } from "@/lib/specialties";
+import { anschluss } from "@/lib/anschluss";
 
 let letztesAufraeumen = 0;
-import { DENTAL_ID, specialty } from "@/lib/specialties";
-
-import { anschluss } from "@/lib/anschluss";
+/** So viele abgelaufene Demo-Praxen löscht ein Gastzugang höchstens nebenbei. Den Rest erledigt der tägliche Cron. */
+const DEMOS_JE_AUFRUF = 3;
 // Anlegen der Beispieldaten (je nach Fach bis etwa 1800 Einträge) braucht einige Sekunden.
 export const maxDuration = 60;
 
@@ -15,7 +16,8 @@ const WINDOW_MS = 60 * 60 * 1000;
 
 // Legt einen Gastzugang an (eigene Demo-Praxis mit Beispieldaten) und gibt
 // die Wegwerf-Zugangsdaten zurück, mit denen sich die Seite /demo sofort
-// anmeldet. Abgelaufene Demo-Praxen werden dabei aufgeräumt.
+// anmeldet. Abgelaufene Demo-Praxen werden erst nach der Antwort aufgeräumt
+// (after), einige je Aufruf, damit der Gast nicht darauf warten muss.
 export async function POST(req: Request) {
   try {
     return await handle(req);
@@ -39,22 +41,14 @@ async function handle(req: Request) {
   await recordAttempt(key, WINDOW_MS);
 
   try {
-    // Löschfristen auch ohne Cron anwenden, höchstens einmal pro Stunde je Instanz.
-    if (Date.now() - letztesAufraeumen > 3600e3) {
-      letztesAufraeumen = Date.now();
-      await aufraeumen();
-    } else {
-      await cleanupExpiredDemos();
-    }
-  } catch (err) {
-    console.error("Aufräumen abgelaufener Gastzugänge fehlgeschlagen:", err);
-  }
-  try {
     const body = await req.json().catch(() => ({}));
     // Fehlt das Fach oder ist es unbekannt, gibt es keinen stillen Rückfall auf Zahnmedizin.
-    const fach = typeof body?.fach === "string" && (body.fach === DENTAL_ID || specialty(body.fach)) ? (body.fach as string) : null;
+    // Ausgeblendete Fächer (Gruppe „versorgung“) gibt es auch als Gastzugang nicht.
+    const gewaehlt = typeof body?.fach === "string" ? specialty(body.fach) : null;
+    const fach = body?.fach === DENTAL_ID || (gewaehlt && istSichtbar(gewaehlt)) ? (body.fach as string) : null;
     if (!fach) return NextResponse.json({ error: "Bitte wählen Sie zuerst Ihr Fachgebiet." }, { status: 400 });
     const { email, password } = await createDemoPractice(new Date(), fach);
+    after(aufraeumenNebenbei);
     return NextResponse.json({ email, password }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     console.error("Gastzugang konnte nicht angelegt werden:", err);
@@ -63,5 +57,19 @@ async function handle(req: Request) {
       { error: `Der Gastzugang konnte nicht angelegt werden${code ? ` (Datenbankfehler ${code})` : ""}. Details unter /api/status.` },
       { status: 500 }
     );
+  }
+}
+
+/** Löschfristen auch ohne Cron anwenden: höchstens einmal pro Stunde je Instanz alles, sonst nur abgelaufene Demos. */
+async function aufraeumenNebenbei() {
+  try {
+    if (Date.now() - letztesAufraeumen > 3600e3) {
+      letztesAufraeumen = Date.now();
+      await aufraeumen(new Date(), { demosHoechstens: DEMOS_JE_AUFRUF });
+    } else {
+      await cleanupExpiredDemos(new Date(), { hoechstens: DEMOS_JE_AUFRUF });
+    }
+  } catch (err) {
+    console.error("Aufräumen abgelaufener Gastzugänge fehlgeschlagen:", err);
   }
 }

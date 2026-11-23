@@ -11,13 +11,13 @@ import { eingangAusBestand } from "@/lib/eingang";
 import { fachprofil, passtZuPerson } from "@/lib/fachprofile";
 import { computeProposal } from "@/lib/proposalSchema";
 import { demoAnamneseBeispiel } from "@/lib/demoAnamnese";
-import { praxisLoeschen } from "@/lib/praxisLoeschen";
+import { LoeschAbbruch, praxisLoeschen } from "@/lib/praxisLoeschen";
 
 // Gastzugang: Jeder Gast bekommt eine eigene, abgeschottete Demo-Praxis mit
 // erfundenen Beispielpatienten, damit er Sorrida so sieht wie ein Kunde,
 // ohne fremde Daten zu sehen oder anderen Gästen in die Quere zu kommen.
-// Demo-Praxen laufen nach DEMO_TTL_MS ab und werden beim nächsten Anlegen
-// eines Gastzugangs gelöscht.
+// Demo-Praxen laufen nach DEMO_TTL_MS ab und werden nach dem nächsten Anlegen
+// eines Gastzugangs (einige je Aufruf) und vom täglichen Cron gelöscht.
 
 export const DEMO_TTL_MS = 24 * 60 * 60 * 1000;
 export const DEMO_PRACTICE_NAME = "Zahnarztpraxis am Markt (Demo)";
@@ -118,20 +118,33 @@ function age(birth: string, today = new Date()): number {
  * Abgelaufene Demo-Praxen samt aller abhängigen Daten löschen. Dieselbe Löschung wie nach Vertragsende
  * (lib/praxisLoeschen.ts): jede Tabelle, eine Transaktion je Praxis. Wirft nicht: Eine Praxis, die nicht gelöscht
  * werden kann (z. B. LoeschAbbruch wegen Verweisen zwischen Praxen), hält die übrigen nicht auf und steht in `fehler`.
+ * Mit `hoechstens` nur die ältesten so vielen (für den Gastzugang, damit kein Aufruf lange dauert; den Rest erledigt
+ * der tägliche Cron). Eine Praxis, die ein gleichzeitiger Aufruf schon gelöscht hat, zählt nicht als Fehler.
  */
-export async function abgelaufeneDemosLoeschen(now = new Date()): Promise<{ geloescht: number; fehler: { id: string; fehler: unknown }[] }> {
+export async function abgelaufeneDemosLoeschen(now = new Date(), opts: { hoechstens?: number } = {}): Promise<{ geloescht: number; fehler: { id: string; fehler: unknown }[] }> {
   const expired = await prisma.practice.findMany({
     where: { isDemo: true, demoExpiresAt: { lt: now } },
     select: { id: true },
+    orderBy: { demoExpiresAt: "asc" },
+    ...(opts.hoechstens ? { take: opts.hoechstens } : {}),
   });
   const fehler: { id: string; fehler: unknown }[] = [];
-  for (const { id } of expired) await praxisLoeschen(prisma, id).catch((e: unknown) => void fehler.push({ id, fehler: e }));
-  return { geloescht: expired.length - fehler.length, fehler };
+  let geloescht = 0;
+  for (const { id } of expired) {
+    try {
+      await praxisLoeschen(prisma, id);
+      geloescht++;
+    } catch (e) {
+      if (e instanceof LoeschAbbruch && e.praxisFehlt) continue;
+      fehler.push({ id, fehler: e });
+    }
+  }
+  return { geloescht, fehler };
 }
 
 /** Wie abgelaufeneDemosLoeschen, wirft aber am Ende, wenn eine Praxis nicht gelöscht werden konnte. */
-export async function cleanupExpiredDemos(now = new Date()): Promise<number> {
-  const { geloescht, fehler } = await abgelaufeneDemosLoeschen(now);
+export async function cleanupExpiredDemos(now = new Date(), opts: { hoechstens?: number } = {}): Promise<number> {
+  const { geloescht, fehler } = await abgelaufeneDemosLoeschen(now, opts);
   if (fehler.length) throw new AggregateError(fehler.map((f) => f.fehler), `${fehler.length} von ${geloescht + fehler.length} abgelaufenen Demo-Praxen nicht gelöscht`);
   return geloescht;
 }

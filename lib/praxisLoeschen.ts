@@ -97,7 +97,7 @@ export type LoeschErgebnis = { praxis: Praxis; zeitpunkt: Date; zeilen: Zeile[] 
 
 /** Abbruch ohne Löschung: Praxis fehlt, Name stimmt nicht oder Verweise zwischen dieser und anderen Praxen bestehen. */
 export class LoeschAbbruch extends Error {
-  constructor(message: string, readonly verweise: FremderVerweis[] = []) {
+  constructor(message: string, readonly verweise: FremderVerweis[] = [], readonly praxisFehlt = false) {
     super(message);
     this.name = "LoeschAbbruch";
   }
@@ -173,8 +173,12 @@ export async function praxisZaehlen(db: Db, praxisId: string): Promise<Zeile[]> 
 export async function praxisLoeschen(db: PrismaClient, praxisId: string, opts: { name?: string } = {}): Promise<LoeschErgebnis> {
   const { praxis, zeilen } = await db.$transaction(
     async (tx) => {
+      // Die Zeile der Praxis zuerst sperren. Löscht ein zweiter Aufruf dieselbe Praxis gleichzeitig, wartet er hier und
+      // findet danach keine Praxis mehr. Ohne Sperre sähe er in fremdeVerweise zwischen zwei Zählungen die Löschung des
+      // anderen und meldete Scheinverweise (Read Committed).
+      await tx.$queryRaw`select id from "Practice" where id = ${praxisId} for update`;
       const praxis = await tx.practice.findUnique({ where: { id: praxisId }, select: { id: true, name: true, isDemo: true } });
-      if (!praxis) throw new LoeschAbbruch(`Keine Praxis mit der Kennung ${praxisId}. Nichts gelöscht.`);
+      if (!praxis) throw new LoeschAbbruch(`Keine Praxis mit der Kennung ${praxisId}. Nichts gelöscht.`, [], true);
       if (opts.name !== undefined && opts.name !== praxis.name) throw new LoeschAbbruch("Der Name zur Bestätigung stimmt nicht genau mit dem Namen der Praxis überein. Nichts gelöscht.");
       const verweise = await fremdeVerweise(tx, praxisId);
       if (verweise.length) throw new LoeschAbbruch(`Verweise zwischen dieser und anderen Praxen. Nichts gelöscht.\n${verweiseText(verweise)}`, verweise);

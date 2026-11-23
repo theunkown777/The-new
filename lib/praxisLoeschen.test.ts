@@ -378,6 +378,24 @@ describe.skipIf(!MIT_DB)("Löschen in der Datenbank", () => {
     expect(await prisma.fehlerEintrag.findUnique({ where: { fingerabdruck: E.abdruck } })).toMatchObject({ practiceId: null });
   }, 60_000);
 
+  it("gleichzeitiges Löschen derselben Praxis: ein Aufruf löscht, der andere findet keine Praxis mehr, keine Scheinverweise", async () => {
+    const G = await praxisAnlegen("P", { isDemo: true, demoExpiresAt: new Date("1970-01-01T00:00:01Z") });
+    const ergebnisse = await Promise.allSettled([praxisLoeschen(prisma, G.id), praxisLoeschen(prisma, G.id)]);
+    expect(ergebnisse.filter((e) => e.status === "fulfilled")).toHaveLength(1);
+    const abgelehnt = ergebnisse.find((e) => e.status === "rejected") as PromiseRejectedResult;
+    expect(abgelehnt.reason).toBeInstanceOf(LoeschAbbruch);
+    expect((abgelehnt.reason as LoeschAbbruch).praxisFehlt).toBe(true);
+    expect((abgelehnt.reason as LoeschAbbruch).verweise).toEqual([]);
+    // Zwei Läufe der Demo-Löschung zugleich: eine schon gelöschte Praxis zählt nicht als Fehler.
+    const H = await praxisAnlegen("Q", { isDemo: true, demoExpiresAt: new Date("1970-01-01T00:00:01Z") });
+    const { abgelaufeneDemosLoeschen } = await import("./demo");
+    const jetzt = new Date("1970-01-01T00:00:02Z");
+    const [a, b] = await Promise.all([abgelaufeneDemosLoeschen(jetzt, { hoechstens: 3 }), abgelaufeneDemosLoeschen(jetzt, { hoechstens: 3 })]);
+    expect(a.geloescht + b.geloescht).toBe(1);
+    expect([...a.fehler, ...b.fehler]).toEqual([]);
+    expect(await prisma.practice.count({ where: { id: H.id } })).toBe(0);
+  }, 60_000);
+
   it("nächtlicher Lauf: Eine Demo-Praxis, die sich nicht löschen lässt, hält den Lauf nicht an und kommt ins Fehlerlog", async () => {
     const J = await praxisAnlegen("J", { isDemo: true, demoExpiresAt: new Date("1970-01-01T00:00:01Z") });
     const K = await praxisAnlegen("K");
