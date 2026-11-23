@@ -8,6 +8,7 @@ import { abrechnungsStelle, rechnetUeberKv } from "@/lib/abrechnungsarten";
 import { importVorgaben } from "@/lib/importVerzeichnisse";
 import { hatEbm, hatKvZiffern, quellenFuer } from "@/lib/amtlich/gliederung";
 import { terminDokuGeprueft } from "@/lib/billingCheckLoad";
+import { darfSeite, ratenzahlungAuf } from "@/lib/einstellungsSeiten";
 import {
   aufVerordnung, diagnoseHinweis, dokumentBeispiele, fachWoerter, leistungsBeispiel, leistungsBeispielFuer, preisRahmen, systemGruppe,
 } from "@/lib/fachprofile";
@@ -18,6 +19,7 @@ import { appStationen } from "@/lib/rundgang";
 import { mitGespeichertemFach, mitPraxisFach } from "@/lib/proposalSchema";
 import type { ProposalInput } from "@/lib/proposals";
 import { entlastungKarten } from "@/components/Entlastung";
+import { faqRechtlich, faqVerkaufen } from "@/components/PraxisFaq";
 
 // Zahn ist kein stiller Standard: Ohne Fach ist alles neutral, Zahninhalte nur bei fach === "zahn".
 // Jede Steuerung wird für zahn und mindestens zwei andere Fächer geprüft (ortho, physio; dazu apotheke, pflege, hebamme).
@@ -252,12 +254,16 @@ describe("Leistungslexikon und Suche nur in der Zahnmedizin", () => {
     expect(text(false, "Klienten", "Einsatz")).not.toContain("{lexikon}");
   });
 
-  it("Lexikon-, Punktwert- und Vorschlagspreis-Seite leiten außerhalb der Zahnmedizin weiter", () => {
-    for (const datei of ["app/(app)/settings/lexikon/page.tsx", "app/(app)/settings/billing/page.tsx", "app/(app)/settings/proposals/page.tsx"]) {
-      const text = lies(datei);
-      expect(text, datei).toMatch(/isDental\(/);
-      expect(text, datei).toMatch(/redirect\(/);
+  it("Lexikon-, Punktwert- und Vorschlagspreis-Seite nur in der Zahnmedizin (darfSeite)", () => {
+    for (const seite of ["lexikon", "billing", "proposals"] as const) {
+      expect(darfSeite("zahn", seite), seite).toBe(true);
+      for (const f of ["ortho", "physio", "apotheke", "andere", null, undefined]) expect(darfSeite(f, seite), `${seite} ${f}`).toBe(false);
     }
+  });
+
+  it("Ratenzahlung erreicht jedes Fach: Zahn bei den Vorschlagspreisen, sonst unter Fachgebiet", () => {
+    expect(ratenzahlungAuf("zahn")).toBe("/settings/proposals");
+    for (const f of ["ortho", "physio", "pflege", null]) expect(ratenzahlungAuf(f), String(f)).toBe("/settings/fachgebiet");
   });
 });
 
@@ -302,9 +308,14 @@ describe("Website: Karten je Fachgruppe", () => {
   });
 
   it("Häufige Fragen: Zahnmedizin bekommt die Regelversorgung statt des IGeL-Monitors", () => {
-    const faq = lies("components/PraxisFaq.tsx");
-    const zahnTeil = faq.slice(faq.indexOf(": dental\n          ?"), faq.indexOf("IGeL-Monitors"));
-    expect(zahnTeil).toContain("Regelversorgung");
+    const zahn = faqVerkaufen({ dental: true });
+    expect(zahn).toContain("Regelversorgung");
+    expect(zahn).not.toContain("IGeL");
+    expect(faqVerkaufen({})).toContain("IGeL-Monitors");
+    expect(faqVerkaufen({ therapie: true })).not.toContain("IGeL");
+    expect(faqRechtlich({ therapie: true })).not.toMatch(/Heil- und Kostenplan|BMV-Ä/);
+    expect(faqRechtlich({ alle: true })).not.toMatch(/Heil- und Kostenplan|BMV-Ä/);
+    expect(faqRechtlich({ dental: true })).toContain("Heil- und Kostenplan");
   });
 });
 

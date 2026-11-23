@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { isDental } from "@/lib/specialties";
+import { darfSeite } from "@/lib/einstellungsSeiten";
 import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -16,7 +16,7 @@ export default async function BillingSettingsPage() {
     select: { gozPunktwertCent: true, bemaPunktwertCent: true, specialty: true },
   });
   // GOZ-/BEMA-Punktwerte gibt es nur in der Zahnmedizin.
-  if (!isDental(practice?.specialty)) redirect("/settings");
+  if (!darfSeite(practice?.specialty, "billing")) redirect("/settings");
 
   return (
     <div className="mx-auto max-w-xl">

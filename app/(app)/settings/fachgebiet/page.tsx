@@ -5,6 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resolveMed } from "@/lib/practiceMed";
 import { SpecialtySettings } from "@/components/SpecialtySettings";
+import { InstallmentSettings } from "@/components/InstallmentSettings";
+import { resolveInstallments } from "@/lib/installments";
+import { ratenzahlungAuf } from "@/lib/einstellungsSeiten";
 import { FRUEHERE_KATEGORIEN, katalogVorschlag, leistungenFuerFach } from "@/lib/leistungskatalog";
 
 import { praxisText } from "@/lib/praxisFach";
@@ -14,7 +17,7 @@ export default async function SpecialtySettingsPage() {
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({
     where: { id: session!.user.practiceId },
-    select: { specialty: true, medPrices: true, customOffers: true },
+    select: { specialty: true, medPrices: true, customOffers: true, installments: true },
   });
   const { fach, med } = resolveMed(practice ?? {});
   return (
@@ -32,6 +35,12 @@ export default async function SpecialtySettingsPage() {
         katalog={leistungenFuerFach(fach).map(katalogVorschlag)}
         kategorienFrueher={FRUEHERE_KATEGORIEN}
       />
+      {/* Ratenzahlung gilt für jedes Fach; in der Zahnmedizin steht sie bei den Vorschlagspreisen. */}
+      {ratenzahlungAuf(fach) === "/settings/fachgebiet" && (
+        <div className="mt-6">
+          <InstallmentSettings initial={resolveInstallments(practice?.installments)} readOnly={session!.user.role !== "admin"} />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { isDental } from "@/lib/specialties";
+import { darfSeite } from "@/lib/einstellungsSeiten";
 import { nurMitEinstellungen } from "@/lib/permissions";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -19,7 +19,7 @@ export default async function ProposalPricesPage() {
     select: { proposalPrices: true, installments: true, specialty: true },
   });
   // Preise der Zahn-Vorschläge (Kronen, Füllungen …); andere Fächer pflegen Preise unter Fachgebiet und Leistungen.
-  if (!isDental(practice?.specialty)) redirect("/settings/fachgebiet");
+  if (!darfSeite(practice?.specialty, "proposals")) redirect("/settings/fachgebiet");
 
   return (
     <div className="mx-auto max-w-2xl">
