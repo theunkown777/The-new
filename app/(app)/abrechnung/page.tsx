@@ -17,7 +17,7 @@ export default async function AbrechnungPage() {
   const ft = await praxisText();
   const session = await getServerSession(authOptions);
   const practice = await prisma.practice.findUnique({ where: { id: session!.user.practiceId }, select: { specialty: true, gozPunktwertCent: true, bemaPunktwertCent: true } });
-  const fach = practice?.specialty ?? "hausarzt";
+  const fach = practice?.specialty ?? "andere";
   const practiceId = session!.user.practiceId;
   const darf = await canSeeAnalytics(session!.user.id);
   const potenzial = darf
@@ -109,7 +109,7 @@ export default async function AbrechnungPage() {
         ))}
       </div>
       <p className="text-xs text-slate-500">
-        Nachschlagewerk ohne Gewähr; verbindlich sind die jeweiligen Gebührenordnungen, Verträge und Richtlinien. {stelle ? `Fragen zur Abrechnung beantwortet ${stelle.wer}.` : ""}
+        Nachschlagewerk ohne Gewähr; verbindlich sind die jeweiligen Gebührenordnungen, Verträge und Richtlinien. {stelle ? `Fragen zur Abrechnung beantwortet ${stelle.wer}. ` : ""}
         Weiter zur <Link href="/abrechnungspruefung" className="underline">Abrechnungsprüfung</Link>.
       </p>
     </div>

@@ -126,7 +126,7 @@ export const ARTEN: Record<ArtId, Abrechnungsart> = {
     name: "Beihilfe (Beamte)",
     werk: "GOAE",
     zahler: "Patient; Erstattung anteilig durch Beihilfestelle und Restkostenversicherung",
-    rechenweg: "Wie GOÄ/GOZ; Beihilfe erstattet in der Regel bis zum Schwellenwert, darüber nur mit Begründung.",
+    rechenweg: "Wie GOÄ; Beihilfe erstattet in der Regel bis zum Schwellenwert, darüber nur mit Begründung.",
     regeln: ["Beihilfe-Regeln des Bundes oder Landes beachten", "Analog- und Verlangensleistungen sind nicht immer beihilfefähig. Den Patienten vorher darauf hinweisen"],
     begriffe: [["Bemessungssatz", "Anteil, den die Beihilfe erstattet (z. B. 50/70 %)"], ["beihilfefähig", "von der Beihilfe anerkannt"]],
     geldhebel: [{ problem: "Patient zahlt nicht, weil die Beihilfe kürzt", massnahme: "Vorher auf nicht beihilfefähige Anteile hinweisen", inSorrida: "Vereinbarung mit Eigenanteil" }],
@@ -271,9 +271,16 @@ function ebmFuer(fach: string): Abrechnungsart {
   return { ...a, begriffe, geldhebel };
 }
 
+/** Beihilfe in der Zahnmedizin: Rechnung nach GOZ, einzelne Positionen nach GOÄ. */
+const BEIHILFE_ZAHN: Abrechnungsart = {
+  ...ARTEN.beihilfe,
+  rechenweg: "Wie GOZ, einzelne Positionen nach GOÄ; Beihilfe erstattet in der Regel bis zum Schwellenwert, darüber nur mit Begründung.",
+};
+
 /** Welche Abrechnungsarten für ein Fach relevant sind, wichtigste zuerst. */
 export function artenFuer(fach: string | null | undefined): Abrechnungsart[] {
-  const f = fach ?? "hausarzt";
+  // Ohne Fach wie „andere“: ärztliche Grundarten ohne hausärztliche Besonderheiten, kein stiller Rückfall auf Hausarzt oder Zahn.
+  const f = fach || "andere";
   const ids: ArtId[] =
     f === "zahn" ? ["gkv_bema", "zahnersatz", "mehrkosten_zahn", "pkv_goz", "beihilfe"]
     : ["physio", "ergo", "logo", "podo"].includes(f) ? ["heilmittel", "selbstzahler_therapie"]
@@ -286,7 +293,7 @@ export function artenFuer(fach: string | null | undefined): Abrechnungsart[] {
     : f === "aesthetik" ? ["pkv_goae", "igel"]
     : ["chirurgie", "ortho", "hausarzt", "radiologie"].includes(f) ? ["gkv_ebm", "pkv_goae", "beihilfe", "igel", "bg"]
     : ["gkv_ebm", "pkv_goae", "beihilfe", "igel"];
-  return ids.map((i) => (i === "gkv_ebm" ? ebmFuer(f) : ARTEN[i]));
+  return ids.map((i) => (i === "gkv_ebm" ? ebmFuer(f) : i === "beihilfe" && f === "zahn" ? BEIHILFE_ZAHN : ARTEN[i]));
 }
 
 /** Rechnet das Fach Kassenleistungen über die Kassenärztliche Vereinigung ab (EBM)? Nicht Zahnmedizin (KZV), Therapie, Pflege usw. */
@@ -298,9 +305,10 @@ export function rechnetUeberKv(fach: string | null | undefined): boolean {
  * Über wen das Fach mit den Kassen abrechnet, für Sätze wie „Abgerechnet wird weiter über Ihre Praxissoftware bzw. die KZV“
  * (ueber) und „Fragen zur Abrechnung beantwortet Ihre KZV“ (wer). Zahnmedizin: KZV, Vertragsärzte: KV, Apotheke:
  * Apothekenrechenzentrum, Pflege: Pflegekasse, Heilmittel, Hebamme und Hilfsmittel: Krankenkasse oder Abrechnungszentrum.
- * null, wenn das Fach nur privat abrechnet (Heilpraktiker, Ästhetik, Wahlleistungen der Klinik).
+ * null, wenn das Fach nur privat abrechnet (Heilpraktiker, Ästhetik, Wahlleistungen der Klinik) oder kein Fach gesetzt ist.
  */
 export function abrechnungsStelle(fach: string | null | undefined): { ueber: string; wer: string } | null {
+  if (!fach) return null;
   const ids = new Set(artenFuer(fach).map((a) => a.id));
   if (ids.has("gkv_bema")) return { ueber: "die KZV", wer: "Ihre KZV" };
   if (ids.has("gkv_ebm")) return { ueber: "die KV", wer: "Ihre KV" };

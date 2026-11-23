@@ -384,10 +384,24 @@ export const FACHPROFILE: Record<string, FachProfil> = {
   },
 };
 
-const STANDARD = FACHPROFILE.hausarzt;
+/**
+ * Neutrales Profil für „andere“ und für eine Praxis ohne Fach: allgemeine Terminanlässe, neutraler Berichtsstil,
+ * Region ohne Körper- oder Zahnbezug. Bewusst nicht in FACHPROFILE, damit der Seed dafür keine Vorlagen anlegt.
+ */
+export const NEUTRALES_PROFIL: FachProfil = {
+  person: { sg: "Patient", pl: "Patienten" },
+  einrichtung: "Praxis",
+  fachkraft: "Ihre Praxis",
+  frauenAnteil: 0.52,
+  alter: [18, 90, 48],
+  region: "Region",
+  berichtStil: "sachlicher Stil mit Anlass, Befund, Beurteilung und weiterem Vorgehen, ohne Begriffe eines bestimmten Fachs",
+  termine: ["Erstgespräch", "Kontrolle", "Befundbesprechung", "Folgetermin"],
+  sitzungstypen: [],
+};
 
 export function fachprofil(fach: string | null | undefined): FachProfil {
-  return FACHPROFILE[fach ?? ""] ?? STANDARD;
+  return FACHPROFILE[fach ?? ""] ?? NEUTRALES_PROFIL;
 }
 
 // Wörter des Fachs für Sätze (Person, Einrichtung, Abschluss) stehen in lib/fachWoerter.ts: klein und ohne diese
@@ -425,6 +439,7 @@ export function systemGruppe(fach: string | null | undefined): string {
  * Hilfsmittel Mehrkostenerklärung (§ 33 Abs. 1 SGB V), Klinik Wahlleistungsvereinbarung (§ 17 KHEntgG), sonst neutral.
  */
 export function vereinbarungFuer(fach: string | null | undefined): string {
+  if (!fach) return "Vereinbarung";
   if (fach === "klinik") return "Wahlleistungsvereinbarung";
   const g = systemGruppe(fach);
   if (g === "zahn") return "Mehrkosten- bzw. Privatvereinbarung";
@@ -436,6 +451,7 @@ export function vereinbarungFuer(fach: string | null | undefined): string {
 
 /** Woran sich die Beispielpreise orientieren: GOÄ nur bei Ärzten, GebüH bei Heilpraktikern, sonst übliche Privatpreise. */
 export function preisRahmen(fach: string | null | undefined): string {
+  if (!fach) return "Beispielwerte.";
   const g = systemGruppe(fach);
   if (g === "arzt") return "Beispielwerte im üblichen GOÄ-Rahmen.";
   if (g === "selbst") return "Beispielwerte im Rahmen des Gebührenverzeichnisses für Heilpraktiker (GebüH).";
