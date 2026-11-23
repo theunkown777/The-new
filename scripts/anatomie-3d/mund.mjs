@@ -1,17 +1,20 @@
 // Gebiss (mund.glb und mund-leicht.glb): eigener Bau, damit Zähne und Zahnfleisch auch von nah glatt und ruhig wirken.
 //  - Zähne, Zahnfleisch und Zunge werden mit Loop-Unterteilung geglättet und erst danach vereinfacht.
 //  - Gaumenmuskeln nur zwischen Nasenboden und Rachen (keine rosa Formen in der Nase, keine Zipfel unter dem Kinn).
-//  - Oberkiefer als fester Körper neu gebildet (fest.mjs): Ober- und Gaumenbeine sind getrennte, sich überlappende Hüllen
-//    mit Höhlen und offenen Zahnfächern. Im Raster vereinigt, über den Zahnwurzeln waagerecht abgeschnitten (sauber
-//    geschlossen) und dort, wo er das Zahnfleisch durchstoßen würde, freigestellt.
-//  - Der Kieferknochen wird dort, wo er das Zahnfleisch durchsticht, ein wenig nach innen gesetzt.
-//  - Eckenfarbe (COLOR_0): Rot = Wurzel (von Knochen oder Zahnfleisch bedeckt), Grün = Umgebungsverdeckung,
-//    Blau = Schneidekante (Frontzähne) bzw. Zahnfleischsaum am Zahnhals.
+//  - Zahnfleischrand je Zahn (saum.mjs): Bogen um jeden Zahnhals, Papillen zwischen den Zähnen, Wölbung über den Wurzeln.
+//  - Ober- und Unterkiefer als feste Körper neu gebildet (fest.mjs), erst nach dem Zahnfleisch: Die Knochen sind getrennte,
+//    sich überlappende Hüllen mit Höhlen und offenen Zahnfächern. Im Raster vereinigt, die Zahnwurzeln eingeschlossen
+//    (keine Wurzelspitzen mehr außerhalb des Knochens) und dort, wo der Knochen das Zahnfleisch durchstoßen würde,
+//    freigestellt. Der Oberkiefer ist oben abgeschnitten: zu den Seiten abfallend, Mulden geschlossen, Kante gerundet.
+//  - Eckenfarbe (COLOR_0): Grün = Umgebungsverdeckung. Zähne: Rot = Wurzel (von Knochen oder Zahnfleisch bedeckt),
+//    Blau = Schneidekante (Frontzähne). Zahnfleisch: Rot = freier Rand am Zahn, Blau = feste Gingiva (über 0,5) oder
+//    bewegliche Schleimhaut (unter 0,5).
 // Jede Fassung (voll, leicht) bekommt ihr eigenes Budget je Teil (Feld „bau“ in zuordnung.mjs).
 import { rahmen, vereinfache } from "./netz.mjs";
 import { eckNormalen, loop, raster, schneide } from "./glatt.mjs";
 import { sammle, verdeckung } from "./strahlen.mjs";
 import { fest } from "./fest.mjs";
+import { saumFarbe, saumFormen, saumPlan } from "./saum.mjs";
 
 export const FASSUNGEN = { voll: 0, leicht: 1 };
 
@@ -32,19 +35,43 @@ function mittle(werte, nb, runden) {
   return werte;
 }
 
-/** Schritt 1 (je Teil, auf den Rohdaten): Schnitte und Glätten. */
-function vorbereiten(t, netz, roh) {
+const oberesZahnfleisch = (r) => r.t.k === "mund:zahnfleisch" && /upper/.test(r.t.m?.[0] ?? "");
+const zaehneVon = (roh, oben) => roh.filter((r) => r.t.zahn && (oben ? /^[12]/ : /^[34]/).test(r.t.k));
+
+/** Schritt 1 (je Teil, auf den Rohdaten): Schnitte und Glätten; das Zahnfleisch bekommt danach seinen Rand je Zahn. */
+function vorbereiten(t, netz, roh, plaene, zeilen) {
   const b = t.bau ?? {};
   if (b.schnitt?.yMax != null) netz = schneide(netz, b.schnitt.yMax, "oben");
   if (b.schnitt?.yMin != null) netz = schneide(netz, b.schnitt.yMin, "unten");
-  if (b.fest) {
-    // Zahnwurzeln des Oberkiefers ab „wurzelAb“ mit zum Knochen zählen (sonst offene Zahnfächer über dem Zahnfleisch)
-    const wurzeln = b.fest.wurzelAb == null ? [] : roh.filter((r) => r.t.zahn && /^[12]/.test(r.t.k)).map((r) => ({ netz: r.netz, ab: b.fest.wurzelAb }));
-    const fleisch = b.fest.zahnfleisch ? roh.find((r) => r.t.k === "mund:zahnfleisch" && r.t.m?.[0] === b.fest.zahnfleisch) : null;
-    netz = fest(netz, b.fest, wurzeln, fleisch ? { netz: fleisch.netz, abstand: 2.5, innen: 0.8, rand: 0.3 } : null);
-  }
   for (let i = 0; i < (b.glaetten ?? 0); i++) netz = loop(netz);
+  if (t.k === "mund:zunge") {
+    // Zunge 2,5 mm tiefer (sie stand wie ein Klumpen im offenen Mund) und mit flacher Mittelfurche auf dem Rücken
+    netz = { pos: Float32Array.from(netz.pos), idx: netz.idx };
+    const N = eckNormalen(netz);
+    for (let v = 0; v < netz.pos.length / 3; v++) netz.pos[v * 3 + 1] -= 2.5 + 0.7 * zungenFurche(netz, N, v);
+  }
+  if (b.saum) {
+    const oben = /upper/.test(t.m?.[0] ?? "");
+    const plan = saumPlan(zaehneVon(roh, oben).map((r) => ({ k: r.t.k, netz: r.netz })), oben);
+    netz = { pos: Float32Array.from(netz.pos), idx: netz.idx };
+    zeilen.push(`Zahnfleisch ${oben ? "oben" : "unten"}: Rand je Zahn, ${saumFormen(netz, plan)} Ecken verschoben`);
+    plaene[oben ? "o" : "u"] = plan;
+  }
   return netz;
+}
+
+/** Mittelfurche der Zunge: oben auf dem Zungenrücken, nahe der Mitte, nicht an der Spitze (0 bis 1). */
+function zungenFurche(netz, N, v) {
+  const x = netz.pos[v * 3], z = netz.pos[v * 3 + 2];
+  return (1 - glatt(0.3, 2, Math.abs(x))) * glatt(0.2, 0.6, N[v * 3 + 1]) * (1 - glatt(55, 66, z));
+}
+
+/** Schritt 2 (Knochen, nach dem Zahnfleisch): im Raster neu bilden, Zahnwurzeln einschließen, vom Zahnfleisch freistellen. */
+function festerKnochen(t, netz, roh, vor) {
+  const b = t.bau.fest, oben = !b.unten;
+  const wurzeln = zaehneVon(roh, oben).map((r) => ({ netz: r.netz, ab: b.wurzelAb, bis: b.wurzelBis, dehnen: b.dehnen }));
+  const fleisch = vor.find((r) => r.t.k === "mund:zahnfleisch" && oberesZahnfleisch(r) === oben);
+  return fest(netz, b, wurzeln, fleisch ? { netz: fleisch.netz, abstand: 2.5, innen: 0.8, rand: 0.3, unten: !oben } : null);
 }
 
 /** Ziel-Dreiecke eines Teils in einer Fassung: Zahl oder Anteil nach dem Glätten („x0.5“ = die Hälfte). Ohne Angabe: alle. */
@@ -53,43 +80,6 @@ function budget(t, roh, f) {
   if (z == null) return Infinity;
   if (typeof z === "string" && z.startsWith("x")) return roh * Number(z.slice(1));
   return z;
-}
-
-/**
- * Knochen, der vor dem Zahnfleisch liegt, nach innen setzen (je Ecke so weit, dass das Zahnfleisch 0,5 mm davor liegt;
- * danach weich ausgebreitet, damit keine Kante entsteht). Gibt die Zahl der verschobenen Ecken zurück.
- */
-function knochenUnterZahnfleisch(knochen, zahnfleisch) {
-  const G = sammle([zahnfleisch]), nb = nachbarn(knochen), nv = knochen.pos.length / 3, bewegt = new Uint8Array(nv), summe = new Float32Array(nv);
-  // Drei Runden: messen, verschieben, nachmessen (nach dem Verschieben zeigen die Normalen etwas anders)
-  for (let runde = 0; runde < 3; runde++) {
-    const N = eckNormalen(knochen), schub = new Float32Array(nv);
-    for (let v = 0; v < nv; v++) {
-      const n = [N[v * 3], N[v * 3 + 1], N[v * 3 + 2]], p = [knochen.pos[v * 3], knochen.pos[v * 3 + 1], knochen.pos[v * 3 + 2]];
-      // Blick entlang der Normalen und aus den Richtungen, aus denen man auf das Gebiss schaut (vorn, seitlich, schräg)
-      for (const r of [n, [0, 0, 1], [1, 0, 0], [-1, 0, 0], [0.7, 0, 0.7], [-0.7, 0, 0.7], [0, 0.6, 0.8], [0, -0.6, 0.8]]) {
-        if (r !== n && r[0] * n[0] + r[1] * n[1] + r[2] * n[2] < 0.3) continue;
-        const info = {}, d = [-r[0], -r[1], -r[2]];
-        const t = G.treffe([p[0] + r[0] * 4, p[1] + r[1] * 4, p[2] + r[2] * 4], d, 8.5, info);
-        // nur Eintritt zählt: beginnt der Strahl im Zahnfleisch, liegt die Stelle schon darunter
-        if (t >= 8.5 || !G.vorderseite(info.dreieck, d)) continue;
-        const tiefe = t - 4; // > 0: das Zahnfleisch liegt hinter dem Knochen
-        // nur dünne Stellen: tiefer liegt dort wirklich Knochen außerhalb des Zahnfleischs (Kieferkörper, Nasenboden)
-        if (tiefe > -0.6 && tiefe < 1.8) schub[v] = Math.max(schub[v], tiefe + 0.6);
-      }
-    }
-    // weich ausbreiten (Übergang ohne Kante), aber nie weniger als gemessen
-    const weich = schub.slice();
-    for (let r = 0; r < 2; r++) { const neu = weich.slice(); for (let v = 0; v < nv; v++) for (const u of nb[v]) neu[v] = Math.max(neu[v], weich[u] * 0.75); weich.set(neu); }
-    mittle(weich, nb, 3);
-    for (let v = 0; v < nv; v++) {
-      const s = Math.min(Math.max(schub[v], weich[v]), 2.6 - summe[v]);
-      if (s < 0.02) continue;
-      bewegt[v] = 1; summe[v] += s;
-      for (let k = 0; k < 3; k++) knochen.pos[v * 3 + k] -= N[v * 3 + k] * s;
-    }
-  }
-  return bewegt.reduce((a, b) => a + b, 0);
 }
 
 /** Weisheitszähne (im Scan nicht enthalten) als Kopie des Nachbarzahns ergänzen. */
@@ -124,7 +114,7 @@ function gelenkUndAchse(teile) {
 }
 
 /** Eckenfarben (Wurzel, Verdeckung, Saum und Schneidekante) für alle Teile einer Fassung. */
-function farben(teile) {
+function farben(teile, plaene) {
   const zahn = (t) => !!t.extras.zahn;
   const art = (k) => teile.filter((t) => t.extras.k === k);
   const zaehne = teile.filter(zahn), fleisch = art("mund:zahnfleisch"), knochen = [...art("mund:oberkiefer"), ...art("mund:unterkiefer")];
@@ -151,12 +141,16 @@ function farben(teile) {
         if (front) { const y = t.pos[v * 3 + 1]; c[v * 4 + 2] = oben ? 1 - glatt(r.min[1], r.min[1] + 2.5, y) : glatt(r.max[1] - 2.5, r.max[1], y); }
       }
     } else if (k === "mund:zahnfleisch") {
-      // Saum am Zahnhals: heller und rosiger
+      // Rot: freier Rand (nur wo der Zahn wirklich nah ist, nicht über den Wurzeln), Blau: feste Gingiva oder Schleimhaut
+      const r = rahmen(t.pos), plan = (r.min[1] + r.max[1]) / 2 > 676 ? plaene.o : plaene.u;
       for (let v = 0; v < nv; v++) {
-        const d = Math.abs(zahnAbstand.abstand(t.pos[v * 3], t.pos[v * 3 + 1], t.pos[v * 3 + 2], 3));
-        c[v * 4 + 2] = d === Infinity ? 0 : 1 - glatt(0.3, 2.4, d);
+        const x = t.pos[v * 3], y = t.pos[v * 3 + 1], z = t.pos[v * 3 + 2], f = saumFarbe(x, y, z, plan, [N[v * 3], N[v * 3 + 1], N[v * 3 + 2]]);
+        const d = Math.abs(zahnAbstand.abstand(x, y, z, 3));
+        c[v * 4] = f.rot * (d === Infinity ? 0 : 1 - glatt(0.6, 2.2, d));
+        c[v * 4 + 2] = f.blau;
       }
     }
+    if (k === "mund:zunge") for (let v = 0; v < nv; v++) c[v * 4 + 2] = zungenFurche(t, N, v);
     t.attribute = { COLOR_0: { daten: c, groesse: 4 } };
   });
 }
@@ -167,28 +161,23 @@ function farben(teile) {
  * Gibt { voll, leicht, zusatz, zeilen } zurück.
  */
 export function baueMund(roh, alsTeil) {
-  const vor = roh.map((r) => ({ ...r, netz: vorbereiten(r.t, r.netz, roh) }));
-  const aus = {}, zeilen = [];
+  const plaene = {}, zeilen = [];
+  const vor = roh.map((r) => ({ ...r, netz: vorbereiten(r.t, r.netz, roh, plaene, zeilen) }));
+  for (const r of vor) if (r.t.bau?.fest) r.netz = festerKnochen(r.t, r.netz, roh, vor);
+  const aus = {};
   for (const [fassung, f] of Object.entries(FASSUNGEN)) {
-    const namenZahl = new Map(), teile = [], fertig = new Set();
+    const namenZahl = new Map(), teile = [];
     for (const r of vor) {
       if (r.t.bau?.nurVoll && fassung !== "voll") continue;
       const rohTri = r.netz.idx.length / 3;
       let netz = vereinfache(r.netz, budget(r.t, rohTri, f));
       netz = { pos: new Float32Array(netz.pos), idx: netz.idx };
       const teil = alsTeil(r.t, netz, r.gespiegelt, namenZahl);
-      if (r.t.bau?.fest) fertig.add(teil);
       teile.push(teil);
       zeilen.push(`${fassung}: ${teil.name.padEnd(24)} ${String(r.netz.idx.length / 3).padStart(7)} → ${String(netz.idx.length / 3).padStart(6)} Dreiecke`);
     }
-    const kiefer = (k) => teile.filter((t) => t.extras.k === k);
-    const [gOben, gUnten] = kiefer("mund:zahnfleisch");
-    for (const [kn, g] of [[kiefer("mund:oberkiefer")[0], gOben], [kiefer("mund:unterkiefer")[0], gUnten]]) {
-      // der feste Oberkiefer ist schon im Raster vom Zahnfleisch freigestellt; hier nur der Unterkiefer
-      if (kn && g && !fertig.has(kn)) zeilen.push(`${fassung}: ${kn.name} unter das Zahnfleisch gesetzt: ${knochenUnterZahnfleisch(kn, g)} Ecken`);
-    }
     weisheitszaehne(teile);
-    farben(teile);
+    farben(teile, plaene);
     aus[fassung] = teile;
   }
   return { voll: aus.voll, leicht: aus.leicht, zusatz: gelenkUndAchse(aus.voll), zeilen };

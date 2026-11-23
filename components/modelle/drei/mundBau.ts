@@ -52,11 +52,16 @@ export function inDenMund(b: Buehne, fertig?: () => void) {
   const glatt = (a: number, e: number, t: number) => { const x = Math.max(0, Math.min(1, (t - a) / (e - a))); return x * x * (3 - 2 * x); };
   const ende = () => { b.klappen(MUND_OFFEN); b.gesicht(0); fertig?.(); };
   b.gesicht(1); b.klappen(0);
+  // Ende: beide Zahnreihen ganz im Bild, fast waagerecht von vorn (knapp von oben), die Mitte zwischen 31 und 41 in der
+  // Bildmitte; Abstand nach Bildformat (auf dem Handy weiter weg, damit nichts abgeschnitten wird)
+  const zielEnde: [number, number, number] = [0, M[1] - 8, M[2] - 44];
+  const d = b.abstand(44) * 1.1, phi = Math.PI / 2 - 0.1;
+  const posEnde: [number, number, number] = [zielEnde[0], zielEnde[1] + d * Math.cos(phi), zielEnde[2] + d * Math.sin(phi)];
   b.fahrt([
     { pos: [95, M[1] + 70, M[2] + 360], ziel: [0, M[1] + 30, M[2] - 25] },
     { pos: [20, M[1] + 14, M[2] + 115], ziel: [0, M[1] + 2, M[2] - 40] },
     { pos: [0, M[1] + 10, M[2] + 38], ziel: [0, M[1] - 4, M[2] - 60] },
-    { pos: [50, M[1] + 62, M[2] + 80], ziel: [0, M[1] - 12, M[2] - 45] },
+    { pos: posEnde, ziel: zielEnde },
   ], 2700, {
     beiT: (t) => { b.klappen(MUND_OFFEN * glatt(0.06, 0.42, t)); b.gesicht(1 - glatt(0.36, 0.6, t)); },
     ende, abbruch: ende,

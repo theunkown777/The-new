@@ -230,16 +230,20 @@ export const DATEIEN = {
   // ------------------------------------------------------------------ Mund, Kiefer, Zähne
   mund: {
     // Eigener Bau (mund.mjs): je Teil „bau“ mit Schnitt, Glätten (Stufen Loop-Unterteilung) und Dreiecken [voll, leicht];
-    // „fest“ bildet den Oberkiefer im Raster neu (fest.mjs), oben sauber geschlossen.
+    // „saum“ gibt dem Zahnfleisch den Rand je Zahn (saum.mjs); „fest“ bildet die Kiefer im Raster neu (fest.mjs) und
+    // schließt die Zahnwurzeln ein: oben ab „wurzelAb“, unten bis „wurzelBis“ (um „dehnen“ Zellen verdickt).
+    // Oberkiefer oben: Schnitt bei 707, ab |x| > 30 zu den Seiten abfallend, in der Mitte weich auf 700 gesenkt (statt
+    // der eckigen Kerbe der Nasenöffnung), Löcher im Deckel geschlossen, Kante gerundet.
     // Schläfenbein und Jochbein fehlen bewusst: Ohne den übrigen Schädel wirkten sie wie abgebrochene Stücke.
     name: "Mund und Kiefer", bau: "mund", teile: [
-      eins("mund:oberkiefer", "knochen", "knochen", KNOCHEN, [r("(right|left) maxilla|(right|left) palatine bone")], { bau: { fest: { oben: 707, zelle: 0.5, wurzelAb: 694, zahnfleisch: "Gingiva of upper jaw" }, dreiecke: [11000, 5500] } }),
-      eins("mund:unterkiefer", "knochen", "knochen", KNOCHEN, ["Mandible"], { klappe: true, bau: { dreiecke: [6500, 3600] } }),
-      eins("mund:zahnfleisch", "organe", "zahnfleisch", "#D47A7E", ["Gingiva of upper jaw"], { bau: { glaetten: 1, dreiecke: [null, 4200] } }),
-      eins("mund:zahnfleisch", "organe", "zahnfleisch", "#D47A7E", ["Gingiva of lower jaw"], { klappe: true, bau: { glaetten: 1, dreiecke: [null, 4200] } }),
-      eins("mund:zunge", "organe", "zunge", "#C4646A", ["Tongue"], { klappe: 0.9, bau: { glaetten: 2, dreiecke: [null, 3000] } }),
-      // Gaumensegel: nur zwischen Rachen (655) und Nasenboden (697)
-      eins("mund:gaumen", "muskeln", "gaumen", "#D98D8E", [/^(right|left) (levator|tensor) veli palatini$/i, /^(right|left) palatopharyngeus$/i], { bau: { schnitt: { yMin: 655, yMax: 697 }, dreiecke: [3000, 1500] } }),
+      eins("mund:oberkiefer", "knochen", "knochen", KNOCHEN, [r("(right|left) maxilla|(right|left) palatine bone")], { bau: { fest: { oben: 707, zelle: 0.5, wurzelAb: 694, schulter: { x0: 30, k: 0.3 }, sattel: { y: 700, innen: 6, aussen: 16 }, deckel: { tiefe: 7, radius: 5 }, rund: { breite: 3, durchgaenge: 4 } }, dreiecke: [11000, 5500] } }),
+      eins("mund:unterkiefer", "knochen", "knochen", KNOCHEN, ["Mandible"], { klappe: true, bau: { fest: { zelle: 0.5, unten: true, wurzelBis: 663, dehnen: 2 }, dreiecke: [9000, 4500] } }),
+      eins("mund:zahnfleisch", "organe", "zahnfleisch", "#D47A7E", ["Gingiva of upper jaw"], { bau: { glaetten: 2, saum: true, dreiecke: [9000, 4000] } }),
+      eins("mund:zahnfleisch", "organe", "zahnfleisch", "#D47A7E", ["Gingiva of lower jaw"], { klappe: true, bau: { glaetten: 2, saum: true, dreiecke: [9000, 4000] } }),
+      // Zunge: „klappe“ 0,9 = sie folgt dem Unterkiefer fast ganz (mit 0,55 hob sie sich beim Öffnen vom Mundboden ab)
+      eins("mund:zunge", "organe", "zunge", "#C4646A", ["Tongue"], { klappe: 0.9, bau: { glaetten: 2, dreiecke: [3600, 2000] } }),
+      // Gaumensegel: nur zwischen Rachen (662, der Bogen hing sonst weit hinter die Zunge) und Nasenboden (697)
+      eins("mund:gaumen", "muskeln", "gaumen", "#D98D8E", [/^(right|left) (levator|tensor) veli palatini$/i, /^(right|left) palatopharyngeus$/i], { bau: { schnitt: { yMin: 662, yMax: 697 }, dreiecke: [3000, 1500] } }),
       eins("mund:zaepfchen", "muskeln", "gaumen", "#D98D8E", ["Uvular muscle"], { bau: { dreiecke: [600, 300] } }),
       // ohne den zweibäuchigen Muskel: sein hinterer Bauch zieht bis hinter das Ohr und stand als roter Stab über dem Kiefer
       eins("mund:mundboden", "muskeln", "muskel", MUSKEL, [/^(right|left) (mylohyoid|geniohyoid)$/i, /^(right|left) (genioglossus|hyoglossus)$/i], { klappe: true, bau: { dreiecke: [2600, 1300] } }),

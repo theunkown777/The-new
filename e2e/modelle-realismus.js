@@ -33,6 +33,17 @@ function portalLink(praxisId) {
   return { pid, roh };
 }
 
+/** Im Browser: liegt der schwebende Knopf „Frag Sorrida“ über der Lizenzzeile des Modells? */
+function lizenzVerdeckt() {
+  const q = document.querySelector('[data-testid="modell-quelle"]'), k = document.querySelector('[data-testid="frag-sorrida-knopf"]');
+  if (!q || !k) return 'kein Knopf';
+  q.scrollIntoView({ block: 'end' });
+  const ueber = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  const kr = k.getBoundingClientRect(), r = document.createRange();
+  r.selectNodeContents(q);
+  return [...r.getClientRects()].some((z) => z.width > 0 && ueber(z, kr)) ? 'verdeckt' : 'frei';
+}
+
 async function bereit(p, zeit = 240000) {
   await p.waitForSelector('[data-testid="kurz-buehne"] [data-testid="modell-3d-buehne"][data-bereit="1"]', { timeout: zeit });
   await p.waitForSelector('[data-testid="kurz-buehne"][data-modell="3d"]', { timeout: 10000 });
@@ -158,6 +169,9 @@ async function eineArt(b, art) {
   await h.goto(`${L}/portal/${roh}/fragen`);
   await bereit(h);
   pruef(`${art}: Handy 390 px ohne Überlauf`, await h.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
+  // Lizenzzeile am unteren Bildrand: der schwebende Knopf „Frag Sorrida“ darf sie nicht verdecken
+  const verdeckt = await h.evaluate(lizenzVerdeckt);
+  pruef(`${art}: Handy: Lizenzzeile nicht vom Knopf „Frag Sorrida“ verdeckt`, verdeckt !== 'verdeckt', verdeckt);
   await h.screenshot({ path: path.join(D, `${art}-390-modell.png`), fullPage: true });
   await hp.close();
 
@@ -181,6 +195,22 @@ async function eineArt(b, art) {
   const text = await p.getByTestId('kurzcheck-karte').innerText();
   pruef(`${art}: Akte zeigt die Angabe und den Hinweis „keine Diagnose“`, /keine Diagnose/.test(text) && /Wo: /.test(text));
   await p.getByTestId('kurzcheck-karte').screenshot({ path: path.join(D, `${art}-1280-akte.png`) });
+  // Praxis auf dem Handy (/modelle): hier schwebt der Knopf „Frag Sorrida“ über der Seite.
+  // Nur Gebiss und Körper: Auge, Ohr und Haut zeigen dort Schnittbilder ohne Lizenzzeile.
+  if (art === 'zahn' || art === 'koerper') {
+    const pp = await ctx.browser().newContext(HANDY);
+    await pp.addCookies(await ctx.cookies());
+    await pp.addInitScript(() => { try { localStorage.setItem('modell-scharf', '1'); } catch { /* egal */ } });
+    const ph = await pp.newPage();
+    await ph.goto(`${L}/modelle`, { timeout: 180000 });
+    await ph.locator('[data-testid="modell-3d-start"]').first().click({ timeout: 180000 });
+    await ph.waitForSelector('[data-testid="modell-quelle"]', { timeout: 240000 });
+    await ph.waitForTimeout(800);
+    const praxisVerdeckt = await ph.evaluate(lizenzVerdeckt);
+    pruef(`${art}: Praxis am Handy: Lizenzzeile nicht vom Knopf „Frag Sorrida“ verdeckt`, praxisVerdeckt === 'frei', praxisVerdeckt);
+    await ph.screenshot({ path: path.join(D, `${art}-390-praxis-modelle.png`) });
+    await pp.close();
+  }
   pruef(`${art}: keine Fehler im Browser`, fehler.length === 0, fehler.slice(0, 2).join(' / '));
   await ctx.close();
 }

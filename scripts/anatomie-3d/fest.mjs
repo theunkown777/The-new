@@ -1,26 +1,47 @@
 // Aus mehreren sich überlappenden, teils hohlen Hüllen (z. B. Ober- und Gaumenbeine) einen festen, geschlossenen Körper machen:
-// Raster mit Innen/Außen (Umlaufzahl entlang der drei Achsen, Mehrheit), oben waagerecht abgeschnitten, eingeschlossene Höhlen
-// gefüllt, leicht weichgezeichnet und als Fläche herausgezogen (Surface Nets). Ergebnis: ein sauberes Netz mit glattem,
-// flachem Abschluss oben, ohne innere Wände und Splitter.
+// Raster mit Innen/Außen (Umlaufzahl entlang der drei Achsen, Mehrheit), oben abgeschnitten (zu den Seiten hin abfallend),
+// eingeschlossene Höhlen gefüllt, Mulden und Löcher im Deckel geschlossen, leicht weichgezeichnet (am Schnitt stärker, damit die
+// Kante rund ausläuft) und als Fläche herausgezogen (Surface Nets). Ergebnis: ein sauberes Netz ohne innere Wände und Splitter.
 
 /**
  * @param {{pos: Float32Array, idx: Uint32Array}} netz  Dreiecke mit nach außen zeigenden Normalen
- * @param {{zelle?: number, oben: number, weich?: number}} o  Rastergröße (mm), Schnitthöhe y, Durchgänge Weichzeichnen
- * @param {{netz: {pos: Float32Array, idx: Uint32Array}, ab: number}[]} dazu  weitere Körper, die ab der Höhe ab mit zum Körper zählen
- *        (beim Oberkiefer die Zahnwurzeln: der Knochen umschließt sie dann, statt offene Fächer zu zeigen)
- * @param {{netz: {pos: Float32Array, idx: Uint32Array}, abstand: number} | null} frei  Hülle (Zahnfleisch), die der Körper
- *        nicht durchstoßen soll: Knochen knapp außerhalb davon (bis „abstand“ mm) fällt weg, aber nur unterhalb ihres oberen Randes
+ * @param {{zelle?: number, oben?: number, weich?: number, schulter?: {x0: number, k: number}, deckel?: {tiefe: number, radius: number},
+ *          rund?: {breite: number, durchgaenge: number}}} o  Rastergröße (mm), Schnitthöhe y (ohne: kein Schnitt), Durchgänge
+ *        Weichzeichnen; schulter: seitlich ab |x| > x0 fällt der Schnitt ab (um k·(|x|−x0)² mm); sattel {y, innen, aussen}:
+ *        in der Mitte bis |x| = innen liegt der Schnitt bei y, bis |x| = aussen steigt er weich auf „oben“; deckel: Mulden und Löcher in den
+ *        obersten „tiefe“ mm schließen (Höhenbild, Radius in mm); rund: innerhalb „breite“ mm unter dem Schnitt stärker weichzeichnen
+ * @param {{netz: {pos: Float32Array, idx: Uint32Array}, ab?: number, bis?: number, dehnen?: number}[]} dazu  weitere Körper, die
+ *        zwischen den Höhen ab und bis mit zum Körper zählen, um „dehnen“ Zellen verdickt (die Zahnwurzeln: der Knochen umschließt
+ *        sie dann, statt offene Fächer oder Wurzelspitzen zu zeigen)
+ * @param {{netz: {pos: Float32Array, idx: Uint32Array}, abstand: number, innen?: number, rand?: number, unten?: boolean} | null} frei
+ *        Hülle (Zahnfleisch), die der Körper nicht durchstoßen soll: Knochen knapp außerhalb davon (bis „abstand“ mm) und knapp
+ *        unter ihrer Oberfläche (bis „innen“ mm) fällt weg, aber nur auf der Seite der Zähne von ihrem Rand am Knochen
+ *        (Oberkiefer: unterhalb ihres oberen Randes; unten = true für den Unterkiefer: oberhalb ihres unteren Randes)
  */
-export function fest({ pos, idx }, { zelle = 0.5, oben, weich = 2 }, dazu = [], frei = null) {
+export function fest({ pos, idx }, { zelle = 0.5, oben = Infinity, weich = 2, schulter = null, sattel = null, deckel = null, rund = null }, dazu = [], frei = null) {
   const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
   for (let i = 0; i < pos.length; i += 3) for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], pos[i + k]); hi[k] = Math.max(hi[k], pos[i + k]); }
+  // Wurzeln, die aus dem Knochen ragen, gehören mit ins Raster
+  for (const d of dazu) for (let i = 0; i < d.netz.pos.length; i += 3) {
+    const y = d.netz.pos[i + 1];
+    if ((d.ab != null && y < d.ab) || (d.bis != null && y > d.bis)) continue;
+    for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], d.netz.pos[i + k]); hi[k] = Math.max(hi[k], d.netz.pos[i + k]); }
+  }
   hi[1] = Math.min(hi[1], oben);
-  const rand = 3;
+  const rand = 4;
   const n = [0, 1, 2].map((k) => Math.ceil((hi[k] - lo[k]) / zelle) + 2 * rand + 1);
   const ursprung = lo.map((v) => v - rand * zelle);
   const [nx, ny, nz] = n, N = nx * ny * nz;
   const at = (i, j, k) => i + nx * (j + ny * k);
   const mitte = (k, i) => ursprung[k] + (i + 0.5) * zelle;
+  // Schnitthöhe je Spalte x: oben, zu den Seiten hin abfallend (Schultern statt waagerechter Flügel), in der Mitte zur
+  // Höhe „sattel.y“ gesenkt (weiche Mulde statt der eckigen Kerbe der Nasenöffnung)
+  const schnittX = new Float32Array(nx), weichStufe = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  for (let i = 0; i < nx; i++) {
+    const ax = Math.abs(mitte(0, i));
+    schnittX[i] = oben - (schulter ? schulter.k * Math.max(0, ax - schulter.x0) ** 2 : 0);
+    if (sattel) schnittX[i] -= (oben - sattel.y) * (1 - weichStufe(sattel.innen, sattel.aussen, ax));
+  }
 
   // Innen/Außen: je Achse Strahlen durch die Zellmitten, Umlaufzahl aus den Vorzeichen der Durchstoßpunkte
   const zaehle = (pos, idx) => {
@@ -70,12 +91,19 @@ export function fest({ pos, idx }, { zelle = 0.5, oben, weich = 2 }, dazu = [], 
   };
   const voll = new Uint8Array(N), stimmen = zaehle(pos, idx);
   for (let c = 0; c < N; c++) voll[c] = stimmen[c] >= 2 ? 1 : 0;
+  const nb6 = [1, -1, nx, -nx, nx * ny, -nx * ny];
   for (const d of dazu) {
-    const st = zaehle(d.netz.pos, d.netz.idx);
-    for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) if (mitte(1, j) >= d.ab) for (let i = 0; i < nx; i++) { const c = at(i, j, k); if (st[c] >= 2) voll[c] = 1; }
+    const st = zaehle(d.netz.pos, d.netz.idx), teil = new Uint8Array(N);
+    for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) {
+      const y = mitte(1, j);
+      if ((d.ab != null && y < d.ab) || (d.bis != null && y > d.bis)) continue;
+      for (let i = 0; i < nx; i++) { const c = at(i, j, k); if (st[c] >= 2) teil[c] = 1; }
+    }
+    for (let r = 0; r < (d.dehnen ?? 0); r++) { const b = teil.slice(); for (let c = 0; c < N; c++) if (teil[c]) for (const q of nb6) { const e = c + q; if (e >= 0 && e < N) b[e] = 1; } teil.set(b); }
+    for (let c = 0; c < N; c++) if (teil[c]) voll[c] = 1;
   }
   // kleine Löcher und Spalten schließen (Dehnen, dann Schrumpfen, je 1 mm)
-  const schritte = Math.round(1 / zelle), nb6 = [1, -1, nx, -nx, nx * ny, -nx * ny];
+  const schritte = Math.round(1 / zelle);
   const dehne = (a, wert) => {
     for (let r = 0; r < schritte; r++) {
       const b = a.slice();
@@ -89,9 +117,11 @@ export function fest({ pos, idx }, { zelle = 0.5, oben, weich = 2 }, dazu = [], 
   if (frei) {
     const st = zaehle(frei.netz.pos, frei.netz.idx), drin = new Uint8Array(N);
     for (let c = 0; c < N; c++) drin[c] = st[c] >= 2 ? 1 : 0;
-    // oberer Rand je Säule (x, z); beim Ausbreiten nach außen nimmt jede Zelle den Rand ihrer Herkunft mit
+    // Rand am Knochen je Säule (x, z): oben der höchste, beim Unterkiefer der tiefste Punkt der Hülle (vz = Richtung zum Knochen);
+    // beim Ausbreiten nach außen nimmt jede Zelle den Rand ihrer Herkunft mit
+    const vz = frei.unten ? -1 : 1;
     const spalte = new Float32Array(nx * nz).fill(-Infinity);
-    for (let k = 0; k < nz; k++) for (let i = 0; i < nx; i++) for (let j = ny - 1; j >= 0; j--) if (drin[at(i, j, k)]) { spalte[i + nx * k] = mitte(1, j); break; }
+    for (let k = 0; k < nz; k++) for (let i = 0; i < nx; i++) for (let jj = 0; jj < ny; jj++) { const j = vz > 0 ? ny - 1 - jj : jj; if (drin[at(i, j, k)]) { spalte[i + nx * k] = mitte(1, j) * vz; break; } }
     const oberRand = new Float32Array(N).fill(-Infinity);
     for (let c = 0; c < N; c++) if (drin[c]) oberRand[c] = spalte[(c % nx) + nx * Math.floor(c / (nx * ny))];
     // Abstand nach außen in Schichten (6 Nachbarn)
@@ -126,33 +156,68 @@ export function fest({ pos, idx }, { zelle = 0.5, oben, weich = 2 }, dazu = [], 
     const innen = Math.round((frei.innen ?? 0) / zelle);
     for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
       const c = at(i, j, k);
-      if (!voll[c] || mitte(1, j) >= oberRand[c] - (frei.rand ?? 1)) continue;
+      if (!voll[c] || mitte(1, j) * vz >= oberRand[c] - (frei.rand ?? 1)) continue;
       const aussen = !drin[c] && abst[c] !== 255, unterHaut = drin[c] && tief[c] <= innen;
       if (aussen || unterHaut) { voll[c] = 0; entfernt++; }
     }
   }
   // oben abschneiden
-  for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) if (mitte(1, j) > oben) for (let i = 0; i < nx; i++) voll[at(i, j, k)] = 0;
+  const unterSchnitt = (i, j) => mitte(1, j) <= schnittX[i];
+  for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) if (!unterSchnitt(i, j)) voll[at(i, j, k)] = 0;
 
-  // Eingeschlossene Höhlen füllen: von den Seiten, von unten, vorn und hinten her fluten (nicht über die Schnittebene)
+  // Eingeschlossene Höhlen füllen: von den Seiten, von unten, vorn und hinten her fluten (nicht über die Schnittfläche)
   const draussen = new Uint8Array(N), stapel = [];
-  const unterSchnitt = (j) => mitte(1, j) <= oben;
   for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
     if (!(i === 0 || i === nx - 1 || j === 0 || k === 0 || k === nz - 1)) continue;
     const c = at(i, j, k);
-    if (!voll[c] && unterSchnitt(j)) { draussen[c] = 1; stapel.push(c); }
+    if (!voll[c] && unterSchnitt(i, j)) { draussen[c] = 1; stapel.push(c); }
   }
   while (stapel.length) {
     const c = stapel.pop(), i = c % nx, j = Math.floor(c / nx) % ny, k = Math.floor(c / (nx * ny));
     for (const [di, dj, dk] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]) {
       const a = i + di, b = j + dj, d = k + dk;
-      if (a < 0 || b < 0 || d < 0 || a >= nx || b >= ny || d >= nz || !unterSchnitt(b)) continue;
+      if (a < 0 || b < 0 || d < 0 || a >= nx || b >= ny || d >= nz || !unterSchnitt(a, b)) continue;
       const q = at(a, b, d);
       if (!voll[q] && !draussen[q]) { draussen[q] = 1; stapel.push(q); }
     }
   }
   let gefuellt = 0;
-  for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) if (unterSchnitt(j)) for (let i = 0; i < nx; i++) { const c = at(i, j, k); if (!voll[c] && !draussen[c]) { voll[c] = 1; gefuellt++; } }
+  for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) if (unterSchnitt(i, j)) { const c = at(i, j, k); if (!voll[c] && !draussen[c]) { voll[c] = 1; gefuellt++; } }
+
+  // Deckel: Mulden (z. B. die Kerbe der Nasenöffnung vorn) und Löcher in den obersten „tiefe“ mm schließen.
+  // Höhenbild der obersten Knochenzelle je Säule, im Grundriss geschlossen (erst ausbreiten, dann zurücknehmen; außerhalb
+  // des Grundrisses zählt beim Zurücknehmen nicht), Löcher im Grundriss gehören dazu.
+  if (deckel && oben < Infinity) {
+    const unten = (i) => schnittX[i] - deckel.tiefe, H = new Float32Array(nx * nz).fill(-Infinity), grund = new Uint8Array(nx * nz);
+    for (let k = 0; k < nz; k++) for (let i = 0; i < nx; i++) for (let j = ny - 1; j >= 0; j--) {
+      const y = mitte(1, j);
+      if (y < unten(i)) break;
+      if (voll[at(i, j, k)]) { H[i + nx * k] = y; grund[i + nx * k] = 1; break; }
+    }
+    // Löcher im Grundriss: von außen fluten, was nicht erreicht wird, gehört dazu
+    const aussen = new Uint8Array(nx * nz), st = [];
+    for (let k = 0; k < nz; k++) for (let i = 0; i < nx; i++) if ((i === 0 || k === 0 || i === nx - 1 || k === nz - 1) && !grund[i + nx * k]) { aussen[i + nx * k] = 1; st.push(i + nx * k); }
+    while (st.length) { const c = st.pop(), i = c % nx, k = Math.floor(c / nx); for (const [a, b] of [[i + 1, k], [i - 1, k], [i, k + 1], [i, k - 1]]) { if (a < 0 || b < 0 || a >= nx || b >= nz) continue; const q = a + nx * b; if (!grund[q] && !aussen[q]) { aussen[q] = 1; st.push(q); } } }
+    for (let c = 0; c < nx * nz; c++) if (!aussen[c]) { grund[c] = 1; if (H[c] === -Infinity) H[c] = unten(c % nx); }
+    const r = Math.round(deckel.radius / zelle), scheibe = [];
+    for (let a = -r; a <= r; a++) for (let b = -r; b <= r; b++) if (a * a + b * b <= r * r) scheibe.push([a, b]);
+    const H1 = new Float32Array(nx * nz).fill(-Infinity), H2 = new Float32Array(nx * nz).fill(-Infinity);
+    for (let k = 0; k < nz; k++) for (let i = 0; i < nx; i++) {
+      if (!grund[i + nx * k]) continue;
+      let m = -Infinity; for (const [a, b] of scheibe) { const p = i + a, q = k + b; if (p >= 0 && q >= 0 && p < nx && q < nz && grund[p + nx * q]) m = Math.max(m, H[p + nx * q]); }
+      H1[i + nx * k] = m;
+    }
+    for (let k = 0; k < nz; k++) for (let i = 0; i < nx; i++) {
+      if (!grund[i + nx * k]) continue;
+      let m = Infinity; for (const [a, b] of scheibe) { const p = i + a, q = k + b; if (p >= 0 && q >= 0 && p < nx && q < nz && grund[p + nx * q]) m = Math.min(m, H1[p + nx * q]); }
+      H2[i + nx * k] = m;
+    }
+    for (let k = 0; k < nz; k++) for (let i = 0; i < nx; i++) {
+      const c2 = i + nx * k;
+      if (!grund[c2] || !(H2[c2] > H[c2])) continue;
+      for (let j = 0; j < ny; j++) { const y = mitte(1, j); if (y > H[c2] && y <= H2[c2] && y >= unten(i) && unterSchnitt(i, j)) { const c = at(i, j, k); if (!voll[c]) { voll[c] = 1; gefuellt++; } } }
+    }
+  }
 
   // Weichzeichnen (3×3×3), damit die Fläche glatt wird
   let feld = Float32Array.from(voll);
@@ -165,6 +230,32 @@ export function fest({ pos, idx }, { zelle = 0.5, oben, weich = 2 }, dazu = [], 
         neu[c] = 0.25 * a + 0.5 * feld[c] + 0.25 * b;
       }
       feld = neu;
+    }
+  }
+
+  // Am Schnitt stärker weichzeichnen: die Kante läuft rund aus (Radius etwa 2 mm), tiefer bleibt alles, wie es ist
+  if (rund && oben < Infinity) {
+    const schnittMin = Math.min(...schnittX);
+    let stark = Float32Array.from(feld);
+    for (let r = 0; r < rund.durchgaenge; r++) {
+      for (const achse of [0, 1, 2]) {
+        const neu = new Float32Array(N), schritt = [1, nx, nx * ny][achse];
+        for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) {
+          if (mitte(1, j) < schnittMin - rund.breite - 6 * zelle) continue;
+          for (let i = 0; i < nx; i++) {
+            const c = at(i, j, k), pos3 = [i, j, k][achse];
+            const a = pos3 > 0 ? stark[c - schritt] : 0, b = pos3 < n[achse] - 1 ? stark[c + schritt] : 0;
+            neu[c] = 0.25 * a + 0.5 * stark[c] + 0.25 * b;
+          }
+        }
+        stark = neu;
+      }
+    }
+    for (let k = 0; k < nz; k++) for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const w = 1 - Math.min(1, Math.max(0, (schnittX[i] - mitte(1, j)) / rund.breite));
+      if (w <= 0) continue;
+      const c = at(i, j, k), s = w * w * (3 - 2 * w);
+      feld[c] = feld[c] * (1 - s) + stark[c] * s;
     }
   }
 
