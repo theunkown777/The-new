@@ -1,4 +1,4 @@
-import { abschlussWort, fachprofil } from "@/lib/fachprofile";
+import { abschlussWort, fachprofil, tabletOrt } from "@/lib/fachprofile";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
@@ -55,7 +55,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const menue = await menueRechteVon(session.user.id, session.user.practiceId);
   const analyse = menue.analyse;
   // Rundgang durch die Hauptseiten (?rundgang=n), nach Rechten gefiltert (lib/rundgang.ts)
-  const rundgang = appStationen({ rechte: menue, personPl: personen, abschluss: abschlussWort(currentUser?.practice.specialty), zahn: dental });
+  const rundgang = appStationen({ rechte: menue, personPl: personen, abschluss: abschlussWort(currentUser?.practice.specialty), zahn: dental, tabletOrt: tabletOrt(currentUser?.practice.specialty) });
   const eingang = await eingangOffen(session.user.practiceId).catch(() => 0);
   // Ohne eingerichtete Zwei-Faktor-Anmeldung zeigt Sorrida bei Pflicht nur die
   // Einrichtung, keine Patientendaten.

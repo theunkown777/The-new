@@ -335,3 +335,32 @@ describe("Beispielrechnungen der Patienten-Demo je Fach", () => {
     }
   });
 });
+
+describe("Kleinigkeiten je Fach (Fund 11)", () => {
+  it("GOÄ-Zahler: Klinik Wahlleistungen, Zahn ohne IGeL, Arzt mit IGeL", async () => {
+    const { zahlerFuer } = await import("@/lib/gebuehren");
+    expect(zahlerFuer("GOAE", "klinik")).toContain("Wahlleistungen");
+    expect(zahlerFuer("GOAE", "klinik")).not.toContain("IGeL");
+    expect(zahlerFuer("GOAE", "zahn")).not.toContain("IGeL");
+    expect(zahlerFuer("GOAE", "hausarzt")).toContain("IGeL");
+  });
+
+  it("Empfangs-Tablet steht in Apotheke und Pflege nicht im Wartezimmer", async () => {
+    const { tabletOrt } = await import("@/lib/fachWoerter");
+    expect(tabletOrt("apotheke")).toBe("am Beratungsplatz");
+    expect(tabletOrt("pflege")).toBe("beim Hausbesuch");
+    expect(tabletOrt("optik")).toBe("im Geschäft");
+    expect(tabletOrt("zahn")).toBe("im Wartezimmer");
+    expect(tabletOrt(null)).toBe("im Wartezimmer");
+    const rechte = { zahlungen: true, analyse: true, einstellungen: true };
+    const text = appStationen({ rechte, personPl: "Klienten", abschluss: "Einsatz", tabletOrt: tabletOrt("pflege") }).flatMap((s) => s.text).join(" ");
+    expect(text).toContain("Tablet beim Hausbesuch");
+    expect(text).not.toContain("Wartezimmer");
+  });
+
+  it("Heilmittel: kein Vertragstext im Namen einer Leistung (HM 21904)", () => {
+    const d = JSON.parse(lies("data/amtlich/heilmittel.json")) as { leistungen: { code: string; text: string }[] };
+    for (const l of d.leistungen) expect(l.text.length, l.code).toBeLessThan(600);
+    expect(d.leistungen.find((l) => l.code === "21904")?.text).not.toContain("Abrechnung der Leistungen");
+  });
+});

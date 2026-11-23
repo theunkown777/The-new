@@ -100,7 +100,7 @@ export function SpecialtySettings({
           <p className="text-xs text-slate-500">
             {v.specialty === DENTAL_ID
               ? "Zahnschema, Festzuschuss, Mehrkostenvereinbarung und Befund-Diktat."
-              : `Anlässe Ihres Fachs mit Kassenleistung zuerst und Selbstzahlerleistungen${systemGruppe(v.specialty) === "arzt" ? " (IGeL)" : ""} mit Hinweis, wann die Kasse zahlt, und Angaben zum Nutzen nur mit Quelle.`}
+              : `Anlässe Ihres Fachs mit Kassenleistung zuerst und ${v.specialty === "klinik" ? "Wahlleistungen" : `Selbstzahlerleistungen${systemGruppe(v.specialty) === "arzt" ? " (IGeL)" : ""}`} mit Hinweis, wann die Kasse zahlt, und Angaben zum Nutzen nur mit Quelle.`}
           </p>
         </div>
 

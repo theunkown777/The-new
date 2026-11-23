@@ -68,7 +68,7 @@ export default async function AbrechnungPage() {
         </section>
       )}
 
-      {alleWerke.length > 0 && <Gebuehrenrechner werke={alleWerke} punktwerte={{ ...(practice?.bemaPunktwertCent ? { BEMA: practice.bemaPunktwertCent } : {}) }} />}
+      {alleWerke.length > 0 && <Gebuehrenrechner werke={alleWerke} fach={practice?.specialty} punktwerte={{ ...(practice?.bemaPunktwertCent ? { BEMA: practice.bemaPunktwertCent } : {}) }} />}
 
       <div className="space-y-4">
         {arten.map((a) => (

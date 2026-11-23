@@ -406,7 +406,7 @@ export function fachprofil(fach: string | null | undefined): FachProfil {
 
 // Wörter des Fachs für Sätze (Person, Einrichtung, Abschluss) stehen in lib/fachWoerter.ts: klein und ohne diese
 // Profile, damit die Patientenseiten sie nicht mitladen. Hier weitergereicht, damit bestehende Importe bleiben.
-export { abschlussWort, einrichtungWoerter, fachWoerter, fuerNeue } from "@/lib/fachWoerter";
+export { abschlussWort, einrichtungWoerter, fachWoerter, fuerNeue, tabletOrt } from "@/lib/fachWoerter";
 
 /** Passt ein Angebot/Befund mit Geschlechts- oder Altersbezug zu diesem Patienten? Unbekanntes Geschlecht schließt nichts aus. */
 export function passtZuPerson(

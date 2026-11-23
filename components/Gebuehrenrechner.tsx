@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BEGRUENDUNGEN, WERKE, betragCent, pruefeFaktor, spanne, type GoaeGruppe, type Gebuehrenwerk } from "@/lib/gebuehren";
+import { BEGRUENDUNGEN, WERKE, betragCent, zahlerFuer, pruefeFaktor, spanne, type GoaeGruppe, type Gebuehrenwerk } from "@/lib/gebuehren";
 
 const eur = (c: number) => (c / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
 const STUFE_CLS = { ok: "bg-emerald-50 text-emerald-800", begruendung: "bg-amber-50 text-amber-900", vereinbarung: "bg-red-50 text-red-800", unzulaessig: "bg-red-50 text-red-800" };
 
-export function Gebuehrenrechner({ werke, punktwerte }: { werke: Gebuehrenwerk[]; punktwerte: Partial<Record<Gebuehrenwerk, number>> }) {
+export function Gebuehrenrechner({ werke, punktwerte, fach }: { werke: Gebuehrenwerk[]; punktwerte: Partial<Record<Gebuehrenwerk, number>>; fach?: string | null }) {
   const [werk, setWerk] = useState<Gebuehrenwerk>(werke[0]);
   const [gruppe, setGruppe] = useState<GoaeGruppe>("persoenlich");
   const [punkte, setPunkte] = useState(80);
@@ -46,7 +46,7 @@ export function Gebuehrenrechner({ werke, punktwerte }: { werke: Gebuehrenwerk[]
           </button>
         ))}
       </div>
-      <p className="text-xs text-slate-500">{info.name} · zahlt: {info.zahler}</p>
+      <p className="text-xs text-slate-500">{info.name} · zahlt: {zahlerFuer(werk, fach)}</p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {werk === "UVGOAE" ? (
           <label className="text-sm text-slate-600">Betrag je Leistung (€)<input type="number" step="0.01" className="input mt-1 w-full" value={euro} onChange={(e) => setEuro(Number(e.target.value))} /></label>
