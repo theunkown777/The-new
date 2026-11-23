@@ -4,6 +4,7 @@
 // (Meshes mit userData.kennung und userData.gruppe).
 import type * as DREI from "three";
 import { leichtesGeraet } from "./echt";
+import { STELLE_HEX } from "@/lib/modelle/stelleFarbe";
 import type { OrbitControls as Steuerung } from "three/examples/jsm/controls/OrbitControls.js";
 
 export type Drei = typeof DREI;
@@ -20,11 +21,14 @@ export interface Zustand {
 /** Uniforms, die echte Materialien (echt.ts) mitbringen: Zerfließen und Kiefer. */
 export interface EchtUniforms { auf: { value: number }; kiefer: { value: number }; achse: { value: DREI.Vector3 }; deck: { value: number }; haut: { value: number } }
 
-const GEWAEHLT = 0xf5c542, MARKIERT = 0xf28b45;
+// Markierungen der Praxis und Angaben des Patienten: Bordeaux (lib/modelle/stelleFarbe.ts). Nur die Auswahl beim
+// Erkunden eines Modells leuchtet hell, damit sie auch auf roten Muskeln sichtbar bleibt.
+const GEWAEHLT = 0xf5c542, MARKIERT = STELLE_HEX;
 // Große Weichteile im Gebiss: gewählt nur sanft getönt (sonst leuchten Zahnfleisch beider Kiefer grell gelb)
 const WEICH_GEWAEHLT = new Set(["mund:zahnfleisch", "mund:zunge", "mund:gaumen"]);
-/** Angaben des Patienten: Violett, deutlich anders als die orange Markierung der Praxis */
-export const PATIENT_FARBE = 0x7b5cd6;
+/** Angaben des Patienten (Kurz-Fragebogen: eigene Auswahl und Akte): Bordeaux wie die Markierungen der Praxis.
+ *  Beides erscheint nie in derselben Ansicht. */
+export const PATIENT_FARBE = STELLE_HEX;
 /** Ein Antippen am Modell: Kennung des Teils, Punkt auf der Oberfläche und Richtung der Oberfläche (Welt, mm) */
 export interface Treffer { kennung: string; punkt: [number, number, number]; normale: [number, number, number] }
 /** cubic-bezier(0.77, 0, 0.175, 1): kräftiges Anfahren und Abbremsen */

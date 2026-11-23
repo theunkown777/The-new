@@ -163,8 +163,8 @@ export function PraxisHinweis({ notiz }: { notiz: string | undefined }) {
   const t = useT();
   if (notiz === undefined) return null;
   return (
-    <div className="mt-3 rounded-xl border border-orange-200 bg-orange-50 p-3 text-sm text-orange-950" data-testid="modell-praxishinweis">
-      <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{t("Von Ihrer Praxis markiert")}</p>
+    <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50 p-3 text-sm text-brand-800" data-testid="modell-praxishinweis">
+      <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">{t("Von Ihrer Praxis markiert")}</p>
       <p className="mt-1">{notiz || t("Ihre Praxis hat diese Stelle für Sie markiert. Fragen Sie beim nächsten Termin gern nach.")}</p>
     </div>
   );

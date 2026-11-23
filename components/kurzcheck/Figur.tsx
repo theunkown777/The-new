@@ -4,11 +4,11 @@ import { UMRISS, KOERPER_HOEHE } from "@/lib/modelle/koerper";
 import { ZAEHNE, GEBISS_BREITE, GEBISS_HOEHE } from "@/lib/modelle/gebiss";
 import { ortGueltig, type Ansicht, type KurzArt } from "@/lib/kurzcheck";
 import { KOPF_PUNKTE, koerperPunkte, type FigurPunkt } from "./figurPunkte";
+import { STELLE } from "@/lib/modelle/stelleFarbe";
 
 const HAUT = "#EAD3C0";
-const AN = { flaeche: "#C2410C", rand: "#7C2D12" };
-/** Angaben des Patienten in der Akte: eigene Farbe (Violett), nicht das Orange der Praxis-Markierungen */
-export const PATIENT = { flaeche: "#7B5CD6", rand: "#4C3594" };
+/** Gewählte Stellen (eigene Auswahl im Fragebogen, Angaben des Patienten in der Akte): Bordeaux */
+const AN: { flaeche: string; rand: string } = STELLE;
 
 type Name = (ort: string) => string;
 const deutsch: Name = (o) => o;
@@ -35,18 +35,18 @@ function Punkte({ punkte, gewaehlt, onToggle, name, farbe }: { punkte: FigurPunk
 }
 
 /** Körper von vorn oder hinten mit Stellen zum Antippen. Ohne onToggle nur Anzeige. */
-export function KoerperFigur({ ansicht, gewaehlt, onToggle, klein = false, art = "koerper", name = deutsch, label, patient = false }: { ansicht: Ansicht; gewaehlt: string[]; onToggle?: (ort: string) => void; klein?: boolean; art?: KurzArt; name?: Name; label?: string; patient?: boolean }) {
+export function KoerperFigur({ ansicht, gewaehlt, onToggle, klein = false, art = "koerper", name = deutsch, label }: { ansicht: Ansicht; gewaehlt: string[]; onToggle?: (ort: string) => void; klein?: boolean; art?: KurzArt; name?: Name; label?: string; patient?: boolean }) {
   return (
     <svg viewBox={`40 0 320 ${KOERPER_HOEHE - 40}`} className={klein ? "h-40 w-auto" : "mx-auto h-[min(58vh,30rem)] w-auto max-w-full"} role="group" aria-label={label ?? (ansicht === "vorn" ? "Körper von vorn" : "Körper von hinten")} data-testid={`kurz-figur-${ansicht}`}>
       <g strokeLinecap="round" fill="none" aria-hidden="true">{UMRISS.map((u, i) => <path key={i} d={u.d} strokeWidth={u.breite} stroke={HAUT} />)}</g>
       {ansicht === "hinten" && <path d="M200 140V360" stroke="#D9BCA5" strokeWidth={3} strokeLinecap="round" aria-hidden="true" />}
-      <Punkte punkte={onToggle || ansicht === "hinten" ? koerperPunkte(art, ansicht) : [...koerperPunkte(art, ansicht), { ort: "bauch", x: 200, y: 302, r: 30 }]} gewaehlt={gewaehlt} onToggle={onToggle} name={name} farbe={patient ? PATIENT : AN} />
+      <Punkte punkte={onToggle || ansicht === "hinten" ? koerperPunkte(art, ansicht) : [...koerperPunkte(art, ansicht), { ort: "bauch", x: 200, y: 302, r: 30 }]} gewaehlt={gewaehlt} onToggle={onToggle} name={name} farbe={AN} />
     </svg>
   );
 }
 
 /** Kopf von vorn (Augen- und HNO-Praxis), wenn kein 3D-Modell möglich oder gewünscht ist. Punkte nur für die Stellen dieser Art. */
-export function KopfFigur({ art, gewaehlt, onToggle, klein = false, name = deutsch, label = "Kopf von vorn", patient = false }: { art: KurzArt; gewaehlt: string[]; onToggle?: (ort: string) => void; klein?: boolean; name?: Name; label?: string; patient?: boolean }) {
+export function KopfFigur({ art, gewaehlt, onToggle, klein = false, name = deutsch, label = "Kopf von vorn" }: { art: KurzArt; gewaehlt: string[]; onToggle?: (ort: string) => void; klein?: boolean; name?: Name; label?: string; patient?: boolean }) {
   // „Beide Augen“ und „Beide Ohren“ leuchten an beiden Stellen
   const an = gewaehlt.flatMap((o) => (o === "auge:B" ? ["auge:R", "auge:L"] : o === "ohr:B" ? ["ohr:R", "ohr:L"] : [o]));
   const punkte = KOPF_PUNKTE.filter((p) => ortGueltig(art, p.ort));
@@ -62,14 +62,14 @@ export function KopfFigur({ art, gewaehlt, onToggle, klein = false, name = deuts
         <path d="M146 140 L140 172 Q150 178 160 172 L154 140" />
         <path d="M130 212 Q150 222 170 212" />
       </g>
-      <Punkte punkte={punkte} gewaehlt={an} onToggle={onToggle} name={name} farbe={patient ? PATIENT : AN} />
+      <Punkte punkte={punkte} gewaehlt={an} onToggle={onToggle} name={name} farbe={AN} />
     </svg>
   );
 }
 
 /** Zahnbogen (Oberkiefer oben, Unterkiefer unten) mit Zähnen zum Antippen. Ohne onToggle nur Anzeige. */
-export function ZahnBogen({ gewaehlt, onToggle, klein = false, name = (o) => `Zahn ${o.slice(5)}`, beschriftung = { oben: "Oberkiefer", unten: "Unterkiefer", rechts: "rechts", links: "links" }, label = "Gebiss: Oberkiefer oben, Unterkiefer unten", patient = false }: { gewaehlt: string[]; onToggle?: (ort: string) => void; klein?: boolean; name?: Name; beschriftung?: { oben: string; unten: string; rechts: string; links: string }; label?: string; patient?: boolean }) {
-  const farbe = patient ? PATIENT : AN;
+export function ZahnBogen({ gewaehlt, onToggle, klein = false, name = (o) => `Zahn ${o.slice(5)}`, beschriftung = { oben: "Oberkiefer", unten: "Unterkiefer", rechts: "rechts", links: "links" }, label = "Gebiss: Oberkiefer oben, Unterkiefer unten" }: { gewaehlt: string[]; onToggle?: (ort: string) => void; klein?: boolean; name?: Name; beschriftung?: { oben: string; unten: string; rechts: string; links: string }; label?: string; patient?: boolean }) {
+  const farbe = AN;
   return (
     <svg viewBox={`0 0 ${GEBISS_BREITE} ${GEBISS_HOEHE}`} className={klein ? "h-40 w-auto" : "mx-auto h-[min(56vh,30rem)] w-auto max-w-full"} role="group" aria-label={label} data-testid="kurz-zahnbogen">
       <g aria-hidden="true" fontSize={12} fill="#8b8378" textAnchor="middle">

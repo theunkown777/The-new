@@ -44,7 +44,7 @@ function ModellWahlInnen({ fach, markierungen = [], patientId, geschlecht, einsp
               <button key={m} type="button" role="tab" aria-selected={aktiv === m} onClick={() => setAktiv(m)} data-testid={`modell-${m}`}
                 className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 ${aktiv === m ? "bg-white font-medium text-brand-700 shadow-sm" : "text-slate-600"}`}>
                 {t(MODELL_NAMEN[m])}
-                {n > 0 && <span className="rounded-full bg-orange-500 px-1.5 text-xs font-semibold text-white" aria-label={t("{n} markiert", { n })}>{n}</span>}
+                {n > 0 && <span className="rounded-full bg-brand-600 px-1.5 text-xs font-semibold text-white" aria-label={t("{n} markiert", { n })}>{n}</span>}
               </button>
             );
           })}

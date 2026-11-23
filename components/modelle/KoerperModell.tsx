@@ -385,13 +385,13 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
 
       <div className="min-w-0">
         {marken.liste.length > 0 && (
-          <div className="mb-3 rounded-xl border border-orange-200 bg-orange-50 p-3" data-testid="modell-markierte">
-            <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? ft("Für diesen Patienten markiert") : t("Von Ihrer Praxis markiert")}</p>
+          <div className="mb-3 rounded-xl border border-brand-200 bg-brand-50 p-3" data-testid="modell-markierte">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">{marken.bearbeitbar ? ft("Für diesen Patienten markiert") : t("Von Ihrer Praxis markiert")}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {marken.liste.map((m) => {
                 const x = teilLesen(m.teil);
                 if (!x) return null;
-                return <button key={m.teil} type="button" onClick={() => waehlen(x.struktur, x.seite, true)} className="rounded-full bg-white px-3 py-1.5 text-sm text-orange-950 ring-1 ring-orange-300 hover:bg-orange-100" data-testid="modell-marke">{name_(m.teil)}</button>;
+                return <button key={m.teil} type="button" onClick={() => waehlen(x.struktur, x.seite, true)} className="rounded-full bg-white px-3 py-1.5 text-sm text-brand-800 ring-1 ring-brand-300 hover:bg-brand-100" data-testid="modell-marke">{name_(m.teil)}</button>;
               })}
             </div>
           </div>

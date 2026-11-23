@@ -68,7 +68,7 @@ function Bild({ id }: { id: string }) {
 
 /** Gesicht, dessen Mund und Farbe der Stärke folgen (0 = entspannt, 10 = sehr starke Beschwerden). */
 function Gesicht({ wert }: { wert: number }) {
-  const farbe = wert <= 3 ? "#4D7C5F" : wert <= 6 ? "#C58A1B" : wert <= 8 ? "#C2410C" : "#9F1239";
+  const farbe = wert <= 3 ? "#4D7C5F" : wert <= 6 ? "#C58A1B" : wert <= 8 ? "#DC2626" : "#991B1B";
   const mund = 10 - wert * 2; // +10 lächelt, −10 verzogen
   return (
     <svg viewBox="0 0 100 100" className="mx-auto h-28 w-28 transition-colors duration-300" aria-hidden="true" data-testid="kurz-gesicht">
@@ -81,7 +81,7 @@ function Gesicht({ wert }: { wert: number }) {
 }
 
 const kachel = (an: boolean) => `flex min-h-[3.5rem] w-full items-center gap-3 rounded-2xl border-2 px-4 py-3 text-start text-[15px] transition ${an ? "border-brand-600 bg-brand-50 font-medium text-brand-900" : "border-slate-200 bg-white text-slate-800 hover:border-brand-300"}`;
-const knopf = (an: boolean) => `rounded-full px-3 py-2 text-sm ring-1 ${an ? "bg-orange-100 font-medium text-orange-950 ring-orange-400" : "bg-white text-slate-700 ring-slate-200 hover:text-brand-700"}`;
+const knopf = (an: boolean) => `rounded-full px-3 py-2 text-sm ring-1 ${an ? "bg-brand-100 font-medium text-brand-800 ring-brand-500" : "bg-white text-slate-700 ring-slate-200 hover:text-brand-700"}`;
 
 // Zähne in der Liste wie im Mund: oben 18 … 11 21 … 28, unten 48 … 41 31 … 38
 const OBEN = ZAEHNE.filter((z) => z.fdi < 30).map((z) => z.fdi).sort((a, b) => (a < 20 ? -a : a) - (b < 20 ? -b : b));
@@ -269,7 +269,7 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
               <div className="mt-3" data-testid="kurz-orte" aria-live="polite">
                 <p className="sr-only">{t("gewaehlt")}</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {orte.map((o) => <button key={o} type="button" onClick={() => entfernen(o)} className="rounded-full bg-orange-100 px-3 py-1.5 text-sm text-orange-950 ring-1 ring-orange-300" aria-label={t("entfernen", { ort: tt.ort(o) })} data-ort={o}>{tt.ort(o)} <span aria-hidden="true">✕</span></button>)}
+                  {orte.map((o) => <button key={o} type="button" onClick={() => entfernen(o)} className="rounded-full bg-brand-100 px-3 py-1.5 text-sm text-brand-800 ring-1 ring-brand-300" aria-label={t("entfernen", { ort: tt.ort(o) })} data-ort={o}>{tt.ort(o)} <span aria-hidden="true">✕</span></button>)}
                 </div>
                 {zahnNachbarn.length > 0 && letzterZahn && (
                   <p className="mt-2 flex flex-wrap items-center gap-1.5 text-sm text-slate-600" data-testid="kurz-nachbarn">
@@ -295,7 +295,7 @@ export function Kurzcheck({ token, art, praxis, vorname, paket, gelenkeErlaubt =
                     <div key={g} role="group" aria-label={t(g)}>
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t(g)}</p>
                       <div className="mt-1.5 grid grid-cols-8 gap-1" dir="ltr">
-                        {liste.map((n) => { const o = `zahn:${n}`, an = orte.includes(o); return <button key={n} type="button" aria-pressed={an} aria-label={tt.ort(o)} onClick={() => ortUmschalten(o)} className={`rounded-lg py-2 text-sm tabular-nums ring-1 ${an ? "bg-orange-100 font-semibold text-orange-950 ring-orange-400" : "bg-white text-slate-700 ring-slate-200"}`} data-testid={`kurz-ort-${o}`}>{n}</button>; })}
+                        {liste.map((n) => { const o = `zahn:${n}`, an = orte.includes(o); return <button key={n} type="button" aria-pressed={an} aria-label={tt.ort(o)} onClick={() => ortUmschalten(o)} className={`rounded-lg py-2 text-sm tabular-nums ring-1 ${an ? "bg-brand-100 font-semibold text-brand-800 ring-brand-500" : "bg-white text-slate-700 ring-slate-200"}`} data-testid={`kurz-ort-${o}`}>{n}</button>; })}
                       </div>
                     </div>
                   ))

@@ -344,7 +344,7 @@ export function ProposalEditor({
         aria-pressed={selected === n}
         aria-label={`Zahn ${n}${f ? `, ${FINDINGS[f]}` : ""}`}
         data-aus-modell={modellZaehne.some((m) => m.zahn === n) || undefined}
-        className={`${base} ${shape} ${color} ${selected === n ? "ring-2 ring-slate-900 ring-offset-1" : !f && modellZaehne.some((m) => m.zahn === n) ? "ring-2 ring-orange-400" : ""} ${n === 21 || n === 31 ? "ml-1" : ""}`}
+        className={`${base} ${shape} ${color} ${selected === n ? "ring-2 ring-slate-900 ring-offset-1" : !f && modellZaehne.some((m) => m.zahn === n) ? "ring-2 ring-brand-500" : ""} ${n === 21 || n === 31 ? "ml-1" : ""}`}
       >
         {n}
       </button>
@@ -483,8 +483,8 @@ export function ProposalEditor({
           </div>
 
           {!existing && ausModell.length > 0 && (
-            <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-950" data-testid="aus-modell">
-              <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">Im Modell markiert</p>
+            <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4 text-sm text-brand-800" data-testid="aus-modell">
+              <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">Im Modell markiert</p>
               <ul className="mt-2 space-y-1.5">
                 {ausModell.map((m) => (
                   <li key={m.name} className="flex flex-wrap items-baseline gap-x-2">
@@ -496,11 +496,11 @@ export function ProposalEditor({
                     {dental && m.zahn != null && (
                       <span className="text-xs">{teeth[String(m.zahn)] ? `Befund: ${FINDINGS[teeth[String(m.zahn)]!]}` : "noch kein Befund gewählt"}</span>
                     )}
-                    {m.notiz && <span className="text-orange-900/80">„{m.notiz}“</span>}
+                    {m.notiz && <span className="text-brand-800/80">„{m.notiz}“</span>}
                   </li>
                 ))}
               </ul>
-              <p className="mt-2 text-xs text-orange-900/80">
+              <p className="mt-2 text-xs text-brand-800/80">
                 {dental
                   ? "Zähne mit Befund sind schon im Zahnschema eingetragen. Zähne ohne Befund sind orange umrandet: antippen und den Befund wählen."
                   : ft(`Diese Stellen hat die Praxis im Modell ${w.fuerPerson} markiert. Wählen Sie unten den passenden Anlass.`)}

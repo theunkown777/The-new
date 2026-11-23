@@ -318,7 +318,7 @@ export default async function PortalPage(props: { params: Promise<{ token: strin
                 <ul className="mt-2 space-y-1.5">
                   {modellMarken.map((m) => (
                     <li key={`${m.modell}-${m.teil}`} className="flex gap-2 text-sm">
-                      <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-orange-500" aria-hidden="true" />
+                      <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-600" aria-hidden="true" />
                       <span className="min-w-0"><span className="font-medium text-slate-900">{teilBezeichnung(m.modell, m.teil)}</span>{m.notiz && <span className="text-slate-600">: {m.notiz}</span>}</span>
                     </li>
                   ))}

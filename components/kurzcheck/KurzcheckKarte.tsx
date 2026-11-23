@@ -17,12 +17,12 @@ export async function KurzcheckKarte({ eintraege }: { eintraege: { id: string; a
       ) : (
         liste.slice(0, 1).map((e) => {
           const a = e.a!;
-          const farbe = (a.staerke ?? 0) <= 3 ? "bg-emerald-600" : (a.staerke ?? 0) <= 6 ? "bg-amber-500" : (a.staerke ?? 0) <= 8 ? "bg-orange-600" : "bg-rose-700";
+          const farbe = (a.staerke ?? 0) <= 3 ? "bg-emerald-600" : (a.staerke ?? 0) <= 6 ? "bg-amber-500" : (a.staerke ?? 0) <= 8 ? "bg-red-600" : "bg-red-800";
           return (
             <div key={e.id} className="mt-3 flex flex-col gap-4 sm:flex-row">
               {!a.keine && (
                 <div className="flex shrink-0 justify-center gap-2 self-start rounded-2xl bg-[#FBF7F1] p-2 ring-1 ring-[#E9E2DA]">
-                  {/* Angaben des Patienten in eigener Farbe (Violett), nicht im Orange der Praxis-Markierungen */}
+                  {/* Angaben des Patienten in Bordeaux (lib/modelle/stelleFarbe.ts) */}
                   {a.art === "zahn" ? <ZahnBogen gewaehlt={a.orte} klein patient /> : a.art === "auge" || a.art === "hno" ? <KopfFigur art={a.art} gewaehlt={a.orte} klein patient /> : (
                     <>
                       {(["vorn", "hinten"] as const).filter((v, i) => koerperPunkte(a.art, v).some((p) => a.orte.includes(p.ort)) || (i === 0 && a.orte.includes("bauch"))).map((v) => <KoerperFigur key={v} ansicht={v} art={a.art} gewaehlt={a.orte} klein patient />)}

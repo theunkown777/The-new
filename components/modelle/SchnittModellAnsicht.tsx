@@ -62,10 +62,10 @@ export function SchnittModellAnsicht({ modell, markierungen = [], patientId, ein
       </div>
       <div className="min-w-0">
         {marken.liste.length > 0 && (
-          <div className="mb-3 rounded-xl border border-orange-200 bg-orange-50 p-3" data-testid="modell-markierte">
-            <p className="text-xs font-semibold uppercase tracking-wide text-orange-800">{marken.bearbeitbar ? ft("Für diesen Patienten markiert") : t("Von Ihrer Praxis markiert")}</p>
+          <div className="mb-3 rounded-xl border border-brand-200 bg-brand-50 p-3" data-testid="modell-markierte">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">{marken.bearbeitbar ? ft("Für diesen Patienten markiert") : t("Von Ihrer Praxis markiert")}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {marken.liste.map((x) => <button key={x.teil} type="button" onClick={() => waehlen(x.teil, true)} className="rounded-full bg-white px-3 py-1.5 text-sm text-orange-950 ring-1 ring-orange-300 hover:bg-orange-100" data-testid="modell-marke">{t(m.teile.find((y) => y.id === x.teil)?.name ?? x.teil)}</button>)}
+              {marken.liste.map((x) => <button key={x.teil} type="button" onClick={() => waehlen(x.teil, true)} className="rounded-full bg-white px-3 py-1.5 text-sm text-brand-800 ring-1 ring-brand-300 hover:bg-brand-100" data-testid="modell-marke">{t(m.teile.find((y) => y.id === x.teil)?.name ?? x.teil)}</button>)}
             </div>
           </div>
         )}

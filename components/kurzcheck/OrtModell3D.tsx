@@ -8,8 +8,6 @@ import { PATIENT_FARBE, type Drei, type Treffer } from "@/components/modelle/dre
 import { ladeDatei } from "@/components/modelle/drei/echt";
 import { ortBauplan } from "./ortBau";
 
-/** Farbe der eigenen Auswahl im Fragebogen (wie die Knöpfe); in der Akte Violett für Angaben des Patienten */
-const AUSWAHL_FARBE = 0xc2410c;
 
 export interface OrtPunkt { punkt: V3; normale: V3 }
 export interface OrtModellGriff {
@@ -84,7 +82,7 @@ const OrtModell3D = forwardRef<OrtModellGriff, {
       const h = b.aufFlaeche(z.punkt, z.normale);
       return { o, punkt: h?.punkt ?? z.punkt, normale: h?.normale ?? z.normale };
     })));
-    b.flecken(liste.map((x) => ({ pos: x.punkt, farbe: patient ? PATIENT_FARBE : AUSWAHL_FARBE, radius: kopf ? 8 : 22 })));
+    b.flecken(liste.map((x) => ({ pos: x.punkt, farbe: PATIENT_FARBE, radius: kopf ? 8 : 22 })));
     if (namen) b.anker(liste.map((x, i) => ({ el: ankerEl.current.get(`${x.o}-${i}`)!, pos: x.punkt, normal: x.normale })).filter((a) => !!a.el));
   }, [bereit, orte.join("|"), punkteSchluessel, gelenke, patient, art, zahn]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -92,7 +90,7 @@ const OrtModell3D = forwardRef<OrtModellGriff, {
   const beschriftungen = !zahn && namen ? orte.flatMap((o) => (punkte[o] ? [o] : ortZiele(o, art).map(() => o))) : [];
   return (
     <Modell3D ref={griff} plan={plan} schluessel={`ort-${art}`} beschriftung={beschriftung} hoehe={hoehe} sofort
-      gewaehlt={patient ? leer : kennungen} markiert={leer} patient={patient ? kennungen : leer}
+      gewaehlt={leer} markiert={leer} patient={kennungen}
       sichtbar={sichtbar} sichtbarSchluessel={String(gelenke)} mindestDeck={0.15}
       dateien={{ liste: gelenke ? ["skelett"] : [], laden }}
       onPunkt={onOrt ? tippen : undefined} onWahl={() => {}} ohne3D={onFehler}
@@ -101,7 +99,7 @@ const OrtModell3D = forwardRef<OrtModellGriff, {
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
           {beschriftungen.map((o, i) => (
             <span key={`${o}-${i}`} ref={(el) => { if (el) ankerEl.current.set(`${o}-${i}`, el); else ankerEl.current.delete(`${o}-${i}`); }}
-              className="absolute left-0 top-0 whitespace-nowrap rounded-full bg-white/95 px-2 py-0.5 text-xs font-medium text-[#4C3594] opacity-0 shadow ring-1 ring-[#7B5CD6]/40 transition-opacity" style={{ marginTop: -22 }}>
+              className="absolute left-0 top-0 whitespace-nowrap rounded-full bg-white/95 px-2 py-0.5 text-xs font-medium text-brand-800 opacity-0 shadow ring-1 ring-brand-500/40 transition-opacity" style={{ marginTop: -22 }}>
               {namen!(o)}
             </span>
           ))}

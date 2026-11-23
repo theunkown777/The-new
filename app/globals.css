@@ -224,7 +224,7 @@ h1 {
 /* Kurz-Fragebogen: das 3D-Modell blendet über die flache Figur, sobald es bereit ist */
 .kurz-3d { opacity: 0; transition: opacity .45s ease-out; pointer-events: none; }
 .kurz-3d[data-sichtbar="1"] { opacity: 1; pointer-events: auto; }
-.kurz-regler { -webkit-appearance: none; appearance: none; height: 14px; border-radius: 999px; background: linear-gradient(90deg, #4D7C5F 0%, #C58A1B 50%, #C2410C 78%, #9F1239 100%); outline-offset: 4px; }
+.kurz-regler { -webkit-appearance: none; appearance: none; height: 14px; border-radius: 999px; background: linear-gradient(90deg, #4D7C5F 0%, #C58A1B 50%, #DC2626 78%, #991B1B 100%); outline-offset: 4px; }
 .kurz-regler::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 34px; height: 34px; border-radius: 999px; background: #fff; border: 3px solid #6B2A24; box-shadow: 0 2px 6px rgba(0,0,0,.25); cursor: pointer; }
 .kurz-regler::-moz-range-thumb { width: 30px; height: 30px; border-radius: 999px; background: #fff; border: 3px solid #6B2A24; box-shadow: 0 2px 6px rgba(0,0,0,.25); cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .kurz-ein, .kurz-puls { animation: none; } .kurz-3d { transition: none; } }
