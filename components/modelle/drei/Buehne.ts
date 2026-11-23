@@ -4,7 +4,7 @@
 // (Meshes mit userData.kennung und userData.gruppe).
 import type * as DREI from "three";
 import { leichtesGeraet } from "./echt";
-import { STELLE_HEX } from "@/lib/modelle/stelleFarbe";
+import { STELLE_HEX, auswahlHex } from "@/lib/modelle/stelleFarbe";
 import type { OrbitControls as Steuerung } from "three/examples/jsm/controls/OrbitControls.js";
 
 export type Drei = typeof DREI;
@@ -21,10 +21,11 @@ export interface Zustand {
 /** Uniforms, die echte Materialien (echt.ts) mitbringen: Zerfließen und Kiefer. */
 export interface EchtUniforms { auf: { value: number }; kiefer: { value: number }; achse: { value: DREI.Vector3 }; deck: { value: number }; haut: { value: number } }
 
-// Markierungen der Praxis und Angaben des Patienten: Bordeaux (lib/modelle/stelleFarbe.ts). Nur die Auswahl beim
-// Erkunden eines Modells leuchtet hell, damit sie auch auf roten Muskeln sichtbar bleibt.
-const GEWAEHLT = 0xf5c542, MARKIERT = STELLE_HEX;
-// Große Weichteile im Gebiss: gewählt nur sanft getönt (sonst leuchten Zahnfleisch beider Kiefer grell gelb)
+// Markierungen der Praxis und Angaben des Patienten: Bordeaux (lib/modelle/stelleFarbe.ts). Die Auswahl beim
+// Erkunden eines Modells leuchtet hell in Papier oder hellem Bordeaux, je nachdem, was sich vom Teil stärker abhebt
+// (auf roten Muskeln Papier, auf Zähnen und Knochen helles Bordeaux).
+const MARKIERT = STELLE_HEX;
+// Große Weichteile im Gebiss: gewählt nur sanft getönt (sonst leuchten Zahnfleisch beider Kiefer grell)
 const WEICH_GEWAEHLT = new Set(["mund:zahnfleisch", "mund:zunge", "mund:gaumen"]);
 /** Angaben des Patienten (Kurz-Fragebogen: eigene Auswahl und Akte): Bordeaux wie die Markierungen der Praxis.
  *  Beides erscheint nie in derselben Ansicht. */
@@ -46,7 +47,7 @@ const weich = kurve(0.77, 0, 0.175, 1);
 const sanft = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 interface Teil {
-  mesh: DREI.Mesh; mat: DREI.MeshStandardMaterial; u?: EchtUniforms; grund: DREI.Color; ziel: DREI.Color;
+  mesh: DREI.Mesh; mat: DREI.MeshStandardMaterial; u?: EchtUniforms; grund: DREI.Color; ziel: DREI.Color; auswahl: number;
   deck: number; deckZiel: number; grundDeck: number; start: number; an: boolean; markiert: boolean; patient: boolean; mitte: DREI.Vector3; durch?: boolean;
 }
 interface Fahrt { pos: DREI.Vector3[]; ziel: DREI.Vector3[]; start: number; dauer: number; zeit?: number; beiT?: (e: number) => void; ende?: () => void; abbruch?: () => void }
@@ -432,7 +433,7 @@ export class Buehne {
       if (!u) mat.transparent = true;
       if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
       const mitte = mesh.geometry.boundingBox!.getCenter(new T.Vector3());
-      const t: Teil = { mesh, mat, u, grund: mat.color.clone(), ziel: mat.color.clone(), deck: 0, deckZiel: grundDeck, grundDeck, start: this.ruhe ? -1 : jetzt + Math.min(i, 60) * 12, an: false, markiert: false, patient: false, mitte };
+      const t: Teil = { mesh, mat, u, grund: mat.color.clone(), ziel: mat.color.clone(), auswahl: auswahlHex(mat.color.getHex()), deck: 0, deckZiel: grundDeck, grundDeck, start: this.ruhe ? -1 : jetzt + Math.min(i, 60) * 12, an: false, markiert: false, patient: false, mitte };
       if (u) u.auf.value = 0; else mat.opacity = 0;
       mesh.matrixAutoUpdate = false;
       mesh.visible = false;
@@ -516,7 +517,7 @@ export class Buehne {
     for (const t of this.teile) {
       const k = t.mesh.userData.kennung as string | undefined;
       t.an = !!k && g.has(k); t.markiert = !!k && m.has(k); t.patient = !!k && pa.has(k);
-      t.ziel = t.markiert ? new T.Color(MARKIERT) : t.an ? (WEICH_GEWAEHLT.has(k ?? "") ? t.grund.clone().lerp(new T.Color(GEWAEHLT), 0.45) : new T.Color(GEWAEHLT)) : t.patient ? new T.Color(PATIENT_FARBE) : t.grund;
+      t.ziel = t.markiert ? new T.Color(MARKIERT) : t.an ? (WEICH_GEWAEHLT.has(k ?? "") ? t.grund.clone().lerp(new T.Color(t.auswahl), 0.45) : new T.Color(t.auswahl)) : t.patient ? new T.Color(PATIENT_FARBE) : t.grund;
       const wert = this.zustand.sichtbar(t.mesh.userData);
       const sichtbar = wert === true ? 1 : wert === false ? 0 : Math.max(0, Math.min(1, wert));
       // Gewähltes und Markiertes wird voll deckend, auch wenn es sonst durchscheint
@@ -699,7 +700,7 @@ export class Buehne {
         if (t.mat.depthWrite !== deckend && !ud.haut) { t.mat.depthWrite = deckend; t.mat.needsUpdate = true; }
       }
       if (t.mat.emissive && !ud.eigenesLeuchten) {
-        t.mat.emissive.setHex(t.an ? GEWAEHLT : t.markiert ? MARKIERT : t.patient ? PATIENT_FARBE : 0x000000);
+        t.mat.emissive.setHex(t.an ? t.auswahl : t.markiert ? MARKIERT : t.patient ? PATIENT_FARBE : 0x000000);
         const weich = t.an && WEICH_GEWAEHLT.has(String(ud.kennung));
         t.mat.emissiveIntensity = t.an ? (pulsiert ? 0.12 + 0.2 * puls : 0.24) * (weich ? 0.5 : 1) : t.markiert || t.patient ? 0.1 : 0;
       }

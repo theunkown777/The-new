@@ -51,8 +51,8 @@ export default async function PortalModellPage(props: { params: Promise<{ token:
           {marken.length === 0
             ? fd(t("Tippen Sie auf eine Stelle, um die Erklärung zu lesen. Ihre Praxis kann hier Stellen für Sie markieren."))
             : marken.length === 1
-              ? t("{praxis} hat eine Stelle für Sie markiert (orange). Tippen Sie darauf, um den Hinweis und die Erklärung zu lesen.", { praxis: patient.practice.name })
-              : t("{praxis} hat {n} Stellen für Sie markiert (orange). Tippen Sie darauf, um den Hinweis und die Erklärung zu lesen.", { praxis: patient.practice.name, n: marken.length })}
+              ? t("{praxis} hat eine Stelle für Sie markiert (dunkelrot). Tippen Sie darauf, um den Hinweis und die Erklärung zu lesen.", { praxis: patient.practice.name })
+              : t("{praxis} hat {n} Stellen für Sie markiert (dunkelrot). Tippen Sie darauf, um den Hinweis und die Erklärung zu lesen.", { praxis: patient.practice.name, n: marken.length })}
         </p>
         {texte && (
           <p className="mt-2 rounded-xl bg-white px-3 py-2 text-xs text-slate-600 ring-1 ring-slate-200" data-testid="modell-uebersetzt">

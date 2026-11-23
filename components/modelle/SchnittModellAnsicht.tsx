@@ -8,7 +8,7 @@ import { useT } from "./Sprache";
 import { Modell3D, type Modell3DGriff } from "./drei/Modell3D";
 import { scheibeBauplan } from "./drei/scheibeBau";
 import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
-import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
+import { FARBE_GEWAEHLT, FARBE_MARKIERT, FARBE_MARKIERT_GEWAEHLT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
 import { useAppText } from "@/components/FachKontext";
 /** Auge, Ohr oder Haut im Querschnitt: Teil antippen, Erklärung lesen, als Praxis für den Patienten markieren. */
@@ -49,7 +49,7 @@ export function SchnittModellAnsicht({ modell, markierungen = [], patientId, ein
           {!raum && <svg ref={zoom.svgRef} viewBox={zoom.viewBox} {...zoom.ereignisse} className="mx-auto block h-[min(60vh,32rem)] w-full select-none" style={{ touchAction: zoom.touchAction }} role="group" aria-label={`${t(m.titel)}: ${t(m.ansicht)}`} data-testid="schnitt-svg">
             {m.teile.map((x) => {
               const an = gewaehlt === x.id, markiert = marken.istMarkiert(x.id);
-              const c = markiert ? { flaeche: FARBE_MARKIERT.flaeche, rand: an ? "#5A1D1D" : FARBE_MARKIERT.rand } : an ? { flaeche: FARBE_GEWAEHLT.flaeche, rand: FARBE_GEWAEHLT.rand } : { flaeche: x.farbe, rand: x.rand };
+              const c = markiert ? (an ? FARBE_MARKIERT_GEWAEHLT : FARBE_MARKIERT) : an ? { flaeche: FARBE_GEWAEHLT.flaeche, rand: FARBE_GEWAEHLT.rand } : { flaeche: x.farbe, rand: x.rand };
               return (
                 <g key={x.id} role="button" tabIndex={0} aria-label={`${t(x.name)}${markiert ? `, ${t("markiert")}` : ""}`} aria-pressed={an} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#5A1D1D]" data-teil={x.id} data-markiert={markiert || undefined}
                   onClick={() => { if (zoom.warKlick()) waehlen(x.id); }}

@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 import type { Form } from "@/lib/modelle/formen";
+import { AUSWAHL, STELLE, STELLE_GEWAEHLT } from "@/lib/modelle/stelleFarbe";
 import { useT } from "./Sprache";
 
 import { useAppText } from "@/components/FachKontext";
 export type Markierung = { teil: string; notiz: string; befund?: string | null };
 
-/** Farben für gewählte und von der Praxis markierte Teile (in beiden Modellen gleich). */
-export const FARBE_GEWAEHLT = { flaeche: "#F9D56B", rand: "#8A6410" };
-export const FARBE_MARKIERT = { flaeche: "#F28B45", rand: "#A8470E" };
+/** Farben für gewählte und von der Praxis markierte Teile (in allen Zeichnungen und im 3D-Modell gleich,
+ *  nur Sorrida-Farben: lib/modelle/stelleFarbe.ts). */
+export const FARBE_GEWAEHLT = AUSWAHL;
+export const FARBE_MARKIERT = STELLE;
+/** Markiert und zugleich gewählt */
+export const FARBE_MARKIERT_GEWAEHLT = STELLE_GEWAEHLT;
 
 /** Markierungen eines Patienten laden, speichern und entfernen (nur in der Praxisansicht mit patientId). */
 export function useMarkierungen(modell: "gebiss" | "koerper" | "auge" | "ohr" | "haut", start: Markierung[], patientId?: string) {
@@ -132,7 +136,7 @@ export function MehrfachFeld({ gewaehlt, marken, onFertig, onEntfernen, platzhal
       <div className="mt-3 flex flex-wrap gap-1.5" data-testid="modell-mehrfach-auswahl">
         {gewaehlt.length === 0 && <span className="text-sm text-slate-500">Noch nichts gewählt.</span>}
         {gewaehlt.map((g) => (
-          <button key={g.teil} type="button" onClick={() => onEntfernen(g.teil)} className="rounded-full bg-amber-100 px-3 py-1.5 text-sm text-amber-950 ring-1 ring-amber-300" aria-label={`${g.name} aus der Auswahl nehmen`}>{g.name} ✕</button>
+          <button key={g.teil} type="button" onClick={() => onEntfernen(g.teil)} className="rounded-full bg-brand-100 px-3 py-1.5 text-sm text-brand-800 ring-1 ring-brand-300" aria-label={`${g.name} aus der Auswahl nehmen`}>{g.name} ✕</button>
         ))}
       </div>
       <label className="mt-3 block text-xs font-medium text-brand-800" htmlFor="notiz-mehrfach">Hinweis für alle gewählten {wort}</label>

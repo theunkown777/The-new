@@ -16,7 +16,7 @@ import type { Buehne, Drei } from "./drei/Buehne";
 import { ladeDatei, vorbereitenImLeerlauf } from "./drei/echt";
 import { KOERPER_KUGEL, NUR_FOKUS, fokusKugel } from "./drei/koerperEcht";
 import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
-import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
+import { FARBE_GEWAEHLT, FARBE_MARKIERT, FARBE_MARKIERT_GEWAEHLT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
 import { useAppText } from "@/components/FachKontext";
 // Große Erklärungsansicht: erst laden, wenn jemand einen Erklärpunkt antippt
@@ -224,7 +224,7 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
       const k = teilKennung(s.id, seite);
       const istGewaehlt = mehrfach ? mehrere.includes(k) : kennung === k;
       const istMarkiert = marken.istMarkiert(k);
-      const c = istMarkiert ? { ...FARBE_MARKIERT, rand: istGewaehlt ? "#5A1D1D" : FARBE_MARKIERT.rand } : istGewaehlt ? FARBE_GEWAEHLT : s.farbe ?? FARBE[s.ebene];
+      const c = istMarkiert ? (istGewaehlt ? FARBE_MARKIERT_GEWAEHLT : FARBE_MARKIERT) : istGewaehlt ? FARBE_GEWAEHLT : s.farbe ?? FARBE[s.ebene];
       const inhalt = (
         <>
           {teil !== "treffer" && formen.map((f, i) => <FormPfad key={i} form={f} flaeche={c.flaeche} rand={c.rand} randStaerke={istGewaehlt && istMarkiert ? 2.8 : istGewaehlt || istMarkiert ? 1.8 : s.ebene === "sehnen" ? 1.3 : 0.9}

@@ -12,7 +12,7 @@ import { MUND_OFFEN, inDenMund, mundBauplan, vorDasGesicht } from "./drei/mundBa
 import { ANATOMIE_PFAD, ANATOMIE_QUELLE } from "@/lib/modelle/drei/anatomie";
 import { MUND_HINWEIS, mundTeil } from "@/lib/modelle/mund";
 import { DreiSchalter, DREI_HINWEIS } from "./drei/Schalter";
-import { FARBE_GEWAEHLT, FARBE_MARKIERT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
+import { FARBE_GEWAEHLT, FARBE_MARKIERT, FARBE_MARKIERT_GEWAEHLT, FormPfad, GewaehltLeiste, MODELL_HINWEIS, MarkierFeld, MehrfachFeld, PraxisHinweis, Treffer, ZoomTasten, useMarkierungen, type Markierung } from "./ModellTeile";
 
 import { useAppText } from "@/components/FachKontext";
 const BASIS_BOGEN = { x: 0, y: 0, w: GEBISS_BREITE, h: GEBISS_HOEHE };
@@ -158,7 +158,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                 {zaehne.map((z) => {
                   const k = zahnKennung(z.fdi);
                   const an = mehrfach ? auswahl.includes(z.fdi) : fdi === z.fdi, markiert = marken.istMarkiert(k);
-                  const c = markiert ? { ...FARBE_MARKIERT, rand: an ? "#5A1D1D" : FARBE_MARKIERT.rand } : an ? FARBE_GEWAEHLT : { flaeche: "#FFFDF6", rand: "#A2946F" };
+                  const c = markiert ? (an ? FARBE_MARKIERT_GEWAEHLT : FARBE_MARKIERT) : an ? FARBE_GEWAEHLT : { flaeche: "#FFFDF6", rand: "#A2946F" };
                   return (
                     <g key={z.fdi} role="button" tabIndex={0} aria-label={`${t("Zahn {nr}", { nr: z.fdi })}, ${t(z.name)}${markiert ? `, ${t("markiert")}` : ""}`} aria-pressed={an} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#5A1D1D]"
                       data-zahn={z.fdi} data-markiert={markiert || undefined} data-gewaehlt={(mehrfach && an) || undefined}
