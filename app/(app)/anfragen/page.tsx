@@ -54,7 +54,7 @@ export default async function AnfragenPage(props: { searchParams: Promise<{ f?: 
           <li key={l.id} className="card space-y-3" data-testid="anfrage">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${l.kind === "hilfe" ? "bg-sky-100 text-sky-800" : "bg-brand-100 text-brand-800"}`}>{l.kind === "hilfe" ? "Hilfe" : "Pilot"}</span>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${l.kind === "hilfe" ? "bg-slate-100 text-slate-800" : "bg-brand-100 text-brand-800"}`}>{l.kind === "hilfe" ? "Hilfe" : "Pilot"}</span>
                 <p className="mt-2 font-semibold text-slate-900">{l.contactName}</p>
                 <p className="text-sm text-slate-600">{l.practiceName !== "–" ? l.practiceName : "ohne Praxisangabe"}{l.specialty && l.kind !== "hilfe" ? ` · ${SPECIALTY_LABELS[l.specialty] ?? l.specialty}` : ""}</p>
               </div>

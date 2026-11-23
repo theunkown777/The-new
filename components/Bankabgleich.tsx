@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 type Treffer = { rechnungId: string; nummer: string; patient: string; sollCent: number; istCent: number; datum: string; zweck: string; guete: "sicher" | "abweichend" | "vermutlich" };
 type Ergebnis = { eingaenge: number; treffer: Treffer[]; ohneZuordnung: { datum: string; betragCent: number; zweck: string; name: string }[] };
 const eur = (c: number) => (c / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
-const GUETE = { sicher: ["Nummer und Betrag stimmen", "bg-emerald-50 text-emerald-800"], abweichend: ["Betrag weicht ab (Teilzahlung?)", "bg-amber-50 text-amber-900"], vermutlich: ["ohne Rechnungsnummer, Betrag und Name passen", "bg-sky-50 text-sky-900"] } as const;
+const GUETE = { sicher: ["Nummer und Betrag stimmen", "bg-emerald-50 text-emerald-800"], abweichend: ["Betrag weicht ab (Teilzahlung?)", "bg-amber-50 text-amber-900"], vermutlich: ["ohne Rechnungsnummer, Betrag und Name passen", "bg-brand-50 text-brand-800"] } as const;
 
 export function Bankabgleich() {
   const router = useRouter();

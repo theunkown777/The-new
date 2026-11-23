@@ -220,7 +220,7 @@ h1 {
 .kurz-ein { animation: kurz-ein .28s ease-out both; }
 @keyframes kurz-puls { 0%, 100% { opacity: .18; } 50% { opacity: .38; } }
 .kurz-puls { animation: kurz-puls 1.6s ease-in-out infinite; }
-.kurz-punkt:focus-visible .kurz-ring { stroke: #1d4ed8; }
+.kurz-punkt:focus-visible .kurz-ring { stroke: #5A1D1D; }
 /* Kurz-Fragebogen: das 3D-Modell blendet über die flache Figur, sobald es bereit ist */
 .kurz-3d { opacity: 0; transition: opacity .45s ease-out; pointer-events: none; }
 .kurz-3d[data-sichtbar="1"] { opacity: 1; pointer-events: auto; }

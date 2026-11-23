@@ -153,7 +153,7 @@ export default async function ProposalsPage() {
                     {p.patientResponse === "RUECKRUF" ? "Rückruf gewünscht" : "Besprechung gewünscht"}
                   </span>
                 ) : p.patientViewedAt ? (
-                  <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-800">{w.vonPerson} gelesen</span>
+                  <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-800">{w.vonPerson} gelesen</span>
                 ) : null}
                 <span className={`rounded-full px-3 py-1 text-xs font-medium ${PROPOSAL_STATUS_BADGE[p.status]}`}>
                   {PROPOSAL_STATUS_LABELS[p.status]}

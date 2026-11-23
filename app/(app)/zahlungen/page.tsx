@@ -35,8 +35,8 @@ const FILTER = [
 const DAY = 24 * 60 * 60 * 1000;
 
 // Sorrida-Stil: Status als Punkt und Satz statt farbiger Pille.
-const DOT: Record<string, string> = { emerald: "bg-salbei-600", sky: "bg-sky-600", red: "bg-red-600", amber: "bg-amber-500", slate: "bg-slate-400" };
-const TXT: Record<string, string> = { emerald: "text-salbei-700", sky: "text-sky-800", red: "font-medium text-red-700", amber: "text-slate-700", slate: "text-slate-500" };
+const DOT: Record<string, string> = { emerald: "bg-salbei-600", sky: "bg-brand-600", red: "bg-red-600", amber: "bg-amber-500", slate: "bg-slate-400" };
+const TXT: Record<string, string> = { emerald: "text-salbei-700", sky: "text-brand-700", red: "font-medium text-red-700", amber: "text-slate-700", slate: "text-slate-500" };
 function Status({ tone, label }: { tone: string; label: string }) {
   return (
     <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-sm ${TXT[tone]}`}>

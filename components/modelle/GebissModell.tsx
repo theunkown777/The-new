@@ -160,7 +160,7 @@ export function GebissModell({ markierungen = [], patientId, start = "zaehne", e
                   const an = mehrfach ? auswahl.includes(z.fdi) : fdi === z.fdi, markiert = marken.istMarkiert(k);
                   const c = markiert ? { ...FARBE_MARKIERT, rand: an ? "#5A1D1D" : FARBE_MARKIERT.rand } : an ? FARBE_GEWAEHLT : { flaeche: "#FFFDF6", rand: "#A2946F" };
                   return (
-                    <g key={z.fdi} role="button" tabIndex={0} aria-label={`${t("Zahn {nr}", { nr: z.fdi })}, ${t(z.name)}${markiert ? `, ${t("markiert")}` : ""}`} aria-pressed={an} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#1d4ed8]"
+                    <g key={z.fdi} role="button" tabIndex={0} aria-label={`${t("Zahn {nr}", { nr: z.fdi })}, ${t(z.name)}${markiert ? `, ${t("markiert")}` : ""}`} aria-pressed={an} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#5A1D1D]"
                       data-zahn={z.fdi} data-markiert={markiert || undefined} data-gewaehlt={(mehrfach && an) || undefined}
                       onClick={() => { if (zoomBogen.warKlick()) zahnWaehlen(z.fdi); }}
                       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zahnWaehlen(z.fdi, true); } }}>

@@ -89,7 +89,7 @@ export default async function AbrechnungPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-slate-800">Fachbegriffe</p>
-                  <dl className="mt-1 space-y-1">{a.begriffe.map(([b, e]) => <div key={b}><dt className="inline font-medium text-slate-800">{b}: </dt><dd className="inline text-slate-600">{e}</dd></div>)}</dl>
+                  <dl className="mt-1 space-y-1">{a.begriffe.map(([b, e]) => <div key={b}><dt className="inline font-medium text-slate-800">{b}: </dt><dd className="inline text-slate-600">{ft(e)}</dd></div>)}</dl>
                 </div>
               </div>
               <div>

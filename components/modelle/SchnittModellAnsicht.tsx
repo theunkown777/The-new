@@ -45,7 +45,7 @@ export function SchnittModellAnsicht({ modell, markierungen = [], patientId, ein
               const an = gewaehlt === x.id, markiert = marken.istMarkiert(x.id);
               const c = markiert ? { flaeche: FARBE_MARKIERT.flaeche, rand: an ? "#5A1D1D" : FARBE_MARKIERT.rand } : an ? { flaeche: FARBE_GEWAEHLT.flaeche, rand: FARBE_GEWAEHLT.rand } : { flaeche: x.farbe, rand: x.rand };
               return (
-                <g key={x.id} role="button" tabIndex={0} aria-label={`${t(x.name)}${markiert ? `, ${t("markiert")}` : ""}`} aria-pressed={an} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#1d4ed8]" data-teil={x.id} data-markiert={markiert || undefined}
+                <g key={x.id} role="button" tabIndex={0} aria-label={`${t(x.name)}${markiert ? `, ${t("markiert")}` : ""}`} aria-pressed={an} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#5A1D1D]" data-teil={x.id} data-markiert={markiert || undefined}
                   onClick={() => { if (zoom.warKlick()) waehlen(x.id); }}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); waehlen(x.id, true); } }}>
                   {x.formen.map((f, i) => <FormPfad key={i} form={f} flaeche={c.flaeche} rand={c.rand} randStaerke={an && markiert ? 2.6 : an || markiert ? 1.8 : 1} />)}

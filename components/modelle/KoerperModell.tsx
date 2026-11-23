@@ -240,7 +240,7 @@ export function KoerperModell({ markierungen = [], patientId, einspaltig = false
         );
       }
       return (
-        <g key={k} role="button" tabIndex={0} aria-label={name_(k)} aria-pressed={istGewaehlt} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#1d4ed8]"
+        <g key={k} role="button" tabIndex={0} aria-label={name_(k)} aria-pressed={istGewaehlt} className="cursor-pointer outline-none focus-visible:[&_path]:stroke-[#5A1D1D]"
           data-teil={k} data-markiert={teil === "alles" ? istMarkiert || undefined : undefined}
           onClick={() => { if (zoom.warKlick()) waehlen(s, seite); }}
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); waehlen(s, seite, true); } }}>

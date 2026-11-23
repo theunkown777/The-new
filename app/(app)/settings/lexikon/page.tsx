@@ -30,7 +30,7 @@ export default async function LexikonPage() {
         Beratungsgespräch, nicht patientenbezogen.
       </p>
 
-      <p className="mb-6 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-800">
+      <p className="mb-6 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
         {ft("Dies ist ein reines Nachschlagewerk, keine Empfehlung für einen bestimmten Patienten. Ob eine Selbstzahlerleistung im Einzelfall sinnvoll ist, bleibt allein die fachliche Einschätzung der behandelnden Person im persönlichen Gespräch (§1 GOZ / Musterberufsordnung). Die Angaben zur GKV-Abgrenzung sind allgemeine Richtwerte – die genaue Ausgestaltung variiert je Krankenkasse und Bundesland und ist gegen den aktuell gültigen Leistungskatalog zu prüfen.")}
       </p>
 

@@ -36,7 +36,7 @@ export function invoiceView(inv: { status: string; dueDate: Date }, now = new Da
 
 export const TONE_CLASSES: Record<InvoiceView["tone"], string> = {
   emerald: "bg-emerald-100 text-emerald-800",
-  sky: "bg-sky-100 text-sky-800",
+  sky: "bg-brand-50 text-brand-800",
   red: "bg-red-100 text-red-800",
   amber: "bg-amber-100 text-amber-800",
   slate: "bg-slate-100 text-slate-600",

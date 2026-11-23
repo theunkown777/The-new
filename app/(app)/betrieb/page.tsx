@@ -62,7 +62,7 @@ export default async function BetriebPage(props: { searchParams: Promise<{ f?: s
           <li key={e.id} className="card space-y-3" data-testid="fehler-eintrag">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${e.quelle === "browser" ? "bg-sky-100 text-sky-800" : "bg-slate-200 text-slate-800"}`}>{e.quelle === "browser" ? "Browser" : "Server"}</span>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${e.quelle === "browser" ? "bg-brand-50 text-brand-800" : "bg-slate-200 text-slate-800"}`}>{e.quelle === "browser" ? "Browser" : "Server"}</span>
                 <p className="mt-2 break-words font-mono text-sm font-semibold text-slate-900" data-testid="fehler-ort">{e.ort}</p>
               </div>
               <p className="rounded-full bg-white px-2 py-0.5 text-sm font-semibold text-slate-900 ring-1 ring-slate-200" data-testid="fehler-zaehler" aria-label={`${e.zaehler} mal aufgetreten`}>{e.zaehler}×</p>

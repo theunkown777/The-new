@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Eingang" };
 
 const zeit = (d: Date) => d.toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
-const TON: Record<string, string> = { Geld: "bg-emerald-50 text-emerald-800", Unterlagen: "bg-sky-50 text-sky-800", Vorschläge: "bg-brand-50 text-brand-800", Termine: "bg-amber-50 text-amber-800" };
+const TON: Record<string, string> = { Geld: "bg-emerald-50 text-emerald-800", Unterlagen: "bg-slate-100 text-slate-800", Vorschläge: "bg-brand-50 text-brand-800", Termine: "bg-amber-50 text-amber-800" };
 
 export default async function EingangPage(props: { searchParams: Promise<{ f?: string }> }) {
   const nurMeine = (await props.searchParams).f === "meine";
