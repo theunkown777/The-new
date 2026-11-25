@@ -19,6 +19,7 @@ export type EntlastungGruppe = "zahn" | "arzt" | "therapie" | "andere";
 export function entlastungKarten(gruppe?: EntlastungGruppe): Karte[] {
   const alle = !gruppe;
   const aerztlich = alle || gruppe === "arzt";
+  // Das Lächeln-Zitat der Startseite (lib/laecheln.ts) fasst „ein Klick nach dem Gespräch“ in eigenen Worten zusammen: bei Änderungen dort mitpflegen.
   return [
     aerztlich
       ? {

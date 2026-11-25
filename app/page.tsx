@@ -14,6 +14,7 @@ import { ZweiAnsichten } from "@/components/ZweiAnsichten";
 import { JournalFuss, JournalKopf } from "@/components/start/JournalKopf";
 import { WebsiteHilfe } from "@/components/WebsiteHilfe";
 import { PatientenKarte } from "@/components/start/PatientenKarte";
+import { LaechelnZitat } from "@/components/start/LaechelnZitat";
 import { Laechelbogen } from "@/components/Behandlungsweg";
 import { websiteBasis } from "@/lib/betreiber";
 import { Rundgang } from "@/components/start/Rundgang";
@@ -208,23 +209,8 @@ export default async function Start() {
           <Grundsaetze />
         </div>
 
-        {/* Bedeutung des Namens als Zitat über die volle Breite */}
-        <section className="j-ein bg-brand-700 text-[#F5F2EE]">
-          <div className={`${rahmen} grid gap-10 py-24 sm:py-32 lg:grid-cols-12`}>
-            <svg viewBox="0 0 240 60" className="h-14 w-56 text-brand-300 lg:col-span-3" aria-hidden="true">
-              <path d="M6 10 Q120 70 234 10" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" />
-            </svg>
-            <div className="lg:col-span-8 lg:col-start-5">
-              <p className="j-schau text-[clamp(2.8rem,6vw,5.2rem)] text-[#F5F2EE]">
-                Damit beide Seiten <em className="!text-brand-200">lächeln.</em>
-              </p>
-              <p className="mt-8 max-w-xl text-[18px] leading-relaxed text-[#F5F2EE]/80">
-                Sorrida ist italienisch und heißt „lächeln“. Der Bogen aus dem Logo zieht sich durch das ganze Produkt: als Weg, als Markierung,
-                als Unterschriftslinie. Die Praxis hat weniger Arbeit, der Patient versteht, was er bekommt und was es kostet.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* Bedeutung des Namens: Praxis und Patient zeichnen gemeinsam das Lächeln aus dem Logo */}
+        <LaechelnZitat rahmen={rahmen} />
 
         <div className={`${rahmen} py-24 sm:py-36`}>
           <Entlastung journal />
