@@ -1,85 +1,58 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LAECHELN_HINWEIS, LAECHELN_SEITEN, LAECHELN_STAENDE, LAECHELN_STATUS, laechelnStand, type LaechelnSeite } from "@/lib/laecheln";
+import { LAECHELN_ABLAUF, LAECHELN_SCHLUSS, LAECHELN_SEITEN, type LaechelnPhase, type LaechelnSeite } from "@/lib/laecheln";
+
+const SEITEN: LaechelnSeite[] = ["praxis", "patient"];
+const BOGEN = "M16 16 Q128 76 240 76 Q352 76 464 16";
 
 // Bedeutung des Namens: Sorrida heißt „lächeln“. Praxis und Patient zeichnen je eine Hälfte des Bogens aus dem Logo,
-// erst zusammen wird daraus ein Lächeln. Jede Seite lässt sich aus- und wieder einschalten.
-// Der Server liefert den vollständigen Endzustand (auch ohne JavaScript). Der Einstieg ist nur Optik (data-intro):
-// Er zeichnet Bogen, Mundwinkel, Treffpunkt und Status ein; die Schalter zeigen ab dem ersten Bild ihren echten Zustand. Bewegt werden nur stroke-dashoffset, opacity und transform (CSS in app/globals.css).
+// erst zusammen wird daraus ein Lächeln. Der Ablauf läuft von selbst, einmal je Seitenaufruf, sobald das Feld im Bild ist:
+// Praxis-Hälfte, Patient-Hälfte, dann laufen beide zur Mitte. Zu klicken gibt es nichts.
+// Im HTML steht immer der Endzustand als ruhiger Text (ohne JavaScript, für Vorleseprogramme, bei „Bewegung reduzieren“).
+// Nur data-phase steuert die Optik; bewegt werden stroke-dashoffset, opacity und transform (CSS in app/globals.css).
 export function LaechelnZitat({ rahmen }: { rahmen: string }) {
-  const [an, setAn] = useState({ praxis: true, patient: true });
-  const [intro, setIntro] = useState<"wartet" | "laeuft" | "fertig">("wartet");
-  const [benutzt, setBenutzt] = useState(false);
-  const bogen = useRef<SVGSVGElement>(null);
-  const timer = useRef(0);
-  const stand = laechelnStand(an.praxis, an.patient);
+  // null: kein Ablauf, der Endzustand steht einfach da
+  const [phase, setPhase] = useState<LaechelnPhase | null>(null);
+  const feld = useRef<HTMLDivElement>(null);
+  const beobachter = useRef<IntersectionObserver | null>(null);
+  const timer = useRef<number[]>([]);
 
   useEffect(() => {
-    const el = bogen.current;
-    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches || typeof IntersectionObserver === "undefined") {
-      // Kein Einstieg: sofort der Endzustand (in einer Mikroaufgabe, nicht synchron im Effekt)
-      queueMicrotask(() => setIntro("fertig"));
-      return;
-    }
+    const el = feld.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver(
       (e) => {
-        if (!e.some((x) => x.isIntersecting)) return;
+        if (!e.some((x) => x.isIntersecting && x.intersectionRatio >= 0.39)) {
+          // Noch nicht im Bild: Ausgangslage herstellen und weiter warten
+          setPhase((p) => p ?? "wartet");
+          return;
+        }
+        // Einmal gestartet, läuft der Ablauf über Zeitgeber bis zum Ende, auch wenn jemand schnell weiterscrollt
         io.disconnect();
-        setIntro((i) => (i === "wartet" ? "laeuft" : i));
-        timer.current = window.setTimeout(() => setIntro("fertig"), 2900);
+        setPhase("wartet");
+        timer.current = LAECHELN_ABLAUF.map((s) => window.setTimeout(() => setPhase(s.phase), s.abMs));
       },
-      { threshold: 0.35 },
+      { threshold: [0, 0.4], rootMargin: "0px 0px -10% 0px" },
     );
+    beobachter.current = io;
     io.observe(el);
     return () => {
       io.disconnect();
-      clearTimeout(timer.current);
+      timer.current.forEach(clearTimeout);
     };
   }, []);
 
-  const fertig = () => {
-    clearTimeout(timer.current);
-    setIntro("fertig");
+  // Kommt der Tastaturfokus auf den Link, bevor der Ablauf fertig ist, steht der Endzustand sofort da
+  const sofort = () => {
+    if (phase === null || phase === "beide") return;
+    beobachter.current?.disconnect();
+    timer.current.forEach(clearTimeout);
+    setPhase(null);
   };
-
-  const umschalten = (s: LaechelnSeite) => {
-    fertig();
-    setBenutzt(true);
-    setAn((a) => ({ ...a, [s]: !a[s] }));
-  };
-
-  const knopf = (s: LaechelnSeite) => (
-    <button
-      type="button"
-      className={`laecheln-knopf ${s === "praxis" ? "[grid-area:kpraxis]" : "[grid-area:kpatient]"}`}
-      data-seite={s}
-      aria-pressed={an[s]}
-      aria-describedby={`laecheln-${s}-text`}
-      data-testid={`laecheln-${s}`}
-      onClick={() => umschalten(s)}
-    >
-      <span className="laecheln-punkt" aria-hidden="true" />
-      {LAECHELN_SEITEN[s].name}
-    </button>
-  );
-
-  const seitenText = (s: LaechelnSeite) => (
-    <p id={`laecheln-${s}-text`} className={`laecheln-text ${s === "praxis" ? "[grid-area:tpraxis]" : "[grid-area:tpatient]"}`} data-seite={s}>
-      {LAECHELN_SEITEN[s].text}
-    </p>
-  );
 
   return (
-    <section
-      className="j-ein laecheln bg-brand-700 text-[#F5F2EE]"
-      aria-labelledby="laecheln-titel"
-      data-testid="laecheln-zitat"
-      data-praxis={an.praxis ? "an" : "aus"}
-      data-patient={an.patient ? "an" : "aus"}
-      data-voll={stand === "beide" ? "" : undefined}
-      data-intro={intro}
-    >
+    <section className="j-ein laecheln bg-brand-700 text-[#F5F2EE]" aria-labelledby="laecheln-titel" data-testid="laecheln-zitat" data-phase={phase ?? undefined}>
       <div className={`${rahmen} py-20 sm:py-32`}>
         <div className="lg:text-center">
           <h2 id="laecheln-titel" className="j-schau text-[clamp(2.8rem,6vw,5.2rem)] text-[#F5F2EE]">
@@ -97,58 +70,41 @@ export function LaechelnZitat({ rahmen }: { rahmen: string }) {
           </p>
         </div>
 
-        <div role="group" aria-labelledby="laecheln-frage" className="mt-14 border-t border-[#F5F2EE]/20 pt-10 lg:mt-16 lg:pt-12">
-          <div className="lg:text-center">
-            <p id="laecheln-frage" className="laecheln-frage">
-              Wer soll lächeln?
-            </p>
-            <p className="mt-1 text-[14px] text-[#F5F2EE]/75">{LAECHELN_HINWEIS}</p>
-          </div>
-          <div className="laecheln-feld mt-8">
-            {knopf("praxis")}
-            {knopf("patient")}
-            <svg
-              ref={bogen}
-              viewBox="0 0 480 112"
-              className="laecheln-bogen block h-auto w-full overflow-visible [grid-area:bogen] lg:mx-auto lg:max-w-[35rem]"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <g className="laecheln-gruppe" fill="none" strokeLinecap="round">
-                <path className="laecheln-spur" data-seite="praxis" d="M16 16 Q128 76 240 76" strokeWidth={3} />
-                <path className="laecheln-spur" data-seite="patient" d="M464 16 Q352 76 240 76" strokeWidth={3} />
-                <path className="laecheln-haelfte" data-seite="praxis" d="M16 16 Q128 76 240 76" pathLength={1} stroke="#F5F2EE" strokeWidth={4} />
-                <path className="laecheln-haelfte" data-seite="patient" d="M464 16 Q352 76 240 76" pathLength={1} stroke="#DFC2BC" strokeWidth={4} />
-              </g>
-              <circle className="laecheln-ecke" data-seite="praxis" cx={16} cy={16} r={5} stroke="#F5F2EE" strokeWidth={2} />
-              <circle className="laecheln-ecke" data-seite="patient" cx={464} cy={16} r={5} stroke="#DFC2BC" strokeWidth={2} />
+        <div ref={feld} className="laecheln-feld mt-14 border-t border-[#F5F2EE]/20 pt-12 lg:mt-16 lg:pt-14">
+          <svg viewBox="0 0 480 94" className="laecheln-bogen" aria-hidden="true" focusable="false">
+            <g className="laecheln-gruppe" fill="none" strokeLinecap="round">
+              <path className="laecheln-spur" d={BOGEN} strokeWidth={3} />
+              <path className="laecheln-haelfte" data-seite="praxis" d="M16 16 Q128 76 240 76" pathLength={1} stroke="#F5F2EE" strokeWidth={4} />
+              <path className="laecheln-haelfte" data-seite="patient" d="M464 16 Q352 76 240 76" pathLength={1} stroke="#DFC2BC" strokeWidth={4} />
+              {/* Der ganze Bogen in einer Farbe legt sich darüber, sobald sich die Hälften treffen */}
+              <path className="laecheln-ganz" d={BOGEN} stroke="#F5F2EE" strokeWidth={4} />
+            </g>
+            <g className="laecheln-treff">
               <circle className="laecheln-ring" cx={240} cy={76} r={6} fill="none" stroke="#F5F2EE" strokeWidth={1.5} />
-              <circle className="laecheln-mitte" cx={240} cy={76} r={5} fill="#F5F2EE" />
-            </svg>
-            {/* Kommt der Fokus in den Status, bevor der Einstieg ihn eingeblendet hat, steht er sofort da */}
-            <div className="grid [grid-area:status]" data-testid="laecheln-status" data-stand={stand} onFocus={() => intro !== "fertig" && fertig()}>
-              {LAECHELN_STAENDE.map((k) => {
-                const v = LAECHELN_STATUS[k];
-                const ist = k === stand;
-                return (
-                  <div key={k} className={`laecheln-status [grid-area:1/1] ${ist ? (benutzt ? "kurz-ein" : "") : "invisible"}`} aria-hidden={!ist} inert={!ist}>
-                    <p className="j-titel text-[1.55rem] italic text-[#F5F2EE] lg:text-[1.75rem]">{v.titel}</p>
-                    <p className="mt-1 text-[15px] leading-relaxed text-[#F5F2EE]/80">{v.text}</p>
-                    {v.link && (
-                      <a href={v.link.href} className="laecheln-link mt-2" data-testid={ist ? "laecheln-link" : undefined}>
-                        {v.link.text} <span className="j-pfeil" aria-hidden="true">→</span>
-                      </a>
-                    )}
-                  </div>
-                );
-              })}
+            </g>
+          </svg>
+          {SEITEN.map((s) => (
+            <div key={s} className="laecheln-seite" data-seite={s} data-testid={`laecheln-${s}`}>
+              <h3 className="laecheln-name">{LAECHELN_SEITEN[s].name}</h3>
+              <p className="laecheln-text">{LAECHELN_SEITEN[s].text}</p>
             </div>
-            {seitenText("praxis")}
-            {seitenText("patient")}
+          ))}
+          {/* Alle Fassungen liegen in derselben Zelle: Die Höhe ist reserviert, beim Wechsel springt nichts.
+              Vorgelesen wird nur der Endzustand; die Zwischenzeilen sind reine Optik. */}
+          <div className="laecheln-status-feld" data-testid="laecheln-status" onFocus={sofort}>
+            <div className="laecheln-status" data-stand="beide">
+              <p className="laecheln-titel j-titel">{LAECHELN_SCHLUSS.titel}</p>
+              <p className="mt-1 text-[15px] leading-relaxed text-[#F5F2EE]/80">{LAECHELN_SCHLUSS.text}</p>
+              <a href={LAECHELN_SCHLUSS.link.href} className="laecheln-link mt-2" data-testid="laecheln-link">
+                {LAECHELN_SCHLUSS.link.text} <span className="j-pfeil" aria-hidden="true">→</span>
+              </a>
+            </div>
+            {SEITEN.map((s) => (
+              <p key={s} className="laecheln-status laecheln-titel j-titel" data-stand={s} aria-hidden="true">
+                {LAECHELN_SEITEN[s].status}
+              </p>
+            ))}
           </div>
-          <p className="sr-only" aria-live="polite" aria-atomic="true" data-testid="laecheln-ansage">
-            {benutzt ? `${LAECHELN_STATUS[stand].titel} ${LAECHELN_STATUS[stand].text}` : ""}
-          </p>
         </div>
       </div>
     </section>

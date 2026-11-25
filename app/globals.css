@@ -398,107 +398,87 @@ a:hover > .j-pfeil, a:focus-visible > .j-pfeil { transform: translateX(4px); }
 @media (prefers-reduced-motion: reduce) { .js-ein .j-ein .weg-band-strich { stroke-dashoffset: 0; transition: none; } }
 
 /* Lächeln-Zitat der Startseite (components/start/LaechelnZitat.tsx): zwei Hälften des Logo-Bogens, Praxis und Patient.
-   Ohne JavaScript und bei „Bewegung reduzieren“ steht sofort der vollständige Endzustand. */
-.laecheln-frage { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: rgba(245,242,238,.75); }
+   Der Ablauf läuft von selbst (data-phase: wartet, praxis, patient, beide). Ohne data-phase, also ohne JavaScript und bei
+   „Bewegung reduzieren“, steht sofort der Endzustand. Bewegt werden nur stroke-dashoffset, opacity und transform. */
+.laecheln {
+  /* Dauern des Ablaufs; die Startzeiten der Stationen stehen in lib/laecheln.ts */
+  --l-zeichnen: .85s; /* eine Hälfte zeichnet sich vom Mundwinkel her */
+  --l-treffen: .5s;   /* beide Hälften laufen zur Mitte */
+  --l-schluss: .7s;   /* der Bogen vertieft sich, Ring und Wort-Bogen */
+  --l-text: .3s;      /* Etiketten und Statuszeilen */
+}
 .laecheln-feld {
-  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); column-gap: .75rem; row-gap: 1.25rem;
-  grid-template-areas: "bogen bogen" "kpraxis kpatient" "tpraxis tpatient" "status status";
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); column-gap: 1.25rem; row-gap: 1.5rem;
+  grid-template-areas: "bogen bogen" "praxis patient" "status status";
 }
-/* Schalter */
-.laecheln-knopf {
-  display: inline-flex; align-items: center; justify-content: center; gap: .6rem; width: 100%; min-height: 48px; min-width: 8rem;
-  padding: 0 1.2rem; border-radius: 6px; font-size: 15px; font-weight: 600; letter-spacing: .01em; color: #F5F2EE; background: transparent;
-  border: 1px solid rgba(245,242,238,.5); touch-action: manipulation; cursor: pointer;
-  transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .16s var(--ease-out);
-}
-.laecheln-knopf:active { transform: scale(.97); }
-.laecheln-knopf:focus-visible, .laecheln-link:focus-visible { outline: 2px solid #F5F2EE; outline-offset: 3px; }
-.laecheln-knopf[data-seite="praxis"][aria-pressed="true"] { background: #F5F2EE; border-color: #F5F2EE; color: #5A1D1D; }
-.laecheln-knopf[data-seite="patient"][aria-pressed="true"] { background: #DFC2BC; border-color: #DFC2BC; color: #431515; }
-.laecheln-punkt { width: 12px; height: 12px; border-radius: 9999px; border: 2px solid currentColor; background: transparent; transition: background-color .2s ease; }
-/* Zustand auch über die Form, nicht nur über die Farbe */
-.laecheln-knopf[aria-pressed="true"] .laecheln-punkt { background: currentColor; }
-/* Seitentexte: immer sichtbar, ausgeschaltet nur blasser (#F5F2EE bei .62 auf #5A1D1D ≈ 5,3:1) */
-/* Handy: jeder Text steht direkt unter seinem Schalter, so bleibt das Abblassen im Blick */
-.laecheln-text { margin-top: -.5rem; font-size: 15px; line-height: 1.5; color: #F5F2EE; transition: opacity .3s var(--ease-out); }
-.laecheln[data-praxis="aus"] .laecheln-text[data-seite="praxis"], .laecheln[data-patient="aus"] .laecheln-text[data-seite="patient"] { opacity: .62; }
+.laecheln-bogen { grid-area: bogen; display: block; width: 100%; height: auto; overflow: visible; }
+/* Zwei stille Etiketten mit je einem Satz, jede Seite unter ihrem Mundwinkel */
+.laecheln-seite[data-seite="praxis"] { grid-area: praxis; }
+.laecheln-seite[data-seite="patient"] { grid-area: patient; text-align: right; }
+.laecheln-name { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: rgba(245,242,238,.75); }
+.laecheln-text { margin-top: .4rem; font-size: 15px; line-height: 1.5; color: #F5F2EE; text-wrap: balance; }
+/* Status: alle Fassungen in einer Zelle, die längste (der Endzustand) hält die Höhe frei */
+.laecheln-status-feld { grid-area: status; display: grid; text-align: center; }
+.laecheln-status { grid-area: 1 / 1; }
+.laecheln-titel { font-size: 1.55rem; font-style: italic; color: #F5F2EE; }
+/* Zwischenzeilen: nur während des Ablaufs zu sehen */
+.laecheln-status[aria-hidden="true"] { visibility: hidden; opacity: 0; }
 .laecheln-link {
   display: inline-flex; align-items: center; gap: .35rem; min-height: 44px; font-size: 15px; font-weight: 600; color: #F5F2EE;
-  text-decoration: underline; text-decoration-color: rgba(245,242,238,.4); text-underline-offset: 4px; transition: text-decoration-color .2s ease;
+  text-decoration: underline; text-decoration-color: rgba(245,242,238,.4); text-underline-offset: 4px;
+  transition: text-decoration-color .2s ease, transform .16s var(--ease-out);
 }
-.laecheln-link:hover { text-decoration-color: currentColor; }
-/* PC: Schalter an den Mundwinkeln, Bogen in der Mitte (nach den Grundregeln, damit diese Werte gewinnen) */
+.laecheln-link:active { transform: scale(.98); }
+.laecheln-link:focus-visible { outline: 2px solid #F5F2EE; outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) { .laecheln-link:hover { text-decoration-color: currentColor; } }
+@media (prefers-reduced-motion: reduce) { .laecheln-link:active { transform: none; } }
+/* PC: Etiketten links und rechts neben dem Bogen, Status darunter in der Mitte */
 @media (min-width: 1024px) {
   .laecheln-feld {
-    grid-template-columns: minmax(0,3fr) minmax(0,6fr) minmax(0,3fr); column-gap: 2.5rem; row-gap: .75rem;
-    grid-template-areas: "kpraxis bogen kpatient" "tpraxis bogen tpatient" "tpraxis status tpatient";
+    grid-template-columns: minmax(0,3fr) minmax(0,6fr) minmax(0,3fr); column-gap: 2.5rem; row-gap: 1rem;
+    grid-template-areas: "praxis bogen patient" "praxis status patient";
   }
-  .laecheln-knopf[data-seite="praxis"], .laecheln-text[data-seite="praxis"] { justify-self: end; text-align: right; }
-  .laecheln-knopf[data-seite="patient"], .laecheln-text[data-seite="patient"] { justify-self: start; text-align: left; }
-  .laecheln-knopf { width: auto; align-self: start; }
-  .laecheln-text { max-width: 17rem; margin-top: 0; font-size: 16px; line-height: 1.6; }
-  .laecheln-status { text-align: center; }
+  .laecheln-bogen { max-width: 35rem; margin-inline: auto; }
+  .laecheln-seite[data-seite="praxis"] { justify-self: end; text-align: right; }
+  .laecheln-seite[data-seite="patient"] { justify-self: start; text-align: left; }
+  /* Etikett auf Höhe des Mundwinkels */
+  .laecheln-seite { max-width: 17rem; padding-top: .6rem; }
+  .laecheln-text { font-size: 16px; line-height: 1.6; }
+  .laecheln-titel { font-size: 1.75rem; }
 }
-/* Bogen: jede Hälfte wächst vom Mundwinkel zur Mitte */
-.laecheln-spur { stroke: rgba(245,242,238,.2); transition: stroke .2s ease; }
-.laecheln-haelfte { stroke-dasharray: 1 1.1; stroke-dashoffset: 0; transition: stroke-dashoffset .9s var(--ease-in-out); }
-/* 1.05 statt 1: kein runder Kappenpunkt am Mundwinkel */
-.laecheln[data-praxis="aus"] .laecheln-haelfte[data-seite="praxis"], .laecheln[data-patient="aus"] .laecheln-haelfte[data-seite="patient"] {
-  stroke-dashoffset: 1.05; transition: stroke-dashoffset .45s var(--ease-out);
-}
-.laecheln-gruppe { transform-box: view-box; transform-origin: 240px 16px; transform: scaleY(.86); transition: transform .4s var(--ease-out); }
-/* Vertiefen mit Verzögerung nur beim Erreichen von „beide“ */
-.laecheln[data-voll] .laecheln-gruppe { transform: none; transition: transform .6s var(--ease-out) .5s; }
-.laecheln-ecke { fill: #5A1D1D; transition: fill .2s ease; }
-.laecheln[data-praxis="an"] .laecheln-ecke[data-seite="praxis"] { fill: #F5F2EE; }
-.laecheln[data-patient="an"] .laecheln-ecke[data-seite="patient"] { fill: #DFC2BC; }
-.laecheln-mitte, .laecheln-ring { transform-box: fill-box; transform-origin: center; opacity: 0; }
-/* Treffpunkt und Ring starten bei jedem neuen „beide“ von vorn */
-.laecheln[data-voll] .laecheln-mitte { animation: laecheln-punkt .45s var(--ease-out) 1.05s both; }
-.laecheln[data-voll] .laecheln-ring { animation: laecheln-ring .7s var(--ease-out) 1.05s both; }
-@keyframes laecheln-punkt { 0% { transform: scale(0); opacity: 0; } 70% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-/* Der Ring beginnt unsichtbar: Während der Verzögerung (fill-mode both) steht sonst schon ein Kreis da */
-@keyframes laecheln-ring { 0% { transform: scale(.6); opacity: 0; } 12% { opacity: .8; } 100% { transform: scale(2.4); opacity: 0; } }
-.laecheln-wort { stroke-dasharray: 1 1.1; stroke-dashoffset: 1.05; transition: stroke-dashoffset .3s var(--ease-out); }
-.laecheln[data-voll] .laecheln-wort { stroke-dashoffset: 0; transition: stroke-dashoffset .6s var(--ease-out) 1.15s; }
-.laecheln-status { transition: opacity .5s var(--ease-out); }
-/* Erst wenn sich der Bogen schließt (Treffpunkt nach ≈ 1 s), steht „Jetzt lächeln beide.“ da; halbe Stände kommen sofort */
-.laecheln[data-voll] .laecheln-status.kurz-ein { animation-delay: .95s; }
-/* Vorschau: Zeigt die Maus auf einen Schalter (oder liegt der Tastaturfokus darauf), hellt sich die Spur seiner Hälfte auf */
-@media (hover: hover) and (pointer: fine) {
-  .laecheln-knopf[aria-pressed="false"]:hover { border-color: #F5F2EE; background: rgba(245,242,238,.08); }
-  .laecheln:has(.laecheln-knopf[data-seite="praxis"]:hover) .laecheln-spur[data-seite="praxis"],
-  .laecheln:has(.laecheln-knopf[data-seite="patient"]:hover) .laecheln-spur[data-seite="patient"] { stroke: rgba(245,242,238,.45); }
-}
-.laecheln:has(.laecheln-knopf[data-seite="praxis"]:focus-visible) .laecheln-spur[data-seite="praxis"],
-.laecheln:has(.laecheln-knopf[data-seite="patient"]:focus-visible) .laecheln-spur[data-seite="patient"] { stroke: rgba(245,242,238,.45); }
-/* Einstieg: Ausgangslage nur mit JS und nur, wenn Bewegung erlaubt ist */
+/* Bogen im Endzustand: beide Hälften bis zur Mitte gezeichnet, darüber der ganze Bogen in einer Farbe */
+.laecheln-spur { stroke: rgba(245,242,238,.2); }
+.laecheln-haelfte, .laecheln-wort { stroke-dasharray: 1 1.1; stroke-dashoffset: 0; }
+.laecheln-gruppe { transform-box: view-box; transform-origin: 240px 16px; }
+.laecheln-ring { transform-box: fill-box; transform-origin: center; opacity: 0; }
+/* Der Ring beginnt unsichtbar: Während der Verzögerung (fill-mode both) stünde sonst schon ein Kreis da */
+@keyframes laecheln-ring { 0% { transform: scale(.6); opacity: 0; } 15% { opacity: .8; } 100% { transform: scale(2.4); opacity: 0; } }
+/* Ablauf: nur, wenn Bewegung erlaubt ist */
 @media (prefers-reduced-motion: no-preference) {
-  .js-ein .laecheln[data-intro="wartet"] .laecheln-haelfte, .js-ein .laecheln[data-intro="wartet"] .laecheln-wort { stroke-dashoffset: 1.05; transition: none; }
-  .js-ein .laecheln[data-intro="wartet"] .laecheln-gruppe { transform: scaleY(.86); transition: none; }
-  .js-ein .laecheln[data-intro="wartet"] .laecheln-mitte, .js-ein .laecheln[data-intro="wartet"] .laecheln-ring { animation: none; opacity: 0; }
-  .js-ein .laecheln[data-intro="wartet"] .laecheln-ecke { fill: #5A1D1D; transition: none; }
-  .js-ein .laecheln[data-intro="wartet"] .laecheln-status { opacity: 0; transition: none; }
-  /* Solange der Status noch nicht eingeblendet ist, nimmt er keine Klicks an (Fokus blendet ihn sofort ein, siehe Komponente) */
-  .js-ein .laecheln[data-intro="wartet"] .laecheln-status, .laecheln[data-intro="laeuft"] .laecheln-status { pointer-events: none; }
-  /* Die Schalter zeigen immer ihren echten Zustand. Beim Einstieg leuchten sie nur kurz auf, wenn ihre Hälfte losläuft. */
-  .laecheln[data-intro="laeuft"] .laecheln-knopf[aria-pressed="true"] { animation: laecheln-glanz .9s var(--ease-out) both; }
-  /* Ablauf: Praxis bei 0,4 s, Patient bei 1,1 s, Vertiefen 1,6 s, Punkt und Ring 2,1 s, Status 2,1 s, Wort-Bogen 2,25 s; Ruhe nach ≈ 2,9 s */
-  .laecheln[data-intro="laeuft"] .laecheln-haelfte[data-seite="praxis"], .laecheln[data-intro="laeuft"] .laecheln-ecke[data-seite="praxis"] { transition-delay: .4s; }
-  .laecheln[data-intro="laeuft"] .laecheln-haelfte[data-seite="patient"], .laecheln[data-intro="laeuft"] .laecheln-ecke[data-seite="patient"] { transition-delay: 1.1s; }
-  .laecheln[data-intro="laeuft"] .laecheln-knopf[data-seite="praxis"] { animation-delay: .4s; }
-  .laecheln[data-intro="laeuft"] .laecheln-knopf[data-seite="patient"] { animation-delay: 1.1s; }
-  .laecheln[data-intro="laeuft"][data-voll] .laecheln-gruppe { transition-delay: 1.6s; }
-  .laecheln[data-intro="laeuft"][data-voll] .laecheln-mitte, .laecheln[data-intro="laeuft"][data-voll] .laecheln-ring { animation-delay: 2.1s; }
-  .laecheln[data-intro="laeuft"] .laecheln-status { transition-delay: 2.1s; }
-  .laecheln[data-intro="laeuft"][data-voll] .laecheln-wort { transition-delay: 2.25s; }
-}
-/* Aufleuchten im an-Zustand: ein heller Saum, der sich nach außen verliert */
-@keyframes laecheln-glanz { 0% { box-shadow: 0 0 0 0 rgba(245,242,238,0); } 25% { box-shadow: 0 0 0 4px rgba(245,242,238,.35); } 100% { box-shadow: 0 0 0 12px rgba(245,242,238,0); } }
-@media (prefers-reduced-motion: reduce) {
-  .laecheln *, .laecheln-knopf { transition: none !important; animation: none !important; }
-  .laecheln[data-voll] .laecheln-mitte { opacity: 1; transform: none; }
-  .laecheln-knopf:active { transform: none; }
+  /* Vor dem Treffen: Bogen flacher, Hälften nicht gezeichnet (1.05 statt 1: kein runder Kappenpunkt am Mundwinkel) */
+  .laecheln[data-phase]:not([data-phase="beide"]) .laecheln-gruppe { transform: scaleY(.86); }
+  .laecheln[data-phase]:not([data-phase="beide"]) .laecheln-treff { transform: translateY(-8.4px); }
+  .laecheln[data-phase]:not([data-phase="beide"]) .laecheln-ganz { opacity: 0; }
+  .laecheln[data-phase]:not([data-phase="beide"]) .laecheln-wort { stroke-dashoffset: 1.05; }
+  .laecheln[data-phase]:not([data-phase="beide"]) .laecheln-status[data-stand="beide"] { opacity: 0; transform: translateY(6px); pointer-events: none; }
+  .laecheln[data-phase="wartet"] .laecheln-haelfte,
+  .laecheln[data-phase="praxis"] .laecheln-haelfte[data-seite="patient"] { stroke-dashoffset: 1.05; }
+  .laecheln[data-phase="wartet"] .laecheln-seite,
+  .laecheln[data-phase="praxis"] .laecheln-seite[data-seite="patient"] { opacity: .38; }
+  /* 1 und 2: Die Hälfte zeichnet sich bis kurz vor die Mitte, Etikett und Satz werden voll sichtbar, die Statuszeile nennt die Seite */
+  .laecheln[data-phase="praxis"] .laecheln-haelfte[data-seite="praxis"],
+  .laecheln[data-phase="patient"] .laecheln-haelfte { stroke-dashoffset: .22; transition: stroke-dashoffset var(--l-zeichnen) var(--ease-in-out); }
+  .laecheln[data-phase="praxis"] .laecheln-seite, .laecheln[data-phase="patient"] .laecheln-seite { transition: opacity .5s var(--ease-out); }
+  .laecheln[data-phase] .laecheln-status[aria-hidden="true"] { transition: opacity .2s var(--ease-out), visibility 0s .2s; }
+  .laecheln[data-phase="praxis"] .laecheln-status[data-stand="praxis"],
+  .laecheln[data-phase="patient"] .laecheln-status[data-stand="patient"] { visibility: visible; opacity: 1; transition: opacity var(--l-text) var(--ease-out) .25s; }
+  /* 3: Beide Hälften laufen zur Mitte. Mit dem Treffen wird der Bogen ganz und tiefer; Status, Ring und Wort-Bogen kommen dazu. */
+  .laecheln[data-phase="beide"] .laecheln-haelfte { transition: stroke-dashoffset var(--l-treffen) var(--ease-in-out); }
+  .laecheln[data-phase="beide"] .laecheln-ganz { transition: opacity var(--l-text) var(--ease-out) var(--l-treffen); }
+  .laecheln[data-phase="beide"] .laecheln-gruppe, .laecheln[data-phase="beide"] .laecheln-treff { transition: transform var(--l-schluss) var(--ease-out) var(--l-treffen); }
+  .laecheln[data-phase="beide"] .laecheln-ring { animation: laecheln-ring var(--l-schluss) var(--ease-out) var(--l-treffen) both; }
+  .laecheln[data-phase="beide"] .laecheln-wort { transition: stroke-dashoffset var(--l-schluss) var(--ease-out) var(--l-treffen); }
+  .laecheln[data-phase="beide"] .laecheln-status[data-stand="beide"] { transition: opacity .5s var(--ease-out) var(--l-treffen), transform .5s var(--ease-out) var(--l-treffen); }
 }
 
 /* ---- Bewegung im Journal (nach den Regeln aus dem animate-Skill) ---- */
