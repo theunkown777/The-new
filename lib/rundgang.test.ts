@@ -75,7 +75,7 @@ describe("Rundgang auf der Website", () => {
     expect(doppelte(alle)).toEqual([]);
   });
 
-  it("die Startseite bindet den Rundgang im Inhalt nach der Hauptüberschrift ein und verlinkt ihn neben „Ihr Fach wählen“", () => {
+  it("die Startseite bindet den Rundgang im Auftakt nach der Hauptüberschrift ein; der Auftakt bietet stattdessen den Pilotplatz an", () => {
     const seite = lesen("app/page.tsx");
     expect(seite).toMatch(/const gast = gastzugangOffen\(\);/);
     expect(seite.match(/<Rundgang gastzugang=\{gast\} \/>/g)).toHaveLength(1);
@@ -83,7 +83,12 @@ describe("Rundgang auf der Website", () => {
     expect(rundgang).toBeGreaterThan(seite.indexOf('<main id="inhalt">'));
     expect(rundgang).toBeGreaterThan(seite.indexOf("</h1>"));
     expect(rundgang).toBeLessThan(seite.indexOf("</main>"));
-    expect(seite).toMatch(/href=\{RUNDGANG_HREF\}[^>]*data-rundgang-ausloeser/);
+    // Die Einladung steht am Handy im Auftakt: vor dem Handybild, aber außerhalb der Zeilen, die beim Laden bewegt werden.
+    expect(rundgang).toBeLessThan(seite.indexOf('data-testid="seite-patient"'));
+    expect(seite).not.toContain("RUNDGANG_HREF");
+    expect(seite).toMatch(/<Link href=\{PILOT_ZIEL\}[^>]*data-testid="pilot-link-start"/);
+    // Ziel für den Fokus nach dem Rundgang, wenn es sonst keines gibt: der Link „Rundgang“ in der Kopfzeile.
+    expect(lesen("components/start/JournalKopf.tsx")).toMatch(/href=\{RUNDGANG_HREF\}[^>]*data-rundgang-ausloeser/);
     expect(RUNDGANG_HREF).toBe("/#rundgang");
   });
 

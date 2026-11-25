@@ -5,10 +5,11 @@ import { RundgangKarte, fokusZurueck, useRundgangPlatz } from "@/components/Rund
 import { RUNDGANG_ANKER, RUNDGANG_HREF, RUNDGANG_SCHLUESSEL, RUNDGANG_ZU, rundgangWebsite } from "@/lib/rundgang";
 
 // Rundgang auf der Startseite (lib/rundgang.ts, RUNDGANG_WEBSITE).
-// Beim ersten Betreten lädt unten eine kleine Karte ein; sie ist nicht modal und sofort schließbar.
+// Beim ersten Betreten lädt eine kleine Einladung ein; sie ist nicht modal und sofort schließbar. Am Handy steht sie als
+// letzte Zeile im Auftakt; am PC schwebt sie unten rechts und nur, solange der Auftakt im Bild ist.
 // Gespeichert wird nur, wenn jemand „Nein danke“ wählt oder den Rundgang beendet: „sorrida-rundgang“ = „zu“ im
 // Sitzungsspeicher dieses Tabs (app/datenschutz, Abschnitt 3; lib/browserSpeicher.test.ts). Ohne diesen Klick nichts.
-// Starten lässt er sich jederzeit über „/#rundgang“ (Kopf, Handy-Menü, Fuß, Link neben „Ihr Fach wählen“).
+// Starten lässt er sich jederzeit über „/#rundgang“ (Kopf, Handy-Menü, Fuß).
 
 type Modus = "aus" | "einladung" | "lauf";
 
@@ -141,7 +142,8 @@ export function Rundgang({ gastzugang }: { gastzugang: boolean }) {
         onNein={() => {
           merkenZu();
           setModus("aus");
-          fokusZurueck(null);
+          // Der Fokus bleibt beim Auftakt, wo die Einladung stand.
+          fokusZurueck(null, document.getElementById("auftakt"));
         }}
       />
     );
@@ -167,18 +169,59 @@ export function Rundgang({ gastzugang }: { gastzugang: boolean }) {
 }
 
 /**
- * Einladung beim ersten Betreten: klein, unten, nicht modal. Sie nimmt den Fokus nicht an sich. Ab Tablet steht sie
- * rechts unten über dem Handybild, damit Text und Links des Auftakts links frei bleiben.
+ * Ab dieser Breite (Tailwind „lg“) stehen Text und Handybild im Auftakt nebeneinander und die Einladung schwebt unten
+ * rechts. Darunter, an Handy und Tablet, steht sie im Auftakt.
+ */
+const SCHWEBT_AB = "(min-width: 1024px)";
+
+/**
+ * Einladung beim ersten Betreten: klein, nicht modal. Sie nimmt den Fokus nicht an sich.
+ * An Handy und Tablet steht sie fest als letzte Zeile im Auftakt und verdeckt nichts. Am PC schwebt sie rechts unten
+ * über dem Handybild, aber nur, solange der Auftakt bis ins untere Drittel des Fensters reicht; danach blendet sie aus und gibt
+ * den Platz unten wieder frei (app/globals.css, .rundgang-einladung). Der Rundgang bleibt über Kopf, Menü und
+ * Fuß erreichbar.
  */
 function Einladung({ anzahl, onStart, onNein }: { anzahl: number; onStart: () => void; onNein: () => void }) {
   const karte = useRef<HTMLElement>(null);
-  useRundgangPlatz(karte, true);
+  // null: Breite noch nicht gelesen; bis dahin bleibt die Einladung unsichtbar.
+  const [schwebt, setSchwebt] = useState<boolean | null>(null);
+  const [auftaktImBild, setAuftaktImBild] = useState(false);
+  // Liegt der Tastaturfokus in der Einladung, bleibt sie stehen, auch wenn der Auftakt aus dem Bild läuft.
+  const [fokusDrin, setFokusDrin] = useState(false);
+  useEffect(() => {
+    const breite = window.matchMedia(SCHWEBT_AB);
+    const lesen = () => setSchwebt(breite.matches);
+    lesen();
+    breite.addEventListener("change", lesen);
+    return () => breite.removeEventListener("change", lesen);
+  }, []);
+  useEffect(() => {
+    const auftakt = document.getElementById("auftakt");
+    if (!auftakt || typeof IntersectionObserver === "undefined") {
+      setAuftaktImBild(true);
+      return;
+    }
+    // Im Bild heißt: Der Auftakt reicht noch ins untere Drittel des Fensters. So liegt die Einladung nur über dem
+    // Auftakt, nie über dem Inhalt des nächsten Abschnitts. In einem sehr hohen Fenster endet der Auftakt schon am
+    // Seitenanfang weiter oben; dort zählt, ob er überhaupt zu sehen ist.
+    const ende = auftakt.getBoundingClientRect().bottom + window.scrollY;
+    const rand = ende > window.innerHeight * 0.7 ? "-70% 0px 0px 0px" : "0px";
+    const io = new IntersectionObserver((meldungen) => setAuftaktImBild(meldungen[meldungen.length - 1].isIntersecting), { rootMargin: rand });
+    io.observe(auftakt);
+    return () => io.disconnect();
+  }, []);
+  const da = schwebt === null ? false : schwebt ? auftaktImBild || fokusDrin : true;
+  // Platz am unteren Rand nur, solange die Einladung dort wirklich steht.
+  useRundgangPlatz(karte, schwebt === true && da);
   return (
     <section
       ref={karte}
       aria-labelledby="rundgang-einladung-titel"
-      className="rundgang-karte ein-dialog fixed inset-x-3 bottom-3 z-40 rounded-[10px] border border-linie-stark bg-papier px-4 pb-3 pt-3 text-tinte shadow-[0_24px_48px_-24px_rgba(60,40,30,.55)] sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[24rem] sm:px-5 sm:pb-4"
+      className="rundgang-karte rundgang-einladung mt-8 border-t border-linie pb-4 pt-5 text-tinte lg:fixed lg:bottom-6 lg:right-6 lg:z-40 lg:mt-0 lg:w-[24rem] lg:rounded-[10px] lg:border lg:border-linie-stark lg:bg-papier lg:px-5 lg:pb-4 lg:pt-3 lg:shadow-[0_24px_48px_-24px_rgba(60,40,30,.55)]"
+      data-da={da ? "" : undefined}
       data-testid="rundgang-einladung"
+      onFocus={() => setFokusDrin(true)}
+      onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && setFokusDrin(false)}
       onKeyDown={(e) => {
         if (e.key === "Escape") {
           e.preventDefault();
@@ -190,11 +233,17 @@ function Einladung({ anzahl, onStart, onNein }: { anzahl: number; onStart: () =>
       <h2 id="rundgang-einladung-titel" className="text-[15px] leading-snug text-tinte">
         <span className="font-semibold">Neu hier?</span> Rundgang durch Sorrida in {anzahl} Stationen.
       </h2>
-      <div className="mt-2.5 flex flex-wrap items-center gap-2">
-        <button type="button" onClick={onStart} className="j-knopf j-knopf-voll !min-h-[40px] !px-4 text-sm" data-testid="rundgang-einladung-start">
+      {/* Im Auftakt neben dem Hauptknopf zurückhaltend (Linie und Textknopf, 44 px Tippfläche), schwebend wie gewohnt. */}
+      <div className={`flex flex-wrap items-center ${schwebt ? "mt-2.5 gap-2" : "mt-3 gap-x-5 gap-y-1"}`}>
+        <button type="button" onClick={onStart} className={schwebt ? "j-knopf j-knopf-voll !min-h-[40px] !px-4 text-sm" : "j-knopf j-knopf-linie !min-h-[44px] !px-4"} data-testid="rundgang-einladung-start">
           Rundgang starten
         </button>
-        <button type="button" onClick={onNein} className="j-knopf j-knopf-linie !min-h-[40px] !px-4 text-sm" data-testid="rundgang-einladung-nein">
+        <button
+          type="button"
+          onClick={onNein}
+          className={schwebt ? "j-knopf j-knopf-linie !min-h-[40px] !px-4 text-sm" : "j-link inline-flex min-h-[44px] items-center px-1 text-[15px] font-semibold text-tinte-2"}
+          data-testid="rundgang-einladung-nein"
+        >
           Nein danke
         </button>
       </div>

@@ -5,7 +5,8 @@
 // Umgebung wie in e2e/gemeinsam.js (BASIS, DB, BILDER). Die Website muss ohne Vorschau-Schloss laufen
 // (VORSCHAU_HOSTS leer), sonst landet der Durchlauf auf „Demnächst“.
 // Geprüft wird:
-//   Website  Einladung erscheint, nichts im Speicher; keine doppelten ids; Start; alle 8 Stationen mit Ziel im Blick;
+//   Website  Einladung erscheint, nichts im Speicher; am Handy steht sie im Auftakt und verdeckt nichts, am Desktop
+//            schwebt sie nur, solange der Auftakt im Bild ist; keine doppelten ids; Start; alle 8 Stationen mit Ziel im Blick;
 //            am Desktop verdeckt die Karte das Kernelement der Station nicht; kein seitlicher Überlauf; Pfeiltasten;
 //            Ende speichert nur „sorrida-rundgang“ = „zu“, Fokus auf dem letzten Abschnitt; Esc mit Fokus in der
 //            Karte und nach einem Klick auf die Seite; „Nein danke“; Start über /#rundgang von einer Unterseite;
@@ -97,13 +98,32 @@ async function website(b, name, opt, ruhig) {
   const einladung = p.getByTestId('rundgang-einladung');
   await einladung.waitFor({ timeout: 15000 });
   pruef(`${name}: Einladung erscheint`, await einladung.isVisible());
-  pruef(`${name}: Einladung nennt 8 Stationen`, /Neu hier\?.*8 Stationen/.test(await einladung.innerText()));
+  const einladungText = await einladung.innerText();
+  pruef(`${name}: Einladung nennt 8 Stationen`, /Neu hier\?.*8 Stationen/.test(einladungText), einladungText);
   let sp = await speicher(p);
   pruef(`${name}: ohne Klick nichts im Speicher`, Object.keys(sp.s).length === 0 && sp.l === 0, JSON.stringify(sp));
   pruef(`${name}: Einladung nimmt den Fokus nicht`, !(await fokus(p)).includes('rundgang'));
   pruef(`${name}: kein seitlicher Überlauf (Einladung)`, (await ueberlauf(p)) <= 0);
   pruef(`${name}: keine doppelten ids auf der Startseite`, (await doppelteIds(p)).length === 0, (await doppelteIds(p)).join(' '));
   await p.screenshot({ path: `${D}/web-${name}-0-einladung.png` });
+
+  // Am Handy steht die Einladung als Zeile im Auftakt: nicht schwebend, über nichts, ohne Platz am unteren Rand.
+  // Ab 1024 px schwebt sie unten rechts, blendet aus, sobald der Auftakt aus dem Bild ist, und kommt mit ihm wieder.
+  const platz = () => p.evaluate(() => document.documentElement.hasAttribute('data-rundgang'));
+  if (opt.viewport.width < 1024) {
+    const lage = await einladung.evaluate((e) => ({ pos: getComputedStyle(e).position, imAuftakt: !!e.closest('#auftakt') }));
+    pruef(`${name}: Einladung steht im Auftakt, nicht schwebend`, lage.pos === 'static' && lage.imAuftakt && !(await platz()), JSON.stringify(lage));
+    const knoepfe = await einladung.locator('button').evaluateAll((bs) => bs.map((b) => Math.round(b.getBoundingClientRect().height)));
+    pruef(`${name}: Knöpfe der Einladung mindestens 44 px hoch`, knoepfe.length === 2 && knoepfe.every((h) => h >= 44), knoepfe.join(' '));
+  } else {
+    pruef(`${name}: Einladung schwebt und hält unten Platz frei`, (await einladung.evaluate((e) => getComputedStyle(e).position)) === 'fixed' && (await platz()));
+    await p.evaluate(() => document.getElementById('preise').scrollIntoView());
+    const weg = await einladung.waitFor({ state: 'hidden', timeout: 5000 }).then(() => true, () => false);
+    pruef(`${name}: Einladung blendet aus, wenn der Auftakt aus dem Bild ist`, weg && !(await platz()));
+    await p.evaluate(() => window.scrollTo(0, 0));
+    const wieder = await einladung.waitFor({ state: 'visible', timeout: 5000 }).then(() => true, () => false);
+    pruef(`${name}: Einladung kommt mit dem Auftakt wieder`, wieder);
+  }
 
   await p.getByTestId('rundgang-einladung-start').click();
   const karte = p.getByTestId('rundgang-karte');
@@ -165,6 +185,8 @@ async function website(b, name, opt, ruhig) {
     await p.getByTestId('rundgang-link-kopf').click();
   } else {
     await p.locator('header details summary').click();
+    // Das Menü wächst kurz aus dem Knopf: erst klicken, wenn es steht.
+    await p.locator('header details nav').evaluate((n) => Promise.all(n.getAnimations().map((a) => a.finished)));
     await p.getByTestId('rundgang-link-menue').click();
   }
   await karte.waitFor();
@@ -176,8 +198,8 @@ async function website(b, name, opt, ruhig) {
   const f = await fokus(p);
   pruef(`${name}: Esc beendet, Fokus zurück an den Auslöser`, opt.viewport.width >= 1024 ? f === 'a#rundgang-link-kopf' : f === 'summary', f);
 
-  // Esc wirkt auch, wenn der Fokus nach einem Klick auf die Seite nicht mehr in der Karte liegt.
-  await p.getByTestId('rundgang-link-start').click();
+  // Esc wirkt auch, wenn der Fokus nach einem Klick auf die Seite nicht mehr in der Karte liegt. Start über den Fuß.
+  await p.getByTestId('rundgang-link-fuss').click();
   await karte.waitFor();
   await p.locator('#auftakt h1').click({ position: { x: 4, y: 4 } });
   const vorEsc = await fokus(p);
@@ -186,7 +208,8 @@ async function website(b, name, opt, ruhig) {
   pruef(`${name}: Esc nach Klick auf die Seite beendet den Rundgang`, zu && !vorEsc.includes('rundgang'), `Fokus vor Esc: ${vorEsc}`);
   await warte(100);
   const f2 = await fokus(p);
-  pruef(`${name}: danach Fokus am Start-Link oder am Abschnitt`, f2 === 'a#rundgang-link-start' || f2 === 'section#auftakt', f2);
+  pruef(`${name}: danach Fokus am Auslöser oder am Abschnitt`, f2 === 'a#rundgang-link-fuss' || f2 === 'section#auftakt', f2);
+  pruef(`${name}: Auftakt bietet den Pilotplatz an`, (await p.getByTestId('pilot-link-start').getAttribute('href')) === '/hilfe#pilot');
   pruef(`${name}: keine Fehler im Browser`, fehler.length === 0, fehler.join(' | '));
   await ctx.close();
 }

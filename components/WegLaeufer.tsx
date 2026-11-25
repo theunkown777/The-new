@@ -5,7 +5,8 @@ import { bogen, laeuferBilder, zeitplan } from "@/lib/wegBahn";
 
 // Der laufende Punkt auf dem kleinen Lächelbogen (Behandlungsweg). Ein HTML-Punkt über der Zeichnung,
 // bewegt per transform: läuft auf der Grafikkarte, hält an jeder Station mittig, macht drei Runden und
-// blendet dann aus. Läuft nur, solange er zu sehen ist; bei „Bewegung reduzieren“ gar nicht.
+// blendet dann aus. Läuft nur, solange er zu sehen ist, und erst, wenn der Weg sich zeichnet (.im-blick,
+// components/WegAnimationen.tsx); bei „Bewegung reduzieren“ gar nicht.
 const KURVE = bogen([8, 8], [100, 46], [192, 8]);
 const PLAN = zeitplan(700, 650, 500);
 const RUNDEN = 3;
@@ -21,6 +22,11 @@ export function WegLaeufer() {
     let laufen: Animation[] = [];
     let sichtbar = false;
     let fertig = false;
+    const weg = f.closest(".weg-anim");
+    const frei = () => !weg || weg.classList.contains("im-blick");
+    const schalten = () => {
+      if (!fertig) laufen.forEach((a) => (sichtbar && frei() ? a.play() : a.pause()));
+    };
     const bauen = () => {
       const { width, height } = f.getBoundingClientRect();
       if (!width) return;
@@ -33,7 +39,7 @@ export function WegLaeufer() {
       ];
       laufen.forEach((a) => {
         a.currentTime = zeit;
-        if (!sichtbar) a.pause();
+        if (!sichtbar || !frei()) a.pause();
       });
       laufen[0].finished.then(() => (fertig = true)).catch(() => {});
     };
@@ -43,14 +49,21 @@ export function WegLaeufer() {
     const io = new IntersectionObserver(
       ([e]) => {
         sichtbar = e.isIntersecting;
-        if (!fertig) laufen.forEach((a) => (sichtbar ? a.play() : a.pause()));
+        schalten();
       },
       { threshold: 0.4 },
     );
     io.observe(f);
+    const mo = new MutationObserver(() => {
+      if (!frei()) return;
+      mo.disconnect();
+      schalten();
+    });
+    if (weg && !frei()) mo.observe(weg, { attributes: true, attributeFilter: ["class"] });
     return () => {
       ro.disconnect();
       io.disconnect();
+      mo.disconnect();
       laufen.forEach((a) => a.cancel());
     };
   }, []);
