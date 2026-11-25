@@ -1,4 +1,4 @@
-import { PRICE_SHORT, PRICE_TERMS } from "@/lib/pricing";
+import { PILOT_ZIEL, PRICE_SHORT, PRICE_TERMS } from "@/lib/pricing";
 import Link from "next/link";
 
 // Keine Namen einzelner Praxisprogramme, solange es je Programm kein Testprotokoll aus einer Praxis gibt (Prüfbericht A19).
@@ -80,13 +80,18 @@ export function PraxisFaq({ therapie = false, dental = false, journal = false, a
             Was Praxen <em>vor dem Start</em> fragen
           </h2>
           <p className="j-text mt-5">Ihre Frage fehlt? Im Pilotprogramm klären wir sie persönlich.</p>
+          {/* Nächster Schritt statt eines Endes; mit Innenabstand, damit die Tippfläche am Handy 44 px hoch ist. */}
+          <Link href={PILOT_ZIEL} className="j-link mt-2 inline-block py-3 text-[15px] font-semibold text-brand-700" data-testid="faq-frage-stellen">
+            Frage stellen <span className="j-pfeil inline-block" aria-hidden="true">→</span>
+          </Link>
         </div>
-        <div className="border-t border-tinte lg:col-span-8">
-          {fragen.map(([q, a]) => (
-            <details key={q} className="group border-b border-linie">
+        {/* Die Liste blendet ein. Am PC kommen die ersten vier Fragen im Abstand von 40 ms, die übrigen mit der vierten. */}
+        <div className="j-staffel border-t border-tinte lg:col-span-8" style={{ "--staffel": "40ms" } as React.CSSProperties}>
+          {fragen.map(([q, a], i) => (
+            <details key={q} className="faq-auf j-ein group border-b border-linie" style={i > 3 ? ({ "--stelle": 3 } as React.CSSProperties) : undefined}>
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700">
                 <span className="j-titel text-[1.7rem] text-tinte transition-colors group-hover:text-brand-700">{q}</span>
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-linie-stark text-tinte-2 transition group-open:rotate-45 group-open:border-brand-700 group-open:text-brand-700" aria-hidden="true">
+                <span className="faq-plus grid h-9 w-9 shrink-0 place-items-center rounded-full border border-linie-stark text-tinte-2 group-open:border-brand-700 group-open:text-brand-700" aria-hidden="true">
                   +
                 </span>
               </summary>
@@ -106,10 +111,10 @@ export function PraxisFaq({ therapie = false, dental = false, journal = false, a
       </div>
       <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white">
         {fragen.map(([q, a]) => (
-          <details key={q} className="group px-5 py-4">
+          <details key={q} className="faq-auf group px-5 py-4">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-slate-900">
               {q}
-              <span className="text-slate-400 transition group-open:rotate-45" aria-hidden="true">
+              <span className="faq-plus text-slate-400" aria-hidden="true">
                 +
               </span>
             </summary>

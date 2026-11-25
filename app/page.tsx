@@ -6,7 +6,7 @@ import { SPECIALTIES } from "@/lib/specialties";
 import { FachWahl, type FachKachel } from "@/components/FachWahl";
 import { PricingPlans } from "@/components/PricingPlans";
 import { Grundsaetze } from "@/components/Grundsaetze";
-import { PILOT_KURZ, PILOT_ZIEL, PLANS, eur } from "@/lib/pricing";
+import { PILOT_ALS_PRAXIS, PILOT_KURZ, PILOT_ZIEL, PREIS_AB_START } from "@/lib/pricing";
 import { Entlastung } from "@/components/Entlastung";
 import { ZeitRechner } from "@/components/ZeitRechner";
 import { PraxisFaq } from "@/components/PraxisFaq";
@@ -276,16 +276,16 @@ export default async function Start() {
           </div>
         </div>
 
-        {/* Schlussaufruf */}
+        {/* Schlussaufruf: Überschrift, Text und Knöpfe blenden nacheinander ein, am PC mit 80 ms Abstand. */}
         <section id="ausprobieren" className="auf-dunkel bg-tinte text-[#F5F2EE]">
           <div className={`${rahmen} grid items-end gap-10 py-24 sm:py-32 lg:grid-cols-12`}>
             <div className="lg:col-span-8">
-              <h2 className="j-schau text-[clamp(2.8rem,6vw,5.4rem)] text-[#F5F2EE]">
-                Ab <span className="j-zahl">{eur(PLANS[0].preis)}</span> im Monat. <em className="!text-brand-200">Alles enthalten.</em>
+              <h2 className="j-ein j-schau text-[clamp(2.8rem,6vw,5.4rem)] text-[#F5F2EE]">
+                {PILOT_ALS_PRAXIS}. <em className="!text-brand-200">Alles enthalten.</em>
               </h2>
-              <p className="mt-6 text-[19px] text-[#F5F2EE]/75">{PILOT_KURZ}, keine Zähler. Geplante Preise ab dem allgemeinen Start; zurzeit nehmen wir nur Pilotpraxen auf.</p>
+              <p className="j-ein mt-6 text-[19px] text-[#F5F2EE]/75 lg:[--verzug:80ms]">Im Pilotprogramm übernehmen wir die Einrichtung mit Ihnen. {PREIS_AB_START}</p>
             </div>
-            <div className="flex flex-wrap gap-4 lg:col-span-4 lg:justify-end">
+            <div className="j-ein flex flex-wrap gap-4 lg:col-span-4 lg:justify-end lg:[--verzug:160ms]">
               <Link href={PILOT_ZIEL} className="j-knopf j-knopf-hell">
                 Pilotplatz anfragen
               </Link>
