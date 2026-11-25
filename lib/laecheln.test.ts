@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync, statSync } from "fs";
 import path from "path";
-import { LAECHELN_HINWEIS, LAECHELN_SEITEN, LAECHELN_STAENDE, LAECHELN_STATUS, laechelnStand } from "@/lib/laecheln";
+import { LAECHELN_ABLAUF, LAECHELN_DAUER_MS, LAECHELN_SCHLUSS, LAECHELN_SCHLUSS_MS, LAECHELN_SEITEN, laechelnPhase } from "@/lib/laecheln";
 
 const WURZEL = path.join(__dirname, "..");
 const lies = (datei: string) => readFileSync(path.join(WURZEL, datei), "utf8");
@@ -16,68 +16,95 @@ function dateien(ordner: string): string[] {
   });
 }
 
-const alleTexte = [
-  ...Object.values(LAECHELN_SEITEN).flatMap((s) => [s.name, s.text]),
-  ...Object.values(LAECHELN_STATUS).flatMap((s) => [s.titel, s.text, s.link?.text ?? ""]),
-  LAECHELN_HINWEIS,
-];
+const css = lies("app/globals.css");
+const block = css.slice(css.indexOf("/* Lächeln-Zitat der Startseite"), css.indexOf("/* ---- Bewegung im Journal"));
+/** Dauer aus dem CSS-Block in Millisekunden, z. B. --l-zeichnen: .85s → 850 */
+const dauer = (name: string) => Math.round(Number(block.match(new RegExp(`--l-${name}: ([\\d.]+)s`))?.[1]) * 1000);
 
-describe("Lächeln-Zitat: Stand aus den zwei Schaltern", () => {
-  it("bildet jede Kombination auf genau einen Stand ab", () => {
-    expect(laechelnStand(true, true)).toBe("beide");
-    expect(laechelnStand(true, false)).toBe("praxis");
-    expect(laechelnStand(false, true)).toBe("patient");
-    expect(laechelnStand(false, false)).toBe("keine");
-    expect(new Set(LAECHELN_STAENDE)).toEqual(new Set(["beide", "praxis", "patient", "keine"]));
+const alleTexte = [...Object.values(LAECHELN_SEITEN).flatMap((s) => [s.name, s.text, s.status]), LAECHELN_SCHLUSS.titel, LAECHELN_SCHLUSS.text, LAECHELN_SCHLUSS.link.text];
+
+describe("Lächeln-Zitat: Ablauf", () => {
+  it("läuft in der festen Folge Praxis, Patient, beide", () => {
+    expect(LAECHELN_ABLAUF.map((s) => s.phase)).toEqual(["praxis", "patient", "beide"]);
+    const zeiten = LAECHELN_ABLAUF.map((s) => s.abMs);
+    expect([...zeiten].sort((a, b) => a - b)).toEqual(zeiten);
+    expect(new Set(zeiten).size).toBe(zeiten.length);
+  });
+
+  it("jeder Zeitpunkt hat genau eine Station: vorher wartet der Bogen, am Ende bleibt er ganz", () => {
+    expect(laechelnPhase(0)).toBe("wartet");
+    for (const s of LAECHELN_ABLAUF) {
+      expect(laechelnPhase(s.abMs)).toBe(s.phase);
+      expect(laechelnPhase(s.abMs + 1)).toBe(s.phase);
+    }
+    expect(laechelnPhase(LAECHELN_ABLAUF[0].abMs - 1)).toBe("wartet");
+    expect(laechelnPhase(LAECHELN_DAUER_MS)).toBe("beide");
+    expect(laechelnPhase(60_000)).toBe("beide");
+  });
+
+  it("dauert insgesamt etwa 3 bis 3,5 Sekunden", () => {
+    expect(LAECHELN_DAUER_MS).toBeGreaterThanOrEqual(3000);
+    expect(LAECHELN_DAUER_MS).toBeLessThanOrEqual(3500);
+  });
+
+  it("die Dauern im CSS passen zum Zeitplan: Jede Hälfte ist gezeichnet, bevor die nächste Station beginnt", () => {
+    const [praxis, patient, beide] = LAECHELN_ABLAUF.map((s) => s.abMs);
+    expect(dauer("zeichnen")).toBeGreaterThan(0);
+    expect(dauer("zeichnen")).toBeLessThanOrEqual(patient - praxis);
+    expect(dauer("zeichnen")).toBeLessThanOrEqual(beide - patient);
+    // letzte Station: erst treffen sich die Hälften, dann folgt der Schluss
+    expect(dauer("treffen") + dauer("schluss")).toBe(LAECHELN_SCHLUSS_MS);
   });
 });
 
 describe("Lächeln-Zitat: Texte", () => {
-  it("jeder Stand hat Titel und Text, jeder Satz endet mit einem Punkt", () => {
-    for (const k of LAECHELN_STAENDE) {
-      const v = LAECHELN_STATUS[k];
-      expect(v.titel.length).toBeGreaterThan(0);
-      expect(v.text.length).toBeGreaterThan(0);
-      expect(v.titel.endsWith(".")).toBe(true);
-      expect(v.text.endsWith(".")).toBe(true);
+  it("jede Seite hat Etikett, Satz und Statuszeile; jeder Satz endet mit einem Punkt", () => {
+    for (const s of Object.values(LAECHELN_SEITEN)) {
+      expect(s.name.length).toBeGreaterThan(0);
+      expect(s.text.endsWith(".")).toBe(true);
+      expect(s.status.endsWith(".")).toBe(true);
+      expect(s.status).toContain(s.name);
     }
-    for (const s of Object.values(LAECHELN_SEITEN)) expect(s.text.endsWith(".")).toBe(true);
-    expect(LAECHELN_HINWEIS.endsWith(".")).toBe(true);
-  });
-
-  it("nur „keine“ hat keinen Link", () => {
-    for (const k of LAECHELN_STAENDE) expect(Boolean(LAECHELN_STATUS[k].link)).toBe(k !== "keine");
+    expect(LAECHELN_SCHLUSS.titel).toBe("Jetzt lächeln beide.");
+    expect(LAECHELN_SEITEN.praxis.status).toBe("Die Praxis lächelt.");
+    expect(LAECHELN_SCHLUSS.text.endsWith(".")).toBe(true);
+    // ein Satz, keine zweite Zeile mit Erklärung
+    expect(LAECHELN_SCHLUSS.text.split(/[.!?]\s/).length).toBe(1);
   });
 
   it("enthält keine Ziffern, also keine erfundenen Zahlen", () => {
     for (const t of alleTexte) expect(t, t).not.toMatch(/\d/);
   });
 
-  it("die Titel nennen die richtige Seite", () => {
-    expect(LAECHELN_STATUS.praxis.titel).toContain(LAECHELN_SEITEN.praxis.name);
-    expect(LAECHELN_STATUS.patient.titel).toContain(LAECHELN_SEITEN.patient.name);
+  it("die Seitentexte wiederholen nicht den Wortlaut der Entlastung-Karten", () => {
+    const entlastung = lies("components/Entlastung.tsx");
+    for (const s of Object.values(LAECHELN_SEITEN)) {
+      expect(entlastung.includes(s.text), s.text).toBe(false);
+      expect(s.text.split(/[.!?]\s/).length, s.text).toBe(1);
+    }
   });
 });
 
 describe("Lächeln-Zitat: Anker und ids", () => {
-  const seite = lies("app/page.tsx") + lies("components/ZeitRechner.tsx");
+  const seite = lies("app/page.tsx");
+  const zusammen = seite + lies("components/ZeitRechner.tsx");
 
-  it("jeder Link-Anker existiert genau einmal als id auf der Startseite", () => {
-    for (const k of LAECHELN_STAENDE) {
-      const href = LAECHELN_STATUS[k].link?.href;
-      if (!href) continue;
-      expect(href.startsWith("#")).toBe(true);
-      const id = href.slice(1);
-      // nur echte ids zählen, nicht data-testid="…"
-      expect(seite.match(new RegExp(`(?<![\\w-])id="${id}"`, "g"))?.length ?? 0, id).toBe(1);
-    }
+  it("der Link führt zum Zeitrechner; die id gibt es genau einmal", () => {
+    expect(LAECHELN_SCHLUSS.link.href).toBe("#zeitrechner");
+    // nur echte ids zählen, nicht data-testid="…"
+    expect(zusammen.match(/(?<![\w-])id="zeitrechner"/g)?.length ?? 0).toBe(1);
   });
 
-  it("die ids der Komponente kommen sonst nirgends in app/ oder components/ vor", () => {
+  it("der Link zeigt nach vorn: Der Zeitrechner steht auf der Startseite hinter dem Lächeln-Zitat", () => {
+    const zitat = seite.indexOf("<LaechelnZitat");
+    const rechner = seite.indexOf("<ZeitRechner");
+    expect(zitat).toBeGreaterThan(0);
+    expect(rechner).toBeGreaterThan(zitat);
+  });
+
+  it("die id der Überschrift kommt sonst nirgends in app/ oder components/ vor", () => {
     const quellen = [...dateien("app"), ...dateien("components")].filter((d) => !d.endsWith("LaechelnZitat.tsx"));
-    for (const id of ["laecheln-titel", "laecheln-frage", "laecheln-praxis-text", "laecheln-patient-text"]) {
-      for (const d of quellen) expect(lies(d).includes(id), `${id} in ${d}`).toBe(false);
-    }
+    for (const d of quellen) expect(lies(d).includes("laecheln-titel"), d).toBe(false);
   });
 });
 
@@ -91,84 +118,90 @@ describe("Lächeln-Zitat: Komponente", () => {
     expect(seite).toContain("<LaechelnZitat rahmen={rahmen} />");
   });
 
-  it("Schalter melden ihren Zustand über aria-pressed und beschreiben ihre Seite", () => {
-    expect(quelle).toContain('type="button"');
-    expect(quelle).toContain("aria-pressed={an[s]}");
-    expect(quelle).toContain("aria-describedby={`laecheln-${s}-text`}");
-    expect(quelle).toContain('id={`laecheln-${s}-text`}');
+  it("es gibt nichts zu klicken: keine Schalter, keine Knöpfe, kein Klick-Handler", () => {
+    expect(quelle).not.toContain("<button");
+    expect(quelle).not.toContain("aria-pressed");
+    expect(quelle).not.toContain("onClick");
+    expect(quelle).not.toMatch(/role="(switch|button|group)"/);
   });
 
-  it("die Ansage ist höflich, vollständig und nur nach eigenem Klick gefüllt", () => {
-    expect(quelle).toMatch(/aria-live="polite"[^>]*aria-atomic="true"/);
-    expect(quelle).toContain('benutzt ? `${LAECHELN_STATUS[stand].titel} ${LAECHELN_STATUS[stand].text}` : ""');
+  it("der Server rendert den Endzustand: ohne data-phase, mit Titel, Text und Link", () => {
+    expect(quelle).toContain("useState<LaechelnPhase | null>(null)");
+    expect(quelle).toContain("data-phase={phase ?? undefined}");
+    expect(quelle).toContain("{LAECHELN_SCHLUSS.titel}");
+    expect(quelle).toContain("href={LAECHELN_SCHLUSS.link.href}");
   });
 
-  it("versteckte Statusfassungen sind weder vorlesbar noch per Tab erreichbar", () => {
-    expect(quelle).toContain("aria-hidden={!ist} inert={!ist}");
+  it("Vorleseprogramme bekommen ruhigen Text: keine Ansage, Zwischenzeilen sind versteckt", () => {
+    expect(quelle).not.toContain("aria-live");
+    expect(quelle).not.toContain('role="status"');
+    // die Zeilen „Die Praxis lächelt.“ und „Der Patient lächelt.“ stehen nur in aria-hidden-Elementen
+    const zwischen = quelle.match(/<p[^>]*>\s*\{LAECHELN_SEITEN\[s\]\.status\}/g) ?? [];
+    expect(zwischen.length).toBe(1);
+    expect(zwischen[0]).toContain('aria-hidden="true"');
+  });
+
+  it("bei „Bewegung reduzieren“ startet kein Ablauf", () => {
+    expect(quelle).toContain('matchMedia("(prefers-reduced-motion: reduce)").matches');
   });
 
   it("Bogen und Wort-Bogen sind Dekoration", () => {
-    expect(quelle.match(/<svg[\s\S]*?>/g)?.every((t) => t.includes('aria-hidden="true"') && t.includes('focusable="false"'))).toBe(true);
-  });
-
-  it("der Server rendert den vollständigen Endzustand: beide Seiten an", () => {
-    expect(quelle).toContain("useState({ praxis: true, patient: true })");
+    const svgs = quelle.match(/<svg[\s\S]*?>/g) ?? [];
+    expect(svgs.length).toBe(2);
+    expect(svgs.every((t) => t.includes('aria-hidden="true"') && t.includes('focusable="false"'))).toBe(true);
   });
 });
 
 describe("Lächeln-Zitat: CSS", () => {
-  const css = lies("app/globals.css");
-  const block = css.slice(css.indexOf("/* Lächeln-Zitat der Startseite"), css.indexOf("/* ---- Bewegung im Journal"));
+  const frei = block.slice(block.indexOf("@media (prefers-reduced-motion: no-preference)"));
+  const davor = block.slice(0, block.indexOf("@media (prefers-reduced-motion: no-preference)"));
 
-  it("die Ausgangslage des Einstiegs greift nur mit JS und erlaubter Bewegung", () => {
-    const frei = block.slice(block.indexOf("@media (prefers-reduced-motion: no-preference)"));
+  it("alles, was vom Ablauf abhängt, steht nur unter „Bewegung erlaubt“", () => {
     expect(block).toContain("@media (prefers-reduced-motion: no-preference)");
-    for (const zeile of block.split("\n").filter((z) => z.includes('[data-intro="wartet"]'))) {
-      expect(zeile.trimStart().startsWith(".js-ein ")).toBe(true);
-      expect(frei).toContain(zeile);
+    expect(davor).not.toContain("[data-phase");
+    expect(frei.split("\n").filter((z) => z.includes("[data-phase")).length).toBeGreaterThan(10);
+  });
+
+  it("ohne data-phase steht der Endzustand: Bogen gezeichnet, nichts ausgeblendet außer den Zwischenzeilen", () => {
+    expect(davor).toContain(".laecheln-haelfte, .laecheln-wort { stroke-dasharray: 1 1.1; stroke-dashoffset: 0; }");
+    expect(davor).toContain('.laecheln-status[aria-hidden="true"] { visibility: hidden; opacity: 0; }');
+    const versteckt = davor.split("\n").filter((z) => /opacity: 0|visibility: hidden/.test(z) && !z.includes("@keyframes"));
+    for (const z of versteckt) expect(z, z).toMatch(/laecheln-status\[aria-hidden="true"\]|laecheln-ring/);
+  });
+
+  it("bewegt werden nur stroke-dashoffset, opacity und transform", () => {
+    const uebergaenge = [...frei.matchAll(/transition: ([^;]+);/g)].map((m) => m[1]);
+    expect(uebergaenge.length).toBeGreaterThan(5);
+    for (const u of uebergaenge) {
+      for (const teil of u.split(",")) expect(teil.trim().split(" ")[0], u).toMatch(/^(stroke-dashoffset|opacity|transform|visibility)$/);
     }
+    // visibility schaltet nur nach dem Ausblenden um, ohne eigene Dauer
+    expect(frei.match(/visibility [^,;]+/g)?.every((v) => v.startsWith("visibility 0s"))).toBe(true);
   });
 
-  it("der Einstieg verändert nie das Aussehen der Schalter, sie zeigen immer ihren echten Zustand", () => {
-    const frei = block.slice(block.indexOf("@media (prefers-reduced-motion: no-preference)"));
-    for (const zeile of frei.split("\n").filter((z) => z.includes("data-intro"))) {
-      if (!zeile.includes("laecheln-knopf") && !zeile.includes("laecheln-punkt")) continue;
-      // erlaubt ist nur das kurze Aufleuchten (Animation), nie Hintergrund, Rand oder Farbe
-      expect(zeile, zeile).not.toMatch(/background|border-color|[^-]color:|transition-delay|laecheln-punkt/);
+  it("nimmt die gemeinsamen Kurven und skaliert nie von null", () => {
+    for (const z of frei.split("\n").filter((x) => x.includes("transition:") || x.includes("animation:"))) {
+      expect(z, z).toMatch(/var\(--ease-(out|in-out)\)/);
     }
+    expect(block).not.toMatch(/scale\(0\)/);
   });
 
-  it("„Jetzt lächeln beide.“ erscheint nach Bedienung erst mit dem Treffpunkt, nicht vor ihm", () => {
-    expect(block).toMatch(/\.laecheln\[data-voll\] \.laecheln-status\.kurz-ein \{ animation-delay: \.9\d?s; \}/);
+  it("der Status hält seine Höhe frei: alle Fassungen liegen in derselben Zelle", () => {
+    expect(block).toContain(".laecheln-status-feld { grid-area: status; display: grid;");
+    expect(block).toContain(".laecheln-status { grid-area: 1 / 1; }");
   });
 
-  it("die Seitentexte wiederholen nicht den Wortlaut der Entlastung-Karten", () => {
-    const entlastung = lies("components/Entlastung.tsx");
-    for (const s of Object.values(LAECHELN_SEITEN)) {
-      expect(entlastung.includes(s.text), s.text).toBe(false);
-      expect(s.text.split(/[.!?]\s/).length, s.text).toBe(1);
-    }
-  });
-
-  it("bei reduzierter Bewegung gibt es keine Übergänge und der Treffpunkt ist sichtbar", () => {
-    const reduziert = block.slice(block.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
-    expect(reduziert).toContain("transition: none !important; animation: none !important;");
-    expect(reduziert).toContain(".laecheln[data-voll] .laecheln-mitte { opacity: 1;");
-  });
-
-  it("Tippflächen sind mindestens 44 px hoch und der Fokus ist papierweiß", () => {
-    expect(Number(block.match(/\.laecheln-knopf \{[^}]*min-height: (\d+)px/)?.[1])).toBeGreaterThanOrEqual(44);
+  it("der Link ist mindestens 44 px hoch, der Fokus papierweiß, Hover nur mit echter Maus", () => {
     expect(Number(block.match(/\.laecheln-link \{[^}]*min-height: (\d+)px/)?.[1])).toBeGreaterThanOrEqual(44);
-    expect(block).toContain(".laecheln-knopf:focus-visible, .laecheln-link:focus-visible { outline: 2px solid #F5F2EE;");
+    expect(block).toContain(".laecheln-link:focus-visible { outline: 2px solid #F5F2EE;");
+    expect(block).toContain("@media (hover: hover) and (pointer: fine) { .laecheln-link:hover");
+    expect(block.match(/:hover/g)?.length).toBe(1);
   });
 
   it("nur Sorrida-Farben (Bordeaux, Rosé, Papier)", () => {
-    const farben = new Set((block.match(/#[0-9A-Fa-f]{6}\b/g) ?? []).map((f) => f.toUpperCase()));
-    for (const f of farben) expect(["#5A1D1D", "#431515", "#DFC2BC", "#F5F2EE"], f).toContain(f);
-    for (const f of quelleFarben()) expect(["#5A1D1D", "#431515", "#DFC2BC", "#F5F2EE"], f).toContain(f);
+    const erlaubt = ["#5A1D1D", "#431515", "#DFC2BC", "#F5F2EE"];
+    const farben = (text: string) => new Set((text.match(/#[0-9A-Fa-f]{6}\b/g) ?? []).map((f) => f.toUpperCase()));
+    for (const f of farben(block)) expect(erlaubt, f).toContain(f);
+    for (const f of farben(lies("components/start/LaechelnZitat.tsx"))) expect(erlaubt, f).toContain(f);
   });
 });
-
-function quelleFarben() {
-  return new Set((lies("components/start/LaechelnZitat.tsx").match(/#[0-9A-Fa-f]{6}\b/g) ?? []).map((f) => f.toUpperCase()));
-}
