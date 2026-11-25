@@ -207,6 +207,49 @@ export default async function Start() {
           <ZweiAnsichten />
         </div>
 
+        {/* Ablauf und Nutzen für Patienten: direkt nach „Ein Weg, zwei Seiten“, in der Reihenfolge des Rundgangs (lib/rundgang.ts) */}
+        <section id="ablauf" className={`${rahmen} scroll-mt-6`}>
+          <div className={mitLinie}>
+            <h2 className="j-schau max-w-3xl text-[clamp(2.4rem,4.6vw,3.8rem)]">
+              So läuft es <em>in jeder Praxis.</em>
+            </h2>
+            <ol className="j-staffel mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+              {SCHRITTE.map(([t, d], i) => (
+                <li key={t} className="j-ein border-t border-tinte pt-6">
+                  {/* Handy: Ziffer neben dem Titel wie im Wegband. Ab sm steht sie darüber. */}
+                  <div className="flex items-baseline gap-3 sm:block">
+                    <span className="j-ziffer text-3xl sm:text-[2.8rem]">{i + 1}</span>
+                    <h3 className="j-titel text-[1.7rem] text-tinte sm:mt-4">{t}</h3>
+                  </div>
+                  <p className="j-text mt-2 text-[15px]">{d}</p>
+                </li>
+              ))}
+            </ol>
+
+            <div id="fuer-patienten" className="mt-24 scroll-mt-6" data-testid="fuer-patienten">
+              <h3 className="j-titel text-[2.2rem] text-tinte">
+                Was Ihre Patienten <em className="text-brand-700">davon haben</em>
+              </h3>
+              {/* Kästen auf Papier mit Haarlinie, Zeichen in Bordeaux wie bei den Fachkacheln. Salbei bleibt Kasse und Erledigtem vorbehalten.
+                  Am PC (vier in einer Reihe) haben die Titel Platz für zwei Zeilen, damit die Texte auf einer Höhe beginnen. */}
+              <ul className="j-staffel mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {FUER_PATIENTEN.map(([t, d, href]) => (
+                  <li key={t} className="j-ein rounded-[6px] border border-linie p-6">
+                    <span aria-hidden="true" className="mb-4 grid h-10 w-10 place-items-center rounded-full bg-[#F3E4DF] text-brand-700">{SYMBOLE[t]}</span>
+                    <h4 className="j-titel text-[1.7rem] text-tinte lg:min-h-[2.1em]">{t}</h4>
+                    <p className="j-text mt-2 text-[15px]">{d}</p>
+                    {href && (
+                      <Link href={href} className="j-link mt-3 inline-block text-[15px] font-semibold text-brand-700">
+                        Mehr dazu
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
         <div className={rahmen}>
           <div className={mitLinie}>
             <Grundsaetze />
@@ -225,44 +268,6 @@ export default async function Start() {
             <ZeitRechner />
           </div>
         </div>
-
-        {/* Ablauf und Nutzen für Patienten */}
-        <section id="ablauf" className={`${rahmen} scroll-mt-6`}>
-          <div className={mitLinie}>
-            <h2 className="j-schau max-w-3xl text-[clamp(2.4rem,4.6vw,3.8rem)]">
-              So läuft es <em>in jeder Praxis.</em>
-            </h2>
-            <ol className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-              {SCHRITTE.map(([t, d], i) => (
-                <li key={t} className="j-ein border-t border-tinte pt-6">
-                  <span className="j-ziffer text-[2.8rem]">{i + 1}</span>
-                  <h3 className="j-titel mt-4 text-[1.7rem] text-tinte">{t}</h3>
-                  <p className="j-text mt-2 text-[15px]">{d}</p>
-                </li>
-              ))}
-            </ol>
-
-            <div id="fuer-patienten" className="mt-24 scroll-mt-6" data-testid="fuer-patienten">
-              <h3 className="j-titel text-[2.2rem] text-tinte">
-                Was Ihre Patienten <em className="text-salbei-700">davon haben</em>
-              </h3>
-              <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {FUER_PATIENTEN.map(([t, d, href]) => (
-                  <li key={t} className="j-ein rounded-[6px] bg-[#E4EDE2] p-6">
-                    <span aria-hidden="true" className="mb-4 grid h-10 w-10 place-items-center rounded-full bg-salbei-600 text-white">{SYMBOLE[t]}</span>
-                    <h4 className="font-semibold text-[#1f3320]">{t}</h4>
-                    <p className="j-text mt-2 text-[15px]">{d}</p>
-                    {href && (
-                      <Link href={href} className="j-link mt-3 inline-block text-[15px] font-semibold text-brand-700">
-                        Mehr dazu
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
 
         <div className={rahmen}>
           <div className={mitLinie}>

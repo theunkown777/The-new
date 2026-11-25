@@ -580,6 +580,10 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
 .js-ein .j-paar .j-paar-pfeil { opacity: 0; transform: translate(-50%, -50%) scale(.6); transition: opacity .4s var(--ease-out) .4s, transform .4s var(--ease-out) .4s; }
 .js-ein .j-paar.ist-da .j-paar-rechts { opacity: 1; transform: none; }
 .js-ein .j-paar.ist-da .j-paar-pfeil { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+/* Handy (unter md stehen Problem und Entlastung untereinander): Die Entlastung kommt von unten statt von rechts. */
+@media (max-width: 767px) {
+  .js-ein .j-paar .j-paar-rechts { transform: translateY(12px); transition-duration: .5s; transition-delay: .12s; }
+}
 /* Preise: Kacheln erscheinen leicht versetzt nacheinander. */
 .js-ein .j-preis.ist-da:nth-child(2) { transition-delay: 80ms; }
 .js-ein .j-preis.ist-da:nth-child(3) { transition-delay: 160ms; }
