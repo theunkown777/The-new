@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { SpecialtyIcon } from "@/components/SpecialtyIcon";
 
@@ -23,25 +23,56 @@ const TON: Record<FachArt, { feld: string; zeichen: string; hover: string }> = {
   therapie: { feld: "bg-[#E4EDE2]", zeichen: "text-salbei-700", hover: "group-hover:bg-salbei-700 group-hover:text-white" },
 };
 
+// Eine Zeile der Liste (Kachel oder Gruppentitel). Wie sie einblendet, steht beim Einhängen fest: nach einem
+// Filterwechsel gestaffelt, sonst ohne Wartezeit. Spätere Wechsel ändern das nicht mehr, sonst liefe das Einblenden
+// bei Kacheln, die stehen bleiben, noch einmal ein Stück nach.
+function Zeile({ staffel, stelle, className = "", children }: { staffel: boolean; stelle: number; className?: string; children: ReactNode }) {
+  const [start] = useState({ staffel, stelle });
+  return (
+    <li className={`fach-ein ${start.staffel ? "fach-staffel " : ""}${className}`} style={start.staffel ? { ["--i" as string]: Math.min(start.stelle, 8) } : undefined}>
+      {children}
+    </li>
+  );
+}
+
 // Fachauswahl wie ein Wegweiser: links Suche und Filter, rechts die Fächer als Kacheln mit eigenem
-// Zeichen. Alle Fächer stehen gleich groß nebeneinander, keins ist hervorgehoben. Die Wahl wird nicht
+// Zeichen. Keins ist hervorgehoben. Ohne Filter und Suche stehen sie in ihren Gruppen mit kleiner
+// Zwischenüberschrift, sonst als einfache Liste. Die Wahl wird nicht
 // im Browser gespeichert: Das wäre bequem, aber nicht erforderlich (§ 25 TDDDG), und bräuchte eine Einwilligung.
 export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachKachel[] }[] }) {
-  const kacheln = useMemo(() => gruppen.flatMap((g) => g.kacheln.map((k) => ({ ...k, art: k.art ?? ("arzt" as FachArt) }))), [gruppen]);
+  const mitArt = useMemo(() => gruppen.map((g) => ({ titel: g.titel, kacheln: g.kacheln.map((k) => ({ ...k, art: k.art ?? ("arzt" as FachArt) })) })), [gruppen]);
+  const kacheln = useMemo(() => mitArt.flatMap((g) => g.kacheln), [mitArt]);
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"alle" | FachArt>("alle");
-  const [runde, setRunde] = useState(0); // zählt hoch, damit die Kacheln beim Filtern neu einblenden
+  const [runde, setRunde] = useState(0); // zählt beim Filterwechsel hoch: Die Liste wird neu aufgebaut und blendet gestaffelt ein
+  // Was die Liste zuletzt geändert hat. Nach dem Tippen bleiben passende Kacheln stehen, nur neue blenden ein.
+  const [anlass, setAnlass] = useState<"start" | "filter" | "suche">("start");
 
   const such = ohneAkzent(q.trim());
   const sichtbar = kacheln.filter((k) => (filter === "alle" || k.art === filter) && (!such || ohneAkzent(`${k.name} ${k.teaser}`).includes(such)));
   const zahl = (f: "alle" | FachArt) => kacheln.filter((k) => f === "alle" || k.art === f).length;
   const waehle = (f: "alle" | FachArt) => {
+    if (f === filter) return;
     setFilter(f);
+    setAnlass("filter");
     setRunde((r) => r + 1);
   };
 
+  // Ohne Filter und Suche: Gruppen mit Zwischenüberschrift. Eine Gruppe, die in drei Spalten keine vollen Reihen
+  // ergibt, in zwei aber schon (vier Fächer), steht in zwei Spalten.
+  const gruppiert = filter === "alle" && !such;
+  const zeilen: ({ titel: string; id: string } | { kachel: (typeof kacheln)[number]; halb: boolean })[] = gruppiert
+    ? mitArt.flatMap((g, gi) => {
+        const halb = g.kacheln.length % 3 !== 0 && g.kacheln.length % 2 === 0;
+        return [{ titel: g.titel, id: `gruppe-${gi}` }, ...g.kacheln.map((kachel) => ({ kachel, halb }))];
+      })
+    : sichtbar.map((kachel) => ({ kachel, halb: false }));
+  const staffel = anlass !== "suche";
+  // Für Vorleseprogramme: nur die Zahl der Treffer, nicht die ganze Liste. Vor der ersten Eingabe bleibt die Ansage leer.
+  const ansage = anlass === "start" ? "" : sichtbar.length === 0 ? "Kein Fach gefunden" : sichtbar.length === 1 ? "1 Fach gefunden" : `${sichtbar.length} Fächer gefunden`;
+
   return (
-    <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+    <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
       {/* Suche und Filter */}
       <div className="lg:col-span-4">
         <div className="lg:sticky lg:top-8">
@@ -56,22 +87,21 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
               value={q}
               onChange={(e) => {
                 setQ(e.target.value);
-                setRunde((r) => r + 1);
+                setAnlass("suche");
               }}
               placeholder="Fach oder Leistung, z. B. Ultraschall"
               className="w-full rounded-[8px] border border-linie-stark bg-[#FBF9F6] py-3.5 pl-11 pr-3 text-[17px] text-tinte placeholder:text-tinte-2/70 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-700/15"
               data-testid="fach-suche"
             />
           </label>
-          <div className="-mx-1 mt-4 flex gap-2 overflow-x-auto px-1 pb-1 lg:flex-wrap" role="tablist" aria-label="Art der Praxis">
+          <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Art der Praxis">
             {FILTER.map((f) => (
               <button
                 key={f.id}
                 type="button"
-                role="tab"
-                aria-selected={filter === f.id}
+                aria-pressed={filter === f.id}
                 onClick={() => waehle(f.id)}
-                className={`fach-filter shrink-0 rounded-full border px-3.5 py-1.5 text-[15px] ${
+                className={`fach-filter rounded-full border px-3.5 py-1.5 text-[15px] ${
                   filter === f.id ? "border-tinte bg-tinte text-[#F5F2EE]" : "border-linie-stark text-tinte hover:border-tinte"
                 }`}
                 data-testid={`fach-filter-${f.id}`}
@@ -80,6 +110,9 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
               </button>
             ))}
           </div>
+          <p className="sr-only" role="status" data-testid="fach-ansage">
+            {ansage}
+          </p>
           <Link prefetch={false} href="/hilfe" className="group mt-6 hidden items-start gap-3 border-t border-linie pt-5 text-[15px] text-tinte-2 lg:flex" data-testid="fach-hilfe">
             <span>
               <span className="block font-semibold text-tinte">Ihr Fach ist nicht dabei?</span>
@@ -93,12 +126,22 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
       </div>
 
       {/* Die Fächer */}
-      <div className="lg:col-span-8" data-testid="fach-kacheln" aria-live="polite">
-        <ul key={runde} className="grid grid-cols-1 gap-2.5 min-[480px]:grid-cols-2 sm:grid-cols-3 sm:gap-3">
-          {sichtbar.map((k, i) => {
+      <div className="lg:col-span-8" data-testid="fach-kacheln">
+        <ul key={runde} className="grid grid-cols-1 gap-2.5 min-[480px]:grid-cols-2 sm:grid-cols-6 sm:gap-3">
+          {zeilen.map((z, i) => {
+            if ("titel" in z) {
+              return (
+                <Zeile key={z.id} staffel={staffel} stelle={i} className={`col-span-full ${i > 0 ? "mt-6 sm:mt-8" : ""}`}>
+                  <h3 className="j-marke" data-testid="fach-gruppe">
+                    {z.titel}
+                  </h3>
+                </Zeile>
+              );
+            }
+            const k = z.kachel;
             const ton = TON[k.art ?? "arzt"];
             return (
-              <li key={k.id} className="fach-ein" style={{ ["--i" as string]: Math.min(i, 14) }}>
+              <Zeile key={k.id} staffel={staffel} stelle={i} className={z.halb ? "sm:col-span-3" : "sm:col-span-2"}>
                 <Link prefetch={false}
                   href={k.href}
                   className="j-kachel group flex h-full items-center gap-3 rounded-[10px] border border-linie bg-[#FBF9F6] p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 sm:flex-col sm:items-stretch sm:gap-0 sm:p-5"
@@ -108,7 +151,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
                     <span className={`grid h-9 w-9 place-items-center rounded-full transition-colors duration-200 sm:h-11 sm:w-11 ${ton.feld} ${ton.zeichen} ${ton.hover}`}>
                       <SpecialtyIcon id={k.id} className="h-[19px] w-[19px] sm:h-[22px] sm:w-[22px]" />
                     </span>
-                    <span className="j-pfeil hidden translate-x-[-4px] text-brand-700 opacity-0 transition duration-200 group-hover:translate-x-0 group-hover:opacity-100 sm:inline" aria-hidden="true">
+                    <span className="fach-pfeil hidden text-brand-700 sm:inline" aria-hidden="true">
                       →
                     </span>
                   </span>
@@ -120,7 +163,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
                     →
                   </span>
                 </Link>
-              </li>
+              </Zeile>
             );
           })}
         </ul>

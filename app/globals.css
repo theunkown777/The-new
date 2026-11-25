@@ -556,11 +556,25 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
 }
 
 /* ---- Bewegung im Journal (nach den Regeln aus dem animate-Skill) ---- */
-/* Kacheln heben sich unter der Maus leicht an; nur bei echter Maus, nicht beim Tippen. */
-.j-kachel { transition: transform var(--dauer-kurz) var(--ease-out); }
-@media (hover: hover) and (pointer: fine) {
-  .j-kachel:hover { transform: translateY(-3px); box-shadow: 0 18px 30px -24px rgba(60, 30, 25, .55); }
+/* Kacheln heben sich unter der Maus leicht an; nur bei echter Maus, nicht beim Tippen. Anheben, Schatten und Pfeil
+   laufen gemeinsam (--dauer-kurz, --ease-out). Der Schatten liegt auf ::after und blendet über opacity ein, damit nur
+   transform und opacity bewegt werden. Beim Drücken sinkt die Kachel leicht ein, auch am Handy. */
+.j-kachel { position: relative; transition: transform var(--dauer-kurz) var(--ease-out); }
+.j-kachel::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 18px 30px -24px rgba(60, 30, 25, .55); opacity: 0; transition: opacity var(--dauer-kurz) var(--ease-out);
 }
+.j-kachel .j-pfeil { transition: transform var(--dauer-kurz) var(--ease-out), opacity var(--dauer-kurz) var(--ease-out); }
+.j-kachel .j-titel { transition: color var(--dauer-kurz) ease; }
+/* Kein graues Aufblitzen des Browsers beim Antippen: Kacheln und Knöpfe geben selbst nach. */
+.j-kachel, .j-knopf, .fach-filter { -webkit-tap-highlight-color: transparent; }
+@media (hover: hover) and (pointer: fine) {
+  .j-kachel:hover { transform: translateY(-3px); }
+  .j-kachel:hover::after { opacity: 1; }
+  .j-kachel:hover .j-pfeil { transform: translateX(4px); }
+  .j-kachel:active::after { opacity: .4; }
+}
+.j-kachel:active { transform: scale(.985); transition-duration: var(--dauer-druck); }
 /* Entlastung: erst das Problem, dann schiebt sich die Entlastung herein, der Pfeil folgt. */
 .js-ein .j-paar .j-paar-rechts { opacity: 0; transform: translateX(32px); transition: opacity .6s var(--ease-out) .15s, transform .6s var(--ease-out) .15s; }
 .js-ein .j-paar .j-paar-pfeil { opacity: 0; transform: translate(-50%, -50%) scale(.6); transition: opacity .4s var(--ease-out) .4s, transform .4s var(--ease-out) .4s; }
@@ -574,8 +588,10 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
   .js-ein .j-paar.ist-da .j-paar-rechts, .js-ein .j-paar.ist-da .j-paar-pfeil { transition: opacity var(--dauer-ruhig) ease-out !important; }
   .js-ein .j-paar .j-paar-rechts { transform: none; }
   .js-ein .j-paar .j-paar-pfeil, .js-ein .j-paar.ist-da .j-paar-pfeil { transform: translate(-50%, -50%); }
+  /* Kacheln: kein Anheben, kein Einsinken, der Pfeil bleibt an seinem Platz. Schatten und Pfeil blenden weiter weich. */
   .j-kachel { transition: none; }
-  .j-kachel:hover { transform: none; }
+  .j-kachel:hover, .j-kachel:active, .j-kachel:hover .j-pfeil { transform: none; }
+  .website .j-kachel::after, .website .j-kachel .j-pfeil { transition-property: opacity; transition-duration: var(--dauer-kurz) !important; }
 }
 
 /* ---- Erklärungsansicht (Modelle) ---- */
@@ -606,13 +622,32 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
 @keyframes erklaer-blatt-ein { from { transform: translateY(100%); } to { transform: none; } }
 @media (max-width: 1023px) { .erklaer-blatt { animation: erklaer-blatt-ein .3s var(--ease-drawer, cubic-bezier(0.32, 0.72, 0, 1)) both; } }
 @media (prefers-reduced-motion: reduce) { .erklaer-blatt { animation: none !important; } }
-/* Fachauswahl: Kacheln blenden beim Filtern versetzt ein */
+/* ---- Fachauswahl der Startseite (components/FachWahl.tsx) ----
+   Einblenden: Die Animation läuft nur, wenn eine Kachel neu in die Liste kommt. Beim Tippen in die Suche bleiben
+   passende Kacheln stehen, neue blenden ohne Wartezeit ein (--fach-ein, 240 ms). Beim Wechsel des Filters wird die
+   Liste neu aufgebaut und die Kacheln kommen kurz nacheinander (.fach-staffel): 160 ms je Kachel, höchstens 80 ms
+   Verzug, zusammen also wieder höchstens 240 ms. */
 @keyframes fach-ein { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
-.fach-ein { animation: fach-ein .24s var(--ease-out) both; animation-delay: calc(var(--i) * 30ms); }
-.fach-filter { transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .12s var(--ease-out); }
-.fach-filter:active { transform: scale(.96); }
+.fach-ein { --fach-ein: 240ms; animation: fach-ein var(--fach-ein) var(--ease-out) both; }
+.fach-ein.fach-staffel { animation-duration: calc(var(--fach-ein) - 80ms); animation-delay: calc(var(--i, 0) * 10ms); }
+/* Pfeil der Kachel am PC: kommt mit dem Anheben der Kachel (.j-kachel), gleiche Dauer und Kurve. */
+.fach-pfeil { opacity: 0; transform: translateX(-4px); transition: opacity var(--dauer-kurz) var(--ease-out), transform var(--dauer-kurz) var(--ease-out); }
+.j-kachel:focus-visible .fach-pfeil { opacity: 1; transform: none; }
+@media (hover: hover) and (pointer: fine) {
+  .j-kachel:hover .fach-pfeil { opacity: 1; transform: none; }
+}
+/* Filter: am Handy und für den Finger 44 px hoch, am PC mit Maus so flach wie der Text. */
+.fach-filter {
+  min-height: 44px;
+  transition: background-color var(--dauer-kurz) ease, color var(--dauer-kurz) ease, border-color var(--dauer-kurz) ease, transform var(--dauer-druck) var(--ease-out);
+}
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) { .fach-filter { min-height: 0; } }
+.fach-filter:active { transform: scale(.97); }
 @media (prefers-reduced-motion: reduce) {
-  .fach-ein { animation: none; }
+  /* Kein Weg und kein Nacheinander, nur das kurze Einblenden (allgemeine Regel bei .j-blende, hier mit der Dauer der Liste). */
+  .website .fach-ein { animation-duration: var(--fach-ein) !important; animation-delay: 0s !important; }
+  .fach-pfeil { transform: none; }
+  .website .fach-pfeil { transition-property: opacity; transition-duration: var(--dauer-kurz) !important; }
   .fach-filter:active { transform: none; }
 }
 
