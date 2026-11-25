@@ -1,4 +1,4 @@
-import { PILOT_ZIEL, PLANS, PRICE_TERMS, VAT_NOTE, eur } from "@/lib/pricing";
+import { PILOT_PREISZEILE, PILOT_ZIEL, PLANS, PRICE_TERMS, VAT_NOTE, eur } from "@/lib/pricing";
 
 // Preistabelle der Website: drei Pakete, alles enthalten. Gesetzt wie eine Preisliste:
 // drei Blätter, das mittlere Paket in Bordeaux hervorgehoben. Das Schild nennt nur die Lage in der Liste:
@@ -16,14 +16,22 @@ export function PricingPlans({ cta = PILOT_ZIEL }: { cta?: string }) {
           Daten zwischen Programmen abtippen, läuft hier an einem Ort.
         </p>
       </div>
-      <div className="mt-14 grid items-stretch gap-5 lg:grid-cols-3">
+      {/* Vor den Preisen: Der Pilot kostet nichts. Sonst liest sich „Pilotplatz anfragen“ wie eine Bestellung zum Listenpreis. */}
+      <p className="mt-14 text-[17px] font-semibold text-brand-700" data-testid="preise-pilot">
+        {PILOT_PREISZEILE}
+      </p>
+      {/* j-staffel: Die Karten kommen nur am PC nacheinander, wo sie nebeneinander stehen.
+          preis-karte (globals.css): Am PC teilen sich die drei Karten ihre Zeilen, damit die Preise auf einer Linie stehen. */}
+      <div className="j-staffel mt-6 grid items-stretch gap-5 lg:mt-12 lg:grid-cols-3 lg:gap-y-0">
         {PLANS.map((p, i) => {
           const hervor = i === 1;
           return (
             <div
               key={p.id}
-              className={`j-ein j-preis relative flex flex-col rounded-[6px] px-7 py-9 sm:px-9 ${
-                hervor ? "auf-dunkel bg-[#5A1D1D] text-[#F5EDE6] shadow-[0_30px_60px_-35px_rgba(90,29,29,.9)] lg:-my-4 lg:py-12" : "border border-linie-stark bg-[#FBF9F6] text-tinte"
+              // Mittlere Karte: 16 px höher und tiefer, dafür 16 px mehr Innenmaß (36 + 16 = 52). Mit dem unsichtbaren Rand
+              // beginnt der Inhalt in allen drei Karten auf derselben Höhe.
+              className={`preis-karte j-ein relative flex flex-col rounded-[6px] border px-7 py-9 sm:px-9 ${
+                hervor ? "auf-dunkel border-transparent bg-[#5A1D1D] text-[#F5EDE6] shadow-[0_30px_60px_-35px_rgba(90,29,29,.9)] lg:-my-4 lg:py-[52px]" : "border-linie-stark bg-[#FBF9F6] text-tinte"
               }`}
             >
               {!hervor && <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 rounded-t-[6px] ${i === 0 ? "bg-[#C9A27E]" : "bg-tinte"}`} />}

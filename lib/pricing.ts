@@ -28,7 +28,8 @@ export const PLANS = [
     name: "MVZ und Praxisgruppe",
     preis: 790,
     ab: true,
-    fuer: "ab 6 Behandelnden, mehrere Standorte",
+    // Die Standorte stehen in der Liste darunter: So bleibt die Zeile einzeilig und die drei Preise stehen auf einer Höhe.
+    fuer: "ab 6 Behandelnden",
     punkte: ["Alles aus Praxis", "Mehrere Standorte mit Terminen und Auslastung je Standort", "Schulung vor Ort", "Fester Ansprechpartner"],
   },
 ] as const;
@@ -44,6 +45,12 @@ const PILOT_DAUER = "drei Monate";
 export const PILOT_KURZ = `Für Pilotpraxen ${PILOT_DAUER} kostenlos`;
 /** Dasselbe als ganzer Satz, für Antworten in ganzen Sätzen (Frag Sorrida). */
 export const PILOT_SATZ = `Für Pilotpraxen ist Sorrida ${PILOT_DAUER} kostenlos.`;
+/** Aus Sicht der einzelnen Praxis, für die Überschrift am Schluss der Startseite. */
+export const PILOT_ALS_PRAXIS = `Als Pilotpraxis ${PILOT_DAUER} kostenlos`;
+/** Zeile über der Preistabelle: Der Pilot kostet nichts, die Preise gelten erst später. */
+export const PILOT_PREISZEILE = `${PILOT_KURZ}. Die Preise gelten ab dem allgemeinen Start.`;
+/** Der Einstiegspreis in einem Satz, für den Schluss der Startseite. */
+export const PREIS_AB_START = `Geplante Preise ab dem allgemeinen Start: ab ${eur(PLANS[0].preis)} im Monat.`;
 /** Wohin „Pilotplatz anfragen“ führt, wenn die Seite selbst kein Anfrageformular hat. */
 export const PILOT_ZIEL = "/hilfe#pilot";
 // Die frühere Zusage „die Preise bleiben auch danach Endpreise, ohne Aufschlag“ steht hier bewusst nicht mehr:

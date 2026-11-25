@@ -630,9 +630,6 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
 @media (max-width: 767px) {
   .js-ein .j-paar .j-paar-rechts { transform: translateY(12px); transition-duration: .5s; transition-delay: .12s; }
 }
-/* Preise: Kacheln erscheinen leicht versetzt nacheinander. */
-.js-ein .j-preis.ist-da:nth-child(2) { transition-delay: 80ms; }
-.js-ein .j-preis.ist-da:nth-child(3) { transition-delay: 160ms; }
 @media (prefers-reduced-motion: reduce) {
   /* Die Entlastung blendet ein, ohne hereinzuschieben. */
   .js-ein .j-paar.ist-da .j-paar-rechts, .js-ein .j-paar.ist-da .j-paar-pfeil { transition: opacity var(--dauer-ruhig) ease-out !important; }
@@ -642,6 +639,40 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
   .j-kachel { transition: none; }
   .j-kachel:hover, .j-kachel:active, .j-kachel:hover .j-pfeil { transform: none; }
   .website .j-kachel::after, .website .j-kachel .j-pfeil { transition-property: opacity; transition-duration: var(--dauer-kurz) !important; }
+}
+
+/* ---- Preise, Fragen, Schluss der Startseite ----
+   Preise: Die drei Karten nutzen .j-staffel (nur am PC nacheinander). Stehen sie nebeneinander, teilen sie sich fünf
+   Zeilen (Zielgruppe, Name, Preis, Liste, Knopf). So stehen die Preise auf einer Linie, auch wenn ein Name umbricht.
+   Ohne subgrid bleibt jede Karte eine Spalte für sich wie bisher.
+   Fragen (.faq-auf an <details>): Die Antwort zieht sich in --dauer-mittel auf und blendet ein, das Plus dreht sich mit
+   derselben Kurve. Hier wird ausnahmsweise die Höhe bewegt, weil der Text darunter Platz machen muss. Das können nur
+   Browser mit ::details-content und interpolate-size; alle anderen öffnen sofort wie bisher.
+   „Bewegung reduzieren“: Die Antwort blendet nur ein, ohne Aufziehen; das Plus springt in die neue Lage. */
+@media (min-width: 1024px) {
+  @supports (grid-template-rows: subgrid) {
+    .preis-karte { display: grid; grid-template-rows: subgrid; grid-row: span 5; row-gap: 0; }
+  }
+}
+.faq-plus { transition: transform var(--dauer-mittel) var(--ease-out), color var(--dauer-kurz) ease, border-color var(--dauer-kurz) ease; }
+.faq-auf[open] .faq-plus { transform: rotate(45deg); }
+@supports selector(::details-content) {
+  .faq-auf::details-content { opacity: 0; transition: opacity var(--dauer-mittel) var(--ease-out); }
+  .faq-auf[open]::details-content { opacity: 1; }
+}
+@supports selector(::details-content) and (interpolate-size: allow-keywords) {
+  .faq-auf { interpolate-size: allow-keywords; }
+  .faq-auf::details-content {
+    block-size: 0; overflow: clip;
+    /* content-visibility hält die Antwort beim Schließen sichtbar, bis sie zugezogen ist. */
+    transition: block-size var(--dauer-mittel) var(--ease-out), opacity var(--dauer-mittel) var(--ease-out), content-visibility var(--dauer-mittel) allow-discrete;
+  }
+  .faq-auf[open]::details-content { block-size: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-plus { transition: color var(--dauer-kurz) ease, border-color var(--dauer-kurz) ease !important; }
+  .faq-auf::details-content { transition: none; }
+  .faq-auf[open]::details-content { transition: opacity var(--dauer-ruhig) ease-out; }
 }
 
 /* ---- Erklärungsansicht (Modelle) ---- */
