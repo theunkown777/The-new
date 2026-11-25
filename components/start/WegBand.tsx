@@ -142,7 +142,7 @@ export function WegBand({ stationen }: { stationen: [string, string, string][] }
             <div className="relative">
               <p className="flex items-baseline gap-3 md:block">
                 <span className="j-ziffer text-3xl md:hidden">{i + 1}</span>
-                <span className="j-titel text-[1.6rem] text-tinte">{name}</span>
+                <span className="j-titel text-[1.7rem] text-tinte">{name}</span>
               </p>
               <p className="mt-3 text-[15px] text-tinte">
                 <span className="font-semibold text-brand-700">Praxis</span>

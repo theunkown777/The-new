@@ -31,7 +31,7 @@ const KERN = {
   auftakt: ['[data-testid="seite-patient"]'],
   fach: ['#fach h2', '[data-testid="fach-kacheln"]'],
   ansichten: ['#ansichten'],
-  ablauf: ['#ablauf > h2', '#ablauf > ol > li > *'],
+  ablauf: ['#ablauf h2', '#ablauf ol > li > *'],
   'fuer-patienten': ['[data-testid="fuer-patienten"] :is(h3, h4, p)'],
   grundsaetze: ['#grundsaetze', '[data-testid="grundsaetze"] h3'],
   entlastung: ['#entlastung'],

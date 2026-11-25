@@ -59,7 +59,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
                 setRunde((r) => r + 1);
               }}
               placeholder="Fach oder Leistung, z. B. Ultraschall"
-              className="w-full rounded-[8px] border border-linie-stark bg-[#FBF9F6] py-3.5 pl-11 pr-3 text-[16px] text-tinte placeholder:text-tinte-2/70 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-700/15"
+              className="w-full rounded-[8px] border border-linie-stark bg-[#FBF9F6] py-3.5 pl-11 pr-3 text-[17px] text-tinte placeholder:text-tinte-2/70 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-700/15"
               data-testid="fach-suche"
             />
           </label>
@@ -71,7 +71,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
                 role="tab"
                 aria-selected={filter === f.id}
                 onClick={() => waehle(f.id)}
-                className={`fach-filter shrink-0 rounded-full border px-3.5 py-1.5 text-[14px] ${
+                className={`fach-filter shrink-0 rounded-full border px-3.5 py-1.5 text-[15px] ${
                   filter === f.id ? "border-tinte bg-tinte text-[#F5F2EE]" : "border-linie-stark text-tinte hover:border-tinte"
                 }`}
                 data-testid={`fach-filter-${f.id}`}
@@ -80,7 +80,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
               </button>
             ))}
           </div>
-          <Link prefetch={false} href="/hilfe" className="group mt-6 hidden items-start gap-3 border-t border-linie pt-5 text-[14.5px] text-tinte-2 lg:flex" data-testid="fach-hilfe">
+          <Link prefetch={false} href="/hilfe" className="group mt-6 hidden items-start gap-3 border-t border-linie pt-5 text-[15px] text-tinte-2 lg:flex" data-testid="fach-hilfe">
             <span>
               <span className="block font-semibold text-tinte">Ihr Fach ist nicht dabei?</span>
               Schreiben Sie uns, was Sie anbieten. Wir richten Sorrida mit Ihnen ein.
@@ -129,7 +129,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
             Kein Fach gefunden für „{q}“. Schreiben Sie uns, wir richten Sorrida auch für Ihr Angebot ein.
           </p>
         )}
-        <Link prefetch={false} href="/hilfe" className="mt-6 flex items-center justify-between gap-3 rounded-[10px] bg-papier-2 p-4 text-[14.5px] lg:hidden">
+        <Link prefetch={false} href="/hilfe" className="mt-6 flex items-center justify-between gap-3 rounded-[10px] bg-papier-2 p-4 text-[15px] lg:hidden">
           <span>
             <span className="block font-semibold text-tinte">Ihr Fach ist nicht dabei?</span>
             <span className="text-tinte-2">Wir richten Sorrida mit Ihnen ein.</span>

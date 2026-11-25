@@ -83,6 +83,9 @@ Ziel: Jede neue Seite sieht aus wie die vorhandenen, ohne dass jemand Farben ode
 - Kurz und mit Grund: 150 bis 200 ms für Knöpfe, Karten, Hinweise und Dialoge.
 - Klassen: `ein-dialog` (Dialog), `ein-schleier` (abgedunkelter Hintergrund), `haken` (Haken), `verlauf-linie` (Verlaufslinie).
 - Wer im Gerät „Bewegung reduzieren“ gewählt hat, sieht keine Bewegung. Das regelt eine Stelle in `app/globals.css`.
+- Kurven und Dauern stehen als Variablen oben in `app/globals.css` (`--ease-out`, `--ease-in-out`, `--dauer-kurz` und weitere). Keine eigenen Werte an der Stelle.
+- Hover gilt nur bei echter Maus (`hoverOnlyWhenSupported` in `tailwind.config.ts`). Am Handy und Tablet bleibt nach einem Tipp keine Hover-Farbe stehen.
+- Die Website behält bei „Bewegung reduzieren“ weiches Einblenden und Farbwechsel, nur der Ortswechsel entfällt. Dort gibt es zum Einblenden beim Hineinscrollen die Klassen `j-ein` und `j-staffel` (beschrieben in `app/globals.css`).
 
 ## Barrierefreiheit
 

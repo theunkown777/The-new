@@ -35,11 +35,11 @@ export function Grundsaetze() {
             <span className="j-ziffer text-[3.6rem]">{i + 1}</span>
             <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,17rem)] md:items-end">
               <div>
-                <h3 className="j-titel text-[2rem] text-tinte">{s.titel}</h3>
+                <h3 className="j-titel text-[2.2rem] text-tinte">{s.titel}</h3>
                 <p className="j-text mt-3 max-w-lg">{s.text}</p>
               </div>
               {s.bild === "sockel" && <KassenSockel kasse={85} eigen={155} />}
-              {s.bild === "nutzen" && <p className="text-[14px] leading-snug text-amber-900"><span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-800">Zum Nutzen</span>{BEISPIEL_NUTZEN.text}<NutzenQuelleLink quelle={BEISPIEL_NUTZEN.quelle} /></p>}
+              {s.bild === "nutzen" && <p className="text-[15px] leading-snug text-amber-900"><span className="mb-1 block text-[12px] font-semibold uppercase tracking-[0.14em] text-amber-800">Zum Nutzen</span>{BEISPIEL_NUTZEN.text}<NutzenQuelleLink quelle={BEISPIEL_NUTZEN.quelle} /></p>}
               {s.bild === "weg" && (
                 <div>
                   <Behandlungsweg erreicht={3} aktuell={3} size="gross" labels={["", "", "", "", ""]} animate />

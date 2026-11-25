@@ -90,7 +90,7 @@ export function JournalFuss({ gastzugang = gastzugangOffen() }: { gastzugang?: b
             <img src="/brand/sorrida-mark.webp" alt="" className="h-9 w-9" />
             <span className="font-brand text-brand-700">SORRIDA</span>
           </div>
-          <p className="j-titel mt-5 max-w-[16rem] text-2xl text-tinte">
+          <p className="j-titel mt-5 max-w-[16rem] text-[1.7rem] text-tinte">
             Damit beide Seiten <em>lächeln</em>.
           </p>
         </div>

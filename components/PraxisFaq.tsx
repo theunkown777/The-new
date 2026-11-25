@@ -85,12 +85,12 @@ export function PraxisFaq({ therapie = false, dental = false, journal = false, a
           {fragen.map(([q, a]) => (
             <details key={q} className="group border-b border-linie">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700">
-                <span className="j-titel text-[1.6rem] text-tinte transition-colors group-hover:text-brand-700">{q}</span>
+                <span className="j-titel text-[1.7rem] text-tinte transition-colors group-hover:text-brand-700">{q}</span>
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-linie-stark text-tinte-2 transition group-open:rotate-45 group-open:border-brand-700 group-open:text-brand-700" aria-hidden="true">
                   +
                 </span>
               </summary>
-              <p className="j-text max-w-2xl pb-7 text-[16px] leading-relaxed">{a}</p>
+              <p className="j-text max-w-2xl pb-7 text-[17px] leading-relaxed">{a}</p>
             </details>
           ))}
         </div>

@@ -30,7 +30,7 @@ export function ZweiAnsichten() {
         <h2 id="ansichten" className="j-schau text-[clamp(2.6rem,5.5vw,4.6rem)] lg:col-span-7">
           Ein Weg, <em>zwei Seiten.</em>
         </h2>
-        <p className="j-text max-w-md self-end text-lg lg:col-span-4 lg:col-start-9">
+        <p className="j-text max-w-md self-end lg:col-span-4 lg:col-start-9">
           Praxis und Patient sehen denselben Weg vom Gespräch bis zur Zahlung. Jeder mit seinem nächsten Schritt, nichts geht verloren.
         </p>
       </div>
@@ -57,7 +57,7 @@ export function ZweiAnsichten() {
             {LISTE.map(([name, erreicht, aktuell, text, tone]) => (
               <li key={name} className="grid items-center gap-x-6 gap-y-1 border-b border-linie px-5 py-4 last:border-b-0 sm:grid-cols-[minmax(0,11rem)_7.5rem_minmax(0,1fr)]">
                 <span className="flex items-center gap-3">
-                  <span className="j-titel grid h-9 w-9 place-items-center rounded-full border border-linie text-lg text-brand-700">{name.charAt(0)}</span>
+                  <span className="j-titel grid h-9 w-9 place-items-center rounded-full border border-linie text-[19px] text-brand-700">{name.charAt(0)}</span>
                   <span className="font-medium text-tinte">{name}</span>
                 </span>
                 <Behandlungsweg erreicht={erreicht} aktuell={aktuell < 0 ? null : aktuell} className="hidden sm:block" />

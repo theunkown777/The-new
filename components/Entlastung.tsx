@@ -110,7 +110,7 @@ export function Entlastung({ gruppe, journal = false }: { gruppe?: EntlastungGru
               <div className="j-paar-links relative bg-[#F3E4DF] px-6 py-8 sm:px-9">
                 <p className="flex items-baseline gap-4">
                   <span className="j-ziffer text-[2.4rem]">{i + 1}</span>
-                  <span className="j-titel text-[1.75rem] text-tinte">{k.titel}</span>
+                  <span className="j-titel text-[1.7rem] text-tinte">{k.titel}</span>
                 </p>
                 {k.zahl && <p className="j-zahl mt-5 text-[3.4rem] leading-none text-brand-700">{k.zahl}</p>}
                 <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#5b3a35]">
@@ -133,7 +133,7 @@ export function Entlastung({ gruppe, journal = false }: { gruppe?: EntlastungGru
                   <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   Was Sorrida abnimmt
                 </p>
-                <p className="mt-3 max-w-md text-[16.5px] leading-relaxed text-[#1f3320]">{k.sorrida}</p>
+                <p className="mt-3 max-w-md text-[17px] leading-relaxed text-[#1f3320]">{k.sorrida}</p>
               </div>
             </li>
           ))}

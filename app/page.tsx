@@ -80,6 +80,8 @@ const SCHRITTE = [
 export default async function Start() {
   const session = await getServerSession(authOptions);
   const rahmen = "mx-auto max-w-[78rem] px-5 sm:px-8";
+  // Abschnitt mit Haarlinie: Die Linie steht innerhalb des Seitenrands und beginnt deshalb genau an der Textkante.
+  const mitLinie = "border-t border-linie py-24 sm:py-36";
   // Gastzugang (/demo) für Besucher offen? Sonst führen die Demo-Links zur Vorschau bzw. zum Pilotprogramm.
   const gast = gastzugangOffen();
 
@@ -136,17 +138,17 @@ export default async function Start() {
               <Link href={gast ? "/demo" : "/vorschau"} className="j-knopf j-knopf-voll">
                 {gast ? "Demo-Praxis öffnen" : "Vorschau ansehen"} <span className="j-pfeil" aria-hidden="true">→</span>
               </Link>
-              <a href="#fach" className="j-link text-[16px] font-semibold text-tinte">
+              <a href="#fach" className="j-link text-[15px] font-semibold text-tinte">
                 Ihr Fach wählen
               </a>
-              <a href={RUNDGANG_HREF} className="j-link text-[16px] font-semibold text-tinte" data-rundgang-ausloeser="" data-testid="rundgang-link-start">
+              <a href={RUNDGANG_HREF} className="j-link text-[15px] font-semibold text-tinte" data-rundgang-ausloeser="" data-testid="rundgang-link-start">
                 Rundgang in {RUNDGANG_WEBSITE.length} Stationen
               </a>
             </div>
-            <p className="mt-8 text-[14px] text-tinte-2">{PILOT_KURZ} · keine Zähler</p>
+            <p className="mt-8 text-[15px] text-tinte-2">{PILOT_KURZ} · keine Zähler</p>
           </div>
           <div className="relative lg:col-span-4 lg:col-start-9" data-testid="seite-patient">
-            <p className="font-hand absolute -top-12 left-2 z-10 -rotate-3 text-[1.6rem] leading-none text-brand-700 sm:-left-8" aria-hidden="true">
+            <p className="font-hand absolute -top-12 left-2 z-10 -rotate-3 text-[1.7rem] leading-none text-brand-700 sm:-left-8" aria-hidden="true">
               So sieht es Ihr Patient ↓
             </p>
             <div className="j-blatt-ein">
@@ -205,8 +207,10 @@ export default async function Start() {
           <ZweiAnsichten />
         </div>
 
-        <div className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
-          <Grundsaetze />
+        <div className={rahmen}>
+          <div className={mitLinie}>
+            <Grundsaetze />
+          </div>
         </div>
 
         {/* Bedeutung des Namens: Praxis und Patient zeichnen gemeinsam das Lächeln aus dem Logo */}
@@ -216,62 +220,70 @@ export default async function Start() {
           <Entlastung journal />
         </div>
 
-        <div id="zeit" className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
-          <ZeitRechner />
+        <div id="zeit" className={rahmen}>
+          <div className={mitLinie}>
+            <ZeitRechner />
+          </div>
         </div>
 
         {/* Ablauf und Nutzen für Patienten */}
-        <section id="ablauf" className={`${rahmen} scroll-mt-6 border-t border-linie py-24 sm:py-36`}>
-          <h2 className="j-schau max-w-3xl text-[clamp(2.4rem,4.6vw,3.8rem)]">
-            So läuft es <em>in jeder Praxis.</em>
-          </h2>
-          <ol className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-            {SCHRITTE.map(([t, d], i) => (
-              <li key={t} className="j-ein border-t border-tinte pt-6">
-                <span className="j-ziffer text-[2.8rem]">{i + 1}</span>
-                <h3 className="j-titel mt-4 text-[1.6rem] text-tinte">{t}</h3>
-                <p className="j-text mt-2 text-[15px]">{d}</p>
-              </li>
-            ))}
-          </ol>
-
-          <div id="fuer-patienten" className="mt-24 scroll-mt-6" data-testid="fuer-patienten">
-            <h3 className="j-titel text-[2.2rem] text-tinte">
-              Was Ihre Patienten <em className="text-salbei-700">davon haben</em>
-            </h3>
-            <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {FUER_PATIENTEN.map(([t, d, href]) => (
-                <li key={t} className="j-ein rounded-[6px] bg-[#E4EDE2] p-6">
-                  <span aria-hidden="true" className="mb-4 grid h-10 w-10 place-items-center rounded-full bg-salbei-600 text-white">{SYMBOLE[t]}</span>
-                  <h4 className="font-semibold text-[#1f3320]">{t}</h4>
+        <section id="ablauf" className={`${rahmen} scroll-mt-6`}>
+          <div className={mitLinie}>
+            <h2 className="j-schau max-w-3xl text-[clamp(2.4rem,4.6vw,3.8rem)]">
+              So läuft es <em>in jeder Praxis.</em>
+            </h2>
+            <ol className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+              {SCHRITTE.map(([t, d], i) => (
+                <li key={t} className="j-ein border-t border-tinte pt-6">
+                  <span className="j-ziffer text-[2.8rem]">{i + 1}</span>
+                  <h3 className="j-titel mt-4 text-[1.7rem] text-tinte">{t}</h3>
                   <p className="j-text mt-2 text-[15px]">{d}</p>
-                  {href && (
-                    <Link href={href} className="j-link mt-3 inline-block text-[15px] font-semibold text-brand-700">
-                      Mehr dazu
-                    </Link>
-                  )}
                 </li>
               ))}
-            </ul>
+            </ol>
+
+            <div id="fuer-patienten" className="mt-24 scroll-mt-6" data-testid="fuer-patienten">
+              <h3 className="j-titel text-[2.2rem] text-tinte">
+                Was Ihre Patienten <em className="text-salbei-700">davon haben</em>
+              </h3>
+              <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {FUER_PATIENTEN.map(([t, d, href]) => (
+                  <li key={t} className="j-ein rounded-[6px] bg-[#E4EDE2] p-6">
+                    <span aria-hidden="true" className="mb-4 grid h-10 w-10 place-items-center rounded-full bg-salbei-600 text-white">{SYMBOLE[t]}</span>
+                    <h4 className="font-semibold text-[#1f3320]">{t}</h4>
+                    <p className="j-text mt-2 text-[15px]">{d}</p>
+                    {href && (
+                      <Link href={href} className="j-link mt-3 inline-block text-[15px] font-semibold text-brand-700">
+                        Mehr dazu
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </section>
 
-        <div className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
-          <PricingPlans />
+        <div className={rahmen}>
+          <div className={mitLinie}>
+            <PricingPlans />
+          </div>
         </div>
 
-        <div className={`${rahmen} border-t border-linie py-24 sm:py-36`}>
-          <PraxisFaq journal alle />
+        <div className={rahmen}>
+          <div className={mitLinie}>
+            <PraxisFaq journal alle />
+          </div>
         </div>
 
         {/* Schlussaufruf */}
-        <section id="ausprobieren" className="bg-tinte text-[#F5F2EE]">
+        <section id="ausprobieren" className="auf-dunkel bg-tinte text-[#F5F2EE]">
           <div className={`${rahmen} grid items-end gap-10 py-24 sm:py-32 lg:grid-cols-12`}>
             <div className="lg:col-span-8">
               <h2 className="j-schau text-[clamp(2.8rem,6vw,5.4rem)] text-[#F5F2EE]">
                 Ab <span className="j-zahl">{eur(PLANS[0].preis)}</span> im Monat. <em className="!text-brand-200">Alles enthalten.</em>
               </h2>
-              <p className="mt-6 text-[18px] text-[#F5F2EE]/75">{PILOT_KURZ}, keine Zähler. Geplante Preise ab dem allgemeinen Start; zurzeit nehmen wir nur Pilotpraxen auf.</p>
+              <p className="mt-6 text-[19px] text-[#F5F2EE]/75">{PILOT_KURZ}, keine Zähler. Geplante Preise ab dem allgemeinen Start; zurzeit nehmen wir nur Pilotpraxen auf.</p>
             </div>
             <div className="flex flex-wrap gap-4 lg:col-span-4 lg:justify-end">
               <Link href={PILOT_ZIEL} className="j-knopf j-knopf-hell">

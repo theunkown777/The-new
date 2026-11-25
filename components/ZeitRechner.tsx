@@ -17,9 +17,9 @@ export function ZeitRechner() {
     <label className="block border-b border-linie py-4">
       <span className="flex items-baseline justify-between gap-4 text-[15px] text-tinte">
         {label}
-        <b className="shrink-0 text-xl font-semibold tabular-nums text-brand-700">
+        <b className="shrink-0 text-[19px] font-semibold tabular-nums text-brand-700">
           {value}
-          {unit && <span className="ml-1 text-sm font-normal text-tinte-2">{unit}</span>}
+          {unit && <span className="ml-1 text-[13px] font-normal text-tinte-2">{unit}</span>}
         </b>
       </span>
       <input

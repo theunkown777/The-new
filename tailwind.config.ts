@@ -30,6 +30,9 @@ const rolle = (r: "" | "fl" | "li") => Object.fromEntries(PALETTEN.map(([name, s
 
 const config: Config = {
   content: ["./app/**/*.{js,ts,jsx,tsx,mdx}", "./components/**/*.{js,ts,jsx,tsx,mdx}"],
+  // Hover (hover:, group-hover:, peer-hover:) gilt nur bei echter Maus. Am Handy bliebe sonst nach einem Tipp
+  // die Hover-Farbe stehen. Der Tastatur-Fokus ist davon nicht berührt.
+  future: { hoverOnlyWhenSupported: true },
   theme: {
     extend: {
       colors: rolle(""),
@@ -41,7 +44,8 @@ const config: Config = {
       textColor: { tinte: "#24201F", "tinte-2": "#5E5650" },
       backgroundColor: { papier: "#F5F2EE", "papier-2": "#ECE5DC", tinte: "#24201F", white: "rgb(var(--weiss-fl) / <alpha-value>)", ...rolle("fl") },
       gradientColorStops: rolle("fl"),
-      borderColor: { linie: "#DCD2C6", "linie-stark": "#C4B6A6", ...rolle("li") },
+      // tinte: die kräftige Linie über Listen (border-t border-tinte)
+      borderColor: { linie: "#DCD2C6", "linie-stark": "#C4B6A6", tinte: "#24201F", ...rolle("li") },
       ringColor: rolle("li"),
       outlineColor: rolle("li"),
       // Rundungen: außerhalb der App die gewohnten Werte, in der App eine einheitliche Form (6 px Felder und Knöpfe, 10 px Karten).
