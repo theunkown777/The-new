@@ -4,7 +4,8 @@ import { RUNDGANG_HREF } from "@/lib/rundgang";
 import { gastzugangOffen } from "@/lib/vorschau";
 
 // Kopfzeile der Website im Journal-Stil: Wortmarke links, Textnavigation, ein Knopf.
-// Am Handy wandert die Navigation in ein aufklappbares Menü (ohne JavaScript, mit <details>).
+// Am Handy wandert die Navigation in ein aufklappbares Menü (ohne JavaScript, mit <details>). Es wächst aus dem Knopf
+// oben rechts (app/globals.css, .j-menue).
 const LINKS: [string, string, string?][] = [
   ["/#fach", "Fachgebiete"],
   ["/#preise", "Preise"],
@@ -28,8 +29,9 @@ export function JournalKopf({ angemeldet, gastzugang = gastzugangOffen() }: { an
               {name}
             </Link>
           ))}
-          {/* Rundgang: einfacher Link (kein next/link), damit die Startseite ihn auch von anderen Seiten aus öffnet. */}
-          <a href={RUNDGANG_HREF} className="j-link text-tinte-2 decoration-transparent hover:text-tinte" data-testid="rundgang-link-kopf">
+          {/* Rundgang: einfacher Link (kein next/link), damit die Startseite ihn auch von anderen Seiten aus öffnet.
+              data-rundgang-ausloeser: Hierhin geht der Fokus nach dem Rundgang, wenn es sonst kein Ziel gibt. */}
+          <a href={RUNDGANG_HREF} className="j-link text-tinte-2 decoration-transparent hover:text-tinte" data-rundgang-ausloeser="" data-testid="rundgang-link-kopf">
             Rundgang
           </a>
         </nav>
@@ -46,14 +48,14 @@ export function JournalKopf({ angemeldet, gastzugang = gastzugangOffen() }: { an
           <Link href={gastzugang ? "/demo" : "/vorschau"} className="j-knopf j-knopf-voll !min-h-[42px] whitespace-nowrap !px-4 text-sm" data-testid="kopf-knopf">
             {gastzugang ? "Demo öffnen" : "Vorschau"}
           </Link>
-          <details className="group relative lg:hidden">
-            <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-[6px] border border-linie-stark" aria-label="Menü">
+          <details className="j-menue group relative lg:hidden">
+            <summary className="j-menue-knopf grid h-10 w-10 cursor-pointer list-none place-items-center rounded-[6px] border border-linie-stark" aria-label="Menü">
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" aria-hidden="true">
                 <path className="group-open:hidden" d="M4 8h16M4 16h16" />
                 <path className="hidden group-open:block" d="M6 6l12 12M18 6L6 18" />
               </svg>
             </summary>
-            <nav className="absolute right-0 top-12 w-60 border border-linie bg-papier p-2 shadow-[0_20px_40px_-24px_rgba(60,40,30,.5)]" aria-label="Menü">
+            <nav className="j-menue-liste absolute right-0 top-12 w-60 border border-linie bg-papier p-2 shadow-[0_20px_40px_-24px_rgba(60,40,30,.5)]" aria-label="Menü">
               {LINKS.map(([href, name]) => (
                 <Link key={href} href={href} className="block border-b border-linie px-3 py-3 text-[15px] last:border-0 hover:text-brand-700">
                   {name}
@@ -81,6 +83,7 @@ export function JournalFuss({ gastzugang = gastzugangOffen() }: { gastzugang?: b
     ["Ausprobieren", [[RUNDGANG_HREF, "Rundgang"], ...demo, ["/vorschau", "Vorschau"], ["/hilfe", "Hilfe und Kontakt"], ["/ratgeber", "Ratgeber"], ["/rechner", "Rechner"]]],
     ["Rechtliches", [["/impressum", "Impressum"], ["/datenschutz", "Datenschutz"], ["/avv", "AVV-Muster"], ["/vertrauen", "Umgang mit Daten"], ["/status", "Status"], ["/lizenzen", "Lizenzen und Quellen"], ["/impressum#zweck", "Wofür Sorrida bestimmt ist"]]],
   ];
+  const fussLink = "j-link flex min-h-[36px] items-center text-tinte-2 decoration-transparent hover:text-brand-700 md:inline md:min-h-0";
   return (
     <footer className="border-t border-linie">
       <div className="mx-auto grid max-w-[78rem] gap-12 px-5 py-16 sm:px-8 md:grid-cols-[1.4fr_repeat(3,1fr)]">
@@ -97,15 +100,16 @@ export function JournalFuss({ gastzugang = gastzugangOffen() }: { gastzugang?: b
         {spalten.map(([titel, links]) => (
           <div key={titel}>
             <p className="j-marke">{titel}</p>
-            <ul className="mt-4 space-y-2.5 text-[15px]">
+            {/* Am Handy ist jede Zeile 36 px hoch und in voller Breite antippbar, dafür ohne Zwischenraum; ab md wie gewohnt. */}
+            <ul className="mt-2 text-[15px] md:mt-4 md:space-y-2.5">
               {links.map(([href, name]) => (
                 <li key={href}>
                   {href === RUNDGANG_HREF ? (
-                    <a href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700" data-testid="rundgang-link-fuss">
+                    <a href={href} className={fussLink} data-testid="rundgang-link-fuss">
                       {name}
                     </a>
                   ) : (
-                    <Link prefetch={false} href={href} className="j-link text-tinte-2 decoration-transparent hover:text-brand-700">
+                    <Link prefetch={false} href={href} className={fussLink}>
                       {name}
                     </Link>
                   )}

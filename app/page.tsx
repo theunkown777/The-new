@@ -19,7 +19,6 @@ import { Laechelbogen } from "@/components/Behandlungsweg";
 import { websiteBasis } from "@/lib/betreiber";
 import { Rundgang } from "@/components/start/Rundgang";
 import { gastzugangOffen } from "@/lib/vorschau";
-import { RUNDGANG_HREF, RUNDGANG_WEBSITE } from "@/lib/rundgang";
 
 export const metadata: Metadata = {
   title: "Sorrida – damit beide Seiten lächeln",
@@ -121,31 +120,38 @@ export default async function Start() {
 
         {/* Auftakt: Aussage links, die echte Patientenansicht rechts */}
         <section id="auftakt" className={`${rahmen} grid scroll-mt-6 items-center gap-16 pb-24 pt-16 sm:pt-24 lg:grid-cols-12 lg:gap-8 lg:pb-32`} data-testid="auftakt">
-          {/* Anker „rundgang“: Ohne JavaScript führt „/#rundgang“ hierher, zum Anfang der Seite. */}
-          <div id="rundgang" className="j-auftakt lg:col-span-7">
-            <p className="flex items-center gap-3 text-[15px] text-tinte-2">
-              <Laechelbogen className="h-2 w-10 text-brand-700" />
-              Für Praxen jeder Fachrichtung
-            </p>
-            <h1 className="j-schau mt-7 text-[clamp(3.2rem,7.4vw,6.6rem)]">
-              Nach dem Gespräch ein Klick. <em>Der Rest ist erledigt.</em>
-            </h1>
-            <p className="j-text mt-8 max-w-xl text-[19px] leading-relaxed">
-              Sorrida zeigt Patienten zuerst, was die Kasse zahlt, und dann die weiteren Leistungen Ihrer Praxis mit dem Betrag, den sie selbst zahlen.
-              Zu Hause vergleichen sie in Ruhe und antworten mit einem Fingertipp.
-            </p>
-            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-              <Link href={gast ? "/demo" : "/vorschau"} className="j-knopf j-knopf-voll">
-                {gast ? "Demo-Praxis öffnen" : "Vorschau ansehen"} <span className="j-pfeil" aria-hidden="true">→</span>
-              </Link>
-              <a href="#fach" className="j-link text-[15px] font-semibold text-tinte">
-                Ihr Fach wählen
-              </a>
-              <a href={RUNDGANG_HREF} className="j-link text-[15px] font-semibold text-tinte" data-rundgang-ausloeser="" data-testid="rundgang-link-start">
-                Rundgang in {RUNDGANG_WEBSITE.length} Stationen
-              </a>
+          <div className="lg:col-span-7">
+            {/* Anker „rundgang“: Ohne JavaScript führt „/#rundgang“ hierher, zum Anfang der Seite. */}
+            <div id="rundgang" className="j-auftakt">
+              <p className="flex items-center gap-3 text-[15px] text-tinte-2">
+                <Laechelbogen className="h-2 w-10 text-brand-700" />
+                Für Praxen jeder Fachrichtung
+              </p>
+              <h1 className="j-schau mt-7 text-[clamp(3.2rem,7.4vw,6.6rem)]">
+                Nach dem Gespräch ein Klick. <em>Der Rest ist erledigt.</em>
+              </h1>
+              <p className="j-text mt-8 max-w-xl text-[19px] leading-relaxed">
+                Sorrida zeigt Patienten zuerst, was die Kasse zahlt, und dann die weiteren Leistungen Ihrer Praxis mit dem Betrag, den sie selbst zahlen.
+                Die Antwort kommt direkt in die Praxis; Vereinbarungen, Fristen und Termine stehen dann fertig auf der To-do-Liste Ihres Teams.
+              </p>
+              <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+                <Link href={gast ? "/demo" : "/vorschau"} className="j-knopf j-knopf-voll">
+                  {gast ? "Demo-Praxis öffnen" : "Vorschau ansehen"} <span className="j-pfeil" aria-hidden="true">→</span>
+                </Link>
+                <a href="#fach" className="ziel j-link text-[15px] font-semibold text-tinte">
+                  Ihr Fach wählen
+                </a>
+                <Link href={PILOT_ZIEL} className="ziel j-link text-[15px] font-semibold text-tinte" data-testid="pilot-link-start">
+                  Pilotplatz anfragen
+                </Link>
+              </div>
+              <p className="mt-8 text-[15px] text-tinte-2">{PILOT_KURZ} · keine Zähler</p>
             </div>
-            <p className="mt-8 text-[15px] text-tinte-2">{PILOT_KURZ} · keine Zähler</p>
+            {/* Rundgang in 8 Stationen (components/start/Rundgang.tsx): Die Einladung steht an Handy und Tablet hier als letzte
+                Zeile des Auftakts, am PC schwebt sie unten rechts, solange der Auftakt im Bild ist. Start jederzeit über /#rundgang.
+                Nach der Hauptüberschrift, damit Überschriften und Tab-Reihenfolge stimmen (h1 vor den h2 der Karte). Außerhalb
+                von .j-auftakt, weil dessen Kinder beim Laden bewegt werden und die Karte fest am Fenster steht. */}
+            <Rundgang gastzugang={gast} />
           </div>
           <div className="relative lg:col-span-4 lg:col-start-9" data-testid="seite-patient">
             <p className="font-hand absolute -top-12 left-2 z-10 -rotate-3 text-[1.7rem] leading-none text-brand-700 sm:-left-8" aria-hidden="true">
@@ -156,10 +162,6 @@ export default async function Start() {
             </div>
           </div>
         </section>
-
-        {/* Rundgang in 8 Stationen: Einladung beim ersten Betreten, Start über /#rundgang (components/start/Rundgang.tsx).
-            Hier nach dem Auftakt, damit Überschriften und Tab-Reihenfolge stimmen (h1 vor den h2 der Karte). */}
-        <Rundgang gastzugang={gast} />
 
         {/* Fachauswahl als Register */}
         <section id="fach" className="scroll-mt-6 border-t border-linie bg-[#F8F5F1]">

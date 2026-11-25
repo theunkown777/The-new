@@ -17,7 +17,8 @@ import { useAppText } from "@/components/FachKontext";
 // Antworten kommen aus der festen Wissenssammlung (lib/hilfeWissen), gesucht wird im Browser (lib/hilfeSuche).
 // Die Sammlung wird erst beim ersten Öffnen geladen. Der Verlauf lebt nur im Zustand von React, nichts wird
 // gespeichert. Mit eingeschalteten KI-Hilfen gibt es je Frage den Knopf „Mit KI beantworten“, nie automatisch.
-// Modus "website": öffentliches Wissen, ohne KI, „Zeig mir wo“ auf Abschnitte der Startseite.
+// Modus "website": öffentliches Wissen, ohne KI, „Zeig mir wo“ auf Abschnitte der Startseite. Dort trägt das Fenster
+// Papier und Haarlinie wie das Journal und wächst aus dem Knopf (app/globals.css, „Frag Sorrida auf der Website“).
 
 type Modus = "app" | "website";
 
@@ -96,6 +97,7 @@ export function FragSorrida({
   const feld = useRef<HTMLInputElement>(null);
   const verlaufEnde = useRef<HTMLDivElement>(null);
   const kiAktiv = modus === "app" && ki;
+  const web = modus === "website";
   // Auf der Website gibt es kein Menü im Sinn der App; die Pfade dort nennen Abschnitte und Seiten.
   const ortWort = modus === "website" ? "Ort" : "Menü";
   const woerter = useMemo(() => ({ personPl, person, abschluss }), [personPl, person, abschluss]);
@@ -400,7 +402,7 @@ export function FragSorrida({
           aria-haspopup="dialog"
           aria-expanded={false}
           aria-label="Frag Sorrida"
-          className="rundgang-ausweichen fixed bottom-4 right-4 z-[46] flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-xl bg-brand-700 px-3 py-2 text-sm sm:px-4 font-semibold text-white shadow-lg ring-1 ring-black/5 hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 print:hidden"
+          className="frag-druck rundgang-ausweichen fixed bottom-4 right-4 z-[46] flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-xl bg-brand-700 px-3 py-2 text-sm sm:px-4 font-semibold text-white shadow-lg ring-1 ring-black/5 hover:bg-brand-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 print:hidden"
           data-testid="frag-sorrida-knopf"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -421,7 +423,9 @@ export function FragSorrida({
             aria-modal="true"
             aria-labelledby={`${uid}-titel`}
             aria-describedby={`${uid}-unter`}
-            className="ein-dialog fixed bottom-4 left-2 right-2 z-[60] flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl sm:left-auto sm:right-4 sm:w-[25rem]"
+            className={`ein-dialog fixed bottom-4 left-2 right-2 z-[60] flex flex-col overflow-hidden rounded-2xl border sm:left-auto sm:right-4 sm:w-[25rem] ${
+              web ? "frag-fenster border-linie-stark bg-papier text-tinte shadow-[0_24px_48px_-24px_rgba(60,40,30,.55)]" : "border-slate-200 bg-white text-slate-900 shadow-2xl"
+            }`}
             style={{ maxHeight: "min(40rem, calc(100dvh - var(--leiste-unten, 0px) - 2rem))" }}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
@@ -432,16 +436,30 @@ export function FragSorrida({
             }}
             data-testid="frag-sorrida"
           >
-            <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-3">
+            <div className={`flex justify-between gap-3 border-b ${web ? "items-center border-linie py-1.5 pl-4 pr-1.5" : "items-start border-slate-100 px-4 py-3"}`}>
               <div className="min-w-0">
                 <h2 id={`${uid}-titel`} className="font-semibold text-slate-900">Frag Sorrida</h2>
                 <p id={`${uid}-unter`} className="text-xs text-slate-500">
                   {modus === "website" ? "Antworten aus festen Texten zu Sorrida." : kiAktiv ? "Antworten aus festen Hilfetexten. KI nur auf Ihren Knopfdruck." : "Antworten aus festen Hilfetexten, ohne KI."}
                 </p>
               </div>
-              <button type="button" onClick={schliessen} className="shrink-0 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:border-brand-600 hover:text-brand-700" data-testid="frag-sorrida-schliessen">
-                Schließen
-              </button>
+              {web ? (
+                <button
+                  type="button"
+                  onClick={schliessen}
+                  aria-label="Schließen"
+                  className="frag-druck grid h-11 w-11 shrink-0 place-items-center rounded-[6px] text-tinte-2 hover:bg-papier-2 hover:text-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5A1D1D]"
+                  data-testid="frag-sorrida-schliessen"
+                >
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" />
+                  </svg>
+                </button>
+              ) : (
+                <button type="button" onClick={schliessen} className="shrink-0 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:border-brand-600 hover:text-brand-700" data-testid="frag-sorrida-schliessen">
+                  Schließen
+                </button>
+              )}
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3" role="log" aria-live="polite" aria-label="Verlauf" data-testid="frag-sorrida-verlauf">
@@ -468,7 +486,7 @@ export function FragSorrida({
                     <ul className="mt-2 space-y-1.5">
                       {startFragen.map((e) => (
                         <li key={e.id}>
-                          <button type="button" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-left text-sm text-slate-800 hover:border-brand-600 hover:text-brand-700" onClick={() => senden({ typ: "eintrag", frage: text(e).frage, eintrag: e.id })} data-testid="frag-sorrida-vorschlag">
+                          <button type="button" className="frag-druck w-full rounded-lg border border-slate-200 px-3 py-2 text-left text-sm text-slate-800 hover:border-brand-600 hover:text-brand-700" onClick={() => senden({ typ: "eintrag", frage: text(e).frage, eintrag: e.id })} data-testid="frag-sorrida-vorschlag">
                             {text(e).frage}
                           </button>
                         </li>
@@ -485,7 +503,7 @@ export function FragSorrida({
             </div>
 
             <form
-              className="border-t border-slate-100 px-4 py-3"
+              className={`border-t px-4 py-3 ${web ? "border-linie" : "border-slate-100"}`}
               onSubmit={(e) => {
                 e.preventDefault();
                 fragen(frage);
