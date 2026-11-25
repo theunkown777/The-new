@@ -99,19 +99,18 @@ export function Entlastung({ gruppe, journal = false }: { gruppe?: EntlastungGru
           <h2 id="entlastung" className="j-schau text-[clamp(2.4rem,4.6vw,3.8rem)] lg:col-span-8">
             Was Praxen heute belastet, <em>und was Sorrida abnimmt.</em>
           </h2>
-          <p className="flex flex-wrap items-center gap-x-5 gap-y-2 self-end text-[12px] font-semibold uppercase tracking-[0.14em] lg:col-span-4 lg:justify-end" aria-hidden="true">
+          {/* Legende nur, wo die Hälften nebeneinander stehen (ab md). Darunter steht die Beschriftung in jeder Karte. */}
+          <p className="hidden flex-wrap items-center gap-x-5 gap-y-2 self-end text-[12px] font-semibold uppercase tracking-[0.14em] md:flex lg:col-span-4 lg:justify-end" aria-hidden="true">
             <span className="flex items-center gap-2 whitespace-nowrap text-brand-700"><span className="h-2.5 w-2.5 rounded-full bg-brand-600" />Was belastet</span>
             <span className="flex items-center gap-2 whitespace-nowrap text-salbei-700"><span className="h-2.5 w-2.5 rounded-full bg-salbei-600" />Was Sorrida abnimmt</span>
           </p>
         </div>
-        <ol className="mt-12 space-y-5">
-          {karten.map((k, i) => (
+        {/* Keine Reihenfolge, deshalb ohne Ziffern: Die Kennzahl ist die einzige große Zahl der Karte. */}
+        <ul className="mt-12 space-y-5">
+          {karten.map((k) => (
             <li key={k.titel} className="j-ein j-paar grid overflow-hidden rounded-[6px] md:grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)]">
               <div className="j-paar-links relative bg-[#F3E4DF] px-6 py-8 sm:px-9">
-                <p className="flex items-baseline gap-4">
-                  <span className="j-ziffer text-[2.4rem]">{i + 1}</span>
-                  <span className="j-titel text-[1.7rem] text-tinte">{k.titel}</span>
-                </p>
+                <p className="j-titel text-[1.7rem] text-tinte">{k.titel}</p>
                 {k.zahl && <p className="j-zahl mt-5 text-[3.4rem] leading-none text-brand-700">{k.zahl}</p>}
                 <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#5b3a35]">
                   {k.zahl && k.fakt.startsWith(k.zahl) ? k.fakt.slice(k.zahl.length).trim() : k.fakt}
@@ -129,15 +128,16 @@ export function Entlastung({ gruppe, journal = false }: { gruppe?: EntlastungGru
                 <span className="j-paar-pfeil absolute left-1/2 top-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-tinte text-lg text-[#F5F2EE]">→</span>
               </div>
               <div className="j-paar-rechts flex flex-col justify-center bg-[#E4EDE2] px-6 py-8 sm:px-9">
-                <p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-salbei-700">
+                {/* Ab md sagt es die Legende oben; für Vorleseprogramme bleibt die Zeile in jeder Karte. */}
+                <p className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-salbei-700 md:sr-only">
                   <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   Was Sorrida abnimmt
                 </p>
-                <p className="mt-3 max-w-md text-[17px] leading-relaxed text-[#1f3320]">{k.sorrida}</p>
+                <p className="mt-3 max-w-md text-[17px] leading-relaxed text-[#1f3320] md:mt-0">{k.sorrida}</p>
               </div>
             </li>
           ))}
-        </ol>
+        </ul>
       </section>
     );
   return (
