@@ -89,7 +89,7 @@ export function FachWahl({ gruppen }: { gruppen: { titel: string; kacheln: FachK
                 setQ(e.target.value);
                 setAnlass("suche");
               }}
-              placeholder="Fach oder Leistung, z. B. Ultraschall"
+              placeholder="Fach oder Leistung suchen"
               className="w-full rounded-[8px] border border-linie-stark bg-[#FBF9F6] py-3.5 pl-11 pr-3 text-[17px] text-tinte placeholder:text-tinte-2/70 focus:border-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-700/15"
               data-testid="fach-suche"
             />
