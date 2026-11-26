@@ -36,6 +36,18 @@ const sql = (q) => {
   return execFileSync('psql', [DB, '-At', '-c', q]).toString().trim();
 };
 
+/**
+ * Die Demo-Praxis bekommt ihre Rechnungen per Zufall; beim Fach Hausarzt sind es manchmal keine. Prüfungen, die eine
+ * Rechnung brauchen, legen sich dann eigene an (je ein anderer Patient), sonst prüfen sie mit leerer Nummer ins Leere.
+ */
+const rechnungenSicher = (pr, anzahl = 1) => {
+  const da = Number(sql(`select count(distinct "patientId") from "Invoice" where "practiceId"='${pr}'`));
+  if (da >= anzahl) return;
+  const frei = sql(`select id from "Patient" p where p."practiceId"='${pr}' and coalesce(p."lastName",'')<>'' and not exists (select 1 from "Invoice" i where i."patientId"=p.id) order by p."createdAt" limit ${anzahl - da}`).split('\n').filter(Boolean);
+  if (frei.length < anzahl - da) throw new Error(`Demo-Praxis ${pr}: zu wenige Patienten für ${anzahl} Rechnungen`);
+  frei.forEach((pid, i) => sql(`insert into "Invoice" (id, "practiceId", "patientId", number, title, "amountCent", "dueDate", status) values (gen_random_uuid()::text, '${pr}', '${pid}', 'T-${Date.now()}-${i + 1}', 'Privatleistung (Test)', 12000, now() + interval '14 days', 'OFFEN')`));
+};
+
 let ok = 0, fehl = 0;
 /** Eine Zeile je Prüfung: mehrzeilige Seitentexte in der Angabe werden mit „ · “ verbunden, damit das Protokoll lesbar bleibt. */
 const eineZeile = (x) => String(x).trim().replace(/\s*\n+\s*/g, ' · ');
@@ -76,4 +88,4 @@ function abbruch(e) {
   process.exit(1);
 }
 
-module.exports = { chromium, devices, L, D, DB, WURZEL, sql, eineZeile, pruef, stand, KONTEXT, HANDY, demo, eigenePraxis, lauf, abbruch };
+module.exports = { chromium, devices, L, D, DB, WURZEL, sql, rechnungenSicher, eineZeile, pruef, stand, KONTEXT, HANDY, demo, eigenePraxis, lauf, abbruch };

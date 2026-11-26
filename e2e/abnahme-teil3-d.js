@@ -1,16 +1,22 @@
 const fs = require('fs');
-const { L, D, sql, pruef, KONTEXT, HANDY, demo, lauf } = require('./gemeinsam');
+const { L, D, sql, rechnungenSicher, pruef, KONTEXT, HANDY, demo, lauf } = require('./gemeinsam');
 lauf('D Begleitbrief', async (b) => {
   const c = await b.newContext({ ...KONTEXT, acceptDownloads: true }); const p = await c.newPage();
   const fehler = []; p.on('pageerror', (e) => fehler.push(e.message));
   const pr = await demo(p);
+  // Zwei Rechnungen bei verschiedenen Patienten: eine wird privat versichert, mindestens eine bleibt gesetzlich.
+  rechnungenSicher(pr, 2);
   await p.goto(L + '/zahlungen'); await p.waitForTimeout(500);
   const vorher = await p.locator('[data-testid="erstattungsbrief-oeffnen"]:visible').count();
-  const gkv = sql(`select count(*) from "Invoice" i join "Patient" p on p.id=i."patientId" where i."practiceId"='${pr}' and coalesce(p."insuranceType",'')<>'PKV'`);
   // Die Demo-Praxis hat je nach Zufall keine offene Rechnung; die Liste zeigt aber zuerst nur offene. Dann die jüngste Rechnung öffnen.
   if (sql(`select count(*) from "Invoice" where "practiceId"='${pr}' and status in ('OFFEN','GEMELDET')`) === '0') sql(`update "Invoice" set status='OFFEN', "paidAt"=null where id=(select id from "Invoice" where "practiceId"='${pr}' order by "createdAt" desc limit 1)`);
   const [iid, pid] = sql(`select i.id||'|'||i."patientId" from "Invoice" i where i."practiceId"='${pr}' and i.status in ('OFFEN','GEMELDET') order by i."createdAt" desc limit 1`).split('|');
+  if (!iid || !pid) throw new Error('Keine offene Rechnung gefunden');
   sql(`update "Patient" set "insuranceType"='PKV', "insuranceName"='Debeka' where id='${pid}'`);
+  // Mindestens eine Rechnung muss bei einem gesetzlich Versicherten bleiben, sonst fielen zwei Prüfungen unten stumm weg.
+  const gkvFrage = `select count(*) from "Invoice" i join "Patient" p on p.id=i."patientId" where i."practiceId"='${pr}' and coalesce(p."insuranceType",'')<>'PKV'`;
+  if (sql(gkvFrage) === '0') sql(`update "Patient" set "insuranceType"='GKV', "insuranceName"='AOK' where id=(select i."patientId" from "Invoice" i where i."practiceId"='${pr}' and i."patientId"<>'${pid}' order by i."createdAt" limit 1)`);
+  const gkv = sql(gkvFrage);
   const erwartet = Number(sql(`select count(*) from "Invoice" i join "Patient" p on p.id=i."patientId" where i."practiceId"='${pr}' and p."insuranceType"='PKV'`));
   await p.goto(L + '/zahlungen'); await p.waitForTimeout(500);
   const knoepfe = p.locator('[data-testid="erstattungsbrief-oeffnen"]:visible');
@@ -41,7 +47,8 @@ lauf('D Begleitbrief', async (b) => {
   const fremd = sql(`select id from "Invoice" where "practiceId"<>'${pr}' limit 1`);
   if (fremd) pruef('Rechnung einer anderen Praxis → 404', (await api(p, fremd, body)) === 404, 'Status ' + await api(p, fremd, body));
   const gkvId = sql(`select i.id from "Invoice" i join "Patient" p on p.id=i."patientId" where i."practiceId"='${pr}' and coalesce(p."insuranceType",'')<>'PKV' limit 1`);
-  if (gkvId) { const st = await api(p, gkvId, body); pruef('Rechnung eines gesetzlich Versicherten → abgelehnt', st >= 400 && st < 500, 'Status ' + st); }
+  const st = gkvId ? await api(p, gkvId, body) : 0;
+  pruef('Rechnung eines gesetzlich Versicherten → abgelehnt', !!gkvId && st >= 400 && st < 500, gkvId ? 'Status ' + st : 'keine Rechnung eines gesetzlich Versicherten');
   // Handy
   const hc = await b.newContext({ ...HANDY, storageState: await c.storageState() }); const hp = await hc.newPage();
   await hp.goto(L + '/zahlungen'); await hp.waitForTimeout(500);

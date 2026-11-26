@@ -1,4 +1,4 @@
-const { L, D, sql, pruef, KONTEXT, HANDY, demo, lauf } = require('./gemeinsam');
+const { L, D, sql, rechnungenSicher, pruef, KONTEXT, HANDY, demo, lauf } = require('./gemeinsam');
 const bcrypt = require('bcryptjs');
 const anmelden = async (b, email, pw, opt = KONTEXT) => {
   const c = await b.newContext(opt); const p = await c.newPage();
@@ -15,7 +15,9 @@ lauf('C Rollen und Standorte', async (b) => {
   const pw = 'Abnahme-' + Math.random().toString(36).slice(2, 10) + '!9';
   sql(`update "User" set "passwordHash"='${bcrypt.hashSync(pw, 10)}', "emailVerifiedAt"=now() where id='${uid}'`);
   // Patient mit Rechnung für die Suche
-  const [rnr, rnach] = sql(`select i.number||'|'||p."lastName" from "Invoice" i join "Patient" p on p.id=i."patientId" where i."practiceId"='${pr}' limit 1`).split('|');
+  rechnungenSicher(pr);
+  const [rnr, rnach] = sql(`select i.number||'|'||p."lastName" from "Invoice" i join "Patient" p on p.id=i."patientId" where i."practiceId"='${pr}' order by i."createdAt" limit 1`).split('|');
+  if (!rnr || !rnach) throw new Error('Keine Rechnung mit Patient für die Suche gefunden');
   let s = await api(p, 'GET', '/api/suche?q=' + encodeURIComponent(rnach));
   const hatRechnung = (j) => JSON.stringify(j).includes(rnr) || (j?.treffer || []).some((t) => /rechnung|zahlung/i.test(t.gruppe || t.art || ''));
   pruef('Geschäftsführung: Suche liefert Rechnungen', hatRechnung(s.j), `${rnach} / ${rnr}`);
