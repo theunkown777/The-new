@@ -59,12 +59,27 @@ export function ZeitRechner() {
     if (!r || !z || typeof IntersectionObserver === "undefined") return;
     // Regler zählen erst, wenn mindestens einer wirklich zu bedienen ist; die Zahl zählt, wenn sie über der Zeile lesbar ist.
     const ioRegler = new IntersectionObserver(([e]) => setReglerImBild(e.isIntersecting), { rootMargin: "-96px 0px -96px 0px" });
-    const ioZahl = new IntersectionObserver(([e]) => setZahlImBild(e.isIntersecting), { rootMargin: "0px 0px -72px 0px", threshold: 0.5 });
     ioRegler.observe(r);
-    ioZahl.observe(z);
+    // Ist der Rundgang offen, verdeckt seine Karte den unteren Rand: Die Zahl zählt erst über der Karte als lesbar.
+    const html = document.documentElement;
+    let ioZahl: IntersectionObserver | null = null;
+    let rand = "";
+    const zahlBeobachten = () => {
+      const karte = html.hasAttribute("data-rundgang") ? parseFloat(html.style.getPropertyValue("--rundgang-oben")) || 0 : 0;
+      const neu = `0px 0px -${Math.max(72, Math.ceil(karte) + 8)}px 0px`;
+      if (neu === rand && ioZahl) return;
+      rand = neu;
+      ioZahl?.disconnect();
+      ioZahl = new IntersectionObserver(([e]) => setZahlImBild(e.isIntersecting), { rootMargin: neu, threshold: 0.5 });
+      ioZahl.observe(z);
+    };
+    zahlBeobachten();
+    const karteBeobachten = new MutationObserver(zahlBeobachten);
+    karteBeobachten.observe(html, { attributes: true, attributeFilter: ["data-rundgang", "style"] });
     return () => {
       ioRegler.disconnect();
-      ioZahl.disconnect();
+      ioZahl?.disconnect();
+      karteBeobachten.disconnect();
     };
   }, []);
 

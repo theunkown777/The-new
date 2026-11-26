@@ -24,7 +24,10 @@ function restBisBlattLiegt(blatt: Element | null): number {
 
 export function WegAnimationen() {
   useEffect(() => {
-    document.documentElement.classList.add("js-weg", "js-ein");
+    const html = document.documentElement;
+    // Kam das Skript zu spät (app/layout.tsx hat schon alles gezeigt), wird nichts mehr versteckt.
+    if (html.classList.contains("ein-aus")) html.classList.add("ein-bereit");
+    else html.classList.add("js-weg", "js-ein", "ein-bereit");
     // Der Weg zeichnet sich nicht auf einem Blatt, das noch halb durchsichtig ist: Er wartet, bis es liegt.
     const wartend = new Set<Element>();
     const uhren = new Set<number>();

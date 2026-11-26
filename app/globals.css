@@ -463,6 +463,19 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
    Nicht am selben Element mit .j-kachel oder .j-knopf verbinden (der Übergang von .j-ein gewinnt): dann eine Hülle nehmen.
    „Bewegung reduzieren“: kein Weg und kein Nacheinander, das Einblenden bleibt (Block darunter). */
 .js-ein .j-ein { opacity: 0; transform: translateY(12px); }
+/* Drucken und PDF: alles im Endzustand, auch was noch nicht ins Bild gescrollt wurde. */
+@media print {
+  .js-ein .j-ein, .js-ein .j-paar .j-paar-rechts { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .js-ein .j-paar .j-paar-pfeil { opacity: 1 !important; transform: translate(-50%, -50%) !important; transition: none !important; }
+  .js-ein .j-ein .weg-band-strich { stroke-dashoffset: 0 !important; transition: none !important; }
+  .js-weg .weg-anim .weg-strich, .js-weg .weg-anim .weg-station { animation: none !important; }
+  .laecheln[data-phase] :is(.laecheln-haelfte, .laecheln-wort) { stroke-dashoffset: 0 !important; transition: none !important; }
+  .laecheln[data-phase] :is(.laecheln-gruppe, .laecheln-treff) { transform: none !important; transition: none !important; }
+  .laecheln[data-phase] :is(.laecheln-ganz, .laecheln-seite) { opacity: 1 !important; transition: none !important; }
+  .laecheln[data-phase] .laecheln-ring { animation: none !important; opacity: 0 !important; }
+  .laecheln[data-phase] .laecheln-status[data-stand="beide"] { opacity: 1 !important; transform: none !important; visibility: visible !important; }
+  .laecheln[data-phase] .laecheln-status[aria-hidden="true"] { visibility: hidden !important; opacity: 0 !important; }
+}
 /* Der Übergang steht nur am Zielzustand: Das Verstecken beim Laden geschieht sofort, nur das Erscheinen ist weich. */
 .js-ein .j-ein.ist-da {
   opacity: 1; transform: none;
@@ -495,6 +508,7 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
     transition-duration: var(--dauer-kurz) !important;
   }
   .j-knopf:active, .website .fach-filter:active { transform: none; }
+  a:hover > .j-pfeil, a:focus-visible > .j-pfeil, .j-kachel:hover .j-pfeil { transform: none; }
 }
 
 /* ---- Zeitrechner der Startseite (components/ZeitRechner.tsx) ----
@@ -583,7 +597,7 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
 /* Status: alle Fassungen in einer Zelle, die längste (der Endzustand) hält die Höhe frei */
 .laecheln-status-feld { grid-area: status; display: grid; text-align: center; }
 .laecheln-status { grid-area: 1 / 1; }
-.laecheln-titel { font-size: 1.55rem; font-style: italic; color: #F5F2EE; }
+.laecheln-titel { font-size: 1.7rem; font-style: italic; color: #F5F2EE; }
 /* Zwischenzeilen: nur während des Ablaufs zu sehen */
 .laecheln-status[aria-hidden="true"] { visibility: hidden; opacity: 0; }
 .laecheln-link {
@@ -607,7 +621,7 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
   /* Etikett auf Höhe des Mundwinkels */
   .laecheln-seite { max-width: 17rem; padding-top: .6rem; }
   .laecheln-text { font-size: 16px; line-height: 1.6; }
-  .laecheln-titel { font-size: 1.75rem; }
+  .laecheln-titel { font-size: 1.7rem; }
 }
 /* Bogen im Endzustand: beide Hälften bis zur Mitte gezeichnet, darüber der ganze Bogen in einer Farbe */
 .laecheln-spur { stroke: rgba(245,242,238,.2); }
@@ -1047,5 +1061,7 @@ html[data-rundgang] .praxis-inhalt { padding-bottom: calc(var(--leiste-unten) + 
    Baustein knapp über der Karte. Steht sie links (App am Desktop), bleibt er, wo er ist
    (components/RundgangKarte.tsx, useRundgangPlatz). Siehe docs/GESTALTUNG.md. */
 html[data-rundgang][data-rundgang-ecke] .rundgang-ausweichen { bottom: calc(var(--rundgang-oben, 0px) + 0.75rem); }
+/* Die Ergebniszeile des Zeitrechners steht links unten (ab 640 px) und damit auch unter einer Karte links: Sie weicht immer aus. */
+html[data-rundgang] .zeit-zeile.rundgang-ausweichen:not(.zeit-zeile-oben) { bottom: calc(var(--rundgang-oben, 0px) + 0.75rem); }
 /* Führung im Gastzugang: Platzhalter bis zum Lesen des Stands; weggeklickt (Skript beim Laden) gleich unsichtbar. */
 html[data-fuehrung-zu] .demo-fuehrung-platz { display: none; }

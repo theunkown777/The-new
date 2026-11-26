@@ -64,7 +64,7 @@ export function LaechelnZitat({ rahmen }: { rahmen: string }) {
               </svg>
             </span>
           </h2>
-          <p className="mt-8 max-w-xl text-[18px] leading-relaxed text-[#F5F2EE]/80 lg:mx-auto">
+          <p className="mt-8 max-w-xl text-[19px] leading-relaxed text-[#F5F2EE]/80 lg:mx-auto">
             Sorrida ist italienisch und heißt „lächeln“. Der Bogen aus dem Logo zieht sich durch das ganze Produkt: als Weg, als Markierung, als
             Unterschriftslinie. Die Praxis hat weniger Arbeit, der Patient versteht, was er bekommt und was es kostet.
           </p>
