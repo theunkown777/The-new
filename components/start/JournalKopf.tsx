@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { WebsiteHilfe } from "@/components/WebsiteHilfe";
+import { MenueSchliessen } from "@/components/start/MenueSchliessen";
 import { RUNDGANG_HREF } from "@/lib/rundgang";
 import { gastzugangOffen } from "@/lib/vorschau";
 
 // Kopfzeile der Website im Journal-Stil: Wortmarke links, Textnavigation, ein Knopf.
 // Am Handy wandert die Navigation in ein aufklappbares Menü (ohne JavaScript, mit <details>). Es wächst aus dem Knopf
-// oben rechts (app/globals.css, .j-menue).
+// oben rechts (app/globals.css, .j-menue) und schließt sich mit Escape, beim Tippen daneben und nach einem Link (MenueSchliessen).
 const LINKS: [string, string, string?][] = [
   ["/#fach", "Fachgebiete"],
   ["/#preise", "Preise"],
@@ -17,8 +18,8 @@ const LINKS: [string, string, string?][] = [
 export function JournalKopf({ angemeldet, gastzugang = gastzugangOffen() }: { angemeldet: boolean; gastzugang?: boolean }) {
   return (
     <header className="relative z-20 border-b border-linie">
-      <div className="mx-auto flex max-w-[78rem] items-center justify-between gap-6 px-5 py-4 sm:px-8">
-        <Link href="/" className="flex items-center gap-3" aria-label="Sorrida Startseite">
+      <div className="mx-auto flex max-w-[78rem] items-center justify-between gap-3 px-5 py-4 sm:gap-6 sm:px-8">
+        <Link href="/" className="j-link flex shrink-0 items-center gap-3 decoration-transparent" aria-label="Sorrida Startseite">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/sorrida-mark.webp" alt="" className="h-10 w-10" />
           <span className="font-brand text-[17px] text-brand-700">SORRIDA</span>
@@ -35,7 +36,7 @@ export function JournalKopf({ angemeldet, gastzugang = gastzugangOffen() }: { an
             Rundgang
           </a>
         </nav>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           {angemeldet ? (
             <Link href="/dashboard" className="j-link hidden text-[15px] font-semibold text-brand-700 sm:inline" data-testid="zur-uebersicht">
               Zur Übersicht
@@ -46,10 +47,11 @@ export function JournalKopf({ angemeldet, gastzugang = gastzugangOffen() }: { an
             </Link>
           )}
           <Link href={gastzugang ? "/demo" : "/vorschau"} className="j-knopf j-knopf-voll !min-h-[42px] whitespace-nowrap !px-4 text-sm" data-testid="kopf-knopf">
-            {gastzugang ? "Demo öffnen" : "Vorschau"}
+            {/* Unter 380 px nur „Demo“, sonst stößt der Knopf an die Wortmarke. */}
+            {gastzugang ? <span>Demo<span className="max-[379px]:hidden"> öffnen</span></span> : "Vorschau"}
           </Link>
           <details className="j-menue group relative lg:hidden">
-            <summary className="j-menue-knopf grid h-10 w-10 cursor-pointer list-none place-items-center rounded-[6px] border border-linie-stark" aria-label="Menü">
+            <summary className="j-menue-knopf grid h-11 w-11 cursor-pointer list-none place-items-center rounded-[6px] border border-linie-stark" aria-label="Menü">
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" aria-hidden="true">
                 <path className="group-open:hidden" d="M4 8h16M4 16h16" />
                 <path className="hidden group-open:block" d="M6 6l12 12M18 6L6 18" />
@@ -69,6 +71,7 @@ export function JournalKopf({ angemeldet, gastzugang = gastzugangOffen() }: { an
               </Link>
             </nav>
           </details>
+          <MenueSchliessen />
         </div>
       </div>
     </header>
@@ -120,7 +123,7 @@ export function JournalFuss({ gastzugang = gastzugangOffen() }: { gastzugang?: b
         ))}
       </div>
       <div className="border-t border-linie">
-        <p className="mx-auto max-w-[78rem] px-5 py-6 text-xs text-tinte-2 sm:px-8">
+        <p className="mx-auto max-w-[78rem] px-5 pb-20 pt-6 text-xs text-tinte-2 sm:px-8 sm:pb-6">
           Keine Abrechnungs- oder Rechtsberatung. Genannte Produktnamen sind Marken ihrer Inhaber.
         </p>
       </div>

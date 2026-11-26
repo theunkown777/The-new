@@ -138,10 +138,10 @@ export default async function Start() {
                 <Link href={gast ? "/demo" : "/vorschau"} className="j-knopf j-knopf-voll">
                   {gast ? "Demo-Praxis öffnen" : "Vorschau ansehen"} <span className="j-pfeil" aria-hidden="true">→</span>
                 </Link>
-                <a href="#fach" className="ziel j-link text-[15px] font-semibold text-tinte">
+                <a href="#fach" className="ziel j-link inline-flex min-h-[44px] items-center text-[15px] font-semibold text-tinte">
                   Ihr Fach wählen
                 </a>
-                <Link href={PILOT_ZIEL} className="ziel j-link text-[15px] font-semibold text-tinte" data-testid="pilot-link-start">
+                <Link href={PILOT_ZIEL} className="ziel j-link inline-flex min-h-[44px] items-center text-[15px] font-semibold text-tinte" data-testid="pilot-link-start">
                   Pilotplatz anfragen
                 </Link>
               </div>

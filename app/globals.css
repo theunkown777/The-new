@@ -390,6 +390,11 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
   .j-link:hover { text-decoration-color: currentColor; color: #5A1D1D; }
   a:hover > .j-pfeil { transform: translateX(4px); }
 }
+/* Fokus auf heller Fläche: Was keinen eigenen Fokusstil hat, bekommt den Bordeaux-Ring der Website statt des Browser-Rings.
+   Elemente mit eigenen Tailwind-Fokusklassen behalten ihren Stil. */
+.website :where(a, button, summary, [tabindex]):focus-visible:where(:not(.j-knopf, .j-link, .fach-filter, [class*="focus-visible:"], [class*="focus:outline"])) {
+  outline: 2px solid #5A1D1D; outline-offset: 3px;
+}
 /* Fokus auf dunkler Fläche (Bordeaux, Tinte): Ein Bordeaux-Ring wäre dort unsichtbar, deshalb Papier mit Abstand.
    Dunkle Abschnitte der Website tragen .auf-dunkel (mittlere Preiskarte, Schlussaufruf). */
 .website :where(.auf-dunkel, .bg-tinte, .bg-brand-700, .bg-brand-800) :where(a, button, summary, input, select, textarea, [role="button"], [tabindex]):focus-visible {
@@ -475,6 +480,8 @@ a:focus-visible > .j-pfeil { transform: translateX(4px); }
   .laecheln[data-phase] .laecheln-ring { animation: none !important; opacity: 0 !important; }
   .laecheln[data-phase] .laecheln-status[data-stand="beide"] { opacity: 1 !important; transform: none !important; visibility: visible !important; }
   .laecheln[data-phase] .laecheln-status[aria-hidden="true"] { visibility: hidden !important; opacity: 0 !important; }
+  /* Dunkle Flächen mitdrucken, sonst stünde helle Schrift auf weißem Papier. */
+  .laecheln, .auf-dunkel, .website .bg-tinte, .website .bg-brand-700, .j-knopf-voll { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 /* Der Übergang steht nur am Zielzustand: Das Verstecken beim Laden geschieht sofort, nur das Erscheinen ist weich. */
 .js-ein .j-ein.ist-da {

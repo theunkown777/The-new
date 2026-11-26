@@ -16,11 +16,11 @@ const FILTER: { id: "alle" | FachArt; name: string }[] = [
   { id: "therapie", name: "Therapie" },
 ];
 
-// Farbe je Art: ärztlich und zahnärztlich Rosé mit Bordeaux, Therapie Salbei.
+// Farbe je Art: ärztlich und zahnärztlich Rosé mit Bordeaux, Therapie Papier mit Tinte (Salbei bleibt der Kasse vorbehalten).
 const TON: Record<FachArt, { feld: string; zeichen: string; hover: string }> = {
   arzt: { feld: "bg-[#F3E4DF]", zeichen: "text-brand-700", hover: "group-hover:bg-brand-700 group-hover:text-white" },
   zahn: { feld: "bg-[#F3E4DF]", zeichen: "text-brand-700", hover: "group-hover:bg-brand-700 group-hover:text-white" },
-  therapie: { feld: "bg-[#E4EDE2]", zeichen: "text-salbei-700", hover: "group-hover:bg-salbei-700 group-hover:text-white" },
+  therapie: { feld: "bg-[#ECE5DC]", zeichen: "text-tinte", hover: "group-hover:bg-tinte group-hover:text-white" },
 };
 
 // Eine Zeile der Liste (Kachel oder Gruppentitel). Wie sie einblendet, steht beim Einhängen fest: nach einem
