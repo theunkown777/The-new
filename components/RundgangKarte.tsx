@@ -17,7 +17,7 @@ export type RundgangSeite = "links" | "rechts";
 const STIL: Record<RundgangVariante, { karte: string; stand: string; titel: string; text: string; link: string; zu: string; zurueck: string; weiter: string }> = {
   website: {
     karte:
-      "fixed inset-x-3 bottom-3 z-40 flex max-h-[45dvh] flex-col rounded-[10px] border border-linie-stark bg-papier text-tinte shadow-[0_24px_48px_-24px_rgba(60,40,30,.55)] sm:inset-x-auto sm:bottom-6 sm:max-h-[min(30rem,50dvh)] sm:w-[27rem]",
+      "fixed inset-x-3 bottom-3 z-40 flex max-h-[45dvh] flex-col rounded-[10px] border border-linie-stark bg-papier text-tinte shadow-[0_24px_48px_-24px_rgba(60,40,30,.55)] sm:inset-x-auto sm:bottom-6 sm:max-h-[min(30rem,46dvh)] sm:w-[27rem]",
     stand: "j-marke",
     titel: "j-titel text-[1.65rem] leading-tight text-tinte focus:outline-none",
     text: "text-[15px] leading-relaxed text-[#5E5650]",

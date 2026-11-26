@@ -8,21 +8,24 @@ export function PricingPlans({ cta = PILOT_ZIEL }: { cta?: string }) {
   return (
     <section id="preise" className="scroll-mt-10" aria-labelledby="preise-titel" data-testid="preise">
       <div className="grid gap-6 lg:grid-cols-12">
-        <h2 id="preise-titel" className="j-schau text-[clamp(2.4rem,4.6vw,3.8rem)] lg:col-span-7">
-          Ein Werkzeug statt fünf. <em>Ein Preis, alles drin.</em>
-        </h2>
+        {/* Unter der Überschrift: Der Pilot kostet nichts. Sonst liest sich „Pilotplatz anfragen“ wie eine Bestellung zum
+            Listenpreis. Hier statt in einer eigenen Zeile, damit die Preise am PC höher stehen (frei neben der Rundgang-Karte). */}
+        <div className="lg:col-span-7">
+          <h2 id="preise-titel" className="j-schau text-[clamp(2.4rem,4.6vw,3.8rem)]">
+            Ein Werkzeug statt fünf. <em>Ein Preis, alles drin.</em>
+          </h2>
+          <p className="mt-5 text-balance text-[17px] font-semibold text-brand-700" data-testid="preise-pilot">
+            {PILOT_PREISZEILE}
+          </p>
+        </div>
         <p className="j-text self-end lg:col-span-4 lg:col-start-9">
           Vorschläge, Patienten-Link, Behandlungsweg mit Zahlung, Anamnese, Diktat und Analyse. Wofür Praxen sonst mehrere Abos bezahlen und
           Daten zwischen Programmen abtippen, läuft hier an einem Ort.
         </p>
       </div>
-      {/* Vor den Preisen: Der Pilot kostet nichts. Sonst liest sich „Pilotplatz anfragen“ wie eine Bestellung zum Listenpreis. */}
-      <p className="mt-14 text-[17px] font-semibold text-brand-700" data-testid="preise-pilot">
-        {PILOT_PREISZEILE}
-      </p>
       {/* j-staffel: Die Karten kommen nur am PC nacheinander, wo sie nebeneinander stehen.
           preis-karte (globals.css): Am PC teilen sich die drei Karten ihre Zeilen, damit die Preise auf einer Linie stehen. */}
-      <div className="j-staffel mt-6 grid items-stretch gap-5 lg:mt-12 lg:grid-cols-3 lg:gap-y-0">
+      <div className="j-staffel mt-10 grid items-stretch gap-5 lg:grid-cols-3 lg:gap-y-0">
         {PLANS.map((p, i) => {
           const hervor = i === 1;
           return (
