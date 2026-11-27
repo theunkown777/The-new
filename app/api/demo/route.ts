@@ -4,15 +4,24 @@ import { cleanupExpiredDemos, createDemoPractice } from "@/lib/demo";
 import { aufraeumen } from "@/lib/aufraeumen";
 import { DENTAL_ID, specialty, istSichtbar } from "@/lib/specialties";
 import { anschluss } from "@/lib/anschluss";
+import { prisma } from "@/lib/prisma";
 
 let letztesAufraeumen = 0;
 /** So viele abgelaufene Demo-Praxen löscht ein Gastzugang höchstens nebenbei. Den Rest erledigt der tägliche Cron. */
 const DEMOS_JE_AUFRUF = 3;
-// Anlegen der Beispieldaten (je nach Fach bis etwa 1800 Einträge) braucht einige Sekunden.
+// Anlegen der Beispieldaten (je nach Fach bis etwa 2000 Einträge) dauert meist unter einer Sekunde; Reserve für kalte Starts.
 export const maxDuration = 60;
 
 const LIMIT = 10;
 const WINDOW_MS = 60 * 60 * 1000;
+
+// Aufwärmen: Die Seite /demo ruft das beim Öffnen auf. Startet den Dienst und baut die
+// Datenbankverbindung auf, damit der Klick auf "Demo-Praxis öffnen" sofort loslegen kann.
+// Legt nichts an und gibt nichts preis.
+export async function GET() {
+  await prisma.$queryRaw`SELECT 1`.catch(() => {});
+  return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
+}
 
 // Legt einen Gastzugang an (eigene Demo-Praxis mit Beispieldaten) und gibt
 // die Wegwerf-Zugangsdaten zurück, mit denen sich die Seite /demo sofort

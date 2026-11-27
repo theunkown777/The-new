@@ -179,7 +179,10 @@ export async function seedBulkDemo(args: {
       ...(status === "BEZAHLT" && { paidAt: new Date(Math.min(now.getTime(), createdAt.getTime() + Math.floor(2 + r() * 16) * DAY)) }),
     });
   }
-  if (invoices.length) await prisma.invoice.createMany({ data: invoices });
+  // Rechnungen, Anamnesen, Berichte und Termine hängen nicht voneinander ab. Die Zeilen werden
+  // der Reihe nach gebaut (gleicher Zufall wie bisher) und dann gemeinsam gespeichert.
+  const speichern: Promise<unknown>[] = [];
+  if (invoices.length) speichern.push(prisma.invoice.createMany({ data: invoices }));
 
   // Digitale Anamnese bei etwa 15 % der Patienten, mit dem Bogen des Fachs (lib/demoAnamnese.ts).
   const forms: Prisma.AnamnesisFormCreateManyInput[] = shuffled.slice(0, Math.round(patients.length * 0.15)).map((p) => {
@@ -195,7 +198,7 @@ export async function seedBulkDemo(args: {
       answers: demoAnamneseZufall(fach, person, r, `${p.firstName} ${p.lastName}`) as unknown as Prisma.InputJsonValue,
     };
   });
-  if (forms.length) await prisma.anamnesisForm.createMany({ data: forms });
+  if (forms.length) speichern.push(prisma.anamnesisForm.createMany({ data: forms }));
 
   // Zahnmedizin: Berichte der letzten Wochen (die App-Berichte sind zahnärztlich).
   if (dental) {
@@ -215,10 +218,11 @@ export async function seedBulkDemo(args: {
         generatedText: `Befund- und Behandlungsbericht\n\nPatient/in: ${p.firstName} ${p.lastName}\nBehandlung: ${anlass}\n\nBeispielbericht im Gastzugang mit erfundenen Daten.`,
       };
     });
-    await prisma.report.createMany({ data: reports });
+    speichern.push(prisma.report.createMany({ data: reports }));
     reportDates.push(...reports.map((x) => ({ patientId: x.patientId, at: new Date(x.treatmentDate as Date) })));
   }
-  await seedTermineUndAkte({ practiceId, patients, dental, r, now, reportDates, fach });
+  speichern.push(seedTermineUndAkte({ practiceId, patients, dental, r, now, reportDates, fach }));
+  await Promise.all(speichern);
   return { patients: patients.length, proposals: proposals.length, anamnesis: forms.length, invoices: invoices.length };
 }
 
@@ -249,9 +253,15 @@ async function seedTermineUndAkte(a: {
   const byId = new Map(patients.map((p) => [p.id, p]));
   const pick = () => patients[Math.floor(r() * patients.length)].id;
   // Terminanlass passend zu Fach, Geschlecht und Alter des jeweiligen Patienten
+  // Die Liste je Patient einmal bilden (bei rund 2.000 Terminen sonst spürbar langsam).
+  const anlaesse = new Map<string, string[]>();
   const grund = (patientId: string) => {
-    const p = byId.get(patientId)!;
-    const liste = termineFuer(a.fach, { geschlecht: p.geschlecht, alter: p.birthDate ? ageOn(p.birthDate, now) : null });
+    let liste = anlaesse.get(patientId);
+    if (!liste) {
+      const p = byId.get(patientId)!;
+      liste = termineFuer(a.fach, { geschlecht: p.geschlecht, alter: p.birthDate ? ageOn(p.birthDate, now) : null });
+      anlaesse.set(patientId, liste);
+    }
     return liste[Math.floor(r() * liste.length)] ?? fachprofil(a.fach).termine[0];
   };
   // Tage in deutscher Zeit, sonst landen Termine um Mitternacht (Server in UTC) auf dem falschen Tag.
@@ -262,8 +272,17 @@ async function seedTermineUndAkte(a: {
   const vergangen = dental
     ? a.reportDates.filter((x) => now.getTime() - x.at.getTime() < 60 * DAY)
     : [...Array(Math.round(((kz.termine[0] + kz.termine[1]) / 2) * 30))].map(() => ({ patientId: pick(), at: at(-1 - Math.floor(r() * 42), Math.floor(r() * (tagesMinuten / 15)) * 15) }));
+  // Tagesabstand je Kalendertag nur einmal über die Zeitzone berechnen (das ist die teure Stelle).
+  const berlinTag = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Berlin" });
+  const abstand = new Map<string, number>();
+  const tagOffsetVon = (d: Date) => {
+    const tag = berlinTag.format(d);
+    let o = abstand.get(tag);
+    if (o === undefined) abstand.set(tag, (o = Math.round((tagesGrenzen(tag).von.getTime() - heute0) / DAY)));
+    return o;
+  };
   for (const v of vergangen) {
-    const tagOffset = Math.round((tagesGrenzen(heuteTag(v.at)).von.getTime() - heute0) / DAY);
+    const tagOffset = tagOffsetVon(v.at);
     const start = at(tagOffset, Math.floor(r() * (tagesMinuten / 15)) * 15);
     rows.push({ practiceId, patientId: v.patientId, locationId: r() < zweigAnteil ? zweig.id : haupt.id, start, minutes: dauer(), reason: grund(v.patientId), status: "ERSCHIENEN" });
   }
@@ -292,7 +311,9 @@ async function seedTermineUndAkte(a: {
       });
     }
   }
-  await prisma.appointment.createMany({ data: rows });
+  // Termine in Teilen und zusammen mit den Akteneinträgen gleichzeitig speichern.
+  const TEIL = 500;
+  const termine = Promise.all(Array.from({ length: Math.ceil(rows.length / TEIL) }, (_, i) => prisma.appointment.createMany({ data: rows.slice(i * TEIL, (i + 1) * TEIL) })));
 
   const allergien = ["Penicillin", "Latex", "Lokalanästhetika vom Estertyp", "Nickel", "Ibuprofen"];
   // Diagnosen aus dem Befundmodell des Fachs, passend zum Geschlecht; Fächer ohne Diagnosen bekommen keine.
@@ -311,5 +332,5 @@ async function seedTermineUndAkte(a: {
     }
     if (mitMedikation && r() < (a.fach === "apotheke" || a.fach === "pflege" ? 0.45 : 0.12)) entries.push({ practiceId, patientId: p.id, art: "MEDIKATION", text: medis[Math.floor(r() * medis.length)], createdBy: "Demo" });
   }
-  if (entries.length) await prisma.patientEntry.createMany({ data: entries });
+  await Promise.all([termine, entries.length ? prisma.patientEntry.createMany({ data: entries }) : null]);
 }

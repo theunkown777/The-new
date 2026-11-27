@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { AUTH_UNAVAILABLE_MESSAGE, authServiceAvailable } from "@/lib/authAvailable";
@@ -13,9 +13,15 @@ export default function DemoPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fach, setFach] = useState<string>("");
+  const authPruefung = useRef<Promise<boolean> | null>(null);
 
   // Vorauswahl über /demo?fach=haut (z. B. von den Fachgebietsseiten).
+  // Dazu den Gastzugang-Dienst schon beim Öffnen der Seite wecken, damit der Klick nicht auf
+  // einen kalten Server und den Aufbau der Datenbankverbindung warten muss. Legt nichts an.
   useEffect(() => {
+    fetch("/api/demo", { method: "GET", cache: "no-store" }).catch(() => {});
+    // Den Anmeldedienst ebenfalls schon jetzt prüfen; der Klick wartet dann nur noch auf das Ergebnis.
+    authPruefung.current = authServiceAvailable();
     const q = new URLSearchParams(window.location.search);
     const f = q.get("fach");
     if (f && FACH_GRUPPEN.some((g) => g.faecher.some((s) => s.id === f))) setFach(f);
@@ -28,12 +34,21 @@ export default function DemoPage() {
     }
     setBusy(true);
     setError(null);
-    if (!(await authServiceAvailable())) {
+    // Erst den Anmeldedienst prüfen (läuft schon seit dem Öffnen der Seite), dann anlegen. So entsteht
+    // keine Demo-Praxis und kein Versuch zählt gegen die Grenze, wenn die Anmeldung gerade gestört ist.
+    const authOk = await (authPruefung.current ?? authServiceAvailable());
+    if (!authOk) {
+      authPruefung.current = null; // beim nächsten Klick neu prüfen
       setBusy(false);
       setError(AUTH_UNAVAILABLE_MESSAGE);
       return;
     }
-    const res = await fetch("/api/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fach }) });
+    const res = await fetch("/api/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fach }) }).catch(() => null);
+    if (!res) {
+      setBusy(false);
+      setError("Der Gastzugang konnte nicht angelegt werden (keine Verbindung). Bitte erneut versuchen.");
+      return;
+    }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       setBusy(false);

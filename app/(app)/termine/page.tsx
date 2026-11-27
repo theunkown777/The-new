@@ -56,6 +56,9 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
   const quote = ausfallquote(letzte);
   const unbestaetigt = termine.filter((t) => t.status === "GEPLANT" && !t.confirmedAt).length;
   const datum = new Date(`${tag}T12:00:00Z`).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Berlin" });
+  const istHeute = tag === heuteTag();
+  // Kurz für die Tagesauswahl, z. B. "Fr., 28.11."
+  const tagLabel = new Date(`${tag}T12:00:00Z`).toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", timeZone: "Europe/Berlin" });
   const kurz = (d: Date) => d.toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin" });
   const q = (t: string, o: string | null = ort) => `/termine?tag=${t}${o ? `&ort=${o}` : ""}`;
   const tagKurz = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", timeZone: "Europe/Berlin" });
@@ -74,11 +77,21 @@ export default async function TerminePage(props: { searchParams: Promise<{ tag?:
           <h1 className="font-display text-3xl text-slate-900">Termine</h1>
           <p className="mt-1 text-sm text-slate-600">{datum}</p>
         </div>
-        <nav className="flex items-center gap-1 rounded-full bg-white p-1 text-sm shadow-sm ring-1 ring-slate-200" aria-label="Tag">
-          <Link href={q(verschiebe(tag, -1))} className="rounded-full px-3 py-1.5 text-slate-600 hover:text-brand-700" aria-label="Vortag">‹</Link>
-          <Link href={q(heuteTag())} className={`rounded-full px-3 py-1.5 ${tag === heuteTag() ? "bg-brand-600 text-white" : "text-slate-600"}`}>Heute</Link>
-          <Link href={q(verschiebe(tag, 1))} className="rounded-full px-3 py-1.5 text-slate-600 hover:text-brand-700" aria-label="Folgetag">›</Link>
-        </nav>
+        {/* Pfeile bleiben beim Blättern an derselben Stelle: Die Mitte hat eine feste Breite, und der
+            Knopf "Heute" erscheint links außerhalb der Leiste, nur wenn ein anderer Tag gewählt ist. */}
+        <div className="flex items-center gap-2">
+          {!istHeute && (
+            <Link href={q(heuteTag())} className="rounded-full bg-white px-3 py-1.5 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200 hover:text-brand-700" data-testid="termine-zu-heute">Heute</Link>
+          )}
+          <nav className="flex items-center gap-1 rounded-full bg-white p-1 text-sm shadow-sm ring-1 ring-slate-200" aria-label="Tag">
+            <Link href={q(verschiebe(tag, -1))} className="rounded-full px-3 py-1.5 text-slate-600 hover:text-brand-700" aria-label="Vortag">‹</Link>
+            {/* Mitte zeigt immer den gewählten Tag mit Wochentag; "Heute" nur, wenn es wirklich heute ist. */}
+            <span className={`w-[10.5rem] whitespace-nowrap rounded-full px-3 py-1.5 text-center tabular-nums ${istHeute ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-900"}`} aria-current="date" data-testid="termine-tag">
+              {istHeute ? `Heute, ${tagLabel}` : tagLabel}
+            </span>
+            <Link href={q(verschiebe(tag, 1))} className="rounded-full px-3 py-1.5 text-slate-600 hover:text-brand-700" aria-label="Folgetag">›</Link>
+          </nav>
+        </div>
       </div>
 
       {standorte.length > 1 && (

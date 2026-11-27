@@ -4,12 +4,14 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { DEMO_BCRYPT_STUFE } from "@/lib/demo";
 
 // Nur im Gastzugang: Die Geschäftsführung sieht die eigene Demo-Praxis aus
 // Sicht der Mitarbeiterin "Rezeption (Demo)" (und wieder zurück), um
 // Berechtigungen wie die Analyse-Freigabe auszuprobieren. Kein freier
 // Rollen-Einstieg: Man muss bereits in genau dieser Demo-Praxis angemeldet
-// sein. Zugangsdaten gelten nur für den Wechsel (neues Zufallspasswort).
+// sein. Zugangsdaten gelten nur für den Wechsel (neues Zufallspasswort, darum
+// genügt die niedrige bcrypt-Stufe wie beim Anlegen der Demo).
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
@@ -26,6 +28,6 @@ export async function POST(req: Request) {
   });
   if (!target) return NextResponse.json({ error: "Kein passendes Konto in dieser Demo-Praxis" }, { status: 404 });
   const password = crypto.randomBytes(24).toString("base64url");
-  await prisma.user.update({ where: { id: target.id }, data: { passwordHash: await bcrypt.hash(password, 10), emailVerifiedAt: new Date() } });
+  await prisma.user.update({ where: { id: target.id }, data: { passwordHash: await bcrypt.hash(password, DEMO_BCRYPT_STUFE), emailVerifiedAt: new Date() } });
   return NextResponse.json({ email: target.email, password }, { headers: { "Cache-Control": "no-store" } });
 }

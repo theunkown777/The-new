@@ -23,6 +23,9 @@ export const DEMO_TTL_MS = 24 * 60 * 60 * 1000;
 export const DEMO_PRACTICE_NAME = "Zahnarztpraxis am Markt (Demo)";
 /** Obergrenze für KI-Berichte je Demo-Praxis, damit der Gastzugang keine Kosten treibt. */
 export const DEMO_REPORT_LIMIT = 15;
+/** bcrypt-Stufe für die zufälligen Demo-Kennwörter (siehe createDemoPractice). */
+export const DEMO_BCRYPT_STUFE = 4;
+const zufallsKennwort = () => crypto.randomBytes(24).toString("base64url");
 
 const DEMO_REPORT_TEXT = `Befund- und Behandlungsbericht
 
@@ -159,58 +162,65 @@ export async function createDemoPractice(now: Date, fach: string): Promise<{ ema
   const email = `gast-${suffix}@demo.sorrida.invalid`;
   const password = crypto.randomBytes(24).toString("base64url");
 
-  const practice = await prisma.practice.create({
-    data: {
-      name: spec ? `${spec.kurz} am Markt (Demo)` : DEMO_PRACTICE_NAME,
-      specialty: spec ? spec.id : DENTAL_ID,
-      isDemo: true,
-      // Demo mit erfundenen Daten: Diktat über den Browser-Dienst ist zum Ausprobieren erlaubt.
-      diktatCloud: true,
-      // Demo zeigt regionale KV-Ziffern beispielhaft für Nordrhein (in der Praxis unter Leistungsverzeichnis änderbar)
-      kvBezirk: "NO",
-      // Beispiel-IBAN aus der Bankendokumentation, damit das Portal den GiroCode zeigt.
-      accountHolder: spec ? `${spec.kurz} am Markt` : "Zahnarztpraxis am Markt",
-      iban: "DE89370400440532013000",
-      demoExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
-      gozPunktwertCent: STANDARD_GOZ_PUNKTWERT_CENT,
-      installments: { enabled: true, months: 12, zinsfrei: true, minEur: 300 },
-      users: {
-        create: [
-          {
-            name: "Gast (Dr. Demo)",
-            email,
-            passwordHash: await bcrypt.hash(password, 10),
-            role: "admin",
-            emailVerifiedAt: now,
-          },
-          // Zweite Behandlerin, damit "Mein Bereich" zeigt, dass jede Person nur ihren Stamm sieht.
-          // Zufälliges Passwort, das niemand kennt: Anmelden ist mit diesem Konto nicht möglich.
-          {
-            name: "Lea Brandt (Demo)",
-            email: `brandt-${crypto.randomBytes(6).toString("hex")}@demo.sorrida.invalid`,
-            passwordHash: await bcrypt.hash(crypto.randomBytes(24).toString("base64url"), 10),
-            role: "staff",
-          },
-          // Mitarbeiterin ohne Analyse-Freigabe, damit die Berechtigung im Team sichtbar ist.
-          // Zufälliges Passwort, das niemand kennt: Anmelden ist mit diesem Konto nicht möglich.
-          {
-            name: "Rezeption (Demo)",
-            email: `rezeption-${crypto.randomBytes(6).toString("hex")}@demo.sorrida.invalid`,
-            passwordHash: await bcrypt.hash(crypto.randomBytes(24).toString("base64url"), 10),
-            role: "staff",
-          },
-        ],
+  // Alle drei Kennwörter sind lange Zufallswerte (192 Bit), die niemand errät. Die hohe
+  // bcrypt-Stufe schützt nur schwache, menschliche Passwörter und kostet hier beim Anlegen
+  // und beim Anmelden je rund 100 ms. Darum für die Demo die niedrigste Stufe, parallel.
+  const [gastHash, brandtHash, rezeptionHash] = await Promise.all([password, zufallsKennwort(), zufallsKennwort()].map((pw) => bcrypt.hash(pw, DEMO_BCRYPT_STUFE)));
+  // Vorlage gleichzeitig mit der Praxis laden, sie hängt nicht von ihr ab. Prisma startet eine
+  // Abfrage erst beim Abwarten, darum beide in ein Promise.all.
+  const [template, practice] = await Promise.all([
+    prisma.serviceTemplate.findFirst({
+      where: { practiceId: null, fach: "zahn", name: "Kontrolluntersuchung" },
+      include: { items: { include: { catalogItem: true }, orderBy: { position: "asc" } } },
+    }),
+    prisma.practice.create({
+      data: {
+        name: spec ? `${spec.kurz} am Markt (Demo)` : DEMO_PRACTICE_NAME,
+        specialty: spec ? spec.id : DENTAL_ID,
+        isDemo: true,
+        // Demo mit erfundenen Daten: Diktat über den Browser-Dienst ist zum Ausprobieren erlaubt.
+        diktatCloud: true,
+        // Demo zeigt regionale KV-Ziffern beispielhaft für Nordrhein (in der Praxis unter Leistungsverzeichnis änderbar)
+        kvBezirk: "NO",
+        // Beispiel-IBAN aus der Bankendokumentation, damit das Portal den GiroCode zeigt.
+        accountHolder: spec ? `${spec.kurz} am Markt` : "Zahnarztpraxis am Markt",
+        iban: "DE89370400440532013000",
+        demoExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
+        gozPunktwertCent: STANDARD_GOZ_PUNKTWERT_CENT,
+        installments: { enabled: true, months: 12, zinsfrei: true, minEur: 300 },
+        users: {
+          create: [
+            {
+              name: "Gast (Dr. Demo)",
+              email,
+              passwordHash: gastHash,
+              role: "admin",
+              emailVerifiedAt: now,
+            },
+            // Zweite Behandlerin, damit "Mein Bereich" zeigt, dass jede Person nur ihren Stamm sieht.
+            // Zufälliges Passwort, das niemand kennt: Anmelden ist mit diesem Konto nicht möglich.
+            {
+              name: "Lea Brandt (Demo)",
+              email: `brandt-${crypto.randomBytes(6).toString("hex")}@demo.sorrida.invalid`,
+              passwordHash: brandtHash,
+              role: "staff",
+            },
+            // Mitarbeiterin ohne Analyse-Freigabe, damit die Berechtigung im Team sichtbar ist.
+            // Zufälliges Passwort, das niemand kennt: Anmelden ist mit diesem Konto nicht möglich.
+            {
+              name: "Rezeption (Demo)",
+              email: `rezeption-${crypto.randomBytes(6).toString("hex")}@demo.sorrida.invalid`,
+              passwordHash: rezeptionHash,
+              role: "staff",
+            },
+          ],
+        },
       },
-    },
-    include: { users: true },
-  });
+      include: { users: true },
+    }),
+  ]);
   const author = practice.users.find((u) => u.role === "admin") ?? practice.users[0];
   const zuschussJahr = defaultZuschussJahr(now);
-
-  const template = await prisma.serviceTemplate.findFirst({
-    where: { practiceId: null, fach: "zahn", name: "Kontrolluntersuchung" },
-    include: { items: { include: { catalogItem: true }, orderBy: { position: "asc" } } },
-  });
 
   const created: { id: string; firstName: string; lastName: string; birthDate: string; insuranceType: "GKV" | "PKV"; geschlecht: "W" | "M" }[] = [];
   // Feste Beispielpatienten nur, wenn sie zum Fach passen: keine Männer in der
@@ -227,119 +237,130 @@ export async function createDemoPractice(now: Date, fach: string): Promise<{ ema
     const ziel = Math.min(profil.alter[1], Math.max(profil.alter[0], profil.alter[2]));
     return { ...p, birthDate: `${now.getFullYear() - ziel}${p.birthDate.slice(4)}` };
   });
-  for (const p of passende) {
-    const patient = await prisma.patient.create({
-      data: {
-        practiceId: practice.id,
-        firstName: p.firstName,
-        lastName: p.lastName,
-        birthDate: new Date(p.birthDate),
-        geschlecht: p.geschlecht,
-        insuranceType: p.insuranceType,
-        insuranceName: p.insuranceName,
-        notes: `Beispiel (${profil.person.sg}) im Gastzugang, erfundene Daten`,
-      },
-    });
-
-    if (p.lastName === "Krüger") {
-      // Ausgefüllte digitale Anamnese als Beispiel für Hinweise (in der Zahnmedizin auch für die Übernahme in den Vorschlag).
-      // Fragen und Anliegen kommen aus dem Bogen des Fachs (lib/demoAnamnese.ts), nie aus einem anderen Fach.
-      const fachId = spec ? spec.id : DENTAL_ID;
-      await prisma.anamnesisForm.create({
-        data: {
-          practiceId: practice.id,
-          patientId: patient.id,
-          fach: fachId,
-          expiresAt: now,
-          viewedAt: new Date(now.getTime() - 26 * 60 * 60 * 1000),
-          submittedAt: new Date(now.getTime() - 25 * 60 * 60 * 1000),
-          answers: demoAnamneseBeispiel(fachId, { geschlecht: p.geschlecht, alter: age(p.birthDate, now) }, `${p.firstName} ${p.lastName}`) as unknown as Prisma.InputJsonValue,
-        },
-      });
-    }
-
-    let reportId: string | null = null;
-    created.push({ id: patient.id, firstName: p.firstName, lastName: p.lastName, birthDate: p.birthDate, insuranceType: p.insuranceType, geschlecht: p.geschlecht });
-    if (dental && p.lastName === "Weber" && template) {
-      const entries = template.items.map((it, i) => ({
-        catalogItemId: it.catalogItemId,
-        // Bei Dubletten GOZ/BEMA nur die zur Kassenart passende Position als erbracht.
-        performed: it.catalogItem.system === "GOZ" ? !template.items.some((o) => o.catalogItem.system === "BEMA" && o.catalogItem.title === it.catalogItem.title) : true,
-        toothNumbers: null,
-        quantity: 1,
-        note: null,
-        position: i,
-        catalogItem: it.catalogItem,
-      }));
-      const report = await prisma.report.create({
-        data: {
-          practiceId: practice.id,
-          patientId: patient.id,
-          authorId: author.id,
-          type: "BEFUND",
-          treatmentDate: now,
-          serviceTemplateId: template.id,
-          serviceSummary: buildServiceSummary(entries),
-          reviewConfirmed: true,
-          generatedText: DEMO_REPORT_TEXT,
-          serviceEntries: {
-            create: entries.map(({ catalogItem: _c, ...e }) => e),
+  // Die festen Beispielpatienten hängen nicht voneinander ab: gleichzeitig anlegen statt nacheinander.
+  created.push(
+    ...(await Promise.all(
+      passende.map(async (p, i) => {
+        const patient = await prisma.patient.create({
+          data: {
+            practiceId: practice.id,
+            firstName: p.firstName,
+            lastName: p.lastName,
+            birthDate: new Date(p.birthDate),
+            geschlecht: p.geschlecht,
+            insuranceType: p.insuranceType,
+            insuranceName: p.insuranceName,
+            notes: `Beispiel (${profil.person.sg}) im Gastzugang, erfundene Daten`,
+            // Gleichzeitig angelegt: Reihenfolge wie bisher über eine steigende Anlagezeit festhalten.
+            createdAt: new Date(now.getTime() + i),
           },
-        },
-      });
-      reportId = report.id;
-    }
+        });
 
-    if (dental && p.proposal) {
-      const input: ProposalInput = {
-        ...p.proposal.input,
-        patient: {
-          age: age(p.birthDate, now),
-          insurance: p.insuranceType,
-          bonusYears: p.proposal.bonusYears,
-          haertefall: false,
-          erstattungProzent: p.insuranceType === "PKV" ? 80 : 0,
-          zuschussJahr,
-        },
-      };
-      const computed = computeProposal({
-        input,
-        choices: p.proposal.choices ?? {},
-        prices: DEFAULT_PRICES,
-        patientName: `${p.firstName} ${p.lastName}`,
-        practiceName: DEMO_PRACTICE_NAME,
-        date: now,
-      });
-      await prisma.treatmentProposal.create({
-        data: {
-          practiceId: practice.id,
-          patientId: patient.id,
-          authorId: author.id,
-          status: p.proposal.status,
-          input: input as unknown as Prisma.InputJsonValue,
-          reportId,
-          ...computed,
-          ...(p.proposal.patientResponse && {
-            shareTokenHash: crypto.randomBytes(32).toString("hex"),
-            shareExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
-            shareCreatedAt: new Date(now.getTime() - 26 * 60 * 60 * 1000),
-            patientViewedAt: new Date(now.getTime() - 3 * 60 * 60 * 1000),
-            patientWantsInstallments: true,
-            patientResponse: p.proposal.patientResponse.response,
-            patientChoices: p.proposal.choices ?? {},
-            patientNote: p.proposal.patientResponse.note,
-            patientRespondedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
-          }),
-        },
-      });
-    }
-  }
+        if (p.lastName === "Krüger") {
+          // Ausgefüllte digitale Anamnese als Beispiel für Hinweise (in der Zahnmedizin auch für die Übernahme in den Vorschlag).
+          // Fragen und Anliegen kommen aus dem Bogen des Fachs (lib/demoAnamnese.ts), nie aus einem anderen Fach.
+          const fachId = spec ? spec.id : DENTAL_ID;
+          await prisma.anamnesisForm.create({
+            data: {
+              practiceId: practice.id,
+              patientId: patient.id,
+              fach: fachId,
+              expiresAt: now,
+              viewedAt: new Date(now.getTime() - 26 * 60 * 60 * 1000),
+              submittedAt: new Date(now.getTime() - 25 * 60 * 60 * 1000),
+              answers: demoAnamneseBeispiel(fachId, { geschlecht: p.geschlecht, alter: age(p.birthDate, now) }, `${p.firstName} ${p.lastName}`) as unknown as Prisma.InputJsonValue,
+            },
+          });
+        }
+
+        let reportId: string | null = null;
+        if (dental && p.lastName === "Weber" && template) {
+          const entries = template.items.map((it, i) => ({
+            catalogItemId: it.catalogItemId,
+            // Bei Dubletten GOZ/BEMA nur die zur Kassenart passende Position als erbracht.
+            performed: it.catalogItem.system === "GOZ" ? !template.items.some((o) => o.catalogItem.system === "BEMA" && o.catalogItem.title === it.catalogItem.title) : true,
+            toothNumbers: null,
+            quantity: 1,
+            note: null,
+            position: i,
+            catalogItem: it.catalogItem,
+          }));
+          const report = await prisma.report.create({
+            data: {
+              practiceId: practice.id,
+              patientId: patient.id,
+              authorId: author.id,
+              type: "BEFUND",
+              treatmentDate: now,
+              serviceTemplateId: template.id,
+              serviceSummary: buildServiceSummary(entries),
+              reviewConfirmed: true,
+              generatedText: DEMO_REPORT_TEXT,
+              serviceEntries: {
+                create: entries.map(({ catalogItem: _c, ...e }) => e),
+              },
+            },
+          });
+          reportId = report.id;
+        }
+
+        if (dental && p.proposal) {
+          const input: ProposalInput = {
+            ...p.proposal.input,
+            patient: {
+              age: age(p.birthDate, now),
+              insurance: p.insuranceType,
+              bonusYears: p.proposal.bonusYears,
+              haertefall: false,
+              erstattungProzent: p.insuranceType === "PKV" ? 80 : 0,
+              zuschussJahr,
+            },
+          };
+          const computed = computeProposal({
+            input,
+            choices: p.proposal.choices ?? {},
+            prices: DEFAULT_PRICES,
+            patientName: `${p.firstName} ${p.lastName}`,
+            practiceName: DEMO_PRACTICE_NAME,
+            date: now,
+          });
+          await prisma.treatmentProposal.create({
+            data: {
+              practiceId: practice.id,
+              patientId: patient.id,
+              authorId: author.id,
+              status: p.proposal.status,
+              input: input as unknown as Prisma.InputJsonValue,
+              reportId,
+              createdAt: new Date(now.getTime() + i),
+              ...computed,
+              ...(p.proposal.patientResponse && {
+                shareTokenHash: crypto.randomBytes(32).toString("hex"),
+                shareExpiresAt: new Date(now.getTime() + DEMO_TTL_MS),
+                shareCreatedAt: new Date(now.getTime() - 26 * 60 * 60 * 1000),
+                patientViewedAt: new Date(now.getTime() - 3 * 60 * 60 * 1000),
+                patientWantsInstallments: true,
+                patientResponse: p.proposal.patientResponse.response,
+                patientChoices: p.proposal.choices ?? {},
+                patientNote: p.proposal.patientResponse.note,
+                patientRespondedAt: new Date(now.getTime() - 2 * 60 * 60 * 1000),
+              }),
+            },
+          });
+        }
+        return { id: patient.id, firstName: p.firstName, lastName: p.lastName, birthDate: p.birthDate, insuranceType: p.insuranceType, geschlecht: p.geschlecht };
+      }),
+    )),
+  );
 
   if (spec) await seedMedicalProposals(spec, practice.id, author.id, practice.name, created, now);
   // Überschaubare Größe: 30 bis 80 Patienten mit Vorschlägen, Links, Anamnesen (lib/demoKennzahlen.ts).
   await seedBulkDemo({ practiceId: practice.id, practiceName: practice.name, authorId: author.id, fach: spec ? spec.id : DENTAL_ID, existing: created.length, now });
-  await eingangAusBestand(practice.id, now).catch((e) => console.error("Demo-Eingang", e));
-  await verteileStamm(practice.id, author.id, practice.users.find((u) => u.name.startsWith("Lea Brandt"))?.id, new Set(created.map((c) => c.id)));
+  // Eingang (liest Rechnungen, Anamnesen, Antworten) und Verteilung auf die Behandelnden berühren getrennte Felder.
+  await Promise.all([
+    eingangAusBestand(practice.id, now).catch((e) => console.error("Demo-Eingang", e)),
+    verteileStamm(practice.id, author.id, practice.users.find((u) => u.name.startsWith("Lea Brandt"))?.id, new Set(created.map((c) => c.id))),
+  ]);
   return { email, password, practiceId: practice.id };
 }
 
@@ -356,10 +377,10 @@ async function seedMedicalProposals(
   const order = (
     spec.id === "uro" ? [by("Schulz"), by("Weber")] : spec.id === "gyn" || spec.id === "hebamme" ? [by("Weber"), by("Krüger")] : spec.id === "kinder" ? [by("Hoffmann")] : [by("Weber"), by("Schulz"), by("Krüger")]
   ).filter((p): p is NonNullable<typeof p> => !!p);
-  for (const [i, p] of order.entries()) {
+  await Promise.all(order.map(async (p, i) => {
     // Nur Anlässe, die zu Geschlecht und Alter dieser Person passen
     const anlaesse = spec.anlaesse.filter((a) => !a.nurAufWunsch && passtZuPerson(a, { geschlecht: p.geschlecht, alter: age(p.birthDate, now) })).map((a) => a.id);
-    if (!anlaesse.length) continue;
+    if (!anlaesse.length) return;
     const plans: { status: string; anlaesse: string[]; pickIgel: boolean; response?: boolean }[] = [
       { status: "ENTWURF", anlaesse, pickIgel: false },
       { status: "BESPROCHEN", anlaesse: anlaesse.slice(0, 1), pickIgel: true, response: true },
@@ -386,6 +407,7 @@ async function seedMedicalProposals(
         authorId,
         status: plan.status,
         input: input as unknown as Prisma.InputJsonValue,
+        createdAt: new Date(now.getTime() + i),
         ...computed,
         ...(plan.response && {
           shareTokenHash: crypto.randomBytes(32).toString("hex"),
@@ -399,7 +421,7 @@ async function seedMedicalProposals(
         }),
       },
     });
-  }
+  }));
 }
 
 /**
@@ -418,10 +440,15 @@ async function verteileStamm(practiceId: string, gastId: string, kolleginId: str
     if (fest.has(id) || r < 11 || !kolleginId) gast.push(id);
     else if (r < 18) kollegin.push(id);
   });
-  await prisma.patient.updateMany({ where: { id: { in: gast } }, data: { behandlerId: gastId } });
-  if (kolleginId && kollegin.length) {
-    await prisma.patient.updateMany({ where: { id: { in: kollegin } }, data: { behandlerId: kolleginId } });
-    await prisma.treatmentProposal.updateMany({ where: { practiceId, patientId: { in: kollegin } }, data: { authorId: kolleginId } });
-    await prisma.report.updateMany({ where: { practiceId, patientId: { in: kollegin } }, data: { authorId: kolleginId } });
-  }
+  // Die Änderungen betreffen getrennte Zeilen und laufen darum gleichzeitig.
+  await Promise.all([
+    prisma.patient.updateMany({ where: { id: { in: gast } }, data: { behandlerId: gastId } }),
+    ...(kolleginId && kollegin.length
+      ? [
+          prisma.patient.updateMany({ where: { id: { in: kollegin } }, data: { behandlerId: kolleginId } }),
+          prisma.treatmentProposal.updateMany({ where: { practiceId, patientId: { in: kollegin } }, data: { authorId: kolleginId } }),
+          prisma.report.updateMany({ where: { practiceId, patientId: { in: kollegin } }, data: { authorId: kolleginId } }),
+        ]
+      : []),
+  ]);
 }
