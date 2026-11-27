@@ -31,14 +31,20 @@ export function zeitplan(halt = 1100, fahrt = 900, pauseEnde = 900, stationen = 
 const einAus = (x: number) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2);
 
 /**
- * Schlüsselbilder für den Punkt. kurve liefert Koordinaten in Einheiten der Zeichnung (breite × hoehe),
- * w/h ist die tatsächliche Größe in Pixeln. Stationen liegen bei t = i / (n-1).
+ * Schlüsselbilder für den Punkt. kurve liefert Koordinaten in Einheiten der Zeichnung (breite × hoehe).
+ * Stationen liegen bei t = i / (n-1).
+ *
+ * Verschoben wird in Prozent: Das bewegte Element ist genau so groß wie die Zeichnung, und Prozent in translate()
+ * beziehen sich auf seine eigene Größe. So muss nichts gemessen werden, und der Punkt hält immer genau in der Mitte
+ * der Station, auch wenn die Karte gedreht ist, beim Einblenden schwebt oder ihre Breite ändert. (Früher wurde in
+ * Pixeln gerechnet, gemessen mit getBoundingClientRect: Bei einer gedrehten Karte ist dieser Rahmen größer, der
+ * Punkt hielt dann etwas zu tief.)
  */
-export function laeuferBilder(kurve: Kurve, breite: number, hoehe: number, w: number, h: number, plan: Zeitplan): Keyframe[] {
+export function laeuferBilder(kurve: Kurve, breite: number, hoehe: number, plan: Zeitplan): Keyframe[] {
   const n = plan.halte.length;
   const pos = (t: number) => {
     const [x, y] = kurve(t);
-    return `translate(${((x / breite) * w).toFixed(1)}px, ${((y / hoehe) * h).toFixed(1)}px)`;
+    return `translate(${+((x / breite) * 100).toFixed(4)}%, ${+((y / hoehe) * 100).toFixed(4)}%)`;
   };
   const bilder: Keyframe[] = [];
   plan.halte.forEach((s, i) => {

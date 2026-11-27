@@ -31,13 +31,11 @@ export function WegBand({ stationen }: { stationen: [string, string, string][] }
     let sichtbar = false;
     const opt: KeyframeAnimationOptions = { duration: dauer, iterations: Infinity };
 
+    // Einmal anlegen: Der Läufer bewegt sich in Prozent der Zeichnung (lib/wegBahn.ts) und hält dadurch bei jeder Breite
+    // genau auf der Station. Bei Größenänderung muss nichts neu gebaut werden.
     const bauen = () => {
-      const { width, height } = f.getBoundingClientRect();
-      if (!width) return;
-      const zeit = anims[0]?.currentTime ?? 0;
-      anims.forEach((a) => a.cancel());
       anims = [
-        dot.animate(laeuferBilder(KURVE, B, H, width, height, PLAN), opt),
+        dot.animate(laeuferBilder(KURVE, B, H, PLAN), opt),
         dot.animate([{ opacity: 0, offset: 0 }, { opacity: 1, offset: 0.03 }, { opacity: 1, offset: 0.96 }, { opacity: 0, offset: 1 }], opt),
       ];
       // Spalten und Ringe leuchten, solange der Punkt an ihrer Station steht (nur Deckkraft und transform).
@@ -68,20 +66,9 @@ export function WegBand({ stationen }: { stationen: [string, string, string][] }
             ),
           );
       });
-      const start = document.timeline.currentTime;
-      anims.forEach((a) => {
-        a.startTime = start;
-        a.currentTime = zeit;
-        if (!sichtbar) a.pause();
-      });
+      anims.forEach((a) => a.pause());
     };
     bauen();
-    let warte = 0;
-    const ro = new ResizeObserver(() => {
-      cancelAnimationFrame(warte);
-      warte = requestAnimationFrame(bauen);
-    });
-    ro.observe(f);
     const io = new IntersectionObserver(
       ([e]) => {
         sichtbar = e.isIntersecting;
@@ -91,9 +78,7 @@ export function WegBand({ stationen }: { stationen: [string, string, string][] }
     );
     io.observe(f);
     return () => {
-      ro.disconnect();
       io.disconnect();
-      cancelAnimationFrame(warte);
       anims.forEach((a) => a.cancel());
     };
   }, []);
@@ -125,7 +110,8 @@ export function WegBand({ stationen }: { stationen: [string, string, string][] }
             style={{ left: `calc(${(x / B) * 100}% - 20px)`, top: `calc(${(y / H) * 100}% - 20px)`, borderColor: i === 4 ? "#5E7D5A" : "#5A1D1D" }}
           />
         ))}
-        <span ref={laeufer} aria-hidden="true" className="pointer-events-none absolute left-0 top-0 block h-0 w-0 opacity-0" style={{ willChange: "transform" }}>
+        {/* Läufer-Ebene so groß wie die Zeichnung: translate in Prozent bezieht sich auf sie, der Punkt sitzt mittig auf ihrer Ecke oben links. */}
+        <span ref={laeufer} aria-hidden="true" className="pointer-events-none absolute inset-0 block opacity-0" style={{ willChange: "transform" }}>
           <span className="absolute -left-[8px] -top-[8px] block h-4 w-4 rounded-full border-[3px] border-[#5E7D5A] bg-[#F5F2EE]" />
         </span>
       </div>
